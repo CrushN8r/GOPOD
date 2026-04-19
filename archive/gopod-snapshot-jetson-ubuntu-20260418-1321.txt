@@ -1,0 +1,102 @@
+=== GOPOD JETSON SWEEP START ===
+Hostname: ubuntu
+Date: Sat 18 Apr 2026 01:21:40 PM EDT
+JetPack version:
+ii  nvidia-l4t-cuda                            36.5.0-20260115194252                            arm64        NVIDIA CUDA Package
+ii  nvidia-l4t-cuda-utils                      36.5.0-20260115194252                            arm64        NVIDIA CUDA utilities
+
+=== GOPOD REPO SCAN ===
+/home/goverlord/crushn8r_git/GOPOD-PUBLIC
+/home/goverlord/crushn8r_git/GOPOD
+/home/goverlord/crushn8r_git/GOPOD/config/system.json
+/home/goverlord/crushn8r_git/GOPOD/systems/tension
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/integration
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/integration/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/integration/codex_router.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/config
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/output
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/output/schema.yaml
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/output/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/__pycache__/context.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/__pycache__/persona_loader.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/constraints_expansion_test.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/__init__.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/persona_injection_test.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/context_rules_test.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/basic_flow_test.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__pycache__/interaction_rules_test.cpython-310.pyc
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/interaction_rules_test.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/context_rules_test.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/basic_flow_test.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/harness.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/persona_injection_test.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/tests/constraints_expansion_test.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/mapping
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/mapping/schema.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/mapping/schema.yaml
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/mapping/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/robot
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/robot/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/robot/registry.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/input
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/input/schema.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/input/schema.yaml
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/input/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/context
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/context/schema.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/context/store.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/context/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/extraction
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/extraction/schema.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/extraction/schema.yaml
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/extraction/__init__.py
+/home/goverlord/crushn8r_git/GOPOD/systems/tension/extraction/rules.yaml
+No ~/gopod folder
+
+=== VECTOR NETWORK CHECK ===
+PING 192.168.1.6 (192.168.1.6) 56(84) bytes of data.
+64 bytes from 192.168.1.6: icmp_seq=1 ttl=64 time=248 ms
+64 bytes from 192.168.1.6: icmp_seq=2 ttl=64 time=274 ms
+
+--- 192.168.1.6 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 247.941/260.916/273.891/12.975 ms
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0    46    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+HTTP/1.1 200 OK
+Date: Sat, 18 Apr 2026 17:21:43 GMT
+
+=== RUNNING PROCESSES & PYTHON ENVS ===
+root         701  0.0  0.0  41816  4640 ?        Ss   Apr17   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+goverlo+    3892  0.0  0.1 512588 23592 ?        Sl   Apr17   0:22 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    3906  0.0  0.0 275180  7968 ?        Sl   Apr17   0:07 /usr/libexec/ibus-extension-gtk3
+goverlo+    4048  0.0  0.0 511288  5756 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4049  0.0  0.0 511288  5788 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4051  0.0  0.0 511288  5792 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4052  0.0  0.0 511288  5788 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4053  0.0  0.0 511288  5792 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4054  0.0  0.0 511288  5772 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4059  0.0  0.0 511288  6104 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4060  0.0  0.0 511288  6224 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4072  0.0  0.0 511300  5908 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4073  0.0  0.0 511300  5896 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4074  0.0  0.0 511300  5892 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4075  0.0  0.0 511300  5896 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4076  0.0  0.0 511300  5992 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4077  0.0  0.0 511300  5888 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4078  0.0  0.0 511300  5888 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4079  0.0  0.0 511300  5944 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4082  0.0  0.0 511300  7764 ?        Sl   Apr17   0:45 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4084  0.0  0.0 511300  7324 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4085  0.0  0.0 511300  7660 ?        S    Apr17   0:00 python3 /usr/share/nvpmodel_indicator/nvpmodel_indicator.py
+goverlo+    4186  0.0  0.1 3060896 29832 ?       Sl   Apr17   0:09 gjs /usr/share/gnome-shell/extensions/ding@rastersoft.com/ding.js -E -P /usr/share/gnome-shell/extensions/ding@rastersoft.com -M 0 -D 0:0:1920:1080:1:27:0:70:0:0
+root       24831  0.2  0.6 6692668 100068 ?      Ssl  Apr17   2:34 /usr/local/bin/python3 -m uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --forwarded-allow-ips * --workers 1
+goverlo+   87608  0.0  0.0   8648  2004 pts/0    S+   13:21   0:00 grep -E python|vector|GOPOD|tension
+Python 3.10.12
+requests              2.25.1

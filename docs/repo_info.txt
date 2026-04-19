@@ -1,0 +1,309 @@
+Repository Structure:
+/home/goverlord/crushn8r_git/GOPOD
+/home/goverlord/crushn8r_git/GOPOD/sys-configs
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/codex
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/diagnostics
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/info
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/refs
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/refs/tags
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/refs/heads
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/logs
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/logs/refs
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/logs/refs/heads
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/branches
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/2f
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/49
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/09
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/f6
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/98
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/info
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/02
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/30
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/c2
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/be
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/a8
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/70
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/pack
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/af
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/5f
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/c9
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/37
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/c3
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/f4
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/objects/a1
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/git
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/system
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/deploy
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/docs
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/wifi-backup
+/home/goverlord/crushn8r_git/GOPOD/personas
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/guard_2
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/student_1
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/guard_1
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/student_2
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/doc
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/notes/pip
+/home/goverlord/crushn8r_git/GOPOD/personas/systems
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/config
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/output
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/mapping
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/persona
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/config
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/output
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/__pycache__
+/home/goverlord/crushn8r_git/GOPOD/bin
+/home/goverlord/crushn8r_git/GOPOD/archive
+/home/goverlord/crushn8r_git/GOPOD/archive/scripts
+/home/goverlord/crushn8r_git/GOPOD/archive/ops
+/home/goverlord/crushn8r_git/GOPOD/archive/ops/network
+/home/goverlord/crushn8r_git/GOPOD/archive/bin
+
+Branches:
+Dependencies:
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:    required = ["type", "target", "action"]
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:    for field in required:
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:            raise ValueError(f"Missing required field: {field}")
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks/fsmonitor-watchman.sample:	require JSON::XS;
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks/fsmonitor-watchman.sample:	require JSON::PP;
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks/fsmonitor-watchman.sample:		require Cwd;
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks/pre-commit.sample:	# even required, for portability to Solaris 10's /usr/bin/tr), since
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/output/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/mapping/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/persona/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:    required_fields = [
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:    for field_name in required_fields:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:            raise ValueError(f"missing required field: {field_name}")
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/README.md:1. `ingest_event(input_event)` validates the required top-level input structure.
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/output/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.yaml:      required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/rules.yaml:    required_inputs:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/schema.yaml:required:
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/README.md:1. `ingest_event(input_event)` validates the required top-level input structure.
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import json
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import os
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import shlex
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import subprocess
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import sys
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:from typing import Any, Dict
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/jetson_platform/scripts/goverlord_core.py:            response = requests.post(f"{endpoint}_text", json=payload, timeout=5)  # noqa: F821 (requests imported below)
+/home/goverlord/crushn8r_git/GOPOD/sys-configs/snapshots/.git/hooks/pre-rebase.sample:    Then you can delete it.  More importantly, you should not
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:import json
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:import time
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:from typing import Dict, Any
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion_test.py:    import sys
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:import json
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:import time
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:from typing import Dict, Any
+/home/goverlord/crushn8r_git/GOPOD/personas/persona1/doc_squawkadoodle_gomimion.py:    import sys
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:from orchestration.engine import generate_outputs
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:from orchestration.engine import assign_personas
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:from orchestration.engine import extract_signals
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:from orchestration.engine import ingest_event
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/tests/basic_flow_test.py:from orchestration.engine import map_fields
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:from dataclasses import asdict, dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/gopod-tension/orchestration/engine.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/__init__.py:from integration.codex_router import get_active_codex_profile
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/__init__.py:from integration.codex_router import load_codex_profiles
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/codex_router.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/codex_router.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/codex_router.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/integration/codex_router.py:    import yaml
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/interaction_rules_test.py:import tempfile
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/interaction_rules_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/interaction_rules_test.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/interaction_rules_test.py:from orchestration.engine import run_pipeline
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/context_rules_test.py:import tempfile
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/context_rules_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/context_rules_test.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/context_rules_test.py:from context import ContextStore
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/context_rules_test.py:from orchestration.engine import run_pipeline
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:from orchestration.engine import generate_outputs
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:from orchestration.engine import assign_personas
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:from orchestration.engine import extract_signals
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:from orchestration.engine import ingest_event
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/basic_flow_test.py:from orchestration.engine import map_fields
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from dataclasses import asdict
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from dataclasses import is_dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from context.schema import TickSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from extraction.schema import TensionSignal
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from input.schema import InputEvent
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from mapping.schema import FieldMap
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import PIPELINE_ORDER
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import build_runtime_context
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import build_snapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import extract_signals
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import generate_outputs
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import ingest_event
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import map_fields
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from orchestration.engine import route_fields
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/harness.py:from persona.schema import PersonaAssignment
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/persona_injection_test.py:import tempfile
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/persona_injection_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/persona_injection_test.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/persona_injection_test.py:from orchestration.engine import run_pipeline
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:import tempfile
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:import unittest
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from orchestration.engine import assign_personas
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from orchestration.engine import generate_outputs
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from orchestration.engine import map_fields
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from orchestration.engine import run_pipeline
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from orchestration.engine import RuntimeContext
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/tests/constraints_expansion_test.py:from persona_loader import load_persona_notes
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/schema.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/mapping/__init__.py:from mapping.schema import FieldMap
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/__init__.py:from robot.registry import Robot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/__init__.py:from robot.registry import load_robot_registry
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:import json
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/robot/registry.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/schema.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/input/__init__.py:from input.schema import InputEvent
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/schema.py:from persona.schema import PersonaDefinition
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/schema.py:from robot.registry import Robot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/store.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/store.py:from context.schema import TickSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/__init__.py:from context.schema import RuntimeContext
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/__init__.py:from context.schema import TickFieldSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/__init__.py:from context.schema import TickSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/context/__init__.py:from context.store import ContextStore
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/schema.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/extraction/__init__.py:from extraction.schema import TensionSignal
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/schema.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/__init__.py:from persona.loader import PERSONA_NOTES_ROOT
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/__init__.py:from persona.loader import load_persona_registry
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/__init__.py:from persona.schema import PersonaAssignment
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/__init__.py:from persona.schema import PersonaDefinition
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/loader.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/loader.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/persona/loader.py:from persona.schema import PersonaDefinition
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from context import ContextStore
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from context import RuntimeContext
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from context import TickFieldSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from context import TickSnapshot
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from extraction.schema import TensionSignal
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from input.schema import InputEvent
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from mapping.schema import FieldMap
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from persona.loader import PERSONA_NOTES_ROOT
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from persona.loader import load_persona_registry
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from persona.schema import PersonaAssignment
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/orchestration/engine.py:from robot.registry import load_robot_registry
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/schema.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/schema.py:from dataclasses import dataclass
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/schema.py:from dataclasses import field
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/schema.py:from typing import Any
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/__init__.py:from routing.schema import InteractionRule
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/__init__.py:from routing.schema import OperationRule
+/home/goverlord/crushn8r_git/GOPOD/personas/systems/tension/routing/__init__.py:from routing.schema import PriorityRule
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/__init__.py:from .vec1 import vec1
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/__init__.py:from .vec2 import vec2
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/__init__.py:from .activation import safe_handshake_say
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/activation.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/activation.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/activation.py:import time
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/activation.py:from .vec1 import vec1
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/activation.py:from .vec2 import vec2
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec1.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec1.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec1.py:import time
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec2.py:from __future__ import annotations
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec2.py:import requests
+/home/goverlord/crushn8r_git/GOPOD/open-webui-tools/vector/vec2.py:import time
+/home/goverlord/crushn8r_git/GOPOD/bin/goverlord-snapshot.sh:import json
+/home/goverlord/crushn8r_git/GOPOD/bin/goverlord-snapshot.sh:from pathlib import Path
+/home/goverlord/crushn8r_git/GOPOD/archive/scripts/codex_tool.py:        from tools.codex.codex_exec import codex_exec
+/home/goverlord/crushn8r_git/GOPOD/archive/vec_tool.py:from pydantic import Field
+/home/goverlord/crushn8r_git/GOPOD/archive/vec_tool.py:        from tools.vector.vec1 import vec1
+/home/goverlord/crushn8r_git/GOPOD/archive/vec_tool.py:        from tools.vector.vec2 import vec2
+/home/goverlord/crushn8r_git/GOPOD/archive/cdx1_tool.py:from pydantic import Field
+/home/goverlord/crushn8r_git/GOPOD/archive/cdx1_tool.py:        from tools.codex.cdx1 import cdx1
+Code Organization:
+Issues:
