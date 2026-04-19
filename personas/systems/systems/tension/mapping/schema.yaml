@@ -1,0 +1,22 @@
+type: object
+required:
+  - field_id
+  - field_type
+  - source_signal_id
+  - actor_id
+properties:
+  field_id:
+    type: string
+  field_type:
+    type: string
+    enum:
+      - contradiction
+      - identity_collision
+      - narrative_lag
+      - pressure
+  source_signal_id:
+    type: string
+  actor_id:
+    type: string
+  data:
+    type: object
