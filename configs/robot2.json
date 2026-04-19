@@ -1,0 +1,9 @@
+{
+    "t560_base": "http://192.168.1.6:8080",
+    "robots": {
+        "vector1": { "type": "vector", "prefix": "/api-sdk" },
+        "vector2": { "type": "vector", "prefix": "/api-sdk" }
+    },
+    "codex_exec_cmd": "bash scripts/codex_exec.sh",
+    "openwebui_port": 8080
+}

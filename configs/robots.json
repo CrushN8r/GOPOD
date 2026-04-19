@@ -1,0 +1,19 @@
+{
+  "robots": [],
+  "physical_robots": [
+    {
+      "name": "Vector-N7V3",
+      "id": "robot-hw-001",
+      "esn": "0dd1b9e9",
+      "vec_module": "vec1"
+    },
+    {
+      "name": "Vector-T3P1",
+      "id": "robot-hw-002",
+      "esn": "0dd1d8bf",
+      "vec_module": "vec2"
+    }
+  ],
+  "current_tick": 0,
+  "last_snapshot": null
+}
