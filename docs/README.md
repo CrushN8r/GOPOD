@@ -1,59 +1,65 @@
 # GOPOD
 
-Private Jetson-side orchestration and control-plane repository for GOPOD.
+Private working repository for the Jetson-side Goverlord orchestration layer.
 
-## Layout
+This repo is now trimmed down toward a deterministic private base. It keeps the
+runtime/control side separate from `GOPOD-PUBLIC`, which remains the public
+architecture and contract repo.
 
-- `core/`
-  - `goverlord_exec.py`: single execution entrypoint
-  - `router.py`: routes validated actions to Codex or T560
-  - `validator.py`: enforces the action contract
-- `tools/`
-  - `vector/`: robot action builders
-  - `codex/`: Codex action builders
-  - `system/`: diagnostic and utility action builders
-- `configs/`
-  - runtime config templates, robot config, Codex profiles, Jetson platform config, Wi-Fi backups
-- `personas/`
-  - `definitions/`: persona JSON definitions
-  - `systems/`: persona system packages
-- `scripts/`
-  - repo-root shell entrypoints for config dump, health, snapshot, and Codex CLI bridging
-- `ops/`
-  - diagnostics bundles and snapshots
-- `archive/`
-  - preserved legacy material
-- `docs/`
-  - repository documentation and inventory
+## Current Intent
 
-## Configs
+- Keep the orchestration contract aligned with `GOPOD-PUBLIC`
+- Preserve the private/public boundary with `GOPOD-PUBLIC`
+- Keep the active path deterministic and minimal
+- Archive or discard embedded tool wrappers that no longer belong here
 
-- Runtime config lives at `configs/system.json`
-- Template lives at `configs/system.template.json`
-- Codex profiles live under `configs/codex/`
+## Canonical Active Paths
 
-## Scripts
+- `scripts/goverlord_core.py`
+  - Main deterministic router for sending actions to the configured T560 HTTP surface
+- `config/system.template.json`
+  - Required shape for the private machine-local runtime config
+- `bin/goverlord-pipeline.sh`
+  - Minimal health check for the active Python router
+- `bin/codex-exec.sh`
+  - Clean Codex CLI bridge used by `goverlord_core.py` for `code` actions
+- `bin/goverlord-config.sh`
+  - Shows the config files and whether a private runtime config exists
+- `bin/goverlord-snapshot.sh`
+  - Snapshot-style diagnostics with log capture
+- `gomads/registry/personas.json`
+  - Persona and robot metadata
+- `gomads/personas/persona1/doc_squawkadoodle_gomimion.py`
+  - Persona-specific execution wrapper
 
-Run all scripts from the repo root:
+## Archived Paths
 
-- `./scripts/goverlord-config.sh`
-- `./scripts/goverlord-pipeline.sh`
-- `./scripts/goverlord-snapshot.sh`
-- `./scripts/codex-exec.sh --task "<task>"`
+The following files were moved to `archive/` because they were either duplicate,
+broken, or superseded by another active file.
 
-## Tools
+- `archive/bin/goverlord-network.sh`
+  - Duplicate of the snapshot/status diagnostic flow
+- `archive/bin/goverlord-status.sh`
+  - Duplicate of the snapshot diagnostic flow
+- `archive/scripts/codex_exec.sh`
+  - Old Open WebUI-era Codex bridge kept only for reference
+- `archive/cdx1_tool.py`
+  - Duplicate Codex wrapper from the older embedded-tool approach
+- `archive/scripts/codex_tool.py`
+  - Embedded Open WebUI tool wrapper; no longer part of the repo base
+- `archive/vec_tool.py`
+  - Embedded Open WebUI tool wrapper; no longer part of the repo base
 
-- Robot tools are in `tools/vector/`
-- Codex tools are in `tools/codex/`
-- System tools are in `tools/system/`
+## Known Cleanup Rules
 
-All tool modules expose `class Tools` with `@staticmethod` methods and return structured action objects only.
+- Keep public architecture in `GOPOD-PUBLIC`; keep machine-local execution here
+- Do not hardcode unknown private config values into active runtime files
+- Prefer explicit config templates over guessed defaults
+- Archive before deleting unless a generated file is safe to remove
 
-## Execution Flow
+## Next Recommended Refactors
 
-1. A tool or persona builds a structured action object.
-2. `core/goverlord_exec.py` validates it.
-3. `core/router.py` routes:
-   - `type == "code"` to Codex
-   - `type == "robot"` to T560
-4. No tool executes T560 or Codex directly.
+- Normalize robot naming (`vector1` vs `vec1`)
+- Split transport logic from persona-style logic
+- Add a small test or smoke-check script for active entrypoints
+- Decide whether persona executors stay active or move under `archive/experimental/`
