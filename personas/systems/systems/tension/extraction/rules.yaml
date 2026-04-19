@@ -1,0 +1,35 @@
+rules:
+  - signal_type: contradiction
+    description: same actor has conflicting statement values for the same topic
+    required_inputs:
+      - statements
+    conditions:
+      - same_actor
+      - same_topic
+      - different_values
+
+  - signal_type: identity_collision
+    description: actor role differs from expected role
+    required_inputs:
+      - actors
+      - expected_roles
+    conditions:
+      - actor_role_mismatch
+
+  - signal_type: narrative_lag
+    description: statement value differs from known state for the referenced state key
+    required_inputs:
+      - statements
+      - known_state
+    conditions:
+      - state_key_present
+      - statement_known_state_mismatch
+
+  - signal_type: pressure
+    description: condition is unstable or changing
+    required_inputs:
+      - conditions
+    conditions:
+      - condition_status_in:
+          - unstable
+          - changing
