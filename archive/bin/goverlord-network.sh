@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/scripts/bash
 LOG="/tmp/goverlord-snapshot_$(date +%Y%m%d_%H%M%S).log"
 exec > >(tee -a "$LOG") 2>&1
 echo "=== Jetson-Goverlord SNAPSHOT $(date) ==="

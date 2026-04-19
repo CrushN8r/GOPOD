@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/scripts/env bash
 set -e
 
 cd /home/gomad/wire-pod

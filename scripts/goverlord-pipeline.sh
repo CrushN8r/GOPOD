@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/scripts/bash
 
 set -u
 
