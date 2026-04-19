@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/scripts/env bash
 set -e
 
 echo "[FIX] Jetson single-interface network"

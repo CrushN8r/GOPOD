@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/scripts/env bash
 set -euo pipefail
 
 # T560 system check commands

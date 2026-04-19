@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/scripts/env python3
 """
 goverlord_core.py — STRICT EXECUTION KERNEL (Option A + Codex unification)
 Single entrypoint for the entire GOPOD system.
@@ -29,7 +29,7 @@ if not T560_BASE or "192.168.1.6" in T560_BASE and "TODO" in T560_BASE:
     raise RuntimeError("❌ T560_BASE still contains placeholder in config/system.json")
 
 ROBOTS = CONFIG.get("robots", {})
-CODEX_EXEC_CMD = CONFIG.get("codex_exec_cmd", "bash bin/codex-exec.sh")
+CODEX_EXEC_CMD = CONFIG.get("codex_exec_cmd", "bash scripts/codex-exec.sh")
 
 # ====================== SCHEMA + VALIDATION ======================
 def validate_action(action: Dict[str, Any]) -> None:
