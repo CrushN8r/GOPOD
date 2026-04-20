@@ -1,0 +1,51 @@
+{
+  "snapshot_timestamp": "2026-04-17T19:41:15-04:00",
+  "containers": [
+    {
+      "name": "open-webui",
+      "container_id": "1870779e5890",
+      "image": "ghcr.io/open-webui/open-webui:main",
+      "image_hash": "sha256:67a67abead402592aba2c039012296eb9d3d83177373d5fff5c39d262a96f8e1",
+      "image_revision": "9bd84258d09eefe7bf975878fb0e31a5dadfe0f8",
+      "state": "running",
+      "health_status": "healthy",
+      "restart_policy": "unless-stopped",
+      "network_mode": "host",
+      "mount_volumes": [
+        {
+          "type": "volume",
+          "source": "open-webui",
+          "destination": "/app/backend/data",
+          "mountpoint": "/var/lib/docker/volumes/open-webui/_data",
+          "rw": true
+        }
+      ],
+      "exposed_ports": [
+        "8080/tcp"
+      ]
+    },
+    {
+      "name": "ollama",
+      "container_id": "2c9d15e59cf8",
+      "image": "ollama/ollama",
+      "image_hash": "sha256:7e92ccf0baa831a2a53a2149535120c61329510d205a44233be7dadaa6874222",
+      "image_version_label": "24.04",
+      "state": "restarting",
+      "health_status": "none",
+      "restart_policy": "unless-stopped",
+      "network_mode": "host",
+      "mount_volumes": [
+        {
+          "type": "bind",
+          "source": "/home/gopod/models",
+          "destination": "/root/.ollama",
+          "rw": true
+        }
+      ],
+      "exposed_ports": [
+        "11434/tcp"
+      ],
+      "note": "Observed during capture but not part of the recommended baseline because ollama.service already owns the local API endpoint."
+    }
+  ]
+}

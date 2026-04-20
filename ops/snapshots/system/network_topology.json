@@ -1,0 +1,43 @@
+{
+  "snapshot_timestamp": "2026-04-17T19:41:15-04:00",
+  "host_networking": true,
+  "lan_ip_address": "192.168.1.19",
+  "localhost_bindings": [
+    {
+      "service": "ollama.service",
+      "address": "127.0.0.1",
+      "port": 11434,
+      "purpose": "LLM API"
+    },
+    {
+      "service": "systemd-resolved",
+      "address": "127.0.0.53",
+      "port": 53,
+      "purpose": "local DNS stub"
+    }
+  ],
+  "port_mapping": [
+    {
+      "service": "open-webui",
+      "container_mode": "docker host network",
+      "listen_address": "0.0.0.0",
+      "port": 8080,
+      "path": "http://192.168.1.19:8080",
+      "access_scope": "LAN and localhost"
+    },
+    {
+      "service": "ollama.service",
+      "container_mode": "systemd host process",
+      "listen_address": "127.0.0.1",
+      "port": 11434,
+      "path": "http://127.0.0.1:11434",
+      "access_scope": "localhost only"
+    }
+  ],
+  "service_exposure_model": {
+    "ui_layer": "Open WebUI is exposed on all interfaces through Docker host networking.",
+    "backend_layer": "Ollama is bound to loopback and consumed locally by Open WebUI.",
+    "data_path": "Open WebUI persists application data in Docker volume open-webui; Ollama models are managed by the host Ollama installation.",
+    "observed_anomaly": "A separate Docker container named ollama exists in host network mode but is restarting and is not the active backend serving requests."
+  }
+}

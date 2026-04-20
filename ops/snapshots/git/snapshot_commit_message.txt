@@ -1,0 +1,1 @@
+Stable Jetson AI stack snapshot: Open WebUI + Ollama production baseline
