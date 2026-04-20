@@ -1,0 +1,33 @@
+type: object
+required:
+  - assignment_id
+  - persona_id
+  - field_id
+  - field_type
+  - operation
+properties:
+  assignment_id:
+    type: string
+  persona_id:
+    type: string
+    enum:
+      - doc
+      - pip
+      - students
+      - guards
+  field_id:
+    type: string
+  field_type:
+    type: string
+    enum:
+      - contradiction
+      - identity_collision
+      - narrative_lag
+      - pressure
+  operation:
+    type: string
+    enum:
+      - observe
+      - question
+      - escalate
+      - constrain

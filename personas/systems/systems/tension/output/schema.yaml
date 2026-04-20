@@ -1,0 +1,25 @@
+type: object
+required:
+  - persona_id
+  - field_id
+  - operation
+  - payload
+properties:
+  persona_id:
+    type: string
+    enum:
+      - doc
+      - pip
+      - students
+      - guards
+  field_id:
+    type: string
+  operation:
+    type: string
+    enum:
+      - observe
+      - question
+      - escalate
+      - constrain
+  payload:
+    type: object

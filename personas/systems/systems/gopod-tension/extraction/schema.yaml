@@ -1,0 +1,22 @@
+type: object
+required:
+  - signal_id
+  - signal_type
+  - actor_id
+  - evidence
+properties:
+  signal_id:
+    type: string
+  signal_type:
+    type: string
+    enum:
+      - contradiction
+      - identity_collision
+      - narrative_lag
+      - pressure
+  actor_id:
+    type: string
+  evidence:
+    type: object
+  topic:
+    type: string
