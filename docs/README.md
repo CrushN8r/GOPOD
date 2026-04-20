@@ -63,3 +63,44 @@ broken, or superseded by another active file.
 - Split transport logic from persona-style logic
 - Add a small test or smoke-check script for active entrypoints
 - Decide whether persona executors stay active or move under `archive/experimental/`
+
+# GOPOD — Production Layout (refactored)
+
+## New Structure
+
+/core                  ← single execution kernel (goverlord_exec.py + router + validator)
+/tools
+  /vector             ← robot actions
+  /codex              ← repo mutation tools
+  /system             ← diagnostics
+/configs              ← all JSON + jetson_platform
+/personas
+  /definitions        ← *.json
+  /systems            ← tension + gopod-tension
+/scripts              ← all former bin/ scripts
+/ops                  ← diagnostics + snapshots
+/archive              ← untouched
+/docs                 ← README.md + repo_info.txt
+
+## How to Run
+- **Single entrypoint (MANDATORY):**  
+  `python3 core/goverlord_exec.py '{"type":"robot", "target":"vector1", "action":"say", "params":{"text":"hello"}}'`
+
+- Scripts are in `scripts/`  
+- Tools live in `tools/`  
+- Configs in `configs/` (copy `system.template.json` → `system.json` if missing)
+
+## Execution Flow
+Jetson → `core/goverlord_exec.py` → router → (T560 OR Codex)  
+**NO direct tool execution anymore.**
+
+## Changes Summary
+- Files moved: bin/→scripts/, open-webui-tools/→tools/, sys-configs/→configs/, personas/*.json→definitions/
+- Paths fixed in 16+ files
+- __pycache__ removed
+- Single kernel enforced (core/goverlord_exec.py)
+- Duplicate/old files cleaned
+
+Run `git status` — if clean, you’re done.
+
+
