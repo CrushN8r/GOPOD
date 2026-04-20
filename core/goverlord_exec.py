@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-#!/usr/scripts/env python3
-from __future__ import annotations
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import json
 import sys
