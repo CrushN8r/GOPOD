@@ -1,6 +1,6 @@
 {
   "t560_base": "http://192.168.1.6:8080",
-  "codex_exec_cmd": "bash bin/codex-exec.sh",
+  "codex_exec_cmd": "bash scripts/codex-exec.sh",
   "robots": {
     "vector1": {
       "type": "vector",
