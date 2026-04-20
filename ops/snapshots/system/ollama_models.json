@@ -1,0 +1,86 @@
+{
+  "snapshot_timestamp": "2026-04-17T19:41:17-04:00",
+  "api_endpoint": "http://127.0.0.1:11434/api/tags",
+  "models": [
+    {
+      "model_name": "qwen2.5-coder:7b",
+      "size_bytes": 4683087561,
+      "size_human": "4.7 GB",
+      "quantization_level": "Q4_K_M",
+      "parameter_size": "7.6B",
+      "format": "gguf",
+      "last_modified": "2026-04-16T23:03:10.667607152-04:00",
+      "digest": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364"
+    },
+    {
+      "model_name": "qwen2.5:7b",
+      "size_bytes": 4683087332,
+      "size_human": "4.7 GB",
+      "quantization_level": "Q4_K_M",
+      "parameter_size": "7.6B",
+      "format": "gguf",
+      "last_modified": "2026-04-16T23:02:17.777885203-04:00",
+      "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e"
+    },
+    {
+      "model_name": "llama3.2:3b",
+      "size_bytes": 2019393189,
+      "size_human": "2.0 GB",
+      "quantization_level": "Q4_K_M",
+      "parameter_size": "3.2B",
+      "format": "gguf",
+      "last_modified": "2026-04-13T12:59:38.361481603-04:00",
+      "digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72"
+    },
+    {
+      "model_name": "gemma2:2b",
+      "size_bytes": 1629518495,
+      "size_human": "1.6 GB",
+      "quantization_level": "Q4_0",
+      "parameter_size": "2.6B",
+      "format": "gguf",
+      "last_modified": "2026-04-13T12:54:17.302402309-04:00",
+      "digest": "8ccf136fdd5298f3ffe2d69862750ea7fb56555fa4d5b18c04e3fa4d82ee09d7"
+    },
+    {
+      "model_name": "phi3:mini",
+      "size_bytes": 2176178913,
+      "size_human": "2.2 GB",
+      "quantization_level": "Q4_0",
+      "parameter_size": "3.8B",
+      "format": "gguf",
+      "last_modified": "2026-03-31T22:34:20.960234497-04:00",
+      "digest": "4f222292793889a9a40a020799cfd28d53f3e01af25d48e06c5e708610fc47e9"
+    },
+    {
+      "model_name": "phi3:latest",
+      "size_bytes": 2176178913,
+      "size_human": "2.2 GB",
+      "quantization_level": "Q4_0",
+      "parameter_size": "3.8B",
+      "format": "gguf",
+      "last_modified": "2026-03-31T22:17:34.514724783-04:00",
+      "digest": "4f222292793889a9a40a020799cfd28d53f3e01af25d48e06c5e708610fc47e9"
+    },
+    {
+      "model_name": "mistral:latest",
+      "size_bytes": 4372824384,
+      "size_human": "4.4 GB",
+      "quantization_level": "Q4_K_M",
+      "parameter_size": "7.2B",
+      "format": "gguf",
+      "last_modified": "2026-03-31T22:09:27.487964948-04:00",
+      "digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf"
+    },
+    {
+      "model_name": "llama3:latest",
+      "size_bytes": 4661224676,
+      "size_human": "4.7 GB",
+      "quantization_level": "Q4_0",
+      "parameter_size": "8.0B",
+      "format": "gguf",
+      "last_modified": "2026-03-31T21:51:44.154769685-04:00",
+      "digest": "365c0bd3c000a25d28ddbf732fe1c6add414de7275464c4e4d1c3b5fcb5d8ad1"
+    }
+  ]
+}

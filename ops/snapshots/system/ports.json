@@ -1,0 +1,92 @@
+{
+  "snapshot_timestamp": "2026-04-17T19:41:15-04:00",
+  "listening_tcp_ports": [
+    {
+      "address": "127.0.0.1",
+      "port": 37235
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 21854
+    },
+    {
+      "address": "0.0.0.0",
+      "port": 8080,
+      "service": "open-webui"
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 7001,
+      "service": "nxnode.bin"
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 24667
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 25001,
+      "service": "nxrunner.bin"
+    },
+    {
+      "address": "127.0.0.53",
+      "port": 53,
+      "service": "systemd-resolved"
+    },
+    {
+      "address": "0.0.0.0",
+      "port": 4000
+    },
+    {
+      "address": "0.0.0.0",
+      "port": 111,
+      "service": "rpcbind"
+    },
+    {
+      "address": "0.0.0.0",
+      "port": 22,
+      "service": "ssh"
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 11434,
+      "service": "ollama.service"
+    },
+    {
+      "address": "127.0.0.1",
+      "port": 12001,
+      "service": "nxnode.bin"
+    },
+    {
+      "address": "::1",
+      "port": 7001,
+      "service": "nxnode.bin"
+    },
+    {
+      "address": "::",
+      "port": 4000
+    },
+    {
+      "address": "::",
+      "port": 111,
+      "service": "rpcbind"
+    },
+    {
+      "address": "::",
+      "port": 22,
+      "service": "ssh"
+    }
+  ],
+  "focus_ports": [
+    {
+      "port": 8080,
+      "service": "open-webui",
+      "validation": "HTTP 200 observed"
+    },
+    {
+      "port": 11434,
+      "service": "ollama.service",
+      "validation": "GET /api/tags returned model inventory"
+    }
+  ]
+}
