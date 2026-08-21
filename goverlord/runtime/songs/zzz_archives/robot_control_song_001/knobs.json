@@ -1,0 +1,16 @@
+{
+  "song_id": "robot_control_song_001",
+  "song_type": "control_check",
+  "story_ref": "story.md",
+  "steps": [
+    { "step_id": "connect", "note": "connect", "speaker": "brobot_1" },
+    { "step_id": "say_connected", "note": "say", "speaker": "brobot_1" },
+    { "step_id": "arm_test", "note": "arm_cue", "speaker": "brobot_1" },
+    { "step_id": "arm_test_done", "note": "say", "speaker": "brobot_1" },
+    { "step_id": "head_nod", "note": "head_nod", "speaker": "brobot_1" },
+    { "step_id": "head_nod_done", "note": "say", "speaker": "brobot_1" },
+    { "step_id": "weather", "note": "weather", "speaker": "brobot_1" },
+    { "step_id": "say_good", "note": "say", "speaker": "brobot_1" },
+    { "step_id": "exit", "note": "exit", "speaker": "brobot_1" }
+  ]
+}

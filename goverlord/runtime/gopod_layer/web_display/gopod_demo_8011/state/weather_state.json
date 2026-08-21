@@ -1,0 +1,10 @@
+{
+  "condition": "",
+  "event": "weather_state",
+  "location": "",
+  "source": "weather_state.json",
+  "status": "unavailable",
+  "temperature": "",
+  "temperature_unit": "",
+  "updated_at": ""
+}

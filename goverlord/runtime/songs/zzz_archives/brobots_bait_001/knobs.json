@@ -1,0 +1,27 @@
+{
+  "song_id": "brobots_bait_001",
+  "song_type": "bait",
+  "section_id": "bait_001",
+  "story_ref": "story.md",
+  "first_speaker": "brobot_1",
+  "bare_capture": true,
+  "movement_pause_seconds": 10,
+  "steps": [
+    {
+      "step_id": "line_1",
+      "line_type": "STATEMENT",
+      "exchange_type": "Bait",
+      "interviewer_emotional_beat": "veryHappy",
+      "interviewee_emotional_beat": "veryHappy",
+      "thinking_window": false,
+      "brobot_2_mode": "canned",
+      "brobot_1_mode": "canned",
+      "brobot_2_canned_source": "visible_line",
+      "brobot_1_canned_source": "value_points_joined",
+      "brobot_1_movement": "arm_gesture",
+      "brobot_1_movement_2": "head_nod_gesture",
+      "brobot_2_movement": "arm_gesture",
+      "brobot_2_movement_2": "head_nod_gesture"
+    }
+  ]
+}

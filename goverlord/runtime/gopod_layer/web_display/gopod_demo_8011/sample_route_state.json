@@ -1,0 +1,44 @@
+{
+  "proof_id": "WDTM_BIG_FONT_CHAT_DISPLAY_PROOF_003B",
+  "source_mode": "static_sample_only",
+  "intent_alias": "gopod_gpys",
+  "intent_mode": "GOPOD_YOURSELF",
+  "current_route": "GOPOD_YOURSELF_STATIC_DISPLAY",
+  "active_persona": "CHALK",
+  "last_keypress": "sample_static",
+  "active_robot": "",
+  "active_robot_name": "",
+  "active_robot_serial": "",
+  "output_surface": "basic_webpage_display",
+  "route_description": "No-live static route/status proof from repo GOLDEN GUTS.",
+  "ptt_state": "sample_idle",
+  "mic_state": "sample_not_recording",
+  "stt_state": "sample_transcript_loaded",
+  "latest_transcript": "GOPOD Yourself. Show the Windsor DTM private prep lane.",
+  "latest_llm_reply": "Static Doc/Pip sample replies loaded from sample_multichat_003b.json.",
+  "robot_target": "",
+  "exit_state": "",
+  "status_cards": [
+    {
+      "label": "Intent",
+      "value": "gopod_gpys / GOPOD_YOURSELF"
+    },
+    {
+      "label": "PTT",
+      "value": "sample static only"
+    },
+    {
+      "label": "Doc",
+      "value": "KP1 / vector1 / 0dd1b9e9"
+    },
+    {
+      "label": "Pip",
+      "value": "KP2 / vector2 / 0dd1d8bf"
+    },
+    {
+      "label": "CHALK",
+      "value": "private screen-first surface"
+    }
+  ],
+  "updated_at": "2026-05-31T00:00:00Z"
+}

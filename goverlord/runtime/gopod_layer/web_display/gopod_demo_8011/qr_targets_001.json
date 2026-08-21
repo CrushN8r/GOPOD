@@ -1,0 +1,26 @@
+{
+  "event": "qr_target_registry_001",
+  "qr_targets": [
+    {
+      "active": true,
+      "fallback_text": "Contact QR approved for crushn8r.ca.",
+      "generated_image_path": "/qr_cache/qr1_001.png",
+      "label": "Contact / Follow-up",
+      "public_safe": true,
+      "qr_slot_id": "QR1",
+      "status": "approved",
+      "target_url": "https://crushn8r.ca"
+    },
+    {
+      "active": true,
+      "fallback_text": "Access Math QR approved for accessmath.crushn8r.net.",
+      "generated_image_path": "/qr_cache/qr2_001.png",
+      "label": "Access Math",
+      "public_safe": true,
+      "qr_slot_id": "QR2",
+      "status": "approved",
+      "target_url": "https://accessmath.crushn8r.net"
+    }
+  ],
+  "status": "QR_GENERATED"
+}

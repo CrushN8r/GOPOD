@@ -1,0 +1,30 @@
+{
+  "_note": "Golden numpad/NumLock persona mapping - single source of truth. Edit this file directly to remap; gopod-numpad-map only ever reads and prints it. See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.",
+  "fixed_lanes": {
+    "_note": "Not part of the KP0-9 persona grid - always-on, independent of NumLock state. Two separate lanes on the same physical numpad, per operator: '000' and 'KP0' are NOT the same lane.",
+    "000": {"action": "Exit", "gesture": "3x tap in quick succession", "status": "live"},
+    "KP0": {"action": "Guest-mic chat participant (2nd operator / invited guest)", "gesture": "press/hold", "status": "decided_not_built"}
+  },
+  "numlock_on": {
+    "KP1": {"persona": "Doc", "body": "Vector 1", "status": "live"},
+    "KP2": {"persona": "Pip", "body": "Vector 2", "status": "live"},
+    "KP3": {"persona": "Git Repo", "body": "Cozmo", "status": "assigned"},
+    "KP4": {"persona": "Cache PYC", "body": "Cozmo", "status": "assigned"},
+    "KP5": {"persona": "Intel 404 PNFH", "body": "Moorebot Scout", "status": "assigned"},
+    "KP6": {"persona": "Intel 404 PNFT", "body": "Moorebot Scout", "status": "assigned"},
+    "KP7": {"persona": "CHALK", "body": "voice-only", "status": "assigned"},
+    "KP8": {"persona": "PLAYHEAD", "body": "voice-only", "status": "assigned"},
+    "KP9": {"persona": "Cameo", "body": "voice-only", "status": "assigned"}
+  },
+  "numlock_off": {
+    "KP1": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP2": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP3": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP4": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP5": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP6": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP7": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP8": {"persona": "-", "body": "-", "status": "reserved"},
+    "KP9": {"persona": "-", "body": "-", "status": "reserved"}
+  }
+}

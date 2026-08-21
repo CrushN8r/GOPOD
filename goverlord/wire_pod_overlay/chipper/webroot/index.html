@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Wire-Pod</title>
+  <!-- Meta Apple tags for a PWA like experience. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" type="text/css" href="css/gopod_chat_bubbles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <script src="https://kit.fontawesome.com/7508f396ac.js" crossorigin="anonymous"></script>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="Thu, 01 Jan 1970 00:00:00 GMT">
+</head>
+
+<body>
+  <div id="outer">
+    <div id="content" class="">
+      <h1>Wire-Pod</h1>
+      <!-- Bot stats, connected and battery -->
+      <div id="botStats"></div>
+      <hr />
+
+      <div class="main-nav-parent">
+        <!--WP settings-->
+        <div class="main-nav-child">
+          <a href="setup.html"><i class="fa-solid fa-gear"></i><br />Server Settings</a>
+        </div>
+        <!--Bot Settings-->
+        <div class="main-nav-child">
+          <a href="/sdkapp"><i class="fa solid fa-toolbox"></i><br />Bot Settings</a>
+        </div>
+        <!--Bot Setup-->
+        <div class="main-nav-child">
+          <a href="#" onclick="showBotAuth(); return false;"><i class="fa solid fa-robot" id="icon-BotAuth"
+              name="icon"></i><br />Bot Setup</a>
+        </div>
+        <!--Custom Intents-->
+        <div class="main-nav-child">
+          <a href="#" onclick="showIntents(); return false;"><i class="fa-solid fa-microphone-lines" id="icon-Intents"
+              name="icon"></i><br />Custom Intents</a>
+        </div>
+        <!--Logs-->
+        <div class="main-nav-child">
+          <a href="#" onclick="showLog(); return false;"><i class="fa-solid fa-file-lines" id="icon-Logs"
+              name="icon"></i><br />Log</a>
+        </div>
+        <!--Version-->
+        <div class="main-nav-child">
+          <a href="#" onclick="showVersion(); return false;"><i class="fa-solid fa-code-compare" id="icon-Version"
+              name="icon"></i><br />Version Info</a>
+        </div>
+        <!--UI Customizer-->
+        <div class="main-nav-child">
+          <a href="#" onclick="showUICustomizer(); return false;"><i class="fa-solid fa-pen-nib" id="icon-Customizer"
+              name="icon"></i><br />UI Settings</a>
+        </div>
+      </div>
+      <hr />
+
+      <div id="section-intents" style="display: none">
+        <h2 id="foldable-add" onclick="toggleSection('content-add', 'content-edit')">
+          <span>+</span>
+          Add a custom intent
+        </h2>
+        <div class="content" id="content-add">
+          <p>
+            For more details, see
+            <a href="https://github.com/kercre123/wire-pod/wiki/Custom-Intents" target="_blank">the Custom Intents page of the wiki</a>
+          </p>
+          <div id="addIntentStatus"></div>
+          <form id="intentAddForm">
+            <label for="nameAdd">Custom intent name:</label>
+            <input type="text" name="nameAdd" id="nameAdd" /><br />
+            <label for="descriptionAdd">Custom intent description:</label>
+            <input type="text" name="descriptionAdd" id="descriptionAdd" /><br />
+            <label for="utterancesAdd">Utterances that will trigger the intent (separated by
+              ,):</label>
+            <input type="text" name="utterancesAdd" id="utterancesAdd" /><br />
+            <div id="intentAddSelect"></div>
+            <label for="paramnameAdd">Intent parameter name (not required):</label>
+            <input type="text" name="paramnameAdd" id="paramnameAdd" /><br />
+            <label for="paramvalueAdd">Intent parameter value (not required):</label>
+            <input type="text" name="paramvalueAdd" id="paramvalueAdd" /><br />
+            <label for="execAdd">Path to script/program to execute after sending intent (not
+              required):</label>
+            <input type="text" name="execAdd" id="execAdd" /><br />
+            <label for="execAdd">Arguments for script/program (seperated by ,) (not required):</label>
+            <input type="text" name="execAddArgs" id="execAddArgs" size="50" /><br />
+            <label for="luaAdd">Lua code to run (not required):</label>
+            <textarea id="luaAdd"></textarea>
+          </form>
+          <div>
+            <button onclick="sendIntentAdd()">Add intent</button>
+          </div>
+          <hr />
+        </div>
+
+        <h2 id="foldable-edit" onclick="toggleSection('content-edit', 'content-add')">
+          <span>+</span>
+          Edit/delete a custom intent
+        </h2>
+        <div class="content" id="content-edit">
+          <div id="editSelect"></div>
+          <div id="editIntentStatus"></div>
+          <div id="deleteIntentStatus"></div>
+          <div>
+            <div>
+              <button onclick="editFormCreate()">Edit selected intent</button>
+              <button onclick="deleteSelectedIntent()">
+                Delete selected intent
+              </button>
+            </div>
+          </div>
+          <div id="editIntentForm"></div>
+          <hr />
+        </div>
+      </div>
+
+      <div id="section-botauth" style="display: none">
+        <h2>Authentication</h2>
+        <hr class="small-hr">
+        <div>
+          <div id="disconnectButton"></div>
+        </div>
+        <div>
+          <div id="botAuth"></div>
+        </div>
+        <hr />
+        <div>
+          <h3>Configure an OSKR/dev-unlocked robot</h3>
+          <hr class="small-hr">
+          <small class="desc">Works with firmware 1.4 and above.</small>
+          <div id="oskrSetupProgress"></div>
+          <div id="oskrSetup">
+            <p><b>If you have an OSKR/dev-unlocked bot;</b> enter the bot's IP
+              address and upload the bot's SSH key here, then click "Set up
+              bot". After that, use the above section to finish setting up
+              your bot.</p>
+            <hr class="small-hr">
+            <input class="tinput" type="text" id="sshIp" name="sshIp" placeholder="Bot IP address" /><br />
+            <input type="file" id="sshKeyFile" name="sshKeyFile" /><br />
+            <hr class="small-hr">
+            <button onclick="doSSHSetup()">Set up bot</button>
+          </div>
+        </div>
+        <hr />
+      </div>
+
+      <div id="section-log" style="display: none">
+        <h2>Log</h2>
+        <hr class="small-hr">
+        <div class="center">
+          <div style="text-align:left">
+            <input id="logdebug" name="logdebug" type="checkbox" />
+            <label class="checkbox-label" for="logdebug">Show all logs</label><br />
+            <input id="logscrollbottom" name="logscrollbottom" type="checkbox" />
+            <label class="checkbox-label" for="logscrollbottom">Scroll to bottom</label><br />
+            <button onclick="copyToClipboard()">Copy Logs to Clipboard</button>
+          </div>
+        </div>
+        <div id="chat-display-handler" style="height: 700px; width: 1300px; max-width: 100%;">
+          <div id="brobot-chat-bubbles-container">
+            <button id="brobot-chat-bubble-close" onclick="closeBrobotChatBubbles()">Close window</button>
+          </div>
+          <textarea id="botTranscriptedTextArea" rows="81" cols="100" style="height: 700px; width: 1300px; font-size: 24px;">
+          loading log...
+          </textarea>
+        </div>
+        <hr class="log-hr" />
+      </div>
+
+      <div id="section-version" style="display: none">
+        <h2>Version</h2>
+        <hr class="small-hr">
+        <div id="versionDiv">
+          <button onclick="checkUpdate()">
+            Check For Update
+          </button>
+          <hr class="small-hr">
+          <p id="cVersion"></p>
+          <small class="desc" style="display: none;" id="cCommit"></small>
+          <p id="aUpdate"></p>
+          <a id="updateGuideLink" style="display: none" target="_blank"
+            href="https://github.com/kercre123/wire-pod/wiki/Things-to-Know#updating-wire-pod">Update Guide</a>
+        </div>
+        <hr />
+      </div>
+
+      <div id="section-uicustomizer" style="display: none">
+        <h2>UI Customizer</h2>
+        <hr class="small-hr">
+        <p>Accent Color</p>
+        <select onchange="setUIColor()" id="accent-color-choose">
+          <option value="teal" selected="selected">Teal (default)</option>
+          <option value="orange">Orange</option>
+          <option value="yellow">Yellow</option>
+          <option value="lime">Lime</option>
+          <option value="sapphire">Sapphire</option>
+          <option value="purple">Purple</option>
+          <option value="green">Green</option>
+        </select>
+        <hr class="small-hr">
+        <p>Body Font</p>
+        <select onchange="setUIFont()" id="body-font-choose">
+          <option style="font-family: 'DroidSans';" value="droidsans" selected="selected">Droid Sans (default)</option>
+          <option style="font-family: 'IBMVGA';" value="ibmvga">IBM VGA 8x16 (retro)</option>
+        </select>
+        <hr />
+      </div>
+
+    </div>
+  </div>
+<script>
+    function copyToClipboard() {
+        const botTranscriptedTextArea = document.getElementById("botTranscriptedTextArea");
+        botTranscriptedTextArea.select();
+        botTranscriptedTextArea.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand("copy");
+
+        alert("Copied the text: " + botTranscriptedTextArea.value);
+    }
+
+    // 2026-08-08: chat-bubbles container. Collapsed (0px) by default -
+    // page behaves exactly as before unless pha0b's rich display is 'y'.
+    (function () {
+      var container = document.getElementById("brobot-chat-bubbles-container");
+      var closeBtn = document.getElementById("brobot-chat-bubble-close");
+      var textarea = document.getElementById("botTranscriptedTextArea");
+      var seenLines = {};
+      var wasExpanded = false;
+      var manuallyClosed = false;
+      // A page load/refresh right after a run finishes should still show
+      // that run's bubbles; only a truly old leftover (browser left open
+      // for hours/days) should stay collapsed. finished_at is epoch seconds
+      // written by brobots.sh at run end.
+      var STALE_AFTER_SECONDS = 300;
+
+      window.closeBrobotChatBubbles = function () {
+        manuallyClosed = true;
+        container.classList.remove("expanded");
+        closeBtn.style.display = "none";
+        textarea.style.display = "";
+      };
+
+      function clearBubbles() {
+        Array.prototype.slice.call(container.querySelectorAll(".brobot-bubble")).forEach(function (b) {
+          b.remove();
+        });
+      }
+
+      function appendBubble(who, spoken) {
+        var bubble = document.createElement("div");
+        bubble.className = "brobot-bubble " + (who === "Brobot 1" ? "brobot-1" : "brobot-2");
+        // 2026-08-19: small animated Vector face avatar, purely cosmetic. Reuses
+        // the same static /assets/face.gif stock Wire-Pod's own battery.js
+        // references (its own .vectorFace element is a live battery/connection
+        // state machine cycling many different face gifs - not reused here on
+        // purpose, this is a plain decorative image, no coupling to battery.js
+        // or the battery UI). One generic face today (no separate per-persona
+        // asset exists yet) - see gopod_chat_bubbles.css for the per-class hook
+        // this leaves ready for a future Doc/Pip-specific pair.
+        var avatar = document.createElement("div");
+        avatar.className = "brobot-bubble-avatar";
+        var textEl = document.createElement("span");
+        textEl.className = "brobot-bubble-text";
+        textEl.textContent = who + ": " + spoken;
+        bubble.appendChild(avatar);
+        bubble.appendChild(textEl);
+        container.appendChild(bubble);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function pollBubbles() {
+        fetch("/api/get_logs")
+          .then(function (r) { return r.text(); })
+          .then(function (text) {
+            text.split("\n").forEach(function (rawLine) {
+              var line = rawLine.trim();
+              if (!line || seenLines[line]) { return; }
+              var match = line.match(/^(Brobot 1|Brobot 2):\s*(.*)$/);
+              if (!match) { return; }
+              seenLines[line] = true;
+              appendBubble(match[1], match[2]);
+            });
+          })
+          .catch(function () { /* log endpoint not reachable yet */ });
+      }
+
+      function pollState() {
+        fetch("/gopod_rich_display_ui_state.json", { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : { expanded: false, run_active: false }; })
+          .then(function (state) {
+            var expanded = !!state.expanded;
+            var runActive = !!state.run_active;
+            var finishedAt = state.finished_at || 0;
+            var ageSeconds = finishedAt ? (Date.now() / 1000 - finishedAt) : Infinity;
+
+            if (expanded && !wasExpanded) {
+              if (!runActive && ageSeconds > STALE_AFTER_SECONDS) {
+                // genuinely stale expanded:true - a run that ended long ago
+                // (browser left open, or reloaded well after the fact).
+                // brobots.sh writes expanded:true/run_active:false at run
+                // end so an already-open page keeps showing the last run
+                // for review; a fresh page load past STALE_AFTER_SECONDS
+                // isn't reopening for that anymore, so stay collapsed.
+                // wasExpanded stays false, so a genuine next run
+                // (run_active:true) still opens normally.
+                return;
+              }
+              // freshly expanding - clear any previous run's bubbles/dedup
+              seenLines = {};
+              clearBubbles();
+              manuallyClosed = false;
+            }
+            wasExpanded = expanded;
+
+            if (!expanded) {
+              container.classList.remove("expanded");
+              closeBtn.style.display = "none";
+              textarea.style.display = "";
+              return;
+            }
+            if (!manuallyClosed) {
+              container.classList.add("expanded");
+              textarea.style.display = "none";
+            }
+            closeBtn.style.display = (!runActive && !manuallyClosed) ? "inline-block" : "none";
+          })
+          .catch(function () { /* state file not written yet - stay collapsed */ });
+      }
+
+      setInterval(pollState, 500);
+      setInterval(pollBubbles, 500);
+      pollState();
+      pollBubbles();
+    })();
+</script>
+</body>
+
+<script src="./js/main.js"></script>
+<script src="./js/ble.js"></script>
+<script src="./js/ssh.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./sdkapp/js/common.js"></script>
+<script src="./js/battery.js"></script>
+<!-- <script src="./sdkapp/js/main.js"></script> -->
+<script>
+  checkInited();
+  updateIntentSelection("editSelect");
+  updateIntentSelection("deleteSelect");
+  createIntentSelect("intentAddSelect");
+  processBotStats();
+</script>
+
+</html>

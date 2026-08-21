@@ -1,0 +1,10 @@
+{
+  "song_id": "gopod_is_that_you_multi",
+  "song_type": "cross_persona_live_capture_multi",
+  "story_ref": "story.md",
+  "steps": [
+    { "step_id": "wake_both", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPEN" },
+    { "step_id": "live_capture", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "live_is_that_you_capture", "section": "LIVE CAPTURE - NOT SCRIPTED" },
+    { "step_id": "exit", "note": "exit", "speaker": "brobot_1", "section": "CLOSE" }
+  ]
+}

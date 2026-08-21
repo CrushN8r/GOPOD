@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07110f">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>GOPOD Laptop SESSION Cockpit</title>
+<link rel="stylesheet" href="gopod_demo.css">
+</head>
+<body>
+<header id="topChalkControlStrip" class="topbar" aria-label="Top banner with QR codes and weather">
+  <article id="qrSlot1" class="qrSlot inactive" aria-label="QR1 display slot">
+    <img id="qr1Image" class="qrSlotImage" alt="QR1 approved destination" hidden>
+    <b id="qr1Label">Contact / Follow-up</b>
+    <em id="qr1Fallback">approved destination pending cache</em>
+  </article>
+
+  <section id="chalkTopDisplayBar" class="chalkTopDisplayBar" aria-label="CHALK banner">
+    <div class="bannerTitleRow">
+      <span>CHALK Edutainment / Point 0 Room Frame</span>
+      <b id="topFlowSummary">PRE-INTENT -> GOPOD_YOURSELF -> SESSION</b>
+    </div>
+    <strong id="chalkBannerText" class="chalk-banner-output">CHALK WAITING</strong>
+    <div id="stateTruthStrip" class="stateTruthStrip">
+      <span>GOPOD_YOURSELF: <b id="truthGopod">OFF</b></span>
+      <span>SESSION: <b id="truthSession">PRE-INTENT</b></span>
+      <span>ROUTE: <b id="truthRoute">missing</b></span>
+      <span>VISION CHIP SOURCE: <b id="truthTpuSource">missing</b></span>
+    </div>
+    <div id="weatherLine" class="weatherLine">Weather: unavailable</div>
+  </section>
+
+  <article id="qrSlot2" class="qrSlot inactive" aria-label="QR2 display slot">
+    <img id="qr2Image" class="qrSlotImage" alt="QR2 approved destination" hidden>
+    <b id="qr2Label">QR2</b>
+    <em id="qr2Fallback">inactive until approved destination is confirmed</em>
+  </article>
+</header>
+
+<main>
+  <section class="vision-pane proof-pane" id="visionPane" aria-label="Proof pane cameras and vision chip">
+    <div class="paneHead cockpitPaneTitle">
+      <h2>Proof Pane / Cameras + Vision Chip</h2>
+      <span id="cameraStateStatus">READY_PLACEHOLDERS</span>
+    </div>
+
+    <section id="visual-pane" class="visual-pane" aria-label="Camera and vision chip pane">
+      <div id="camera-zone" class="camera-zone cameras-section">
+        <div id="camera-thumb-strip" class="camera-thumb-strip camera-grid" aria-label="Camera thumbnails">
+          <article class="camera-thumb" data-camera-id="doc_robot">
+            <div class="thumbImageBox">
+              <img id="cameraImageDoc" alt="Doc camera">
+              <span id="cameraPlaceholderDoc" class="thumbPlaceholder">Doc feed not connected</span>
+            </div>
+            <span id="cameraLabelDoc" class="thumbLabel">Doc</span>
+            <span id="cameraStatusDoc" class="thumbStatus">missing</span>
+          </article>
+
+          <article class="camera-thumb" data-camera-id="pip_robot">
+            <div class="thumbImageBox">
+              <img id="cameraImagePip" alt="Pip camera">
+              <span id="cameraPlaceholderPip" class="thumbPlaceholder">Pip feed not connected</span>
+            </div>
+            <span id="cameraLabelPip" class="thumbLabel">Pip</span>
+            <span id="cameraStatusPip" class="thumbStatus">missing</span>
+          </article>
+
+          <article class="camera-thumb" data-camera-id="usb_c920">
+            <div class="thumbImageBox">
+              <img id="cameraImageC920" alt="Logitech C920 video only">
+              <span id="cameraPlaceholderC920" class="thumbPlaceholder">C920 feed not connected</span>
+            </div>
+            <span id="cameraLabelC920" class="thumbLabel">Logitech C920 video only</span>
+            <span id="cameraStatusC920" class="thumbStatus">missing</span>
+          </article>
+        </div>
+      </div>
+
+      <div id="tpu-zone" class="tpu-zone tpu-section tpu-status-card">
+        <div class="paneHead tpuHead">
+          <h2>Vision Chip</h2>
+          <span id="edgeStatus">OPTIONAL_OFFLINE</span>
+        </div>
+        <div class="tpuBody">
+          <div class="mediaBox tpuFrameBox">
+            <img id="edgeFrame" alt="Vision chip annotated frame">
+            <div id="edgePlaceholder" class="placeholder">VISION CHIP FEED NOT CONNECTED</div>
+          </div>
+          <dl>
+            <dt>Selected Vision Chip Source</dt><dd id="selectedTpu">missing</dd>
+            <dt>KP+</dt><dd id="kpPlusStatus">next</dd>
+            <dt>KP-</dt><dd id="kpMinusStatus">prev</dd>
+            <dt>Objects</dt><dd id="edgeObjects">VISION CHIP FEED NOT CONNECTED</dd>
+            <dt>Updated</dt><dd id="edgeUpdated">missing</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <section id="sessionChatPane" class="session-chat-pane" aria-label="SESSION chat">
+    <div class="paneHead">
+      <h2>SESSION Chat</h2>
+      <span id="sessionChatStatus">SESSION CHAT STATE NOT CONNECTED</span>
+    </div>
+    <div class="session-chat-meta">
+      <span>Route: <b id="sessionChatRoute">missing</b></span>
+      <span>Persona: <b id="sessionChatPersona">missing</b></span>
+      <span>Updated: <b id="sessionChatUpdated">missing</b></span>
+    </div>
+    <div id="sessionChatMessages" class="session-chat-main chatMessages">
+      <p class="session-chat-message session-chat-empty"><b>SESSION</b><span>SESSION CHAT STATE NOT CONNECTED</span></p>
+    </div>
+  </section>
+</main>
+
+<script>
+let selectedCameraId = "";
+let latestCameraState = null;
+let lastChatSignature = "";
+const VISUAL_SOURCE_RING = ["doc_robot", "pip_robot", "usb_c920"];
+const TECHNICAL_LOG_HIDE_UNLESS_SHOW_ALL = [
+  "GOPOD_STREAM_MARKER_0",
+  "RAW_LLM_RESPONSE_MARKED",
+  "FILTERED_SPLIT_READY",
+  "FILTERED_SPLIT_SENT",
+  "GOPOD_STREAM_MARKER_1",
+  "BROBOT_RELEASE_READY=yes"
+];
+
+function byId(id){ return document.getElementById(id); }
+function value(v, fallback="missing"){ return v === undefined || v === null || v === "" ? fallback : String(v); }
+function setText(id, v, fallback="missing"){
+  const node = byId(id);
+  if(!node) return;
+  const next = value(v, fallback);
+  if(node.textContent !== next) node.textContent = next;
+}
+function cacheBust(url){ return url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(); }
+
+async function fetchJson(path, fallback){
+  try{
+    const res = await fetch(path + (path.includes("?") ? "&" : "?") + "t=" + Date.now(), {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }catch(err){
+    return fallback || {};
+  }
+}
+function fetchStateFile(name, fallback){ return fetchJson("/state/" + name, fallback); }
+function fetchCameraState(){ return fetchStateFile("camera_state.json", {event:"camera_state", status:"BLOCKED", cameras:[]}); }
+function fetchQrTargets(){ return fetchJson("/qr_targets_001.json", {qr_targets: []}); }
+
+function setQrSlot(slotId, target){
+  const prefix = slotId === "qr1" ? "qr1" : "qr2";
+  const slot = byId(prefix === "qr1" ? "qrSlot1" : "qrSlot2");
+  const image = byId(prefix + "Image");
+  const label = target && target.label ? target.label : prefix.toUpperCase();
+  const status = target && target.status ? target.status : "inactive_until_confirmed";
+  const active = target && target.active === true && target.public_safe === true && target.generated_image_path;
+  setText(prefix + "Label", label, prefix.toUpperCase());
+  setText(prefix + "Fallback", active ? status : (target && target.fallback_text ? target.fallback_text : "inactive until approved destination is confirmed"));
+  if(slot){
+    slot.classList.toggle("inactive", !active);
+    slot.classList.toggle("active", !!active);
+  }
+  if(!image) return;
+  if(active){
+    const stablePath = target.generated_image_path;
+    if(image.dataset.currentSrc !== stablePath){
+      image.src = stablePath;
+      image.dataset.currentSrc = stablePath;
+    }
+    image.hidden = false;
+  }else{
+    if(image.dataset.currentSrc){
+      image.removeAttribute("src");
+      image.dataset.currentSrc = "";
+    }
+    image.hidden = true;
+  }
+}
+function renderQrTargets(registry){
+  const targets = Array.isArray(registry.qr_targets) ? registry.qr_targets : [];
+  setQrSlot("qr1", targets.find(target => target.qr_slot_id === "QR1") || {});
+  setQrSlot("qr2", targets.find(target => target.qr_slot_id === "QR2") || {});
+}
+
+function cameraList(cameraState){
+  const allowed = new Set(VISUAL_SOURCE_RING);
+  const cameras = Array.isArray(cameraState.cameras) ? cameraState.cameras : [];
+  return cameras.filter(camera => allowed.has(camera.id));
+}
+function cameraMap(cameraState){
+  const map = {};
+  cameraList(cameraState).forEach(camera => { map[camera.id] = camera; });
+  return map;
+}
+function chooseCamera(cameraState){
+  const cameras = cameraList(cameraState);
+  const stateSelected = value(cameraState.selected_tpu_source_id, "");
+  const wanted = selectedCameraId || stateSelected;
+  return cameras.find(camera => camera.id === wanted) || cameras.find(camera => camera.id === stateSelected) || cameras[0] || null;
+}
+function selectedTpuLabel(cameraState){
+  const edge = cameraState.edge_tpu || {};
+  const selected = chooseCamera(cameraState) || {};
+  const label = value(selected.label || edge.current_source_label || cameraState.selected_tpu_source_label, "");
+  const id = value(selected.id || edge.current_source_id || cameraState.selected_tpu_source_id, "");
+  if(label !== "missing" && id !== "missing") return label + " (" + id + ")";
+  return label !== "missing" ? label : id;
+}
+function refreshOnly(img, placeholder, url, placeholderText){
+  if(!img || !placeholder) return;
+  placeholder.textContent = placeholderText || "FEED NOT CONNECTED";
+  if(!url){
+    img.removeAttribute("src");
+    img.classList.add("isHidden");
+    placeholder.classList.remove("isHidden");
+    return;
+  }
+  img.onerror = () => {
+    img.classList.add("isHidden");
+    placeholder.classList.remove("isHidden");
+  };
+  img.onload = () => {
+    img.classList.remove("isHidden");
+    placeholder.classList.add("isHidden");
+  };
+  img.src = cacheBust(url);
+}
+function renderOneCamera(camera, ids, fallbackLabel){
+  const label = camera.label || fallbackLabel;
+  const status = camera.status || "missing";
+  const url = camera.thumb_url || camera.large_url || camera.placeholder_url || "";
+  setText(ids.label, label, fallbackLabel);
+  setText(ids.status, status, "missing");
+  refreshOnly(byId(ids.img), byId(ids.placeholder), url, label + " feed not connected");
+}
+function renderCameraPane(cameraState){
+  latestCameraState = cameraState;
+  const map = cameraMap(cameraState);
+  const active = chooseCamera(cameraState);
+  if(active) selectedCameraId = active.id;
+  setText("cameraStateStatus", cameraState.status, "missing");
+  renderOneCamera(map.doc_robot || {}, {img:"cameraImageDoc", placeholder:"cameraPlaceholderDoc", label:"cameraLabelDoc", status:"cameraStatusDoc"}, "Doc");
+  renderOneCamera(map.pip_robot || {}, {img:"cameraImagePip", placeholder:"cameraPlaceholderPip", label:"cameraLabelPip", status:"cameraStatusPip"}, "Pip");
+  renderOneCamera(map.usb_c920 || {}, {img:"cameraImageC920", placeholder:"cameraPlaceholderC920", label:"cameraLabelC920", status:"cameraStatusC920"}, "Logitech C920 video only");
+
+  const edge = cameraState.edge_tpu || {};
+  const kp = edge.kp_status || {};
+  const objects = Array.isArray(edge.objects) ? edge.objects.map(o => o.label || o.name || o.class || JSON.stringify(o)).join(", ") : edge.objects;
+  setText("selectedTpu", selectedTpuLabel(cameraState), "missing");
+  setText("truthTpuSource", selectedTpuLabel(cameraState), "missing");
+  setText("edgeStatus", edge.status, "OPTIONAL_OFFLINE");
+  setText("edgeObjects", objects, "VISION CHIP FEED NOT CONNECTED");
+  setText("edgeUpdated", edge.updated_at, "missing");
+  setText("kpPlusStatus", kp["KP+"], "next");
+  setText("kpMinusStatus", kp["KP-"], "prev");
+  refreshOnly(byId("edgeFrame"), byId("edgePlaceholder"), edge.annotated_frame_url, "VISION CHIP FEED NOT CONNECTED");
+}
+function rotateVisualSource(direction){
+  if(!latestCameraState) return;
+  const cameras = cameraList(latestCameraState);
+  if(!cameras.length) return;
+  const ring = VISUAL_SOURCE_RING.filter(id => cameras.some(camera => camera.id === id));
+  if(!ring.length) return;
+  const active = chooseCamera(latestCameraState);
+  const currentId = active && active.id ? active.id : ring[0];
+  const currentIndex = Math.max(0, ring.indexOf(currentId));
+  selectedCameraId = ring[(currentIndex + direction + ring.length) % ring.length];
+  renderCameraPane(latestCameraState);
+}
+document.addEventListener("keydown", event => {
+  if(event.code === "NumpadAdd" || event.key === "+"){
+    event.preventDefault();
+    rotateVisualSource(1);
+  }
+  if(event.code === "NumpadSubtract" || event.key === "-"){
+    event.preventDefault();
+    rotateVisualSource(-1);
+  }
+});
+
+function renderWeatherLine(weatherState){
+  const status = value(weatherState.status, "unavailable").toLowerCase();
+  const location = value(weatherState.location, "");
+  const temp = value(weatherState.temperature_c ?? weatherState.temp_c ?? weatherState.temperature, "");
+  const condition = value(weatherState.condition, "");
+  if(status !== "unavailable" && location !== "missing" && temp !== "missing" && condition !== "missing"){
+    setText("weatherLine", "Weather: " + location + ", " + temp + "°C, " + condition, "Weather: unavailable");
+    return;
+  }
+  setText("weatherLine", "Weather: unavailable", "Weather: unavailable");
+}
+function normalLogVisibleMessages(messages){
+  return messages.filter(message => {
+    const text = value(message.text, "");
+    return !TECHNICAL_LOG_HIDE_UNLESS_SHOW_ALL.some(marker => text.includes(marker));
+  });
+}
+function normalizeLiveChatState(payload){
+  const messages = Array.isArray(payload.messages) ? payload.messages : [];
+  const latest = messages.length ? messages[messages.length - 1] : {};
+  return Object.assign({}, payload, {
+    event: "chat_state",
+    status: messages.length ? "CONNECTED" : "READY_EMPTY",
+    source_endpoint: "/ptt/multichat.json",
+    messages,
+    session_messages: messages,
+    latest_participant: payload.latest_participant || latest.display_name || "",
+    latest_message: payload.latest_message || latest.text || ""
+  });
+}
+function renderChat(chatState, routeState, sessionState){
+  const messages = normalLogVisibleMessages(
+    Array.isArray(chatState.session_messages) && chatState.session_messages.length
+      ? chatState.session_messages
+      : (Array.isArray(chatState.messages) ? chatState.messages : [])
+  ).slice(-12);
+  const signature = JSON.stringify(messages.map(message => [message.display_name, message.text, message.timestamp]));
+  if(signature !== lastChatSignature){
+    const chat = byId("sessionChatMessages");
+    if(chat){
+      chat.innerHTML = "";
+      const visible = messages.length ? messages : [{display_name:"", text:"Chat ready and waiting..."}];
+      visible.forEach(message => {
+        const row = document.createElement("p");
+        row.className = "session-chat-message";
+        const speaker = document.createElement("b");
+        speaker.textContent = value(message.display_name, "");
+        const text = document.createElement("span");
+        text.textContent = value(message.text, "Chat ready and waiting...");
+        row.appendChild(speaker);
+        row.appendChild(text);
+        chat.appendChild(row);
+      });
+    }
+    lastChatSignature = signature;
+  }
+  const latest = messages.length ? messages[messages.length - 1] : {};
+  setText("sessionChatStatus", value(chatState.status, "CONNECTED") + " / " + value(chatState.source_endpoint, "/ptt/multichat.json"), "Chat ready and waiting...");
+  setText("sessionChatRoute", routeState.route_id || routeState.current_route || routeState.display_name, "missing");
+  setText("sessionChatPersona", routeState.persona_id || routeState.route_persona || routeState.active_persona || latest.display_name, "missing");
+  setText("sessionChatUpdated", chatState.timestamp || chatState.updated_at || latest.timestamp || sessionState.updated_at, "missing");
+}
+function renderTopTruth(chalkState, routeState, sessionState, chatState, cameraState){
+  const response = chalkState && chalkState.event ? value(chalkState.last_response || chalkState.banner, "CHALK WAITING") : "CHALK STATE NOT CONNECTED";
+  setText("chalkBannerText", response, "CHALK WAITING");
+  const sessionStatus = value(sessionState.status, "PRE-INTENT");
+  const gopodOn = sessionStatus === "ACTIVE" || sessionStatus === "ACTIVE_WITH_DISPLAY_BLOCKER" || chatState.session_active === true;
+  const blocked = sessionStatus.includes("BLOCK") || value((cameraState.activation_supervisor_status || {}).status, "").includes("BLOCK");
+  setText("truthGopod", blocked ? "BLOCKED" : gopodOn ? "ON" : "OFF", "OFF");
+  setText("truthSession", gopodOn ? "ACTIVE" : blocked ? "BLOCKED" : "PRE-INTENT", "PRE-INTENT");
+  setText("truthRoute", routeState.display_name || routeState.route_id || routeState.current_route || routeState.last_keypress, "missing");
+}
+
+async function poll(){
+  const [
+    cameraState,
+    chalkState,
+    routeState,
+    liveChatPayload,
+    sessionState,
+    weatherState,
+    qrTargets
+  ] = await Promise.all([
+    fetchCameraState(),
+    fetchStateFile("chalk_state.json", {status:"CHALK_WAITING", last_response:"CHALK WAITING", route:"chalk"}),
+    fetchStateFile("route_state.json", {current_route:"", last_keypress:""}),
+    fetchJson("/ptt/multichat.json", {messages:[]}),
+    fetchStateFile("session_state.json", {event:"session_state", status:"STATE_FILE_NOT_FOUND"}),
+    fetchStateFile("weather_state.json", {event:"weather_state", status:"unavailable"}),
+    fetchQrTargets()
+  ]);
+  const chatState = normalizeLiveChatState(liveChatPayload);
+  renderCameraPane(cameraState);
+  renderWeatherLine(weatherState);
+  renderQrTargets(qrTargets);
+  renderTopTruth(chalkState, routeState, sessionState, chatState, cameraState);
+  renderChat(chatState, routeState, sessionState);
+  setTimeout(poll, 1200);
+}
+poll();
+</script>
+</body>
+</html>

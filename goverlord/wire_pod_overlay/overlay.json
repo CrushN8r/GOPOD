@@ -1,0 +1,14 @@
+{
+  "Replace": {
+    "/home/goverlord/wire-pod/chipper/pkg/logger/gopod_logger_extensions.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/logger/gopod_logger_extensions.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/sdkapp/server.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/sdkapp/server.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/kgsim.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/kgsim.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/kgsim_cmds.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/kgsim_cmds.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/kgsim_interrupt.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/kgsim_interrupt.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/weather.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/weather.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_render_scaffold.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_render_scaffold.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_kgsim_response_shaping.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_kgsim_response_shaping.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_weather_geocode.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_weather_geocode.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_kgsim_cmds_extras.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_kgsim_cmds_extras.go"
+  }
+}

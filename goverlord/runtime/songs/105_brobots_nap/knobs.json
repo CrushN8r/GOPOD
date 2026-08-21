@@ -1,0 +1,18 @@
+{
+  "song_id": "brobots_baby_robots_sleep",
+  "song_type": "bait_capture",
+  "story_ref": "story.md",
+  "steps": [
+    { "step_id": "wake_both", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPEN" },
+    { "step_id": "reporter_gap_intro", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_opening_question", "section": "OPEN" },
+    { "step_id": "open_question", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "OPEN" },
+    { "step_id": "establish_world", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "WORLD" },
+    { "step_id": "off_balance", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "OFF-BALANCE" },
+    { "step_id": "care_moment", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "CARE" },
+    { "step_id": "settle_purr", "note": "emotion_beat", "speaker": "brobot_1", "animation_token": "veryHappy", "pre_animation_pause_seconds": 2.0, "hold_seconds": 4.0, "buffer_after": 1.5, "section": "SETTLE" },
+    { "step_id": "doc_born", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "ORIGIN" },
+    { "step_id": "closing_line", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 1.5, "section": "CLOSE" },
+    { "step_id": "reporter_gap_outro", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "after_closing_line", "section": "CLOSE" },
+    { "step_id": "exit", "note": "exit", "speaker": "brobot_1", "section": "CLOSE" }
+  ]
+}

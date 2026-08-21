@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "STAGE B CLOSURE: enums cover every live envelope write site, confirmed by fresh grep for source_producer in both live files. Writer (goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/gopod_ptt_chat_writer_013.py): :625-631 append_operator_message (operator_mic_kp1, operator_mic_kp2), :705-713 append_persona_message (llm_doc_self_id, llm_pip_self_id). Cockpit (goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/gopod_demo_8011.py): :62-68 DEFAULT_CHAT_MESSAGES seed envelope (operator/live_sample), :69-75 DEFAULT_CHAT_MESSAGES seed envelope (system/live_sample), :274-281 build_wirepod_log_event (wire_pod/wirepod_standard_log_prefill, wire_pod/wirepod_debug_log_prefill). STAGE BINGO V1: added speaker_id=bingo and source_producer=bingo_draw/bingo_start/bingo_end, written by goverlord/runtime/songs/102_brobots_bingo_game/pkg/intents/gopod_chat_envelope.go:AppendBingoEnvelope. STAGE BINGO V2: voicecommand_lottery.go:482 emits bingo_ready (replaces the bingo_start call site; bingo_start value stays in the enum, reserved for a future distinct 'game truly started' event, no live write site today), voicecommand_lottery.go:557 emits bingo_draw (auto-draw tick) and :585 emits bingo_draw (first, touch-triggered draw), finishBingo() at :650 emits bingo_deck_reveal (button/early-exit reason only, before bingo_end) and :653 emits bingo_end (all exit reasons).",
+  "title": "GOPOD chat envelope",
+  "type": "object",
+  "required": ["speaker_id", "display_name", "text", "timestamp", "source_producer"],
+  "additionalProperties": false,
+  "properties": {
+    "speaker_id": { "type": "string", "enum": ["operator", "doc", "pip", "chalk", "wire_pod", "system", "bingo"] },
+    "display_name": { "type": "string" },
+    "text": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "source_producer": {
+      "type": "string",
+      "enum": [
+        "operator_mic_kp1",
+        "operator_mic_kp2",
+        "llm_doc_self_id",
+        "llm_pip_self_id",
+        "live_sample",
+        "wirepod_standard_log_prefill",
+        "wirepod_debug_log_prefill",
+        "bingo_draw",
+        "bingo_start",
+        "bingo_end",
+        "bingo_ready",
+        "bingo_deck_reveal"
+      ]
+    }
+  }
+}

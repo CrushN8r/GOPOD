@@ -1,0 +1,40 @@
+{
+  "song_id": "brobots_preshow",
+  "song_type": "preshow",
+  "story_ref": "story.md",
+  "steps": [
+    { "step_id": "m1_a", "movement": "m1", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m1_b", "movement": "m1", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m1_c", "movement": "m1", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m1_d", "movement": "m1", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m1_e", "movement": "m1", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m1_f", "movement": "m1", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m1_g", "movement": "m1", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m1_h", "movement": "m1", "speaker": "brobot_4", "mode": "canned" },
+
+    { "step_id": "m2_a", "movement": "m2", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m2_b", "movement": "m2", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m2_c", "movement": "m2", "speaker": "brobot_1", "mode": "llm_coloured", "arm_cue": true },
+    { "step_id": "m2_d", "movement": "m2", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m2_e", "movement": "m2", "speaker": "brobot_3", "mode": "canned" },
+
+    { "step_id": "m3_a", "movement": "m3", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m3_b", "movement": "m3", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m3_c", "movement": "m3", "speaker": "brobot_2", "mode": "llm_coloured", "arm_cue": true },
+    { "step_id": "m3_d", "movement": "m3", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m3_e", "movement": "m3", "speaker": "brobot_3", "mode": "canned" },
+
+    { "step_id": "m4_a", "movement": "m4", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m4_b", "movement": "m4", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m4_c", "movement": "m4", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m4_d", "movement": "m4", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m4_e", "movement": "m4", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "m4_f", "movement": "m4", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "m4_g", "movement": "m4", "speaker": "brobot_3", "mode": "canned" },
+
+    { "step_id": "vamp_1", "movement": "vamp", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "vamp_2", "movement": "vamp", "speaker": "brobot_4", "mode": "canned" },
+    { "step_id": "vamp_3", "movement": "vamp", "speaker": "brobot_3", "mode": "canned" },
+    { "step_id": "vamp_4", "movement": "vamp", "speaker": "brobot_4", "mode": "canned" }
+  ]
+}

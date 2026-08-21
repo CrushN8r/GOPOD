@@ -1,0 +1,10 @@
+{
+  "vosk_model_path": "goverlord/runtime/data_gomad/models/vosk/vosk-model-small-en-us-0.15",
+  "piper_command": "/home/goverlord/.local/bin/piper",
+  "piper_voices": {
+    "female_amy": "en_US-amy-medium.onnx",
+    "male_lessac": "en_US-lessac-medium.onnx"
+  },
+  "session_root": "~/gopod_tts/sessions",
+  "live_chat_messages": "goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/live_chat_messages.json"
+}

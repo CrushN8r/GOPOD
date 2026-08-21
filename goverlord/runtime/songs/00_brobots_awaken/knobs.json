@@ -1,0 +1,99 @@
+{
+  "song_id": "brobots_awaken_golden",
+  "song_type": "bait_capture",
+  "story_ref": "story.md",
+  "steps": [
+    {
+      "step_id": "connect",
+      "note": "connect",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "pause_after_connect",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0
+    },
+    {
+      "step_id": "say_connected",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "arm_test",
+      "note": "arm_cue",
+      "speaker": "brobot_1",
+      "cycles": 3,
+      "hold_seconds": 0.36,
+      "speed": 4
+    },
+    {
+      "step_id": "arm_test_done",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "pause_after_arm",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0
+    },
+    {
+      "step_id": "head_nod",
+      "note": "head_nod",
+      "speaker": "brobot_1",
+      "hold_seconds": 0.36,
+      "speed": 4
+    },
+    {
+      "step_id": "head_nod_done",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "pause_after_head_nod",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0
+    },
+    {
+      "step_id": "weather",
+      "note": "weather",
+      "speaker": "brobot_1",
+      "weather_include_location_date": true
+    },
+    {
+      "step_id": "weather_check_done",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "pause_after_weather",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0
+    },
+    {
+      "step_id": "party",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "show_outro",
+      "note": "say",
+      "speaker": "brobot_1"
+    },
+    {
+      "step_id": "pause_after_party",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0
+    },
+    {
+      "step_id": "exit",
+      "note": "exit",
+      "speaker": "brobot_1"
+    }
+  ],
+  "global_tempo": 0.0
+}

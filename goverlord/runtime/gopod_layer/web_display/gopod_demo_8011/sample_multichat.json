@@ -1,0 +1,35 @@
+{
+  "proof_id": "WDTM_BIG_FONT_CHAT_DISPLAY_PROOF_003B",
+  "source_mode": "static_sample_only",
+  "messages": [
+    {
+      "speaker": "Operator",
+      "route": "GOPOD_YOURSELF",
+      "kind": "transcript",
+      "text": "GOPOD Yourself. Show the Windsor DTM private prep lane.",
+      "timestamp": "2026-05-31T00:00:00Z"
+    },
+    {
+      "speaker": "Doc",
+      "route": "KP1",
+      "kind": "sample_fast_reply",
+      "text": "Doc heard: GOPOD Yourself. Show the Windsor DTM private prep lane.",
+      "timestamp": "2026-05-31T00:00:01Z"
+    },
+    {
+      "speaker": "Pip",
+      "route": "KP2",
+      "kind": "sample_fast_reply",
+      "text": "Pip heard: GOPOD Yourself. Show the Windsor DTM private prep lane.",
+      "timestamp": "2026-05-31T00:00:02Z"
+    },
+    {
+      "speaker": "CHALK",
+      "route": "KP9",
+      "kind": "private_surface",
+      "text": "Windsor DTM private prep: Healthy Distractions. Next: choose one private proof object for operator review.",
+      "timestamp": "2026-05-31T00:00:03Z"
+    }
+  ],
+  "updated_at": "2026-05-31T00:00:03Z"
+}

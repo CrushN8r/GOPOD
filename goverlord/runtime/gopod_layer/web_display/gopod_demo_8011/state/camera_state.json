@@ -1,0 +1,60 @@
+{
+  "event": "camera_state",
+  "status": "READY_PLACEHOLDERS",
+  "layout": {
+    "camera_area": "2/3",
+    "hover_enlarge": true,
+    "pane_ratio": "2:1",
+    "thumbnail_count": 3,
+    "tpu_area": "1/3"
+  },
+  "selected_tpu_source_id": "doc_robot",
+  "selected_tpu_source_label": "Doc robot cached proof source",
+  "cameras": [
+    {
+      "id": "doc_robot",
+      "kind": "cached_vector",
+      "label": "Doc cached robot bridge frame",
+      "large_url": "/raw/doc.jpg",
+      "serial": "0dd1b9e9",
+      "status": "PLACEHOLDER",
+      "thumb_url": "/raw/doc.jpg"
+    },
+    {
+      "id": "pip_robot",
+      "kind": "cached_vector",
+      "label": "Pip cached robot bridge frame",
+      "large_url": "/raw/pip.jpg",
+      "serial": "0dd1d8bf",
+      "status": "PLACEHOLDER",
+      "thumb_url": "/raw/pip.jpg"
+    },
+    {
+      "id": "usb_c920",
+      "kind": "usb_camera_video_only",
+      "label": "Logitech C920 video only",
+      "large_url": "/raw/c920.jpg",
+      "status": "PLACEHOLDER",
+      "thumb_url": "/raw/c920.jpg"
+    }
+  ],
+  "edge_tpu": {
+    "annotated_frame_available": false,
+    "annotated_frame_url": "",
+    "current_source_id": "doc_robot",
+    "current_source_label": "Doc robot cached proof source",
+    "kp_status": {
+      "KP+": "next",
+      "KP-": "prev"
+    },
+    "objects": [],
+    "ring_order": [
+      "doc_robot",
+      "pip_robot",
+      "usb_c920"
+    ],
+    "status": "OPTIONAL_OFFLINE",
+    "updated_at": ""
+  },
+  "updated_at": ""
+}

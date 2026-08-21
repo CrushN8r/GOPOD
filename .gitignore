@@ -1,0 +1,136 @@
+__init__.py
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+desktop.ini
+# goverlord/runtime/data_gomad/models/: downloaded model binaries only.
+# README.md documents contents; everything else stays gitignored. (Moved
+# here from goverlord/gomads/data_gomad/models/ 2026-07-30 when gomads/ was
+# removed - data_gomad was its one live gomad, see
+# gopod_notes/GOVERLORD_DEAD_WEIGHT_SURVEY_001.md.)
+goverlord/runtime/data_gomad/models/*
+!goverlord/runtime/data_gomad/models/README.md
+goverlord/runtime/songs/102_brobots_bingo_game/bingo_reactor/.venv/
+
+# goverlord/runtime/songs/102_brobots_bingo_game/bingo_reactor/probes/: work in progress, kept
+# offline until more polished (operator call, 2026-07-05).
+goverlord/runtime/songs/102_brobots_bingo_game/bingo_reactor/probes/
+
+# goverlord/SDK/: only GOPOD-authored files (README.md, HOST_SPLIT.md, the
+# two setup/sync scripts) are tracked. Everything below is vendored/
+# generated content that can be re-fetched or regenerated - see
+# goverlord/SDK/README.md. sources/README.md documents what's in sources/
+# and is the one exception kept out of the blanket ignore.
+goverlord/SDK/sources/*
+!goverlord/SDK/sources/README.md
+goverlord/SDK/.venv-scout/
+goverlord/SDK/tree.txt
+
+# .github/workflows/: keep GitHub Actions config out of the public repo
+# (operator call, 2026-07-07).
+.github/workflows/
+
+# goverlord/runtime/songs/<song>/runs/: private working output (rehearsal/
+# timing logs), never the public showcase. Each song's story.md/knobs.json
+# stays public; only runs/ is fenced, for any current or future song.
+goverlord/runtime/songs/*/runs/
+
+# goverlord/runtime/songs/zzz_archives/<song>/runs/: archived songs sit one level
+# deeper than current songs, so the pattern above never matched here - a real gap,
+# found 2026-08-15 (gopod_notes/ZZZ_ARCHIVES_SURVEY_001.md). Same fence, one level deeper.
+goverlord/runtime/songs/*/*/runs/
+
+# goverlord/runtime/songs/<song>/notation/: operator-authored marked-up score
+# snapshots - current-songs working laundry, not public showcase material
+# (operator call, 2026-07-29). Each song's story.md/knobs.json stays public;
+# only notation/ is fenced, for any current or future song.
+goverlord/runtime/songs/*/notation/
+
+# goverlord/runtime/gopod_layer/gopod_yourself/logs/: demo/session run logs - private working
+# output, the same class as songs/*/runs/ and notation/ above, never the public
+# showcase (operator call, 2026-07-30).
+goverlord/runtime/gopod_layer/gopod_yourself/logs/
+
+# goverlord/runtime/songs/<song>/zKnobs.json: private working (dirty-laundry)
+# knobs copy - every runner prefers this over knobs.json when it exists.
+# knobs.json stays the public "latest updated" glamour snapshot, only touched
+# when a tuned zKnobs.json is deliberately promoted over it (operator call,
+# 2026-08-04). Second pattern added 2026-08-08 for a song with its own
+# sub-song folder (01_brobots_interview_section_01/vamp/) - same rule, one
+# level deeper.
+goverlord/runtime/songs/*/zKnobs.json
+goverlord/runtime/songs/*/*/zKnobs.json
+
+# goverlord/runtime/songs/102_brobots_bingo_game/bin/*.bak: the rolling pre-edit binary backup
+# lineage. Git history already preserves every prior vectorx-gobingo build,
+# so these large .bak copies stay out of the tree (operator call,
+# 2026-07-21). The live vectorx-gobingo binary itself remains tracked.
+goverlord/runtime/songs/102_brobots_bingo_game/bin/*.bak
+
+# goverlord/runtime/songs/102_brobots_bingo_game/backups/: the locked-backup duplicate tree, already
+# untracked (commits 69604b9/7678c12) and removed from local disk 2026-07-30 -
+# see BINGO_BINARIES_PRUNED_001.md. Was previously only .git/info/exclude'd
+# (local-only, not transmitted with the repo); tracked here so it can't
+# silently reappear on any clone.
+goverlord/runtime/songs/102_brobots_bingo_game/backups/
+
+# Note: the 28 retired-goverlord-file gitignore entries that lived here
+# (GOVERLORD_DEAD_WEIGHT_SURVEY_001.md / _UNTRACK_EXECUTED_001.md) were
+# removed 2026-07-30 - the operator had those files physically deleted from
+# disk after backup, so nothing at those paths exists to ignore anymore.
+# Backup: gopod_notes/GOVERLORD_RETIRED_FILES_BACKUP_001/.
+
+# CLAUDE.local.md: the operator-specific half of the compass, split out of
+# CLAUDE.md 2026-08-15 so a genuinely public CLAUDE.md could exist (personal
+# info + raw operator voice doesn't belong in a public repo). CLAUDE.md
+# itself is now public and tracked, same as any other doc; only its private
+# sibling is ignored here. Tracking the pattern here, not just locally
+# (.git/info/exclude is a per-clone local setting - see that file's own
+# still-present CLAUDE.md line, harmless now that CLAUDE.md is tracked),
+# makes every clone refuse to track CLAUDE.local.md, no local setup
+# required. The filename itself isn't sensitive; only its contents are, and
+# gitignore never exposes contents.
+CLAUDE.local.md
+
+# endpoints.json: the last tracked network identifiers (2026-08-15,
+# PRIVACY_DECOUPLE_SURVEY_001.md/ENDPOINTS_EXTERNALIZED_001.md). Real values
+# stay on disk, untracked - the loader (data_gomad/configs/loader.py) reads
+# from a fixed path regardless of git status, so this needs zero code
+# change. endpoints.example.json (tracked, placeholder values only) shows
+# the shape for a fresh clone to fill in locally.
+goverlord/runtime/data_gomad/configs/endpoints.json
+
+# Private-lane hardening, promoted from .git/info/exclude (2026-08-15,
+# PRIVACY_DECOUPLE_SURVEY_001.md) - that file is per-clone local only, the
+# exact gap that let a stray CLAUDE.md get committed once (see this file's
+# own CLAUDE.local.md entry above). None of these three paths exist yet;
+# tracking the pattern here means no future session/clone/worktree can
+# accidentally stage them the moment they're created, same guarantee
+# CLAUDE.local.md now has.
+goverlord/runtime/iamtoldingyouso/
+goverlord/runtime/session/session_content_generator_map_001/iamtoldingyouso_video_lane_001.md
+goverlord/runtime/persona/personas/avi_lalah_persona_001.json
+
+# goverlord/runtime (copy)/: the operator's own private, hidden, example-
+# only reference copy of runtime/ - NOT the live tree (that's plain
+# goverlord/runtime/, no suffix). 290MB, fully untracked (confirmed via
+# `git ls-files`, zero hits inside it). Found untracked-but-unprotected
+# during the endpoints.json externalization pass (2026-08-15,
+# RUNTIME_COPY_GITIGNORED_001.md) - one `git add -A` away from landing
+# 290MB of private material in the public repo. No space/paren escaping
+# needed - gitignore glob syntax treats both as literal characters.
+goverlord/runtime (copy)/
+
+# goverlord/runtime.zip: the operator's own private backup zip of the
+# pre-restructure runtime/ tree (2026-08-15 restructure). Untracked but
+# was NOT actually gitignore-protected (`git check-ignore` returned no
+# match) - same class of gap as the "runtime (copy)" entry above, found
+# during GOPOLISHER_PRE_LIVETEST_SWEEP_001.
+goverlord/runtime.zip

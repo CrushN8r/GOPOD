@@ -1,0 +1,95 @@
+/* gopod_chat_bubbles.css — GOPOD-owned, deploys over stock Wire-Pod webroot via
+   apply_nongo_files.sh (see that script's PAIRS array). Not a stock Wire-Pod file —
+   extracted 2026-08-12 from index.html's inline <style> block, same GOPOD firewall
+   discipline as the native Go overlay files (kept out of stock css/style.css on
+   purpose). Linked from index.html via a plain <link rel="stylesheet"> alongside
+   the existing css/style.css link.
+
+   2026-08-08: chat-bubbles container. Default fallback: 0px, invisible - page
+   looks exactly like the original unless rich display is 'y' in pha0b. State
+   (expanded or not) comes from gopod_rich_display_ui_state.json, a plain flag
+   file pha0b writes into this same webroot dir - polled here the same way
+   /api/get_logs already is, no caching, no restart. Bubble content comes from
+   that same /api/get_logs feed's own "Brobot 1: <text>" / "Brobot 2: <text>"
+   lines (server.go's /api-sdk/say_text display_text/display_role fields, sent
+   by every song's shared Robots.say()). */
+#brobot-chat-bubbles-container {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.25s ease;
+}
+#brobot-chat-bubbles-container.expanded {
+  height: 700px;
+  width: 1300px;
+  max-width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #111;
+  border-radius: 16px;
+  margin: 12px 0;
+  position: relative;
+}
+#brobot-chat-bubble-close {
+  display: none;
+  position: sticky;
+  top: 0;
+  align-self: flex-end;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.brobot-bubble {
+  max-width: 80%;
+  font-size: 34px;
+  font-weight: bold;
+  line-height: 1.3;
+  padding: 16px 24px;
+  border-radius: 20px;
+  color: #fff;
+  word-wrap: break-word;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brobot-bubble.brobot-1 {
+  background: #0d6efd;
+  align-self: flex-start;
+  text-align: left;
+}
+.brobot-bubble.brobot-2 {
+  background: #fd7e14;
+  align-self: flex-end;
+  text-align: right;
+  flex-direction: row-reverse;
+}
+/* 2026-08-19: small animated Vector face avatar, cosmetic-only - plain
+   decorative image, no coupling to battery.js/#botStats' own live battery-
+   state face machine. One generic face today (/assets/face.gif, the same
+   static asset .vectorFace's default/connected state uses) - both classes
+   below point at the identical file on purpose; a future per-persona pair
+   (Doc-face != Pip-face) is a one-line change per selector here, no JS/
+   markup change needed, not built this pass since no second asset exists. */
+.brobot-bubble-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+.brobot-bubble.brobot-1 .brobot-bubble-avatar {
+  background-image: url('/assets/face.gif');
+}
+.brobot-bubble.brobot-2 .brobot-bubble-avatar {
+  background-image: url('/assets/face.gif');
+}
+.brobot-bubble-text {
+  flex: 1 1 auto;
+}
