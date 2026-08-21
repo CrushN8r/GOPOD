@@ -70,6 +70,14 @@ Whether that's enough is a values question. Whether it counts at all — the pro
 
 ---
 
+## Gangster Granny
+
+![Gangster Granny](gangster_granny.png)
+
+A 93-year-old woman helped me when it counted. My thanks to her, my sweet, adorable, gangster granny in a sparkly bling cap.
+
+---
+
 > From Doctrine Barfallonyou
 > Lesson! How to think, not what. Method is a loop. Method carries.
 > Boom! Done! Class Dismissed!
