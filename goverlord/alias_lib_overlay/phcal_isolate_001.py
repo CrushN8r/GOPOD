@@ -1519,126 +1519,119 @@ def _detect_present_robots(clock):
     return present, mode
 
 
-def _confirm_multi_mode(clock, present_robots):
+def _confirm_multi_mode(clock, present_robots, detected_mode):
     """2026-08-18, operator request after live-testing multi mode: an
-    explicit confirm/override step, ONLY when detect-first resolves multi -
-    single and none still proceed automatically as detected, unchanged.
-    Returns (present_robots, session_mode) in the exact shape
-    _detect_present_robots() returns, so run_guided_flow() and every
-    mode-aware reader below treat an override identically to a real
-    single/none/multi detection - no separate code path needed anywhere
-    else in this file.
+    explicit confirm/override step. Returns (present_robots, session_mode)
+    in the exact shape _detect_present_robots() returns, so
+    run_guided_flow() and every mode-aware reader below treat an override
+    identically to a real single/none/multi detection - no separate code
+    path needed anywhere else in this file.
 
-    2026-08-21, PHCAL_MULTI_MODE_SCREEN_RESHAPE_001.md (operator's own
-    exact mockup, superseding the two prior passes at this same screen -
-    PHCAL_NAV_CONSOLIDATION_001.md's "d" re-key and PHCAL_NAV_BASE_RULES_
-    FIXES_001.md's "arrow down=none" hint-fold): rebuild to the locked
-    base rules' shape -
-      0. exit phcal from anywhere
-      1..N. single mode on that one present robot (one row per robot)
-      *. multi mode on all detected robots (replaces the old "y" row,
-         DEFAULT highlight, matching "*" = the tool-wide all-flag)
-      (last row) none mode on all robots (dry-run)
-    "0" raises _PhcalEscExit (full clean exit, same as ESC) - distinct
-    from the none-row, which continues the session dry.
+    History of this screen's own shape, kept for record (each pass
+    superseded the last): PHCAL_MULTI_MODE_SCREEN_RESHAPE_001.md's locked
+    base-rules shape (0 exit + 1..N single + * multi + a none hint line) ->
+    PHCAL_LESS_FLAKY_SWEEP_001.md (dropped the none-row's own typed key) ->
+    PHCAL_DOWN_ARROW_HOTKEY_001.md (down-arrow hotkey for none) ->
+    PHCAL_SLASH_HOTKEY_001.md ("/" keypress hotkey for none, resolving
+    PHCAL_FULL_ARROW_NAV_SURVEY_001.md's §0 ↓-collision as Option A) ->
+    PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1, 2026-08-22 ("0" row and its
+    exit-on-choice check removed; "/" became an ordinary arrow-reachable
+    row, no more keypress interception).
 
-    2026-08-21, PHCAL_LESS_FLAKY_SWEEP_001.md: the none-row's own key
-    ("d") was removed outright as a first pass - reachable only by
-    arrowing to it and pressing Enter, no key at all.
+    2026-08-23, direct operator build request: this screen now runs for
+    EVERY detected mode (multi/single/none), not only multi - the old
+    "only when detect-first resolves multi" gate is gone (call site in
+    _resolve_session_mode_once() below calls this unconditionally now).
+    Header is a fixed 3-line block naming the detected mode; a bare ENTER
+    with no arrow pressed accepts that detected mode as-is (the happy
+    path, no row needs to exist for it - "accept default" is a screen
+    STATE, tracked as highlight == -1, not a printed row). Arrow-down (or
+    up) enters the row list starting at index 0; only once a row is
+    highlighted does Enter resolve to that row's own choice instead of the
+    default. Rows never show their own key/prefix ("*"/"/"/"1.") anymore -
+    plain labels only, per this pass. Row set depends on detected_mode:
+    multi -> none row + one single-mode row per present robot (no more
+    "*" all-of-them row - accepting multi IS the bare-ENTER default now,
+    so a redundant row for it would just duplicate that path); single ->
+    none row + one single-mode row per present robot that isn't the one
+    already detected (present_robots has exactly one member whenever
+    detected_mode is "single" by _detect_present_robots()'s own contract,
+    so this set is empty in practice today - implemented literally per
+    the request, not reinterpreted, since a future N-candidate/1-present
+    shape could change that); none -> none row only (a dry-run-in-none
+    re-confirm, harmless, kept for symmetry with the other two modes
+    rather than special-cased away)."""
+    mode_upper = detected_mode.upper()
+    header = [
+        f"** brobots {mode_upper} mode detected **",
+        "Press ENTER now for default = 'y' to continue,",
+        "or Arrow down to select, then press ENTER",
+    ]
 
-    2026-08-21, PHCAL_DOWN_ARROW_HOTKEY_001.md: "none" was made a
-    down-arrow hotkey (no Enter needed) instead of a row in the
-    arrow-navigable list.
-
-    2026-08-21, PHCAL_SLASH_HOTKEY_001.md (operator direction, resolving
-    PHCAL_FULL_ARROW_NAV_SURVEY_001.md §0's ↓ collision as Option A): the
-    hotkey moved from the down-arrow to the "/" KEY - pressed from ANY
-    highlight position, no Enter needed, resolves immediately, same
-    mechanism as before, different trigger. This frees ↓ to mean ONLY
-    "move down" here too, same as everywhere else in the file, ahead of
-    full arrow-nav (finding 5) - no more screen-specific arrow meaning.
-    Mnemonic, operator's own: "*" (multiply) = all, "/" (divide) = none.
-    "/" is intercepted BEFORE the typed-buffer append (the "char" branch
-    below), so it never becomes part of a typed sequence - pressing it
-    always resolves immediately, it can never be "typed as part of a
-    longer answer" by accident. Still a deliberate, LOCAL departure from
-    arrow_column_pick()'s own contract (arrows-move/Enter-confirms) - not
-    a change to that shared engine; this function still has its own small
-    raw-key loop (same _read_key()/_raw_mode() primitives) because this
-    one screen's semantics differ. UP and DOWN both now just cycle the
-    highlight (wrapping) among the 4 real options (0/1/2.../*), same as
-    any other screen. The none-row is shown as a static hint line under
-    the real options with a leading "/" (not a real option in `choices`,
-    not reachable by typing-then-Enter or by arrow+Enter on a highlight -
-    the "/" keypress is its only path). "0"/digits/"*" typed-then-Enter
-    still work exactly as before, including exit-on-invalid for anything
-    unrecognized."""
-    options = [("0", "exit phcal from anywhere")]
-    options += [(p["which"], f"single mode on {p['label']}") for p in present_robots]
-    options += [("*", "multi mode on all detected brobots")]
-    choices = [k for k, _label in options]
-    highlight = choices.index("*")
-    typed = []
+    detected_which = present_robots[0]["which"] if detected_mode == "single" and present_robots else None
+    rows = [("/", "brobots-none mode (dry-runs)")]
+    if detected_mode in ("multi", "single"):
+        rows += [
+            (p["which"], f"brobots-single mode on {p['label']}")
+            for p in present_robots
+            if p["which"] != detected_which
+        ]
+    choices = [k for k, _label in rows]
+    highlight = -1
 
     def _redraw(first=False):
         if not first:
-            sys.stdout.write(f"\x1b[{len(options) + 1}A")
-        for i, (key, label) in enumerate(options):
+            sys.stdout.write(f"\x1b[{len(rows)}A")
+        for i, (_key, label) in enumerate(rows):
             marker = "> " if i == highlight else "  "
-            sys.stdout.write(f"\r\x1b[2K{marker}{key}. {label}\n")
-        sys.stdout.write(f"\r\x1b[2K  /  none mode on all brobots (dry-run)\n")
-        sys.stdout.write(f"\r\x1b[2K(typed: {''.join(typed)})")
+            sys.stdout.write(f"\r\x1b[2K{marker}{label}\n")
         sys.stdout.flush()
 
-    print("multi mode detected - continue:")
+    for line in header:
+        print(line)
     _redraw(first=True)
 
     with _raw_mode(sys.stdin.fileno()):
         while True:
             kind, val = _read_key()
             if kind == "esc":
+                # 2026-08-23, direct operator build request: ESC now respects
+                # this screen's own two states instead of always exiting.
+                # State B (a row is highlighted, highlight != -1) -> ESC bumps
+                # back to state A (the at-start "accept detected mode"
+                # default) rather than leaving the tool - the header line
+                # never left the screen, so resetting highlight and
+                # redrawing the row block is the whole "return to the
+                # initial screen" action needed. State A (highlight == -1,
+                # nothing above this screen to bump up to) -> ESC still
+                # raises _PhcalEscExit(), a clean full exit, unchanged.
+                if highlight != -1:
+                    highlight = -1
+                    _redraw()
+                    continue
                 print()
                 raise _PhcalEscExit()
-            if kind == "char" and val == "/":
-                print()
-                print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=none (operator chose dry-run over detected multi)")
-                return [], "none"
             if kind == "arrow":
-                if val == "up":
-                    highlight = (highlight - 1) % len(options)
+                if highlight == -1:
+                    highlight = 0
+                elif val in ("up", "left"):
+                    highlight = (highlight - 1) % len(rows)
                 else:
-                    highlight = (highlight + 1) % len(options)
-                typed = []
+                    highlight = (highlight + 1) % len(rows)
                 _redraw()
-                continue
-            if kind == "backspace":
-                if typed:
-                    typed.pop()
-                    _redraw()
                 continue
             if kind == "enter":
                 print()
-                if typed:
-                    raw = "".join(typed).strip().lower()
-                else:
-                    raw = choices[highlight]
-                if raw not in choices:
-                    print(f"PHCAL_GUIDED_INVALID_EXIT '{raw}' is not a control on this menu - exiting")
-                    raise _PhcalEscExit()
-                choice = raw
+                if highlight == -1:
+                    return present_robots, detected_mode
+                choice = choices[highlight]
                 break
-            if kind == "char" and val:
-                typed.append(val)
-                sys.stdout.write(val)
-                sys.stdout.flush()
-                continue
 
-    if choice == "0":
-        raise _PhcalEscExit()
-    if choice == "*":
-        return present_robots, "multi"
+    if choice == "/":
+        print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=none (operator chose dry-run over detected {detected_mode})")
+        return [], "none"
     match = next(p for p in present_robots if p["which"] == choice)
-    print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=single robot={match['which']} ({match['label']}) (operator chose single over detected multi)")
+    print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=single robot={match['which']} ({match['label']}) (operator chose single over detected {detected_mode})")
     return [match], "single"
 
 
@@ -1697,7 +1690,8 @@ def _resolve_session_mode_once():
     direct-flag CLI form, untouched). multi/single (the operator chose to
     continue, or detect-first found exactly one robot) sets it to "1";
     none (detected, or explicitly chosen via _confirm_multi_mode's none/
-    dry-run row) clears it - a hard set/pop either way, so a stray pre-exported value
+    dry-run row, now offered after every detected mode, not only multi)
+    clears it - a hard set/pop either way, so a stray pre-exported value
     from the shell never silently overrides what this screen just
     resolved. Every dispatch branch already reads this fresh via
     `os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"` at fire time, so
@@ -1706,8 +1700,7 @@ def _resolve_session_mode_once():
     global _SESSION_MODE, _PRESENT_ROBOTS
     _detect_clock = _Clock()
     _PRESENT_ROBOTS, _SESSION_MODE = _detect_present_robots(_detect_clock)
-    if _SESSION_MODE == "multi":
-        _PRESENT_ROBOTS, _SESSION_MODE = _confirm_multi_mode(_detect_clock, _PRESENT_ROBOTS)
+    _PRESENT_ROBOTS, _SESSION_MODE = _confirm_multi_mode(_detect_clock, _PRESENT_ROBOTS, _SESSION_MODE)
     if not _low_voltage_gate(_detect_clock, _PRESENT_ROBOTS):
         print(f"{_detect_clock.prefix()}PHCAL_GUIDED_EXIT declined to proceed with a low-battery robot present")
         return False
@@ -2073,11 +2066,9 @@ def cmd_tempo_calibration():
     for i, name in enumerate(song_dirs, start=1):
         print(f"  {i}. {name}")
     dir_choice = _prompt_pick(
-        f"Pick a song [1-{len(song_dirs)}]: ", {str(i) for i in range(1, len(song_dirs) + 1)} | {"0"},
+        f"Pick a song [1-{len(song_dirs)}]: ", {str(i) for i in range(1, len(song_dirs) + 1)},
         exit_on_invalid=True,
     )
-    if dir_choice == "0":
-        raise _PhcalEscExit()
     chosen_dir = song_dirs[int(dir_choice) - 1]
     knobs_path = SONGS_DIR / chosen_dir / "knobs.json"
     if not knobs_path.exists():
@@ -2091,11 +2082,10 @@ def cmd_tempo_calibration():
     # (see arrow_column_pick()'s own docstring) - choices/comparisons here
     # follow that contract, not the bash tempo-set's own case-insensitive
     # if-chain. numbered/lettered PICK -> exit_on_invalid=True, standardized
-    # by shape, PHCAL_NAV_CONSOLIDATION_001.md. "0" added as a deliberate
-    # exit choice, PHCAL_NAV_BASE_RULES_FIXES_001.md.
-    mode_choice = _prompt_pick("pick a mode [A/B]: ", {"a", "b", "0"}, exit_on_invalid=True)
-    if mode_choice == "0":
-        raise _PhcalEscExit()
+    # by shape, PHCAL_NAV_CONSOLIDATION_001.md. 2026-08-22,
+    # PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" removed - ESC is the
+    # only way out of this pick now.
+    mode_choice = _prompt_pick("pick a mode [A/B]: ", {"a", "b"}, exit_on_invalid=True)
 
     if mode_choice == "a":
         value = input("new global_tempo (0.0-9.9): ").strip()
@@ -2119,11 +2109,9 @@ def cmd_tempo_calibration():
     for i, sid in enumerate(step_ids, start=1):
         print(f"  {i}. {sid}")
     step_choice = _prompt_pick(
-        f"pick a step [1-{len(step_ids)}]: ", {str(i) for i in range(1, len(step_ids) + 1)} | {"0"},
+        f"pick a step [1-{len(step_ids)}]: ", {str(i) for i in range(1, len(step_ids) + 1)},
         exit_on_invalid=True,
     )
-    if step_choice == "0":
-        raise _PhcalEscExit()
     step_id = step_ids[int(step_choice) - 1]
     factor = input("new tempo_factor (default 1.0): ").strip() or "1.0"
     comment = input("tempo_comment (optional, Enter to leave unchanged): ").strip()
@@ -2544,14 +2532,20 @@ def _read_key():
     """One logical key event from stdin, in raw mode. Returns a
     (kind, value) tuple: ("char", <1-char str>) for a printable keystroke,
     ("enter", None) for Enter/Return, ("backspace", None), ("esc", None)
-    for a bare ESC (no bytes follow), or ("arrow", "up"/"down") for the
-    only two arrow directions this menu structure actually uses (left/
-    right are read as raw bytes but not surfaced as a distinct kind - every
-    call site here is a vertical list, not a left/right layout). Reads a
-    single raw byte first; if it's ESC (0x1b), does one more short,
-    non-blocking-ish read to see whether a `[`-prefixed escape sequence
-    follows - if nothing follows quickly, treats it as a bare ESC rather
-    than blocking forever waiting for a sequence that isn't coming."""
+    for a bare ESC (no bytes follow), or ("arrow", "up"/"down"/"left"/
+    "right") for all four arrow directions. Reads a single raw byte first;
+    if it's ESC (0x1b), does one more short, non-blocking-ish read to see
+    whether a `[`-prefixed escape sequence follows - if nothing follows
+    quickly, treats it as a bare ESC rather than blocking forever waiting
+    for a sequence that isn't coming.
+
+    2026-08-23: left/right used to be collapsed into up/down here (every
+    call site was a vertical list, so left/right had no distinct meaning
+    yet) - now surfaced as their own true values so a caller that DOES
+    want to tell them apart (navigate()'s new Left-back wiring) can.
+    arrow_column_pick()'s default behavior still treats left as up and
+    right as down (its own `left_is_back` opt-in, not a change here) -
+    every existing caller's up/down/select behavior is unchanged."""
     fd = sys.stdin.fileno()
     b = os.read(fd, 1)
     if not b:
@@ -2571,9 +2565,9 @@ def _read_key():
         if b3 == b"B":
             return ("arrow", "down")
         if b3 == b"C":
-            return ("arrow", "down")  # right treated as "down" (advance)
+            return ("arrow", "right")
         if b3 == b"D":
-            return ("arrow", "up")  # left treated as "up" (back)
+            return ("arrow", "left")
         return ("esc", None)
     if b in (b"\r", b"\n"):
         return ("enter", None)
@@ -2628,20 +2622,14 @@ def _prompt_pick(prompt, choices, default=None, exit_on_invalid=False):
     not "return None and hope the caller checked" - no silent wrong-robot
     fire, no crash, one consistent meaning.
 
-    2026-08-21, PHCAL_NAV_BASE_RULES_FIXES_001.md (PHCAL_NAV_BASE_RULES_
-    SURVEY_001.md §5 step 4): every non-tree PICK screen (_prompt_robot,
-    _prompt_animation_token, tempo's song/mode/step picks, sleep_wake's
-    release-mode) now lists "0" as its own DELIBERATE, recognized choice -
-    not just caught by the None-eject backstop above. When "0" is present
-    in `choices`, its row gets a real label ("exit") instead of this
-    wrapper's usual bare key==label pairing, so it reads the same
-    everywhere it appears rather than showing a bare "0. 0" row. Each
-    caller below still does its own `if picked == "0": raise
-    _PhcalEscExit()` immediately after this call - "0" isn't special-cased
-    to auto-raise HERE, because a caller may need to do its own bookkeeping
-    first (none needed one this pass, but the contract stays explicit,
-    not implicit)."""
-    options = [("0", "exit") if c == "0" else (c, c) for c in sorted(choices)]
+    2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" is REMOVED
+    tool-wide as a choice - no caller passes it anymore, so the "0" ->
+    "exit" label special-case below is gone too. ESC is now the only way
+    to exit from any of this wrapper's callers. The `if choice is None`
+    check just below is left in place as an inert safety net - with no
+    typed-input path left in arrow_column_pick(), it can no longer
+    actually fire, but removing it isn't part of this phase's own scope."""
+    options = [(c, c) for c in sorted(choices)]
     highlight = sorted(choices).index(default) if default in choices else 0
     print(prompt)
     choice = arrow_column_pick(options, highlight=highlight, exit_on_invalid=exit_on_invalid)
@@ -2650,7 +2638,14 @@ def _prompt_pick(prompt, choices, default=None, exit_on_invalid=False):
     return choice
 
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True):
+# 2026-08-23: sentinel arrow_column_pick() returns from a Left press when
+# called with left_is_back=True (navigate() only) - distinct from any real
+# choice key (which are always strings), so navigate() can tell "back one
+# level" apart from an actual row pick with a plain `is` check.
+_NAV_BACK = object()
+
+
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -2673,43 +2668,45 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     the future composition editor's own line-list size) on every key
     press.
 
-    Arrow up/down moves+wraps across the FULL option list (not just the
-    visible slice), Enter selects the highlighted item, typing an in-range
-    key then Enter also resolves (typed fallback). ESC raises
-    _PhcalEscExit immediately, uncaught here - propagates to whatever
-    already catches it (run_guided_flow()'s own try/except), unchanged.
+    Arrow up/down moves+wraps across the full option list. Enter selects
+    the highlighted item. ESC raises _PhcalEscExit immediately, uncaught
+    here - propagates to whatever already catches it (run_guided_flow()'s
+    own try/except), unchanged.
 
-    "0" is whatever the caller put in `options` when it's a REAL listed
-    choice (navigate()'s own injected "0" = back/exit entries, or any
-    PICK screen that now lists "0" explicitly per
-    PHCAL_NAV_BASE_RULES_FIXES_001.md) - returned normally like any other
-    valid choice, the caller decides what it means. 2026-08-21,
-    PHCAL_NAV_BASE_RULES_FIXES_001.md (PHCAL_NAV_BASE_RULES_SURVEY_001.md
-    §5 step 3) added ONE exception: when exit_on_invalid=False (a plain
-    y/n CONFIRM) and "0" is typed but is NOT itself a real choice (true of
-    every CONFIRM in this file - they're all {"y","n"}), it raises
-    _PhcalEscExit the same as ESC, instead of falling into the normal
-    retry-and-reprompt loop below - "0" cleanly exits from a CONFIRM
-    screen too, not just a PICK, with no per-call-site change needed.
+    2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: the typed-buffer
+    fallback (type a key, Enter resolves it) is REMOVED - no typed-input
+    path remains anywhere in this file. Enter always resolves to whatever
+    row is currently highlighted; a bare character/backspace keypress is
+    now simply ignored (no branch matches it, the loop just reads the next
+    key). Because Enter can no longer produce a value outside `choices`,
+    this function can no longer return None - the old "0"/exit_on_invalid
+    invalid-input handling (PHCAL_GUIDED_INVALID/_EXIT, the "0" CONFIRM
+    special-case) is dead code as a direct result and has been removed from
+    the body below. `exit_on_invalid` stays in the signature, unused,
+    rather than auditing/changing every one of its ~13 call sites in this
+    same pass - flagged, not silently dropped, per
+    PHCAL_ARROW_NAV_BUILD_PLAN_002.md's own Phase 1 caution.
 
-    exit_on_invalid (new this pass - the old `_prompt_choice()`'s own
-    per-call-site parameter, now decided by prompt SHAPE, not drift):
-    True (the default, and navigate()'s own unconditional prior behavior)
-    - a typed value that isn't a real option key prints ONE
-    PHCAL_GUIDED_INVALID_EXIT warning and returns None immediately. False
-    - the same bad value prints a plain PHCAL_GUIDED_INVALID warning, clears
-    the typed buffer, redraws, and loops - the same retry-on-typo behavior
-    `_prompt_choice()`'s own exit_on_invalid=False callers (every plain
-    y/n confirm) always had. PHCAL_INPUT_TREE_SURVEY_001.md §5 step 3's
-    rule: every numbered/lettered PICK passes True (unchanged from
-    before), every y/n CONFIRM passes False - one rule by shape, not an
-    unlabeled boolean set ad hoc per call site."""
+    2026-08-23: `left_is_back`, default False, preserves every existing
+    caller's behavior exactly (left still moves the highlight like up,
+    right still moves it like down - unchanged). navigate() is the one
+    caller that passes True: there, Left means "back one menu level," a
+    different thing from "move up in this list," so a Left press returns
+    the _NAV_BACK sentinel immediately instead of moving the highlight.
+    Right/Up/Down/Enter are untouched by this opt-in either way.
+
+    2026-08-23: `show_key`, default True, preserves every existing caller's
+    rendering exactly (`{key}. {label}`). navigate() is the one caller that
+    passes False - its tree rows carry their own fully-formed label text
+    now (PHCAL_ARROW_NAV_BUILD_PLAN's row-format pass), so the numbered
+    key prefix is dead weight there; every other caller (the y/n confirms,
+    `_prompt_robot()`, animation-token pick, etc.) is untouched and still
+    shows its key."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
         window_height = n
     offset = 0
-    typed = []
 
     def _redraw(first=False):
         nonlocal offset
@@ -2723,8 +2720,8 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
             real_index = offset + i
             key, label = options[real_index]
             marker = "> " if real_index == highlight else "  "
-            sys.stdout.write(f"\r\x1b[2K{marker}{key}. {label}\n")
-        sys.stdout.write(f"\r\x1b[2K(typed: {''.join(typed)})")
+            row_text = f"{key}. {label}" if show_key else label
+            sys.stdout.write(f"\r\x1b[2K{marker}{row_text}\n")
         sys.stdout.flush()
 
     _redraw(first=True)
@@ -2736,48 +2733,18 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                 print()
                 raise _PhcalEscExit()
             if kind == "arrow":
-                if val == "up":
+                if left_is_back and val == "left":
+                    print()
+                    return _NAV_BACK
+                if val in ("up", "left"):
                     highlight = (highlight - 1) % n
                 else:
                     highlight = (highlight + 1) % n
-                typed = []
                 _redraw()
-                continue
-            if kind == "backspace":
-                if typed:
-                    typed.pop()
-                    _redraw()
                 continue
             if kind == "enter":
                 print()
-                if typed:
-                    raw = "".join(typed).strip().lower()
-                else:
-                    raw = choices[highlight]
-                if raw in choices:
-                    return raw
-                if not exit_on_invalid and raw == "0":
-                    # 2026-08-21, PHCAL_NAV_BASE_RULES_FIXES_001.md
-                    # (PHCAL_NAV_BASE_RULES_SURVEY_001.md §5 step 3): "0" =
-                    # clean exit, everywhere, one meaning - including at a
-                    # plain y/n CONFIRM (exit_on_invalid=False), which
-                    # otherwise never has "0" as a real choice at all and
-                    # would just retry-loop on it forever below. One check,
-                    # here, fixes every CONFIRM call site in the file at
-                    # once - none of them needed editing individually.
-                    raise _PhcalEscExit()
-                if exit_on_invalid:
-                    print(f"PHCAL_GUIDED_INVALID_EXIT '{raw}' is not a control on this menu - exiting")
-                    return None
-                print(f"PHCAL_GUIDED_INVALID expected one of {sorted(choices)}, got '{raw}'")
-                typed = []
-                _redraw()
-                continue
-            if kind == "char" and val:
-                typed.append(val)
-                sys.stdout.write(val)
-                sys.stdout.flush()
-                continue
+                return choices[highlight]
 
 
 def navigate(tree, window_height=None):
@@ -2793,15 +2760,29 @@ def navigate(tree, window_height=None):
     `tree`: a dict mapping pick_key -> (display_label, child), where
     child is either another such dict (descend one level) or a plain
     string (a real leaf - the value navigate() returns once picked, no
-    further menu drawn for it). "0" is injected automatically at every
-    level - "back to previous menu" if a parent level exists on the
-    stack, "exit" at the root - the caller's own tree data never needs
-    its own "0" entry. Picking "0" pops one level; popping past the root
-    returns None (the whole navigate() call is over - same meaning
-    _run_guided_flow_once()'s own top-level "0"/exit already had before
-    this port). ESC propagates uncaught, same as every other prompt in
-    this file - the caller already has one catch point for it
-    (run_guided_flow()'s own try/except _PhcalEscExit).
+    further menu drawn for it).
+
+    2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: the
+    auto-injected "0" back/exit row is REMOVED - no typed-input path
+    remains anywhere in this file. ESC is still the only way to abandon a
+    navigate() call outright.
+
+    2026-08-23, direct operator build request: Left now backs up one menu
+    level, wired into the `stack`/pop machinery Phase 1 left inert for
+    exactly this. arrow_column_pick() is called with left_is_back=True, so
+    a Left press there returns the _NAV_BACK sentinel instead of moving
+    the highlight; this loop pops the stack and redraws the parent level
+    on that sentinel. At the root (len(stack) == 1, no parent to return
+    to - mid-session mode re-pick isn't built yet) Left is a deliberate
+    no-op: the sentinel still comes back, but the pop is skipped and the
+    same level just redraws, so the operator stays put rather than
+    exiting. Right/Up/Down/Enter are unchanged.
+
+    2026-08-23, row-format build request: calls arrow_column_pick() with
+    show_key=False now - tree row labels carry their own full text
+    (Brobots prefix, [disabled] prefix, no leading number), so the
+    generic "{key}. " rendering would just be redundant/dead weight here.
+    Every other arrow_column_pick() caller in the file is untouched.
 
     window_height: default None, meaning "size to this level's own real
     content, every level, dynamically" - NOT a fixed number (2026-08-20,
@@ -2809,11 +2790,10 @@ def navigate(tree, window_height=None):
     operator decision: a static default re-breaks the instant any menu's
     real item count differs from whatever number it was tuned for - it did
     exactly that here, once, already). When None, EACH level computes its
-    own window height as len(options) for THAT level - the "0" this
-    function always injects is already inside `options` by the time that
-    length is taken, so every level's window is exactly its own real-item
-    count + 1, with no menu-wide constant anywhere to drift stale as menus
-    grow, shrink, or differ level to level (root vs. a 2-3-item sub-menu).
+    own window height as len(options) for THAT level, so every level's
+    window is exactly its own real-item count, with no menu-wide constant
+    anywhere to drift stale as menus grow, shrink, or differ level to
+    level (root vs. a 2-3-item sub-menu).
     This also matches arrow_column_pick()'s own None contract one level up
     - "show everything, no scrolling" - cascaded per level instead of
     computed once for the whole tree. A caller that DOES want real
@@ -2824,15 +2804,13 @@ def navigate(tree, window_height=None):
     stack = [tree]
     while stack:
         node = stack[-1]
-        back_label = "back to previous menu" if len(stack) > 1 else "exit"
         keys = sorted(node, key=lambda k: (len(k), k))
-        options = [("0", back_label)] + [(k, node[k][0]) for k in keys]
+        options = [(k, node[k][0]) for k in keys]
         level_height = window_height if window_height is not None else len(options)
-        choice = arrow_column_pick(options, highlight=0, window_height=level_height)
-        if choice is None or choice == "0":
-            stack.pop()
-            if not stack:
-                return None
+        choice = arrow_column_pick(options, highlight=0, window_height=level_height, left_is_back=True, show_key=False)
+        if choice is _NAV_BACK:
+            if len(stack) > 1:
+                stack.pop()
             continue
         _label, child = node[choice]
         if isinstance(child, dict):
@@ -2889,7 +2867,12 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
     MULTI mode (_SESSION_MODE="multi") and the no-detection case
     (_SESSION_MODE is None - the direct-flag main() path never calls
     run_guided_flow() and never sets this) are both completely unaffected -
-    this whole block is skipped, prompting exactly as before this pass."""
+    this whole block is skipped, prompting exactly as before this pass.
+
+    2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" (clean
+    exit) is REMOVED from both pick shapes below - no typed-input path
+    remains anywhere in this file, and ESC is now the only way to exit
+    from this prompt."""
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
         resolved = _PRESENT_ROBOTS[0]["which"]
         note = f" {prompt_note}" if prompt_note else ""
@@ -2897,21 +2880,17 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
         return resolved
     suffix = f" {prompt_note}" if prompt_note else " "
     if allow_both:
-        options = [("0", "exit"), ("1", "1"), ("2", "2"), ("*", "both (1 and 2)")]
+        options = [("1", "1"), ("2", "2"), ("*", "both (1 and 2)")]
         option_keys = [k for k, _label in options]
         default_key = "*" if default == "both" else default
         highlight = option_keys.index(default_key) if default_key in option_keys else 0
         print(f"robot (1, 2, or * for both)?{suffix}")
         robot = arrow_column_pick(options, highlight=highlight)
-        if robot == "0" or robot is None:
-            raise _PhcalEscExit()
         if robot == "*":
             return "both"
         return robot
-    choices = {"1", "2", "0"}
+    choices = {"1", "2"}
     robot = _prompt_pick(f"robot (1 or 2)?{suffix}", choices, default=default, exit_on_invalid=True)
-    if robot == "0":
-        raise _PhcalEscExit()
     return robot
 
 
@@ -2924,23 +2903,21 @@ def _prompt_animation_token():
     on purpose, not a shared generic menu helper.
 
     "*" = all three in sequence (2026-08-15, PHCAL_ANIMATION_ALL_SEQUENCE_
-    001.md; re-keyed off "0" to "a" 2026-08-21, PHCAL_NAV_CONSOLIDATION_
-    001.md - "0" is reserved tool-wide for back/exit only - then "a" to
-    "*" the same day, PHCAL_NAV_BASE_RULES_FIXES_001.md: "*" is the
-    tool-wide all-flag now, PHCAL_NAV_BASE_RULES_SURVEY_001.md's own
-    locked rule set). "0" is also now a deliberate, recognized choice here
-    meaning clean exit. Returns the literal string "all"; the caller
-    (run_guided_flow's "animation" branch) is what actually loops over the
-    three tokens - this function stays a pure picker, no firing logic
-    here."""
+    001.md, re-keyed to "*" 2026-08-21, PHCAL_NAV_BASE_RULES_FIXES_001.md:
+    "*" is the tool-wide all-flag now). Returns the literal string "all";
+    the caller (run_guided_flow's "animation" branch) is what actually
+    loops over the three tokens - this function stays a pure picker, no
+    firing logic here.
+
+    2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" (clean
+    exit) is REMOVED - no typed-input path remains anywhere in this file,
+    and ESC is now the only way to exit from this prompt."""
     print("Animation tokens:")
     print(f"  *. all in sequence ({', '.join(_ANIMATION_TOKEN_MENU[k] for k in sorted(_ANIMATION_TOKEN_MENU))})")
     for key in sorted(_ANIMATION_TOKEN_MENU):
         print(f"  {key}. {_ANIMATION_TOKEN_MENU[key]}")
-    choices = set(_ANIMATION_TOKEN_MENU) | {"*", "0"}
+    choices = set(_ANIMATION_TOKEN_MENU) | {"*"}
     token_choice = _prompt_pick(f"pick a token [*,1-{len(_ANIMATION_TOKEN_MENU)}]: ", choices, exit_on_invalid=True)
-    if token_choice == "0":
-        raise _PhcalEscExit()
     if token_choice == "*":
         return "all"
     return _ANIMATION_TOKEN_MENU[token_choice]
@@ -3057,19 +3034,53 @@ _BROBOTS_WAKE_CHAIN_DEFAULT = {"move_reverse": "y"}  # everything else in the el
 # _PRIMITIVE_MENU's own strings, unchanged, unrenamed. A group with exactly
 # one member routes straight through, same as the flat menu always did
 # (info/cube/animations/tempo); a group with 2-3 members gets one new
-# sub-menu prompt (movements/audio/brobots 1/brobots 2) before falling into
+# sub-menu prompt (movements/audio/Brobot 1/Brobot 2) before falling into
 # the SAME `if primitive == "..."` dispatch chain below - no dispatch code
 # changed, only how `primitive` gets its value. Confirmed by hand: every
 # _PRIMITIVE_MENU value appears in exactly one group here, all 14 placed.
+#
+# 2026-08-23, row-format build request: every label below carries a
+# "Brobots " prefix. Groups 1-5/8 go through _brobots_label() (defined
+# below), which capitalizes an already-"brobots"-leading identity string
+# (e.g. brobots_announce_in_sync, used by _build_primitive_group_tree()'s
+# submenu-member labeling below) instead of gluing on a second, redundant
+# "Brobots" word.
+#
+# Groups 6/7 are hardcoded plain strings instead, by direct operator
+# instruction, after three wrong passes on this same day: the original
+# "brobots 1"/"brobots 2" bucket-index names got normalized to "Brobot
+# 1"/"Brobot 2" (wrong - read as naming one specific physical robot, which
+# neither group's own members, weather/announce/stay for 6,
+# wake/responsiveness for 7, actually are), then blindly re-prefixed into
+# "Brobots brobots 1" (wrong - doubled word), then routed through
+# _brobots_label() into "Brobots 1"/"Brobots 2" (still wrong - the digit
+# alone still read as robot-specific). Operator's own final instruction:
+# drop the digit entirely, keep only "Brobots" + the existing parenthetical,
+# exactly - no group word, no capitalization trick, nothing invented.
+# _build_primitive_group_tree() still owns [disabled]-prefixing and sort
+# order for every group below - these dict values are the pre-disabled,
+# pre-sort base text only.
+def _brobots_label(text):
+    """Prefix 'Brobots ' onto label/identity text, unless that text
+    already starts with the word 'brobots' (any case, space- or
+    underscore-joined) - then just its leading letter is capitalized
+    instead of a second 'Brobots' word being glued on front. One rule,
+    used everywhere this prefix is applied, so existing text that already
+    reads as brobots-related never doubles up."""
+    if text[:7].lower() == "brobots":
+        return "Brobots" + text[7:]
+    return f"Brobots {text}"
+
+
 _PRIMITIVE_GROUPS = {
-    "1": ("info (active brobots)", ["robot_info"]),
-    "2": ("movements (arm/nod/reverse)", ["arm", "nod", "move_reverse"]),
-    "3": ("vector's cube (colour control)", ["cube"]),
-    "4": ("audio (rattle/danger)", ["rattle", "danger"]),
-    "5": ("animations (kgsuccess/searching/answering)", ["animation"]),
-    "6": ("brobots 1 (weather/announce/stay)", ["weather", "brobots_announce_in_sync", "brobots_stay_in_place"]),
-    "7": ("brobots 2 (wake/responsiveness)", ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
-    "8": ("tempo (pacing)", ["tempo"]),
+    "1": (_brobots_label("info (active brobots)"), ["robot_info"]),
+    "2": (_brobots_label("movements (arm/nod/reverse)"), ["arm", "nod", "move_reverse"]),
+    "3": (_brobots_label("vector's cube (colour control)"), ["cube"]),
+    "4": (_brobots_label("audio (rattle/danger)"), ["rattle", "danger"]),
+    "5": (_brobots_label("animations (kgsuccess/searching/answering)"), ["animation"]),
+    "6": ("Brobots (weather/announce/stay)", ["weather", "brobots_announce_in_sync", "brobots_stay_in_place"]),
+    "7": ("Brobots (wake/responsiveness)", ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
+    "8": (_brobots_label("tempo (pacing)"), ["tempo"]),
 }
 
 
@@ -3086,29 +3097,34 @@ _PRIMITIVE_GROUPS = {
 _NON_ROBOT_PRIMITIVES = {"tempo"}
 
 
-def _none_mode_disabled_marker(primitive):
+def _is_none_mode_disabled(primitive):
     """2026-08-20, PHCAL_NAV_FIXES_001.md (finding 2's proposed approach,
-    PHCAL_NAV_LIVETEST_FINDINGS_001.md): the none-mode visible-disable cue,
-    appended to a control's own menu label so an operator sees, before
-    picking, which options can't do anything with no robot detected.
-    Deliberately just a label string, not a block on the pick itself -
-    arrow_column_pick()/navigate() stay robot-state-agnostic on purpose (a
-    layering call: those are meant to be reused by non-phcal callers later,
-    e.g. the future composition editor, NAV_PRIMITIVE_BUILT_001.md) - a
-    disabled option is still selectable here; each dispatch branch's own
-    none-mode guard (robot_info/brobots_announce_in_sync already had one;
-    the rest gain the same pattern this same pass) is what actually stops a
-    pick from attempting a doomed connection, not this function. Empty
-    string outside none mode or for a non-robot primitive, so callers can
-    always just append the result with no conditional at the call site."""
-    if _SESSION_MODE == "none" and primitive not in _NON_ROBOT_PRIMITIVES:
-        return " [disabled - no robot detected]"
-    return ""
+    PHCAL_NAV_LIVETEST_FINDINGS_001.md): true when a control can't do
+    anything with no robot detected - lets a caller decide, before
+    picking, which options to flag. Deliberately just a fact, not a block
+    on the pick itself - arrow_column_pick()/navigate() stay
+    robot-state-agnostic on purpose (a layering call: those are meant to
+    be reused by non-phcal callers later, e.g. the future composition
+    editor, NAV_PRIMITIVE_BUILT_001.md) - a disabled option is still
+    selectable here; each dispatch branch's own none-mode guard
+    (robot_info/brobots_announce_in_sync already had one; the rest gain
+    the same pattern this same pass) is what actually stops a pick from
+    attempting a doomed connection, not this function.
+
+    2026-08-23, row-format build request: renamed from
+    _none_mode_disabled_marker() and changed from "return a label-suffix
+    string" to "return a bool" - disabled-ness now needs to be known
+    BEFORE final label text is assembled, since _build_primitive_group_tree()
+    below uses it both to prefix "[disabled] " at the front of a row (never
+    a trailing suffix anymore) and to sort disabled rows first. The one
+    fact this function answers (none-mode + robot-primitive) is
+    unchanged - only its return type and how callers use it changed."""
+    return _SESSION_MODE == "none" and primitive not in _NON_ROBOT_PRIMITIVES
 
 
 def _submenu_control_note(primitive):
     """Per-control note printed next to a control inside one of the 4 new
-    multi-member group sub-menus (movements/audio/brobots 1/brobots 2) -
+    multi-member group sub-menus (movements/audio/Brobot 1/Brobot 2) -
     carries forward the exact brobots_session_responsiveness chain-
     eligibility fact the old flat main-menu's items 2/3 used to spell out
     as two long sentences, now attached to the control's own line instead
@@ -3125,17 +3141,55 @@ def _submenu_control_note(primitive):
     chain-eligibility branches as any other robot-control primitive.) Only
     called for the 10 primitives that land in a multi-member group - the 4
     single-member direct groups (info/cube/animations/tempo) never reach
-    this, so they get the same none-mode marker appended separately in
-    _build_primitive_group_tree() below."""
+    this, so their own disabled-ness is checked separately in
+    _build_primitive_group_tree() below.
+
+    2026-08-23, row-format build request: no longer appends the none-mode
+    marker itself (that's centralized in _build_primitive_group_tree() now,
+    as a label PREFIX rather than a per-note suffix), and drops the
+    POSITIVE "brobots_session_responsiveness chain-eligible" tag entirely
+    per that same request - a genuinely disqualifying/real caveat ("not
+    chain-eligible - different control channel", move_reverse's ON-CHARGER
+    note, weather's own robot-control note, session_responsiveness's own
+    "chain toggle itself" note) still prints; a merely-positive eligibility
+    claim does not."""
     if primitive == "brobots_session_responsiveness":
-        return " (the chain toggle itself - global wake note, no movement)" + _none_mode_disabled_marker(primitive)
+        return " (the chain toggle itself - global wake note, no movement)"
     if primitive == "weather":
-        return " (robot-control - speaks the forecast through a robot; not chain-eligible)" + _none_mode_disabled_marker(primitive)
+        return " (robot-control - speaks the forecast through a robot; not chain-eligible)"
     if primitive == "move_reverse":
-        return _MOVE_REVERSE_MENU_SUFFIX + ", brobots_session_responsiveness chain-eligible" + _none_mode_disabled_marker(primitive)
+        return _MOVE_REVERSE_MENU_SUFFIX
     if primitive in _BROBOTS_WAKE_CHAIN_ELIGIBLE:
-        return " (brobots_session_responsiveness chain-eligible)" + _none_mode_disabled_marker(primitive)
-    return " (not chain-eligible - different control channel)" + _none_mode_disabled_marker(primitive)
+        return ""
+    return " (not chain-eligible - different control channel)"
+
+
+def _sort_menu_rows(rows):
+    """2026-08-23, row-format build request: shared sort for both the root
+    group menu and each multi-member submenu - disabled rows first, then
+    enabled, alphabetical (case-insensitive) within each block. `rows` is
+    a list of (label, payload, disabled, sort_key) tuples; payload is
+    carried through unchanged (a primitive name for a leaf, or a nested
+    dict for a submenu) - this function only reorders, never rewrites
+    payload or label. Kept as its own function, not inlined, since both
+    call sites in _build_primitive_group_tree() below need the identical
+    rule.
+
+    sort_key is the raw, un-prefixed name (e.g. "weather",
+    "brobots_announce_in_sync"), NOT the final rendered label - sorting by
+    the rendered label was tried first and got the order wrong: some
+    labels read "Brobots weather" (space after the prefix, since "weather"
+    didn't already start with the word) while others read
+    "Brobots_announce_in_sync" (underscore, since that identity string
+    already started with "brobots_" and _brobots_label() only capitalizes
+    it rather than double-prefixing) - space (ASCII 32) sorts before
+    underscore (ASCII 95), so "weather" landed ahead of
+    "announce_in_sync"/"stay_in_place" even though a person alphabetizing
+    by the actual name would expect the opposite. Sorting on the
+    pre-prefix name sidesteps that punctuation artifact entirely."""
+    disabled_rows = sorted((r for r in rows if r[2]), key=lambda r: r[3].lower())
+    enabled_rows = sorted((r for r in rows if not r[2]), key=lambda r: r[3].lower())
+    return disabled_rows + enabled_rows
 
 
 def _build_primitive_group_tree():
@@ -3147,27 +3201,48 @@ def _build_primitive_group_tree():
     matching the original hand-rolled loop's own "1-member group routes
     straight through" behavior exactly. A multi-member group's tree value
     is a nested dict of numbered sub_keys -> (member label + its
-    _submenu_control_note, member name) - same sub-menu content/ordering
+    _submenu_control_note, member name) - same sub-menu content
     _PRIMITIVE_GROUPS + _submenu_control_note already produced before this
     port, just shaped for navigate() instead of built inline by hand each
-    call."""
-    tree = {}
-    for group_key in sorted(_PRIMITIVE_GROUPS, key=int):
-        group_label, members = _PRIMITIVE_GROUPS[group_key]
+    call.
+
+    2026-08-23, row-format build request: every submenu member label now
+    gets a flat "Brobots " prefix (root group labels already carry their
+    own final prefix/naming in _PRIMITIVE_GROUPS itself); a disabled
+    control gets "[disabled] " prefixed once, at the very front, ahead of
+    that "Brobots " prefix - never a trailing suffix anymore. Row order
+    within the root menu and within each submenu is reassigned via
+    _sort_menu_rows() (disabled-first, then alphabetical) - the dict keys
+    below are freshly numbered "1".."N" in that final sorted order, so
+    navigate()'s own generic `sorted(node, key=lambda k: (len(k), k))`
+    walk produces the sorted order as a side effect, with no change to
+    navigate()'s own robot-state-agnostic sorting logic. A multi-member
+    group's own top-level row is never itself marked disabled - unchanged
+    from before this pass; only its individual submenu members are."""
+    group_rows = []
+    for group_label, members in _PRIMITIVE_GROUPS.values():
         if len(members) == 1:
-            # 2026-08-20, PHCAL_NAV_FIXES_001.md: these 4 groups
-            # (info/cube/animations/tempo) never reach _submenu_control_note()
-            # (that's only called for multi-member groups, below) - the
-            # none-mode marker gets appended here instead, same source
-            # (_none_mode_disabled_marker) either way, so tempo stays
-            # unmarked and the other 3 (all robot-control) get flagged too.
-            tree[group_key] = (group_label + _none_mode_disabled_marker(members[0]), members[0])
+            primitive = members[0]
+            disabled = _is_none_mode_disabled(primitive)
+            label = ("[disabled] " + group_label) if disabled else group_label
+            group_rows.append((label, primitive, disabled, group_label))
         else:
+            member_rows = []
+            for member in members:
+                m_disabled = _is_none_mode_disabled(member)
+                raw = f"{_brobots_label(member)}{_submenu_control_note(member)}"
+                m_label = ("[disabled] " + raw) if m_disabled else raw
+                member_rows.append((m_label, member, m_disabled, member))
+            member_rows = _sort_menu_rows(member_rows)
             sub = {}
-            for i, member in enumerate(members):
-                sub_key = str(i + 1)
-                sub[sub_key] = (f"{member}{_submenu_control_note(member)}", member)
-            tree[group_key] = (group_label, sub)
+            for i, (m_label, member, _m_disabled, _sort_key) in enumerate(member_rows):
+                sub[str(i + 1)] = (m_label, member)
+            group_rows.append((group_label, sub, False, group_label))
+
+    group_rows = _sort_menu_rows(group_rows)
+    tree = {}
+    for i, (label, child, _disabled, _sort_key) in enumerate(group_rows):
+        tree[str(i + 1)] = (label, child)
     return tree
 
 
@@ -3308,7 +3383,14 @@ def _run_guided_flow_once():
         "  see SLEEP_BENCH_ALIASES_001.md & SLEEP_SEGMENT_ALIASES_001.md - "
         "not fireable from here"
     )
-    print("** arrows to move, Enter to select, ESC to exit, 0 to go back **")
+    # 2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0 to go
+    # back" dropped from this line - no in-tree back-up path existed yet.
+    # 2026-08-23: Left now backs up one level (navigate()'s own
+    # left_is_back wiring) - the "if primitive is None" check just below
+    # is dead code as a direct result (navigate() can no longer pop past
+    # the root), left in place per the same not-in-scope-this-pass caution
+    # Phase 1 already used elsewhere in this file.
+    print("** arrows to move, Enter to select, ESC to exit **")
     primitive = navigate(_build_primitive_group_tree())
     if primitive is None:
         print("PHCAL_GUIDED_EXIT exiting")
@@ -3546,9 +3628,7 @@ def _run_guided_flow_once():
         print("Release mode:")
         print("  1. after a set time")
         print("  2. signaled by a completed process (a real wpr/restart-wirepod check)")
-        mode_choice = _prompt_pick("pick a release mode [1-2]: ", {"1", "2", "0"}, exit_on_invalid=True)
-        if mode_choice == "0":
-            raise _PhcalEscExit()
+        mode_choice = _prompt_pick("pick a release mode [1-2]: ", {"1", "2"}, exit_on_invalid=True)
         which = _prompt_robot(default="both", allow_both=True)
         wait_seconds = None
         if mode_choice == "1":
@@ -3677,9 +3757,12 @@ def run_guided_flow():
     path since none of them catch it, and lands in this one handler.
 
     None from _run_guided_flow_once() means the operator explicitly chose
-    to exit from the menu structure itself (group-menu "0", a sub-menu
-    invalid-input exit, or an ESC caught here) - leave immediately, no
-    continue-or-exit prompt. Any other return (0 or nonzero - a primitive
+    to exit from the menu structure itself - leave immediately, no
+    continue-or-exit prompt. (2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md
+    Phase 1: the "group-menu 0" and "sub-menu invalid-input exit" triggers
+    this used to describe are both removed - ESC is currently the only
+    live path here, this None-return contract is left in place for later
+    phases to wire a real trigger back into.) Any other return (0 or nonzero - a primitive
     dispatch attempted or completed, success or blocked) goes through
     _prompt_continue_or_exit() per operator decision 5 before looping back
     in or leaving for real.

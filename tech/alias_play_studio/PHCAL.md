@@ -17,23 +17,33 @@ into a song's own file.
 
 ## The bench, eight groups, fourteen primitives
 
-**Regrouped 2026-08-16** (`PHCAL_MENU_REGROUP_BUILT_001.md`) — pure display change, every
-primitive's own identity string is exactly what it always was underneath. Bare `phcal`
-opens a top-level menu of 8 human-labeled groups (plus `0. exit`); a group with one member
-routes straight through, same as the old flat menu always did for those; a group with 2-3
-members opens one more numbered sub-menu showing the real primitive names, then routes the
-same way. `0` (or anything out of range) exits cleanly at both levels.
+**Regrouped 2026-08-16** (`PHCAL_MENU_REGROUP_BUILT_001.md`), **navigation and row format
+rebuilt 2026-08-22/23** — every primitive's own identity string is exactly what it always
+was underneath; only the menu shell around it has changed. Bare `phcal` opens a top-level
+menu of 8 groups; a group with one member routes straight through, same as the old flat
+menu always did for those; a group with 2-3 members opens one more sub-menu showing the
+real primitive names, then routes the same way. There is no typed input and no numbered
+choice anywhere in this tool anymore — every row is arrow-reachable only, Enter selects the
+highlighted row, Left backs up one menu level (a no-op at the root, since there's no parent
+to return to), and ESC is a clean full exit from any menu level. See "Row format and
+navigation, rebuilt 2026-08-22/23" below for the complete current rule set.
 
-| Group | Label | Members | What each does | Target |
+| Group | Label (on screen) | Members | What each does | Target |
 |---|---|---|---|---|
-| 1 | info | `robot_info` | Read-only battery/version/protocol snapshot — no control assumed, nothing moves | both, always |
-| 2 | movements | `arm`, `nod`, `move_reverse` | Arm-lift cue (rest→up→rest, N cycles) / head nod, one or more reps / a fixed on-charger reverse wheel pulse | one robot |
-| 3 | vector's cube | `cube` | Connect → all four corner LEDs red → hold → all corners green → release. Net-new 2026-08-15, cube keeper is Brobot 2 (ESN `0dd1d8bf`) — fails cleanly, doesn't hardcode the robot, if fired at one with no cube paired | one robot |
-| 4 | audio | `rattle`, `danger` | Fires the Bingo sidecar's own rattle sound / GOPOD's own `danger-will-robinson.wav` — same direct-SDK binary and settle margin, different WAV path, added 2026-08-12 so a song can fire it directly rather than only through the LLM-gated chat path | one robot |
-| 5 | animations | `animation` | One of three catalog animations (a knowledge-graph success, a searching loop, an answering loop), or 0 to fire all three in sequence with a settle pause between each | one robot |
-| 6 | brobots 1 | `weather`, `brobots_announce_in_sync`, `brobots_stay_in_place` | Picks a robot, fetches the real forecast, and has that robot speak it with its own per-robot unit/clock format / both robots saying a synced line together, over the same low-level path the pre-show sync uses / holds behavior control for a stretch and watches for drift | varies (weather: no robot control at all; the other two: one robot / both) |
-| 7 | brobots 2 | `brobots_sleep_to_wake_direct_sdk`, `brobots_session_responsiveness` | Bench test of a full sleep-to-wake cycle over one held connection / the golden-flag wake pulse — assume, release, settle, reassume | 1, 2, or both / one robot |
-| 8 | tempo | `tempo` | A song's pacing — global ease or one step's own factor — picked and confirmed here, written by the same tool `tempo-set` wraps | none |
+| 1 | Brobots info | `robot_info` | Read-only battery/version/protocol snapshot — no control assumed, nothing moves | both, always |
+| 2 | Brobots movements | `arm`, `nod`, `move_reverse` | Arm-lift cue (rest→up→rest, N cycles) / head nod, one or more reps / a fixed on-charger reverse wheel pulse | one robot |
+| 3 | Brobots vector's cube | `cube` | Connect → all four corner LEDs red → hold → all corners green → release. Net-new 2026-08-15, cube keeper is Brobot 2 (ESN `0dd1d8bf`) — fails cleanly, doesn't hardcode the robot, if fired at one with no cube paired | one robot |
+| 4 | Brobots audio | `rattle`, `danger` | Fires the Bingo sidecar's own rattle sound / GOPOD's own `danger-will-robinson.wav` — same direct-SDK binary and settle margin, different WAV path, added 2026-08-12 so a song can fire it directly rather than only through the LLM-gated chat path | one robot |
+| 5 | Brobots animations | `animation` | One of three catalog animations (a knowledge-graph success, a searching loop, an answering loop), or 0 to fire all three in sequence with a settle pause between each | one robot |
+| 6 | Brobots 1 | `weather`, `brobots_announce_in_sync`, `brobots_stay_in_place` | Picks a robot, fetches the real forecast, and has that robot speak it with its own per-robot unit/clock format / both robots saying a synced line together, over the same low-level path the pre-show sync uses / holds behavior control for a stretch and watches for drift | varies (weather: no robot control at all; the other two: one robot / both) |
+| 7 | Brobots 2 | `brobots_sleep_to_wake_direct_sdk`, `brobots_session_responsiveness` | Bench test of a full sleep-to-wake cycle over one held connection / the golden-flag wake pulse — assume, release, settle, reassume | 1, 2, or both / one robot |
+| 8 | Brobots tempo | `tempo` | A song's pacing — global ease or one step's own factor — picked and confirmed here, written by the same tool `tempo-set` wraps | none |
+
+Groups 6 and 7's own on-screen labels, "Brobots 1"/"Brobots 2", are historical bucket-index
+names for this menu, not a claim that either group is bound to one specific physical robot —
+none of the five primitives inside them are. Every other group's label is the same "Brobots "
+prefix in front of its plain description (info/movements/vector's cube/audio/animations/
+tempo).
 
 `brobots_stay_in_place`/`brobots_sleep_to_wake_direct_sdk`/`brobots_session_responsiveness`/
 `brobots_announce_in_sync` (now split across groups 6 and 7) are the four primitives that
@@ -44,6 +54,77 @@ behind it — it walks a song, a mode, and a value, then hands the actual write 
 `tempo_set_001.py`, the same tool the standalone `tempo-set` alias already wraps. Picking a
 song is new territory for this bench (every other group works on a robot directly, never a
 specific song's own file) — this is the one place phcal reaches into `knobs.json` itself.
+
+## Row format and navigation, rebuilt 2026-08-22/23
+
+This is the current, complete rule set for every menu screen phcal draws (the root
+8-group menu, each multi-member submenu, and the at-start mode picker) — the source of
+truth to check before touching any of it again.
+
+- **No typed input, no leading numbers, anywhere.** Arrows move the highlight, Enter
+  selects it. A row never prints its own dict key/number in front of its label.
+- **Left backs up one menu level.** From a submenu (movements/audio/Brobots 1/Brobots 2),
+  Left returns to the root 8-group menu. At the root, Left is a deliberate no-op — it
+  redraws the same menu rather than exiting, since there's no parent level to return to
+  yet (a mid-session mode re-pick isn't built).
+- **ESC is a clean full exit from any menu level** — the root menu, any submenu, any
+  other prompt in the file — with one deliberate exception: the at-start mode picker
+  (below) treats ESC as a two-state back-and-then-exit, not an immediate exit.
+- **Every row label carries a flat "Brobots " prefix**, applied to the row's own existing
+  text — never an invented new name. If that text already starts with the word "brobots"
+  (a root group's own "Brobots 1"/"Brobots 2" bucket names, or a `brobots_`-prefixed
+  identity string like `brobots_announce_in_sync`), only its leading letter is
+  capitalized instead of gluing on a second "Brobots" word — so labels never read
+  "Brobots brobots ..." or "Brobots brobots_...".
+- **A disabled row (none mode, robot-primitive) gets `[disabled] ` once, at the very
+  front** of the whole label, ahead of the "Brobots " prefix — never a trailing suffix,
+  never doubled. `tempo` (the one non-robot primitive) is never disabled. A multi-member
+  group's own top-level row (movements/audio/Brobots 1/Brobots 2) is never itself marked
+  disabled — only its individual submenu members are, since the group itself always has
+  at least one non-disabled path into it conceptually. Disabled state is a label only,
+  not a block on the pick — each dispatch branch's own none-mode guard is what actually
+  stops a doomed connection attempt.
+- **Sort order: disabled rows first, then enabled, alphabetical by the row's own real
+  name within each block** (not by the final rendered label text, which can carry
+  different punctuation right after its "Brobots"/"Brobots_" prefix and would otherwise
+  skew the order). Because disabled-ness is mode-dependent, row order itself can differ
+  between `none` mode (where some rows are disabled) and `single`/`multi` mode (where,
+  at least in the root menu and every current submenu, nothing is) — this is expected,
+  not a bug.
+- **The positive "chain-eligible" tag is dropped entirely.** A submenu member that's
+  simply eligible for the `brobots_session_responsiveness` wake chain shows no
+  parenthetical note at all now. A genuinely disqualifying or informational caveat still
+  shows — `move_reverse`'s "(ON-CHARGER reverse pulse)", `weather`'s own
+  robot-control note, `brobots_session_responsiveness`'s own "(the chain toggle itself...)"
+  note, and every "(not chain-eligible - different control channel)" caveat are all
+  unchanged.
+
+### The at-start mode picker
+
+Runs once, right after startup detection, for **every** detected mode (`none`/`single`/
+`multi` — not only `multi` as an earlier pass built it). A fixed 3-line header names the
+detected mode:
+
+```
+** brobots [MODE] mode detected **
+Press ENTER now for default = 'y' to continue,
+or Arrow down to select, then press ENTER
+```
+
+Two states, tracked by whether a row is currently highlighted:
+
+- **At-start (no arrow pressed yet).** A bare ENTER accepts the detected mode outright —
+  the happy path, no row needs to exist for it. ESC here does a clean full exit.
+- **Arrowed (a row highlighted).** Arrow-down enters the row list; ENTER then resolves to
+  whichever row is highlighted instead of the detected default. **ESC here bumps back to
+  the at-start state** (header stays on screen, highlight resets) rather than exiting —
+  a second ESC, now back at-start, does the clean full exit.
+
+Rows are plain labels, never showing their own key: a "brobots-none mode (dry-runs)" row
+always exists; `multi` also gets one "brobots-single mode on Brobot N" row per present
+robot; `single` would get one such row per present robot *other than* the one already
+detected — in practice this set is always empty, since single mode by definition means
+exactly one robot is present. `none` shows the dry-run row only.
 
 ## The battery gate
 
@@ -99,10 +180,12 @@ phcal now probes every configured candidate ESN at startup (reusing `robot_info`
 own read-only binary call) and shapes the session to what actually responds: `none`
 (dry-only), `single` (one robot — the menu stays full, robot-targeting auto-resolves to
 the one present robot, and single-robot wake finally becomes the default instead of
-always "both"), or `multi` (2+ — an explicit confirm prompt now asks to continue in
-multi, downgrade to a dry `none` run, or force `single` on one specific robot). Any
-present robot reading below `BATTERY_MIN_VOLTS` (3.7V) warns and defaults to not
-proceeding. See `gopod_notes/PHCAL_DETECT_FIRST_001.md` for the full build.
+always "both"), or `multi` (2+). Any present robot reading below `BATTERY_MIN_VOLTS`
+(3.7V) warns and defaults to not proceeding. See `gopod_notes/PHCAL_DETECT_FIRST_001.md`
+for the original build. **The confirm/override screen this section originally described
+as multi-only was rebuilt 2026-08-23 to run after every detected mode, with a different
+shape** — see "The at-start mode picker" above for the current, accurate description;
+this section's own probe-timing/settle findings below are still current and unaffected.
 
 Two real findings from that live-testing pass, both fixed:
 
