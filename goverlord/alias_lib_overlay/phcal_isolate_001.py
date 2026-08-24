@@ -3214,6 +3214,107 @@ _PRIMITIVE_GROUPS = {
 # not left to contradict this set.
 _NON_ROBOT_PRIMITIVES = {"tempo"}
 
+# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i): the required-N
+# ladder - each primitive's fixed requirement, the minimum session mode
+# (1=none/dry-run, 2=single, 3=multi) that enables it. Assigned from that
+# plan's own survey table, grounded in each primitive's real dispatch
+# branch, not guessed: `tempo` is the one primitive with zero session-mode
+# logic anywhere in its own dispatch (`if primitive == "tempo": return
+# cmd_tempo_calibration()` - no robot, no preflight at all), so it's the
+# only entry below 2. Every other primitive needs at least one live robot
+# to do anything (matches _NON_ROBOT_PRIMITIVES above exactly - this map
+# is a superset carrying the actual number, not a second source of the
+# same "needs a robot" fact). No primitive here sits at 3 - every "both
+# robots" primitive (robot_info, brobots_announce_in_sync,
+# brobots_sleep_to_wake_direct_sdk's own allow_both option) already works
+# fine with exactly one present robot, just with richer behavior at 3 -
+# confirmed by reading each one's own dispatch branch, not assumed. All 14
+# _PRIMITIVE_MENU identities are assigned here; none needed a fallback.
+_PRIMITIVE_REQUIRED_N = {
+    "tempo": 1,
+    "robot_info": 2,
+    "brobots_announce_in_sync": 2,
+    "weather": 2,
+    "animation": 2,
+    "arm": 2,
+    "nod": 2,
+    "move_reverse": 2,
+    "brobots_stay_in_place": 2,
+    "rattle": 2,
+    "danger": 2,
+    "cube": 2,
+    "brobots_session_responsiveness": 2,
+    "brobots_sleep_to_wake_direct_sdk": 2,
+}
+
+
+def _session_mode_n():
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i): the current
+    session mode as a NUMBER on the required-N ladder (1/2/3), not the
+    three-value string `_SESSION_MODE` already carries - the one thing
+    `_row_enabled()` below compares a primitive's own required-N against.
+
+    Deliberately reproduces _no_confirmed_robot_this_session()'s full
+    logic, not just the literal `_SESSION_MODE` mapping, so this lane is
+    net-behavior-neutral: `_SESSION_MODE == "single"` normally maps to 2,
+    but a single-mode session where the one present robot was FORCED past
+    detection and never actually confirmed present
+    (`_PRESENT_ROBOTS[0]["present"] is False`, set by
+    `_confirm_multi_mode()`'s own override path) drops back to 1, exactly
+    matching what `_no_confirmed_robot_this_session()` already returns for
+    that case today. That forced-absent path is currently unreachable
+    through the UI (the mode-picker's row source no longer offers a
+    not-yet-confirmed candidate as a choice - see
+    PHCAL_ARROW_NAV_BUILD_PLAN_005.md's own Step 1 reconcile) but the
+    protection is kept here rather than silently dropped, in case that
+    path is ever reopened.
+
+    `_SESSION_MODE is None` (the direct-flag CLI path, main(), never calls
+    run_guided_flow() and never resolves a mode) maps to 3 - not a new
+    default, every existing `_SESSION_MODE`-aware check in this file
+    already treats None as "not none, not single," i.e. multi-equivalent,
+    by simply falling through every other branch's own else. This makes
+    that existing, implicit fallback explicit instead of leaving a fourth
+    case unstated."""
+    if _SESSION_MODE is None:
+        return 3
+    if _SESSION_MODE == "none":
+        return 1
+    if _SESSION_MODE == "single":
+        if _PRESENT_ROBOTS and not _PRESENT_ROBOTS[0].get("present", True):
+            return 1
+        return 2
+    return 3  # "multi"
+
+
+def _row_enabled(primitive):
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i): THE one
+    comparison - a row/primitive is enabled when the current session mode
+    (as a number) is at least its own required-N. This is the single
+    source of truth both the display (_is_none_mode_disabled() below, for
+    now - Lane (iii) widens its own callers) and, from Lane (ii) onward,
+    every dispatch branch's own fire-gate read from - killing the drift
+    where the label came from one function and enforcement (where it
+    existed at all, for only 2 of 14 primitives) came from a second,
+    separately hand-written check."""
+    return _session_mode_n() >= _PRIMITIVE_REQUIRED_N[primitive]
+
+
+def _row_disabled_skip(primitive):
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): the one
+    shared "disabled, fire nulled" message - printed and this function
+    returns 1, for every one of the 14 primitives' own dispatch branch to
+    use as its own first-line gate (`if not _row_enabled(primitive): return
+    _row_disabled_skip(primitive)`). One uniform message replaces each
+    primitive's own previously ad hoc skip text (including
+    robot_info's/brobots_announce_in_sync's own prior
+    PHCAL_ROBOT_INFO_SKIPPED/PHCAL_BROBOTS_READY_SKIPPED strings, migrated
+    onto this same shared one) - "car on, engine off": nav still reaches
+    and can "select" a disabled row, this is what firing it actually does
+    instead of attempting a real connection."""
+    print(f"PHCAL_ROW_DISABLED_SKIP primitive={primitive} session_mode={_session_mode_n()} required={_PRIMITIVE_REQUIRED_N[primitive]}")
+    return 1
+
 
 def _no_confirmed_robot_this_session():
     """2026-08-24, operator sanity-check request: true when nothing in
@@ -3233,7 +3334,15 @@ def _no_confirmed_robot_this_session():
     ("no route to host") before failing - exactly the doomed-connection
     cost the disabled label and the two enforcing dispatch branches below
     exist to avoid, just for a case this file couldn't reach before the
-    override existed."""
+    override existed.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): no longer
+    called anywhere - `_is_none_mode_disabled()` (Lane i) and both
+    dispatch branches that used to call this directly (`robot_info`,
+    `brobots_announce_in_sync`) have all migrated to `_row_enabled()`,
+    which reproduces this function's own logic internally via
+    `_session_mode_n()`. Left in place, unused, rather than pruned - not
+    this lane's scope."""
     if _SESSION_MODE == "none":
         return True
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and not _PRESENT_ROBOTS[0].get("present", True):
@@ -3262,10 +3371,25 @@ def _is_none_mode_disabled(primitive):
     below uses it both to prefix "[disabled] " at the front of a row (never
     a trailing suffix anymore) and to sort disabled rows first.
 
-    2026-08-24: now backed by _no_confirmed_robot_this_session() rather
-    than a literal `_SESSION_MODE == "none"` check - see that function's
-    own docstring for the forced-single-mode gap this closes."""
-    return _no_confirmed_robot_this_session() and primitive not in _NON_ROBOT_PRIMITIVES
+    2026-08-24 (PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i)): now backed by
+    _row_enabled() - the required-N ladder's one comparison - instead of
+    _no_confirmed_robot_this_session()/a literal `_SESSION_MODE == "none"`
+    check. The old `and primitive not in _NON_ROBOT_PRIMITIVES` clause is
+    dropped, not carried forward redundantly - `_PRIMITIVE_REQUIRED_N`
+    already encodes "tempo never needs a robot" as required-N=1, which
+    `_row_enabled()` alone fully answers; keeping a second, separate
+    `_NON_ROBOT_PRIMITIVES` check here would be exactly the two-sources-
+    of-the-same-fact drift this lane exists to remove. Verified
+    net-behavior-neutral against the old implementation for all four
+    `_SESSION_MODE` values (None/"none"/"single"/"multi"), including the
+    currently-unreachable forced-single-mode case -
+    `_session_mode_n()`'s own docstring carries that equivalence, not
+    re-derived here. `_no_confirmed_robot_this_session()` itself is
+    UNTOUCHED by this lane - `robot_info`/`brobots_announce_in_sync`'s own
+    dispatch branches still call it directly; migrating those two (and
+    adding the same gate to the other 12) is Lane (ii)'s own scope, not
+    this one's."""
+    return not _row_enabled(primitive)
 
 
 def _submenu_control_note(primitive):
@@ -3557,6 +3681,8 @@ def _run_guided_flow_once():
         return None
 
     if primitive == "weather":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         # 2026-08-15 (PHCAL_WEATHER_ROBOT_SPEAK_001.md, widened same day in
         # PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md): robot pick + reuse of
         # run_robot_control_song_001.py's proven run_single_note("weather",
@@ -3583,6 +3709,14 @@ def _run_guided_flow_once():
         return cmd_tempo_calibration()
 
     if primitive == "brobots_announce_in_sync":
+        # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): migrated
+        # from its own _no_confirmed_robot_this_session() check to the
+        # shared _row_enabled() gate, first line, before even prompting
+        # for a phrase - same "skip a doomed connection cleanly" intent,
+        # now the same one comparison every other primitive uses instead
+        # of a bespoke check unique to this branch.
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         phrase = _prompt_value("phrase", "Brobots ready!", lambda raw: raw)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
@@ -3590,23 +3724,13 @@ def _run_guided_flow_once():
         # 2026-08-18, PHCAL_DETECT_FIRST_001.md: single-mode degrades to
         # cmd_brobots_ready_single (one robot, same phrase, via the
         # Wire-Pod REST say channel - the direct-SDK binary can't run with
-        # one robot, see that function's own comment). NONE mode has
-        # nothing present to speak the phrase - skip cleanly rather than
-        # attempt a call that can only fail. MULTI mode (or no detection,
-        # _SESSION_MODE is None on the direct-flag path) is completely
-        # unchanged - the exact same cmd_brobots_ready call as before this
-        # pass.
-        #
-        # 2026-08-24: the none-mode skip above is now checked via
-        # _no_confirmed_robot_this_session(), not a literal `_SESSION_MODE
-        # == "none"`, and checked FIRST - closes the same live-caught gap
-        # _is_none_mode_disabled() does (a forced single-mode robot
-        # detect-first never confirmed present used to reach the "single"
-        # branch below and attempt a real, doomed connection).
-        if _no_confirmed_robot_this_session():
-            print(f"{clock.prefix()}PHCAL_BROBOTS_READY_SKIPPED no robots detected present this session")
-            rc = 1
-        elif _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
+        # one robot, see that function's own comment). MULTI mode (or no
+        # detection, _SESSION_MODE is None on the direct-flag path) is
+        # completely unchanged - the exact same cmd_brobots_ready call as
+        # before this pass. The none-mode/unconfirmed-robot skip that used
+        # to live here as its own branch is now handled entirely by the
+        # _row_enabled() gate above, before this point is ever reached.
+        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
             present = _PRESENT_ROBOTS[0]
             rc = cmd_brobots_ready_single(clock, present["which"], present["label"], live, phrase)
         else:
@@ -3618,6 +3742,8 @@ def _run_guided_flow_once():
 
 
     if primitive == "animation":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         animation_token = _prompt_animation_token()
         robot = _prompt_robot()
         hold_seconds = _prompt_value(
@@ -3678,6 +3804,8 @@ def _run_guided_flow_once():
         return rc
 
     if primitive == "brobots_stay_in_place":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         robot = _prompt_robot()
         hold_seconds = _prompt_value(
             "hold", HOLD_DEFAULT_SECONDS, lambda raw: _parse_float_flag("hold", raw)
@@ -3702,6 +3830,8 @@ def _run_guided_flow_once():
         return rc
 
     if primitive == "brobots_session_responsiveness":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         robot = _prompt_robot()
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
@@ -3717,6 +3847,8 @@ def _run_guided_flow_once():
         return cmd_brobots_wake(mod, clock, serial, robot, live)
 
     if primitive == "move_reverse":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         robot = _prompt_robot()
         hold_seconds = _prompt_value(
             "hold",
@@ -3749,21 +3881,18 @@ def _run_guided_flow_once():
     if primitive == "robot_info":
         # 2026-08-18, PHCAL_DETECT_FIRST_001.md: mode-aware `which` -
         # reports whichever robot(s) detect-first actually found present,
-        # not always the old hardcoded "both". NONE mode has nothing to
-        # report on - skip cleanly. MULTI mode (or no detection at all,
-        # _SESSION_MODE is None on the direct-flag path) keeps the exact
-        # same which="both" this branch always used.
+        # not always the old hardcoded "both". MULTI mode (or no detection
+        # at all, _SESSION_MODE is None on the direct-flag path) keeps the
+        # exact same which="both" this branch always used.
         #
-        # 2026-08-24: the none-mode skip is now _no_confirmed_robot_this_
-        # session(), checked FIRST, not a literal `_SESSION_MODE == "none"`
-        # - live-caught gap: forcing single mode onto a robot detect-first
-        # never found present used to reach the "single" branch below and
-        # attempt a real connection - 3+ seconds to fail with "no route to
-        # host" in the operator's own live run, exactly what this skip
-        # exists to avoid.
-        if _no_confirmed_robot_this_session():
-            print("PHCAL_ROBOT_INFO_SKIPPED no robots detected present this session")
-            return 1
+        # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): migrated
+        # from its own _no_confirmed_robot_this_session() check to the
+        # shared _row_enabled() gate - same "skip a doomed connection
+        # cleanly" intent (the live-caught 3-second "no route to host"
+        # timeout this originally existed to avoid), now the same one
+        # comparison every other primitive uses.
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
             which = _PRESENT_ROBOTS[0]["which"]
         else:
@@ -3778,6 +3907,8 @@ def _run_guided_flow_once():
         return cmd_robot_info(mod, clock, which)
 
     if primitive == "cube":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         # 2026-08-15: nothing to configure (no volume/hold/reps - the
         # binary's own blipHoldDuration is fixed) - robot pick, defaulting
         # to Brobot 2 (2), the cube keeper, then the same restart_preflight ->
@@ -3800,6 +3931,8 @@ def _run_guided_flow_once():
         return cmd_cube(mod, clock, serial, robot, live)
 
     if primitive == "brobots_sleep_to_wake_direct_sdk":
+        if not _row_enabled(primitive):
+            return _row_disabled_skip(primitive)
         print("Release mode:")
         print("  1. after a set time")
         print("  2. signaled by a completed process (a real wpr/restart-wirepod check)")
@@ -3829,6 +3962,14 @@ def _run_guided_flow_once():
             print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=brobots_sleep_to_wake_direct_sdk path={LAST_PATH}")
             return rc
         return cmd_sleep_wake_on_process(mod, clock, live, which)
+
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): shared tail
+    # for arm/nod/rattle/danger - one gate covers all four, since
+    # `primitive` is still whichever of the four reached here. Placed as
+    # the first real line of this shared tail (before even the robot
+    # prompt), matching every other primitive's own gate placement.
+    if not _row_enabled(primitive):
+        return _row_disabled_skip(primitive)
 
     robot = _prompt_robot()
 
