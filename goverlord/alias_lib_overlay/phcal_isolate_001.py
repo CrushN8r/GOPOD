@@ -1549,18 +1549,30 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     up) enters the row list starting at index 0; only once a row is
     highlighted does Enter resolve to that row's own choice instead of the
     default. Rows never show their own key/prefix ("*"/"/"/"1.") anymore -
-    plain labels only, per this pass. Row set depends on detected_mode:
-    multi -> none row + one single-mode row per present robot (no more
-    "*" all-of-them row - accepting multi IS the bare-ENTER default now,
-    so a redundant row for it would just duplicate that path); single ->
-    none row + one single-mode row per present robot that isn't the one
-    already detected (present_robots has exactly one member whenever
-    detected_mode is "single" by _detect_present_robots()'s own contract,
-    so this set is empty in practice today - implemented literally per
-    the request, not reinterpreted, since a future N-candidate/1-present
-    shape could change that); none -> none row only (a dry-run-in-none
-    re-confirm, harmless, kept for symmetry with the other two modes
-    rather than special-cased away)."""
+    plain labels only, per this pass.
+
+    2026-08-23, briefly changed to build rows from the FULL configured
+    candidate list (_candidate_list()) instead of the live present list -
+    REVERTED 2026-08-24, direct operator build request, after that change
+    itself caused a real, confirmed-live regression: with both robots
+    powered off (present=[], mode=none), the picker still offered
+    "brobots-single mode on Brobot 1/2" - rows for robots detect-first had
+    just confirmed were NOT there. Single-mode rows are single-mode rows
+    ONLY for robots the live detection actually found present, full stop -
+    `present_robots` (this function's own second argument, exactly what
+    _detect_present_robots() returned) is the row source again, not
+    _candidate_list(). Concretely: none -> the dry-run row alone, nothing
+    else (present_robots is empty); single/multi -> one row per PRESENT
+    robot, excluding the one already the bare-ENTER default in `single`
+    mode (unchanged from the original 2026-08-23 shape - this only
+    reverts the one-day candidate-list detour). The downstream `match is
+    None` synthesis and _no_confirmed_robot_this_session()'s
+    forced-but-absent branch (both added same day as the now-reverted
+    candidate-list change, to handle exactly the choice this reversion
+    removes) are left in place, not pruned - `choice` can no longer
+    resolve to a candidate outside `present_robots`, so that code is
+    effectively unreachable now, flagged here rather than silently
+    dropped, per this pass's own row-source-only scope."""
     mode_upper = detected_mode.upper()
     header = [
         f"** brobots {mode_upper} mode detected **",
@@ -1570,12 +1582,11 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
 
     detected_which = present_robots[0]["which"] if detected_mode == "single" and present_robots else None
     rows = [("/", "brobots-none mode (dry-runs)")]
-    if detected_mode in ("multi", "single"):
-        rows += [
-            (p["which"], f"brobots-single mode on {p['label']}")
-            for p in present_robots
-            if p["which"] != detected_which
-        ]
+    rows += [
+        (p["which"], f"brobots-single mode on {p['label']}")
+        for p in present_robots
+        if p["which"] != detected_which
+    ]
     choices = [k for k, _label in rows]
     highlight = -1
 
@@ -1630,7 +1641,14 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     if choice == "/":
         print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=none (operator chose dry-run over detected {detected_mode})")
         return [], "none"
-    match = next(p for p in present_robots if p["which"] == choice)
+    match = next((p for p in present_robots if p["which"] == choice), None)
+    if match is None:
+        # Forced past what detection actually found present (the new
+        # 2026-08-23 capability - see this function's own docstring).
+        # volts=None matches _probe_candidate()'s own "couldn't confirm ==
+        # not safe" default; _low_voltage_gate() already asks before
+        # proceeding on exactly this, no new safety path needed.
+        match = {**next(c for c in _candidate_list() if c["which"] == choice), "present": False, "volts": None}
     print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=single robot={match['which']} ({match['label']}) (operator chose single over detected {detected_mode})")
     return [match], "single"
 
@@ -2644,8 +2662,52 @@ def _prompt_pick(prompt, choices, default=None, exit_on_invalid=False):
 # level" apart from an actual row pick with a plain `is` check.
 _NAV_BACK = object()
 
+# 2026-08-23, PHCAL_ARROW_NAV_BUILD_PLAN_003.md Phase 2, redraw-in-place
+# foundation: confirmed root cause of the operator's live-observed
+# stacking (the same menu redrawn 3x, piling up) is that every
+# arrow_column_pick() call only ever redraws IN PLACE relative to ITS OWN
+# prior draw, within one invocation (the up/down `_redraw()` path below,
+# unchanged) - it has no way to erase a DIFFERENT, earlier
+# arrow_column_pick() call's own leftover rows once that earlier call has
+# already returned. navigate()'s own loop calls arrow_column_pick() fresh
+# for every tree level (root -> submenu on Enter, submenu -> root on
+# Left); _run_guided_flow_once() reprints its own header lines fresh on
+# every "continue in phcal?" loop pass too. Neither transition erased
+# anything before printing, so each new screen stacked below whatever the
+# previous one left on screen instead of overwriting it.
+#
+# _LAST_MENU_SCREEN_LINES is the one piece of shared state this fix adds:
+# set by _prompt_continue_or_exit() right after it draws (to the exact
+# line count that y/n prompt occupies), consumed and reset to 0 by
+# _run_guided_flow_once() right before it reprints its own header - the
+# ONLY two places nothing else prints in between, which is what makes
+# erasing based on a remembered count safe (an unrelated print() in
+# between would put the cursor somewhere the remembered count no longer
+# describes, and erasing would corrupt real output instead of stale menu
+# chrome). navigate()'s own level-to-level transitions don't need this
+# module-level state at all - navigate() already knows its own prior
+# level's exact height locally, tracked in its own loop below.
+_LAST_MENU_SCREEN_LINES = 0
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True):
+
+def _erase_screen_lines(n):
+    """Move the cursor up n lines and blank each one, ending back at the
+    top of that now-empty region - the one shared 'erase a previously-
+    drawn block instead of stacking below it' primitive this fix adds.
+    Safe only when nothing else has printed since those n lines were
+    drawn (see _LAST_MENU_SCREEN_LINES's own docstring above) - callers
+    are responsible for that precondition, this function just does the
+    erase. No-op for n <= 0."""
+    if n <= 0:
+        return
+    sys.stdout.write(f"\x1b[{n}A")
+    for _ in range(n):
+        sys.stdout.write("\r\x1b[2K\n")
+    sys.stdout.write(f"\x1b[{n}A")
+    sys.stdout.flush()
+
+
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -2701,7 +2763,16 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     now (PHCAL_ARROW_NAV_BUILD_PLAN's row-format pass), so the numbered
     key prefix is dead weight there; every other caller (the y/n confirms,
     `_prompt_robot()`, animation-token pick, etc.) is untouched and still
-    shows its key."""
+    shows its key.
+
+    2026-08-23, redraw-in-place foundation: `erase_lines`, default 0,
+    preserves every existing caller's rendering exactly (prints fresh,
+    same as always). navigate() is the one caller that passes a nonzero
+    value - the exact line count (row count + 1 trailing blank) its own
+    PRIOR level left on screen, so this call's first draw overwrites that
+    region instead of stacking below it. See _erase_screen_lines()'s own
+    docstring above for the safety precondition (nothing else printed in
+    between) every caller of this parameter must satisfy."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
@@ -2724,7 +2795,22 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
             sys.stdout.write(f"\r\x1b[2K{marker}{row_text}\n")
         sys.stdout.flush()
 
+    if erase_lines:
+        _erase_screen_lines(erase_lines)
     _redraw(first=True)
+    if erase_lines > window_height:
+        # The previous level was TALLER than this one (e.g. the 8-row root
+        # menu shrinking to a 3-row submenu) - the draw above only
+        # overwrote this level's own window_height rows, leaving the
+        # taller prior level's extra trailing rows still visible below.
+        # Blank those, then move back up above them so the cursor ends up
+        # right after this level's own last real row, not after the
+        # now-empty filler.
+        _extra = erase_lines - window_height
+        for _ in range(_extra):
+            sys.stdout.write("\r\x1b[2K\n")
+        sys.stdout.write(f"\x1b[{_extra}A")
+        sys.stdout.flush()
 
     with _raw_mode(sys.stdin.fileno()):
         while True:
@@ -2800,14 +2886,30 @@ def navigate(tree, window_height=None):
     scrolling (the future composition editor's up-to-69-line lists,
     arrow_column_pick()'s own docstring) passes an explicit integer here,
     same as before - that value then applies uniformly to every level of
-    that one navigate() call, unchanged behavior for that case."""
+    that one navigate() call, unchanged behavior for that case.
+
+    2026-08-23, redraw-in-place foundation: tracks `last_lines` locally -
+    the exact row+trailing-blank height of the level THIS loop last drew.
+    Starts at 0 (this call's very first level draw erases nothing - the
+    caller's own header, if any, isn't navigate()'s to erase); every
+    subsequent arrow_column_pick() call, whether descending into a
+    submenu or backing up via Left, passes the prior level's own height so
+    it overwrites that level in place instead of stacking below it. Safe
+    because nothing else prints between one iteration of this loop and the
+    next - see _erase_screen_lines()'s own docstring for why that
+    precondition matters."""
     stack = [tree]
+    last_lines = 0
     while stack:
         node = stack[-1]
         keys = sorted(node, key=lambda k: (len(k), k))
         options = [(k, node[k][0]) for k in keys]
         level_height = window_height if window_height is not None else len(options)
-        choice = arrow_column_pick(options, highlight=0, window_height=level_height, left_is_back=True, show_key=False)
+        choice = arrow_column_pick(
+            options, highlight=0, window_height=level_height,
+            left_is_back=True, show_key=False, erase_lines=last_lines,
+        )
+        last_lines = level_height + 1
         if choice is _NAV_BACK:
             if len(stack) > 1:
                 stack.pop()
@@ -2876,7 +2978,17 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
         resolved = _PRESENT_ROBOTS[0]["which"]
         note = f" {prompt_note}" if prompt_note else ""
-        print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, the only one detected present){note}")
+        # 2026-08-24: "the only one detected present" is only true when
+        # this robot was actually confirmed by detect-first - since
+        # _confirm_multi_mode()'s 2026-08-23 override lets the operator
+        # force single mode onto a candidate detection did NOT find, that
+        # claim would be a real lie in the forced case. Behavior here is
+        # unchanged either way (still auto-resolves and proceeds - this
+        # primitive is one of the ~10 label-only, not-yet-enforced ones,
+        # unaffected by this pass) - only the printed claim is now honest.
+        confirmed = bool(_PRESENT_ROBOTS[0].get("present", True))
+        reason = "the only one detected present" if confirmed else "forced by the operator, NOT confirmed present"
+        print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason}){note}")
         return resolved
     suffix = f" {prompt_note}" if prompt_note else " "
     if allow_both:
@@ -3034,7 +3146,7 @@ _BROBOTS_WAKE_CHAIN_DEFAULT = {"move_reverse": "y"}  # everything else in the el
 # _PRIMITIVE_MENU's own strings, unchanged, unrenamed. A group with exactly
 # one member routes straight through, same as the flat menu always did
 # (info/cube/animations/tempo); a group with 2-3 members gets one new
-# sub-menu prompt (movements/audio/Brobot 1/Brobot 2) before falling into
+# sub-menu prompt (moves/audio/say/init) before falling into
 # the SAME `if primitive == "..."` dispatch chain below - no dispatch code
 # changed, only how `primitive` gets its value. Confirmed by hand: every
 # _PRIMITIVE_MENU value appears in exactly one group here, all 14 placed.
@@ -3046,20 +3158,26 @@ _BROBOTS_WAKE_CHAIN_DEFAULT = {"move_reverse": "y"}  # everything else in the el
 # submenu-member labeling below) instead of gluing on a second, redundant
 # "Brobots" word.
 #
-# Groups 6/7 are hardcoded plain strings instead, by direct operator
-# instruction, after three wrong passes on this same day: the original
-# "brobots 1"/"brobots 2" bucket-index names got normalized to "Brobot
-# 1"/"Brobot 2" (wrong - read as naming one specific physical robot, which
-# neither group's own members, weather/announce/stay for 6,
-# wake/responsiveness for 7, actually are), then blindly re-prefixed into
-# "Brobots brobots 1" (wrong - doubled word), then routed through
-# _brobots_label() into "Brobots 1"/"Brobots 2" (still wrong - the digit
-# alone still read as robot-specific). Operator's own final instruction:
-# drop the digit entirely, keep only "Brobots" + the existing parenthetical,
-# exactly - no group word, no capitalization trick, nothing invented.
-# _build_primitive_group_tree() still owns [disabled]-prefixing and sort
-# order for every group below - these dict values are the pre-disabled,
-# pre-sort base text only.
+# Groups 6/7 went through several bare-digit passes this same week (see
+# git history for the full chain) before landing on real distinguishing
+# WORDS instead of a digit - "say" (weather/announce) and "init"
+# (wake/responsiveness), 2026-08-24 direct operator naming request. Once
+# a group has a real word, the digit-avoidance special-casing those two
+# needed is moot - they go through _brobots_label() exactly like every
+# other group now, no more hardcoded exception. _build_primitive_group_
+# tree() still owns [disabled]-prefixing and sort order for every group
+# below - these dict values are the pre-disabled, pre-sort base text
+# only.
+#
+# 2026-08-24: 'brobots_stay_in_place' moved from the say/announce group
+# into moves - it's chain-eligible (_BROBOTS_WAKE_CHAIN_ELIGIBLE) exactly
+# like arm/nod/move_reverse, and didn't belong grouped with weather/
+# announce (a robot-control note + a chain-toggle-itself note - neither
+# related to "stay put"). Confirmed safe before moving: dispatch is keyed
+# purely by the primitive's own identity string (never by which group it
+# renders under - navigate() only ever returns the leaf string, no group
+# context), and _submenu_control_note()/_BROBOTS_WAKE_CHAIN_ELIGIBLE are
+# both keyed the same way - a pure data reshuffle, zero wiring change.
 def _brobots_label(text):
     """Prefix 'Brobots ' onto label/identity text, unless that text
     already starts with the word 'brobots' (any case, space- or
@@ -3074,12 +3192,12 @@ def _brobots_label(text):
 
 _PRIMITIVE_GROUPS = {
     "1": (_brobots_label("info (active brobots)"), ["robot_info"]),
-    "2": (_brobots_label("movements (arm/nod/reverse)"), ["arm", "nod", "move_reverse"]),
+    "2": (_brobots_label("moves (arm/nod/reverse/stay)"), ["arm", "nod", "move_reverse", "brobots_stay_in_place"]),
     "3": (_brobots_label("vector's cube (colour control)"), ["cube"]),
     "4": (_brobots_label("audio (rattle/danger)"), ["rattle", "danger"]),
     "5": (_brobots_label("animations (kgsuccess/searching/answering)"), ["animation"]),
-    "6": ("Brobots (weather/announce/stay)", ["weather", "brobots_announce_in_sync", "brobots_stay_in_place"]),
-    "7": ("Brobots (wake/responsiveness)", ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
+    "6": (_brobots_label("say (weather/announce)"), ["weather", "brobots_announce_in_sync"]),
+    "7": (_brobots_label("init (wake/responsiveness)"), ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
     "8": (_brobots_label("tempo (pacing)"), ["tempo"]),
 }
 
@@ -3095,6 +3213,32 @@ _PRIMITIVE_GROUPS = {
 # nearby once claiming otherwise; those are corrected alongside this fix,
 # not left to contradict this set.
 _NON_ROBOT_PRIMITIVES = {"tempo"}
+
+
+def _no_confirmed_robot_this_session():
+    """2026-08-24, operator sanity-check request: true when nothing in
+    this session is actually confirmed reachable - either detect-first
+    found zero robots (_SESSION_MODE == "none"), or the operator forced
+    single mode onto a candidate detect-first did NOT find present
+    (_confirm_multi_mode()'s 2026-08-23 override capability - that row
+    exists precisely so a flaky/failed detection doesn't lock the
+    operator out of trying, but picking it doesn't confirm the robot is
+    actually there; _PRESENT_ROBOTS[0]["present"] is False for exactly
+    this case, set by _confirm_multi_mode() itself). Multi mode is never
+    affected - it only ever triggers when detect-first found 2+ robots
+    genuinely present, so _PRESENT_ROBOTS always holds real, confirmed
+    entries there. Live-caught regression: forcing single mode on a
+    NOT_PRESENT robot left every primitive showing enabled, and firing
+    `robot_info` against it took a real 3-second network timeout
+    ("no route to host") before failing - exactly the doomed-connection
+    cost the disabled label and the two enforcing dispatch branches below
+    exist to avoid, just for a case this file couldn't reach before the
+    override existed."""
+    if _SESSION_MODE == "none":
+        return True
+    if _SESSION_MODE == "single" and _PRESENT_ROBOTS and not _PRESENT_ROBOTS[0].get("present", True):
+        return True
+    return False
 
 
 def _is_none_mode_disabled(primitive):
@@ -3116,15 +3260,17 @@ def _is_none_mode_disabled(primitive):
     string" to "return a bool" - disabled-ness now needs to be known
     BEFORE final label text is assembled, since _build_primitive_group_tree()
     below uses it both to prefix "[disabled] " at the front of a row (never
-    a trailing suffix anymore) and to sort disabled rows first. The one
-    fact this function answers (none-mode + robot-primitive) is
-    unchanged - only its return type and how callers use it changed."""
-    return _SESSION_MODE == "none" and primitive not in _NON_ROBOT_PRIMITIVES
+    a trailing suffix anymore) and to sort disabled rows first.
+
+    2026-08-24: now backed by _no_confirmed_robot_this_session() rather
+    than a literal `_SESSION_MODE == "none"` check - see that function's
+    own docstring for the forced-single-mode gap this closes."""
+    return _no_confirmed_robot_this_session() and primitive not in _NON_ROBOT_PRIMITIVES
 
 
 def _submenu_control_note(primitive):
     """Per-control note printed next to a control inside one of the 4 new
-    multi-member group sub-menus (movements/audio/Brobot 1/Brobot 2) -
+    multi-member group sub-menus (moves/audio/say/init) -
     carries forward the exact brobots_session_responsiveness chain-
     eligibility fact the old flat main-menu's items 2/3 used to spell out
     as two long sentences, now attached to the control's own line instead
@@ -3353,7 +3499,7 @@ def _run_guided_flow_once():
     now assumes _SESSION_MODE/_PRESENT_ROBOTS are already resolved by the
     time it's called - it only reads them, same as _prompt_robot() and the
     dispatch branches below already did."""
-    global _SESSION_MODE, _PRESENT_ROBOTS
+    global _SESSION_MODE, _PRESENT_ROBOTS, _LAST_MENU_SCREEN_LINES
     # 2026-08-19, NAV_PRIMITIVE_BUILT_001.md: ported onto the new generic
     # navigate() tree-walker (built standalone this pass,
     # NAV_PATTERN_SURVEY_001.md's design, alongside _prompt_choice() -
@@ -3377,6 +3523,20 @@ def _run_guided_flow_once():
     # already used), so those header lines now print once, not on every
     # back-up - a real difference in printed OUTPUT volume, not in what
     # gets picked or how "0"/exit/wrap behave.
+    #
+    # 2026-08-23, redraw-in-place foundation: this function's own header
+    # DOES still reprint fresh on every "continue in phcal?" loop pass
+    # (unchanged from before this fix - a genuinely new pass, not a
+    # back-up within one pass) - what changed is erasing what the LAST
+    # pass's own "continue?" y/n prompt left on screen first, so this
+    # reprint overwrites it instead of stacking below it. Safe: nothing
+    # prints between _prompt_continue_or_exit() returning and this
+    # function's own next call (run_guided_flow()'s loop body), which is
+    # exactly the precondition _erase_screen_lines() needs. A no-op on
+    # this function's very first call (_LAST_MENU_SCREEN_LINES starts at
+    # 0 module-wide).
+    _erase_screen_lines(_LAST_MENU_SCREEN_LINES)
+    _LAST_MENU_SCREEN_LINES = 0
     print("PLAYHEAD Calibrations (phcal):")
     print("Please note:")
     print(
@@ -3436,12 +3596,19 @@ def _run_guided_flow_once():
         # _SESSION_MODE is None on the direct-flag path) is completely
         # unchanged - the exact same cmd_brobots_ready call as before this
         # pass.
-        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
-            present = _PRESENT_ROBOTS[0]
-            rc = cmd_brobots_ready_single(clock, present["which"], present["label"], live, phrase)
-        elif _SESSION_MODE == "none":
+        #
+        # 2026-08-24: the none-mode skip above is now checked via
+        # _no_confirmed_robot_this_session(), not a literal `_SESSION_MODE
+        # == "none"`, and checked FIRST - closes the same live-caught gap
+        # _is_none_mode_disabled() does (a forced single-mode robot
+        # detect-first never confirmed present used to reach the "single"
+        # branch below and attempt a real, doomed connection).
+        if _no_confirmed_robot_this_session():
             print(f"{clock.prefix()}PHCAL_BROBOTS_READY_SKIPPED no robots detected present this session")
             rc = 1
+        elif _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
+            present = _PRESENT_ROBOTS[0]
+            rc = cmd_brobots_ready_single(clock, present["which"], present["label"], live, phrase)
         else:
             mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
             rc = cmd_brobots_ready(mod, clock, live, phrase)
@@ -3586,11 +3753,19 @@ def _run_guided_flow_once():
         # report on - skip cleanly. MULTI mode (or no detection at all,
         # _SESSION_MODE is None on the direct-flag path) keeps the exact
         # same which="both" this branch always used.
-        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
-            which = _PRESENT_ROBOTS[0]["which"]
-        elif _SESSION_MODE == "none":
+        #
+        # 2026-08-24: the none-mode skip is now _no_confirmed_robot_this_
+        # session(), checked FIRST, not a literal `_SESSION_MODE == "none"`
+        # - live-caught gap: forcing single mode onto a robot detect-first
+        # never found present used to reach the "single" branch below and
+        # attempt a real connection - 3+ seconds to fail with "no route to
+        # host" in the operator's own live run, exactly what this skip
+        # exists to avoid.
+        if _no_confirmed_robot_this_session():
             print("PHCAL_ROBOT_INFO_SKIPPED no robots detected present this session")
             return 1
+        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
+            which = _PRESENT_ROBOTS[0]["which"]
         else:
             which = "both"
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -3740,10 +3915,22 @@ def _prompt_continue_or_exit():
     success or failure/blocked alike (e.g. the low-battery gate returning 1
     before firing) - so a blocked run never dumps the operator straight
     out. Routed through _prompt_pick(), so it's arrow-navigable like
-    every other y/n in this file."""
+    every other y/n in this file.
+
+    2026-08-23, redraw-in-place foundation: records this prompt's own
+    exact on-screen height in the module-level _LAST_MENU_SCREEN_LINES
+    right after drawing - 1 line for _prompt_pick()'s own `print(prompt)`
+    call, 2 rows for the fixed {"y","n"} choice set, 1 trailing blank from
+    arrow_column_pick()'s own Enter-return - so _run_guided_flow_once()'s
+    next call erases exactly this block before reprinting its header,
+    instead of stacking below it. Safe here specifically because nothing
+    else prints between this function returning and that next call (see
+    _erase_screen_lines()'s own docstring)."""
+    global _LAST_MENU_SCREEN_LINES
     choice = _prompt_pick(
         "continue in phcal? y/n [default y]: ", {"y", "n"}, default="y"
     )
+    _LAST_MENU_SCREEN_LINES = 4
     return choice == "y"
 
 
