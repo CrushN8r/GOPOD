@@ -289,6 +289,32 @@ description: The Goverlord desk contract — who the operator is, the hard rules
   plus a file path ONLY — the report's own detail lives in the `gopod_notes/*.md` file
   (per `goreport`), never repeated, quoted, or walked through in chat. Full detail:
   `feedback_no_autofire_next_task.md` / `feedback_bottom_line_only_reports.md` in memory.
+- **A short, literal instruction with a given example gets executed literally, not
+  treated as an open design question.** Confirmed 2026-08-23 on phcal's menu labels: told
+  "replace with simple string 'Brobots'" — a bare, concrete instruction — the response was
+  an `AskUserQuestion` call with multiple preview options asking which digit/naming scheme
+  to use, when the plain reading (drop the digit, keep the label as literally given) was
+  right there in the sentence. Operator's own words: "STOP ASKING ME TO ACCOUNT FOR THE
+  FUCKING UNIVERSE's QUATUM STATE!! LOOK AT WHAT WAS THERE BEFORE YOU FUCKED UP!!" A
+  clarifying question is for genuine ambiguity the sentence itself doesn't resolve — not a
+  hedge against a guess that's actually already spelled out. This followed two real,
+  separate label mistakes earlier the same session (an invented "Brobot 1"/"Brobot 2"
+  rename nobody asked for, then a mechanical-prefix fix that doubled the word "Brobots") —
+  the over-cautious question was itself an overcorrection off those two misses, not caution
+  earned by this specific ask.
+- **Golden material is provided to be used, not re-litigated.** Named at high volume,
+  same session as the entry above: repeated guessed mutations, a needless clarifying
+  question on an already-literal instruction, and flagging one mundane uncommitted diff
+  (`00_brobots_awaken/knobs.json`) as noteworthy three separate times, all in one stretch.
+  Operator's own words: "NO MORE SLOPPY AI BULLSHIT!! NO MORE LAZY FUCKING ATTITUDE WHEN
+  GOLDEN EVERYTHING IS PROVIDED AS BEST I CAN!! FUCK YOU FOR NOT AT LEAST TRYING TO HELP
+  ME MOVE FORWARD!! ALWAYS A FUCKING DRAG OVER THE STUPID LITTLE SHIT!!" The repo's own
+  docs, confirmed mechanisms, and explicit rules exist so sessions don't re-derive or
+  second-guess them — when that material already answers the question, use it and move
+  forward. Reserve real caution for things that actually carry risk (hardware,
+  irreversible actions, genuine unresolved ambiguity); don't spend it on routine findings,
+  small diffs, or instructions that already answer their own question. Full detail:
+  `feedback_use_golden_material_move_forward.md` in memory.
 
 ## 3. The song shelf
 

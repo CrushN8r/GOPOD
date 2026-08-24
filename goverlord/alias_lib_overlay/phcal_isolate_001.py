@@ -2175,14 +2175,22 @@ _ALLOWED_FLAGS = {
 }
 
 
-def _load_last():
-    """Reads phcal_last.json (this tool's own memory file). Missing file,
-    unreadable JSON, or a missing primitive/key inside it all fall back to
-    the rung-1 (bingo-sourced) defaults above for exactly the piece that's
-    missing - never a crash, never a guessed number outside those defaults.
-    Returns a dict keyed "arm"/"nod", each a plain {cycles|count, hold,
-    speed} dict - the same key names phcal_last.json itself uses (note:
-    "hold", not "hold_seconds" - matches the spec's own key naming)."""
+_LAST_PRIMITIVES = (
+    "arm", "nod", "rattle", "danger",
+    "animation", "brobots_stay_in_place", "move_reverse",
+    "brobots_announce_in_sync", "brobots_sleep_to_wake_direct_sdk",
+)
+
+
+def _read_last_raw():
+    """Reads phcal_last.json off disk, robot-keyed shape:
+    {"1": {primitive: values}, "2": {primitive: values}}. If the file on disk
+    is still the OLD flat/primitive-keyed shape ({"arm": {...}, ...} - a top-
+    level key matching a known primitive name, which a robot-keyed file's
+    "1"/"2" keys can never collide with), migrates it in place: every
+    candidate brobot's slot starts as a full copy of the old shared values
+    (non-lossy - nobody's saved tuning is lost), written back to disk
+    immediately (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iv), Step 2)."""
     data = {}
     if LAST_PATH.exists():
         try:
@@ -2190,6 +2198,50 @@ def _load_last():
                 data = json.load(f)
         except (json.JSONDecodeError, OSError):
             data = {}
+    if data and any(k in _LAST_PRIMITIVES for k in data.keys()):
+        whichs = [c["which"] for c in _candidate_list() if c["which"]] or ["1", "2"]
+        migrated = {which: json.loads(json.dumps(data)) for which in whichs}
+        _write_last_raw(migrated)
+        return migrated
+    return data
+
+
+def _write_last_raw(data):
+    """Writes the robot-keyed dict straight to phcal_last.json."""
+    LAST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(LAST_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+
+
+def _resolve_last_whichs(which):
+    """Fans the literal "both" out to every currently-relevant robot's own
+    slot (_PRESENT_ROBOTS if detect-first has run, else _candidate_list()) -
+    used by the two primitives (brobots_announce_in_sync,
+    brobots_sleep_to_wake_direct_sdk) whose own robot prompt can genuinely
+    resolve to "both" rather than a single "1"/"2". Anything else passes
+    through unchanged as a single-item list."""
+    if which == "both":
+        whichs = [r["which"] for r in _PRESENT_ROBOTS if r.get("which")]
+        if not whichs:
+            whichs = [c["which"] for c in _candidate_list() if c["which"]]
+        return whichs or ["1", "2"]
+    return [which]
+
+
+def _load_last(which):
+    """Reads phcal_last.json's robot-keyed memory file, returns this ONE
+    robot's own primitive:values dict (auto-migrating an old flat-shape file
+    to the robot-keyed shape first if needed - see _read_last_raw()).
+    Missing file, unreadable JSON, or a missing primitive/key inside it all
+    fall back to the rung-1 (bingo-sourced) defaults above for exactly the
+    piece that's missing - never a crash, never a guessed number outside
+    those defaults. Returns a dict keyed "arm"/"nod", each a plain
+    {cycles|count, hold, speed} dict - the same key names phcal_last.json
+    itself uses (note: "hold", not "hold_seconds" - matches the spec's own
+    key naming)."""
+    raw = _read_last_raw()
+    data = raw.get(which) or {}
 
     seed = {
         "arm": {
@@ -2224,26 +2276,23 @@ def _load_last():
         "brobots_sleep_to_wake_direct_sdk": {"wait": SLEEP_WAKE_DEFAULT_WAIT_SECONDS},
     }
     merged = {}
-    for primitive in (
-        "arm", "nod", "rattle", "danger",
-        "animation", "brobots_stay_in_place", "move_reverse",
-        "brobots_announce_in_sync", "brobots_sleep_to_wake_direct_sdk",
-    ):
+    for primitive in _LAST_PRIMITIVES:
         merged[primitive] = {**seed[primitive], **(data.get(primitive) or {})}
     return merged
 
 
-def _save_last(primitive, values):
-    """Writes {primitive: values} into phcal_last.json, preserving whatever
-    is already saved for the OTHER primitive untouched. Both entry paths
-    (guided flow and direct-flag form) call this after firing, so either one
-    updates the same one memory file."""
-    data = _load_last()
-    data[primitive] = values
-    LAST_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(LAST_PATH, "w") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
+def _save_last(which, primitive, values):
+    """Writes {which: {primitive: values}} into phcal_last.json, preserving
+    every OTHER robot's own slot and every OTHER primitive within THIS
+    robot's own slot untouched. Auto-migrates an old flat-shape file to the
+    robot-keyed shape first if needed (see _read_last_raw()). Both entry
+    paths (guided flow and direct-flag form) call this after firing, so
+    either one updates the same one memory file, in the firing robot's own
+    slot."""
+    raw = _read_last_raw()
+    robot_slot = raw.setdefault(which, {})
+    robot_slot[primitive] = values
+    _write_last_raw(raw)
 
 
 # 2026-08-15, MASTER_TWEAKS_STAGE3_PROMOTE_001.md: phcal_last.json is
@@ -2397,7 +2446,7 @@ def main():
         if not preflight["ok"]:
             return 1
         rc = cmd_rattle(mod, clock, serial, robot, live, volume_ui)
-        _save_last("rattle", {"volume": volume_ui})
+        _save_last(robot, "rattle", {"volume": volume_ui})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=rattle path={LAST_PATH}")
         return rc
 
@@ -2424,7 +2473,7 @@ def main():
         if not preflight["ok"]:
             return 1
         rc = cmd_danger(mod, clock, serial, robot, live, volume_ui)
-        _save_last("danger", {"volume": volume_ui})
+        _save_last(robot, "danger", {"volume": volume_ui})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=danger path={LAST_PATH}")
         return rc
 
@@ -2479,7 +2528,7 @@ def main():
             print(f"{clock.prefix()}PHCAL_BLOCKED_LOW_BATTERY not firing arm - see PHCAL_BATTERY_CHECK line above")
             return 1
         rc = cmd_arm(mod, clock, serial, robot, live, cycles, hold_seconds, speed)
-        _save_last("arm", {"cycles": cycles, "hold": hold_seconds, "speed": speed})
+        _save_last(robot, "arm", {"cycles": cycles, "hold": hold_seconds, "speed": speed})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=arm path={LAST_PATH}")
         return rc
 
@@ -2505,7 +2554,7 @@ def main():
         print(f"{clock.prefix()}PHCAL_BLOCKED_LOW_BATTERY not firing nod - see PHCAL_BATTERY_CHECK line above")
         return 1
     rc = cmd_nod(mod, clock, serial, robot, live, count, hold_seconds, speed)
-    _save_last("nod", {"count": count, "hold": hold_seconds, "speed": speed})
+    _save_last(robot, "nod", {"count": count, "hold": hold_seconds, "speed": speed})
     print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=nod path={LAST_PATH}")
     return rc
 
@@ -3733,10 +3782,13 @@ def _run_guided_flow_once():
         if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
             present = _PRESENT_ROBOTS[0]
             rc = cmd_brobots_ready_single(clock, present["which"], present["label"], live, phrase)
+            last_which = present["which"]
         else:
             mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
             rc = cmd_brobots_ready(mod, clock, live, phrase)
-        _save_last("brobots_announce_in_sync", {"phrase": phrase})
+            last_which = "both"
+        for w in _resolve_last_whichs(last_which):
+            _save_last(w, "brobots_announce_in_sync", {"phrase": phrase})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=brobots_announce_in_sync path={LAST_PATH}")
         return rc
 
@@ -3795,11 +3847,11 @@ def _run_guided_flow_once():
                         time.sleep(_ANIMATION_SEQUENCE_PAUSE_SECONDS)
                     else:
                         print(f"{clock.prefix()}PHCAL DRY: would pause {_ANIMATION_SEQUENCE_PAUSE_SECONDS}s before next token")
-            _save_last("animation", {"hold": hold_seconds})
+            _save_last(robot, "animation", {"hold": hold_seconds})
             print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=animation path={LAST_PATH}")
             return 0 if ok else 1
         rc = cmd_animation(mod, clock, serial, robot, live, animation_token, hold_seconds, pre_assumed=chain_wake)
-        _save_last("animation", {"hold": hold_seconds})
+        _save_last(robot, "animation", {"hold": hold_seconds})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=animation path={LAST_PATH}")
         return rc
 
@@ -3825,7 +3877,7 @@ def _run_guided_flow_once():
         if chain_wake_failed:
             return 1
         rc = cmd_hold(mod, clock, serial, robot, live, hold_seconds, pre_assumed=chain_wake)
-        _save_last("brobots_stay_in_place", {"hold": hold_seconds})
+        _save_last(robot, "brobots_stay_in_place", {"hold": hold_seconds})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=brobots_stay_in_place path={LAST_PATH}")
         return rc
 
@@ -3874,7 +3926,7 @@ def _run_guided_flow_once():
         if chain_wake_failed:
             return 1
         rc = cmd_move_reverse(mod, clock, serial, robot, live, hold_seconds, pre_assumed=chain_wake)
-        _save_last("move_reverse", {"hold": hold_seconds})
+        _save_last(robot, "move_reverse", {"hold": hold_seconds})
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=move_reverse path={LAST_PATH}")
         return rc
 
@@ -3958,7 +4010,8 @@ def _run_guided_flow_once():
         clock = _Clock()
         if mode_choice == "1":
             rc = cmd_sleep_wake_set_time(mod, clock, which, wait_seconds)
-            _save_last("brobots_sleep_to_wake_direct_sdk", {"wait": wait_seconds})
+            for last_which in _resolve_last_whichs(which):
+                _save_last(last_which, "brobots_sleep_to_wake_direct_sdk", {"wait": wait_seconds})
             print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=brobots_sleep_to_wake_direct_sdk path={LAST_PATH}")
             return rc
         return cmd_sleep_wake_on_process(mod, clock, live, which)
@@ -3973,7 +4026,7 @@ def _run_guided_flow_once():
 
     robot = _prompt_robot()
 
-    last = _load_last()[primitive]
+    last = _load_last(robot)[primitive]
 
     count = None
     cycles = None
@@ -4035,16 +4088,16 @@ def _run_guided_flow_once():
 
     if primitive == "arm":
         rc = cmd_arm(mod, clock, serial, robot, live, cycles, hold_seconds, speed, pre_assumed=chain_wake)
-        _save_last("arm", {"cycles": cycles, "hold": hold_seconds, "speed": speed})
+        _save_last(robot, "arm", {"cycles": cycles, "hold": hold_seconds, "speed": speed})
     elif primitive == "nod":
         rc = cmd_nod(mod, clock, serial, robot, live, count, hold_seconds, speed, pre_assumed=chain_wake)
-        _save_last("nod", {"count": count, "hold": hold_seconds, "speed": speed})
+        _save_last(robot, "nod", {"count": count, "hold": hold_seconds, "speed": speed})
     elif primitive == "rattle":
         rc = cmd_rattle(mod, clock, serial, robot, live, volume_ui)
-        _save_last("rattle", {"volume": volume_ui})
+        _save_last(robot, "rattle", {"volume": volume_ui})
     else:  # danger
         rc = cmd_danger(mod, clock, serial, robot, live, volume_ui)
-        _save_last("danger", {"volume": volume_ui})
+        _save_last(robot, "danger", {"volume": volume_ui})
 
     print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive={primitive} path={LAST_PATH}")
     return rc

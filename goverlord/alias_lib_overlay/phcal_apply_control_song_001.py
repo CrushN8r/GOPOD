@@ -29,7 +29,15 @@ live-confirmed-good, don't retune preemptively) - --target/--primitive exist
 so a future, separately-authorized GESTURE wiring pass can reuse this same
 tool rather than rebuilding it, not because GESTURE is being touched now.
 
-Usage: python3 phcal_apply_control_song_001.py [--yes] [--target test|gesture|both] [--primitive arm|nod|both]
+Usage: python3 phcal_apply_control_song_001.py --brobot 1|2 [--yes] [--target test|gesture|both] [--primitive arm|nod|both]
+  --brobot:     REQUIRED. Which brobot's phcal_last.json slot to read
+                (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iv): phcal_last.json
+                is robot-keyed now, {"1": {...}, "2": {...}}). This tool has
+                no step/speaker context of its own to resolve this from (unlike
+                phcal_apply_001.py, which reads a song step's own "speaker"
+                field) - the caller (e.g. test-arm-cue/test-head-nod in
+                brobots.sh, which already knows which robot it's testing) must
+                pass it explicitly. No default - refuses to guess.
   No flag:      prints the diff and stops (dry).
   --yes:        prints the diff, then writes it.
   --target:     which constant set to touch. Default "both" - preserves
@@ -98,14 +106,23 @@ def main():
     apply = "--yes" in sys.argv
     target = _arg_value("--target", "both")
     primitive = _arg_value("--primitive", "both")
+    brobot = _arg_value("--brobot", None)
     if target not in ("test", "gesture", "both"):
         print(f"PHCAL_APPLY_CONTROL_SONG_USAGE bad --target {target!r}, must be test|gesture|both")
         return 1
     if primitive not in ("arm", "nod", "both"):
         print(f"PHCAL_APPLY_CONTROL_SONG_USAGE bad --primitive {primitive!r}, must be arm|nod|both")
         return 1
+    if brobot not in ("1", "2"):
+        print(
+            f"PHCAL_APPLY_CONTROL_SONG_BLOCKED --brobot {brobot!r} missing or invalid (must be 1|2) - "
+            "this tool has no step/speaker context to resolve which brobot's phcal_last.json slot to "
+            "read; refusing to guess"
+        )
+        return 1
 
-    last = _read_last()
+    all_last = _read_last()
+    last = all_last.get(brobot) or {}
     text = RUNNER_PATH.read_text()
 
     hold_constants = _filtered(HOLD_CONSTANTS, target, primitive)

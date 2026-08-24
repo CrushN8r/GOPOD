@@ -1071,7 +1071,7 @@ test-arm-cue() {
   local apply_choice
   read -r -p "apply phcal tweaks to this test cue? y/n " apply_choice
   if [ "$apply_choice" = "y" ] || [ "$apply_choice" = "Y" ]; then
-    python3 /home/goverlord/.gopod_alias_lib/phcal_apply_control_song_001.py --yes --target test --primitive arm
+    python3 /home/goverlord/.gopod_alias_lib/phcal_apply_control_song_001.py --yes --target test --primitive arm --brobot "${1:-1}"
   fi
   ( cd /home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools && \
     GOPOD_CONTROL_SONG_NOTE=arm_test GOPOD_CONTROL_SONG_ROBOT="${1:-1}" python3 run_robot_control_song_001.py )
@@ -1081,7 +1081,7 @@ test-head-nod() {
   local apply_choice
   read -r -p "apply phcal tweaks to this test cue? y/n " apply_choice
   if [ "$apply_choice" = "y" ] || [ "$apply_choice" = "Y" ]; then
-    python3 /home/goverlord/.gopod_alias_lib/phcal_apply_control_song_001.py --yes --target test --primitive nod
+    python3 /home/goverlord/.gopod_alias_lib/phcal_apply_control_song_001.py --yes --target test --primitive nod --brobot "${1:-1}"
   fi
   ( cd /home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools && \
     GOPOD_CONTROL_SONG_NOTE=head_nod GOPOD_CONTROL_SONG_ROBOT="${1:-1}" python3 run_robot_control_song_001.py )

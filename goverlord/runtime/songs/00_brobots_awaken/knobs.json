@@ -23,9 +23,9 @@
       "step_id": "arm_test",
       "note": "arm_cue",
       "speaker": "brobot_1",
-      "cycles": 3,
-      "hold_seconds": 0.36,
-      "speed": 4
+      "cycles": 1,
+      "hold_seconds": 1.2,
+      "speed": 2
     },
     {
       "step_id": "arm_test_done",
@@ -42,7 +42,7 @@
       "step_id": "head_nod",
       "note": "head_nod",
       "speaker": "brobot_1",
-      "hold_seconds": 0.36,
+      "hold_seconds": 0.18,
       "speed": 4
     },
     {

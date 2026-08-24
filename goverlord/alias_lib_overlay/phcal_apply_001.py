@@ -153,9 +153,31 @@ def main():
         print(f"PHCAL_APPLY_BLOCKED step_id {step_id!r} has note={note!r} - only {'/'.join(NOTE_TO_PRIMITIVE)} steps are phcal-tunable")
         return 1
 
+    # PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iv): phcal_last.json is now
+    # robot-keyed ({"1": {...}, "2": {...}}). This step's own "speaker"
+    # field (already authored on every step, "brobot_1"/"brobot_2") is the
+    # target robot - no new caller plumbing needed. HARD GUARDRAIL: if the
+    # step has no clear single speaker, STOP and report - never guess a
+    # robot into a song's own (sometimes git-tracked) knobs.json.
+    speaker = step.get("speaker")
+    which = {"brobot_1": "1", "brobot_2": "2"}.get(speaker)
+    if which is None:
+        print(
+            f"PHCAL_APPLY_BLOCKED step_id {step_id!r} has speaker={speaker!r} in {KNOBS_PATH} "
+            "- cannot resolve which brobot's phcal_last.json slot to read; refusing to guess"
+        )
+        return 1
+
     primitive = NOTE_TO_PRIMITIVE[note]
     field_map = PRIMITIVE_FIELD_MAP[primitive]
-    confirmed = last[primitive]
+    robot_last = last.get(which) or {}
+    if primitive not in robot_last:
+        print(
+            f"PHCAL_APPLY_BLOCKED no saved {primitive!r} tuning for brobot {which} in {LAST_PATH} "
+            "- run phcal for that robot first"
+        )
+        return 1
+    confirmed = robot_last[primitive]
 
     old = dict(step)
     for song_field, last_field in field_map.items():

@@ -1256,6 +1256,34 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
 
         entry["step_wall_seconds"] = round(time.time() - step_start_wall, 3)
 
+    # 2026-08-23, operator request: reveal the webroot chat-bubble close
+    # button off the LAST say landing, not off this whole process exiting.
+    # brobots.sh's own post-subshell run_active:false write (pha0b(),
+    # ~line 1988) only fires once this script returns - measured (not
+    # guessed): on every live run that isn't stopped early, that return is
+    # gated behind _maybe_promote_knobs()'s own blocking terminal y/n
+    # prompt below, which fires whenever the song's own zKnobs.json exists
+    # - true for every song directory in this repo today (checked all 8),
+    # not a rare case. That prompt waits on the operator's own keyboard,
+    # an indefinite, real, user-visible gap - not the sub-second network/
+    # disk work release/close/finalize actually take. Writing
+    # run_active:false HERE, the moment the step loop's own last buffer/
+    # tempo delay finishes, means the close button appears when the
+    # performance is actually done, independent of that unrelated prompt.
+    # Mirrors Robots.__init__'s own start-of-run write (same file, same
+    # gate on console_rich_display) - this is that same write's end-of-run
+    # twin, not a new mechanism. brobots.sh's own later write still fires
+    # once the process eventually exits - harmless, already-true content,
+    # left as-is; not worth removing for this fix's own minimal scope.
+    if robots.console_rich_display:
+        try:
+            rich_ui_state_file = mod.WIREPOD_CHIPPER_ROOT / "webroot" / "gopod_rich_display_ui_state.json"
+            rich_ui_state_file.write_text(json.dumps({
+                "expanded": True, "run_active": False, "finished_at": time.time(),
+            }))
+        except OSError:
+            pass
+
     _release_if_holding(mod, hold_release_serials, live, manage_control)
     robots.close()
     return _finalize(log, tag)
