@@ -1674,8 +1674,8 @@ def _low_voltage_gate(clock, present_robots):
         volts_str = f"{r['volts']:.3f}" if r["volts"] is not None else "unknown"
         print(f"{clock.prefix()}PHCAL_LOW_BATTERY_WARNING label={r['label']} esn={r['esn']} volts={volts_str} min={BATTERY_MIN_VOLTS}")
     choice = _prompt_pick(
-        "one or more present robots read low battery (see warning above) - proceed anyway? y/n [default n]: ",
-        {"y", "n"}, default="n",
+        {"y", "n"}, default="n", labels={"y": "yes", "n": "no"},
+        question="one or more present robots read low battery (see warning above) - proceed anyway?",
     )
     return choice == "y"
 
@@ -2080,22 +2080,15 @@ def cmd_tempo_calibration():
     if not song_dirs:
         print(f"PHCAL_TEMPO_BLOCKED no songs found under {SONGS_DIR}")
         return 1
-    print("PHCAL_TEMPO songs on disk:")
-    for i, name in enumerate(song_dirs, start=1):
-        print(f"  {i}. {name}")
-    dir_choice = _prompt_pick(
-        f"Pick a song [1-{len(song_dirs)}]: ", {str(i) for i in range(1, len(song_dirs) + 1)},
-        exit_on_invalid=True,
-    )
+    dir_choices = {str(i) for i in range(1, len(song_dirs) + 1)}
+    dir_labels = {str(i): name for i, name in enumerate(song_dirs, start=1)}
+    dir_choice = _prompt_pick(dir_choices, exit_on_invalid=True, labels=dir_labels, back=True, question="Pick a song")
     chosen_dir = song_dirs[int(dir_choice) - 1]
     knobs_path = SONGS_DIR / chosen_dir / "knobs.json"
     if not knobs_path.exists():
         print(f"PHCAL_TEMPO_BLOCKED no knobs.json found for {chosen_dir} at {knobs_path}")
         return 1
 
-    print("Mode:")
-    print("  A. set the song's GLOBAL tempo (whole-song ease)")
-    print("  B. set ONE step's tempo_factor (+ optional comment)")
     # _prompt_pick always lowercases raw input before matching/returning
     # (see arrow_column_pick()'s own docstring) - choices/comparisons here
     # follow that contract, not the bash tempo-set's own case-insensitive
@@ -2103,12 +2096,32 @@ def cmd_tempo_calibration():
     # by shape, PHCAL_NAV_CONSOLIDATION_001.md. 2026-08-22,
     # PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" removed - ESC is the
     # only way out of this pick now.
-    mode_choice = _prompt_pick("pick a mode [A/B]: ", {"a", "b"}, exit_on_invalid=True)
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): NOT
+    # back=True here (or on step_choice/apply_choice below) - only a leaf
+    # picker with NOTHING drawn between it and its own resumable nav level
+    # can self-erase-and-cleanly-resume (see navigate()'s own docstring on
+    # why every level needs its OWN rows to still be exactly where they
+    # were left). This one draws right after dir_choice's own SUCCESSFUL
+    # pick already committed its rows to the screen as permanent history -
+    # backing out here would erase only THIS picker's own rows, leaving
+    # dir_choice's still-visible rows between the cursor and the real
+    # resumable level, corrupting the next redraw there. Flagged per this
+    # build's own STOP clause, not forced.
+    mode_choice = _prompt_pick(
+        {"a", "b"}, exit_on_invalid=True,
+        labels={
+            "a": "set the song's GLOBAL tempo (whole-song ease)",
+            "b": "set ONE step's tempo_factor (+ optional comment)",
+        },
+        question="pick a mode",
+    )
 
     if mode_choice == "a":
         value = input("new global_tempo (0.0-9.9): ").strip()
         tempo_mod.cmd_set_global(["set-global", value, "--knobs", str(knobs_path)])
-        apply_choice = _prompt_pick("apply the above? y/n [default n]: ", {"y", "n"}, default="n")
+        apply_choice = _prompt_pick(
+            {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?",
+        )
         if apply_choice == "y":
             return tempo_mod.cmd_set_global(["set-global", value, "--yes", "--knobs", str(knobs_path)])
         return 0
@@ -2123,20 +2136,18 @@ def cmd_tempo_calibration():
     if not step_ids:
         print(f"PHCAL_TEMPO_BLOCKED no steps found for {chosen_dir}")
         return 1
-    print("steps:")
-    for i, sid in enumerate(step_ids, start=1):
-        print(f"  {i}. {sid}")
-    step_choice = _prompt_pick(
-        f"pick a step [1-{len(step_ids)}]: ", {str(i) for i in range(1, len(step_ids) + 1)},
-        exit_on_invalid=True,
-    )
+    step_choices = {str(i) for i in range(1, len(step_ids) + 1)}
+    step_labels = {str(i): sid for i, sid in enumerate(step_ids, start=1)}
+    step_choice = _prompt_pick(step_choices, exit_on_invalid=True, labels=step_labels, question="pick a step")
     step_id = step_ids[int(step_choice) - 1]
     factor = input("new tempo_factor (default 1.0): ").strip() or "1.0"
     comment = input("tempo_comment (optional, Enter to leave unchanged): ").strip()
     comment_flag = ["--comment", comment] if comment else []
 
     tempo_mod.cmd_set_buffer(["set-buffer", step_id, "--factor", factor, *comment_flag, "--knobs", str(knobs_path)])
-    apply_choice = _prompt_pick("apply the above? y/n [default n]: ", {"y", "n"}, default="n")
+    apply_choice = _prompt_pick(
+        {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?",
+    )
     if apply_choice == "y":
         return tempo_mod.cmd_set_buffer(
             ["set-buffer", step_id, "--factor", factor, *comment_flag, "--yes", "--knobs", str(knobs_path)]
@@ -2317,8 +2328,8 @@ def _promote_tweaks():
         return 1
     try:
         choice = _prompt_pick(
-            f"update {PHCAL_PROMOTED_TWEAKS_PATH} from {LAST_PATH} for commit? y/n [default n]: ",
-            {"y", "n"}, default="n",
+            {"y", "n"}, default="n", labels={"y": "yes", "n": "no"},
+            question=f"update {PHCAL_PROMOTED_TWEAKS_PATH} from {LAST_PATH} for commit?",
         )
     except (EOFError, KeyboardInterrupt, _PhcalEscExit):
         choice = "n"
@@ -2569,6 +2580,20 @@ class _PhcalEscExit(Exception):
     own try/finally - see that context manager's own docstring."""
 
 
+class _PhcalBackToMenu(Exception):
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): raised by a
+    back-enabled leaf picker (Left pressed - _prompt_pick(back=True),
+    _prompt_robot(), _prompt_animation_token(), _prompt_brobots_wake_chain())
+    to abandon the CURRENT primitive's dispatch mid-flight, without firing
+    anything, and resume navigate()'s own tree-walk exactly where it was
+    left (same stack depth, same remembered highlight - see navigate()'s
+    own try/except around its dispatch() call, the only place this is ever
+    caught). Same "clean unwind through however many nested calls, no
+    sentinel threading" shape as _PhcalEscExit above, scoped one level
+    shallower: ESC abandons the whole guided-flow session, this only
+    abandons the one primitive currently being answered."""
+
+
 def _raw_mode(fd):
     """Context manager: puts fd (normally stdin) into cbreak raw-input mode
     for the duration of the `with` block, and ALWAYS restores the original
@@ -2646,7 +2671,7 @@ def _read_key():
         return ("char", "")
 
 
-def _prompt_pick(prompt, choices, default=None, exit_on_invalid=False):
+def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back=False, question=None):
     """2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_
     001.md §5 steps 1+3): replaces the old `_prompt_choice()` - the second,
     independent raw-mode key reader this file used to carry alongside
@@ -2695,11 +2720,58 @@ def _prompt_pick(prompt, choices, default=None, exit_on_invalid=False):
     to exit from any of this wrapper's callers. The `if choice is None`
     check just below is left in place as an inert safety net - with no
     typed-input path left in arrow_column_pick(), it can no longer
-    actually fire, but removing it isn't part of this phase's own scope."""
-    options = [(c, c) for c in sorted(choices)]
+    actually fire, but removing it isn't part of this phase's own scope.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md leaf-picker text cleanup:
+    the old typed-style `prompt` string (e.g. "pick a token [*,1-3]: ") is
+    gone - dead weight now that arrows are the only way to answer, matching
+    navigate()'s own header-less tree rows. `labels`, optional, maps a
+    choice key to its real display text (e.g. {"y": "yes", "n": "no"}) so
+    each row shows its label once instead of the old `{key}. {key}`
+    doubling (`show_key=False` below); a caller that omits `labels` still
+    gets a working picker (falls back to key==label), but every call site
+    in this file passes one as of this pass.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii), pinned-menu/
+    left-back layout: `back`, default False. A caller mid-way through
+    collecting one primitive's own leaf answers (from inside
+    _dispatch_primitive(), directly or via a helper it calls) passes
+    back=True so Left abandons THIS pick - and everything this primitive
+    dispatch was in the middle of building up - and unwinds cleanly back
+    to navigate()'s own tree (see _PhcalBackToMenu's own docstring), which
+    resumes exactly where the operator left it. The 3 callers with no
+    navigate() to unwind to - the low-battery gate (runs before any menu
+    exists), _promote_tweaks() (its own standalone entry point, never
+    reached through navigate()), _prompt_continue_or_exit() (runs AFTER a
+    primitive already finished - nothing left to abandon) - all pass the
+    default False, unchanged Left-moves-like-Up behavior.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md question-text restore:
+    the leaf-picker text cleanup above dropped the old typed-style
+    `prompt` string entirely - correctly, for its own typed-syntax tail
+    ("y/n [default n]: ", "[*,1-3]: "), but that also silently took the
+    real human-readable QUESTION with it, leaving bare option rows with
+    no idea what's being asked. `question`, optional, restores just that
+    part: a plain `print(question)` right above the rows, no tail, no
+    `{key}. {key}` doubling - text only, the picker mechanism itself is
+    unchanged. When `back=True` and a question was printed,
+    `erase_on_back_extra=1` is passed through so Left-back takes the
+    question line with it instead of stranding it above a blank row
+    region (see arrow_column_pick()'s own docstring)."""
+    labels = labels or {}
+    options = [(c, labels.get(c, c)) for c in sorted(choices)]
     highlight = sorted(choices).index(default) if default in choices else 0
-    print(prompt)
-    choice = arrow_column_pick(options, highlight=highlight, exit_on_invalid=exit_on_invalid)
+    if question:
+        print(question)
+    if back:
+        choice, _hl = arrow_column_pick(
+            options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False,
+            left_is_back=True, erase_on_back=True, erase_on_back_extra=1 if question else 0,
+        )
+        if choice is _NAV_BACK:
+            raise _PhcalBackToMenu()
+    else:
+        choice = arrow_column_pick(options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False)
     if choice is None:
         raise _PhcalEscExit()
     return choice
@@ -2725,18 +2797,40 @@ _NAV_BACK = object()
 # anything before printing, so each new screen stacked below whatever the
 # previous one left on screen instead of overwriting it.
 #
-# _LAST_MENU_SCREEN_LINES is the one piece of shared state this fix adds:
-# set by _prompt_continue_or_exit() right after it draws (to the exact
-# line count that y/n prompt occupies), consumed and reset to 0 by
-# _run_guided_flow_once() right before it reprints its own header - the
-# ONLY two places nothing else prints in between, which is what makes
-# erasing based on a remembered count safe (an unrelated print() in
-# between would put the cursor somewhere the remembered count no longer
-# describes, and erasing would corrupt real output instead of stale menu
-# chrome). navigate()'s own level-to-level transitions don't need this
-# module-level state at all - navigate() already knows its own prior
-# level's exact height locally, tracked in its own loop below.
-_LAST_MENU_SCREEN_LINES = 0
+# _MENU_PASS_LINE_MARK is the one piece of shared state this fix adds -
+# a checkpoint into _TeeStdout's own `cursor_line` (a running NET vertical
+# cursor position, not a raw newline tally - see that class, near the
+# bottom of this file, for why the distinction matters).
+#
+# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix: this
+# used to be a hardcoded _LAST_MENU_SCREEN_LINES, set by
+# _prompt_continue_or_exit() to the fixed height ITS OWN y/n prompt
+# occupies (2 rows + 1 blank), on the assumption that nothing else prints
+# between it and the next _run_guided_flow_once() preamble erase. That
+# assumption held for the prompt's own drawing but not for what precedes
+# it - a fired primitive's own live log block (preflight/fire/settle
+# lines, plus whatever the operator's own robot/value picks already
+# printed) is genuinely variable height, unknown ahead of time. Erasing
+# only the fixed 3 left that whole block un-erased every pass, so it
+# accumulated permanently, session-long - on a long enough session (or a
+# terminal shorter than the accumulated total) this forces the real
+# terminal to auto-scroll, which breaks every subsequent \x1b[NA-relative
+# redraw's own cursor-position assumption (arrow_column_pick()'s
+# _redraw(), navigate()'s pinned root) since "N lines up" no longer lands
+# where the code thinks it does once scrolling has silently shifted what
+# "up" even means - the operator's own live-observed symptom (a menu row
+# printing 2-3 times before the correct redraw finally lands).
+#
+# The fix: _MENU_PASS_LINE_MARK records _TeeStdout's own `cursor_line`
+# right before each pass's header prints; the NEXT pass's preamble erases
+# exactly (current cursor_line - that mark) - the pass's ENTIRE real
+# footprint (header + menu + whatever the operator did + the fire log,
+# however tall it actually was), not a guess. Safe against redraw churn
+# specifically because `cursor_line` nets cursor-up moves against
+# newlines instead of just tallying newlines - see that field's own
+# docstring. None until the first real pass (nothing to erase yet -
+# _run_guided_flow_once()'s own first call).
+_MENU_PASS_LINE_MARK = None
 
 
 def _erase_screen_lines(n):
@@ -2756,7 +2850,7 @@ def _erase_screen_lines(n):
     sys.stdout.flush()
 
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0):
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -2821,7 +2915,56 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     PRIOR level left on screen, so this call's first draw overwrites that
     region instead of stacking below it. See _erase_screen_lines()'s own
     docstring above for the safety precondition (nothing else printed in
-    between) every caller of this parameter must satisfy."""
+    between) every caller of this parameter must satisfy.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii), pinned-menu/
+    left-back layout: two more opt-ins, both default to the pre-existing
+    behavior for every caller that doesn't pass them.
+
+    `initial_draw`, default True: when a caller passes False, the whole
+    first-draw block below (erase_lines handling + the initial _redraw)
+    is skipped entirely - this call goes straight into reading keys,
+    reusing whatever this exact level's own rows already correctly show
+    on screen from a PRIOR call. navigate()'s own pinned root and any
+    already-open level resume this way (their rows never became stale -
+    nothing below them was left half-erased, see `erase_on_back` below),
+    so re-entering them needs no redraw, only a fresh raw-mode read loop
+    (a new Python call is only needed at all because returning to
+    navigate()'s own dispatch() is what a Left-back / leaf-fire-complete
+    boundary actually is).
+
+    `erase_on_back`, default False: when True and `left_is_back` fires a
+    Left press, this call erases its OWN currently-visible
+    window_height rows (_erase_screen_lines - the exact same primitive
+    every other redraw here already uses) instead of printing a trailing
+    blank line, so the region collapses to blank instead of leaving
+    stale rows behind - "the submenu region clears to blank" / a leaf
+    picker vanishing on back. Every leaf-picker wrapper that raises
+    _PhcalBackToMenu on Left (_prompt_pick(back=True), _prompt_robot(),
+    _prompt_animation_token(), _prompt_brobots_wake_chain()) passes this;
+    navigate()'s own non-root levels do too. navigate()'s ROOT level
+    passes False - Left at the root is a deliberate no-op (unchanged
+    behavior), nothing to erase since root never stops being shown.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md question-text restore:
+    `erase_on_back_extra`, default 0 - the plain QUESTION header line a
+    caller prints ABOVE this call's own rows (e.g. _prompt_pick's own
+    `question` param) sits outside `window_height` (it's not one of the
+    options, navigate() never redraws it on its own up/down), so a
+    caller that printed one passes 1 here - erase_on_back then blanks
+    `window_height + 1`, taking the question line with it instead of
+    stranding it above a now-empty row region.
+
+    2026-08-24: when `left_is_back` is True, BOTH exit paths (Enter and
+    Left) now return a `(result, highlight)` tuple instead of a bare
+    value - `result` is the picked key on Enter or the _NAV_BACK sentinel
+    on Left, `highlight` is this call's own final highlighted index, so a
+    caller that needs to resume this exact level later (navigate()'s own
+    loop, returning to a level after popping out of something deeper)
+    can seed the next call's own `highlight` param correctly instead of
+    silently resetting to 0. Every `left_is_back=False` caller (the
+    default - unchanged for every pre-existing call site) still gets the
+    bare value back, exactly as before."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
@@ -2844,22 +2987,23 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
             sys.stdout.write(f"\r\x1b[2K{marker}{row_text}\n")
         sys.stdout.flush()
 
-    if erase_lines:
-        _erase_screen_lines(erase_lines)
-    _redraw(first=True)
-    if erase_lines > window_height:
-        # The previous level was TALLER than this one (e.g. the 8-row root
-        # menu shrinking to a 3-row submenu) - the draw above only
-        # overwrote this level's own window_height rows, leaving the
-        # taller prior level's extra trailing rows still visible below.
-        # Blank those, then move back up above them so the cursor ends up
-        # right after this level's own last real row, not after the
-        # now-empty filler.
-        _extra = erase_lines - window_height
-        for _ in range(_extra):
-            sys.stdout.write("\r\x1b[2K\n")
-        sys.stdout.write(f"\x1b[{_extra}A")
-        sys.stdout.flush()
+    if initial_draw:
+        if erase_lines:
+            _erase_screen_lines(erase_lines)
+        _redraw(first=True)
+        if erase_lines > window_height:
+            # The previous level was TALLER than this one (e.g. the 8-row
+            # root menu shrinking to a 3-row submenu) - the draw above
+            # only overwrote this level's own window_height rows, leaving
+            # the taller prior level's extra trailing rows still visible
+            # below. Blank those, then move back up above them so the
+            # cursor ends up right after this level's own last real row,
+            # not after the now-empty filler.
+            _extra = erase_lines - window_height
+            for _ in range(_extra):
+                sys.stdout.write("\r\x1b[2K\n")
+            sys.stdout.write(f"\x1b[{_extra}A")
+            sys.stdout.flush()
 
     with _raw_mode(sys.stdin.fileno()):
         while True:
@@ -2869,8 +3013,11 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                 raise _PhcalEscExit()
             if kind == "arrow":
                 if left_is_back and val == "left":
-                    print()
-                    return _NAV_BACK
+                    if erase_on_back:
+                        _erase_screen_lines(window_height + erase_on_back_extra)
+                    else:
+                        print()
+                    return (_NAV_BACK, highlight) if left_is_back else _NAV_BACK
                 if val in ("up", "left"):
                     highlight = (highlight - 1) % n
                 else:
@@ -2879,45 +3026,79 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                 continue
             if kind == "enter":
                 print()
-                return choices[highlight]
+                choice = choices[highlight]
+                return (choice, highlight) if left_is_back else choice
 
 
-def navigate(tree, window_height=None):
+def navigate(tree, dispatch, window_height=None):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md:
     the reusable generic N-deep tree walker, built on arrow_column_pick()
     above - this is what lets an operator "arrow anywhere," one walker,
     any depth, instead of a hand-written while/continue loop copy-pasted
-    per menu level (the shape _run_guided_flow_once()'s own group/sub menu
-    used before this pass's one port - see that function for the sole
-    real conversion this pass makes; every other prompt in this file is
-    untouched).
+    per menu level.
 
     `tree`: a dict mapping pick_key -> (display_label, child), where
     child is either another such dict (descend one level) or a plain
-    string (a real leaf - the value navigate() returns once picked, no
-    further menu drawn for it).
+    string (a real leaf primitive name). `dispatch(leaf)` is called once a
+    leaf is picked - whatever it returns becomes navigate()'s own return
+    value, ending this call. ESC is still the only way to abandon a
+    navigate() call outright (raises _PhcalEscExit, uncaught here,
+    propagates to whatever already catches it - unchanged).
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii), pinned-menu/
+    left-back layout - the real shape change this pass makes, replacing
+    the 2026-08-23 "each level fully replaces the last" walk:
+
+    - The ROOT level (stack[0]) draws once and is never erased again -
+      pinned, always in view. Every level below it (an open submenu, or
+      whatever `dispatch` draws once it starts collecting a primitive's
+      own answers) is the one thing that gets erased/redrawn as the
+      operator moves through it.
+    - Right and Enter both descend (Enter both selects AND, on a dict
+      child, opens its submenu - Right has no separate meaning here
+      beyond what Enter already does, `_read_key()` doesn't distinguish
+      "open" from "select" as different gestures for this tree).
+    - Left backs OUT: at a submenu, pops back to root, erasing the
+      submenu's own rows to blank (arrow_column_pick's erase_on_back) -
+      root's own rows are untouched, they were never touched to begin
+      with. At the root, Left is a deliberate no-op (nothing above root
+      to return to - mid-session mode re-pick isn't built yet).
+    - `dispatch(leaf)` is called INSIDE this loop (not by the caller,
+      after navigate() returns) specifically so a leaf picker's own
+      Left-back (raising _PhcalBackToMenu - see that exception's own
+      docstring) can be caught right here, where `stack`/`highlights`
+      are still exactly where the operator left them - the loop just
+      `continue`s, resuming the SAME level (root or submenu) with its
+      own remembered highlight, no redraw needed (its rows never
+      changed - see `initial_draw=False` below).
+    - `highlights`, one entry per stack level, remembers each level's
+      own last-highlighted index so returning to a level (after popping,
+      or after a leaf dispatch backs out) resumes at the same row
+      instead of resetting to the top. Set from arrow_column_pick()'s
+      own now-tuple return (`left_is_back=True` always returns
+      `(result, highlight)` - see that function's own docstring) after
+      every call, whichever way it exited.
+    - `fresh`, a single local flag: True only for a level's very first
+      draw (the initial root entry, or right after a submenu is freshly
+      pushed) - that call gets `initial_draw=True` (draw for real,
+      erase_lines=0 since nothing is in its own region yet). Every OTHER
+      re-entry into a level - root's own Left-no-op, resuming a level
+      after popping out of what was below it, resuming after a leaf
+      dispatch backs out - reuses `initial_draw=False`: that level's own
+      rows are still correct on screen (nothing below it left them
+      stale; whatever WAS below either erased itself via
+      `erase_on_back` before handing back control, or was never drawn
+      at all), so no redraw is needed, only a fresh raw-mode read loop.
 
     2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: the
     auto-injected "0" back/exit row is REMOVED - no typed-input path
-    remains anywhere in this file. ESC is still the only way to abandon a
-    navigate() call outright.
-
-    2026-08-23, direct operator build request: Left now backs up one menu
-    level, wired into the `stack`/pop machinery Phase 1 left inert for
-    exactly this. arrow_column_pick() is called with left_is_back=True, so
-    a Left press there returns the _NAV_BACK sentinel instead of moving
-    the highlight; this loop pops the stack and redraws the parent level
-    on that sentinel. At the root (len(stack) == 1, no parent to return
-    to - mid-session mode re-pick isn't built yet) Left is a deliberate
-    no-op: the sentinel still comes back, but the pop is skipped and the
-    same level just redraws, so the operator stays put rather than
-    exiting. Right/Up/Down/Enter are unchanged.
+    remains anywhere in this file.
 
     2026-08-23, row-format build request: calls arrow_column_pick() with
-    show_key=False now - tree row labels carry their own full text
-    (Brobots prefix, [disabled] prefix, no leading number), so the
-    generic "{key}. " rendering would just be redundant/dead weight here.
-    Every other arrow_column_pick() caller in the file is untouched.
+    show_key=False - tree row labels carry their own full text (Brobots
+    prefix, [disabled] prefix, no leading number), so the generic
+    "{key}. " rendering would just be redundant/dead weight here. Every
+    other arrow_column_pick() caller in the file is untouched.
 
     window_height: default None, meaning "size to this level's own real
     content, every level, dynamically" - NOT a fixed number (2026-08-20,
@@ -2928,49 +3109,46 @@ def navigate(tree, window_height=None):
     own window height as len(options) for THAT level, so every level's
     window is exactly its own real-item count, with no menu-wide constant
     anywhere to drift stale as menus grow, shrink, or differ level to
-    level (root vs. a 2-3-item sub-menu).
-    This also matches arrow_column_pick()'s own None contract one level up
-    - "show everything, no scrolling" - cascaded per level instead of
-    computed once for the whole tree. A caller that DOES want real
+    level (root vs. a 2-3-item sub-menu). A caller that DOES want real
     scrolling (the future composition editor's up-to-69-line lists,
     arrow_column_pick()'s own docstring) passes an explicit integer here,
     same as before - that value then applies uniformly to every level of
-    that one navigate() call, unchanged behavior for that case.
-
-    2026-08-23, redraw-in-place foundation: tracks `last_lines` locally -
-    the exact row+trailing-blank height of the level THIS loop last drew.
-    Starts at 0 (this call's very first level draw erases nothing - the
-    caller's own header, if any, isn't navigate()'s to erase); every
-    subsequent arrow_column_pick() call, whether descending into a
-    submenu or backing up via Left, passes the prior level's own height so
-    it overwrites that level in place instead of stacking below it. Safe
-    because nothing else prints between one iteration of this loop and the
-    next - see _erase_screen_lines()'s own docstring for why that
-    precondition matters."""
+    that one navigate() call, unchanged behavior for that case."""
     stack = [tree]
-    last_lines = 0
+    highlights = [0]
+    fresh = True
     while stack:
+        depth = len(stack)
+        is_root = depth == 1
         node = stack[-1]
         keys = sorted(node, key=lambda k: (len(k), k))
         options = [(k, node[k][0]) for k in keys]
         level_height = window_height if window_height is not None else len(options)
-        choice = arrow_column_pick(
-            options, highlight=0, window_height=level_height,
-            left_is_back=True, show_key=False, erase_lines=last_lines,
+        result, hl = arrow_column_pick(
+            options, highlight=highlights[-1], window_height=level_height,
+            left_is_back=True, show_key=False, erase_lines=0,
+            initial_draw=fresh, erase_on_back=not is_root,
         )
-        last_lines = level_height + 1
-        if choice is _NAV_BACK:
-            if len(stack) > 1:
+        highlights[-1] = hl
+        fresh = False
+        if result is _NAV_BACK:
+            if not is_root:
                 stack.pop()
+                highlights.pop()
             continue
-        _label, child = node[choice]
+        _label, child = node[result]
         if isinstance(child, dict):
             stack.append(child)
+            highlights.append(0)
+            fresh = True
             continue
-        return child
+        try:
+            return dispatch(child)
+        except _PhcalBackToMenu:
+            continue
 
 
-def _prompt_robot(prompt_note="", default=None, allow_both=False):
+def _prompt_robot(default=None, allow_both=False, back=False):
     """Dedicated 'which robot?' prompt - its own process, single purpose.
     2026-08-15: replaces 7 separate hand-rolled copies of
     _prompt_choice("robot (1 or 2)? ", {"1","2"}) that had drifted across
@@ -2980,8 +3158,17 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
     variant) - one place now, not seven. Deliberately NOT merged with
     _prompt_animation_token below or the primitive-menu's own print/pick
     logic - decoupled, each its own process, not a shared generic "pick
-    from anything" utility. prompt_note is free text appended after the
-    base phrasing, e.g. "[default 2 - Brobot 2, the cube keeper]".
+    from anything" utility.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md leaf-picker text cleanup:
+    the old `prompt_note` free-text suffix (e.g. "[default 2 - Brobot 2,
+    the cube keeper]") is gone - the picker's own pre-highlighted default
+    row already shows which choice is the default, same as every other
+    leaf pick. The base QUESTION itself ("robot (1 or 2)?" / "robot (1,
+    2, or * for both)?") was ALSO dropped that same pass, as an
+    unintended side effect of removing the typed-syntax tail it used to
+    sit next to - restored (question-text-only, this param unaffected)
+    2026-08-24, question-text restore.
 
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_
     001.md §4 finding 1 / §5 step 2): "0" used to be a redundant extra
@@ -3023,10 +3210,23 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
     2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" (clean
     exit) is REMOVED from both pick shapes below - no typed-input path
     remains anywhere in this file, and ESC is now the only way to exit
-    from this prompt."""
+    from this prompt.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): `back`,
+    default False. Only safe when this is the FIRST widget drawn in its
+    caller's own dispatch chain - nothing else (another picker's own
+    already-committed rows, a typed input() line) between this call and
+    its resumable navigate() level (see navigate()'s own docstring on
+    why). True at every call site where that holds (weather,
+    brobots_stay_in_place, brobots_session_responsiveness, move_reverse,
+    cube, the shared arm/nod/rattle/danger tail); left False at the two
+    that don't - animation (its own token picker runs first) and
+    brobots_sleep_to_wake_direct_sdk (its own release-mode picker runs
+    first) - flagged per this build's own STOP clause, not forced. The
+    single-mode auto-resolve branch above never shows a picker at all,
+    `back` has no effect there."""
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
         resolved = _PRESENT_ROBOTS[0]["which"]
-        note = f" {prompt_note}" if prompt_note else ""
         # 2026-08-24: "the only one detected present" is only true when
         # this robot was actually confirmed by detect-first - since
         # _confirm_multi_mode()'s 2026-08-23 override lets the operator
@@ -3037,21 +3237,31 @@ def _prompt_robot(prompt_note="", default=None, allow_both=False):
         # unaffected by this pass) - only the printed claim is now honest.
         confirmed = bool(_PRESENT_ROBOTS[0].get("present", True))
         reason = "the only one detected present" if confirmed else "forced by the operator, NOT confirmed present"
-        print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason}){note}")
+        print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})")
         return resolved
-    suffix = f" {prompt_note}" if prompt_note else " "
     if allow_both:
-        options = [("1", "1"), ("2", "2"), ("*", "both (1 and 2)")]
+        options = [("1", "Robot 1"), ("2", "Robot 2"), ("*", "both (1 and 2)")]
         option_keys = [k for k, _label in options]
         default_key = "*" if default == "both" else default
         highlight = option_keys.index(default_key) if default_key in option_keys else 0
-        print(f"robot (1, 2, or * for both)?{suffix}")
-        robot = arrow_column_pick(options, highlight=highlight)
+        print("robot (1, 2, or * for both)?")
+        if back:
+            robot, _hl = arrow_column_pick(
+                options, highlight=highlight, show_key=False,
+                left_is_back=True, erase_on_back=True, erase_on_back_extra=1,
+            )
+            if robot is _NAV_BACK:
+                raise _PhcalBackToMenu()
+        else:
+            robot = arrow_column_pick(options, highlight=highlight, show_key=False)
         if robot == "*":
             return "both"
         return robot
     choices = {"1", "2"}
-    robot = _prompt_pick(f"robot (1 or 2)?{suffix}", choices, default=default, exit_on_invalid=True)
+    robot = _prompt_pick(
+        choices, default=default, exit_on_invalid=True, labels={"1": "Robot 1", "2": "Robot 2"},
+        back=back, question="robot (1 or 2)?",
+    )
     return robot
 
 
@@ -3073,12 +3283,10 @@ def _prompt_animation_token():
     2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" (clean
     exit) is REMOVED - no typed-input path remains anywhere in this file,
     and ESC is now the only way to exit from this prompt."""
-    print("Animation tokens:")
-    print(f"  *. all in sequence ({', '.join(_ANIMATION_TOKEN_MENU[k] for k in sorted(_ANIMATION_TOKEN_MENU))})")
-    for key in sorted(_ANIMATION_TOKEN_MENU):
-        print(f"  {key}. {_ANIMATION_TOKEN_MENU[key]}")
     choices = set(_ANIMATION_TOKEN_MENU) | {"*"}
-    token_choice = _prompt_pick(f"pick a token [*,1-{len(_ANIMATION_TOKEN_MENU)}]: ", choices, exit_on_invalid=True)
+    labels = {"*": f"all in sequence ({', '.join(_ANIMATION_TOKEN_MENU[k] for k in sorted(_ANIMATION_TOKEN_MENU))})"}
+    labels.update(_ANIMATION_TOKEN_MENU)
+    token_choice = _prompt_pick(choices, exit_on_invalid=True, labels=labels, back=True, question="pick a token")
     if token_choice == "*":
         return "all"
     return _ANIMATION_TOKEN_MENU[token_choice]
@@ -3572,9 +3780,18 @@ def _prompt_brobots_wake_chain(primitive):
     # superseded for the fallback case; move_reverse's own explicit "y" entry
     # is unaffected (already matched the new default, kept for clarity, not
     # functional anymore).
+    #
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): NOT
+    # back=True - this gate always fires AFTER the robot picker (and, for
+    # arm/nod, after typed hold/speed values too) already committed their
+    # own rows to the screen as permanent history. A leaf picker can only
+    # safely self-erase-and-resume when nothing was drawn between it and
+    # its own resumable nav level (see navigate()'s own docstring) - this
+    # one isn't that. Flagged per this build's own STOP clause, not
+    # forced.
     default = _BROBOTS_WAKE_CHAIN_DEFAULT.get(primitive, "y")
     choice = _prompt_pick(
-        f"run brobots_wake first? y/n [default {default}]: ", {"y", "n"}, default=default
+        {"y", "n"}, default=default, labels={"y": "yes", "n": "no"}, question="run brobots_wake first?",
     )
     return choice == "y"
 
@@ -3701,15 +3918,23 @@ def _run_guided_flow_once():
     # DOES still reprint fresh on every "continue in phcal?" loop pass
     # (unchanged from before this fix - a genuinely new pass, not a
     # back-up within one pass) - what changed is erasing what the LAST
-    # pass's own "continue?" y/n prompt left on screen first, so this
-    # reprint overwrites it instead of stacking below it. Safe: nothing
-    # prints between _prompt_continue_or_exit() returning and this
-    # function's own next call (run_guided_flow()'s loop body), which is
-    # exactly the precondition _erase_screen_lines() needs. A no-op on
-    # this function's very first call (_LAST_MENU_SCREEN_LINES starts at
-    # 0 module-wide).
-    _erase_screen_lines(_LAST_MENU_SCREEN_LINES)
-    _LAST_MENU_SCREEN_LINES = 0
+    # pass left on screen first, so this reprint overwrites it instead of
+    # stacking below it.
+    #
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix: the
+    # erase amount is now the LAST PASS'S OWN REAL, MEASURED footprint
+    # (header + menu + whatever the operator did + however tall the fired
+    # primitive's own live log actually was) via _MENU_PASS_LINE_MARK - a
+    # checkpoint into _TeeStdout's own `cursor_line` - not the old fixed
+    # guess (see that global's own docstring for why the guess broke
+    # under a real live fire). A no-op on this function's very first call
+    # (_MENU_PASS_LINE_MARK is still None module-wide) and identical to
+    # before whenever nothing beyond the plain menu chrome printed.
+    global _MENU_PASS_LINE_MARK
+    _current_lines = getattr(sys.stdout, "cursor_line", None)
+    if _MENU_PASS_LINE_MARK is not None and _current_lines is not None:
+        _erase_screen_lines(_current_lines - _MENU_PASS_LINE_MARK)
+    _MENU_PASS_LINE_MARK = _current_lines
     print("PLAYHEAD Calibrations (phcal):")
     print("Please note:")
     print(
@@ -3719,16 +3944,31 @@ def _run_guided_flow_once():
     # 2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0 to go
     # back" dropped from this line - no in-tree back-up path existed yet.
     # 2026-08-23: Left now backs up one level (navigate()'s own
-    # left_is_back wiring) - the "if primitive is None" check just below
-    # is dead code as a direct result (navigate() can no longer pop past
-    # the root), left in place per the same not-in-scope-this-pass caution
-    # Phase 1 already used elsewhere in this file.
+    # left_is_back wiring) - navigate() can no longer pop past the root, so
+    # it never returns None; the old dead "if primitive is None" check that
+    # used to sit here is gone as of the 2026-08-24 dispatch-callback
+    # extraction below (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii)), not
+    # just left inert - navigate() now calls _dispatch_primitive() itself
+    # and returns whatever it returns directly.
     print("** arrows to move, Enter to select, ESC to exit **")
-    primitive = navigate(_build_primitive_group_tree())
-    if primitive is None:
-        print("PHCAL_GUIDED_EXIT exiting")
-        return None
+    return navigate(_build_primitive_group_tree(), _dispatch_primitive)
 
+
+def _dispatch_primitive(primitive):
+    """The big if/elif primitive-dispatch chain, extracted 2026-08-24
+    (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii), pinned-menu/left-back
+    layout brick) so navigate() can call it directly as its own dispatch
+    callback - this is what lets Left inside a leaf picker unwind back to
+    navigate()'s own tree-walk instead of falling all the way out of the
+    guided flow. Body is byte-for-byte the same ~15-branch dispatch
+    _run_guided_flow_once() used to run inline right after its own
+    `primitive = navigate(...)` call - nothing about what any primitive
+    fires, computes, or saves changed by this extraction, only WHO calls it
+    and how a Left-back mid-dispatch is handled (see _PhcalBackToMenu,
+    raised by the back-enabled leaf pickers it calls into, caught by
+    navigate() itself, not this function - a raise here just propagates
+    straight through, same as any other exception a plain function call
+    doesn't catch)."""
     if primitive == "weather":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
@@ -3747,7 +3987,7 @@ def _run_guided_flow_once():
         # candidate-fallback retry - that logic lives in phcal's own
         # now-unreachable cmd_weather_test/_weather_geocode_candidates, not
         # ported here to avoid reimplementing fetch_windsor_weather()).
-        robot = _prompt_robot()
+        robot = _prompt_robot(back=True)
         location = input("weather test location [default windsor ontario canada]: ").strip()
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         control_mod = _load_module(CONTROL_SONG_RUNNER_PATH, "run_robot_control_song_001")
@@ -3858,7 +4098,7 @@ def _run_guided_flow_once():
     if primitive == "brobots_stay_in_place":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        robot = _prompt_robot()
+        robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value(
             "hold", HOLD_DEFAULT_SECONDS, lambda raw: _parse_float_flag("hold", raw)
         )
@@ -3884,7 +4124,7 @@ def _run_guided_flow_once():
     if primitive == "brobots_session_responsiveness":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        robot = _prompt_robot()
+        robot = _prompt_robot(back=True)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -3901,7 +4141,7 @@ def _run_guided_flow_once():
     if primitive == "move_reverse":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        robot = _prompt_robot()
+        robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value(
             "hold",
             MOVE_REVERSE_DEFAULT_HOLD_SECONDS,
@@ -3968,7 +4208,7 @@ def _run_guided_flow_once():
         # move_reverse above already use. No dry mode - same "this class of
         # tool always fires for real" precedent robot-sleep/-wake/-info and
         # cmd_cube's own CLI form already follow.
-        robot = _prompt_robot("[default 2 - Brobot 2, the cube keeper]", default="2")
+        robot = _prompt_robot(default="2", back=True)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -3985,10 +4225,14 @@ def _run_guided_flow_once():
     if primitive == "brobots_sleep_to_wake_direct_sdk":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        print("Release mode:")
-        print("  1. after a set time")
-        print("  2. signaled by a completed process (a real wpr/restart-wirepod check)")
-        mode_choice = _prompt_pick("pick a release mode [1-2]: ", {"1", "2"}, exit_on_invalid=True)
+        mode_choice = _prompt_pick(
+            {"1", "2"}, exit_on_invalid=True,
+            labels={
+                "1": "after a set time",
+                "2": "signaled by a completed process (a real wpr/restart-wirepod check)",
+            },
+            back=True, question="pick a release mode",
+        )
         which = _prompt_robot(default="both", allow_both=True)
         wait_seconds = None
         if mode_choice == "1":
@@ -4024,7 +4268,7 @@ def _run_guided_flow_once():
     if not _row_enabled(primitive):
         return _row_disabled_skip(primitive)
 
-    robot = _prompt_robot()
+    robot = _prompt_robot(back=True)
 
     last = _load_last(robot)[primitive]
 
@@ -4111,20 +4355,16 @@ def _prompt_continue_or_exit():
     out. Routed through _prompt_pick(), so it's arrow-navigable like
     every other y/n in this file.
 
-    2026-08-23, redraw-in-place foundation: records this prompt's own
-    exact on-screen height in the module-level _LAST_MENU_SCREEN_LINES
-    right after drawing - 1 line for _prompt_pick()'s own `print(prompt)`
-    call, 2 rows for the fixed {"y","n"} choice set, 1 trailing blank from
-    arrow_column_pick()'s own Enter-return - so _run_guided_flow_once()'s
-    next call erases exactly this block before reprinting its header,
-    instead of stacking below it. Safe here specifically because nothing
-    else prints between this function returning and that next call (see
-    _erase_screen_lines()'s own docstring)."""
-    global _LAST_MENU_SCREEN_LINES
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix: no
+    longer tracks its own on-screen height for the next pass's erase - that
+    bookkeeping moved to _MENU_PASS_LINE_MARK (a _TeeStdout `cursor_line`
+    checkpoint, covering this prompt's own rows AND everything else the
+    pass printed, not just this one widget) - see that global's own
+    docstring for why the old per-widget version broke under a real live
+    fire's variable-height log output."""
     choice = _prompt_pick(
-        "continue in phcal? y/n [default y]: ", {"y", "n"}, default="y"
+        {"y", "n"}, default="y", labels={"y": "yes", "n": "no"}, question="continue in phcal?",
     )
-    _LAST_MENU_SCREEN_LINES = 4
     return choice == "y"
 
 
@@ -4207,13 +4447,41 @@ PHCAL_RUN_LOG_PATH = Path(__file__).resolve().parent / "phcal_run.log"
 
 
 class _TeeStdout:
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix:
+    # `\x1b[<N>A` (cursor up N) is the ONLY vertical-cursor-repositioning
+    # escape sequence anywhere in this file's own rendering code
+    # (arrow_column_pick()'s _redraw(), _erase_screen_lines(),
+    # _confirm_multi_mode()'s own bespoke redraw - confirmed by grep, not
+    # guessed) - `\r` (carriage return) and `\x1b[2K` (erase line) never
+    # move the cursor vertically. This is the one pattern `cursor_line`
+    # below needs to track to stay accurate.
+    _CURSOR_UP_RE = re.compile(r"\x1b\[(\d+)A")
+
     def __init__(self, real_stdout, log_path):
         self._real = real_stdout
         self._log = open(log_path, "w", buffering=1)
+        # `cursor_line`: a running NET vertical cursor position - `\n`
+        # moves it down one, `\x1b[<N>A` moves it up N. Deliberately NOT a
+        # plain "how many newlines were ever written" counter: a
+        # redraw-in-place (cursor up N, rewrite N lines) nets to ZERO
+        # here, exactly matching what a real terminal's cursor actually
+        # does - browsing a menu with the arrow keys (pure redraw churn,
+        # no net growth) doesn't inflate this, only content that actually
+        # pushes the cursor further down without a compensating up-move
+        # does. This is what makes `(current - a-remembered-mark)` a safe,
+        # accurate erase count for _run_guided_flow_once()'s own
+        # cross-pass redraw (see _MENU_PASS_LINE_MARK's own docstring) -
+        # a naive newline tally would over-count every redraw and risk
+        # erasing real, older output above the pass it's supposed to
+        # cover.
+        self.cursor_line = 0
 
     def write(self, data):
         self._real.write(data)
         self._log.write(data)
+        self.cursor_line += data.count("\n")
+        for match in self._CURSOR_UP_RE.finditer(data):
+            self.cursor_line -= int(match.group(1))
 
     def flush(self):
         self._real.flush()
