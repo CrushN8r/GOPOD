@@ -313,8 +313,11 @@ description: The Goverlord desk contract — who the operator is, the hard rules
   second-guess them — when that material already answers the question, use it and move
   forward. Reserve real caution for things that actually carry risk (hardware,
   irreversible actions, genuine unresolved ambiguity); don't spend it on routine findings,
-  small diffs, or instructions that already answer their own question. Full detail:
-  `feedback_use_golden_material_move_forward.md` in memory.
+  small diffs, or instructions that already answer their own question. **Recurred
+  2026-08-24, same file, same day, different task** — closed a report by asking whether to
+  keep or revert a leftover test value instead of picking the reversible default (leave
+  it) and moving on; the rule is general, not "don't ask about knobs.json specifically."
+  Full detail: `feedback_use_golden_material_move_forward.md` in memory.
 
 ## 3. The song shelf
 
