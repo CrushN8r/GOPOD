@@ -359,6 +359,16 @@ _ANIMATION_NO_GETOUT_RELEASE_SETTLE_SECONDS = 1.0
 # default for a diagnostic-only primitive.
 HOLD_DEFAULT_SECONDS = 5.0
 
+# 2026-08-25 (follow-up to PHCAL_ARROW_NAV_V6_LANE1_EXECUTED_001.md's own
+# flagged gap): arm/nod's "hold between reps", animation's hold, and
+# brobots_stay_in_place's hold had NO concrete coded bound at all - Lane 1
+# correctly refused to fabricate one. The operator has now given a real
+# number: a single shared PROVISIONAL range for all three, community-
+# estimated, not derived from any spec - explicitly expected to be tuned
+# later, not a claim that 0.5-10.0 is a validated hardware limit.
+PHCAL_UNBOUNDED_HOLD_MIN_SECONDS = 0.5
+PHCAL_UNBOUNDED_HOLD_MAX_SECONDS = 10.0
+
 # Rung 6 (2026-08-09, WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md): the first wheel
 # primitive - Stage 1 of that survey's 3-stage golden path only (bench-fire +
 # confirm; no alias, no engine note type, no awaken step here). ON-CHARGER
@@ -556,15 +566,12 @@ def _finish_sleep_wake(proc, signal_file, clock, mode):
     return _readiness_signal(ok, reason, "direct_sdk_continuous", detail={"mode": mode, "returncode": proc.returncode})
 
 
-def _parse_sleep_hold_flag(raw):
-    val = _parse_float_flag("hold", raw)
-    if val < SLEEP_MIN_HOLD_SECONDS:
-        raise ValueError(
-            f"hold must be >= {SLEEP_MIN_HOLD_SECONDS}s - a shorter value has already been "
-            "live-observed to release a slow-firing robot before it ever settles asleep "
-            "(see SLEEP_MIN_HOLD_SECONDS's own comment above for the exact math)"
-        )
-    return val
+# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: `_parse_sleep_hold_
+# flag()` (a raise-on-below-floor wrapper around _parse_float_flag) used to
+# live here - removed, unused now that sleep_wake's own guided-flow "wait"
+# prompt clamps to SLEEP_MIN_HOLD_SECONDS via _prompt_value()'s own new
+# min_value= param instead of refusing via a raise (see that call site's
+# own comment). SLEEP_MIN_HOLD_SECONDS itself is untouched.
 
 # 2026-07-22 rattle-audibility fix: phcal's own rattle call was reusing the
 # shared DIRECT_SDK_RELEASE_SETTLE_SECONDS (1.0) above for its
@@ -1586,13 +1593,27 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     removes) are left in place, not pruned - `choice` can no longer
     resolve to a candidate outside `present_robots`, so that code is
     effectively unreachable now, flagged here rather than silently
-    dropped, per this pass's own row-source-only scope."""
+    dropped, per this pass's own row-source-only scope.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1a: this screen's
+    own bespoke raw-mode loop (its own `_redraw()`, its own `with
+    _raw_mode(...)` block, its own two-state ESC handling) is REMOVED -
+    folded into arrow_column_pick() itself via that function's new
+    `esc_home` opt-in (see its own docstring), the one holdout
+    PHCAL_ARROW_NAV_BUILD_PLAN_006.md's own survey found not routed
+    through the shared cyclable-choice engine. The old highlight==-1 "no
+    row marked, accept detected mode" state is now a REAL row at index 0
+    (`"_accept"`) - a genuine, if cosmetic, change: that row now always
+    shows its own "> " marker from the first draw, matching how every
+    other "ENTER for X, or change:" leaf prompt in this file already
+    marks its own pre-highlighted default. The header text is restyled to
+    match that same convention instead of describing a state that no
+    longer exists ("Press ENTER now for default... or Arrow down to
+    select" -> "ENTER for <accept-default label>, or change:"). Return
+    contract, row source, and every downstream branch below
+    (choice == "/" / the `match is None` synthesis) are byte-unchanged."""
     mode_upper = detected_mode.upper()
-    header = [
-        f"** brobots {mode_upper} mode detected **",
-        "Press ENTER now for default = 'y' to continue,",
-        "or Arrow down to select, then press ENTER",
-    ]
+    accept_label = f"accept detected {mode_upper} mode"
 
     detected_which = present_robots[0]["which"] if detected_mode == "single" and present_robots else None
     rows = [("/", "brobots-none mode (dry-runs)")]
@@ -1601,57 +1622,15 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
         for p in present_robots
         if p["which"] != detected_which
     ]
-    choices = [k for k, _label in rows]
-    highlight = -1
+    options = [("_accept", accept_label)] + rows
 
-    def _redraw(first=False):
-        if not first:
-            sys.stdout.write(f"\x1b[{len(rows)}A")
-        for i, (_key, label) in enumerate(rows):
-            marker = "> " if i == highlight else "  "
-            sys.stdout.write(f"\r\x1b[2K{marker}{label}\n")
-        sys.stdout.flush()
+    print(f"** brobots {mode_upper} mode detected **")
+    print(f"ENTER for {accept_label}, or change:")
+    print(_NAV_LINE_CHOICE)
+    choice = arrow_column_pick(options, highlight=0, show_key=False, esc_home=0)
 
-    for line in header:
-        print(line)
-    _redraw(first=True)
-
-    with _raw_mode(sys.stdin.fileno()):
-        while True:
-            kind, val = _read_key()
-            if kind == "esc":
-                # 2026-08-23, direct operator build request: ESC now respects
-                # this screen's own two states instead of always exiting.
-                # State B (a row is highlighted, highlight != -1) -> ESC bumps
-                # back to state A (the at-start "accept detected mode"
-                # default) rather than leaving the tool - the header line
-                # never left the screen, so resetting highlight and
-                # redrawing the row block is the whole "return to the
-                # initial screen" action needed. State A (highlight == -1,
-                # nothing above this screen to bump up to) -> ESC still
-                # raises _PhcalEscExit(), a clean full exit, unchanged.
-                if highlight != -1:
-                    highlight = -1
-                    _redraw()
-                    continue
-                print()
-                raise _PhcalEscExit()
-            if kind == "arrow":
-                if highlight == -1:
-                    highlight = 0
-                elif val in ("up", "left"):
-                    highlight = (highlight - 1) % len(rows)
-                else:
-                    highlight = (highlight + 1) % len(rows)
-                _redraw()
-                continue
-            if kind == "enter":
-                print()
-                if highlight == -1:
-                    return present_robots, detected_mode
-                choice = choices[highlight]
-                break
-
+    if choice == "_accept":
+        return present_robots, detected_mode
     if choice == "/":
         print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=none (operator chose dry-run over detected {detected_mode})")
         return [], "none"
@@ -2733,6 +2712,21 @@ def _read_key():
         return ("char", "")
 
 
+# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: the three plain-
+# language move lines every interactive screen now shows, same wording
+# every time - no jargon, no PHCAL_* tags. Menu = navigate()'s own tree
+# levels (printed once by _run_guided_flow_once(), stays visible across
+# every level change - see that function's own header print). Choice =
+# every discrete pick routed through _prompt_pick()/arrow_column_pick()
+# directly (y/n gates, robot/token pickers, _confirm_multi_mode() once
+# folded into this same engine below). Value = _prompt_value()'s own typed
+# fields. These never replace a real diagnostic (PHCAL_DETECT_PROBE, a fire
+# result, PHCAL_* run logs) - only the bare instructional text around them.
+_NAV_LINE_MENU = "↑ ↓ move   Enter opens   ←  back   Esc  quit"
+_NAV_LINE_CHOICE = "↑ ↓ pick   Enter choose   ←  back"
+_NAV_LINE_VALUE = "Enter accepts   type to change   Esc  back"
+
+
 def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back=False, question=None):
     """2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_
     001.md §5 steps 1+3): replaces the old `_prompt_choice()` - the second,
@@ -2819,16 +2813,26 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
     unchanged. When `back=True` and a question was printed,
     `erase_on_back_extra=1` is passed through so Left-back takes the
     question line with it instead of stranding it above a blank row
-    region (see arrow_column_pick()'s own docstring)."""
+    region (see arrow_column_pick()'s own docstring).
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: every call now
+    also prints `_NAV_LINE_CHOICE` (the plain move-line) right below
+    `question` - one more line ALWAYS present now, not conditional on
+    `question` being given. `erase_on_back_extra` below is widened from
+    `1 if question else 0` to `(1 if question else 0) + 1` to match -
+    Left-back must take this line with it too, or it strands above the
+    now-blank row region exactly the way an un-erased `question` line
+    used to."""
     labels = labels or {}
     options = [(c, labels.get(c, c)) for c in sorted(choices)]
     highlight = sorted(choices).index(default) if default in choices else 0
     if question:
         print(question)
+    print(_NAV_LINE_CHOICE)
     if back:
         choice, _hl = arrow_column_pick(
             options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False,
-            left_is_back=True, erase_on_back=True, erase_on_back_extra=1 if question else 0,
+            left_is_back=True, erase_on_back=True, erase_on_back_extra=(1 if question else 0) + 1,
         )
         if choice is _NAV_BACK:
             raise _PhcalBackToMenu()
@@ -2912,7 +2916,7 @@ def _erase_screen_lines(n):
     sys.stdout.flush()
 
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0, top_up_repick=False):
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0, top_up_repick=False, esc_home=None):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -3042,7 +3046,18 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     True, and only for the ROOT level (`is_root`) - every submenu keeps
     the pre-existing Up-wraps-to-bottom behavior, unchanged. Only `val ==
     "up"` is affected; Left (already claimed by `left_is_back` above) and
-    Down/Right are untouched by this opt-in either way."""
+    Down/Right are untouched by this opt-in either way.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1a: `esc_home`,
+    default None - an index. When set and ESC is pressed while `highlight
+    != esc_home`, this bumps the highlight back to `esc_home` and redraws
+    instead of exiting - a plain, reusable "ESC returns to the default
+    row" two-state behavior. ESC while already AT `esc_home` still exits
+    normally (raises _PhcalEscExit, unchanged). This is
+    _confirm_multi_mode()'s own former bespoke two-state ESC handling
+    (highlight==-1 "at rest" vs. a real highlighted row), generalized into
+    this one engine so that screen no longer needs its own separate
+    raw-mode loop - see that function's own rewritten docstring."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
@@ -3087,6 +3102,10 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
         while True:
             kind, val = _read_key()
             if kind == "esc":
+                if esc_home is not None and highlight != esc_home:
+                    highlight = esc_home
+                    _redraw()
+                    continue
                 print()
                 raise _PhcalEscExit()
             if kind == "arrow":
@@ -3336,11 +3355,21 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         option_keys = [k for k, _label in options]
         default_key = "*" if default == "both" else default
         highlight = option_keys.index(default_key) if default_key in option_keys else 0
-        print("robot (1, 2, or * for both)?")
+        # 2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md: same uniform
+        # wording every other leaf prompt now uses - `options[highlight][1]`
+        # is exactly the label the picker itself will show pre-highlighted,
+        # so this line can never drift out of sync with what Enter actually
+        # selects.
+        print(f"ENTER for {options[highlight][1]}, or change:")
+        print(_NAV_LINE_CHOICE)
         if back:
+            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: 2, not
+            # 1 - the "ENTER for X" line above AND the new _NAV_LINE_CHOICE
+            # line both sit above the rows now; Left-back must erase both
+            # or the second one strands above the now-blank row region.
             robot, _hl = arrow_column_pick(
                 options, highlight=highlight, show_key=False,
-                left_is_back=True, erase_on_back=True, erase_on_back_extra=1,
+                left_is_back=True, erase_on_back=True, erase_on_back_extra=2,
             )
             if robot is _NAV_BACK:
                 raise _PhcalBackToMenu()
@@ -3350,14 +3379,27 @@ def _prompt_robot(default=None, allow_both=False, back=False):
             return "both"
         return robot
     choices = {"1", "2"}
+    labels = {"1": "Robot 1", "2": "Robot 2"}
+    # 2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md: mirrors
+    # _prompt_pick()'s own highlight resolution exactly
+    # (`sorted(choices).index(default) if default in choices else 0`) so
+    # this question text can never say a different default than the row
+    # the picker actually pre-highlights. Most call sites here pass no
+    # `default` at all (weather, brobots_stay_in_place,
+    # brobots_session_responsiveness, move_reverse, animation, the shared
+    # arm/nod/rattle/danger tail) - for those, "Robot 1" is shown because
+    # it sorts first, not because it was ever a deliberately chosen
+    # default; flagged in PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md, not hidden
+    # here. Only `cube` (default="2") has a real chosen one.
+    resolved_default = default if default in choices else sorted(choices)[0]
     robot = _prompt_pick(
-        choices, default=default, exit_on_invalid=True, labels={"1": "Robot 1", "2": "Robot 2"},
-        back=back, question="robot (1 or 2)?",
+        choices, default=default, exit_on_invalid=True, labels=labels,
+        back=back, question=f"ENTER for {labels[resolved_default]}, or change:",
     )
     return robot
 
 
-def _prompt_animation_token():
+def _prompt_animation_token(back=True):
     """Dedicated animation-token picker - its own process, single purpose.
     2026-08-15: pulled out of the animation primitive's own inline block so
     it's named and testable on its own - NOT merged with the primitive
@@ -3374,34 +3416,145 @@ def _prompt_animation_token():
 
     2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" (clean
     exit) is REMOVED - no typed-input path remains anywhere in this file,
-    and ESC is now the only way to exit from this prompt."""
+    and ESC is now the only way to exit from this prompt.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
+    order): `back`, default True, so a direct call (no args) keeps this
+    prompt's own pre-existing "runs first in its chain" back-out
+    behavior. The animation dispatch branch now calls the robot picker
+    FIRST (`_prompt_robot(back=True)`) and this SECOND - passing
+    `back=False` there, since only the first widget drawn in a chain can
+    safely self-erase-and-resume (see `_prompt_pick()`'s own docstring on
+    `back`). The old `question="pick a token"` header is dropped - dead
+    weight now that the robot has already been picked and the operator is
+    mid-primitive, not deciding what kind of prompt this even is."""
     choices = set(_ANIMATION_TOKEN_MENU) | {"*"}
     labels = {"*": f"all in sequence ({', '.join(_ANIMATION_TOKEN_MENU[k] for k in sorted(_ANIMATION_TOKEN_MENU))})"}
     labels.update(_ANIMATION_TOKEN_MENU)
-    token_choice = _prompt_pick(choices, exit_on_invalid=True, labels=labels, back=True, question="pick a token")
+    token_choice = _prompt_pick(choices, exit_on_invalid=True, labels=labels, back=back)
     if token_choice == "*":
         return "all"
     return _ANIMATION_TOKEN_MENU[token_choice]
 
 
-def _prompt_value(label, last_value, parse_fn, display=None):
-    """One guided-flow value prompt: shows the last-used value in brackets,
-    Enter keeps it, typing a new value re-parses it with `parse_fn` (the
-    same validators the direct-flag form already uses) - invalid input
-    re-prompts rather than exiting, since this is a live back-and-forth, not
-    a one-shot argv parse. `display`, if given, overrides the default
-    "[last_value]" bracket text - used for rattle's volume prompt, which
-    shows the valid range ("1-5") rather than the last-used number, per the
-    operator's own spec wording."""
+def _clamp_numeric(label, val, min_value, max_value):
+    """THE one clamp helper, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b -
+    shared by both the IN (loaded last_value) and OUT (freshly-typed value)
+    paths inside `_prompt_value()` below, so a clamp is never duplicated
+    per field and is always reported the same way
+    (`PHCAL_GUIDED_CLAMPED {label} {val} -> {clamped} (valid range)`), never
+    silent. `val` unchanged (and nothing printed) when it already sits
+    inside `[min_value, max_value]` or when a given bound is `None`."""
+    clamped = val
+    if min_value is not None and clamped < min_value:
+        clamped = min_value
+    if max_value is not None and clamped > max_value:
+        clamped = max_value
+    if clamped != val:
+        print(f"PHCAL_GUIDED_CLAMPED {label} {val} -> {clamped} (valid range)")
+    return clamped
+
+
+def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None, display=None):
+    """THE typed-value handler, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b -
+    replaces the old `parse_fn`-based design (every caller used to pass its
+    own `lambda raw: _parse_int_flag(...)`/`_parse_float_flag(...)`) with
+    per-field bounds read directly from PHCAL_ARROW_NAV_BUILD_PLAN_006.md's
+    own field-by-field survey table, so this ONE function can enforce them
+    the new way decision 3 asks for: CLAMP, not refuse-and-reprompt.
+
+    `kind`: "int" | "float" | "text". Enter (bare, empty input) always
+    returns `last_value` unchanged, for every kind. A non-numeric value
+    typed into an int/float field re-prompts (PHCAL_GUIDED_INVALID) rather
+    than crashing - unchanged from before this pass.
+
+    `min_value`/`max_value`, when given, are CONCRETE numeric bounds found
+    in code (e.g. volume's 1-5, move_reverse's MOVE_REVERSE_MAX_HOLD_
+    SECONDS, sleep_wake's SLEEP_MIN_HOLD_SECONDS floor) - a typed value
+    outside them is silently corrected to the nearer bound
+    (PHCAL_GUIDED_CLAMPED prints what changed), not refused. This is a
+    deliberate behavior change from every prior pass here (which refused
+    and re-prompted via `_parse_int_flag`/`_parse_float_flag`'s own
+    `raise ValueError` - those two functions are UNCHANGED and still used
+    exactly that way by main()'s own direct `--flag` CLI parsing, which
+    stays refuse-based on purpose - a scripted/argv caller typing a bad
+    flag should still fail loudly, not have its mistake silently
+    corrected).
+
+    A float field with NEITHER bound given still enforces the one
+    universal rule every such field has always had (`_parse_float_flag`'s
+    own default `min_exclusive=0.0`): a value <= 0 re-prompts, not clamps
+    - there is no CONCRETE floor number to clamp UP to for "hold between
+    reps" (arm/nod), animation's hold, or brobots_stay_in_place's hold,
+    per PHCAL_ARROW_NAV_BUILD_PLAN_006.md's own survey (flagged there as a
+    real gap, not invented here as a fabricated number). A field that DOES
+    pass `min_value` (sleep_wake's wait) skips this universal check
+    entirely - any value, however low, clamps up to that concrete floor
+    instead.
+
+    No precision (decimal-places) rounding is applied to any float field -
+    PHCAL_ARROW_NAV_BUILD_PLAN_006.md's own survey found no coded
+    precision rule for any of them; inventing a 2dp convention here would
+    be exactly the fabrication CLAUDE.md's engineering discipline forbids.
+
+    2026-08-25, same pass: a bare ESC keypress (the terminal's raw 0x1B
+    byte, arriving as the sole content of `input()`'s returned string,
+    since this prompt runs in normal cooked/canonical mode - no
+    `_raw_mode()` context is active here) now raises `_PhcalEscExit()`,
+    matching what ESC means at every OTHER prompt in this file (a full,
+    clean exit of the guided flow - never a partial back-out; Left is the
+    only key that ever means "back one level," and Left-back inside a
+    typed field is deliberately NOT built here - see
+    PHCAL_ARROW_NAV_BUILD_PLAN_006.md's own open item on why cooked-mode
+    input can't safely support it yet).
+
+    Prints `_NAV_LINE_VALUE` once per call (not re-printed on an
+    invalid-input retry loop, matching how PHCAL_GUIDED_INVALID's own
+    retry never reprints the question line either).
+
+    2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md (carried forward,
+    unchanged by this pass): "ENTER for <default>, or change:" wording,
+    `label` prefix kept (multi-field sequences like arm's reps/hold/speed
+    would otherwise read as identical unlabeled lines). `display`, if
+    given, still overrides the shown value without changing what bare
+    Enter actually returns - weather's own `location` field uses this
+    (last_value=None, display="windsor ontario canada") so the prompt
+    reads human-friendly while bare Enter still passes `None` through,
+    exactly matching this primitive's own pre-existing geocode-safety
+    behavior (see that call site's own comment).
+
+    2026-08-25, follow-up pass (arm/nod "hold between reps" clamp): the
+    clamp now also runs on `last_value` itself, BEFORE it's shown or
+    returned on bare Enter - not just on freshly-typed input. This is the
+    IN/load-side half of the clamp (a wild value sitting in phcal_last.json,
+    e.g. hand-edited or left over from before this range existed, must
+    present already-clamped, not get echoed straight through on bare
+    Enter). Routed through the same `_clamp_numeric()` helper the typed-
+    input path below uses - one clamp mechanism, two call points, per
+    PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b's "do not duplicate clamp
+    logic per field" instruction."""
+    if kind in ("int", "float") and (min_value is not None or max_value is not None):
+        last_value = _clamp_numeric(label, last_value, min_value, max_value)
     shown = display if display is not None else last_value
+    print(_NAV_LINE_VALUE)
     while True:
-        raw = input(f"{label} [{shown}]: ").strip()
+        raw = input(f"{label} - ENTER for {shown}, or change: ")
+        if raw == "\x1b":
+            raise _PhcalEscExit()
+        raw = raw.strip()
         if raw == "":
             return last_value
+        if kind == "text":
+            return raw
         try:
-            return parse_fn(raw)
-        except ValueError as exc:
-            print(f"PHCAL_GUIDED_INVALID {exc}")
+            val = int(raw) if kind == "int" else float(raw)
+        except ValueError:
+            print(f"PHCAL_GUIDED_INVALID {label} must be a number, got {raw!r}")
+            continue
+        if kind == "float" and min_value is None and val <= 0:
+            print(f"PHCAL_GUIDED_INVALID {label} must be greater than 0, got {val}")
+            continue
+        return _clamp_numeric(label, val, min_value, max_value)
 
 
 # 2026-07-22, Part A: guided flow's primitive pick is now a numbered menu
@@ -4092,7 +4245,7 @@ def _run_guided_flow_once():
     # extraction below (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii)), not
     # just left inert - navigate() now calls _dispatch_primitive() itself
     # and returns whatever it returns directly.
-    print("** arrows to move, Enter to select, ESC to exit **")
+    print(_NAV_LINE_MENU)
     # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): so each row's
     # own "Brobots mode N" label (_group_mode_label()) is legible against
     # what's actually live right now, without the operator having to
@@ -4135,7 +4288,16 @@ def _dispatch_primitive(primitive):
         # now-unreachable cmd_weather_test/_weather_geocode_candidates, not
         # ported here to avoid reimplementing fetch_windsor_weather()).
         robot = _prompt_robot(back=True)
-        location = input("weather test location [default windsor ontario canada]: ").strip()
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: routed
+        # through the shared typed-value handler (was a bare `input()`,
+        # the plan's own field table flagged this as the one free-text
+        # field with no handler at all) - last_value=None + display=
+        # "windsor ontario canada" is exactly `_prompt_value()`'s own
+        # documented pattern for "show a human default, but bare Enter
+        # must still pass None through" (see that function's own
+        # docstring), preserving the geocode-safety behavior described
+        # in the comment block above unchanged.
+        location = _prompt_value("location", None, kind="text", display="windsor ontario canada")
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         control_mod = _load_module(CONTROL_SONG_RUNNER_PATH, "run_robot_control_song_001")
         result = control_mod.run_single_note("weather", live, robot, location=location or None)
@@ -4153,7 +4315,7 @@ def _dispatch_primitive(primitive):
         # of a bespoke check unique to this branch.
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        phrase = _prompt_value("phrase", "Brobots ready!", lambda raw: raw)
+        phrase = _prompt_value("phrase", "Brobots ready!", kind="text")
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         clock = _Clock()
@@ -4183,11 +4345,18 @@ def _dispatch_primitive(primitive):
     if primitive == "animation":
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
-        animation_token = _prompt_animation_token()
-        robot = _prompt_robot()
-        hold_seconds = _prompt_value(
-            "hold", ANIMATION_DEFAULT_HOLD_SECONDS, lambda raw: _parse_float_flag("hold", raw)
-        )
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
+        # order): was token-then-robot (the one primitive in the whole file
+        # asking a non-robot question before "which robot?") - reordered
+        # to match every other primitive's own robot-first shape. `robot`
+        # now gets back=True (it's the first widget drawn in this chain);
+        # `_prompt_animation_token(back=False)` is now second, matching
+        # the same "only the first widget safely backs out" rule
+        # `_prompt_robot()`'s own docstring already states (see
+        # _prompt_animation_token()'s own docstring for the full reasoning).
+        robot = _prompt_robot(back=True)
+        animation_token = _prompt_animation_token(back=False)
+        hold_seconds = _prompt_value("hold", ANIMATION_DEFAULT_HOLD_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4246,9 +4415,7 @@ def _dispatch_primitive(primitive):
         if not _row_enabled(primitive):
             return _row_disabled_skip(primitive)
         robot = _prompt_robot(back=True)
-        hold_seconds = _prompt_value(
-            "hold", HOLD_DEFAULT_SECONDS, lambda raw: _parse_float_flag("hold", raw)
-        )
+        hold_seconds = _prompt_value("hold", HOLD_DEFAULT_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4290,9 +4457,7 @@ def _dispatch_primitive(primitive):
             return _row_disabled_skip(primitive)
         robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value(
-            "hold",
-            MOVE_REVERSE_DEFAULT_HOLD_SECONDS,
-            lambda raw: _parse_float_flag("hold", raw, max_value=MOVE_REVERSE_MAX_HOLD_SECONDS),
+            "hold", MOVE_REVERSE_DEFAULT_HOLD_SECONDS, kind="float", max_value=MOVE_REVERSE_MAX_HOLD_SECONDS,
         )
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
@@ -4383,15 +4548,25 @@ def _dispatch_primitive(primitive):
         which = _prompt_robot(default="both", allow_both=True)
         wait_seconds = None
         if mode_choice == "1":
-            # Same floor as legacy --hold mode (_parse_sleep_hold_flag /
-            # SLEEP_MIN_HOLD_SECONDS) - the signal file gets touched
-            # `wait_seconds` after the sleep subprocess launches, running
-            # concurrently with GoToSleepGetIn/getInSettleSeconds(2.7s)/
-            # GoToSleepSleeping, not after confirming the robot actually
-            # settled. A too-short wait risks the exact same
-            # released-before-settled bug this floor was already built to
-            # prevent, just in the --wait-signal path instead of --hold.
-            wait_seconds = _prompt_value("wait", SLEEP_WAKE_DEFAULT_WAIT_SECONDS, _parse_sleep_hold_flag)
+            # Same floor as legacy --hold mode (SLEEP_MIN_HOLD_SECONDS) -
+            # the signal file gets touched `wait_seconds` after the sleep
+            # subprocess launches, running concurrently with
+            # GoToSleepGetIn/getInSettleSeconds(2.7s)/GoToSleepSleeping,
+            # not after confirming the robot actually settled. A
+            # too-short wait risks the exact same released-before-settled
+            # bug this floor was already built to prevent, just in the
+            # --wait-signal path instead of --hold.
+            #
+            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: was
+            # `_parse_sleep_hold_flag` (its own raise-on-below-floor
+            # wrapper around _parse_float_flag, now removed - unused
+            # everywhere else, see that function's own former docstring) -
+            # min_value=SLEEP_MIN_HOLD_SECONDS now CLAMPS a too-low typed
+            # value up to the floor instead of refusing it, per decision
+            # 3's own clamp rule.
+            wait_seconds = _prompt_value(
+                "wait", SLEEP_WAKE_DEFAULT_WAIT_SECONDS, kind="float", min_value=SLEEP_MIN_HOLD_SECONDS,
+            )
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         if not live:
             print("PHCAL_NO_DRY_MODE sleep_wake has no simulate path (no --dry exists in the binary) - re-run with GOPOD_ALLOW_LIVE_ROBOT_SPEECH=1 to fire it")
@@ -4426,24 +4601,20 @@ def _dispatch_primitive(primitive):
     volume_ui = None
 
     if primitive == "arm":
-        cycles = _prompt_value("reps", last["cycles"], lambda raw: _parse_int_flag("reps", raw, min_value=1))
-        hold_seconds = _prompt_value(
-            "hold between reps", last["hold"], lambda raw: _parse_float_flag("hold between reps", raw)
-        )
-        speed = _prompt_value("speed", last["speed"], lambda raw: _parse_int_flag("speed", raw, min_value=1))
+        cycles = _prompt_value("reps", last["cycles"], kind="int", min_value=1)
+        hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
+        speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
     elif primitive == "nod":
-        count = _prompt_value("reps", last["count"], lambda raw: _parse_int_flag("reps", raw, min_value=1))
-        hold_seconds = _prompt_value(
-            "hold between reps", last["hold"], lambda raw: _parse_float_flag("hold between reps", raw)
-        )
-        speed = _prompt_value("speed", last["speed"], lambda raw: _parse_int_flag("speed", raw, min_value=1))
+        count = _prompt_value("reps", last["count"], kind="int", min_value=1)
+        hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
+        speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
     else:  # rattle / danger - both volume-only, same 1-5 scale
-        volume_ui = _prompt_value(
-            "volume",
-            last["volume"],
-            lambda raw: _parse_int_flag("volume", raw, min_value=1, max_value=5),
-            display="1-5",
-        )
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: was
+        # `_parse_int_flag("volume", raw, min_value=1, max_value=5)` via a
+        # lambda - now min_value=1, max_value=5 directly, so an
+        # out-of-range typed value (e.g. 9) CLAMPS to 5 instead of
+        # refusing and re-prompting - decision 3's own named example.
+        volume_ui = _prompt_value("volume", last["volume"], kind="int", min_value=1, max_value=5)
 
     live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
     # See PHCAL_RESTART_WIREPOD_ENV's own comment block above: setdefault, not
@@ -4734,6 +4905,11 @@ if __name__ == "__main__":
             print("PHCAL_GUIDED_BLOCKED no interactive input available - run phcal from a real terminal")
             sys.exit(1)
         except KeyboardInterrupt:
-            print("\nPHCAL_GUIDED_BLOCKED cancelled")
+            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: softened
+            # per the operator's own named example (was "PHCAL_GUIDED_
+            # BLOCKED cancelled") - a real diagnostic tag has no place in a
+            # user-facing Ctrl-C acknowledgement; the exit code (1) still
+            # carries the machine-readable signal for anything scripted.
+            print("\nCancelled — going back.")
             sys.exit(1)
     sys.exit(main())
