@@ -1422,6 +1422,20 @@ def run_battery_check(mod, clock, serial, live):
 _SESSION_MODE = None
 _PRESENT_ROBOTS = []
 
+# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): the RAW
+# detect-first result, set exactly once by _resolve_session_mode_once()
+# and never reassigned after - unlike _PRESENT_ROBOTS above, which
+# _confirm_multi_mode()'s own "/" (none) choice can legitimately empty out
+# to []. Lane (vi)'s mid-session mode repick must offer single/multi rows
+# again even after an operator chose none earlier in the SAME invocation
+# ("re-pick among the ALREADY-DETECTED present robots - do NOT re-probe
+# hardware" - this lane's own instruction), which _PRESENT_ROBOTS alone
+# can no longer answer once it's been emptied that way. This is a
+# read-only fact about what hardware actually responded, not a second
+# calibration-data table - phcal_last.json is untouched, ONE-TABLE model
+# intact.
+_DETECTED_PRESENT_ROBOTS = []
+
 
 def _candidate_list():
     """The list detect-first probes. Reads phcal_config.json's own
@@ -1715,9 +1729,16 @@ def _resolve_session_mode_once():
     `os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"` at fire time, so
     setting it once here, before the guided-flow loop starts, is
     sufficient - no per-primitive change needed."""
-    global _SESSION_MODE, _PRESENT_ROBOTS
+    global _SESSION_MODE, _PRESENT_ROBOTS, _DETECTED_PRESENT_ROBOTS
     _detect_clock = _Clock()
     _PRESENT_ROBOTS, _SESSION_MODE = _detect_present_robots(_detect_clock)
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): captured here,
+    # BEFORE _confirm_multi_mode() runs - that call's own "/" (none) choice
+    # can legitimately empty _PRESENT_ROBOTS to [], and this raw detect-first
+    # result is what a later mid-session mode repick needs to still offer
+    # single/multi rows from, without re-probing hardware. See
+    # _DETECTED_PRESENT_ROBOTS's own module-level comment above.
+    _DETECTED_PRESENT_ROBOTS = _PRESENT_ROBOTS
     _PRESENT_ROBOTS, _SESSION_MODE = _confirm_multi_mode(_detect_clock, _PRESENT_ROBOTS, _SESSION_MODE)
     if not _low_voltage_gate(_detect_clock, _PRESENT_ROBOTS):
         print(f"{_detect_clock.prefix()}PHCAL_GUIDED_EXIT declined to proceed with a low-battery robot present")
@@ -2594,6 +2615,47 @@ class _PhcalBackToMenu(Exception):
     abandons the one primitive currently being answered."""
 
 
+class _PhcalSessionModeRepick(Exception):
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (v): the
+    session-mode-changed recompute hook's own clean-unwind signal - same
+    "propagate through however many nested calls, no sentinel threading"
+    shape as _PhcalEscExit/_PhcalBackToMenu above, scoped to its own
+    concern: "the operator wants to re-pick the session mode, mid-session,
+    without quitting." navigate()/arrow_column_pick() stay
+    session-mode-agnostic (same layering reason _PhcalBackToMenu's own
+    docstring already gives - those primitives are meant to be reused by a
+    future non-phcal caller with no session-mode concept at all), so this
+    unwinds cleanly up through both to run_guided_flow()'s own handler -
+    the one place session mode is ever actually set. Caught there,
+    genuinely different from _PhcalEscExit's own handling: NOT an exit -
+    the catch runs the repick screen, applies whatever the operator
+    chose, then loops straight back into a fresh _run_guided_flow_once()
+    pass (skipping _prompt_continue_or_exit() - a repick is a mid-flow
+    detour, not a completed primitive dispatch), which is what actually
+    re-runs _row_enabled() across every row and redraws in place - that
+    pass's own existing _MENU_PASS_LINE_MARK erase-since-last-pass
+    mechanism (see that global's own docstring) already does "redraw in
+    place, no stacking" correctly for every OTHER pass boundary in this
+    file; this hook reuses that exact primitive rather than inventing a
+    second erase path just for a mode change.
+
+    As of THIS lane, nothing in the file raises this exception yet - Lane
+    (vi) is what actually wires a live keypress (arrow-up past the pinned
+    root menu's own top row) to raise it. Deployed now as the backend half
+    only (this class + run_guided_flow()'s catch + _repick_session_mode()
+    below) - inert, unreachable, and verified not to change any EXISTING
+    exception-handling path (run_guided_flow()'s existing _PhcalEscExit
+    catch is untouched, only a new except clause is added alongside it).
+    Case (b) from this lane's own build plan - "an Enter registers a
+    choice that flips downstream required state" - does NOT exist
+    anywhere in this file today: grepped every _SESSION_MODE=/
+    _PRESENT_ROBOTS= assignment site directly, both are set in exactly
+    one place (_resolve_session_mode_once(), once, before the guided-flow
+    loop even starts) - no dispatch branch or Enter-registered choice
+    mutates either global. Reported plainly per this lane's own
+    instruction, not invented."""
+
+
 def _raw_mode(fd):
     """Context manager: puts fd (normally stdin) into cbreak raw-input mode
     for the duration of the `with` block, and ALWAYS restores the original
@@ -2850,7 +2912,7 @@ def _erase_screen_lines(n):
     sys.stdout.flush()
 
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0):
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0, top_up_repick=False):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -2964,7 +3026,23 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     can seed the next call's own `highlight` param correctly instead of
     silently resetting to 0. Every `left_is_back=False` caller (the
     default - unchanged for every pre-existing call site) still gets the
-    bare value back, exactly as before."""
+    bare value back, exactly as before.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): `top_up_repick`,
+    default False - when True, pressing Up while `highlight == 0` (the
+    very top row) raises _PhcalSessionModeRepick() instead of wrapping the
+    highlight to the bottom row - "arrow up past the top row reaches the
+    at-start mode picker, which sits above the menu in the tour." Erases
+    this call's own currently-visible `window_height` rows first (the
+    same _erase_screen_lines() primitive `erase_on_back` already uses
+    above - the region collapses to blank, same visual convention), then
+    raises - Lane (v)'s own exception, caught by run_guided_flow(), never
+    here (same layering as _PhcalEscExit/_PhcalBackToMenu - this function
+    stays session-mode-agnostic). navigate() is the one caller that passes
+    True, and only for the ROOT level (`is_root`) - every submenu keeps
+    the pre-existing Up-wraps-to-bottom behavior, unchanged. Only `val ==
+    "up"` is affected; Left (already claimed by `left_is_back` above) and
+    Down/Right are untouched by this opt-in either way."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
@@ -3012,6 +3090,9 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                 print()
                 raise _PhcalEscExit()
             if kind == "arrow":
+                if top_up_repick and val == "up" and highlight == 0:
+                    _erase_screen_lines(window_height)
+                    raise _PhcalSessionModeRepick()
                 if left_is_back and val == "left":
                     if erase_on_back:
                         _erase_screen_lines(window_height + erase_on_back_extra)
@@ -3113,7 +3194,17 @@ def navigate(tree, dispatch, window_height=None):
     scrolling (the future composition editor's up-to-69-line lists,
     arrow_column_pick()'s own docstring) passes an explicit integer here,
     same as before - that value then applies uniformly to every level of
-    that one navigate() call, unchanged behavior for that case."""
+    that one navigate() call, unchanged behavior for that case.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): passes
+    `top_up_repick=is_root` - arrow_column_pick()'s own new opt-in (see
+    its docstring) only fires at the ROOT level; a submenu's Up-wraps-to-
+    bottom behavior is unchanged. This is the ONLY change this lane makes
+    to navigate() itself - _PhcalSessionModeRepick is not caught here
+    (same "stays session-mode-agnostic" reasoning _PhcalBackToMenu's own
+    catch above does NOT extend to), it propagates straight out to
+    run_guided_flow()'s own handler, same shape as _PhcalEscExit already
+    does."""
     stack = [tree]
     highlights = [0]
     fresh = True
@@ -3128,6 +3219,7 @@ def navigate(tree, dispatch, window_height=None):
             options, highlight=highlights[-1], window_height=level_height,
             left_is_back=True, show_key=False, erase_lines=0,
             initial_draw=fresh, erase_on_back=not is_root,
+            top_up_repick=is_root,
         )
         highlights[-1] = hl
         fresh = False
@@ -3544,6 +3636,20 @@ def _session_mode_n():
     return 3  # "multi"
 
 
+def _session_mode_label():
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): the
+    header's own "session mode: N (word)" text - pairs _session_mode_n()'s
+    number (what every row's own "Brobots mode N" label is compared
+    against) with the plain three-value word (_SESSION_MODE itself) so the
+    header stays legible without the operator having to remember which
+    number means what. `_SESSION_MODE is None` (the direct-flag CLI path)
+    never reaches _run_guided_flow_once() at all, so this only exists to
+    keep the function total rather than assuming a live caller - matches
+    _session_mode_n()'s own None -> 3 (multi-equivalent) handling."""
+    word = _SESSION_MODE if _SESSION_MODE is not None else "multi"
+    return f"{_session_mode_n()} ({word})"
+
+
 def _row_enabled(primitive):
     """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i): THE one
     comparison - a row/primitive is enabled when the current session mode
@@ -3738,21 +3844,40 @@ def _build_primitive_group_tree():
     own final prefix/naming in _PRIMITIVE_GROUPS itself); a disabled
     control gets "[disabled] " prefixed once, at the very front, ahead of
     that "Brobots " prefix - never a trailing suffix anymore. Row order
-    within the root menu and within each submenu is reassigned via
-    _sort_menu_rows() (disabled-first, then alphabetical) - the dict keys
-    below are freshly numbered "1".."N" in that final sorted order, so
-    navigate()'s own generic `sorted(node, key=lambda k: (len(k), k))`
-    walk produces the sorted order as a side effect, with no change to
-    navigate()'s own robot-state-agnostic sorting logic. A multi-member
-    group's own top-level row is never itself marked disabled - unchanged
-    from before this pass; only its individual submenu members are."""
+    within each submenu is reassigned via _sort_menu_rows() (disabled-first,
+    then alphabetical) - the dict keys below are freshly numbered "1".."N"
+    in that final sorted order, so navigate()'s own generic
+    `sorted(node, key=lambda k: (len(k), k))` walk produces the sorted
+    order as a side effect, with no change to navigate()'s own
+    robot-state-agnostic sorting logic.
+
+    2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): the main-menu
+    group row's own "[disabled] " prefix is REMOVED outright (both the
+    1-member-group case that used to carry it, and the always-False
+    multi-member-group case that never did) - replaced by a "Brobots mode
+    N " label (see _group_mode_label() below) naming the group's own
+    required-N (the LOWEST _PRIMITIVE_REQUIRED_N among its members - a
+    group is live at the lowest mode any member needs). This closes the
+    two-rulebook seam a live-hardware pass caught: the group row used to
+    say "enabled" (no marker) via a check that was ALWAYS False for a
+    multi-member group, while that same group's own submenu leaves said
+    "[disabled]" via the real _row_enabled() engine underneath - the
+    number now comes from the identical engine at both levels, one source
+    of truth, not two. Root row order changed to match: PURE alphabetical
+    (no more disabled-first sort at this level - the old sort's own
+    "disabled first" half only ever mattered when the group row itself
+    could be disabled, which no longer happens here), submenu rows below
+    unchanged (still disabled-first via _sort_menu_rows()). Every group
+    N here happens to be 2 except the tempo group (1) - checked against
+    _PRIMITIVE_REQUIRED_N directly, no group mixes differing member N's
+    internally today."""
     group_rows = []
     for group_label, members in _PRIMITIVE_GROUPS.values():
+        group_n = min(_PRIMITIVE_REQUIRED_N[m] for m in members)
+        mode_label = _group_mode_label(group_label, group_n)
         if len(members) == 1:
             primitive = members[0]
-            disabled = _is_none_mode_disabled(primitive)
-            label = ("[disabled] " + group_label) if disabled else group_label
-            group_rows.append((label, primitive, disabled, group_label))
+            group_rows.append((mode_label, primitive, group_label))
         else:
             member_rows = []
             for member in members:
@@ -3764,13 +3889,30 @@ def _build_primitive_group_tree():
             sub = {}
             for i, (m_label, member, _m_disabled, _sort_key) in enumerate(member_rows):
                 sub[str(i + 1)] = (m_label, member)
-            group_rows.append((group_label, sub, False, group_label))
+            group_rows.append((mode_label, sub, group_label))
 
-    group_rows = _sort_menu_rows(group_rows)
+    group_rows = sorted(group_rows, key=lambda r: r[2].lower())
     tree = {}
-    for i, (label, child, _disabled, _sort_key) in enumerate(group_rows):
+    for i, (label, child, _sort_key) in enumerate(group_rows):
         tree[str(i + 1)] = (label, child)
     return tree
+
+
+def _group_mode_label(group_label, group_n):
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): the main
+    menu's own required-N ladder, made visible per row - replaces the old
+    group-level "[disabled] " prefix (see _build_primitive_group_tree()'s
+    own docstring above for why). `group_label` always starts with the
+    literal "Brobots " - every _PRIMITIVE_GROUPS value is built through
+    _brobots_label() on text that never itself starts with "brobots"
+    (confirmed by reading _PRIMITIVE_GROUPS directly: "info (active
+    brobots)", "moves (...)", etc. - none lead with the word), so
+    _brobots_label() always takes that function's plain `f"Brobots
+    {text}"` branch, never its "already-brobots-prefixed" branch. This
+    just reinserts "mode N" right after that fixed prefix rather than
+    gluing a second "Brobots" word on."""
+    rest = group_label[len("Brobots "):] if group_label.startswith("Brobots ") else group_label
+    return f"Brobots mode {group_n} {rest}"
 
 
 def _prompt_brobots_wake_chain(primitive):
@@ -3951,6 +4093,11 @@ def _run_guided_flow_once():
     # just left inert - navigate() now calls _dispatch_primitive() itself
     # and returns whatever it returns directly.
     print("** arrows to move, Enter to select, ESC to exit **")
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): so each row's
+    # own "Brobots mode N" label (_group_mode_label()) is legible against
+    # what's actually live right now, without the operator having to
+    # remember which of the three _SESSION_MODE words maps to which number.
+    print(f"session mode: {_session_mode_label()}")
     return navigate(_build_primitive_group_tree(), _dispatch_primitive)
 
 
@@ -4368,6 +4515,67 @@ def _prompt_continue_or_exit():
     return choice == "y"
 
 
+def _repick_session_mode():
+    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (v)/(vi): the
+    session-mode-changed recompute hook's own "recompute" half - run when
+    run_guided_flow() catches _PhcalSessionModeRepick (Lane vi's own arrow-
+    up trigger). Reuses _confirm_multi_mode() verbatim - the EXACT same
+    screen _resolve_session_mode_once() already shows at startup, fed
+    _DETECTED_PRESENT_ROBOTS (THIS invocation's own raw detect-first
+    result, untouched by this function - no re-probe, per this lane's own
+    ONE-TABLE instruction) and a freshly-recomputed "what would
+    detect-first have called this" label, derived purely from that same
+    already-detected list's own length (0/1/2+ -> none/single/multi - the
+    exact _detect_present_robots() rule, reproduced rather than re-run
+    since detect-first itself is a live hardware probe this hook must not
+    repeat). Sets the same module globals (_SESSION_MODE/_PRESENT_ROBOTS)
+    and the same GOPOD_ALLOW_LIVE_ROBOT_SPEECH env var
+    _resolve_session_mode_once() already sets, by the same rule - one
+    source of that mapping, reused, not reimplemented a second way.
+
+    Deliberately reads _DETECTED_PRESENT_ROBOTS, NOT _PRESENT_ROBOTS - a
+    real gap caught before shipping this lane: _confirm_multi_mode()'s own
+    "/" (none) choice legitimately empties _PRESENT_ROBOTS to [], so an
+    operator who started this session in none mode and then arrows up to
+    repick would see no single/multi rows at all if this read
+    _PRESENT_ROBOTS instead - the exact "re-pick among the ALREADY-
+    DETECTED present robots" case this lane's own instruction names.
+    _DETECTED_PRESENT_ROBOTS is the raw, never-reassigned-after-first-set
+    fact this needs (see its own module-level comment).
+
+    Does NOT itself redraw anything - the caller (run_guided_flow()'s own
+    _PhcalSessionModeRepick handler) loops straight back into a fresh
+    _run_guided_flow_once() pass after this returns, which is what
+    actually re-runs _row_enabled() across every row (via a freshly built
+    _build_primitive_group_tree()) and redraws in place, no stacking, via
+    that pass's own existing _MENU_PASS_LINE_MARK erase mechanism - see
+    _PhcalSessionModeRepick's own docstring for the full chain.
+
+    ONE-TABLE model: phcal_last.json (per-robot calibration facts) is
+    never read or written here - a mode change only changes which rows
+    _row_enabled() reports live, nothing about any robot's own remembered
+    tuning. No snapshot/overlay/store logic added - _SESSION_MODE/
+    _PRESENT_ROBOTS are simply reassigned, exactly as
+    _resolve_session_mode_once() already does at startup."""
+    global _SESSION_MODE, _PRESENT_ROBOTS
+    _clock = _Clock()
+    if not _DETECTED_PRESENT_ROBOTS:
+        detected_mode = "none"
+    elif len(_DETECTED_PRESENT_ROBOTS) == 1:
+        detected_mode = "single"
+    else:
+        detected_mode = "multi"
+    _PRESENT_ROBOTS, _SESSION_MODE = _confirm_multi_mode(_clock, _DETECTED_PRESENT_ROBOTS, detected_mode)
+    if _SESSION_MODE == "none":
+        os.environ.pop("GOPOD_ALLOW_LIVE_ROBOT_SPEECH", None)
+    else:
+        os.environ["GOPOD_ALLOW_LIVE_ROBOT_SPEECH"] = "1"
+    print(
+        f"{_clock.prefix()}PHCAL_SESSION_MODE_REPICK mode={_SESSION_MODE} "
+        f"robots={[r['label'] for r in _PRESENT_ROBOTS]}"
+    )
+
+
 def run_guided_flow():
     """2026-08-18, PHCAL_NAV_POLISH_001.md: the real public entry point now -
     a thin stay-in-loop wrapper around _run_guided_flow_once() (the actual
@@ -4428,6 +4636,28 @@ def run_guided_flow():
         except _PhcalEscExit:
             print("PHCAL_GUIDED_EXIT (ESC) exiting")
             return 0
+        except _PhcalSessionModeRepick:
+            # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (v)/(vi):
+            # a mid-session mode repick, not an exit - run the repick
+            # screen (_repick_session_mode()'s own docstring covers the
+            # "no re-probe, reuse _confirm_multi_mode()" mechanism), then
+            # loop straight back into a fresh _run_guided_flow_once() pass
+            # without _prompt_continue_or_exit() (a repick is a mid-flow
+            # detour, not a completed primitive dispatch) - that fresh
+            # pass is what actually re-runs _row_enabled() across every
+            # row and redraws in place, via its own existing
+            # _MENU_PASS_LINE_MARK erase mechanism. ESC from inside the
+            # repick screen itself still means a full, clean exit -
+            # _confirm_multi_mode() raises the same _PhcalEscExit
+            # _run_guided_flow_once()'s own pass already handles above,
+            # caught here too so that guarantee holds from this call site
+            # as well.
+            try:
+                _repick_session_mode()
+            except _PhcalEscExit:
+                print("PHCAL_GUIDED_EXIT (ESC) exiting")
+                return 0
+            continue
         if result is None:
             return 0
         if not _prompt_continue_or_exit():
