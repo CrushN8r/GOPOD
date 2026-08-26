@@ -400,8 +400,10 @@ it). Proven, not asserted: built via the overlay against the now-pristine live t
 
 > **⚠ Do not "fix" these files if `git status` shows them modified.** Because the revert
 > above was done as a live file-copy, never as a commit, `~/wire-pod`'s own git history
-> still holds the *old, GOPOD-edited* version of these 6 files at its last local commit
-> (`a0a35d4`). That means `git status` inside `~/wire-pod` will show these 6 files as
+> still holds the *old, GOPOD-edited* version of these 6 files, last recorded at commit
+> `a0a35d4` (HEAD has since advanced two commits past it — `34cf652`/`8085ced`, gitignore
+> and `gopod_probes/` tracking housekeeping, neither touching these 6 files). That means
+> `git status` inside `~/wire-pod` will show these 6 files as
 > **permanently `M` (modified)**, forever, by design:
 > `chipper/pkg/logger/logger.go`, `chipper/pkg/wirepod/sdkapp/server.go`,
 > `chipper/pkg/wirepod/ttr/kgsim.go`, `chipper/pkg/wirepod/ttr/kgsim_cmds.go`,

@@ -1,7 +1,9 @@
 # Brobots Baby Robots Sleep — "Do Baby Robots Dream?" scored capture song
 
 **Renamed 2026-08-01** from `brobots_baby_dream` to `brobots_baby_robots_sleep` (folder
-`103_brobots_baby_robots_sleep`, operator's own song-folder reshuffle). The source video's
+`103_brobots_baby_robots_sleep` at the time, operator's own song-folder reshuffle) —
+renamed/renumbered again 2026-08-18 (via an intermediate `104_brobots_baby_robots_sleep`)
+to this folder's current name, `105_brobots_nap`. The source video's
 own working question, "Do Baby Robots Dream?", stays as the quoted concept title in the
 line above and in the `open_question` step's spoken text below — that's a direct quote from
 the source concept packet, not the song's own identity name, and is unchanged by this

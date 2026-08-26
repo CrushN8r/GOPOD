@@ -77,8 +77,10 @@ see `gopod_notes/FUNNEL_MAP_RECONCILED_001.md` for what changed and why.
   `298e388`, `goverlord/runtime/songs/101_brobots_bingo_test/`. Opens the core loop (Work
   order, below).
 - **UPSELL 2 — 102 brobots_cross_persona.** "Leaked GOPOD-layer test footage" framing.
-  `goverlord/runtime/songs/102_brobots_cross_persona/`. Sits outside the core loop, its
-  own standalone piece.
+  Archived 2026-08-12 (see §4/§7 below), now at
+  `goverlord/runtime/songs/zzz_archives/102_brobots_cross_persona/` — the `102` slot in
+  the live song shelf now belongs to `102_brobots_bingo_game/`. Sat outside the core
+  loop, its own standalone piece.
 - **UPSELL 3 — 103 brobots_baby_robots_sleep.** An older song composed *before* GOPOD —
   a different kind of piece: revived After Effects / trippy-vibe lyric video, song
   track + possible ACE SFX + an `.srt` for timed lyrics (named intent only, not built).
@@ -118,7 +120,10 @@ see `gopod_notes/FUNNEL_MAP_RECONCILED_001.md` for what changed and why.
 
 Five songs, cockpit-confirmed (`pha0b_menu()` prints these off
 `goverlord/runtime/songs/`, `zzz_archives` excluded — see `goverlord-desk/SKILL.md` §3
-for full per-song status). Funnel role per `gopod_notes/FUNNEL_MAP_001.md`:
+for full per-song status). Funnel role per `gopod_notes/FUNNEL_MAP_001.md`. Three more
+folders live on the shelf below without a confirmed funnel-role assignment yet (see
+their own rows' notes) — added here for completeness, not part of the same
+cockpit-confirmed five:
 
 | Song | Directory | Funnel role | Note |
 |---|---|---|---|
@@ -126,12 +131,10 @@ for full per-song status). Funnel role per `gopod_notes/FUNNEL_MAP_001.md`:
 | Interview Vamp | `01_brobots_interview_vamp/` | NET video 1 | The pre-show banter, video 1 of 2 — fires standalone via `interview-vamp-play` (zero interview generation triggered) |
 | Interview Run | `02_brobots_interview_run/` | NET video 2 | The flagship's seven exchanges, video 2 of 2 — fires standalone via `interview-replay` (`interview-run` adds an optional full-run mode that plays the vamp first) |
 | Bingo capture | `101_brobots_bingo_test/` | UPSELL 1 | Newest golden, banked at `298e388` |
+| Chocolate Bingo (live game) | `102_brobots_bingo_game/` | role: TBD | The live game itself, not a scored song — see its own story.md "Two bingo songs, compared" table for how it relates to the Bingo capture song above (also pointed to from `tech/alias_play_studio/SONG_101_BROBOTS_1_2_BINGO.md`, which doesn't hold the table itself) |
+| Is That You (single) | `103_gopod_is_that_you_single/` | role: TBD | The real, live PTT+LLM test referenced below as superseding `102_brobots_cross_persona`'s (archived UPSELL 2) scripted demo reel "for real" — no funnel letter/number assigned to it directly in this file |
+| Is That You (multi) | `104_gopod_is_that_you_multi/` | role: TBD | Not otherwise referenced elsewhere in this file — no stated funnel role to cite |
 | Baby Robots Sleep | `105_brobots_nap/` (was `104_brobots_baby_robots_sleep/`) | UPSELL 3 | "Do Baby Robots Dream?" — Doc's origin, an older piece composed before GOPOD; held for last, not built into the campaign push yet |
-
-`102_brobots_bingo_game/` ("Chocolate Bingo") sits alongside the shelf as the live game
-itself, not a scored song — see `102_brobots_bingo_game/story.md`'s own "Two bingo songs,
-compared" table for how it relates to the Bingo capture song above (also pointed to from
-`tech/alias_play_studio/SONG_101_BROBOTS_1_2_BINGO.md`, which doesn't hold the table itself).
 
 Two lineage entries, not shelf songs — kept for campaign history, not erased:
 - `robot_control_song_001/` (now archived at `zzz_archives/robot_control_song_001/`) —
