@@ -2856,6 +2856,25 @@ _NAV_HINT_VALUE = "Enter accept, type to change, ← back, Esc quit"
 _NAV_DIVIDER = "-" * len(_NAV_HINT_ARROW)
 
 
+def _draw_lines(lines):
+    """THE self-reporting draw primitive, PHCAL_SELF_REPORTING_DRAW_
+    EXECUTED_001.md - prints each line in `lines` and returns the exact
+    count it drew. Built to kill a whole bug class the LOOK PASS's own
+    survey (PHCAL_SECTION_TEMPLATE_GOLD_SURVEY_001.md) traced to its root:
+    every erase call in this file used to receive a HAND-TYPED integer
+    (`(1 if question else 0) + 3`, a bare `2`, `4`, ...) that had to be
+    kept in sync by eye with whatever print statements actually ran above
+    it - a display change (new frame line, reworded hint) could silently
+    desync that count from reality, corrupting the next erase. Every
+    caller below now builds its own header as a plain list of lines and
+    reads ITS length back from this function instead of asserting a
+    number - the count can never drift from what was actually printed,
+    because it IS what was actually printed."""
+    for line in lines:
+        print(line)
+    return len(lines)
+
+
 def _frame_open():
     print(_NAV_FRAME_MARK)
 
@@ -3008,33 +3027,39 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
 
     2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: every call now
     prints the full screen frame - `_NAV_FRAME_MARK` open, `question` (if
-    given), `_NAV_HINT_ARROW`, `_NAV_DIVIDER` - 3 fixed lines plus
-    `question` before the rows, replacing Lane 1's single always-on
-    `_NAV_LINE_CHOICE`. `erase_on_back_extra` widened to match (3, not 1,
-    plus `question`). A closing `_NAV_FRAME_MARK` prints once the pick
-    actually resolves (Enter) - never on a Left-back, since nothing was
-    "finished" in that case; the whole block (frame open through rows)
-    erases instead, same as before, just a bigger fixed count now."""
+    given), `_NAV_HINT_ARROW`, `_NAV_DIVIDER` before the rows, replacing
+    Lane 1's single always-on `_NAV_LINE_CHOICE`. A closing
+    `_NAV_FRAME_MARK` prints once the pick actually resolves (Enter) -
+    never on a Left-back, since nothing was "finished" in that case; the
+    whole block (frame open through rows) erases instead.
+
+    2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: `header_count`
+    now comes from `_draw_lines()`'s own return value - the REAL number of
+    header lines just printed - instead of a hand-typed `3 + (1 if
+    question else 0)` that had to be kept in sync by eye. Every erase
+    count derived from it (`erase_on_back_extra`, `own_lines`) inherits
+    that same measured number, so a future header change (one more line,
+    one fewer) can never silently desync this call's own erase math
+    again."""
     labels = labels or {}
     options = [(c, labels.get(c, c)) for c in sorted(choices)]
     highlight = sorted(choices).index(default) if default in choices else 0
-    _frame_open()
+    header_lines = [_NAV_FRAME_MARK]
     if question:
-        print(question)
-    print(_NAV_HINT_ARROW)
-    print(_NAV_DIVIDER)
-    # 2026-08-25/26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 / LOOK PASS:
-    # this call's own drawn-line total (frame open + question, if any +
-    # hint + divider + one row per choice) - same math erase_on_back_extra
-    # + window_height already uses for THIS call's own self-erase.
-    # Accumulated regardless of `back`, since even a back=False call's rows
-    # may need erasing later by a SUBSEQUENT prompt in the same chain that
-    # backs out past it.
-    own_lines = 3 + (1 if question else 0) + len(options)
+        header_lines.append(question)
+    header_lines.append(_NAV_HINT_ARROW)
+    header_lines.append(_NAV_DIVIDER)
+    header_count = _draw_lines(header_lines)
+    # 2026-08-26: this call's own drawn-line total (measured header +
+    # one row per choice) - same total erase_on_back_extra + window_height
+    # already uses for THIS call's own self-erase. Accumulated regardless
+    # of `back`, since even a back=False call's rows may need erasing
+    # later by a SUBSEQUENT prompt in the same chain that backs out past it.
+    own_lines = header_count + len(options)
     if back:
         choice, _hl = arrow_column_pick(
             options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False,
-            left_is_back=True, erase_on_back=True, erase_on_back_extra=3 + (1 if question else 0),
+            left_is_back=True, erase_on_back=True, erase_on_back_extra=header_count,
         )
         if choice is _NAV_BACK:
             _erase_dispatch_accum()
@@ -3596,11 +3621,12 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         # unaffected by this pass) - only the printed claim is now honest.
         confirmed = bool(_PRESENT_ROBOTS[0].get("present", True))
         reason = "the only one detected present" if confirmed else "forced by the operator, NOT confirmed present"
-        print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})")
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3: this one
-        # line still counts toward a LATER prompt's own full-unwind erase,
-        # even though no picker was shown - see _DISPATCH_ERASE_ACCUM.
-        _accum_lines(1)
+        # 2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: routed
+        # through _draw_lines() too, for the same "count is what was
+        # actually printed" guarantee - trivially always 1 line here, but
+        # one mechanism everywhere beats a hand-typed 1 in one spot and a
+        # measured count in another.
+        _accum_lines(_draw_lines([f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})"]))
         return resolved
     if allow_both:
         options = [("1", "Robot 1"), ("2", "Robot 2"), ("*", "both (1 and 2)")]
@@ -3612,18 +3638,18 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         # is exactly the label the picker itself will show pre-highlighted,
         # so this line can never drift out of sync with what Enter actually
         # selects.
-        _frame_open()
-        print(f"ENTER for {options[highlight][1]}, or change:")
-        print(_NAV_HINT_ARROW)
-        print(_NAV_DIVIDER)
-        # 2026-08-26, LOOK PASS: frame open + "ENTER for X" + hint + divider
-        # = 4 fixed header lines now (was 2 - the "ENTER for X" line and
-        # Lane 1's own single hint line).
-        own_lines = 4 + len(options)
+        #
+        # 2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: header_count
+        # measured via _draw_lines(), not hand-typed - see _prompt_pick()'s
+        # own comment for the full reasoning.
+        header_count = _draw_lines([
+            _NAV_FRAME_MARK, f"ENTER for {options[highlight][1]}, or change:", _NAV_HINT_ARROW, _NAV_DIVIDER,
+        ])
+        own_lines = header_count + len(options)
         if back:
             robot, _hl = arrow_column_pick(
                 options, highlight=highlight, show_key=False,
-                left_is_back=True, erase_on_back=True, erase_on_back_extra=4,
+                left_is_back=True, erase_on_back=True, erase_on_back_extra=header_count,
             )
             if robot is _NAV_BACK:
                 _erase_dispatch_accum()
@@ -3812,14 +3838,26 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     logic per field" instruction.
 
     2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
-    ends): this field's own 2 drawn lines (_NAV_LINE_VALUE + the one
-    accepted input line) are accumulated via _accum_lines() on every
-    successful resolution (bare Enter, a valid typed value), so a LATER
-    pick in the same chain (the "run brobots_wake first?" gate, which
-    fires after arm/nod's own reps/hold/speed value fields) can erase
-    this field's rows too when IT backs out - see _DISPATCH_ERASE_ACCUM's
-    own comment. Approximate on one edge, flagged there: an invalid-input
-    retry's own extra printed lines are not separately counted.
+    ends): this field's own drawn lines are accumulated via _accum_lines()
+    on every successful resolution (bare Enter, a valid typed value), so a
+    LATER pick in the same chain (the "run brobots_wake first?" gate,
+    which fires after arm/nod's own reps/hold/speed value fields) can
+    erase this field's rows too when IT backs out - see
+    _DISPATCH_ERASE_ACCUM's own comment.
+
+    2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: was a hand-typed
+    constant (4, or 2 before the LOOK PASS's own frame) that under-counted
+    the one real gap that same comment used to flag here - an invalid-
+    input retry loop (PHCAL_GUIDED_INVALID) prints MORE lines than the
+    fixed header alone (another `_read_raw_line()` prompt line, another
+    invalid-message line, per retry), never reflected in that constant.
+    Fixed by tracking `drawn` as a running total, incremented by the REAL
+    number of lines each part of this loop actually prints - the header
+    via `_draw_lines()`'s own return value, each attempt's own input line
+    (always exactly 1, whether it succeeds or is about to raise
+    _PhcalBackToMenu - `_read_raw_line()` always calls `print()` first
+    either way), and each invalid-message line. No more approximation on
+    any path through this function.
 
     2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 follow-up
     (announce phrase character limit): `max_length`, optional, `text`-kind
@@ -3834,41 +3872,40 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     if kind == "text" and max_length is not None:
         last_value = _clamp_text(label, last_value, max_length)
     shown = display if display is not None else last_value
-    # 2026-08-26, LOOK PASS: frame open + hint + divider + the one
-    # accepted input line = 4 fixed lines now (was 2, Lane 1's single
-    # _NAV_LINE_VALUE + the input line).
-    _frame_open()
-    print(_NAV_HINT_VALUE)
-    print(_NAV_DIVIDER)
+    drawn = _draw_lines([_NAV_FRAME_MARK, _NAV_HINT_VALUE, _NAV_DIVIDER])
     while True:
         try:
             raw = _read_raw_line(f"{label} - ENTER for {shown}, or change: ")
         except _PhcalBackToMenu:
-            # 2026-08-25/26, Lane 3 fix pass / LOOK PASS: erase this field's
-            # own 4 lines, then everything earlier in the primitive's own
-            # chain - same shape every other back-enabled prompt's raise
-            # site already uses.
-            _erase_screen_lines(4)
+            # 2026-08-26: `drawn + 1` - this attempt's own input line is
+            # always committed (its own print()) before _read_raw_line()
+            # can raise, whether this is the first attempt or the Nth
+            # retry - `drawn` itself already reflects every earlier
+            # attempt/invalid-message line exactly, real counts only.
+            _erase_screen_lines(drawn + 1)
             _erase_dispatch_accum()
             raise
+        drawn += 1
         raw = raw.strip()
         if raw == "":
-            _accum_lines(4)
+            _accum_lines(drawn)
             _frame_close()
             return last_value
         if kind == "text":
-            _accum_lines(4)
+            _accum_lines(drawn)
             _frame_close()
             return _clamp_text(label, raw, max_length)
         try:
             val = int(raw) if kind == "int" else float(raw)
         except ValueError:
             print(f"PHCAL_GUIDED_INVALID {label} must be a number, got {raw!r}")
+            drawn += 1
             continue
         if kind == "float" and min_value is None and val <= 0:
             print(f"PHCAL_GUIDED_INVALID {label} must be greater than 0, got {val}")
+            drawn += 1
             continue
-        _accum_lines(4)
+        _accum_lines(drawn)
         _frame_close()
         return _clamp_numeric(label, val, min_value, max_value)
 
