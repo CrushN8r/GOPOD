@@ -4730,10 +4730,26 @@ def _run_guided_flow_once():
     # under a real live fire). A no-op on this function's very first call
     # (_MENU_PASS_LINE_MARK is still None module-wide) and identical to
     # before whenever nothing beyond the plain menu chrome printed.
+    # 2026-08-26, PHCAL_DOUBLE_DRAW_FIX_001.md: real bug found here - the
+    # mark used to get set to `_current_lines`, the snapshot taken BEFORE
+    # this call's own erase ran, not the REAL cursor position AFTER it.
+    # Every OTHER pass (the first ever call, where `_MENU_PASS_LINE_MARK`
+    # is still None and no erase runs) recorded an accurate mark by
+    # accident, since there was nothing to erase yet - but from the
+    # SECOND real erase onward, the recorded mark was stale by exactly
+    # the erased amount, a discrepancy that compounds pass over pass.
+    # Concretely: this is what let TWO consecutive header blocks
+    # (divider/hint/divider) survive on screen at once on a later pass -
+    # the erase computed from a stale mark could land short, leaving an
+    # earlier pass's own header un-erased right where a fresh one then
+    # printed on top of it. Fixed by re-measuring `cursor_line` AFTER the
+    # erase actually runs, so the mark always reflects where THIS pass's
+    # own new content is about to start, never a pre-erase snapshot.
     global _MENU_PASS_LINE_MARK
     _current_lines = getattr(sys.stdout, "cursor_line", None)
     if _MENU_PASS_LINE_MARK is not None and _current_lines is not None:
         _erase_screen_lines(_current_lines - _MENU_PASS_LINE_MARK)
+        _current_lines = getattr(sys.stdout, "cursor_line", None)
     _MENU_PASS_LINE_MARK = _current_lines
     # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass: banner
     # restyled to match the operator's own "** Welcome to X **" convention
