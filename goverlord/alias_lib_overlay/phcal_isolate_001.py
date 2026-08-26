@@ -369,6 +369,25 @@ HOLD_DEFAULT_SECONDS = 5.0
 PHCAL_UNBOUNDED_HOLD_MIN_SECONDS = 0.5
 PHCAL_UNBOUNDED_HOLD_MAX_SECONDS = 10.0
 
+# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 follow-up (announce
+# phrase character limit): grepped this repo's own direct-SDK path
+# (cmd_brobots_ready -> direct_sdk_brobots_ready_001.go's SayText call) and
+# the interview runner's own ROBOT_SPEECH_CHUNK_LIMIT (420, a Wire-Pod REST
+# say CHUNKING boundary for a different channel, not a hard cap - text over
+# it gets split into multiple chunks, never rejected) - neither is a
+# documented max length for a single direct-SDK SayText call. No spec found
+# anywhere in this repo or its vendored SDK sources. PROVISIONAL, not
+# official - expected to be tuned once a real bound is found or the
+# operator gives one, same posture as PHCAL_UNBOUNDED_HOLD_* above.
+#
+# 2026-08-25, Lane 3 fix pass: retightened 200 -> 40, per the operator's
+# own stated intent - this is a short in-sync test say ("Brobots ready!"
+# is 14 chars), a few words, not free-form speech. Still provisional.
+#
+# 2026-08-26, LOOK PASS: corrected 40 -> 36, an exact operator-given
+# number (not a further estimate). Still provisional.
+PHCAL_ANNOUNCE_PHRASE_MAX_CHARS = 36
+
 # Rung 6 (2026-08-09, WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md): the first wheel
 # primitive - Stage 1 of that survey's 3-stage golden path only (bench-fire +
 # confirm; no alias, no engine note type, no awaken step here). ON-CHARGER
@@ -1517,6 +1536,10 @@ def _probe_candidate(clock, candidate):
         return {**candidate, "present": False, "volts": None}
     volts = float(match.group(1))
     print(f"{clock.prefix()}PHCAL_DETECT_PROBE label={label} esn={esn} PRESENT volts={volts:.3f}")
+    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: plain-
+    # language line alongside the raw diagnostic above, per the operator's
+    # own PDF - never a replacement.
+    print(f"{clock.prefix()}{label} has sufficient power PRESENT {volts:.3f} volts")
     return {**candidate, "present": True, "volts": volts}
 
 
@@ -1525,7 +1548,16 @@ def _detect_present_robots(clock):
     draws. Returns (present_robots, session_mode): present_robots is the
     subset of _candidate_list() that responded, in candidate-list order;
     session_mode is "none" (0 present), "single" (1 present), or "multi"
-    (2+ present - N-capable, tested at exactly 2)."""
+    (2+ present - N-capable, tested at exactly 2).
+
+    2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: wrapped in the
+    shared `_NAV_FRAME_MARK` open/close per the operator's own PDF -
+    "framing wraps everything, including diagnostics." No hint/divider
+    line here (nothing to navigate during a probe) - just the frame. Every
+    real `PHCAL_DETECT_PROBE`/`PHCAL_DETECT_FIRST` diagnostic line is kept
+    exactly as before; a plain-language line is added alongside each one,
+    never replacing it."""
+    _frame_open()
     candidates = _candidate_list()
     print(f"{clock.prefix()}PHCAL_DETECT_FIRST probing {len(candidates)} configured candidate(s)...")
     results = [_probe_candidate(clock, c) for c in candidates]
@@ -1537,6 +1569,8 @@ def _detect_present_robots(clock):
     else:
         mode = "multi"
     print(f"{clock.prefix()}PHCAL_DETECT_FIRST present={[p['label'] for p in present]} mode={mode}")
+    print(f"{clock.prefix()}detected brobots-mode {mode.upper()}")
+    _frame_close()
     return present, mode
 
 
@@ -1612,8 +1646,15 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     select" -> "ENTER for <accept-default label>, or change:"). Return
     contract, row source, and every downstream branch below
     (choice == "/" / the `match is None` synthesis) are byte-unchanged."""
+    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: restyled to
+    # the shared frame template ("ENTER for <MODE> brobots-mode" style,
+    # per the operator's own PDF) - picker behavior, row source, and every
+    # downstream branch are otherwise byte-unchanged. The operator's own
+    # follow-up note: the PDF's "01: Type new default mode" line was a
+    # mis-phrasing of this existing "accept detected mode, or change"
+    # picker, not a request for a new typed-default feature - none added.
     mode_upper = detected_mode.upper()
-    accept_label = f"accept detected {mode_upper} mode"
+    accept_label = f"{mode_upper} brobots-mode"
 
     detected_which = present_robots[0]["which"] if detected_mode == "single" and present_robots else None
     rows = [("/", "brobots-none mode (dry-runs)")]
@@ -1624,15 +1665,19 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     ]
     options = [("_accept", accept_label)] + rows
 
-    print(f"** brobots {mode_upper} mode detected **")
+    _frame_open()
+    print(f"detected brobots-mode {mode_upper}")
     print(f"ENTER for {accept_label}, or change:")
-    print(_NAV_LINE_CHOICE)
+    print(_NAV_HINT_ARROW)
+    print(_NAV_DIVIDER)
     choice = arrow_column_pick(options, highlight=0, show_key=False, esc_home=0)
 
     if choice == "_accept":
+        _frame_close()
         return present_robots, detected_mode
     if choice == "/":
         print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=none (operator chose dry-run over detected {detected_mode})")
+        _frame_close()
         return [], "none"
     match = next((p for p in present_robots if p["which"] == choice), None)
     if match is None:
@@ -1643,6 +1688,7 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
         # proceeding on exactly this, no new safety path needed.
         match = {**next(c for c in _candidate_list() if c["which"] == choice), "present": False, "volts": None}
     print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=single robot={match['which']} ({match['label']}) (operator chose single over detected {detected_mode})")
+    _frame_close()
     return [match], "single"
 
 
@@ -2096,31 +2142,33 @@ def cmd_tempo_calibration():
     # by shape, PHCAL_NAV_CONSOLIDATION_001.md. 2026-08-22,
     # PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" removed - ESC is the
     # only way out of this pick now.
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): NOT
-    # back=True here (or on step_choice/apply_choice below) - only a leaf
-    # picker with NOTHING drawn between it and its own resumable nav level
-    # can self-erase-and-cleanly-resume (see navigate()'s own docstring on
-    # why every level needs its OWN rows to still be exactly where they
-    # were left). This one draws right after dir_choice's own SUCCESSFUL
-    # pick already committed its rows to the screen as permanent history -
-    # backing out here would erase only THIS picker's own rows, leaving
-    # dir_choice's still-visible rows between the cursor and the real
-    # resumable level, corrupting the next redraw there. Flagged per this
-    # build's own STOP clause, not forced.
+    #
+    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+    # ends), design (b): back=True now on mode_choice/step_choice/both
+    # apply_choice prompts below (previously NOT, per the 2026-08-24 STOP
+    # clause this comment used to describe) - safe now that
+    # _erase_dispatch_accum() erases every earlier prompt's own committed
+    # rows in this same primitive's chain, including the bare input() lines
+    # (dir's own value/factor/comment) manually accounted for via
+    # _accum_lines() right after each one below. Backing out from either
+    # apply_choice is always safe: the write only happens if apply_choice
+    # resolves to "y" (the --yes call sits AFTER this prompt, never
+    # before) - Left here only ever discards an unapplied dry preview.
     mode_choice = _prompt_pick(
         {"a", "b"}, exit_on_invalid=True,
         labels={
             "a": "set the song's GLOBAL tempo (whole-song ease)",
             "b": "set ONE step's tempo_factor (+ optional comment)",
         },
-        question="pick a mode",
+        question="pick a mode", back=True,
     )
 
     if mode_choice == "a":
         value = input("new global_tempo (0.0-9.9): ").strip()
+        _accum_lines(1)
         tempo_mod.cmd_set_global(["set-global", value, "--knobs", str(knobs_path)])
         apply_choice = _prompt_pick(
-            {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?",
+            {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?", back=True,
         )
         if apply_choice == "y":
             return tempo_mod.cmd_set_global(["set-global", value, "--yes", "--knobs", str(knobs_path)])
@@ -2138,15 +2186,17 @@ def cmd_tempo_calibration():
         return 1
     step_choices = {str(i) for i in range(1, len(step_ids) + 1)}
     step_labels = {str(i): sid for i, sid in enumerate(step_ids, start=1)}
-    step_choice = _prompt_pick(step_choices, exit_on_invalid=True, labels=step_labels, question="pick a step")
+    step_choice = _prompt_pick(step_choices, exit_on_invalid=True, labels=step_labels, question="pick a step", back=True)
     step_id = step_ids[int(step_choice) - 1]
     factor = input("new tempo_factor (default 1.0): ").strip() or "1.0"
+    _accum_lines(1)
     comment = input("tempo_comment (optional, Enter to leave unchanged): ").strip()
+    _accum_lines(1)
     comment_flag = ["--comment", comment] if comment else []
 
     tempo_mod.cmd_set_buffer(["set-buffer", step_id, "--factor", factor, *comment_flag, "--knobs", str(knobs_path)])
     apply_choice = _prompt_pick(
-        {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?",
+        {"y", "n"}, default="n", labels={"y": "yes", "n": "no"}, question="apply the above?", back=True,
     )
     if apply_choice == "y":
         return tempo_mod.cmd_set_buffer(
@@ -2591,7 +2641,56 @@ class _PhcalBackToMenu(Exception):
     caught). Same "clean unwind through however many nested calls, no
     sentinel threading" shape as _PhcalEscExit above, scoped one level
     shallower: ESC abandons the whole guided-flow session, this only
-    abandons the one primitive currently being answered."""
+    abandons the one primitive currently being answered.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+    ends): a SECOND-OR-LATER prompt in one primitive's own dispatch chain
+    (e.g. animation's token pick, now that robot runs first; sleep_wake's
+    robot pick, after its release-mode pick) can raise this too - design
+    (b) from the Lane 3 survey, the plan's own recommendation. See
+    _DISPATCH_ERASE_ACCUM's own comment just below for how the EARLIER,
+    already-committed prompt(s) in the same chain get erased along with
+    this one, so a Left press from ANY depth in a primitive's own chain
+    unwinds the whole thing cleanly, not just its own current rows."""
+
+
+# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+# ends), design (b): a single running total of terminal lines already
+# committed to the screen by EARLIER prompts in the CURRENT primitive's own
+# dispatch chain (reset to 0 at the top of _dispatch_primitive(), the one
+# call site navigate() uses to start a fresh chain). Every prompt helper
+# that successfully resolves (_prompt_pick, _prompt_robot, _prompt_value,
+# and cmd_tempo_calibration()'s own bare input() lines) adds its own drawn
+# line count here BEFORE moving on to the next prompt. A LATER prompt that
+# then gets Left-back erases its own current rows via arrow_column_pick's
+# existing erase_on_back (unchanged), then also erases this accumulated
+# total via _erase_dispatch_accum() below (everything drawn BEFORE it in
+# this same chain) right before raising _PhcalBackToMenu - so the whole
+# primitive's chain unwinds to blank, not just the one picker that was
+# actually showing when Left was pressed. Approximate, not exact, on one
+# edge: a typo retry inside _prompt_value() (PHCAL_GUIDED_INVALID) prints
+# extra lines this counter does not track - a Left-back after a mistyped
+# value may leave 1-2 stray retry lines on screen instead of a fully blank
+# region. Flagged, not fixed - a real but cosmetic-only gap, not a trap
+# (the unwind itself still completes correctly).
+_DISPATCH_ERASE_ACCUM = 0
+
+
+def _accum_lines(n):
+    global _DISPATCH_ERASE_ACCUM
+    _DISPATCH_ERASE_ACCUM += n
+
+
+def _erase_dispatch_accum():
+    """Erases every EARLIER prompt's own already-committed lines in the
+    current dispatch chain (see _DISPATCH_ERASE_ACCUM's own comment above),
+    then resets the accumulator - called right before a second-or-later
+    prompt raises _PhcalBackToMenu, in addition to (not instead of) that
+    prompt's own current-row self-erase."""
+    global _DISPATCH_ERASE_ACCUM
+    if _DISPATCH_ERASE_ACCUM:
+        _erase_screen_lines(_DISPATCH_ERASE_ACCUM)
+    _DISPATCH_ERASE_ACCUM = 0
 
 
 class _PhcalSessionModeRepick(Exception):
@@ -2701,6 +2800,34 @@ def _read_key():
             return ("arrow", "right")
         if b3 == b"D":
             return ("arrow", "left")
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (SHIFT+Up
+        # survey + fix): a modifier-combo arrow (e.g. Shift+Up sends
+        # ESC [ 1 ; 2 A) lands here - b3 is a CSI parameter byte ("1"),
+        # not one of the 4 plain arrow letters above. The old code
+        # returned ("esc", None) immediately, stranding this sequence's
+        # own trailing bytes (";2A") unread in the terminal input buffer -
+        # they'd surface as up to 3 bogus ("char", ...) events on the
+        # NEXT few key reads, silently eating whatever the operator
+        # pressed next (confirmed via source read, not fixed until now).
+        # No modifier combo is wired anywhere in this file (confirmed,
+        # same survey) and none should be - ESC and Left-back already
+        # cover every exit/retreat case, so an unbound combo should be a
+        # true no-op, not an accidental exit. Fix: fully drain a CSI
+        # parameter/intermediate tail (bytes 0x30-0x3F params, 0x20-0x2F
+        # intermediates) up to its own final byte (0x40-0x7E) before
+        # returning, so nothing leaks into the next read; reported as a
+        # harmless ignored char (not "esc") rather than an exit trigger.
+        if b3 and (0x30 <= b3[0] <= 0x3F or 0x20 <= b3[0] <= 0x2F):
+            while True:
+                ready, _, _ = select.select([fd], [], [], 0.05)
+                if not ready:
+                    break
+                nxt = os.read(fd, 1)
+                if not nxt:
+                    break
+                if 0x40 <= nxt[0] <= 0x7E:
+                    break
+            return ("char", "")
         return ("esc", None)
     if b in (b"\r", b"\n"):
         return ("enter", None)
@@ -2712,19 +2839,83 @@ def _read_key():
         return ("char", "")
 
 
-# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: the three plain-
-# language move lines every interactive screen now shows, same wording
-# every time - no jargon, no PHCAL_* tags. Menu = navigate()'s own tree
-# levels (printed once by _run_guided_flow_once(), stays visible across
-# every level change - see that function's own header print). Choice =
-# every discrete pick routed through _prompt_pick()/arrow_column_pick()
-# directly (y/n gates, robot/token pickers, _confirm_multi_mode() once
-# folded into this same engine below). Value = _prompt_value()'s own typed
-# fields. These never replace a real diagnostic (PHCAL_DETECT_PROBE, a fire
-# result, PHCAL_* run logs) - only the bare instructional text around them.
-_NAV_LINE_MENU = "↑ ↓ move   Enter opens   ←  back   Esc  quit"
-_NAV_LINE_CHOICE = "↑ ↓ pick   Enter choose   ←  back"
-_NAV_LINE_VALUE = "Enter accepts   type to change   Esc  back"
+# 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: replaces the
+# three separately-worded move lines (Lane 1's _NAV_LINE_MENU/_NAV_LINE_
+# CHOICE/_NAV_LINE_VALUE) with ONE consistent hint per the operator's own
+# PDF template - same wording on every arrow-navigable screen (init/detect
+# is its own case, framed but no hint - nothing to navigate there), a
+# value-prompt variant kept to the same comma style. `_NAV_FRAME_MARK`
+# opens/closes every screen block; `_NAV_DIVIDER` is the rule line under
+# the hint (also reused, literally, as the main-menu's own fireable/
+# session-config divider row - one divider style, not two). These never
+# replace a real diagnostic (PHCAL_DETECT_PROBE, a fire result, PHCAL_*
+# run logs) - only the bare instructional/framing text around them.
+_NAV_FRAME_MARK = "**"
+_NAV_HINT_ARROW = "↑ ↓ select, Enter choose, ← back, Esc quit"
+_NAV_HINT_VALUE = "Enter accept, type to change, ← back, Esc quit"
+_NAV_DIVIDER = "-" * len(_NAV_HINT_ARROW)
+
+
+def _frame_open():
+    print(_NAV_FRAME_MARK)
+
+
+def _frame_close():
+    print(_NAV_FRAME_MARK)
+
+
+def _read_raw_line(prompt):
+    """Reads one line of typed text in RAW mode, one keystroke at a time,
+    via the same _read_key() reader every arrow-based prompt in this file
+    already uses. Built 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane
+    3 fix pass, to fix a real live trap: the old _prompt_value() ran plain
+    input() in cooked/canonical mode, where ESC/Left only ever became
+    literal bytes INSIDE the typed line, unresolved until Enter was ALSO
+    pressed. Hit live at the sleep_wake `wait` field: operator pressed
+    Left, then Esc, neither did anything (input() was still waiting on
+    Enter) - had to Ctrl-C out to the shell. Raw mode fixes this at the
+    root: both keys now resolve on the SAME single keypress, same
+    reliability every other prompt in the tool already has.
+
+    Returns the typed string on Enter. Raises `_PhcalEscExit()`
+    immediately on ESC - matches every other prompt's own ESC=quit
+    meaning (never a partial back-out, same contract `_NAV_LINE_MENU`
+    already advertises - Esc was never really "back" anywhere in this
+    tool, `_NAV_LINE_VALUE`'s old wording was simply wrong). Raises
+    `_PhcalBackToMenu()` immediately on Left, but ONLY while the buffer is
+    still empty - this is a typed VALUE field, not a text editor, so Left
+    has no "move cursor within the line" job to compete with; once real
+    text exists, Left is ignored (Backspace clears it back to empty
+    first, then Left backs out - always a real, non-trapping path, never
+    a second silent meaning for the same key). Prints only `prompt` and
+    the typed echo - the caller (`_prompt_value()`) owns its own
+    accumulator/erase bookkeeping around this call, same as every other
+    back-enabled prompt in the file."""
+    buf = []
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    with _raw_mode(sys.stdin.fileno()):
+        while True:
+            kind, val = _read_key()
+            if kind == "esc":
+                print()
+                raise _PhcalEscExit()
+            if kind == "arrow" and val == "left" and not buf:
+                print()
+                raise _PhcalBackToMenu()
+            if kind == "enter":
+                print()
+                return "".join(buf)
+            if kind == "backspace":
+                if buf:
+                    buf.pop()
+                    sys.stdout.write("\b \b")
+                    sys.stdout.flush()
+                continue
+            if kind == "char" and val:
+                buf.append(val)
+                sys.stdout.write(val)
+                sys.stdout.flush()
 
 
 def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back=False, question=None):
@@ -2815,31 +3006,45 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
     question line with it instead of stranding it above a blank row
     region (see arrow_column_pick()'s own docstring).
 
-    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: every call now
-    also prints `_NAV_LINE_CHOICE` (the plain move-line) right below
-    `question` - one more line ALWAYS present now, not conditional on
-    `question` being given. `erase_on_back_extra` below is widened from
-    `1 if question else 0` to `(1 if question else 0) + 1` to match -
-    Left-back must take this line with it too, or it strands above the
-    now-blank row region exactly the way an un-erased `question` line
-    used to."""
+    2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: every call now
+    prints the full screen frame - `_NAV_FRAME_MARK` open, `question` (if
+    given), `_NAV_HINT_ARROW`, `_NAV_DIVIDER` - 3 fixed lines plus
+    `question` before the rows, replacing Lane 1's single always-on
+    `_NAV_LINE_CHOICE`. `erase_on_back_extra` widened to match (3, not 1,
+    plus `question`). A closing `_NAV_FRAME_MARK` prints once the pick
+    actually resolves (Enter) - never on a Left-back, since nothing was
+    "finished" in that case; the whole block (frame open through rows)
+    erases instead, same as before, just a bigger fixed count now."""
     labels = labels or {}
     options = [(c, labels.get(c, c)) for c in sorted(choices)]
     highlight = sorted(choices).index(default) if default in choices else 0
+    _frame_open()
     if question:
         print(question)
-    print(_NAV_LINE_CHOICE)
+    print(_NAV_HINT_ARROW)
+    print(_NAV_DIVIDER)
+    # 2026-08-25/26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 / LOOK PASS:
+    # this call's own drawn-line total (frame open + question, if any +
+    # hint + divider + one row per choice) - same math erase_on_back_extra
+    # + window_height already uses for THIS call's own self-erase.
+    # Accumulated regardless of `back`, since even a back=False call's rows
+    # may need erasing later by a SUBSEQUENT prompt in the same chain that
+    # backs out past it.
+    own_lines = 3 + (1 if question else 0) + len(options)
     if back:
         choice, _hl = arrow_column_pick(
             options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False,
-            left_is_back=True, erase_on_back=True, erase_on_back_extra=(1 if question else 0) + 1,
+            left_is_back=True, erase_on_back=True, erase_on_back_extra=3 + (1 if question else 0),
         )
         if choice is _NAV_BACK:
+            _erase_dispatch_accum()
             raise _PhcalBackToMenu()
     else:
         choice = arrow_column_pick(options, highlight=highlight, exit_on_invalid=exit_on_invalid, show_key=False)
     if choice is None:
         raise _PhcalEscExit()
+    _accum_lines(own_lines)
+    _frame_close()
     return choice
 
 
@@ -2916,7 +3121,7 @@ def _erase_screen_lines(n):
     sys.stdout.flush()
 
 
-def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0, top_up_repick=False, esc_home=None):
+def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=True, left_is_back=False, show_key=True, erase_lines=0, initial_draw=True, erase_on_back=False, erase_on_back_extra=0, top_up_repick=False, esc_home=None, skip_indices=frozenset()):
     """2026-08-19, NAV_PATTERN_SURVEY_001.md / NAV_PRIMITIVE_BUILT_001.md.
     2026-08-21, PHCAL_NAV_CONSOLIDATION_001.md (PHCAL_INPUT_TREE_SURVEY_001.md
     §5 step 1): this is now THE one input engine in this file - the
@@ -3057,7 +3262,21 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
     _confirm_multi_mode()'s own former bespoke two-state ESC handling
     (highlight==-1 "at rest" vs. a real highlighted row), generalized into
     this one engine so that screen no longer needs its own separate
-    raw-mode loop - see that function's own rewritten docstring."""
+    raw-mode loop - see that function's own rewritten docstring.
+
+    2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: `skip_indices`,
+    default empty (zero behavior change for every existing caller) - a set
+    of option indices Up/Down must never land on, stepped over in the same
+    direction instead. Built for exactly one caller (navigate(), for the
+    main menu's own divider row between the fireable calibrations and the
+    session/config pair - see _build_primitive_group_tree()'s own comment)
+    - a non-selectable row still renders (via the SAME generic `_redraw()`
+    loop below, no special-casing there) but can never be highlighted or
+    Entered, since `highlight` provably never equals a skipped index.
+    `highlight`/the initial value a caller passes must not itself be a
+    skip index - callers are responsible for that, same as every other
+    precondition arrow_column_pick() already documents rather than
+    defensively checks."""
     choices = [k for k, _label in options]
     n = len(options)
     if window_height is None or window_height >= n:
@@ -3118,10 +3337,25 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                     else:
                         print()
                     return (_NAV_BACK, highlight) if left_is_back else _NAV_BACK
-                if val in ("up", "left"):
-                    highlight = (highlight - 1) % n
-                else:
-                    highlight = (highlight + 1) % n
+                if not left_is_back and val == "left" and esc_home is not None and highlight != esc_home:
+                    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3:
+                    # _confirm_multi_mode() is esc_home's one caller
+                    # (left_is_back=False there - no menu tree to unwind to,
+                    # this screen runs before one exists) - previously Left
+                    # here just moved the highlight like Up, no real
+                    # back-out at all (the plan's own flagged gap). Gives
+                    # Left the same "back to the default row" job ESC
+                    # already does via esc_home, instead of a second
+                    # meaning for every OTHER esc_home-less caller (none
+                    # exist today - grepped, this is still the only one).
+                    highlight = esc_home
+                    _redraw()
+                    continue
+                step = -1 if val in ("up", "left") else 1
+                new_highlight = (highlight + step) % n
+                while new_highlight in skip_indices:
+                    new_highlight = (new_highlight + step) % n
+                highlight = new_highlight
                 _redraw()
                 continue
             if kind == "enter":
@@ -3233,12 +3467,20 @@ def navigate(tree, dispatch, window_height=None):
         node = stack[-1]
         keys = sorted(node, key=lambda k: (len(k), k))
         options = [(k, node[k][0]) for k in keys]
+        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: a tree
+        # entry whose own child is None is a non-selectable divider row
+        # (see _build_primitive_group_tree()'s own comment) - collected
+        # here, by index, so arrow_column_pick()'s own skip_indices can
+        # keep Up/Down from ever landing on it. Empty for every level with
+        # no divider entries (every existing tree before this pass), so
+        # this is a no-op everywhere else.
+        skip_indices = {i for i, k in enumerate(keys) if node[k][1] is None}
         level_height = window_height if window_height is not None else len(options)
         result, hl = arrow_column_pick(
             options, highlight=highlights[-1], window_height=level_height,
             left_is_back=True, show_key=False, erase_lines=0,
             initial_draw=fresh, erase_on_back=not is_root,
-            top_up_repick=is_root,
+            top_up_repick=is_root, skip_indices=skip_indices,
         )
         highlights[-1] = hl
         fresh = False
@@ -3324,18 +3566,24 @@ def _prompt_robot(default=None, allow_both=False, back=False):
     from this prompt.
 
     2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): `back`,
-    default False. Only safe when this is the FIRST widget drawn in its
-    caller's own dispatch chain - nothing else (another picker's own
-    already-committed rows, a typed input() line) between this call and
-    its resumable navigate() level (see navigate()'s own docstring on
-    why). True at every call site where that holds (weather,
-    brobots_stay_in_place, brobots_session_responsiveness, move_reverse,
-    cube, the shared arm/nod/rattle/danger tail); left False at the two
-    that don't - animation (its own token picker runs first) and
-    brobots_sleep_to_wake_direct_sdk (its own release-mode picker runs
-    first) - flagged per this build's own STOP clause, not forced. The
-    single-mode auto-resolve branch above never shows a picker at all,
-    `back` has no effect there."""
+    default False. Originally only safe as the FIRST widget in its
+    caller's own dispatch chain - left False at animation's own robot pick
+    (its token picker ran first back then) and brobots_sleep_to_wake_
+    direct_sdk's robot pick (its release-mode picker runs first), flagged
+    per that build's own STOP clause, not forced.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
+    order): animation's own robot pick now runs FIRST in its chain (its
+    token pick moved second) - `back=True` there again, same as every
+    other single-robot primitive.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+    ends), design (b): sleep_to_wake's own robot pick (still SECOND, after
+    its release-mode pick) now also passes `back=True` - safe now that a
+    Left here also erases the release-mode pick's own already-committed
+    rows via _DISPATCH_ERASE_ACCUM/_erase_dispatch_accum(), not just this
+    call's own current rows. The single-mode auto-resolve branch above
+    never shows a picker at all, `back` has no effect there."""
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
         resolved = _PRESENT_ROBOTS[0]["which"]
         # 2026-08-24: "the only one detected present" is only true when
@@ -3349,6 +3597,10 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         confirmed = bool(_PRESENT_ROBOTS[0].get("present", True))
         reason = "the only one detected present" if confirmed else "forced by the operator, NOT confirmed present"
         print(f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})")
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3: this one
+        # line still counts toward a LATER prompt's own full-unwind erase,
+        # even though no picker was shown - see _DISPATCH_ERASE_ACCUM.
+        _accum_lines(1)
         return resolved
     if allow_both:
         options = [("1", "Robot 1"), ("2", "Robot 2"), ("*", "both (1 and 2)")]
@@ -3360,21 +3612,26 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         # is exactly the label the picker itself will show pre-highlighted,
         # so this line can never drift out of sync with what Enter actually
         # selects.
+        _frame_open()
         print(f"ENTER for {options[highlight][1]}, or change:")
-        print(_NAV_LINE_CHOICE)
+        print(_NAV_HINT_ARROW)
+        print(_NAV_DIVIDER)
+        # 2026-08-26, LOOK PASS: frame open + "ENTER for X" + hint + divider
+        # = 4 fixed header lines now (was 2 - the "ENTER for X" line and
+        # Lane 1's own single hint line).
+        own_lines = 4 + len(options)
         if back:
-            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: 2, not
-            # 1 - the "ENTER for X" line above AND the new _NAV_LINE_CHOICE
-            # line both sit above the rows now; Left-back must erase both
-            # or the second one strands above the now-blank row region.
             robot, _hl = arrow_column_pick(
                 options, highlight=highlight, show_key=False,
-                left_is_back=True, erase_on_back=True, erase_on_back_extra=2,
+                left_is_back=True, erase_on_back=True, erase_on_back_extra=4,
             )
             if robot is _NAV_BACK:
+                _erase_dispatch_accum()
                 raise _PhcalBackToMenu()
         else:
             robot = arrow_column_pick(options, highlight=highlight, show_key=False)
+        _accum_lines(own_lines)
+        _frame_close()
         if robot == "*":
             return "both"
         return robot
@@ -3419,15 +3676,17 @@ def _prompt_animation_token(back=True):
     and ESC is now the only way to exit from this prompt.
 
     2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
-    order): `back`, default True, so a direct call (no args) keeps this
-    prompt's own pre-existing "runs first in its chain" back-out
-    behavior. The animation dispatch branch now calls the robot picker
-    FIRST (`_prompt_robot(back=True)`) and this SECOND - passing
-    `back=False` there, since only the first widget drawn in a chain can
-    safely self-erase-and-resume (see `_prompt_pick()`'s own docstring on
-    `back`). The old `question="pick a token"` header is dropped - dead
-    weight now that the robot has already been picked and the operator is
-    mid-primitive, not deciding what kind of prompt this even is."""
+    order): `back`, default True. The old `question="pick a token"` header
+    is dropped - dead weight now that the robot has already been picked
+    and the operator is mid-primitive, not deciding what kind of prompt
+    this even is.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+    ends): the animation dispatch branch now passes `back=True` here too,
+    even though this runs SECOND (after `_prompt_robot(back=True)`) - safe
+    now that `_prompt_pick()`'s own `_erase_dispatch_accum()` call erases
+    the robot pick's already-committed rows along with this one, design
+    (b) from the Lane 3 survey (see _DISPATCH_ERASE_ACCUM's own comment)."""
     choices = set(_ANIMATION_TOKEN_MENU) | {"*"}
     labels = {"*": f"all in sequence ({', '.join(_ANIMATION_TOKEN_MENU[k] for k in sorted(_ANIMATION_TOKEN_MENU))})"}
     labels.update(_ANIMATION_TOKEN_MENU)
@@ -3455,7 +3714,21 @@ def _clamp_numeric(label, val, min_value, max_value):
     return clamped
 
 
-def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None, display=None):
+def _clamp_text(label, val, max_length):
+    """Text-field counterpart to _clamp_numeric() above, PHCAL_ARROW_NAV_
+    BUILD_PLAN_006.md Lane 3 follow-up (announce phrase character limit) -
+    same IN/OUT, never-silent shape, trims to `max_length` characters
+    instead of clamping a number. Reports lengths, not the full string
+    (a long phrase in the print line would be noisy); `val` unchanged (and
+    nothing printed) when it already fits or `max_length`/`val` is None."""
+    if max_length is None or val is None or len(val) <= max_length:
+        return val
+    trimmed = val[:max_length]
+    print(f"PHCAL_GUIDED_CLAMPED {label} {len(val)} chars -> {max_length} chars (trimmed)")
+    return trimmed
+
+
+def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None, display=None, max_length=None):
     """THE typed-value handler, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b -
     replaces the old `parse_fn`-based design (every caller used to pass its
     own `lambda raw: _parse_int_flag(...)`/`_parse_float_flag(...)`) with
@@ -3497,16 +3770,20 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     precision rule for any of them; inventing a 2dp convention here would
     be exactly the fabrication CLAUDE.md's engineering discipline forbids.
 
-    2026-08-25, same pass: a bare ESC keypress (the terminal's raw 0x1B
-    byte, arriving as the sole content of `input()`'s returned string,
-    since this prompt runs in normal cooked/canonical mode - no
-    `_raw_mode()` context is active here) now raises `_PhcalEscExit()`,
-    matching what ESC means at every OTHER prompt in this file (a full,
-    clean exit of the guided flow - never a partial back-out; Left is the
-    only key that ever means "back one level," and Left-back inside a
-    typed field is deliberately NOT built here - see
-    PHCAL_ARROW_NAV_BUILD_PLAN_006.md's own open item on why cooked-mode
-    input can't safely support it yet).
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass: this
+    field now reads via `_read_raw_line()` (raw mode, one keystroke at a
+    time), REPLACING the old cooked-mode `input()` call - a real live trap
+    forced this: the old version only ever saw ESC/Left as literal bytes
+    INSIDE the typed line, unresolved until Enter was ALSO pressed. Hit
+    live at the sleep_wake `wait` field - Left then Esc did nothing,
+    Ctrl-C was the only way out. ESC now raises `_PhcalEscExit()`
+    immediately (full quit, same as every other prompt - never a partial
+    back-out). Left now raises `_PhcalBackToMenu()` immediately too, but
+    ONLY while nothing's been typed yet (see `_read_raw_line()`'s own
+    docstring) - `_prompt_value()` erases its own 2 lines plus everything
+    earlier in the chain (`_erase_dispatch_accum()`) before letting that
+    exception propagate, same unwind discipline every other back-enabled
+    prompt in this file already follows.
 
     Prints `_NAV_LINE_VALUE` once per call (not re-printed on an
     invalid-input retry loop, matching how PHCAL_GUIDED_INVALID's own
@@ -3532,20 +3809,57 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     Enter). Routed through the same `_clamp_numeric()` helper the typed-
     input path below uses - one clamp mechanism, two call points, per
     PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b's "do not duplicate clamp
-    logic per field" instruction."""
+    logic per field" instruction.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
+    ends): this field's own 2 drawn lines (_NAV_LINE_VALUE + the one
+    accepted input line) are accumulated via _accum_lines() on every
+    successful resolution (bare Enter, a valid typed value), so a LATER
+    pick in the same chain (the "run brobots_wake first?" gate, which
+    fires after arm/nod's own reps/hold/speed value fields) can erase
+    this field's rows too when IT backs out - see _DISPATCH_ERASE_ACCUM's
+    own comment. Approximate on one edge, flagged there: an invalid-input
+    retry's own extra printed lines are not separately counted.
+
+    2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 follow-up
+    (announce phrase character limit): `max_length`, optional, `text`-kind
+    only - same IN/OUT clamp discipline as `min_value`/`max_value` above,
+    routed through `_clamp_text()` instead of `_clamp_numeric()`. A typed
+    phrase over the cap is trimmed, not sent raw, on the way out; a
+    `last_value` over the cap is trimmed before it's shown or returned on
+    bare Enter, on the way in - same two-call-point shape, no duplicated
+    clamp logic."""
     if kind in ("int", "float") and (min_value is not None or max_value is not None):
         last_value = _clamp_numeric(label, last_value, min_value, max_value)
+    if kind == "text" and max_length is not None:
+        last_value = _clamp_text(label, last_value, max_length)
     shown = display if display is not None else last_value
-    print(_NAV_LINE_VALUE)
+    # 2026-08-26, LOOK PASS: frame open + hint + divider + the one
+    # accepted input line = 4 fixed lines now (was 2, Lane 1's single
+    # _NAV_LINE_VALUE + the input line).
+    _frame_open()
+    print(_NAV_HINT_VALUE)
+    print(_NAV_DIVIDER)
     while True:
-        raw = input(f"{label} - ENTER for {shown}, or change: ")
-        if raw == "\x1b":
-            raise _PhcalEscExit()
+        try:
+            raw = _read_raw_line(f"{label} - ENTER for {shown}, or change: ")
+        except _PhcalBackToMenu:
+            # 2026-08-25/26, Lane 3 fix pass / LOOK PASS: erase this field's
+            # own 4 lines, then everything earlier in the primitive's own
+            # chain - same shape every other back-enabled prompt's raise
+            # site already uses.
+            _erase_screen_lines(4)
+            _erase_dispatch_accum()
+            raise
         raw = raw.strip()
         if raw == "":
+            _accum_lines(4)
+            _frame_close()
             return last_value
         if kind == "text":
-            return raw
+            _accum_lines(4)
+            _frame_close()
+            return _clamp_text(label, raw, max_length)
         try:
             val = int(raw) if kind == "int" else float(raw)
         except ValueError:
@@ -3554,6 +3868,8 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
         if kind == "float" and min_value is None and val <= 0:
             print(f"PHCAL_GUIDED_INVALID {label} must be greater than 0, got {val}")
             continue
+        _accum_lines(4)
+        _frame_close()
         return _clamp_numeric(label, val, min_value, max_value)
 
 
@@ -3692,16 +4008,29 @@ def _brobots_label(text):
     return f"Brobots {text}"
 
 
-_PRIMITIVE_GROUPS = {
-    "1": (_brobots_label("info (active brobots)"), ["robot_info"]),
-    "2": (_brobots_label("moves (arm/nod/reverse/stay)"), ["arm", "nod", "move_reverse", "brobots_stay_in_place"]),
-    "3": (_brobots_label("vector's cube (colour control)"), ["cube"]),
-    "4": (_brobots_label("audio (rattle/danger)"), ["rattle", "danger"]),
-    "5": (_brobots_label("animations (kgsuccess/searching/answering)"), ["animation"]),
-    "6": (_brobots_label("say (weather/announce)"), ["weather", "brobots_announce_in_sync"]),
-    "7": (_brobots_label("init (wake/responsiveness)"), ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
-    "8": (_brobots_label("tempo (pacing)"), ["tempo"]),
-}
+# 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: was a dict keyed
+# "1".."8", displayed in PURE ALPHABETICAL order by label (see
+# _build_primitive_group_tree()'s old `sorted(group_rows, key=...)` call,
+# now removed) - retired per direct operator instruction in favor of this
+# hand-ordered list, read in LIST order by _build_primitive_group_tree()
+# below, no sort. Labels also renamed per the operator's own spec (no more
+# "Brobots " prefix, no more "Brobots mode N" tag - see that function's
+# own docstring for the tag removal); the underlying primitive membership
+# of every group is byte-identical to before, only order/label changed.
+# A tuple's 3rd item, when present, is a literal divider marker consumed
+# by _build_primitive_group_tree() to insert a non-selectable rule row
+# right after this entry - splits the 6 fireable calibrations above from
+# the 2 session/config rows below, per the operator's own layout.
+_PRIMITIVE_GROUPS = [
+    ("Active Brobots", ["robot_info"]),
+    ("Audio Play (rattle/danger)", ["rattle", "danger"]),
+    ("Audio Say (weather/announce)", ["weather", "brobots_announce_in_sync"]),
+    ("Animations (kgsuccess/searching/answering)", ["animation"]),
+    ("Moves (arm/nod/reverse/stay)", ["arm", "nod", "move_reverse", "brobots_stay_in_place"]),
+    ("Vector's cube (colour control)", ["cube"], "divider"),
+    ("Wake / Ready (wake/responsiveness)", ["brobots_sleep_to_wake_direct_sdk", "brobots_session_responsiveness"]),
+    ("Song Tempo (pacing)", ["tempo"]),
+]
 
 
 # 2026-08-20, PHCAL_NAV_FIXES_001.md (finding 2, PHCAL_NAV_LIVETEST_
@@ -4008,30 +4337,33 @@ def _build_primitive_group_tree():
     2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): the main-menu
     group row's own "[disabled] " prefix is REMOVED outright (both the
     1-member-group case that used to carry it, and the always-False
-    multi-member-group case that never did) - replaced by a "Brobots mode
-    N " label (see _group_mode_label() below) naming the group's own
-    required-N (the LOWEST _PRIMITIVE_REQUIRED_N among its members - a
-    group is live at the lowest mode any member needs). This closes the
-    two-rulebook seam a live-hardware pass caught: the group row used to
-    say "enabled" (no marker) via a check that was ALWAYS False for a
-    multi-member group, while that same group's own submenu leaves said
-    "[disabled]" via the real _row_enabled() engine underneath - the
-    number now comes from the identical engine at both levels, one source
-    of truth, not two. Root row order changed to match: PURE alphabetical
-    (no more disabled-first sort at this level - the old sort's own
-    "disabled first" half only ever mattered when the group row itself
-    could be disabled, which no longer happens here), submenu rows below
-    unchanged (still disabled-first via _sort_menu_rows()). Every group
-    N here happens to be 2 except the tempo group (1) - checked against
-    _PRIMITIVE_REQUIRED_N directly, no group mixes differing member N's
-    internally today."""
-    group_rows = []
-    for group_label, members in _PRIMITIVE_GROUPS.values():
-        group_n = min(_PRIMITIVE_REQUIRED_N[m] for m in members)
-        mode_label = _group_mode_label(group_label, group_n)
+    multi-member-group case that never did).
+
+    2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: the "Brobots
+    mode N " tag that replaced it (_group_mode_label(), now unused - left
+    defined, not pruned, out of this pass's own scope) is ALSO removed
+    entirely per direct operator instruction - "prune 100%, no replacement."
+    Root row order is now the operator's own hand-specified list order
+    (`_PRIMITIVE_GROUPS`, iterated as-is - PURE alphabetical sort retired),
+    not `_PRIMITIVE_REQUIRED_N`-derived or alphabetical. A 2-char, fixed,
+    evenly-spaced key per group ("10","20",...,"80") makes navigate()'s own
+    generic `sorted(node, key=lambda k: (len(k), k))` walk reproduce this
+    exact list order as a side effect (same trick the submenu numbering
+    below already relied on) - same-length keys collapse that sort to
+    plain lexicographic string comparison, fully under this function's own
+    control. `"65"` (between "60" and "70") is the one non-group entry - a
+    divider row (see _PRIMITIVE_GROUPS's own 3rd-tuple-item comment),
+    child=None, non-selectable via navigate()'s new skip_indices wiring.
+    Submenu rows are unchanged - still disabled-first via
+    _sort_menu_rows(), still "Brobots "-prefixed member labels."""
+    tree = {}
+    group_index = 0
+    for entry in _PRIMITIVE_GROUPS:
+        group_label, members = entry[0], entry[1]
+        group_index += 1
+        key = f"{group_index}0"
         if len(members) == 1:
-            primitive = members[0]
-            group_rows.append((mode_label, primitive, group_label))
+            tree[key] = (group_label, members[0])
         else:
             member_rows = []
             for member in members:
@@ -4043,12 +4375,10 @@ def _build_primitive_group_tree():
             sub = {}
             for i, (m_label, member, _m_disabled, _sort_key) in enumerate(member_rows):
                 sub[str(i + 1)] = (m_label, member)
-            group_rows.append((mode_label, sub, group_label))
-
-    group_rows = sorted(group_rows, key=lambda r: r[2].lower())
-    tree = {}
-    for i, (label, child, _sort_key) in enumerate(group_rows):
-        tree[str(i + 1)] = (label, child)
+            tree[key] = (group_label, sub)
+        if len(entry) > 2 and entry[2] == "divider":
+            divider_key = f"{group_index}5"
+            tree[divider_key] = (_NAV_DIVIDER, None)
     return tree
 
 
@@ -4077,17 +4407,23 @@ def _prompt_brobots_wake_chain(primitive):
     # is unaffected (already matched the new default, kept for clarity, not
     # functional anymore).
     #
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): NOT
-    # back=True - this gate always fires AFTER the robot picker (and, for
-    # arm/nod, after typed hold/speed values too) already committed their
-    # own rows to the screen as permanent history. A leaf picker can only
-    # safely self-erase-and-resume when nothing was drawn between it and
-    # its own resumable nav level (see navigate()'s own docstring) - this
-    # one isn't that. Flagged per this build's own STOP clause, not
-    # forced.
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): this gate
+    # always fires AFTER the robot picker (and, for arm/nod, after typed
+    # hold/speed values too) already committed their own rows to the
+    # screen as permanent history.
+    #
+    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
+    # the ends), design (b): back=True now anyway - _prompt_pick()'s own
+    # _erase_dispatch_accum() call erases every earlier prompt this
+    # primitive's chain already drew (robot pick, value fields) along with
+    # this one, so the whole primitive unwinds cleanly. Always safe here:
+    # the real wake call (_run_brobots_wake_no_release) only runs AFTER
+    # this function returns "y" to _resolve_chain_wake() - a Left press
+    # here always fires before any live wake attempt, never mid-wake.
     default = _BROBOTS_WAKE_CHAIN_DEFAULT.get(primitive, "y")
     choice = _prompt_pick(
         {"y", "n"}, default=default, labels={"y": "yes", "n": "no"}, question="run brobots_wake first?",
+        back=True,
     )
     return choice == "y"
 
@@ -4231,10 +4567,25 @@ def _run_guided_flow_once():
     if _MENU_PASS_LINE_MARK is not None and _current_lines is not None:
         _erase_screen_lines(_current_lines - _MENU_PASS_LINE_MARK)
     _MENU_PASS_LINE_MARK = _current_lines
-    print("PLAYHEAD Calibrations (phcal):")
-    print("Please note:")
+    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass: banner
+    # restyled to match the operator's own "** Welcome to X **" convention
+    # (was a bare "X:" line); "Please note" reworded to "For upcoming
+    # please see" per direct operator instruction - both filenames kept.
+    #
+    # 2026-08-26, LOOK PASS: wrapped in the shared frame too - a bare
+    # `_NAV_FRAME_MARK` line opens the whole main-menu screen (this header
+    # + the root menu + whichever submenu is currently open - one
+    # continuous pinned region, matching navigate()'s own existing
+    # "root draws once, never erased again" architecture, left untouched
+    # per "do not change nav mechanics"). Closed by `_frame_close()` at
+    # the top of `_dispatch_primitive()`, right before a leaf's own
+    # prompts start drawing a new screen below it - see that function's
+    # own comment.
+    _frame_open()
+    print("** Welcome to PLAYHEAD Calibrations (phcal) **")
+    print("For upcoming please see:")
     print(
-        "  see SLEEP_BENCH_ALIASES_001.md & SLEEP_SEGMENT_ALIASES_001.md - "
+        "  SLEEP_BENCH_ALIASES_001.md & SLEEP_SEGMENT_ALIASES_001.md - "
         "not fireable from here"
     )
     # 2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0 to go
@@ -4246,12 +4597,16 @@ def _run_guided_flow_once():
     # extraction below (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii)), not
     # just left inert - navigate() now calls _dispatch_primitive() itself
     # and returns whatever it returns directly.
-    print(_NAV_LINE_MENU)
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): so each row's
-    # own "Brobots mode N" label (_group_mode_label()) is legible against
-    # what's actually live right now, without the operator having to
-    # remember which of the three _SESSION_MODE words maps to which number.
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): legible
+    # against what's actually live right now, without the operator having
+    # to remember which of the three _SESSION_MODE words maps to which
+    # number. 2026-08-26, LOOK PASS: the row-level "Brobots mode N" tags
+    # this line used to disambiguate are removed entirely (per the
+    # operator's own instruction) - this session-mode line is kept, it's
+    # useful context on its own, not a per-row tag.
     print(f"session mode: {_session_mode_label()}")
+    print(_NAV_HINT_ARROW)
+    print(_NAV_DIVIDER)
     return navigate(_build_primitive_group_tree(), _dispatch_primitive)
 
 
@@ -4270,6 +4625,26 @@ def _dispatch_primitive(primitive):
     navigate() itself, not this function - a raise here just propagates
     straight through, same as any other exception a plain function call
     doesn't catch)."""
+    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3: fresh accumulator
+    # for THIS primitive's own chain - see _DISPATCH_ERASE_ACCUM's own
+    # comment. This is the one call site that starts a new chain (navigate()
+    # calls this directly), so resetting here (not per-prompt) is enough.
+    global _DISPATCH_ERASE_ACCUM
+    _DISPATCH_ERASE_ACCUM = 0
+    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: the
+    # main-menu screen block _run_guided_flow_once() opened (welcome +
+    # please-see + session-mode + hint + divider + the root/submenu rows)
+    # deliberately has NO matching close mark printed from here. Tried
+    # printing one at this exact point first; it broke the very next
+    # Left-back at a primitive's OWN first prompt - navigate() resumes the
+    # SAME still-open menu level with no redraw (its own "pinned root,
+    # nothing below it left stale" contract), so a close mark printed here
+    # in advance would strand itself as a stray permanent line every time
+    # a primitive got abandoned before firing. The menu region stays
+    # conceptually "open" for its whole pinned lifetime instead (matching
+    # navigate()'s own architecture, untouched per "do not change nav
+    # mechanics") - each primitive's own prompts simply nest their own
+    # fresh `**` block inside it, closing cleanly on their own terms.
     if primitive == "weather":
         # 2026-08-15 (PHCAL_WEATHER_ROBOT_SPEAK_001.md, widened same day in
         # PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md): robot pick + reuse of
@@ -4311,7 +4686,20 @@ def _dispatch_primitive(primitive):
         return cmd_tempo_calibration()
 
     if primitive == "brobots_announce_in_sync":
-        phrase = _prompt_value("phrase", "Brobots ready!", kind="text")
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass:
+        # was the literal "Brobots ready!" every time - this call never
+        # actually read the phrase back from phcal_last.json (unlike
+        # every OTHER _LAST_PRIMITIVES entry), even though _save_last()
+        # below DOES write it every fire - flagged as a separate gap in
+        # the earlier follow-up pass, fixed now. No `robot` is picked yet
+        # at this point in the chain (this primitive fires to both robots,
+        # resolved only after firing via _resolve_last_whichs below) and
+        # the save side always writes the SAME phrase into every resolved
+        # robot's own slot - so robot "1"'s slot is as good a canonical
+        # read source as any; reading it here doesn't change what gets
+        # saved or to which robots, only what the prompt's own default is.
+        last_phrase = _load_last("1")["brobots_announce_in_sync"]["phrase"]
+        phrase = _prompt_value("phrase", last_phrase, kind="text", max_length=PHCAL_ANNOUNCE_PHRASE_MAX_CHARS)
         # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
         # to here, after the phrase prompt already ran - was this
         # branch's first line (before 2026-08-24 migrated it from its own
@@ -4352,13 +4740,16 @@ def _dispatch_primitive(primitive):
         # order): was token-then-robot (the one primitive in the whole file
         # asking a non-robot question before "which robot?") - reordered
         # to match every other primitive's own robot-first shape. `robot`
-        # now gets back=True (it's the first widget drawn in this chain);
-        # `_prompt_animation_token(back=False)` is now second, matching
-        # the same "only the first widget safely backs out" rule
-        # `_prompt_robot()`'s own docstring already states (see
-        # _prompt_animation_token()'s own docstring for the full reasoning).
+        # gets back=True (it's the first widget drawn in this chain).
+        #
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
+        # the ends): `_prompt_animation_token()` also gets back=True now,
+        # even though it's SECOND - safe because a Left there erases
+        # robot's own already-committed rows too, via
+        # _DISPATCH_ERASE_ACCUM/_erase_dispatch_accum() (see _prompt_pick()'s
+        # own comment on `own_lines`), not just this call's own rows.
         robot = _prompt_robot(back=True)
-        animation_token = _prompt_animation_token(back=False)
+        animation_token = _prompt_animation_token(back=True)
         hold_seconds = _prompt_value("hold", ANIMATION_DEFAULT_HOLD_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
         # here, after every prompt above already ran (was this branch's
@@ -4577,7 +4968,11 @@ def _dispatch_primitive(primitive):
             },
             back=True, question="pick a release mode",
         )
-        which = _prompt_robot(default="both", allow_both=True)
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
+        # the ends): back=True now, even though this is SECOND (after
+        # mode_choice) - safe, same _erase_dispatch_accum() reasoning as
+        # animation's own token pick above.
+        which = _prompt_robot(default="both", allow_both=True, back=True)
         wait_seconds = None
         if mode_choice == "1":
             # Same floor as legacy --hold mode (SLEEP_MIN_HOLD_SECONDS) -
