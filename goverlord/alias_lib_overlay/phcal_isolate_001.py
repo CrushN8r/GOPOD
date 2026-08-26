@@ -3816,19 +3816,20 @@ def _row_enabled(primitive):
     return _session_mode_n() >= _PRIMITIVE_REQUIRED_N[primitive]
 
 
-def _row_disabled_skip(primitive):
-    """2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): the one
-    shared "disabled, fire nulled" message - printed and this function
-    returns 1, for every one of the 14 primitives' own dispatch branch to
-    use as its own first-line gate (`if not _row_enabled(primitive): return
-    _row_disabled_skip(primitive)`). One uniform message replaces each
-    primitive's own previously ad hoc skip text (including
-    robot_info's/brobots_announce_in_sync's own prior
-    PHCAL_ROBOT_INFO_SKIPPED/PHCAL_BROBOTS_READY_SKIPPED strings, migrated
-    onto this same shared one) - "car on, engine off": nav still reaches
-    and can "select" a disabled row, this is what firing it actually does
-    instead of attempting a real connection."""
-    print(f"PHCAL_ROW_DISABLED_SKIP primitive={primitive} session_mode={_session_mode_n()} required={_PRIMITIVE_REQUIRED_N[primitive]}")
+def _row_disabled_fire_null(primitive):
+    """2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: replaces the
+    old _row_disabled_skip() contract (renamed, not just re-worded - the
+    old name described a SKIP, first line of the branch, before any
+    prompt ran; this one is reached only once a disabled leaf's own full
+    walk - robot pick, values, choices, exactly as an enabled leaf shows
+    them - is already done, immediately before the point that would
+    otherwise fire a real connection/SDK call). Silent null: no live
+    fire, no state write (_save_last never runs on this path), no
+    PHCAL_ISOLATE/PHCAL_LAST_SAVED log line - just this one newcomer-
+    plain confirmation that nothing happened. "Car on, engine off" - same
+    intent as the function this replaces, now reached at the fire point
+    instead of the top of the branch."""
+    print(f"Not available in this mode — nothing fired. (needs mode {_PRIMITIVE_REQUIRED_N[primitive]}+, current mode {_session_mode_n()})")
     return 1
 
 
@@ -4270,8 +4271,6 @@ def _dispatch_primitive(primitive):
     straight through, same as any other exception a plain function call
     doesn't catch)."""
     if primitive == "weather":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         # 2026-08-15 (PHCAL_WEATHER_ROBOT_SPEAK_001.md, widened same day in
         # PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md): robot pick + reuse of
         # run_robot_control_song_001.py's proven run_single_note("weather",
@@ -4298,6 +4297,11 @@ def _dispatch_primitive(primitive):
         # docstring), preserving the geocode-safety behavior described
         # in the comment block above unchanged.
         location = _prompt_value("location", None, kind="text", display="windsor ontario canada")
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after every prompt above already ran - was the branch's
+        # first line, skipping robot/location entirely when disabled.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         control_mod = _load_module(CONTROL_SONG_RUNNER_PATH, "run_robot_control_song_001")
         result = control_mod.run_single_note("weather", live, robot, location=location or None)
@@ -4307,15 +4311,16 @@ def _dispatch_primitive(primitive):
         return cmd_tempo_calibration()
 
     if primitive == "brobots_announce_in_sync":
-        # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): migrated
-        # from its own _no_confirmed_robot_this_session() check to the
-        # shared _row_enabled() gate, first line, before even prompting
-        # for a phrase - same "skip a doomed connection cleanly" intent,
-        # now the same one comparison every other primitive uses instead
-        # of a bespoke check unique to this branch.
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         phrase = _prompt_value("phrase", "Brobots ready!", kind="text")
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # to here, after the phrase prompt already ran - was this
+        # branch's first line (before 2026-08-24 migrated it from its own
+        # _no_confirmed_robot_this_session() check to _row_enabled(), and
+        # before that, its own bespoke skip), skipping the prompt
+        # entirely when disabled. Same one comparison every other
+        # primitive uses, now reached only right before the real fire.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         clock = _Clock()
@@ -4343,8 +4348,6 @@ def _dispatch_primitive(primitive):
 
 
     if primitive == "animation":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
         # order): was token-then-robot (the one primitive in the whole file
         # asking a non-robot question before "which robot?") - reordered
@@ -4357,6 +4360,11 @@ def _dispatch_primitive(primitive):
         robot = _prompt_robot(back=True)
         animation_token = _prompt_animation_token(back=False)
         hold_seconds = _prompt_value("hold", ANIMATION_DEFAULT_HOLD_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after every prompt above already ran (was this branch's
+        # first line, skipping robot/token/hold entirely when disabled).
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4412,10 +4420,12 @@ def _dispatch_primitive(primitive):
         return rc
 
     if primitive == "brobots_stay_in_place":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value("hold", HOLD_DEFAULT_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after robot/hold prompts already ran.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4436,9 +4446,11 @@ def _dispatch_primitive(primitive):
         return rc
 
     if primitive == "brobots_session_responsiveness":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         robot = _prompt_robot(back=True)
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after the robot prompt already ran.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4453,12 +4465,14 @@ def _dispatch_primitive(primitive):
         return cmd_brobots_wake(mod, clock, serial, robot, live)
 
     if primitive == "move_reverse":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value(
             "hold", MOVE_REVERSE_DEFAULT_HOLD_SECONDS, kind="float", max_value=MOVE_REVERSE_MAX_HOLD_SECONDS,
         )
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after robot/hold prompts already ran.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4495,8 +4509,23 @@ def _dispatch_primitive(primitive):
         # cleanly" intent (the live-caught 3-second "no route to host"
         # timeout this originally existed to avoid), now the same one
         # comparison every other primitive uses.
+        #
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: robot_info
+        # is one of the 3 single-member groups (info/cube/animations) and,
+        # confirmed live, needs no tree-shape change to be walkable -
+        # navigate() already calls dispatch() unconditionally on Enter for
+        # a bare-string leaf (single-member groups store one), so this
+        # branch was already reachable when disabled; it just has zero
+        # prompts of its own to walk through (no _prompt_robot() call -
+        # `which` comes from session state, not operator input), so its
+        # "walk" is empty either way. This gate stays first-line - the
+        # plan's own flagged risk was a double message if this moved to
+        # sit AFTER the `if not live` check below (PHCAL_NO_DRY_MODE would
+        # fire first even when disabled, showing the wrong reason); kept
+        # here, disabled always wins and produces exactly one message,
+        # regardless of the live/dry env flag.
         if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
+            return _row_disabled_fire_null(primitive)
         if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
             which = _PRESENT_ROBOTS[0]["which"]
         else:
@@ -4511,8 +4540,6 @@ def _dispatch_primitive(primitive):
         return cmd_robot_info(mod, clock, which)
 
     if primitive == "cube":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         # 2026-08-15: nothing to configure (no volume/hold/reps - the
         # binary's own blipHoldDuration is fixed) - robot pick, defaulting
         # to Brobot 2 (2), the cube keeper, then the same restart_preflight ->
@@ -4521,6 +4548,13 @@ def _dispatch_primitive(primitive):
         # tool always fires for real" precedent robot-sleep/-wake/-info and
         # cmd_cube's own CLI form already follow.
         robot = _prompt_robot(default="2", back=True)
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after the robot prompt already ran - cube is one of the 3
+        # single-member groups (info/cube/animations); confirmed live no
+        # tree-shape change is needed (see robot_info's own comment above),
+        # only this gate-move makes it show its one prompt when disabled.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
@@ -4535,8 +4569,6 @@ def _dispatch_primitive(primitive):
         return cmd_cube(mod, clock, serial, robot, live)
 
     if primitive == "brobots_sleep_to_wake_direct_sdk":
-        if not _row_enabled(primitive):
-            return _row_disabled_skip(primitive)
         mode_choice = _prompt_pick(
             {"1", "2"}, exit_on_invalid=True,
             labels={
@@ -4567,6 +4599,15 @@ def _dispatch_primitive(primitive):
             wait_seconds = _prompt_value(
                 "wait", SLEEP_WAKE_DEFAULT_WAIT_SECONDS, kind="float", min_value=SLEEP_MIN_HOLD_SECONDS,
             )
+        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+        # here, after every prompt above already ran (mode_choice/which/
+        # wait_seconds) - and, same reasoning as robot_info's own comment
+        # above, placed BEFORE the `if not live` check right below rather
+        # than after it, so a disabled leaf always gets the one plain
+        # "nothing fired" message instead of the unrelated PHCAL_NO_DRY_MODE
+        # one when both conditions happen to be true at once.
+        if not _row_enabled(primitive):
+            return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         if not live:
             print("PHCAL_NO_DRY_MODE sleep_wake has no simulate path (no --dry exists in the binary) - re-run with GOPOD_ALLOW_LIVE_ROBOT_SPEECH=1 to fire it")
@@ -4584,11 +4625,13 @@ def _dispatch_primitive(primitive):
 
     # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): shared tail
     # for arm/nod/rattle/danger - one gate covers all four, since
-    # `primitive` is still whichever of the four reached here. Placed as
-    # the first real line of this shared tail (before even the robot
-    # prompt), matching every other primitive's own gate placement.
-    if not _row_enabled(primitive):
-        return _row_disabled_skip(primitive)
+    # `primitive` is still whichever of the four reached here.
+    #
+    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
+    # further down (see below, right before `live = os.getenv(...)`), past
+    # the robot prompt and this primitive's own value prompts - was the
+    # first real line of this shared tail, skipping all of that when
+    # disabled.
 
     robot = _prompt_robot(back=True)
 
@@ -4615,6 +4658,9 @@ def _dispatch_primitive(primitive):
         # out-of-range typed value (e.g. 9) CLAMPS to 5 instead of
         # refusing and re-prompting - decision 3's own named example.
         volume_ui = _prompt_value("volume", last["volume"], kind="int", min_value=1, max_value=5)
+
+    if not _row_enabled(primitive):
+        return _row_disabled_fire_null(primitive)
 
     live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
     # See PHCAL_RESTART_WIREPOD_ENV's own comment block above: setdefault, not
