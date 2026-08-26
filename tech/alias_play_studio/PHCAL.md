@@ -1,9 +1,13 @@
 # PHCAL — PLAYHEAD, Part 1: the calibration bench
 
-> **WIP — predates the 2026-08 phcal arrow-nav rebuild (through commit `50d395f`).**
-> Specifics below (row sort order, live-fire status, mode/nav behavior) are out of
-> date. A full rewrite is pending — read this doc for orientation only, verify any
-> claim about current phcal behavior against the code before relying on it.
+> **WIP — predates the 2026-08 phcal v6 arrow-nav rebuild, now COMPLETE (all 4
+> lanes + look pass + self-reporting-draw + double-header fix, through commit
+> `c5fafd1`).** Specifics below (row sort order, live-fire status, mode/nav
+> behavior) are out of date — more so now than when this banner was first written,
+> since the menu itself was hand-reordered and every screen restyled since. A full
+> rewrite is still pending — read this doc for orientation only, verify any claim
+> about current phcal behavior against the code (or `ALIAS-LIBRARY.md`'s own
+> `phcal` row, kept current) before relying on it.
 
 > Fire one thing, on one robot, and watch it happen. Not a performance — a bench test.
 
