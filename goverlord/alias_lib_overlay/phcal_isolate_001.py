@@ -1552,15 +1552,28 @@ def _detect_present_robots(clock):
 
     2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: wrapped in the
     shared `_NAV_FRAME_MARK` open/close per the operator's own PDF -
-    "framing wraps everything, including diagnostics." No hint/divider
-    line here (nothing to navigate during a probe) - just the frame. Every
-    real `PHCAL_DETECT_PROBE`/`PHCAL_DETECT_FIRST` diagnostic line is kept
+    "framing wraps everything, including diagnostics." Every real
+    `PHCAL_DETECT_PROBE`/`PHCAL_DETECT_FIRST` diagnostic line is kept
     exactly as before; a plain-language line is added alongside each one,
-    never replacing it."""
+    never replacing it.
+
+    2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: per the operator's own
+    literal PDF spec, this screen's `**` frame contains FOUR distinct
+    logical chunks (the probing-intro line, each candidate's own probe
+    block, the final present/mode summary), each separated by its own
+    divider - not one bare frame with no internal structure. A divider now
+    prints immediately after the frame opens, between each chunk, and
+    once more right before the frame closes - the general `**` -> divider
+    -> content -> divider (repeat) -> divider -> `**` shape every other
+    screen in this file now follows too."""
     _frame_open()
+    print(_NAV_DIVIDER)
     candidates = _candidate_list()
     print(f"{clock.prefix()}PHCAL_DETECT_FIRST probing {len(candidates)} configured candidate(s)...")
-    results = [_probe_candidate(clock, c) for c in candidates]
+    results = []
+    for c in candidates:
+        print(_NAV_DIVIDER)
+        results.append(_probe_candidate(clock, c))
     present = [r for r in results if r["present"]]
     if len(present) == 0:
         mode = "none"
@@ -1568,8 +1581,10 @@ def _detect_present_robots(clock):
         mode = "single"
     else:
         mode = "multi"
+    print(_NAV_DIVIDER)
     print(f"{clock.prefix()}PHCAL_DETECT_FIRST present={[p['label'] for p in present]} mode={mode}")
     print(f"{clock.prefix()}detected brobots-mode {mode.upper()}")
+    print(_NAV_DIVIDER)
     _frame_close()
     return present, mode
 
@@ -1653,8 +1668,25 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     # follow-up note: the PDF's "01: Type new default mode" line was a
     # mis-phrasing of this existing "accept detected mode, or change"
     # picker, not a request for a new typed-default feature - none added.
+    #
+    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: STOP CONDITION
+    # RESOLVED (operator confirmed twice, final): the "01: Type new
+    # default mode 1/2/3 + ENTER:" row is a mis-phrasing of this existing
+    # "accept detected mode, or change" picker - not built, removed from
+    # consideration for good. This screen's rows are now numbered like
+    # every other screen (00 = accept-default, then the alternatives in
+    # order) - no gap left for the row that was never built. Two other
+    # PDF-literal structural fixes: the divider prints right after the
+    # frame mark (general shape, every screen this pass), and row 00's
+    # own label reads "ENTER for MULTI brobots-mode" directly (the PDF's
+    # literal text for that row) instead of a separate "ENTER for X, or
+    # change:" question line above the rows - the PDF shows no such
+    # separate line here. The redundant "detected brobots-mode X" line is
+    # dropped from THIS screen too - it already prints once, per the PDF,
+    # inside the detect stream block above (_detect_present_robots()'s own
+    # plain-language line), not repeated here.
     mode_upper = detected_mode.upper()
-    accept_label = f"{mode_upper} brobots-mode"
+    accept_label = f"ENTER for {mode_upper} brobots-mode"
 
     detected_which = present_robots[0]["which"] if detected_mode == "single" and present_robots else None
     rows = [("/", "brobots-none mode (dry-runs)")]
@@ -1663,11 +1695,11 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
         for p in present_robots
         if p["which"] != detected_which
     ]
-    options = [("_accept", accept_label)] + rows
+    base_options = [("_accept", accept_label)] + rows
+    options = [(k, f"{i:02d}. {label}") for i, (k, label) in enumerate(base_options)]
 
     _frame_open()
-    print(f"detected brobots-mode {mode_upper}")
-    print(f"ENTER for {accept_label}, or change:")
+    print(_NAV_DIVIDER)
     print(_NAV_HINT_ARROW)
     print(_NAV_DIVIDER)
     choice = arrow_column_pick(options, highlight=0, show_key=False, esc_home=0)
@@ -1768,6 +1800,15 @@ def _resolve_session_mode_once():
     if not _low_voltage_gate(_detect_clock, _PRESENT_ROBOTS):
         print(f"{_detect_clock.prefix()}PHCAL_GUIDED_EXIT declined to proceed with a low-battery robot present")
         return False
+    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: flushes the mode-
+    # picker's own pending close mark before this unframed diagnostic -
+    # without this, the next screen's own _frame_open() would silently
+    # cancel the pending mark (the same seam-collapse logic that correctly
+    # kills a genuine double-** at a back-to-back screen boundary), and
+    # this diagnostic line would end up sitting where a closing mark
+    # should have been, itself unmarked. Found live: without this flush,
+    # the welcome banner's own opening "**" never printed at all.
+    _frame_flush_close()
     if _SESSION_MODE == "none":
         os.environ.pop("GOPOD_ALLOW_LIVE_ROBOT_SPEECH", None)
         print(f"{_detect_clock.prefix()}PHCAL_SESSION_MODE mode=none - no configured robots responded; session continues, live-firing primitives will report unreachable")
@@ -2875,12 +2916,52 @@ def _draw_lines(lines):
     return len(lines)
 
 
+# 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: was a plain print pair -
+# every screen's own close printed a "**" immediately followed by the next
+# screen's own open printing ANOTHER "**", a real double-seam the
+# operator's PDF spec explicitly calls out to collapse into one. A small
+# state machine fixes this at the root instead of patching each call site
+# by hand: `_frame_open()` only actually prints when no frame mark is
+# already "in effect" (open, or a close still pending from the screen
+# before it) - a pending close gets silently cancelled instead of
+# flushed, collapsing exactly the double-mark seam into one shared mark.
+# `_frame_close()` never prints immediately - it only marks the seam as
+# pending, so a screen that's immediately followed by another framed
+# screen never produces a visible close at all (one shared "**" instead).
+# `_frame_flush_close()` is the one place a pending close actually prints
+# - called only at a genuine boundary where nothing framed follows right
+# away (an unframed diagnostic line, or the tool exiting).
+_FRAME_STATE = "closed"  # "closed" | "open" | "pending_close"
+
+
 def _frame_open():
+    """Returns 1 if it actually printed a fresh mark, 0 if the seam
+    collapsed (already open, or a pending close got cancelled instead) -
+    callers building a measured header count via _draw_lines() must add
+    this return value to their own total, never assume it's always 1."""
+    global _FRAME_STATE
+    if _FRAME_STATE in ("open", "pending_close"):
+        _FRAME_STATE = "open"
+        return 0
     print(_NAV_FRAME_MARK)
+    _FRAME_STATE = "open"
+    return 1
 
 
 def _frame_close():
-    print(_NAV_FRAME_MARK)
+    global _FRAME_STATE
+    if _FRAME_STATE == "open":
+        _FRAME_STATE = "pending_close"
+
+
+def _frame_flush_close():
+    """Actually prints the pending close mark, if one exists - call this
+    only where nothing framed follows immediately (an unframed diagnostic
+    about to print, or the guided flow exiting)."""
+    global _FRAME_STATE
+    if _FRAME_STATE == "pending_close":
+        print(_NAV_FRAME_MARK)
+    _FRAME_STATE = "closed"
 
 
 def _read_raw_line(prompt):
@@ -3040,16 +3121,29 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
     count derived from it (`erase_on_back_extra`, `own_lines`) inherits
     that same measured number, so a future header change (one more line,
     one fewer) can never silently desync this call's own erase math
-    again."""
+    again.
+
+    2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md (per the operator's own
+    literal PDF spec): each row now carries its own "00. "/"01. " position
+    prefix (per-screen, restarting at 00 every call - not a global ID, not
+    the choice's own key). A divider now also prints immediately after the
+    frame mark, before `question`/the hint - the PDF's own general shape
+    is `**` -> divider -> content -> divider (repeat) -> divider -> `**`,
+    not divider-then-content-then-close this call used to build.
+    `_frame_open()`'s own return value (0 or 1 - see its docstring, the
+    seam-collapse fix) is added into `header_count` instead of assuming
+    the frame mark always printed exactly 1 line."""
     labels = labels or {}
-    options = [(c, labels.get(c, c)) for c in sorted(choices)]
-    highlight = sorted(choices).index(default) if default in choices else 0
-    header_lines = [_NAV_FRAME_MARK]
+    sorted_choices = sorted(choices)
+    options = [(c, f"{i:02d}. {labels.get(c, c)}") for i, c in enumerate(sorted_choices)]
+    highlight = sorted_choices.index(default) if default in sorted_choices else 0
+    frame_count = _frame_open()
+    header_lines = [_NAV_DIVIDER]
     if question:
         header_lines.append(question)
     header_lines.append(_NAV_HINT_ARROW)
     header_lines.append(_NAV_DIVIDER)
-    header_count = _draw_lines(header_lines)
+    header_count = frame_count + _draw_lines(header_lines)
     # 2026-08-26: this call's own drawn-line total (measured header +
     # one row per choice) - same total erase_on_back_extra + window_height
     # already uses for THIS call's own self-erase. Accumulated regardless
@@ -3319,6 +3413,16 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
         for i in range(window_height):
             real_index = offset + i
             key, label = options[real_index]
+            # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: a skip_indices
+            # row (the main menu's own divider - see navigate()'s own
+            # comment) never gets a "> "/"  " marker prefix, even though
+            # its highlight can never actually land there - the operator's
+            # own PDF spec shows this as a clean, full-width rule, not one
+            # indented 2 columns by a marker no one will ever see filled
+            # in. Every other row's marker logic is unchanged.
+            if real_index in skip_indices:
+                sys.stdout.write(f"\r\x1b[2K{label}\n")
+                continue
             marker = "> " if real_index == highlight else "  "
             row_text = f"{key}. {label}" if show_key else label
             sys.stdout.write(f"\r\x1b[2K{marker}{row_text}\n")
@@ -3629,21 +3733,30 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         _accum_lines(_draw_lines([f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})"]))
         return resolved
     if allow_both:
-        options = [("1", "Robot 1"), ("2", "Robot 2"), ("*", "both (1 and 2)")]
-        option_keys = [k for k, _label in options]
+        base_options = [("1", "Robot 1"), ("2", "Robot 2"), ("*", "both (1 and 2)")]
+        option_keys = [k for k, _label in base_options]
         default_key = "*" if default == "both" else default
         highlight = option_keys.index(default_key) if default_key in option_keys else 0
         # 2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md: same uniform
-        # wording every other leaf prompt now uses - `options[highlight][1]`
+        # wording every other leaf prompt now uses - `base_options[highlight][1]`
         # is exactly the label the picker itself will show pre-highlighted,
         # so this line can never drift out of sync with what Enter actually
-        # selects.
+        # selects. Built from `base_options` (unnumbered) so the question
+        # text reads "ENTER for Robot 1..." not "ENTER for 00. Robot 1...".
+        #
+        # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: `options` (what
+        # actually gets drawn) carries each row's own "00. " position
+        # prefix, per the operator's literal PDF spec. Divider now also
+        # prints right after the frame mark - see _prompt_pick()'s own
+        # comment for the full reasoning (same fix, same call shape).
         #
         # 2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: header_count
         # measured via _draw_lines(), not hand-typed - see _prompt_pick()'s
         # own comment for the full reasoning.
-        header_count = _draw_lines([
-            _NAV_FRAME_MARK, f"ENTER for {options[highlight][1]}, or change:", _NAV_HINT_ARROW, _NAV_DIVIDER,
+        options = [(k, f"{i:02d}. {label}") for i, (k, label) in enumerate(base_options)]
+        frame_count = _frame_open()
+        header_count = frame_count + _draw_lines([
+            _NAV_DIVIDER, f"ENTER for {base_options[highlight][1]}, or change:", _NAV_HINT_ARROW, _NAV_DIVIDER,
         ])
         own_lines = header_count + len(options)
         if back:
@@ -3872,7 +3985,12 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     if kind == "text" and max_length is not None:
         last_value = _clamp_text(label, last_value, max_length)
     shown = display if display is not None else last_value
-    drawn = _draw_lines([_NAV_FRAME_MARK, _NAV_HINT_VALUE, _NAV_DIVIDER])
+    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: divider now also
+    # prints right after the frame mark, per the operator's literal PDF
+    # spec's general shape - see _prompt_pick()'s own comment.
+    # `_frame_open()`'s own return (0 or 1, seam-collapse aware) folds
+    # into `drawn` alongside the rest of this measured header.
+    drawn = _frame_open() + _draw_lines([_NAV_DIVIDER, _NAV_HINT_VALUE, _NAV_DIVIDER])
     while True:
         try:
             raw = _read_raw_line(f"{label} - ENTER for {shown}, or change: ")
@@ -4392,15 +4510,28 @@ def _build_primitive_group_tree():
     divider row (see _PRIMITIVE_GROUPS's own 3rd-tuple-item comment),
     child=None, non-selectable via navigate()'s new skip_indices wiring.
     Submenu rows are unchanged - still disabled-first via
-    _sort_menu_rows(), still "Brobots "-prefixed member labels."""
+    _sort_menu_rows(), still "Brobots "-prefixed member labels.
+
+    2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: per the operator's own
+    literal PDF spec, every row (root AND submenu) now carries its own
+    "00. "/"01. " position prefix, restarting at 00 PER SCREEN (a
+    submenu's own numbering starts fresh at 00, independent of its
+    parent's row number) - not a global ID, not the group's own required-N,
+    not the primitive's own identity string. The divider entry itself is
+    never numbered - it isn't a real, selectable row (see navigate()'s own
+    skip_indices wiring), so it's excluded from the position count
+    entirely (the row after it does NOT skip a number)."""
     tree = {}
     group_index = 0
+    root_position = 0
     for entry in _PRIMITIVE_GROUPS:
         group_label, members = entry[0], entry[1]
         group_index += 1
         key = f"{group_index}0"
+        numbered_label = f"{root_position:02d}. {group_label}"
+        root_position += 1
         if len(members) == 1:
-            tree[key] = (group_label, members[0])
+            tree[key] = (numbered_label, members[0])
         else:
             member_rows = []
             for member in members:
@@ -4411,8 +4542,8 @@ def _build_primitive_group_tree():
             member_rows = _sort_menu_rows(member_rows)
             sub = {}
             for i, (m_label, member, _m_disabled, _sort_key) in enumerate(member_rows):
-                sub[str(i + 1)] = (m_label, member)
-            tree[key] = (group_label, sub)
+                sub[str(i + 1)] = (f"{i:02d}. {m_label}", member)
+            tree[key] = (numbered_label, sub)
         if len(entry) > 2 and entry[2] == "divider":
             divider_key = f"{group_index}5"
             tree[divider_key] = (_NAV_DIVIDER, None)
@@ -4609,22 +4740,11 @@ def _run_guided_flow_once():
     # (was a bare "X:" line); "Please note" reworded to "For upcoming
     # please see" per direct operator instruction - both filenames kept.
     #
-    # 2026-08-26, LOOK PASS: wrapped in the shared frame too - a bare
-    # `_NAV_FRAME_MARK` line opens the whole main-menu screen (this header
-    # + the root menu + whichever submenu is currently open - one
-    # continuous pinned region, matching navigate()'s own existing
-    # "root draws once, never erased again" architecture, left untouched
-    # per "do not change nav mechanics"). Closed by `_frame_close()` at
-    # the top of `_dispatch_primitive()`, right before a leaf's own
-    # prompts start drawing a new screen below it - see that function's
-    # own comment.
-    _frame_open()
-    print("** Welcome to PLAYHEAD Calibrations (phcal) **")
-    print("For upcoming please see:")
-    print(
-        "  SLEEP_BENCH_ALIASES_001.md & SLEEP_SEGMENT_ALIASES_001.md - "
-        "not fireable from here"
-    )
+    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md STOP #1, resolved: the
+    # welcome + please-see blocks that used to print here (every pass) now
+    # print ONCE, in `run_guided_flow()`, before detect ever runs - see
+    # that function's own comment. This function's own header is now just
+    # the main-menu screen's own frame (divider/hint/divider/rows) below.
     # 2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0 to go
     # back" dropped from this line - no in-tree back-up path existed yet.
     # 2026-08-23: Left now backs up one level (navigate()'s own
@@ -4634,14 +4754,23 @@ def _run_guided_flow_once():
     # extraction below (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii)), not
     # just left inert - navigate() now calls _dispatch_primitive() itself
     # and returns whatever it returns directly.
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): legible
-    # against what's actually live right now, without the operator having
-    # to remember which of the three _SESSION_MODE words maps to which
-    # number. 2026-08-26, LOOK PASS: the row-level "Brobots mode N" tags
-    # this line used to disambiguate are removed entirely (per the
-    # operator's own instruction) - this session-mode line is kept, it's
-    # useful context on its own, not a per-row tag.
-    print(f"session mode: {_session_mode_label()}")
+    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): this used
+    # to also print "session mode: N (word)" here for legibility.
+    #
+    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: dropped - the
+    # operator's own literal PDF spec for this exact screen (`**` ->
+    # divider -> hint -> divider -> the 8 numbered rows) shows no such
+    # line, and rule 1 asks for character-for-character conformance here
+    # (unlike the opener, no revised text authorizes keeping it).
+    # `_session_mode_label()` is left defined, not pruned - out of this
+    # pass's own scope. A divider now also prints right after the frame
+    # mark, matching the general shape every other screen in this file
+    # follows. `_frame_open()` here was missing entirely until this fix -
+    # found live: without it, the main menu's own divider/hint/rows had
+    # no opening "**" of their own at all (please-see's own flush-close
+    # left the frame state genuinely closed, with nothing to reopen it).
+    _frame_open()
+    print(_NAV_DIVIDER)
     print(_NAV_HINT_ARROW)
     print(_NAV_DIVIDER)
     return navigate(_build_primitive_group_tree(), _dispatch_primitive)
@@ -5289,10 +5418,33 @@ def run_guided_flow():
     here - pressing ESC at "proceed anyway?" would have propagated
     _PhcalEscExit straight out of this function uncaught. Neither prompt
     had a live ESC test exercised against this exact call boundary before
-    now; both are fixed by the same one-line move."""
+    now; both are fixed by the same one-line move.
+
+    2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md STOP #1, resolved: the
+    operator's final opener order is welcome -> please-see -> detect ->
+    mode picker, printed ONCE at session start, never reprinted on a
+    later return to the main menu. Both blocks now print right here,
+    before `_resolve_session_mode_once()` (which is what actually runs
+    `_detect_present_robots()`) - moved out of `_run_guided_flow_once()`'s
+    own per-pass header entirely. No separate one-time bookkeeping needed:
+    that function's own `_MENU_PASS_LINE_MARK` checkpoint doesn't start
+    tracking cursor position until ITS OWN first call, so these two
+    blocks - already on screen before that call ever happens - are never
+    touched by any later pass's own erase-and-redraw."""
+    _frame_open()
+    print("Welcome to PLAYHEAD Calibrations (phcal)")
+    _frame_close()
+    _frame_flush_close()
+    _frame_open()
+    print("For upcoming please see")
+    print("* SLEEP_BENCH_ALIASES_001.md")
+    print("* SLEEP_SEGMENT_ALIASES_001.md")
+    _frame_close()
+    _frame_flush_close()
     try:
         session_ok = _resolve_session_mode_once()
     except _PhcalEscExit:
+        _frame_flush_close()
         print("PHCAL_GUIDED_EXIT (ESC) exiting")
         return 0
     if not session_ok:
@@ -5301,6 +5453,7 @@ def run_guided_flow():
         try:
             result = _run_guided_flow_once()
         except _PhcalEscExit:
+            _frame_flush_close()
             print("PHCAL_GUIDED_EXIT (ESC) exiting")
             return 0
         except _PhcalSessionModeRepick:
@@ -5322,6 +5475,7 @@ def run_guided_flow():
             try:
                 _repick_session_mode()
             except _PhcalEscExit:
+                _frame_flush_close()
                 print("PHCAL_GUIDED_EXIT (ESC) exiting")
                 return 0
             continue
