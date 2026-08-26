@@ -4723,45 +4723,52 @@ def _dispatch_primitive(primitive):
         return cmd_tempo_calibration()
 
     if primitive == "brobots_announce_in_sync":
+        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 4 (multi-mode
+        # single-brobot target): robot pick added, first in the chain
+        # (matches every other primitive's own robot-first order) - the
+        # plan's own confirmed second gap (with robot_info, above): MULTI
+        # mode (or None) used to always fire both robots via
+        # cmd_brobots_ready, no single-target option offered.
+        # _prompt_robot(default="both", allow_both=True, back=True)
+        # auto-resolves in single mode (unchanged - no picker shown there)
+        # and offers a real "1"/"2"/"both" pick in multi/None mode.
+        # `which in ("1","2")` now routes to the EXISTING cmd_brobots_
+        # ready_single() path (already used for single-mode's own
+        # auto-resolve, unchanged mechanism, just reachable from an
+        # explicit multi-mode pick too now) - no new cmd_* function needed.
+        which = _prompt_robot(default="both", allow_both=True, back=True)
         # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass:
         # was the literal "Brobots ready!" every time - this call never
         # actually read the phrase back from phcal_last.json (unlike
         # every OTHER _LAST_PRIMITIVES entry), even though _save_last()
         # below DOES write it every fire - flagged as a separate gap in
-        # the earlier follow-up pass, fixed now. No `robot` is picked yet
-        # at this point in the chain (this primitive fires to both robots,
-        # resolved only after firing via _resolve_last_whichs below) and
-        # the save side always writes the SAME phrase into every resolved
-        # robot's own slot - so robot "1"'s slot is as good a canonical
-        # read source as any; reading it here doesn't change what gets
-        # saved or to which robots, only what the prompt's own default is.
+        # the earlier follow-up pass, fixed now. The save side always
+        # writes the SAME phrase into every resolved robot's own slot - so
+        # robot "1"'s slot is as good a canonical read source as any;
+        # reading it here doesn't change what gets saved or to which
+        # robots, only what the prompt's own default is.
         last_phrase = _load_last("1")["brobots_announce_in_sync"]["phrase"]
         phrase = _prompt_value("phrase", last_phrase, kind="text", max_length=PHCAL_ANNOUNCE_PHRASE_MAX_CHARS)
         # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # to here, after the phrase prompt already ran - was this
-        # branch's first line (before 2026-08-24 migrated it from its own
-        # _no_confirmed_robot_this_session() check to _row_enabled(), and
-        # before that, its own bespoke skip), skipping the prompt
-        # entirely when disabled. Same one comparison every other
-        # primitive uses, now reached only right before the real fire.
+        # to here, after every prompt above already ran.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         clock = _Clock()
-        # 2026-08-18, PHCAL_DETECT_FIRST_001.md: single-mode degrades to
-        # cmd_brobots_ready_single (one robot, same phrase, via the
-        # Wire-Pod REST say channel - the direct-SDK binary can't run with
-        # one robot, see that function's own comment). MULTI mode (or no
-        # detection, _SESSION_MODE is None on the direct-flag path) is
-        # completely unchanged - the exact same cmd_brobots_ready call as
-        # before this pass. The none-mode/unconfirmed-robot skip that used
-        # to live here as its own branch is now handled entirely by the
-        # _row_enabled() gate above, before this point is ever reached.
-        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
-            present = _PRESENT_ROBOTS[0]
-            rc = cmd_brobots_ready_single(clock, present["which"], present["label"], live, phrase)
-            last_which = present["which"]
+        # 2026-08-26, Lane 4: dispatch now reads off `which` directly
+        # (1/2 -> single-robot path, both -> the direct-SDK dual-robot
+        # binary) instead of re-deriving single-vs-multi from
+        # _SESSION_MODE/_PRESENT_ROBOTS - `which` already IS that answer,
+        # whether it came from single mode's own auto-resolve or an
+        # explicit multi-mode pick. cmd_brobots_ready_single() needs a
+        # label too - resolved from _candidate_list(), the same canonical
+        # source _confirm_multi_mode()'s own forced-pick branch already
+        # reads from.
+        if which in ("1", "2"):
+            label = next(c["label"] for c in _candidate_list() if c["which"] == which)
+            rc = cmd_brobots_ready_single(clock, which, label, live, phrase)
+            last_which = which
         else:
             mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
             rc = cmd_brobots_ready(mod, clock, live, phrase)
@@ -4927,10 +4934,27 @@ def _dispatch_primitive(primitive):
     if primitive == "robot_info":
         # 2026-08-18, PHCAL_DETECT_FIRST_001.md: mode-aware `which` -
         # reports whichever robot(s) detect-first actually found present,
-        # not always the old hardcoded "both". MULTI mode (or no detection
-        # at all, _SESSION_MODE is None on the direct-flag path) keeps the
-        # exact same which="both" this branch always used.
+        # not always the old hardcoded "both".
         #
+        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 4 (multi-mode
+        # single-brobot target): MULTI mode (or no detection at all,
+        # _SESSION_MODE is None on the direct-flag path) used to hardcode
+        # which="both" unconditionally here - the plan's own confirmed
+        # gap, one of only two in the whole 14-primitive set (the other is
+        # brobots_announce_in_sync, below). `_prompt_robot(default="both",
+        # allow_both=True)` replaces that hardcode - it already handles
+        # single mode's own auto-resolve internally (no picker shown
+        # there, unchanged behavior), and now offers a real "1"/"2"/"both"
+        # pick in multi/None mode, matching the treatment
+        # brobots_sleep_to_wake_direct_sdk already had. `cmd_robot_info()`'s
+        # own signature already accepts exactly this "1"/"2"/"both"
+        # convention (see its own docstring) - no new cmd_* function
+        # needed, only a real picker feeding it. `back=True` since this is
+        # the first (and only) prompt in this chain - same "every leaf
+        # gets a real back-out" standard Lane 3 already set everywhere
+        # else, applied here to a prompt that's brand new, not a change
+        # to any existing Lane 3 handler.
+        which = _prompt_robot(default="both", allow_both=True, back=True)
         # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): migrated
         # from its own _no_confirmed_robot_this_session() check to the
         # shared _row_enabled() gate - same "skip a doomed connection
@@ -4938,26 +4962,20 @@ def _dispatch_primitive(primitive):
         # timeout this originally existed to avoid), now the same one
         # comparison every other primitive uses.
         #
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: robot_info
-        # is one of the 3 single-member groups (info/cube/animations) and,
-        # confirmed live, needs no tree-shape change to be walkable -
-        # navigate() already calls dispatch() unconditionally on Enter for
-        # a bare-string leaf (single-member groups store one), so this
-        # branch was already reachable when disabled; it just has zero
-        # prompts of its own to walk through (no _prompt_robot() call -
-        # `which` comes from session state, not operator input), so its
-        # "walk" is empty either way. This gate stays first-line - the
-        # plan's own flagged risk was a double message if this moved to
-        # sit AFTER the `if not live` check below (PHCAL_NO_DRY_MODE would
-        # fire first even when disabled, showing the wrong reason); kept
-        # here, disabled always wins and produces exactly one message,
-        # regardless of the live/dry env flag.
+        # 2026-08-26, Lane 4: this gate MOVES to sit after the robot pick
+        # now that one exists - was first-line back when this branch had
+        # "zero prompts of its own to walk through" (Lane 2's own comment,
+        # now stale); matches every other primitive's own Lane 2 shape
+        # (prompt(s), then the enabled-gate, then the live-gate, then
+        # fire) and keeps the robot pick itself walkable when disabled,
+        # same "disabled leaves walk to every tip" guarantee Lane 2/3
+        # already proved for the other 13 primitives. Still only ONE
+        # message when disabled (not the double the plan's own survey
+        # flagged as a risk) - `_row_enabled()` still runs BEFORE the
+        # `if not live` check right below, same order every other
+        # primitive already uses.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
-        if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
-            which = _PRESENT_ROBOTS[0]["which"]
-        else:
-            which = "both"
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         if not live:
             print("PHCAL_NO_DRY_MODE robot_info has no simulate path (no --dry exists in the binary) - re-run with GOPOD_ALLOW_LIVE_ROBOT_SPEECH=1 to fire it")
