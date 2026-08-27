@@ -102,6 +102,7 @@ Plain language, first look, no background needed — for a newcomer, human or AI
 **For venues, funders, and partners**
 - [MOBILE_GEAR.md](tech/MOBILE_GEAR.md) — mobile deployment and field kit
 - [OPS ASK.md](MY_GOPOD_OPS_ASK.md) — the operator's ops ask — social, sites, and content, a different role than the technical one
+- [TRAJECTORY.md](TRAJECTORY.md) — the planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 - [HEALTHY_DISTRACTIONS.md](life/02_HEALTHY_DISTRACTIONS.md) — GOPOD as healthy distraction
 - [OUTREACH.md](life/02a_OUTREACH.md) — the community and paid outreach plan, two lanes side by side
 
