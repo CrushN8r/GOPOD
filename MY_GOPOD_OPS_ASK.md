@@ -33,13 +33,41 @@ keep it running, keep growth balanced. This isn't a one-off gig. This person sta
 for me) — both are genuinely on the table. Which one matters less than this: it grows, and
 keeps growing, once it's yours to hold.
 
+## Where the content could go (aim, not built yet)
+
+Two packaging ideas, not commitments — repo-grounded, not new hype:
+
+**YouTube Shows.** YouTube launched a Shows format in July 2026 (Partner Program
+only) that turns a playlist into something closer to a Netflix series — seasons,
+numbered episodes, custom artwork, its own place in Continue Watching and
+Recommended Shows. "AI Wordplay! Explain the Math!" already runs as a year-long
+theme wheel — Survival Math, Food Math, and so on — which maps naturally onto
+seasons: one theme, one season, the robot songs and interviews as episodes. Math
+Aftermath, the news side of the same engine, could run as its own second Show.
+Nobody's built this yet — it's a repackaging of a content plan that's already
+real, not a new production commitment.
+
+**The long game on monetization.** YouTube's monetization bar is scheduled to
+get harder in 2027 (see "The honest state" in UNFAIR_ADVANTAGES.md for the exact
+numbers) — a change that also rewards longer-form content and tends to thin out
+channels running on thin, AI-generated filler. Real robots doing a real bit are
+the opposite of what's getting squeezed. Same moat this project already leans
+on, one layer further out: not just "this content is harder to fake," but "the
+platform's own math is starting to favor exactly this kind of channel."
+
+Both of these are aim, not scope — they activate once there's a real video
+library and an active channel to apply them to, not before. If either one is
+the kind of thing you already think about, that's useful to know for whoever
+ends up owning this role.
+
 ## Why this role matters
 
 MY_GOPOD_ASK.md is my resume to an engineer — here's the running thing, here's the ceiling I
 hit. This is my resume to a pro on the business side: here's the running thing, here's the
 role that scales it. This is the operational piece a WEtech or Small Business Centre advisor
 would expect to see before calling GOPOD investable — not just a cool build, a running
-operation. That's what this role turns it into.
+operation. That's what this role turns it into. The packaging and monetization angles above
+aren't decoration — they're the shape of an actual growth plan, not just a cool build.
 
 ## Where it stands today
 
