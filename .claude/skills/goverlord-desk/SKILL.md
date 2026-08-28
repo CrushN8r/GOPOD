@@ -335,7 +335,24 @@ description: The Goverlord desk contract — who the operator is, the hard rules
   about to insert" for a one-line/short-passage change), that narrow case still goes
   to chat — the line is length/scope: a short passage under active edit-review is fine
   in chat, a multi-section survey/plan/report body is not, regardless of what the task
-  literally says.
+  literally says. **"Show me the file" is not an exception to this, even stated as
+  literally as that.** Recurred immediately after the rule above was banked: asked to
+  "show me the full rewritten file," a ~200-line Python file got pasted whole into
+  chat. Operator: "Why did you print all that? am I supposed to fucking bow down and
+  bow to your lazy fucking thinking?" The file is already saved on disk at its real
+  path — that IS the review copy. A "show me" request past a short passage means:
+  confirm it's written, state the path, and let him open/diff it there himself. Only a
+  short, targeted string (an exact line being inserted, a one-paragraph passage)
+  belongs pasted in chat under the pre-approval carve-out above. **The actual fix is a
+  gate before sending, not another exception clause after the fact** — two violations
+  landed back to back in one session because the task's own wording ("report to chat,"
+  "show me the file") got treated as controlling in the moment, and this rule only got
+  consulted once the operator flagged it. Before any chat message goes out: does it
+  carry a file body, survey, or report past a short passage? If yes, it goes to a
+  `gopod_notes/*.md` file — checked before sending, every time, not after being told
+  again. Same instruction is now in `CLAUDE.local.md` itself (loaded every message,
+  not just when this skill is invoked) — that copy is the one that actually matters
+  most; this one is the incident record.
 
 ## 3. The song shelf
 
