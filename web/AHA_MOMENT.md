@@ -59,6 +59,14 @@ That's not a pitch. You just watched it happen.
 
 ---
 
+> Take the joke: "Life is shit, and it gets shittier." Sounds crude, throwaway. Except
+> the fossil record says it's literally true — early animals evolving a gut and pooping
+> in shaped pellets is one of the leading explanations for how Earth's oceans got their
+> oxygen, which is what let bigger, more complex life exist at all. The joke was the
+> wordplay. The oxygen was the math.
+
+---
+
 ## GOPOD YAHMM (You Are Here Mall Map)
 
 Two doors. Pick the one that fits how far in you want to go — nothing here needs a set order beyond that.

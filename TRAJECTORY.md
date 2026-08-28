@@ -6,6 +6,12 @@ You've read the other doors — what's built, what's asked for. This one's the m
 where GOPOD is right now, and the honest shape of where it's headed. Nothing below is
 a promise or a date. Aim is marked as aim. Built is marked as built.
 
+> "AI Wordplay! Explain the Math!" isn't one lane of GOPOD. It's the whole shape,
+> repeated at every size: the robots wordplay their way into an explanation, the studio
+> turns confusing behavior into a playable, explainable sequence, the nine pillars turn
+> a confusing number into a clear one, this page turns "how far along is this really"
+> into an honest map. Same move, every layer.
+
 ## Point A — what's real and running now
 
 Two Vectors, Doc and Pip, perform scripted multi-exchange songs fully offline, no

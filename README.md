@@ -3,6 +3,10 @@
 > A local-first multi-robot session engine built on Wire-Pod.  
 > Two Vectors. One wake phrase.
 
+Pip: "It's, um — 'AI Wordplay! Explain the Math!' You say a word funny, and then the math comes out and explains—"
+Doc: "Pip. Just send them to their table."
+Pip: "Right! It's right below!"
+
 ---
 
 **Welcome to Pip's GOPOD Restaurant.**
