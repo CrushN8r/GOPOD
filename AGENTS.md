@@ -179,9 +179,8 @@ Active execution spine: the Wire-Pod runtime — `run_section1_full_live_001.py`
 `GOPOD_YOURSELF`/`BROBOTS_INTERVIEW`/`BROBOTS_BINGO`, Section 1 interview content. See CLAUDE.md's
 compass and `AUTHORITATIVE SOURCE FILES` table.
 
-`goverlord/gomads/` was removed 2026-07-30 — only its `data_gomad` piece ever had a live
-caller, and that piece now lives at `goverlord/runtime/data_gomad/` (confirmed callers: the
-cockpit server `gopod_demo_8011.py`, the PTT writer `gopod_ptt_chat_writer_013.py`) — not a
+`goverlord/runtime/data_gomad/` has confirmed live callers — the cockpit server
+`gopod_demo_8011.py` and the PTT writer `gopod_ptt_chat_writer_013.py` — not a
 zero-caller stub.
 
 Secure-local material stays outside the repo unless explicitly directed. Entry:
