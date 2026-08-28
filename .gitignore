@@ -134,3 +134,8 @@ goverlord/runtime (copy)/
 # match) - same class of gap as the "runtime (copy)" entry above, found
 # during GOPOLISHER_PRE_LIVETEST_SWEEP_001.
 goverlord/runtime.zip
+
+# bingo_display_probe_001_private.json: the sidecar holding the real robot
+# serial for bingo_display_probe_001.py, kept out of the published probe
+# file itself (BINGO_DISPLAY_PROBE_PUBLISH_SURVEY_001.md).
+goverlord/runtime/songs/102_brobots_bingo_game/bingo_reactor/bingo_display_probe_001_private.json
