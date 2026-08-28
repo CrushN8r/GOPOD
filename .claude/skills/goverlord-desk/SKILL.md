@@ -318,6 +318,24 @@ description: The Goverlord desk contract — who the operator is, the hard rules
   keep or revert a leftover test value instead of picking the reversible default (leave
   it) and moving on; the rule is general, not "don't ask about knobs.json specifically."
   Full detail: `feedback_use_golden_material_move_forward.md` in memory.
+- **TERMINAL > GOREPORT FILE, ALWAYS — even when a task's own instruction says "REPORT
+  to chat."** A task prompt asking to "report to chat" is asking for the bottom
+  line to land somewhere visible — it is never asking for the full survey/plan/draft
+  body to be pasted into the terminal. CLAUDE.local.md's "no report body in chat, ever"
+  rule outranks any in-task instruction phrased as "report/print/show to chat" for
+  anything beyond a short confirmed value (a hash, a yes/no, a one-line count). Full
+  content — a survey, a drafted passage, a plan, enumerated risks — always goes to a
+  `gopod_notes/*.md` goreport file; chat gets the bottom line plus that file's path,
+  nothing else. Named at high volume, 2026-08-27, after a multi-part survey+plan
+  (YAHMM restructure) was dumped in full onto the terminal because the task said
+  "REPORT to chat": "Again. Do NOT PUT THIS ON TERMINAL SCREEN!! ... I CANNOT DO
+  ANYTHING WITH THIS!! MAKE A FUCKING RULE!! TERMINAL > GOREPORT FILE OR FUCK OFF!!"
+  When a task explicitly asks for content to be shown for pre-approval before it
+  touches a *live file being edited right then* (e.g. "print the exact text you're
+  about to insert" for a one-line/short-passage change), that narrow case still goes
+  to chat — the line is length/scope: a short passage under active edit-review is fine
+  in chat, a multi-section survey/plan/report body is not, regardless of what the task
+  literally says.
 
 ## 3. The song shelf
 
