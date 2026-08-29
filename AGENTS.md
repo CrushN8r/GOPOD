@@ -1,7 +1,6 @@
 # AGENTS.md
 
-Reshaped 2026-07-07 alongside CLAUDE.md — valve, not cage. Full changelog history:
-`~/crushn8r_git/gopod_notes/older_notes/CLAUDE_AGENTS_HISTORY_ARCHIVE_001.md`.
+Reshaped 2026-07-07 alongside CLAUDE.md — valve, not cage.
 
 ## THE COMPASS
 
