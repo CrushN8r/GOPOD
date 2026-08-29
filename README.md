@@ -3,34 +3,56 @@
 > A local-first multi-robot session engine built on Wire-Pod.  
 > Two Vectors. One wake phrase.
 
-Pip: "It's, um — 'AI Wordplay! Explain the Math!' You say a word funny, and then the math comes out and explains—"
-Doc: "Pip. Just send them to their table."
-Pip: "Right! It's right below!"
+Pip: "Is this mic on? Hello? Oh, hello! GOPOD is um — 'AI Wordplay! Explain the Math!' Its like everything. Um..."
+
+Doc: "Pip! Not yet. Please show our guests to their table."
+
+Pip: "Right. It's right below, right? So is above left wrong?"
+
+Doc: "Pip!"
 
 ---
 
 **Welcome to Pip's GOPOD Restaurant.**
 
-Pip: "Oh — hi! Welcome! Um, table for... how many? And also, can I have your emails?"
-Doc: "Pip!! Sit them DOWN please."
-Pip: "Right! Yes. Where would you like to be seated?"
+Pip: "Oh — hi again. Welcome! Can I have your emails?"
 
-One kitchen, one menu — [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md) — every table finds
-their own dish on it. Find your table, no wandering required:
+Doc: "Pip! Not Now!"
 
-| You are... | Your table | Your dish on the menu |
-|---|---|---|
-| Just here to watch | [AWAKEN.md](tech/alias_play_studio/SONG_00_BROBOTS_1_2_AWAKEN.md) | Everyday-viewer panel |
-| Booking an 18+ room | [OUTREACH.md](life/02a_OUTREACH.md) | 18+ room panel |
-| Niche-buzz fan (casual → tinkerer) | [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) | Niche-buzz-fan panel |
-| Technical collaborator | [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) | Niche-buzz-fan panel, one table further in |
-| Social / ops / content pro | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md) | Social-pro panel |
-| WEtech / SBC / funder | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md) | Funder/advisor panel |
-| Print / promo shop | [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md) | Print-shop panel |
+Pip: "Right! Please sit right below?"
 
-Pip: "See? Everybody's got a table."
-Doc: "...you sat two parties at the same one, Pip."
-Pip: "It's a BIG table."
+Doc: "Pip!"
+
+GOPOD YAHMM (You Are Here Mall Map) Menu
+There are tables for everyone, find the dish you're hungriest for:
+
+Appetizer:
+| Brobot Awaken Video | [AWAKEN.md](tech/alias_play_studio/SONG_00_BROBOTS_1_2_AWAKEN.md)
+| Wire-pod fan? | [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md)
+
+Main Courses:
+
+Dish for 2:
+| WEtech / SBC / funder? | Social / ops / content pro?
+| [TRAJECTORY.md](TRAJECTORY.md)
+| The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
+
+| Why GOPOD? | [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
+| Web Overview | [web/README.md](web/README.md)
+| the content engine: pillars, wordplay, aha moments, newsletter
+| Where I want help | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
+
+Dish:
+| Tech Overview | [tech/README.md](tech/README.md)
+| the songs, the studio tooling, Wire-Pod integration
+| Coder / brobot builder? | [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
+
+Extra
+| [life/README.md](life/README.md)
+| the philosophy, teaching, and lessons learned
+
+The Bar:
+| Booking an 18+ room | [OUTREACH.md](life/02a_OUTREACH.md)
 
 ---
 
@@ -93,30 +115,20 @@ If that's you → [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
 Goverlord is the Jetson — `goverlord@brain` — the machine GOPOD actually runs on. This is its pitch, in its own voice:
 
 > Put me in Drive baby
+
 > Cause I'm your machine
+
 > Run me fast and hard
+
 > But you keep me clean
+
 > What's your destination?
+
 > What's your ultimate scene
+
 > Put me in Drive baby
+
 > Cause I'm your machine
-
----
-
-## GOPOD YAHMM (You Are Here Mall Map)
-
-Three folders, three maps — pick where you want to go:
-
-- [web/README.md](web/README.md) — the content engine: pillars, wordplay, aha moments, newsletter
-- [tech/README.md](tech/README.md) — the songs, the studio tooling, Wire-Pod integration
-- [life/README.md](life/README.md) — the philosophy, teaching, and lessons learned
-
-**Main docs**
-- [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) — the operator's own ask — what's built, where the line is, what kind of help this needs
-- [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md) — the operator's ops ask — social, sites, and content, a different role than the technical one
-- [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) — help test the keyboard grabber, no robot required
-- [TRAJECTORY.md](TRAJECTORY.md) — the planned arc, Point A to the pinnacle, honestly labeled built vs. aim
-- [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md) — the case for why this is worth your time — what GOPOD has that most projects don't
 
 ---
 
