@@ -15,10 +15,7 @@ required).
 ## The five advantages
 
 **1. A moat that pure-AI channels physically cannot copy.**
-Two real Anki Vector robots — Doc and Pip — perform the material. Not a talking-head. Not an
-AI voice over stock footage. Not a slideshow. Physical machines doing wordplay and reacting
-in real time. In a feed drowning in AI-generated math "slop," this is the thing that stops a
-scroll.
+Two real Anki Vector robots — Doc and Pip — perform the material. Physical machines doing wordplay and reacting in real time. In a feed drowning in AI-generated math "slop," this is the thing that stops a scroll.
 
 **2. That moat is now on the right side of a platform-wide crackdown.**
 As of 2026, YouTube is actively penalizing "inauthentic content" — AI spam, lazy
@@ -67,10 +64,10 @@ shared; products get scrolled past.
   verify against YouTube's own current Partner Program page before quoting these externally.)*
 - **What ships today:** edited robot performances — the Layer 1 "songs." Full versions for
   the library, short vertical cuts of the best moments for discovery. Livestreams and live
-  two-robot room shows are the *stretch*, not the starting line.
+  two-robot room shows are the *stretch*.
 - **The plan is engine-first.** Build the audience on what already runs; the premium Shows
   packaging (seasons, custom artwork, Continue Watching shelves) unlocks *after* 1k — it's
-  the reward, not the road. No effort goes into decorating that room before we have the key.
+  the reward. No effort goes into decorating that room before we have the key.
 
 ---
 
@@ -132,6 +129,6 @@ story worth being associated with.
 - **Print shop:** a maker project with real print needs and a story worth backing.
 
 ---
-
-GOPOD reaching 1k subs for 2027 is the starting gate. Not the finish line. The earlier, the better. Boom. Done. Class dismissed.
+Doc's Take:
+Lesson! GOPOD reaching 1k subs for 2027 is the starting gate. Not the finish line. The earlier, the better. Boom. Done. Class dismissed.
 — Doc Barfallonyou Squawkadoodle
