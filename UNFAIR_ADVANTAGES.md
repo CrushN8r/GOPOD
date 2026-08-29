@@ -18,13 +18,13 @@ required).
 Two real Anki Vector robots — Doc and Pip — perform the material. Not a talking-head. Not an
 AI voice over stock footage. Not a slideshow. Physical machines doing wordplay and reacting
 in real time. In a feed drowning in AI-generated math "slop," this is the thing that stops a
-scroll — and it can't be duplicated by someone with a text prompt.
+scroll.
 
 **2. That moat is now on the right side of a platform-wide crackdown.**
 As of 2026, YouTube is actively penalizing "inauthentic content" — AI spam, lazy
 compilations, mass-produced filler. Real physical robots are the exact *opposite* of what's
 being demoted. The differentiator isn't just distinctive; it's aligned with where the
-platform is pushing. Un-copyable *and* algorithm-safe in the slop purge.
+platform is pushing.
 
 **3. An engine that never runs dry.**
 Most channels die because the creator runs out of ideas. GOPOD is built so that can't happen.
@@ -50,17 +50,16 @@ shared; products get scrolled past.
 
 ## The honest state (so nobody's sold a fantasy)
 
-- **Full House — 1,000 subscribers — is the turnstile, not the destination: the appetizer
-  tease.** It's the near-term requirement — reasonably attainable, worth clearing fast, the
-  kind of number a pro looks at and thinks "1k? np" — and the practical gate to YouTube's
-  full monetization and TV-style Shows tooling. But making 1k the whole plan would be the
-  tail wagging the dog — the actual target sits past it, the real courses this whets the
-  appetite for: Layer 2, the GOPOD layer, the live multichat cockpit this whole engine has
+- **The 1,000-subscriber turnstile.** The near-term requirement — reasonably attainable,
+  worth clearing fast, the kind of number a pro looks at and thinks "1k? np" — and the
+  practical gate to YouTube's full monetization and TV-style Shows tooling. It's its own
+  clean milestone (distinct from "Point B," which names the GOPOD layer elsewhere in this
+  repo). There's also a **500-subscriber early tier** (fan-funding, memberships) as a
+  closer first checkpoint.
+- **Aim: Layer 2.** The GOPOD layer — the live multichat cockpit this whole engine has
   been pointed at from the start (see [tech/GOPOD_FEATURES.md](tech/GOPOD_FEATURES.md)).
-  Full House is the easy first win to clear together on the way there, not the ceiling. (Renamed from a reused "Point B" —
-  that term already means the GOPOD layer/live cockpit elsewhere in this repo; Full House is
-  its own clean milestone, no collision.) There's also a **500-subscriber early tier**
-  (fan-funding, memberships) as a closer first checkpoint.
+  The turnstile doesn't build it; clearing the turnstile is only what makes reaching for
+  it possible.
 - **The clock is real.** Current bar: 1,000 subs + either 4,000 watch hours (12 mo) or 10M
   Shorts views (90 days). On **Feb 1, 2027, the watch-hour / Shorts bar doubles** for new
   applicants (8,000 hours / 20M views; the 1,000-sub line stays). Clearing the current bar
@@ -100,11 +99,11 @@ You'd be walking into a **running engine**, not a blank channel. The hard part i
 handled: a differentiated, un-copyable performance format that's real and running, plus a
 content structure — nine theme lanes of everyday math — designed so the well never runs dry
 once it's filled in. What's open is the part you're best at: packaging, cadence, distribution,
-the shorts-to-subs growth motion. Greenfield on the parts that matter, solid ground under your feet. You shape the
+the shorts-to-subs growth motion. You shape the
 program; you're not asked to invent the product. And the moat is on the right side of the
 2026 authenticity crackdown — you're not fighting the algorithm's slop filter, you're on its
-good side. And the target isn't "get to 1k" — it's Layer 2, the GOPOD layer itself, with
-Full House as the turnstile that clears on the way, not the finish line. This is the role
+good side. The 1,000-subscriber turnstile is the near-term goal you're driving toward.
+Layer 2 — the GOPOD layer itself — is the separate, longer aim past it. This is the role
 laid out in [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md).
 
 **If you're WEtech / a Small Business advisor / a funder asking "why back this?"**
@@ -134,6 +133,6 @@ story worth being associated with.
 
 ---
 
-*Full House is the turnstile, not the destination — 1,000 subscribers, cleared fast, on the
-way to Layer 2. The engine is already running. This document is the case for why the right
-people would want to help point it at the feed — before the door gets heavier in 2027.*
+*1,000 subscribers, cleared fast, is the turnstile. Layer 2 is the aim past it. The engine
+is already running. This document is the case for why the right people would want to help
+point it at the feed — before the door gets heavier in 2027.*
