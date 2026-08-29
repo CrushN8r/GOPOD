@@ -33,13 +33,13 @@ Wire-pod fans: [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md)
 **Main Courses:**
 
 **Dish for 2: [TRAJECTORY.md](TRAJECTORY.md)**
-* WEtech / SBC / funders & Social / ops / content pros
+WEtech / SBC / funders & Social / ops / content pros
 The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 
 Why GOPOD? [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
 Web Overview [web/README.md](web/README.md)
 The content engine: pillars, wordplay, aha moments, newsletter
-Where I want help | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
+Social media help: [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 
 **Dish for 1:**
 Tech Overview: [tech/README.md](tech/README.md)
@@ -47,8 +47,8 @@ The songs, the studio tooling, Wire-Pod integration
 Coder / brobot builders: [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
 
 **Side Dish:**
-| [life/README.md](life/README.md)
-| the philosophy, teaching, and lessons learned
+[life/README.md](life/README.md)
+The philosophy, teaching, and lessons learned
 
 ---
 
