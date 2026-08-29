@@ -78,9 +78,9 @@ Focus through Distraction
 Bravery through Fear
 Success through Failure
 
-1) "AI Wordplay!" — the obstacle that's secretly the good part: communication skills built through play. The vivid experience of confusion, distraction, fear, failure, the "whatever."
+1. "AI Wordplay!" — the obstacle that's secretly the good part: communication skills built through play. The vivid experience of confusion, distraction, fear, failure, the "whatever."
 
-2) "Explain the Math!" — the good thing. The clarity that arrives through the wordplay.
+2. "Explain the Math!" — the good thing. The clarity that arrives through the wordplay.
 
 Everything in CRUSHN8R is built on that, and the tagline is the move said out loud.
 
