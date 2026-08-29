@@ -23,36 +23,32 @@ Pip: "Right! Please sit right below?"
 
 Doc: "Pip!"
 
-GOPOD YAHMM (You Are Here Mall Map) Menu
-There are tables for everyone, find the dish you're hungriest for:
+---
+**GOPOD YAHMM (You Are Here Mall Map) Menu**
+**There are tables for everyone, find the dish you're hungriest for:**
+---
 
-Appetizer:
-| Brobot Awaken Video | [AWAKEN.md](tech/alias_play_studio/SONG_00_BROBOTS_1_2_AWAKEN.md)
-| Wire-pod fan? | [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md)
+Wire-pod fans: [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md)
 
-Main Courses:
+**Main Courses:**
 
-Dish for 2:
-| WEtech / SBC / funder? | Social / ops / content pro?
-| [TRAJECTORY.md](TRAJECTORY.md)
-| The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
+**Dish for 2: [TRAJECTORY.md](TRAJECTORY.md)**
+* WEtech / SBC / funders & Social / ops / content pros
+The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 
-| Why GOPOD? | [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
-| Web Overview | [web/README.md](web/README.md)
-| the content engine: pillars, wordplay, aha moments, newsletter
-| Where I want help | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
+Why GOPOD? [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
+Web Overview [web/README.md](web/README.md)
+The content engine: pillars, wordplay, aha moments, newsletter
+Where I want help | [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 
-Dish:
-| Tech Overview | [tech/README.md](tech/README.md)
-| the songs, the studio tooling, Wire-Pod integration
-| Coder / brobot builder? | [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
+**Dish for 1:**
+Tech Overview: [tech/README.md](tech/README.md)
+The songs, the studio tooling, Wire-Pod integration
+Coder / brobot builders: [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
 
-Extra
+**Side Dish:**
 | [life/README.md](life/README.md)
 | the philosophy, teaching, and lessons learned
-
-The Bar:
-| Booking an 18+ room | [OUTREACH.md](life/02a_OUTREACH.md)
 
 ---
 
@@ -96,20 +92,6 @@ In the end, you can all GOPOD yourselves. lol — and that's not the brush-off i
 
 ---
 
-## The ask
-
-GOPOD is real, it's running, and it's not finished — on purpose.
-
-The creative end is mine: the two robots, their voices, the wordplay, the glamour, the photos and video coming. I've carried it this far myself.
-
-What I need is someone who can take it up past my ceiling — the live cockpit, the websites made real, the social machine, the GOPOD layer itself. Not table scraps. A real thing that needs a real hand to grow.
-
-Want the case for why, in one page, before you decide? → [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
-
-If that's you → [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
-
----
-
 ## Goverlord's GOPOD sales pitch
 
 Goverlord is the Jetson — `goverlord@brain` — the machine GOPOD actually runs on. This is its pitch, in its own voice:
@@ -132,7 +114,7 @@ Goverlord is the Jetson — `goverlord@brain` — the machine GOPOD actually run
 
 ---
 
-Doc: Lesson. "AI Wordplay! Explain the Math!" is GOPOD. It's the GOPOD engine. So go ahead! GOPOD Yourself! Boom. Done. Class dismissed.
+Doc: Lesson. "AI Wordplay! Explain the Math!" is GOPOD. It's the GOPOD engine. It's a lifestyle choice!! So go ahead! GOPOD Yourself! Boom. Done. Class dismissed.
 — Doc Barfallonyou Squawkadoodle
 
 Pip: "Wait — is this the part where I ask for their emails? For the newsletter? …It is, isn't it."
