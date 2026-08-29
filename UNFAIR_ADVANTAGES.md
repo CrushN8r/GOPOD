@@ -133,6 +133,5 @@ story worth being associated with.
 
 ---
 
-*1,000 subscribers, cleared fast, is the turnstile. Layer 2 is the aim past it. The engine
-is already running. This document is the case for why the right people would want to help
-point it at the feed — before the door gets heavier in 2027.*
+GOPOD reaching 1k subs for 2027 is the starting gate. Not the finish line. The earlier, the better. Boom. Done. Class dismissed.
+— Doc Barfallonyou Squawkadoodle
