@@ -83,7 +83,7 @@ What's still coming: it's on the normal song menu now — what's left is the vid
 
 ## The Machine Behind the Songs
 
-This one isn't a song — it's the thing being built to play them. Every song above was
+This one is the thing being built to play them. Every song above was
 written by hand and, until now, needed its own separate machine to run it. That's slowly
 changing: one shared machine, one growing songbook of scores, one control panel to pick a
 song, choose where it starts and stops, and play it. Not five different machines anymore —

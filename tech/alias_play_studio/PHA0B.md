@@ -96,7 +96,7 @@ opposite: a run-only choice that's gone the moment the terminal closes, never to
 file at all. If a song feels slow and you don't remember setting anything, tempo is probably
 why — check the song's own knobs before assuming a run-time option did it.
 
-## The one song that isn't a song
+## The live game hiding on the song menu
 
 Pick the Bingo *live game* entry off the menu and none of the above happens at all — no
 range picker, no options, nothing read from a knobs file. That entry just launches the real

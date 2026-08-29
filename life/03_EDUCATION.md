@@ -185,9 +185,7 @@ If the teaching problem is *engagement*, GOPOD is the interruption that makes th
 
 ---
 
-## What it isn't
-
-Not curriculum. Not accredited. Not a replacement for teachers. Not an adaptive AI tutor. Not a test-prep machine. Not a screen-time app.
+## What it is
 
 GOPOD is the *hook* — the piece that makes the rest of the learning day possible. The teacher still teaches. The parent still parents. The librarian still runs the library.
 

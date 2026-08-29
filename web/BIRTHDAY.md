@@ -39,9 +39,8 @@ the pillar it turned out to serve.
 
 ## The actual flex
 
-- **The props are real, and they're already here.** Not a mockup, not a render — a
-  physical, sorted, ready-to-use box of food-car toys sitting in the same room as the
-  brobots.
+- **The props are real, and they're already here** — a physical, sorted, ready-to-use
+  box of food-car toys sitting in the same room as the brobots.
 - **Endless segment material, one box.** Every car is its own bit — a donut joke, a
   cake joke, a "which one do you want" moment — enough for a long run of birthday
   segments without repeating the same prop twice.

@@ -15,7 +15,7 @@ hospital is the not-yet-built part.*
 
 A short brobot and AI exchange fires. The room laughs. Then something clicks.
 
-That's not therapy and it's not a lecture — it's a directed interruption of whatever loop was running before the brobots started talking. Rumination stops when something funnier and more interesting takes its place. GOPOD is engineered to be that thing.
+It's a directed interruption of whatever loop was running before the brobots started talking. Rumination stops when something funnier and more interesting takes its place. GOPOD is engineered to be that thing.
 
 ---
 
@@ -55,9 +55,9 @@ demo. Same nesting, every size — this is just where it gets the most human.
 
 ---
 
-## What it is not
+## What it is
 
-Not therapy. Not a replacement for care. Not a clinical intervention, and not a program that needs licensing, expensive equipment, or follow-up appointments. It runs in a common room, a shelter table, a hospital waiting area, or a bar on a Tuesday — local-first, no internet required, no cloud dependency. The session belongs to the room.
+A local-first session that runs in a common room, a shelter table, a hospital waiting area, or a bar on a Tuesday — no licensing, no equipment, no follow-up appointments, no internet required, no cloud dependency. The session belongs to the room.
 
 ---
 

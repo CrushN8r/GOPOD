@@ -137,9 +137,7 @@ The session is designed for the students. The insight is a gift to the teacher.
 
 ---
 
-## What it isn't
-
-Not a diagnostic. Not a label maker. Not a permanent record. Not a substitute for actually talking to the kid.
+## What it is
 
 Every tell in this document is a hypothesis. A starting point for a conversation. Never a conclusion.
 

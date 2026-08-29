@@ -208,9 +208,9 @@ The venue supplies the audience. GOPOD supplies both robots, the deck, and the a
 
 ---
 
-## What Bingo is not
+## What Bingo is
 
-Not a game with a prize structure. Not a gambling product. Not a scoring system with a leaderboard. Not a licensed Bingo hall format.
+A wrapper — no prize structure, no gambling product, no leaderboard, no licensed Bingo hall format.
 
 It is a two-robot event demo dressed up as a familiar game so the audience knows the shape of what is happening within about three seconds. Familiarity is the fastest way to earn the room's attention. Bingo is the wrapper. *(GOPOD layer — not built yet: no real audience has watched it yet. The game mechanics themselves are real, Wire-Pod layer.)*
 
@@ -284,8 +284,7 @@ Choco Servo, Mousse Motor...), zero real brands, all ages, plus a recipe pack of
 usable Brobots-original treats. It needs nothing but a printer — that's the whole point,
 it's the version that travels home.
 
-Not a replacement for the live game — a companion. The robots hook the room; the kit is
-what they take home. *(The free kit will be offered through the CRUSHN8R CREW'd
+A companion to the live game. The robots hook the room; the kit is what they take home. *(The free kit will be offered through the CRUSHN8R CREW'd
 newsletter — subscribe at `crushn8r.ca`. Named here so readers know the door exists.)*
 
 **FUTURE, not built — a possible next avenue in the same family:** a Word Search

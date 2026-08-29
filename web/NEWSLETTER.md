@@ -22,9 +22,9 @@ repo, ever.**
 
 ## THE PITCH — what the crew is
 
-The CRUSHN8R CREW'd Newsletter is not a mailing list. It's the follow-along lane for the
-whole world: Brobot 1 and Brobot 2's experiments, behind-the-scenes GOPOD development, live session
-progress, robot experiments. The audience isn't subscribing — they're joining the crew.
+The CRUSHN8R CREW'd Newsletter is the follow-along lane for the whole world: Brobot 1 and
+Brobot 2's experiments, behind-the-scenes GOPOD development, live session progress, robot
+experiments. The audience isn't subscribing — they're joining the crew.
 It sits AFTER interest, not before.
 
 ---

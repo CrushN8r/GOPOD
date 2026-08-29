@@ -9,7 +9,7 @@
 > about current phcal behavior against the code (or `ALIAS-LIBRARY.md`'s own
 > `phcal` row, kept current) before relying on it.
 
-> Fire one thing, on one robot, and watch it happen. Not a performance — a bench test.
+> Fire one thing, on one robot, and watch it happen — a bench test.
 
 Two docs, one system: this is PLAYHEAD's tuning half. The performance half — whole
 songs, start to finish — is [PHA0B.md](PHA0B.md), PLAYHEAD Part 2.

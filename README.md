@@ -70,7 +70,7 @@ Layer 2 — the live multichat cockpit — is the open ceiling. ([That's the ask
 
 A note from @crushn8r the operator: Welcome to my block buster movie book song video composition whatever... words don't matter. Meaning and intent does
 
-I use terms like block buster movie book song video composition, whatever poetic license, etc... for context to get my message across to AI. That's what "AI Wordplay! Explain the Math!" is. Not a tagline sitting on this project. It's the CRUSHN8R mission compressed into two beats. That's why it touches everything: it is everything, folded small.
+I use terms like block buster movie book song video composition, whatever poetic license, etc... for context to get my message across to AI. That's what "AI Wordplay! Explain the Math!" is: the CRUSHN8R mission compressed into two beats. That's why it touches everything: it is everything, folded small.
 
 The CRUSHN8R mission statements:
 Clarity through Confusion
@@ -86,7 +86,7 @@ Everything in CRUSHN8R is built on that, and the tagline is the move said out lo
 
 And it's fractal — it repeats at every layer. That's what I term a "cascading explosion of aha moments." Doc & Pip wordplay chaos — clarity emerges through the pair. The tagline, in two brobots. The yearly contest: "best analogy" and the wordplay categories → the math lands. Same move, as a content engine.
 
-It's not that the tagline relates to everything. It's that everything is the same shape — and the tagline is the shape's name.
+Everything is the same shape, and the tagline is the shape's name — that's why it touches everything.
 
 In the end, you can all GOPOD yourselves. lol — and that's not the brush-off it sounds like. It means you first. Love yourself first. Words don't matter; you do.
 

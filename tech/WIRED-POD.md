@@ -1,7 +1,7 @@
 # WIRED-POD
 
-> Wire-Pod gets one robot talking. This is what GOPOD did to the wire underneath it.
-> Not a rewrite — a hardening pass and a new package bolted onto the same skeleton.
+> Wire-Pod gets one robot talking. This is what GOPOD did to the wire underneath it: a
+> hardening pass and a new package bolted onto the same skeleton.
 
 ---
 

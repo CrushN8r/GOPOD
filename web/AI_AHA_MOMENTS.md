@@ -43,9 +43,8 @@ onward follows the same pattern as #1-9 below.
 ## Session ahas (captured live)
 
 ### 1. The tagline is the whole mission, folded small
-The moment: realizing `AI Wordplay! Explain the Math!` isn't a slogan sitting *on* GOPOD —
-it's the four mission statements (clarity through confusion, and the rest) compressed into
-two beats. It touches everything because it *is* everything, folded small.
+The moment: realizing `AI Wordplay! Explain the Math!` is the four mission statements
+(clarity through confusion, and the rest) compressed into two beats. It touches everything because it *is* everything, folded small.
 - **Wordplay in:** "why does my head spin — this relates to almost everything."
 - **Math out:** because everything in the project is the same shape, and the tagline is the
   shape's name. Not many ideas — one idea, said at every size.
