@@ -18,8 +18,8 @@ Three real, hand-maintained menu pages replace the one repo-wide block:
   truth for their own folders — not templated, not propagated, edited directly when a
   folder's doc set changes.
 
-Four root-level docs (`README.md`, `MY_GOPOD_ASK.md`, `MY_GOPOD_OPS_ASK.md`,
-`MY_NICHE_BUZZ_ASK.md`) carry a slim footer instead of the full map: 3 pointer links to
+Three root-level docs (`README.md`, `MY_GOPOD_OPS_ASK.md`, `MY_NICHE_BUZZ_ASK.md`) carry
+a slim footer instead of the full map: 3 pointer links to
 the folder READMEs above, plus a **"Main docs"** group for root-level docs that don't
 belong to any folder (each doc's own copy omits itself, same self-omission rule as
 before):
@@ -35,7 +35,7 @@ Three folders, three maps — pick where you want to go:
 
 **Main docs**
 - [README.md](README.md) — what GOPOD is and how it's built
-- [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) — the operator's own ask — what's built, where the line is, what kind of help this needs
+- [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) — the operator's own technical ask — what's built, where the line is, what kind of help this needs
 - [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md) — the operator's ops ask — social, sites, and content, a different role than the technical one
 - [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) — help test the keyboard grabber, no robot required
 - [TRAJECTORY.md](TRAJECTORY.md) — the planned arc, Point A to the pinnacle, honestly labeled built vs. aim

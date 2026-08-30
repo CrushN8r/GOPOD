@@ -2,7 +2,7 @@
 
 From @crushn8r, the operator.
 
-Same honesty as [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) — just a different door. That one's the
+Same honesty as [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) — just a different door. That one's the
 technical ask: the cockpit, the code, the engineering past my ceiling. This is a different
 role, for a different kind of person. If code isn't your thing but running an operation is,
 this is the one for you. There's also a no-commitment door if you just want to help sharpen
@@ -62,7 +62,7 @@ ends up owning this role.
 
 ## Why this role matters
 
-MY_GOPOD_ASK.md is my resume to an engineer — here's the running thing, here's the ceiling I
+[tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) is my resume to an engineer — here's the running thing, here's the ceiling I
 hit. This is my resume to a pro on the business side: here's the running thing, here's the
 role that scales it. This is the operational piece a WEtech or Small Business Centre advisor
 would expect to see before calling GOPOD investable — not just a cool build, a running
@@ -102,7 +102,7 @@ Three folders, three maps — pick where you want to go:
 
 **Main docs**
 - [README.md](README.md) — what GOPOD is and how it's built
-- [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) — the operator's own ask — what's built, where the line is, what kind of help this needs
+- [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) — the operator's own technical ask — what's built, where the line is, what kind of help this needs
 - [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) — help test the keyboard grabber, no robot required
 - [TRAJECTORY.md](TRAJECTORY.md) — the planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 - [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md) — the case for why this is worth your time — what GOPOD has that most projects don't

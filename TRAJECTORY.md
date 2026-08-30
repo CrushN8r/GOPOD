@@ -26,7 +26,7 @@ themes on a running wheel — see [web/NICHE_PILLARS.md](web/NICHE_PILLARS.md) a
 [web/AI_WORDPLAY.md](web/AI_WORDPLAY.md). And underneath the songs, a terminal-native
 studio treats robot behavior like music — notes into sequences into songs, a
 calibration bench, a scrubbable playhead. That tooling is real, live, committed code
-today, detailed in [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md).
+today, detailed in [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire).
 
 None of this is a pitch deck. It's what's on disk, working, right now.
 
@@ -76,7 +76,7 @@ control, two robots that wake on one phrase and perform offline, and a real
 speak-and-respond loop that already works today, iterated more than a dozen times.
 What's missing is the wire between them — turning proven pieces into one real, live
 session. This is explicitly where I hit my own ceiling. Full detail:
-[MY_GOPOD_ASK.md](MY_GOPOD_ASK.md).
+[tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire).
 
 ## Where you'd step in
 
@@ -84,7 +84,7 @@ This is the board, planned, and labeled honestly — built where it's built, aim
 it's aim. Three doors, depending on what you bring:
 
 - **Technical** — the live GOPOD-layer session is the headline ask.
-  [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
+  [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire)
 - **Ops / social / web / funding** — turning what's built into a running operation.
   [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 - **No commitment** — help sharpen a real piece of tooling, no robot required.

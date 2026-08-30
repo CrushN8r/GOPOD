@@ -6,7 +6,7 @@ One page, one honest idea: this isn't a channel asking to be built from nothing.
 **content engine that already runs**, looking for the right people to point it at the feed.
 The advantages below are true no matter who's reading. Find your panel at the bottom for why
 they hit *you* specifically — then jump to whichever ask door actually fits:
-[MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) (technical), [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
+[tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) (technical), [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 (ops/social/web), or [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) (no-commitment, no robot
 required).
 
@@ -89,7 +89,7 @@ Real robots, local LLM, edge-AI vision, a Wire-Pod overlay, a keyboard-driven co
 solo, on real hardware, in the open. Whether you just like watching it work or you want to
 see how the guts fit together, there's a real machine here, not a demo reel. Start with
 [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md) — no commitment, no robot required. If you read
-that far and want to go deeper, [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) is the next door.
+that far and want to go deeper, [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) is the next door.
 
 **If you're a social-media / content pro.**
 You'd be walking into a **running engine**, not a blank channel. The hard part is already

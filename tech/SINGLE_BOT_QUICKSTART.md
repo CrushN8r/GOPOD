@@ -70,7 +70,7 @@ with GOPOD's two-robot orchestration either:
 ## Invitations — this is where a contributor could help
 
 These are scoped, honest, not-yet-built fixes — not a promise of when, and nothing here
-is built by this page. If you're the kind of person `MY_GOPOD_ASK.md` is talking to,
+is built by this page. If you're the kind of person [WIRED-POD.md](WIRED-POD.md#open-wire) is talking to,
 this is a concrete, contained place to start:
 
 1. **De-hardcode the robot serials.** Move `PERSONA_ROBOT_SERIAL`/`PERSONA_BY_KEY` out
@@ -85,7 +85,7 @@ this is a concrete, contained place to start:
    only the PTT writer's narrower path is currently guarded.
 
 None of these are large. All three are exactly the kind of "past my ceiling, contained
-enough to grab" piece `MY_GOPOD_ASK.md` describes.
+enough to grab" piece [WIRED-POD.md](WIRED-POD.md#open-wire) describes.
 
 ---
 

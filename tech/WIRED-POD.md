@@ -55,6 +55,23 @@ mechanism invented — the thin wrapper now calls the thin advance path that was
 
 ---
 
+## Open wire
+
+Two engines already run: the song-runner / event bus (Bingo, two brobots, offline) and
+the live loop (push-to-talk → speech → LLM → robot talks back). The missing piece is the
+wire between them — one connected session.
+
+**60-day plate:** a person pushes a key, says something, Doc or Pip answers live.
+
+Smaller first cuts, one Vector, no Jetson: see
+[SINGLE_BOT_QUICKSTART.md](SINGLE_BOT_QUICKSTART.md) — a hardcoded robot address that
+needs to move into config, and a broken spoken wake trigger.
+
+Keyboard-only taste, no commitment: [MY_NICHE_BUZZ_ASK.md](../MY_NICHE_BUZZ_ASK.md).
+Front of house, ops/social/web: [MY_GOPOD_OPS_ASK.md](../MY_GOPOD_OPS_ASK.md).
+
+---
+
 ## What this document is
 
 `GOPOD_FEATURES.md` tells the product story — what a room sees. This one tells the code

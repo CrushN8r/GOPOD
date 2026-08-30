@@ -2,7 +2,7 @@
 
 From @crushn8r, the operator.
 
-A third door, smaller and wider than the other two. [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) is
+A third door, smaller and wider than the other two. [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) is
 the technical-collaborator ask — the cockpit, the code. [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 is the ops/social ask. This one's no-commitment: help me sharpen a real, working piece of
 tooling, right now, no robot required.
@@ -62,7 +62,7 @@ Three folders, three maps — pick where you want to go:
 
 **Main docs**
 - [README.md](README.md) — what GOPOD is and how it's built
-- [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md) — the operator's own ask — what's built, where the line is, what kind of help this needs
+- [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire) — the operator's own technical ask — what's built, where the line is, what kind of help this needs
 - [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md) — the operator's ops ask — social, sites, and content, a different role than the technical one
 - [TRAJECTORY.md](TRAJECTORY.md) — the planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 - [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md) — the case for why this is worth your time — what GOPOD has that most projects don't

@@ -44,7 +44,7 @@ Social media help: [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 **Dish for 1:**
 Tech Overview: [tech/README.md](tech/README.md)
 The songs, the studio tooling, Wire-Pod integration
-Coder / brobot builders: [MY_GOPOD_ASK.md](MY_GOPOD_ASK.md)
+Coder / brobot builders: [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire)
 
 **Side Dish:**
 [life/README.md](life/README.md)
@@ -64,7 +64,7 @@ performance front door — on a Jetson Orin NX 16GB running Wire-Pod + local Oll
 Own a Vector yourself? The [single-bot quickstart](tech/SINGLE_BOT_QUICKSTART.md) is the
 same idea, one robot — real pieces, real gaps, stated honestly.
 
-Layer 2 — the live multichat cockpit — is the open ceiling. ([That's the ask.](MY_GOPOD_ASK.md))
+Layer 2 — the live multichat cockpit — is the open ceiling. ([That's the ask.](tech/WIRED-POD.md#open-wire))
 
 ---
 
