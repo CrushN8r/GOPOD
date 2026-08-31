@@ -18,10 +18,16 @@ RECOVERABLE by construction. It prints only - it never writes back to
 knobs.json or story.md, and it is not the parse-back half of that round trip
 (no such reader exists yet, and building one is out of scope here).
 
-Reuses run_robot_control_song_001.py's own parse_control_story_md() for
-STEP-heading parsing - the same proven TEXT:/FAIL: parser
-run_songs_runner_001.py already relies on - rather than re-deriving a
-second regex against the same file format.
+Dialogue reading (knobs.json + story.md -> step_id/speaker/section/text)
+is delegated entirely to song_dialogue_normalizer_001.py's own
+normalize_song_dialogue() - this file no longer parses story.md itself.
+That module formalizes what this script used to do inline (reuse
+run_robot_control_song_001.py's own parse_control_story_md() for STEP-
+heading parsing) and extends it to the other real on-disk dialogue shapes
+(DIALOGUE_STANDARD_FORMAT_SURVEY_001.md §5 Option 3). Field-dump mode
+below still reads knobs.json's own raw steps directly for the technical
+fields (hold_seconds/cycles/speed/buffer_after/etc) that aren't part of
+the normalizer's own dialogue-only shape.
 
 USAGE
   python3 print_song_score_001.py <song_dir> [--narrative]
@@ -54,8 +60,8 @@ import sys
 from pathlib import Path
 
 from knobs_envelope_001 import load_knobs_envelope
+from song_dialogue_normalizer_001 import normalize_song_dialogue
 
-CONTROL_SONG_RUNNER_PATH = Path(__file__).resolve().parent / "run_robot_control_song_001.py"
 GOLDEN_SONG_RUNNER_PATH = Path(__file__).resolve().parent / "run_golden_song_001.py"
 
 # Display-only lookup for the printed rehearsal-header line - maps a song's
@@ -121,13 +127,6 @@ _NOTE_FIELDS = {
 }
 
 
-def _load_control_mod():
-    spec = importlib.util.spec_from_file_location("run_robot_control_song_001", str(CONTROL_SONG_RUNNER_PATH))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
 def _load_golden_mod():
     spec = importlib.util.spec_from_file_location("run_golden_song_001", str(GOLDEN_SONG_RUNNER_PATH))
     mod = importlib.util.module_from_spec(spec)
@@ -165,8 +164,8 @@ def _text_line(label, value):
 def print_song_score(song_dir):
     song_dir = Path(song_dir)
     knobs_path, knobs = load_knobs_envelope(song_dir)
-    control_mod = _load_control_mod()
-    story = control_mod.parse_control_story_md((song_dir / "story.md").read_text(encoding="utf-8"))
+    normalized = normalize_song_dialogue(song_dir)
+    text_by_step_id = {row["step_id"]: row["text"] for row in normalized["rows"]}
 
     song_id = knobs.get("song_id", "")
     # note_aliases (e.g. brobots_awaken_golden's head_nod -> nod) read straight
@@ -208,7 +207,6 @@ def print_song_score(song_dir):
             lines.append(f"SECTION: {label}")
             lines.append("-" * 71)
 
-        content = story.get(step_id, {"text": "", "fail": ""})
         # dispatch_note is what the runner actually treats this step as after
         # its own note_aliases resolution - used only for field-set/default
         # lookups below. The header always shows the authored `note` itself
@@ -222,7 +220,7 @@ def print_song_score(song_dir):
         lines.append(f"[ {step_id} ]  note={note}  speaker={speaker}{alias_suffix}")
 
         text_label = "TEXT (phrase override)" if note == "brobots_ready_together" else "TEXT"
-        lines.append(_text_line(text_label, content["text"]))
+        lines.append(_text_line(text_label, text_by_step_id.get(step_id, "")))
 
         for field in _NOTE_FIELDS.get(dispatch_note, []):
             field_label = field.upper()
@@ -235,21 +233,20 @@ def print_song_score(song_dir):
 
 
 def print_song_score_narrative(song_dir):
-    """Additive sibling to print_song_score() above - same two source files
-    (knobs.json + story.md via the same load_knobs_envelope()/
-    parse_control_story_md() calls, nothing else), same section-grouping
-    loop shape, different presentation: flowing "SPEAKER: TEXT" dialogue
-    instead of a bracketed per-field dump, no technical fields shown at
-    all. A step with no TEXT authored (a cue/pause/action) prints as a
-    bracketed stage note (`[note]`) rather than being silently skipped, so
-    the read still flows step to step in real authored order - never
-    reordered, never summarized."""
-    song_dir = Path(song_dir)
-    _knobs_path, knobs = load_knobs_envelope(song_dir)
-    control_mod = _load_control_mod()
-    story = control_mod.parse_control_story_md((song_dir / "story.md").read_text(encoding="utf-8"))
-
-    song_id = knobs.get("song_id", "")
+    """Additive sibling to print_song_score() above - a PURE consumer of
+    song_dialogue_normalizer_001.py's own normalize_song_dialogue(), no
+    direct knobs.json/story.md reading of its own at all (field-dump mode
+    still needs the raw knobs.json steps for technical fields the
+    normalizer doesn't carry - this mode needs nothing else). Same
+    section-grouping shape as before, different presentation: flowing
+    "SPEAKER: TEXT" dialogue instead of a bracketed per-field dump, no
+    technical fields shown at all. A step with no TEXT authored (a
+    cue/pause/action, or a not-stored row) prints as a bracketed stage
+    note (`[kind]`) rather than being silently skipped, so the read still
+    flows step to step in real authored order - never reordered, never
+    summarized."""
+    normalized = normalize_song_dialogue(song_dir)
+    song_id = normalized["song_id"] or ""
     lines = []
     lines.append("=" * 71)
     lines.append(f"{song_id.upper()} — SCRIPT READ (source: knobs.json + story.md)")
@@ -259,12 +256,8 @@ def print_song_score_narrative(song_dir):
     lines.append("=" * 71)
 
     current_section = object()  # sentinel, never equals a real section value
-    for raw_step in knobs.get("steps", []):
-        step_id = raw_step.get("step_id", "")
-        note = raw_step.get("note", "")
-        speaker = raw_step.get("speaker") or "brobot_1"
-        section = raw_step.get("section")
-
+    for row in normalized["rows"]:
+        section = row["section"]
         if section != current_section:
             current_section = section
             lines.append("")
@@ -272,13 +265,11 @@ def print_song_score_narrative(song_dir):
             lines.append(f"SECTION: {label}")
             lines.append("-" * 71)
 
-        content = story.get(step_id, {"text": "", "fail": ""})
-        text = content.get("text", "")
-        if text:
-            speaker_label = speaker.replace("_", " ").title()
-            lines.append(f"{speaker_label}: {text}")
+        if row["text"]:
+            speaker_label = row["speaker"].replace("_", " ").title()
+            lines.append(f"{speaker_label}: {row['text']}")
         else:
-            lines.append(f"[{note}]")
+            lines.append(f"[{row['kind']}]")
 
     return "\n".join(lines)
 
