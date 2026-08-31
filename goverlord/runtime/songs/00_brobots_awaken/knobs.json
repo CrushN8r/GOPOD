@@ -12,7 +12,8 @@
       "step_id": "pause_after_connect",
       "note": "pause",
       "speaker": "brobot_1",
-      "pause_seconds": 0
+      "pause_seconds": 0,
+      "gap_label": "after_connect"
     },
     {
       "step_id": "say_connected",
@@ -36,7 +37,8 @@
       "step_id": "pause_after_arm",
       "note": "pause",
       "speaker": "brobot_1",
-      "pause_seconds": 0
+      "pause_seconds": 0,
+      "gap_label": "after_arm"
     },
     {
       "step_id": "head_nod",
@@ -54,7 +56,8 @@
       "step_id": "pause_after_head_nod",
       "note": "pause",
       "speaker": "brobot_1",
-      "pause_seconds": 0
+      "pause_seconds": 0,
+      "gap_label": "after_head_nod"
     },
     {
       "step_id": "weather",
@@ -71,7 +74,8 @@
       "step_id": "pause_after_weather",
       "note": "pause",
       "speaker": "brobot_1",
-      "pause_seconds": 0
+      "pause_seconds": 0,
+      "gap_label": "after_weather"
     },
     {
       "step_id": "party",
@@ -87,7 +91,8 @@
       "step_id": "pause_after_party",
       "note": "pause",
       "speaker": "brobot_1",
-      "pause_seconds": 0
+      "pause_seconds": 0,
+      "gap_label": "after_party"
     },
     {
       "step_id": "exit",

@@ -5501,6 +5501,276 @@ def run_guided_flow():
             return result
 
 
+# === PHA0B GOLDEN NAV BRIDGE - Round 1 pilot (00_brobots_awaken / "bait") ===
+# PHA0B_GOLDEN_NAV_RIPREPLACE_AND_SONG1_SCOPE_001.md's Part B build: song 1's
+# ENTIRE pre-run nav (Point A/B, reporter-gap, live/dry, phcal-apply y/n,
+# robot filter, rich-display) runs natively on this file's own golden nav
+# primitives instead of brobots.sh's plain-`read` _pha0b_prompt_*/
+# live_robots_prompt() functions - one subprocess call, one printed result
+# line, same shape pha0b already uses for phcal_apply_001.py. Every other
+# song's own nav (bingo's speaker-reassign, MODE=SECTIONS rendering, etc.)
+# is untouched - this bridge is bait-only, on purpose, per that survey's own
+# Part B scope carve. The actual phcal-apply EXECUTION loop and the final
+# run_golden_song_001.py dispatch both stay exactly where they already live
+# in brobots.sh, unmodified - this bridge only gathers answers.
+
+
+def _pha0b_bait_step_ids():
+    """00_brobots_awaken's own live step_id list, dirty-first resolved via
+    the same shared resolver cmd_tempo_calibration()'s own Mode B (above)
+    already uses - one canonical reader, not a second copy."""
+    envelope_mod = _load_module(KNOBS_ENVELOPE_PATH, "knobs_envelope_001")
+    song_dir = SONGS_DIR / "00_brobots_awaken"
+    _, envelope = envelope_mod.load_knobs_envelope(str(song_dir))
+    step_ids = [s.get("step_id") for s in envelope.get("steps", [])]
+    if not step_ids:
+        raise RuntimeError(f"no steps found for 00_brobots_awaken at {song_dir}")
+    return step_ids
+
+
+def _build_bait_point_tree(step_ids):
+    """Point A/B as one real navigate() tree instead of a hand-rolled pick
+    loop - the ONLY way to get phcal's own proven root-pinned/submenu-
+    erase-on-back redraw (the thing standalone phcal already does cleanly,
+    which the old hand-rolled version never got). Root level = Point A's
+    own choices ("0" = full song, a leaf; "1".."N" = a real step_id, each
+    leading to its own Point B submenu). Keys are NUMBERED strings, not the
+    step_id text itself - navigate()'s own `sorted(node, key=lambda k:
+    (len(k), k))` would alphabetize real step_id keys (e.g. "arm_test"
+    before "connect") out of real program order; numbered keys sort
+    correctly by this same rule instead (short-numbers-then-long, "1".."9"
+    before "10".."16", same trick cmd_tempo_calibration()'s own step-pick
+    already relies on, above). Every leaf is a plain (point_a, point_b)
+    tuple - navigate()'s own contract only requires "not a dict", not
+    literally a string."""
+    tree = {"0": ("Full song", (step_ids[0], step_ids[-1]))}
+    for a_i, a_id in enumerate(step_ids, start=1):
+        point_b_children = {
+            str(b_i): (b_id, (a_id, b_id))
+            for b_i, b_id in enumerate(step_ids[a_i - 1:], start=1)
+        }
+        tree[str(a_i)] = (a_id, point_b_children)
+    return tree
+
+
+def _run_one_field(spec, back):
+    """Fires the one golden primitive matching `spec["kind"]` - the only
+    place `_run_field_chain()` below actually calls into arrow_column_pick/
+    _prompt_pick/_prompt_value/_prompt_robot, so adding a new field kind
+    later touches exactly one function, not every call site."""
+    kind = spec["kind"]
+    if kind == "yn":
+        return _prompt_pick(
+            {"y", "n"}, default=spec.get("default", "n"), labels={"y": "yes", "n": "no"},
+            question=spec["question"], back=back,
+        )
+    if kind == "value":
+        return _prompt_value(spec["question"], spec.get("default"), **spec.get("kind_args", {}))
+    if kind == "robot":
+        return _prompt_robot(default=spec.get("default"), allow_both=True, back=back)
+    raise ValueError(f"unknown bait-nav field kind {kind!r}")
+
+
+def _run_field_chain(fields, back_out_at_start=False):
+    """Generic field-chain engine (PLAYHEAD_PHA0B_PHCAL_FULL_DECOUPLE_
+    SURVEY_001.md §4 point 2) - ONE reusable walker for "ask N fields in
+    order, Left steps back one field, clean redraw" instead of a
+    hand-rolled state machine per chain (this file used to carry two,
+    identical in shape, different fields - Segment 1's reporter-gap pair
+    and Segment 2's phcal-apply/robot-filter/rich-display trio). A field's
+    own definition is DATA (see `_run_one_field()`'s own dict shape),
+    never control flow - adding, removing, or reordering a field is a
+    one-line change to the list passed in, never a rewrite of this
+    function.
+
+    Each spec: {"key", "kind": "yn"|"value"|"robot", "question", "default",
+    "kind_args" (value only), "skip_if": callable(values-so-far) -> bool,
+    "skip_value" (used when skip_if is True - no prompt shown)}.
+
+    `back_out_at_start`: True when this chain runs INSIDE a navigate()
+    tree's own `dispatch()` - Left on this chain's own first real field
+    then raises _PhcalBackToMenu uncaught, propagating straight out to
+    navigate()'s own loop, which resumes the tree exactly where it was
+    (built in, no extra code needed here - see navigate()'s own docstring).
+    False (default) for a standalone chain with nothing above it to back
+    into (e.g. after the one-shot session-mode gate) - that first field
+    gets back=False, same terminal "Left is a no-op" convention every
+    other true-first-in-chain widget in this file already uses.
+
+    Returns a dict of key -> resolved value once every field is answered."""
+    values = {}
+    idx = 0
+    while idx < len(fields):
+        spec = fields[idx]
+        if spec.get("skip_if") and spec["skip_if"](values):
+            values[spec["key"]] = spec.get("skip_value")
+            idx += 1
+            continue
+        is_first_real = all(
+            fields[j].get("skip_if") and fields[j]["skip_if"](values)
+            for j in range(idx)
+        )
+        back = back_out_at_start if is_first_real else True
+        try:
+            values[spec["key"]] = _run_one_field(spec, back=back)
+        except _PhcalBackToMenu:
+            idx -= 1
+            while idx >= 0 and fields[idx].get("skip_if") and fields[idx]["skip_if"](values):
+                idx -= 1
+            if idx < 0:
+                raise
+            continue
+        idx += 1
+    return values
+
+
+def _bait_nav_dispatch(point_ab):
+    """navigate()'s own `dispatch(leaf)` for the Point A/B tree above -
+    called once, with the (point_a, point_b) tuple the operator's tree
+    pick resolved to. Runs the rest of song 1's pre-run nav as two field-
+    chain segments, split by the one-shot session-mode gate between them
+    (a real, non-backable checkpoint - see _run_field_chain()'s own
+    docstring). A _PhcalBackToMenu raised by chain 1's own first field
+    (reporter-gap y/n) is deliberately NOT caught here - it propagates to
+    navigate(), which resumes Point A/B exactly where the operator left
+    them, per that function's own built-in contract."""
+    point_a, point_b = point_ab
+    chain1 = _run_field_chain(
+        [
+            {
+                "key": "gap_yn", "kind": "yn", "default": "n",
+                "question": "apply reporter gaps to this selected range?",
+            },
+            {
+                "key": "gap_seconds", "kind": "value", "default": 0.0,
+                "question": "reporter gap seconds", "kind_args": {"kind": "float", "min_value": 0.0},
+                # Matches brobots.sh's own existing "n" behavior - gaps are
+                # ZEROED for this run on "n", never left at the song's own
+                # knobs.json value.
+                "skip_if": lambda v: v.get("gap_yn") == "n", "skip_value": 0.0,
+            },
+        ],
+        back_out_at_start=True,
+    )
+
+    # Session mode: phcal's own REAL presence-aware live/dry gate. A
+    # one-shot, non-repeatable resolution by its own existing design
+    # (_resolve_session_mode_once()'s own docstring) - neither field chain
+    # ever tries to back INTO this boundary.
+    session_ok = _resolve_session_mode_once()
+    if not session_ok:
+        return None
+    live_gate = 0 if _SESSION_MODE == "none" else 1
+
+    chain2 = _run_field_chain([
+        {
+            "key": "phcal_apply", "kind": "yn", "default": "y",
+            "question": "apply phcal tweaks to this selected range?",
+        },
+        {"key": "robot_filter", "kind": "robot"},
+        {
+            "key": "rich_display", "kind": "yn", "default": "y",
+            "question": "rich display on console?",
+        },
+    ])
+
+    return {
+        "point_a": point_a,
+        "point_b": point_b,
+        "reporter_gap_seconds": chain1["gap_seconds"],
+        "live_gate": live_gate,
+        "phcal_apply_choice": 1 if chain2["phcal_apply"] == "y" else 0,
+        "robot_filter": chain2["robot_filter"],
+        "rich_display": 1 if chain2["rich_display"] == "y" else 0,
+    }
+
+
+def _run_pha0b_bait_nav_body():
+    """The actual bait-nav sequence - see run_pha0b_bait_nav()'s own
+    docstring for the overall back-vs-exit design. Split from that
+    function only so the top-level ESC catch stays a single, obvious
+    wrapper. Deliberately thin: Point A/B is real navigate() tree data
+    (_build_bait_point_tree), everything after is _bait_nav_dispatch()'s
+    own job - this function just wires the two together."""
+    step_ids = _pha0b_bait_step_ids()
+    tree = _build_bait_point_tree(step_ids)
+    return navigate(tree, _bait_nav_dispatch)
+
+
+def run_pha0b_bait_nav():
+    """Public entry point, dispatched from `python3 phcal_isolate_001.py
+    --pha0b-bait-nav` (see this file's own `if __name__ == "__main__":`
+    block below) - song 1's (00_brobots_awaken / "bait") entire pre-run nav,
+    natively on phcal's own golden nav primitives (arrow_column_pick /
+    _prompt_pick / _prompt_value / _prompt_robot / _resolve_session_mode_once,
+    the same _PhcalBackToMenu/_PhcalEscExit two-tier back-vs-exit every other
+    phcal screen already uses).
+
+    Scope, per PHA0B_GOLDEN_NAV_RIPREPLACE_AND_SONG1_SCOPE_001.md Part B:
+    covers exactly the touchpoints song 1 actually exercises (Point A/B,
+    reporter-gap, live/dry, phcal-apply y/n, robot filter, rich-display) -
+    NOT speaker-reassign or MODE=SECTIONS rendering, which song 1 never
+    reaches (gated out by song identity in brobots.sh). The phcal-apply
+    EXECUTION loop (walking qualifying step_ids, shelling to
+    phcal_apply_001.py) and the final run_golden_song_001.py dispatch both
+    stay exactly where they already live in brobots.sh - this function only
+    gathers the y/n choice, never touches a knobs.json itself.
+
+    Back-vs-exit: every Left-driven `_PhcalBackToMenu` this bridge's own
+    screens can raise is caught and handled AS AN INTERNAL STATE TRANSITION
+    (see _run_pha0b_bait_nav_body()) - none of them escape to the caller.
+    Only two outcomes ever reach brobots.sh: one `PHA0B_BAIT_NAV_RESULT`
+    line (completed), or `PHA0B_BAIT_NAV_ABORTED` (ESC pressed anywhere, or
+    a declined low-voltage gate) - deliberately simpler than phcal's own
+    multi-level tree, since this bridge's own flow is linear, not a tree
+    with a level above it to pop back out to.
+
+    2026-08-30, PHA0B_GOLDEN_NAV_BAIT_STDOUT_FIX_001.md: brobots.sh's own
+    bait branch invokes this mode via `$(...)` command substitution so it
+    can capture the one final result line - but EVERY golden-nav primitive
+    (arrow_column_pick/_frame_open/_draw_lines/etc.) also writes its screen
+    via plain `sys.stdout`, which `$(...)` swallows into that same pipe
+    instead of the real terminal. stdin is untouched by `$(...)` (still the
+    real tty), so raw-mode key reads still succeeded - the process wasn't
+    frozen, it was correctly waiting for input on a screen that was never
+    actually drawn where the operator could see it (confirmed live,
+    2026-08-30: blank screen, hangs until Ctrl-C, clean exit on Ctrl-C).
+    Fix: `sys.stdout` is swapped to `sys.stderr` (still connected to the
+    real terminal, untouched by brobots.sh's stdout-only capture) for the
+    ENTIRE interactive body below, always restored via `finally` even on
+    ESC, and the one true result/abort line is printed through the real,
+    restored stdout only once, after the swap ends - `_run_pha0b_bait_nav_
+    body()` itself no longer prints either line directly, it returns a
+    plain dict (or None for a declined low-voltage gate) instead, so this
+    function is the only place either final line can be written."""
+    real_stdout = sys.stdout
+    sys.stdout = sys.stderr
+    esc_aborted = False
+    try:
+        result = _run_pha0b_bait_nav_body()
+    except _PhcalEscExit:
+        result = None
+        esc_aborted = True
+    finally:
+        sys.stdout = real_stdout
+
+    if esc_aborted:
+        print("PHA0B_BAIT_NAV_ABORTED (ESC) exiting")
+        return 1
+    if result is None:
+        print("PHA0B_BAIT_NAV_ABORTED declined to proceed with a low-battery robot present")
+        return 1
+    print(
+        "PHA0B_BAIT_NAV_RESULT "
+        f"point_a={result['point_a']} point_b={result['point_b']} "
+        f"reporter_gap_seconds={result['reporter_gap_seconds']} live_gate={result['live_gate']} "
+        f"phcal_apply_choice={result['phcal_apply_choice']} "
+        f"robot_filter={result['robot_filter']} "
+        f"rich_display={result['rich_display']}"
+    )
+    return 0
+
+
 # 2026-08-15, MASTER_TWEAKS_STAGE2_LOGS_001.md: mirrors every print() in
 # this process (this file's own ~200 call sites, plus anything printed by
 # a song-engine module loaded in-process via _load_module()) to both the
@@ -5562,6 +5832,15 @@ if __name__ == "__main__":
     sys.stdout = _TeeStdout(sys.stdout, PHCAL_RUN_LOG_PATH)
     if len(sys.argv) == 2 and sys.argv[1] == "--promote":
         sys.exit(_promote_tweaks())
+    if len(sys.argv) == 2 and sys.argv[1] == "--pha0b-bait-nav":
+        try:
+            sys.exit(run_pha0b_bait_nav())
+        except EOFError:
+            print("PHA0B_BAIT_NAV_BLOCKED no interactive input available - run pha0b from a real terminal")
+            sys.exit(1)
+        except KeyboardInterrupt:
+            print("\nCancelled — going back.")
+            sys.exit(1)
     if len(sys.argv) == 1:
         try:
             sys.exit(run_guided_flow())

@@ -1769,7 +1769,15 @@ pha0b() {
   # --- Shared prompts: live-robots gate, rich-display, phcal-apply       ---
   # --- tuning, reporter-gap override, robot-pick, robot-filter.         ---
   local live_gate
-  live_gate="$(live_robots_prompt)"
+  if [ "$song" = "bait" ] && [ "$PHA0B_BAIT_NAV_ACTIVE" = "1" ]; then
+    # PHA0B_GOLDEN_NAV_RIPREPLACE_AND_SONG1_SCOPE_001.md Round 1: bait's own
+    # nav bridge already resolved this (phcal's real presence-aware session
+    # mode, not this flat y/n) - pha0b_menu()'s bait branch pre-exported it.
+    # Every other song keeps calling live_robots_prompt() exactly as before.
+    live_gate="$PHA0B_BAIT_LIVE_GATE"
+  else
+    live_gate="$(live_robots_prompt)"
+  fi
   if [ "$live_gate" = "2" ]; then
     # 2026-08-19 refinement (PHCAL_NAV_POLISH_001.md addendum): ESC at the
     # live-robots prompt now means a full abort - pha0b never starts.
@@ -1788,7 +1796,11 @@ pha0b() {
   # the robot-safe line even where a song has its own distinct display_text
   # authored.
   local rich_display_live
-  rich_display_live="$(_pha0b_prompt_yn "rich display on console? y/n [default y]: " "" n-means-no)"
+  if [ "$song" = "bait" ] && [ "$PHA0B_BAIT_NAV_ACTIVE" = "1" ]; then
+    rich_display_live="$PHA0B_BAIT_RICH_DISPLAY"
+  else
+    rich_display_live="$(_pha0b_prompt_yn "rich display on console? y/n [default y]: " "" n-means-no)"
+  fi
   local rich_display_override=""
   if [ "$rich_display_live" = "0" ]; then
     rich_display_override="0"
@@ -1849,8 +1861,12 @@ pha0b() {
   fi
   if [ -n "$phcal_apply_knobs" ]; then
     local apply_live
-    echo "* default to 'y'"
-    apply_live="$(_pha0b_prompt_yn "apply phcal tweaks to this selected range? y/n " y y-means-yes)"
+    if [ "$song" = "bait" ] && [ "$PHA0B_BAIT_NAV_ACTIVE" = "1" ]; then
+      apply_live="$PHA0B_BAIT_PHCAL_APPLY"
+    else
+      echo "* default to 'y'"
+      apply_live="$(_pha0b_prompt_yn "apply phcal tweaks to this selected range? y/n " y y-means-yes)"
+    fi
     if [ "$apply_live" = "1" ]; then
       local qualifying_ids
       qualifying_ids="$(python3 -c "
@@ -1932,15 +1948,25 @@ for s in steps[lo:hi + 1]:
   # sleep_wake robot prompt.
   local robot_filter_choice="both"
   if [ "$runner" = "run_golden_song_001.py" ]; then
-    local rf_input
-    echo "** anything entered outside selection range = exit **"
-    echo "* default to '0'"
-    rf_input="$(_pha0b_prompt_choice "run which robots? 1 / 2 / 0 for both [default]: " "1 2 0" "0" "PHA0B_ROBOT_FILTER_BLOCKED")" || return 1
-    case "$rf_input" in
-      1) robot_filter_choice="1" ;;
-      2) robot_filter_choice="2" ;;
-      0) robot_filter_choice="both" ;;
-    esac
+    if [ "$song" = "bait" ] && [ "$PHA0B_BAIT_NAV_ACTIVE" = "1" ]; then
+      # bait's own bridge already speaks "1"/"2"/"both" natively
+      # (_prompt_robot()'s own return contract) - no "0 means both"
+      # translation needed, unlike the old prompt below.
+      case "$PHA0B_BAIT_ROBOT_FILTER" in
+        1|2|both) robot_filter_choice="$PHA0B_BAIT_ROBOT_FILTER" ;;
+        *) echo "PHA0B_ROBOT_FILTER_BLOCKED invalid_choice choice=$PHA0B_BAIT_ROBOT_FILTER"; return 1 ;;
+      esac
+    else
+      local rf_input
+      echo "** anything entered outside selection range = exit **"
+      echo "* default to '0'"
+      rf_input="$(_pha0b_prompt_choice "run which robots? 1 / 2 / 0 for both [default]: " "1 2 0" "0" "PHA0B_ROBOT_FILTER_BLOCKED")" || return 1
+      case "$rf_input" in
+        1) robot_filter_choice="1" ;;
+        2) robot_filter_choice="2" ;;
+        0) robot_filter_choice="both" ;;
+      esac
+    fi
   fi
 
   # --- Assemble exports and dispatch to the picked runner. ---
@@ -2026,6 +2052,16 @@ for s in steps[lo:hi + 1]:
 pha0b_menu() {
   local songs_dir="/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs"
 
+  # PHA0B_PHCAL_NAV_CONSOLIDATION_SURVEY_001.md §6 / PHA0B_PHCAL_CODE_PATH_
+  # AUDIT_001.md: this whole body now runs inside an outer loop so the
+  # reserved "PLAYHEAD Calibrations" menu slot below can return here after
+  # phcal exits, instead of falling all the way back to the shell prompt.
+  # Every EXISTING exit path (0/invalid input/a completed song run) is a
+  # plain `return` - bash `return` always exits the enclosing FUNCTION
+  # regardless of loop nesting, so wrapping the body changes nothing about
+  # any of those paths; only the new phcal branch uses `continue` instead
+  # of `return`, deliberately, to get the "come back here" behavior.
+  while true; do
   local -a dir_array
   local i=1
   echo "PHA0B_MENU songs on disk:"
@@ -2054,12 +2090,44 @@ pha0b_menu() {
     return 1
   fi
 
+  # PLAYHEAD Calibrations - reserved, always-last menu slot (survey/audit
+  # cited above). "$phcal_slot" is derived from dir_count every pass, so it
+  # auto-shifts if a song is ever added/removed - never a hardcoded number.
+  # Every existing song index 1..dir_count is untouched, nothing renumbered.
+  local phcal_slot=$((dir_count + 1))
+  echo "  $phcal_slot. PLAYHEAD Calibrations (PHCAL.md)"
+
+  # Song Notation / Score - second reserved, always-last menu slot
+  # (NOTATION_GOLDEN_GUTS_GAP_SURVEY_001.md), added right after phcal's own
+  # slot so it stays the new last item. Same derived-not-hardcoded shape.
+  local notation_slot=$((dir_count + 2))
+  echo "  $notation_slot. Song Notation / Score"
+
   echo "Please note:"
   echo "  see songs/tools/README.md for the song-tools - run via their own aliases, not from here"
 
   echo "** anything entered outside selection range will exit **"
   local dir_choice
-  dir_choice="$(_pha0b_prompt_range_choice "Pick a song [1-$dir_count, 0 to exit]: " "$dir_count" "PHA0B_MENU_BLOCKED")" || return 1
+  dir_choice="$(_pha0b_prompt_range_choice "Pick a song [1-$notation_slot, 0 to exit]: " "$notation_slot" "PHA0B_MENU_BLOCKED")" || return 1
+
+  if [ "$dir_choice" -eq "$phcal_slot" ]; then
+    # Same subprocess call phcal()'s own guided-flow branch already makes
+    # (brobots.sh's `phcal()`, bare-args case) - not a new code path, one
+    # more door into it. `continue` (not `return`) is the one real behavior
+    # change this build adds - see the outer `while true; do` comment above.
+    ( cd "$(dirname "${BASH_SOURCE[0]}")" && python3 phcal_isolate_001.py )
+    continue
+  fi
+
+  if [ "$dir_choice" -eq "$notation_slot" ]; then
+    # Routes into the existing score()/score-save()/_score_song_dir()
+    # plumbing (below) rather than reimplementing scoring - this menu only
+    # picks song/mode/destination and calls them. Same "continue, don't
+    # return" shape as the phcal slot above.
+    _pha0b_notation_flow
+    continue
+  fi
+
   local chosen_dir="${dir_array[$dir_choice]}"
 
   # --- Resolve the chosen folder name to pha0b's own song keyword. ---
@@ -2160,6 +2228,52 @@ pha0b_menu() {
       return 1
       ;;
   esac
+
+  # --- PHA0B_GOLDEN_NAV_RIPREPLACE_AND_SONG1_SCOPE_001.md Round 1: bait  ---
+  # --- (00_brobots_awaken) pilot. phcal's golden nav replaces EVERY one ---
+  # --- of this song's own pre-run touchpoints (Point A/B, reporter-gap, ---
+  # --- live/dry, phcal-apply y/n, robot filter, rich-display), all in   ---
+  # --- ONE subprocess call - never touches the shared _pha0b_prompt_*/  ---
+  # --- live_robots_prompt() functions below, which every other song    ---
+  # --- still calls exactly as before. pha0b() itself gains matching    ---
+  # --- bait-only bypass branches at each of its own 4 prompts (see that ---
+  # --- function) so the SAME shared dispatch/run logic still fires -   ---
+  # --- only the nav feeding it changed. Skips this function's own      ---
+  # --- MODE=STEPS/SECTIONS + Point A/B + reporter-gap logic entirely -  ---
+  # --- untouched below for every song that isn't bait.
+  if [ "$song" = "bait" ]; then
+    local bait_nav_out bait_nav_status
+    bait_nav_out="$( cd "$(dirname "${BASH_SOURCE[0]}")" && python3 phcal_isolate_001.py --pha0b-bait-nav )"
+    bait_nav_status=$?
+    echo "$bait_nav_out"
+    local bait_result_line
+    bait_result_line="$(echo "$bait_nav_out" | grep '^PHA0B_BAIT_NAV_RESULT ')"
+    if [ "$bait_nav_status" -ne 0 ] || [ -z "$bait_result_line" ]; then
+      echo "PHA0B_MENU_BLOCKED bait nav did not complete"
+      return 1
+    fi
+    local point_a point_b
+    point_a="$(echo "$bait_result_line" | sed -n 's/.*point_a=\([^ ]*\).*/\1/p')"
+    point_b="$(echo "$bait_result_line" | sed -n 's/.*point_b=\([^ ]*\).*/\1/p')"
+    local bait_gap_seconds
+    bait_gap_seconds="$(echo "$bait_result_line" | sed -n 's/.*reporter_gap_seconds=\([^ ]*\).*/\1/p')"
+    echo "PHA0B_MENU_REPORTER_GAP override=$bait_gap_seconds - reporter gaps in $point_a..$point_b will pause ${bait_gap_seconds}s (this shell session only, until unset)"
+    export GOPOD_BINGO_REPORTER_GAP_OVERRIDE="$bait_gap_seconds"
+    export GOPOD_GOLDEN_REPORTER_GAP_OVERRIDE="$bait_gap_seconds"
+    export PHA0B_BAIT_NAV_ACTIVE=1
+    export PHA0B_BAIT_LIVE_GATE
+    PHA0B_BAIT_LIVE_GATE="$(echo "$bait_result_line" | sed -n 's/.*live_gate=\([^ ]*\).*/\1/p')"
+    export PHA0B_BAIT_PHCAL_APPLY
+    PHA0B_BAIT_PHCAL_APPLY="$(echo "$bait_result_line" | sed -n 's/.*phcal_apply_choice=\([^ ]*\).*/\1/p')"
+    export PHA0B_BAIT_ROBOT_FILTER
+    PHA0B_BAIT_ROBOT_FILTER="$(echo "$bait_result_line" | sed -n 's/.*robot_filter=\([^ ]*\).*/\1/p')"
+    export PHA0B_BAIT_RICH_DISPLAY
+    PHA0B_BAIT_RICH_DISPLAY="$(echo "$bait_result_line" | sed -n 's/.*rich_display=\([^ ]*\).*/\1/p')"
+    pha0b "$song" "$point_a" "$point_b"
+    local pha0b_status=$?
+    unset PHA0B_BAIT_NAV_ACTIVE PHA0B_BAIT_LIVE_GATE PHA0B_BAIT_PHCAL_APPLY PHA0B_BAIT_ROBOT_FILTER PHA0B_BAIT_RICH_DISPLAY
+    return $pha0b_status
+  fi
 
   # --- Load knobs.json, compute divisions/sections, pick Point A/B,     ---
   # --- reporter-gap override prompt, then hand off to pha0b() itself.   ---
@@ -2367,6 +2481,8 @@ else:
   fi
 
   pha0b "$song" "$point_a" "$point_b"
+  return $?
+  done
 }
 
 # phcal - calibration bench, Rung 3 - a sibling to pha0b: pha0b plays the
@@ -2478,12 +2594,21 @@ _score_song_dir() {
 # flags. Bare call defaults to brobots_bingo (the song currently being
 # worked). Read-only against song data - print_song_score_001.py itself is
 # never modified or written to by this alias, only invoked.
+# $2 (optional, default "field-dump"): "field-dump" (unchanged, existing
+# behavior for every pre-existing caller that passes 0 or 1 args) or
+# "narrative" (NOTATION_GOLDEN_GUTS_GAP_SURVEY_001.md's own script-read
+# mode, print_song_score_001.py --narrative) - added 2026-08-30 so the new
+# pha0b notation slot below can reuse this alias instead of reimplementing
+# it, per that build's own instruction.
 score() {
   local song="${1:-bingo}"
+  local mode="${2:-field-dump}"
   local song_dir
   song_dir="$(_score_song_dir "$song")" || return 1
+  local narrative_flag=""
+  [ "$mode" = "narrative" ] && narrative_flag="--narrative"
   ( cd "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools" && \
-    python3 print_song_score_001.py "$song_dir" )
+    python3 print_song_score_001.py "$song_dir" $narrative_flag )
 }
 
 # score-save - same song vocabulary as score() above, writes the page to
@@ -2492,18 +2617,76 @@ score() {
 # NOTATION_PAGE_BUILD_001.md proposed: runs/ is machine-generated run
 # output, notation/ is this operator-facing printed artifact). House dated
 # filename convention. Prints the path it wrote, nothing else.
+# $2 (optional, default "field-dump"): same mode switch as score() above,
+# same reasoning - "narrative" saves a script-read instead of a field-dump,
+# named accordingly in the output filename.
 score-save() {
   local song="${1:-bingo}"
+  local mode="${2:-field-dump}"
   local song_dir
   song_dir="$(_score_song_dir "$song")" || return 1
   local notation_dir="$song_dir/notation"
   mkdir -p "$notation_dir"
   local ts
   ts="$(date +%Y%m%d_%H%M%S)"
-  local out_file="$notation_dir/${song}_score_${ts}.txt"
+  local narrative_flag="" name_part="score"
+  if [ "$mode" = "narrative" ]; then
+    narrative_flag="--narrative"
+    name_part="narrative"
+  fi
+  local out_file="$notation_dir/${song}_${name_part}_${ts}.txt"
   ( cd "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools" && \
-    python3 print_song_score_001.py "$song_dir" ) > "$out_file"
+    python3 print_song_score_001.py "$song_dir" $narrative_flag ) > "$out_file"
   echo "SCORE_SAVED $out_file"
+}
+
+# _pha0b_notation_flow - the "Song Notation / Score" reserved menu slot's
+# own sub-flow (pha0b_menu() above). Picks song/mode/destination, then
+# calls score()/score-save() above exactly as if typed by hand - this
+# function never touches knobs.json/story.md or print_song_score_001.py
+# itself, it's pure menu glue over already-working plumbing
+# (NOTATION_GOLDEN_GUTS_GAP_SURVEY_001.md's own instruction). Lists the
+# SAME full vocabulary _score_song_dir() already accepts, interview/preshow
+# included on purpose - picking either shows that function's own existing
+# SCORE_REFUSED message (schema not supported) instead of a misleading
+# blank sheet or a crash, exactly as asked; nothing new to build for that
+# case, the refusal already exists.
+_pha0b_notation_flow() {
+  local notation_songs="bingo control bait vamp mixup nap interview preshow"
+  local -a notation_song_array
+  local i=1
+  echo "PHA0B_NOTATION songs:"
+  local kw
+  for kw in $notation_songs; do
+    notation_song_array[$i]="$kw"
+    echo "  $i. $kw"
+    i=$((i + 1))
+  done
+  local notation_song_count=$((i - 1))
+  echo "** anything entered outside selection range = exit **"
+  local song_choice
+  song_choice="$(_pha0b_prompt_range_choice "Pick a song [1-$notation_song_count, 0 to exit]: " "$notation_song_count" "PHA0B_NOTATION_BLOCKED")" || return 1
+  local notation_song="${notation_song_array[$song_choice]}"
+
+  # _score_song_dir() itself prints SCORE_REFUSED (with the real reason) to
+  # stderr and returns 1 for interview/preshow - surfaced here as-is, no
+  # new message invented, no attempt to run the printer against a
+  # song it already knows it can't read.
+  _score_song_dir "$notation_song" > /dev/null || return 0
+
+  echo "* default to 'field-dump'"
+  local mode_choice
+  mode_choice="$(_pha0b_prompt_choice "mode: field-dump / narrative [default field-dump]: " "field-dump narrative" "field-dump" "PHA0B_NOTATION_BLOCKED")" || return 1
+
+  echo "* default to 'screen'"
+  local dest_choice
+  dest_choice="$(_pha0b_prompt_choice "screen or save: screen / save [default screen]: " "screen save" "screen" "PHA0B_NOTATION_BLOCKED")" || return 1
+
+  if [ "$dest_choice" = "save" ]; then
+    score-save "$notation_song" "$mode_choice"
+  else
+    score "$notation_song" "$mode_choice"
+  fi
 }
 
 # phcal()'s guided flow (bare `phcal`, no primitive) no longer calls

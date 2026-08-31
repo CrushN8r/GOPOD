@@ -24,13 +24,29 @@ run_songs_runner_001.py already relies on - rather than re-deriving a
 second regex against the same file format.
 
 USAGE
-  python3 print_song_score_001.py <song_dir>
+  python3 print_song_score_001.py <song_dir> [--narrative]
 
   python3 print_song_score_001.py ../songs/101_brobots_bingo_test
   python3 print_song_score_001.py ../songs/102_brobots_cross_persona
+  python3 print_song_score_001.py ../songs/101_brobots_bingo_test --narrative
 
 Prints to stdout. Redirect to a file to save/print on paper:
   python3 print_song_score_001.py ../songs/101_brobots_bingo_test > bingo_score.txt
+
+NARRATIVE MODE (--narrative), added 2026-08-30
+(NOTATION_GOLDEN_GUTS_GAP_SURVEY_001.md): a second, additive presentation of the
+SAME source read (knobs.json + story.md, nothing else) - the default field-dump
+mode above is completely unchanged. Groups steps by story.md section and prints
+each one as flowing "SPEAKER: TEXT" dialogue, script-read style, quality target
+being the interview's own hand-written doc
+(tech/alias_play_studio/SONG_02_BROBOTS_1_2_INTERVIEW_RUN.md) - but generated from
+real on-disk data, not hand-authored. No technical fields (FAIL/BUFFER_AFTER/etc)
+are shown in this mode at all - a step with no TEXT authored (a cue, a pause, an
+action) prints as a bracketed stage note (`[note_name]`) instead of being skipped,
+so the read still flows in order. Same schema restriction as field-dump mode -
+this reads knobs.json's own `note`/TEXT shape, so a song without it (the
+interview) has nothing here to narrate either; that gate lives in brobots.sh's
+own `_score_song_dir()`, not in this file (see that function's own comment).
 """
 
 import importlib.util
@@ -218,11 +234,73 @@ def print_song_score(song_dir):
     return "\n".join(lines)
 
 
+def print_song_score_narrative(song_dir):
+    """Additive sibling to print_song_score() above - same two source files
+    (knobs.json + story.md via the same load_knobs_envelope()/
+    parse_control_story_md() calls, nothing else), same section-grouping
+    loop shape, different presentation: flowing "SPEAKER: TEXT" dialogue
+    instead of a bracketed per-field dump, no technical fields shown at
+    all. A step with no TEXT authored (a cue/pause/action) prints as a
+    bracketed stage note (`[note]`) rather than being silently skipped, so
+    the read still flows step to step in real authored order - never
+    reordered, never summarized."""
+    song_dir = Path(song_dir)
+    _knobs_path, knobs = load_knobs_envelope(song_dir)
+    control_mod = _load_control_mod()
+    story = control_mod.parse_control_story_md((song_dir / "story.md").read_text(encoding="utf-8"))
+
+    song_id = knobs.get("song_id", "")
+    lines = []
+    lines.append("=" * 71)
+    lines.append(f"{song_id.upper()} — SCRIPT READ (source: knobs.json + story.md)")
+    lines.append("A narrative read of this song's authored dialogue, grouped by section.")
+    lines.append("Stage notes in [brackets] mark a non-speaking step (a cue, a pause, an")
+    lines.append("action) so the pacing still reads even where nothing is said.")
+    lines.append("=" * 71)
+
+    current_section = object()  # sentinel, never equals a real section value
+    for raw_step in knobs.get("steps", []):
+        step_id = raw_step.get("step_id", "")
+        note = raw_step.get("note", "")
+        speaker = raw_step.get("speaker") or "brobot_1"
+        section = raw_step.get("section")
+
+        if section != current_section:
+            current_section = section
+            lines.append("")
+            label = section if section is not None else "(no section authored)"
+            lines.append(f"SECTION: {label}")
+            lines.append("-" * 71)
+
+        content = story.get(step_id, {"text": "", "fail": ""})
+        text = content.get("text", "")
+        if text:
+            speaker_label = speaker.replace("_", " ").title()
+            lines.append(f"{speaker_label}: {text}")
+        else:
+            lines.append(f"[{note}]")
+
+    return "\n".join(lines)
+
+
 def main():
-    if len(sys.argv) != 2:
-        print("usage: python3 print_song_score_001.py <song_dir>", file=sys.stderr)
+    if len(sys.argv) not in (2, 3):
+        print("usage: python3 print_song_score_001.py <song_dir> [--narrative]", file=sys.stderr)
         return 2
-    print(print_song_score(sys.argv[1]))
+    narrative = False
+    if len(sys.argv) == 3:
+        if sys.argv[2] != "--narrative":
+            print(
+                f"usage: python3 print_song_score_001.py <song_dir> [--narrative] "
+                f"(unknown flag {sys.argv[2]!r})",
+                file=sys.stderr,
+            )
+            return 2
+        narrative = True
+    if narrative:
+        print(print_song_score_narrative(sys.argv[1]))
+    else:
+        print(print_song_score(sys.argv[1]))
     return 0
 
 

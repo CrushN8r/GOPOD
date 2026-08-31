@@ -91,10 +91,15 @@ def cmd_set_global(argv):
     print(f"TEMPO_SET_GLOBAL diff for song_id={song_id!r} ({KNOBS_PATH}):")
     flag = "" if old_value == value else "  <-- CHANGES"
     print(f"  global_tempo: {old_value} -> {value}{flag}")
-    print(f"  every step's own added-space = {value} (global) x that step's own tempo_factor "
-          f"(default 1.0 if unset) - excluded on 'exit', wherever a fatal note (wake_both/"
-          f"emotion_beat) fails first")
-    print(f"  e.g. a step with no explicit tempo_factor now adds {value}s per buffer")
+    print(f"  global_tempo is EXTRA time ADDED on top of each step's own buffer_after - it never "
+          f"scales or replaces buffer_after itself. 0.0 = neutral, no extra time added.")
+    print(f"  every step's own added_space = {value} (this global_tempo) x that step's own "
+          f"tempo_factor (default 1.0 if unset) - a flat number of extra seconds, not a "
+          f"multiplier applied to the buffer. Excluded on 'exit' and 'pause' notes (tempo-immune "
+          f"by design, REPORTER_GAP_TEMPO_IMMUNE_001.md), and wherever a fatal note "
+          f"(wake_both/emotion_beat) fails first")
+    print(f"  e.g. a step with no explicit tempo_factor (defaults to 1.0) adds exactly {value}s of "
+          f"extra time on top of its own buffer_after")
 
     custom_factor_steps = [
         s for s in envelope.get("steps", [])
