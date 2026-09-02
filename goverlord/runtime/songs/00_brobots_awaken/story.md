@@ -81,7 +81,7 @@ unset and gets the old, shorter weather line unchanged.
 > TEXT:
 
 ## STEP say_connected
-> TEXT: I'm connected. Loading next test.
+> TEXT: {robot_name} connected. Loading next test.
 
 ## STEP arm_test
 > TEXT: Testing my arm.

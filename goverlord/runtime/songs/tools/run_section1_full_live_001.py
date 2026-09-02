@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import colorsys
 import importlib.util
 import json
 import os
@@ -85,6 +86,50 @@ WIREPOD_BASE_URL = os.getenv("GOPOD_WIREPOD_BASE_URL")
 ROBOT_EXPRESSION_GATE = os.getenv("ROBOT_EXPRESSION", "")
 BROBOT_1_SERIAL = os.getenv("GOPOD_BROBOT_1_SERIAL", "0dd1b9e9")
 BROBOT_2_SERIAL = os.getenv("GOPOD_BROBOT_2_SERIAL", "0dd1d8bf")
+JDOCS_PATH = WIREPOD_CHIPPER_ROOT / "jdocs" / "jdocs.json"
+
+
+def _write_brobot_eye_colors_state():
+    """Chat-bubble background, read live from each robot's own real eye
+    color (2026-09-01 operator request) - not a fixed pair of colors.
+    custom_eye_color's hue/saturation (jdocs.json, vic.RobotSettings) is
+    the LIVE authority whenever enabled - it overrides the plain eye_color
+    enum, same "one source of truth: the robot's own real settings"
+    principle load_robot_format_from_jdocs() (gopod_weather_fetch_001.py)
+    already uses for weather units. Read once per run start (called from
+    Robots.__init__, same site/cadence as the rich-display state write
+    just above) - a later mid-run color change on the robot's own app
+    never moves a bubble already on screen; the NEXT run picks it up
+    fresh, per operator direction ("not mid runs though"). Pure UI
+    side-channel - any failure (missing jdocs.json, malformed entry,
+    either serial simply not present yet) is swallowed silently, same
+    discipline as the rich-display write; never break the actual
+    performance over a background color.
+    """
+    try:
+        with JDOCS_PATH.open("r", encoding="utf-8") as handle:
+            entries = json.load(handle)
+        colors = {}
+        for label, serial in (("brobot_1", BROBOT_1_SERIAL), ("brobot_2", BROBOT_2_SERIAL)):
+            thing = f"vic:{serial}"
+            for entry in entries:
+                if entry.get("thing") == thing and entry.get("name") == "vic.RobotSettings":
+                    settings = json.loads(entry["jdoc"]["json_doc"])
+                    eye = settings.get("custom_eye_color") or {}
+                    if not eye.get("enabled"):
+                        break
+                    r, g, b = colorsys.hsv_to_rgb(eye["hue"], eye["saturation"], 1.0)
+                    colors[label] = "#{:02X}{:02X}{:02X}".format(
+                        round(r * 255), round(g * 255), round(b * 255)
+                    )
+                    break
+        if colors:
+            eye_color_file = WIREPOD_CHIPPER_ROOT / "webroot" / "gopod_brobot_eye_colors.json"
+            eye_color_file.write_text(json.dumps(colors))
+    except Exception:
+        pass
+
+
 # Interview-only theatrical KG search sequence (searching -> searchingGetout,
 # then the line's own speech fires with "answering" instead of the usual
 # fallback) - operator's own explicit ask, 2026-07-24: the interview's JSON
@@ -2519,6 +2564,24 @@ def restart_wirepod_preflight(live):
     except Exception as exc:
         print(f"PREFLIGHT: MIRROR_WARN failed to run apply_nongo_files.sh ({exc}), continuing restart anyway")
 
+    # STEP 2.6 - RESET_UI: 2026-09-01 operator live-report ("upon a wire-pod
+    # restart... chat bubbles window is NOT seen. I still see it after alias
+    # wpr, and refresh web page"). gopod_rich_display_ui_state.json is a
+    # plain file in webroot - a service restart never touches it, so
+    # whatever a run last wrote (expanded:true, possibly still within
+    # index.html's own 300s STALE_AFTER_SECONDS window) survives the
+    # restart and reopens on the next page load. Only reached on a real
+    # restart (CHECK already returned above if wire-pod was healthy) - a
+    # restart is a deliberate "start fresh" signal, so force dormant here
+    # rather than leaving it to the browser's own staleness heuristic.
+    # Pure UI side-channel, same discipline as every other write to this
+    # file - never block the actual restart over it.
+    try:
+        rich_ui_state_file = WIREPOD_CHIPPER_ROOT / "webroot" / "gopod_rich_display_ui_state.json"
+        rich_ui_state_file.write_text(json.dumps({"expanded": False, "run_active": False}))
+    except OSError:
+        pass
+
     # STEP 3 - START: only reached because CHECK found it unhealthy/not running.
     print("PREFLIGHT: START -> sudo systemctl restart wire-pod")
     try:
@@ -2720,6 +2783,7 @@ class Robots:
                 rich_ui_state_file.write_text(json.dumps({"expanded": False, "run_active": False}))
         except OSError:
             pass
+        _write_brobot_eye_colors_state()
         # Console-only knob, same shape/scoping as the two above - default
         # False for every existing caller. When True, every terminal line
         # this class prints (and, via timing_prefix(), every line the

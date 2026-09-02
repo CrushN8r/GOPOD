@@ -353,6 +353,30 @@ description: The Goverlord desk contract — who the operator is, the hard rules
   again. Same instruction is now in `CLAUDE.local.md` itself (loaded every message,
   not just when this skill is invoked) — that copy is the one that actually matters
   most; this one is the incident record.
+- **A repeated failure to actually BE brief, not just say the rule exists.** Named
+  directly, 2026-08-31, after the bottom-line/no-report-body rules above were violated
+  again in the same broader session (a technical survey ran long enough to feel like
+  another wall of text before the point): "Can you grasp the fucking concept of simple
+  intelligent? The innocent have little to say, so answer thoughtful and clean, then
+  shut up. Bottom line. No 50k report to burn my eyes before getting to what I need to
+  read... I keep asking and you ignore willfully." Then, told the fix was applied:
+  "Add that to claude everything. I cannot afford to trust your word." The rule itself
+  (bottom-line only, no report body in chat) already existed, extensively, before this
+  - this entry exists because stating a rule once is not the same as reliably living by
+  it, and the operator has now said plainly he can't take "it's fixed" on faith alone.
+  The check is not "did I write the rule down" - it's "does THIS message, right now,
+  actually lead with the point and stop," checked before every send, every time, not
+  recalled after being called out again. Also banked in `CLAUDE.local.md`.
+- **No technical vocabulary required, ever.** Named directly, 2026-08-31: "I don't read
+  your shit because I cannot comprehend most of what you do for me, so how the fuck am
+  I going to have the vocab to communicate, other than sloppy. I note whatever keywords
+  I can pick up on and make a best guess... Everytime I'm on Claude, I have to fight
+  until my head explodes." The operator does not have, and should never need, technical
+  vocabulary to direct this work - plain, vague, keyword-guessing language is normal
+  input, not a deficiency to correct. Inferring the real technical target from plain
+  language is Claude's job; a clarifying question, if one is truly needed, asks about
+  the OUTCOME wanted, never about which term/file/mechanism to use. Full detail in
+  memory: `feedback_no_vocabulary_required.md`. Also banked in `CLAUDE.local.md`.
 
 ## 3. The song shelf
 

@@ -2253,8 +2253,14 @@ def cmd_tempo_calibration():
 # first-run seed (see _load_last below) has exactly one source of truth for
 # every default, not a second copy.
 _DEFAULTS = {
-    "arm": {"hold_seconds": 1.2, "speed": 2, "cycles": 1},
-    "nod": {"hold_seconds": 0.35, "speed": 2, "count": 1},
+    # 2026-08-31, operator request: arm cycles / nod count floor raised
+    # 1 -> 2 everywhere a value can be set - a single rep is too easy to
+    # miss when visually verifying a movement live; two reads as a real
+    # pattern. Same floor enforced at every entry point that can set these
+    # (direct-CLI --cycles/[count], the guided-flow "reps" prompts below,
+    # and this shared default) - see this file's own min_value=2 sites.
+    "arm": {"hold_seconds": 1.2, "speed": 2, "cycles": 2},
+    "nod": {"hold_seconds": 0.35, "speed": 2, "count": 2},
     # 2026-07-22, Part C: rattle has no hold/speed of its own - see
     # cmd_rattle's own comment for why there is genuinely no "hold" step to
     # default here. volume is phcal's own 1-5 bench scale (mapped to the
@@ -2612,7 +2618,7 @@ def main():
             return 1
         try:
             cycles = (
-                _parse_int_flag("--cycles", flags["--cycles"], min_value=1)
+                _parse_int_flag("--cycles", flags["--cycles"], min_value=2)
                 if "--cycles" in flags
                 else _DEFAULTS["arm"]["cycles"]
             )
@@ -2638,10 +2644,10 @@ def main():
     if len(positionals) > 1:
         print(f"PHCAL_ISOLATE_BLOCKED nod takes at most one positional [count] argument, got {positionals!r}")
         return 1
-    count = 1
+    count = _DEFAULTS["nod"]["count"]
     if positionals:
         try:
-            count = _parse_int_flag("count", positionals[0], min_value=1)
+            count = _parse_int_flag("count", positionals[0], min_value=2)
         except ValueError as exc:
             print(f"PHCAL_ISOLATE_BLOCKED {exc}")
             return 1
@@ -5239,11 +5245,15 @@ def _dispatch_primitive(primitive):
     volume_ui = None
 
     if primitive == "arm":
-        cycles = _prompt_value("reps", last["cycles"], kind="int", min_value=1)
+        # 2026-08-31, operator request: floor raised 1 -> 2 - see _DEFAULTS'
+        # own comment above for the full reasoning (a single rep is too easy
+        # to miss verifying live). _prompt_value()'s own clamp also upgrades
+        # a stale sub-2 value already sitting in phcal_last.json on load.
+        cycles = _prompt_value("reps", last["cycles"], kind="int", min_value=2)
         hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
     elif primitive == "nod":
-        count = _prompt_value("reps", last["count"], kind="int", min_value=1)
+        count = _prompt_value("reps", last["count"], kind="int", min_value=2)
         hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
     else:  # rattle / danger - both volume-only, same 1-5 scale

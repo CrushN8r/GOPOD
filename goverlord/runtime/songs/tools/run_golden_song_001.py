@@ -828,7 +828,17 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
             sys.stdout = real_stdout
         if not log_file.closed:
             log_file.close()
-    if live and not log.get("stopped_early", True):
+    # AWAKEN_MULTI_MODE_TWO_PASS_SURVEY_PLAN_001.md follow-up (operator
+    # request after a live two-pass run): pha0b's own bait "both" mode calls
+    # this whole function twice, once per robot - without a suppress flag,
+    # the promote prompt asked (and blocked on) the SAME pending zKnobs.json
+    # diff twice, once after each pass, with brobot 2's pass sitting behind
+    # that second interactive wait. GOPOD_GOLDEN_SUPPRESS_PROMOTE, exported
+    # by brobots.sh for every pass except the last one in a multi-pass run,
+    # skips this call entirely for those passes - the prompt now fires
+    # exactly once, after the final pass, with nothing interactive between
+    # brobot 1 finishing and brobot 2 starting.
+    if live and not log.get("stopped_early", True) and not os.getenv("GOPOD_GOLDEN_SUPPRESS_PROMOTE"):
         _maybe_promote_knobs(song_dir)
     return log
 
@@ -1165,6 +1175,22 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 )
                 entry["ok"] = result.get("status") == 200
                 entry["result"] = result
+                # 2026-09-01 operator live-report ("timing/firing mismatch -
+                # I do not hear brobots say..."): this branch had ZERO settle
+                # after a completely fresh assume, unlike every manage_
+                # control=True path in this file (run_emotion_beat/
+                # run_animation_only both sleep POST_ASSUME_SAY_SETTLE_
+                # SECONDS right after their own assume). say_connected's own
+                # pause_after_connect step is 0s in knobs.json, so the very
+                # first say_text after connect fired essentially instantly
+                # after this assume - the exact "fresh assume_behavior_
+                # control needs a settle before the first action, or it can
+                # silently no-op" trap CLAUDE.md's own TECHNICAL GOTCHAS
+                # already names (say=success gets logged regardless -
+                # Wire-Pod's own /api-sdk/say_text handler discards the real
+                # result). Same 1.5s constant, already defined in this file,
+                # now actually used on this path too.
+                time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
 
         elif note == "say":
             # Control-family only: a pure placeholder note whose own text was
@@ -1275,7 +1301,21 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
     # twin, not a new mechanism. brobots.sh's own later write still fires
     # once the process eventually exits - harmless, already-true content,
     # left as-is; not worth removing for this fix's own minimal scope.
-    if robots.console_rich_display:
+    # AWAKEN_MULTI_MODE_TWO_PASS follow-up, 2026-09-01 operator live-report
+    # ("chat bubbles div didn't flip on and display"): this write assumed
+    # one Python process = one whole run. bait's "both" two-pass loop
+    # launches a FRESH process per robot, so without the same suppress
+    # gate _maybe_promote_knobs already uses, brobot 1's pass wrote
+    # run_active:false (closeBtn.style.display flips to visible,
+    # index.html:331) mid-run, well before brobot 2's pass even started -
+    # the div's "run just finished" state fired a full pass early, not on
+    # the actual end of the whole two-pass run. Same GOPOD_GOLDEN_SUPPRESS_
+    # PROMOTE brobots.sh already exports for every pass except the last one
+    # gates this write too - one flag, one meaning ("not the final pass
+    # yet"), reused rather than duplicated. brobots.sh's own outer write
+    # (pha0b(), after the whole loop) still fires unconditionally and is
+    # the real backstop for every case, multi-pass included.
+    if robots.console_rich_display and not os.getenv("GOPOD_GOLDEN_SUPPRESS_PROMOTE"):
         try:
             rich_ui_state_file = mod.WIREPOD_CHIPPER_ROOT / "webroot" / "gopod_rich_display_ui_state.json"
             rich_ui_state_file.write_text(json.dumps({

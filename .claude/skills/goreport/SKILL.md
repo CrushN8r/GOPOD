@@ -1,6 +1,6 @@
 ---
 name: goreport
-description: Use when writing any GOPOD session report, investigation writeup, or generated output document. Per CLAUDE.md's Report and Output File Rule, these always go to ~/crushn8r_git/gopod_notes/ — never inside ~/crushn8r_git/GOPOD/ or any other git-tracked directory. Follow the existing naming convention (ALL_CAPS_DESCRIPTIVE_NAME_001.md, incrementing the number if a name is reused) and check whether an existing report on the same topic should be appended to rather than duplicated.
+description: Use when writing any GOPOD session report, investigation writeup, or generated output document. Per CLAUDE.md's Report and Output File Rule, these always go to ~/crushn8r_git/gopod_notes/ — never inside ~/crushn8r_git/GOPOD/ or any other git-tracked directory. Follow the existing naming convention (ALL_CAPS_DESCRIPTIVE_NAME_001.md) — NEVER amend an existing report file in place; a follow-up pass on the same topic always gets its own new numbered file (_002, _003, ...).
 ---
 
 # GOPOD report
@@ -16,22 +16,28 @@ Follow the existing convention already used throughout `gopod_notes/`:
 
 ## Before writing a new file
 
-Check whether a report on the same topic already exists (top level, and in
-`gopod_notes/older_notes/` if auto-archived) — if the new content is a follow-up,
-correction, or continuation of that same investigation, prefer amending the existing file
-with a new dated section over creating a near-duplicate file. Only start a new numbered file
-for genuinely new scope.
+**NEVER amend an existing `gopod_notes/*.md` report file in place, for any reason,
+including a small follow-up or an addendum to a report from earlier the same session.**
+The operator actively opens and reads/works from these files — editing one out from under
+him while it's open is real disruption, named directly: "I enter them and then you
+fucking change shit on me." Check whether a report on the same topic already exists (top
+level, and in `gopod_notes/older_notes/` if auto-archived) only to pick the right next
+sequence number, never to decide whether to edit it — every pass, however small, gets its
+own new file: `TOPIC_NAME_001.md`, then `_002.md`, `_003.md`, and so on, v1/v2/v3, full
+stop.
 
-A **survey that finds a real stop condition, followed by the execution that happens once
-the operator clears it, is genuinely new scope each time** — two files, not one amended
-file. interview5 precedent: `NET_VIDEO_TIMING_MAP_SURVEY_001.md` (found the timing map
-couldn't be built from disk) → `NET_VIDEO_TIMING_INSTRUMENTATION_001.md` (built and
-dry-verified the fix) → `NET_VIDEO_TIMING_MAP_001.md` (the map, once real data existed);
+This same file's own naming convention already gives every follow-up a home: a **survey
+that finds a real stop condition, followed by the execution that happens once the
+operator clears it, is genuinely new scope each time** — two files, not one. interview5
+precedent: `NET_VIDEO_TIMING_MAP_SURVEY_001.md` (found the timing map couldn't be built
+from disk) → `NET_VIDEO_TIMING_INSTRUMENTATION_001.md` (built and dry-verified the fix) →
+`NET_VIDEO_TIMING_MAP_001.md` (the map, once real data existed);
 `DISPLAY_LANE_SURVEY_STOP_001.md` (found two raw-feed sites, stopped) →
 `DISPLAY_LANE_MATCH_EXECUTED_001.md` (fixed both, once told to proceed). Each file in
 these pairs/chains answers a different question asked at a different point in the
 conversation - collapsing them into one continuously-edited file would blur exactly the
-STOP/go-ahead boundary CLAUDE.md's stop conditions exist to make visible.
+STOP/go-ahead boundary CLAUDE.md's stop conditions exist to make visible, on top of the
+disruption named above.
 
 ## Content discipline
 

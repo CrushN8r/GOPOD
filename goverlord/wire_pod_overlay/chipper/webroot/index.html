@@ -232,15 +232,45 @@
       var textarea = document.getElementById("botTranscriptedTextArea");
       var seenLines = {};
       var wasExpanded = false;
+      var wasRunActive = false;
       var manuallyClosed = false;
+      var lastFinishedAt = 0;
+      var closeBtnVisible = false;
       // A page load/refresh right after a run finishes should still show
       // that run's bubbles; only a truly old leftover (browser left open
       // for hours/days) should stay collapsed. finished_at is epoch seconds
       // written by brobots.sh at run end.
       var STALE_AFTER_SECONDS = 300;
 
+      // 2026-09-01 operator live-report: a manual close only ever lived in
+      // this in-memory `manuallyClosed` var - a page refresh re-runs this
+      // whole script from scratch, so the close was forgotten and the just-
+      // closed run's bubbles reopened on refresh. Persisted per-run via
+      // localStorage instead (keyed to that run's own finished_at, not a
+      // bare boolean) so a refresh re-checks "did I already close THIS
+      // run's bubbles" rather than just "were bubbles ever closed" - a
+      // genuinely NEW run (a fresh finished_at, or run_active flipping
+      // true) is never suppressed by an old close. Wrapped in try/catch -
+      // a storage failure (private browsing, storage disabled) must never
+      // break the actual chat-bubbles feature, just fall back to no
+      // persistence.
+      function getClosedMarker() {
+        try {
+          return window.localStorage.getItem("gopod_bubbles_closed_finished_at");
+        } catch (e) {
+          return null;
+        }
+      }
+      function setClosedMarker(finishedAt) {
+        try {
+          window.localStorage.setItem("gopod_bubbles_closed_finished_at", String(finishedAt));
+        } catch (e) { /* no persistence available - in-memory close still works this tab */ }
+      }
+
       window.closeBrobotChatBubbles = function () {
         manuallyClosed = true;
+        closeBtnVisible = false;
+        setClosedMarker(lastFinishedAt);
         container.classList.remove("expanded");
         closeBtn.style.display = "none";
         textarea.style.display = "";
@@ -311,16 +341,47 @@
                 // (run_active:true) still opens normally.
                 return;
               }
-              // freshly expanding - clear any previous run's bubbles/dedup
+            }
+
+            // 2026-09-01 operator live-report fix: a manual close only
+            // needs forgetting on a genuinely NEW run starting, not merely
+            // whenever `expanded` is still true from before. pha0b writes
+            // expanded:true continuously across an entire invocation
+            // (including bait's own two-pass loop), so `expanded &&
+            // !wasExpanded` only ever fires once, right after a page
+            // load/refresh - every run after that (in particular the very
+            // next robot say after a manual close) left wasExpanded
+            // already true, so manuallyClosed never got reset and the div
+            // silently stayed hidden until the page was refreshed.
+            // run_active flipping false -> true is the real "a new run
+            // just began" signal (Robots.__init__ writes it exactly once
+            // per process/pass) - reset on that transition too, whether
+            // or not `expanded` itself changed.
+            if ((expanded && !wasExpanded) || (runActive && !wasRunActive)) {
               seenLines = {};
               clearBubbles();
               manuallyClosed = false;
             }
+
+            // A page refresh re-runs this whole script, so the block above
+            // just unconditionally reset manuallyClosed - re-check the
+            // persisted marker so a run the operator already closed stays
+            // closed across that refresh. Only for a finished run
+            // (!runActive) with a real finishedAt, and only when it's the
+            // SAME run's finishedAt that was actually closed - a later run
+            // (different finishedAt) is never suppressed by an old close.
+            if (!runActive && finishedAt && getClosedMarker() === String(finishedAt)) {
+              manuallyClosed = true;
+            }
+            if (finishedAt) { lastFinishedAt = finishedAt; }
+
             wasExpanded = expanded;
+            wasRunActive = runActive;
 
             if (!expanded) {
               container.classList.remove("expanded");
               closeBtn.style.display = "none";
+              closeBtnVisible = false;
               textarea.style.display = "";
               return;
             }
@@ -328,15 +389,75 @@
               container.classList.add("expanded");
               textarea.style.display = "none";
             }
-            closeBtn.style.display = (!runActive && !manuallyClosed) ? "inline-block" : "none";
+            // 2026-09-01 operator live-report: the button is real content
+            // now (order: 1, sorts as the last flex item - MULTI-002.md
+            // item 5), so it grows the container's own scrollHeight same
+            // as a bubble does - but nothing scrolled the view down to
+            // reveal it, unlike appendBubble()'s own `container.scrollTop
+            // = container.scrollHeight` on every new bubble. Operator saw
+            // the scrollbar grow to make room for it while the button
+            // itself stayed off-screen. Only scroll on the actual
+            // hidden->visible transition, not every 500ms poll tick -
+            // otherwise this would fight a user who deliberately scrolled
+            // up to re-read earlier bubbles while the run sits finished.
+            var shouldShowClose = !runActive && !manuallyClosed;
+            closeBtn.style.display = shouldShowClose ? "inline-block" : "none";
+            if (shouldShowClose && !closeBtnVisible) {
+              // 2026-09-01, second pass: reading scrollHeight right after
+              // the display change SHOULD force a synchronous reflow that
+              // already accounts for the button - operator reported it
+              // still landed below the visible line, so that assumption
+              // was wrong somewhere in this browser/layout combination.
+              // Double requestAnimationFrame is the standard defensive
+              // pattern for "scroll to reveal something that just became
+              // visible" - it waits for the browser to actually complete a
+              // full layout+paint pass (one rAF often fires before paint
+              // has caught up; two reliably lands after), so the assigned
+              // scrollHeight is guaranteed current. Kept the immediate
+              // attempt too - harmless if premature, free if it already
+              // worked.
+              container.scrollTop = container.scrollHeight;
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                  container.scrollTop = container.scrollHeight;
+                });
+              });
+            }
+            closeBtnVisible = shouldShowClose;
           })
           .catch(function () { /* state file not written yet - stay collapsed */ });
       }
 
+      // 2026-09-01: bubble background follows each robot's own real eye
+      // color instead of a fixed pair - _write_brobot_eye_colors_state()
+      // (run_section1_full_live_001.py) writes this file fresh once per
+      // run start (Robots.__init__), so a color change on the robot's own
+      // app is picked up by the NEXT run, never mid-run (operator
+      // direction). Same poll-a-small-JSON-file pattern as pollState()
+      // above, on the same 500ms cadence - reapplying an unchanged value
+      // every tick is harmless.
+      var lastEyeColors = null;
+      function pollEyeColors() {
+        fetch("/gopod_brobot_eye_colors.json", { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (colors) {
+            if (!colors) { return; }
+            var serialized = JSON.stringify(colors);
+            if (serialized === lastEyeColors) { return; }
+            lastEyeColors = serialized;
+            var root = document.documentElement.style;
+            if (colors.brobot_1) { root.setProperty("--brobot-1-color", colors.brobot_1); }
+            if (colors.brobot_2) { root.setProperty("--brobot-2-color", colors.brobot_2); }
+          })
+          .catch(function () { /* color file not written yet - CSS fallback holds */ });
+      }
+
       setInterval(pollState, 500);
       setInterval(pollBubbles, 500);
+      setInterval(pollEyeColors, 500);
       pollState();
       pollBubbles();
+      pollEyeColors();
     })();
 </script>
 </body>

@@ -1974,36 +1974,94 @@ for s in steps[lo:hi + 1]:
     echo '{"expanded":true,"run_active":true}' > "$rich_ui_state_file"
   fi
 
-  local stderr_capture
-  stderr_capture="$(mktemp)"
-  # pha0b_run.log (2026-08-15, MASTER_TWEAKS_STAGE2_LOGS_001.md) - same
-  # tee pattern already proven twice in this file (test-reaction-in-the-
-  # beat/test-anim-*), scoped to this return-free dispatch subshell only,
-  # never wrapped around pha0b()'s own body (which has early `return 1`s
-  # scattered through its own validation/prompt logic above - a `return`
-  # inside a piped subshell only exits that subshell, never the real
-  # function, so wrapping the whole function would silently break every
-  # one of those). Lives in ~/.gopod_alias_lib/, no git repo at all in
-  # that path - provably outside git, never committable. Overwritten
-  # fresh each pha0b call, matching phcal_run.log's own convention.
-  # PIPESTATUS[0], not $?, since $? after a pipe reflects tee's own exit
-  # status, not the subshell's - the BLOCKED/FAILED detection below
-  # depends on the real one.
-  (
-    cd "$tools_dir" && \
-    export "${env_prefix}_FROM=$point_a" && \
-    export "${env_prefix}_TO=$point_b" && \
-    export "${env_prefix}_WAKE=1" && \
-    if [ -n "$song_dir_export" ]; then export GOPOD_CONTROL_SONG_DIR="$song_dir_export"; fi && \
-    if [ -n "$song_dir_export" ] && [ "$runner" = "run_golden_song_001.py" ]; then export GOPOD_GOLDEN_SONG_DIR="$song_dir_export"; fi && \
-    if [ "$song" != "bingo" ]; then export GOPOD_CONTROL_SONG_ROBOT="$robot"; fi && \
-    if [ "$runner" = "run_golden_song_001.py" ] && [ "$robot_filter_choice" != "both" ]; then export GOPOD_GOLDEN_ROBOT="$robot_filter_choice"; fi && \
-    if [ "$runner" = "run_golden_song_001.py" ]; then export GOPOD_GOLDEN_ROBOT_FILTER="$robot_filter_choice"; fi && \
-    if [ "$live_gate" -eq 1 ]; then export GOPOD_ALLOW_LIVE_ROBOT_SPEECH=1; fi && \
-    if [ -n "$rich_display_override" ]; then export GOPOD_CONSOLE_RICH_DISPLAY="$rich_display_override"; fi && \
-    python3 "$runner"
-  ) 2> >(tee "$stderr_capture" >&2) | tee "/home/goverlord/.gopod_alias_lib/pha0b_run.log"
-  local status="${PIPESTATUS[0]}"
+  # AWAKEN_MULTI_MODE_TWO_PASS_SURVEY_PLAN_001.md: awaken (song=bait) is
+  # synthesize_speaker=True in SONG_REGISTRY (run_golden_song_001.py) -
+  # its own knobs.json "speaker" field is dead, the WHOLE run targets one
+  # robot (GOPOD_GOLDEN_ROBOT, default "1"). "both" never got a second
+  # meaning for this song family - it silently fell back to robot 1 only.
+  # Real fix: when song=bait and robot_filter_choice=both, dispatch TWICE
+  # - brobot 1's full pass, then brobot 2's full pass - instead of once.
+  # Every other song, and every other robot_filter choice for bait itself
+  # ("1"/"2"), takes the single empty-string pass below, byte-identical to
+  # before this change.
+  local -a _golden_robot_passes
+  if [ "$song" = "bait" ] && [ "$robot_filter_choice" = "both" ]; then
+    _golden_robot_passes=("1" "2")
+  else
+    _golden_robot_passes=("")
+  fi
+
+  local status=0
+  local _pass_num=0
+  for _golden_robot_pass in "${_golden_robot_passes[@]}"; do
+    _pass_num=$((_pass_num + 1))
+    if [ "$_pass_num" -gt 1 ]; then
+      # Settle gap between the two sequential passes - each pass does its
+      # own manage_control=False assume-once/release-once around its own
+      # connect..exit range. Firing pass 2's assume immediately after pass
+      # 1's release risks the exact no-settle no-op class of bug CLAUDE.md's
+      # own TECHNICAL GOTCHAS section already names (a fresh
+      # assume_behavior_control needs a settle before the first action) -
+      # same 1.5s convention as PHCAL_ASSUME_SETTLE_SECONDS/
+      # POST_ASSUME_SAY_SETTLE_SECONDS, reused here, not a new number.
+      echo "PHA0B_BAIT_MULTI_PASS_SETTLE sleeping 1.5s before brobot 2's pass"
+      sleep 1.5
+    fi
+
+    local stderr_capture
+    stderr_capture="$(mktemp)"
+    # pha0b_run.log (2026-08-15, MASTER_TWEAKS_STAGE2_LOGS_001.md) - same
+    # tee pattern already proven twice in this file (test-reaction-in-the-
+    # beat/test-anim-*), scoped to this return-free dispatch subshell only,
+    # never wrapped around pha0b()'s own body (which has early `return 1`s
+    # scattered through its own validation/prompt logic above - a `return`
+    # inside a piped subshell only exits that subshell, never the real
+    # function, so wrapping the whole function would silently break every
+    # one of those). Lives in ~/.gopod_alias_lib/, no git repo at all in
+    # that path - provably outside git, never committable. Overwritten
+    # fresh each pass (matching phcal_run.log's own convention) - on the
+    # two-pass awaken route, pass 2's own log overwrites pass 1's; each
+    # pass's REAL run log/json (runs/golden_run_<timestamp>.*) is
+    # unaffected, this is only the scratch tee copy.
+    # PIPESTATUS[0], not $?, since $? after a pipe reflects tee's own exit
+    # status, not the subshell's - the BLOCKED/FAILED detection below
+    # depends on the real one.
+    (
+      cd "$tools_dir" && \
+      export "${env_prefix}_FROM=$point_a" && \
+      export "${env_prefix}_TO=$point_b" && \
+      export "${env_prefix}_WAKE=1" && \
+      if [ -n "$song_dir_export" ]; then export GOPOD_CONTROL_SONG_DIR="$song_dir_export"; fi && \
+      if [ -n "$song_dir_export" ] && [ "$runner" = "run_golden_song_001.py" ]; then export GOPOD_GOLDEN_SONG_DIR="$song_dir_export"; fi && \
+      if [ "$song" != "bingo" ]; then export GOPOD_CONTROL_SONG_ROBOT="$robot"; fi && \
+      if [ -n "$_golden_robot_pass" ]; then
+        export GOPOD_GOLDEN_ROBOT="$_golden_robot_pass"
+      elif [ "$runner" = "run_golden_song_001.py" ] && [ "$robot_filter_choice" != "both" ]; then
+        export GOPOD_GOLDEN_ROBOT="$robot_filter_choice"
+      fi && \
+      if [ "$runner" = "run_golden_song_001.py" ]; then export GOPOD_GOLDEN_ROBOT_FILTER="$robot_filter_choice"; fi && \
+      if [ "$_pass_num" -lt "${#_golden_robot_passes[@]}" ]; then export GOPOD_GOLDEN_SUPPRESS_PROMOTE=1; fi && \
+      if [ "$live_gate" -eq 1 ]; then export GOPOD_ALLOW_LIVE_ROBOT_SPEECH=1; fi && \
+      if [ -n "$rich_display_override" ]; then export GOPOD_CONSOLE_RICH_DISPLAY="$rich_display_override"; fi && \
+      python3 "$runner"
+    ) 2> >(tee "$stderr_capture" >&2) | tee "/home/goverlord/.gopod_alias_lib/pha0b_run.log"
+    status="${PIPESTATUS[0]}"
+
+    local blocked_line=""
+    if [ "$status" -ne 0 ]; then
+      blocked_line="$(grep -o 'BLOCKED:.*' "$stderr_capture" | tail -1)"
+    fi
+    rm -f "$stderr_capture"
+    # A failed/blocked first pass stops here - brobot 2's pass never fires
+    # on top of a failure (matching the single-dispatch original: a failure
+    # was always terminal for that one dispatch; running a second pass
+    # after one already failed isn't assumed safe here). `break`, not
+    # `return`, so the rich-display finalization below - which the
+    # original always ran regardless of success/failure - still fires.
+    if [ "$status" -ne 0 ]; then
+      break
+    fi
+  done
 
   if [ "$rich_display_live" = "1" ]; then
     # run ended (success or fail, doesn't matter) - stay expanded, swap to
@@ -2015,17 +2073,13 @@ for s in steps[lo:hi + 1]:
   fi
 
   if [ "$status" -ne 0 ]; then
-    local blocked_line
-    blocked_line="$(grep -o 'BLOCKED:.*' "$stderr_capture" | tail -1)"
     if [ -n "$blocked_line" ]; then
       echo "PHA0B_BLOCKED $blocked_line"
     else
       echo "PHA0B_FAILED unexpected error (see trace above)"
     fi
-    rm -f "$stderr_capture"
     return 1
   fi
-  rm -f "$stderr_capture"
 }
 
 # pha0b_menu - read-only picker that sits IN FRONT of pha0b's own slice

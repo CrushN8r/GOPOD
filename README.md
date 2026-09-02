@@ -1,7 +1,7 @@
 # GOPOD
 
 > A local-first multi-robot session engine built on Wire-Pod.  
-> Two Vectors. One wake phrase.
+> Two Vectors. One wake phrase. @CrushN8r
 
 Pip: "Is this mic on? Hello? Oh, hello! GOPOD is um — 'AI Wordplay! Explain the Math!' Its like everything. Um..."
 
@@ -33,36 +33,32 @@ Wire-pod fans: [MY_NICHE_BUZZ_ASK.md](MY_NICHE_BUZZ_ASK.md)
 **Main Courses:**
 
 **Dish for 2: [TRAJECTORY.md](TRAJECTORY.md)**
-WEtech / SBC / funders & Social / ops / content pros
-The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
+> WEtech / SBC / funders & Social / ops / content pros
+> The planned arc, Point A to the pinnacle, honestly labeled built vs. aim
 
-Why GOPOD? [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
-Web Overview [web/README.md](web/README.md)
-The content engine: pillars, wordplay, aha moments, newsletter
-Social media help: [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
+> Why GOPOD? [UNFAIR_ADVANTAGES.md](UNFAIR_ADVANTAGES.md)
+> Web Overview [web/README.md](web/README.md)
+> The content engine: pillars, wordplay, aha moments, newsletter
+> Social media help: [MY_GOPOD_OPS_ASK.md](MY_GOPOD_OPS_ASK.md)
 
 **Dish for 1:**
-Tech Overview: [tech/README.md](tech/README.md)
-The songs, the studio tooling, Wire-Pod integration
-Coder / brobot builders: [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire)
+> Tech Overview: [tech/README.md](tech/README.md)
+> The songs, the studio tooling, Wire-Pod integration
+> Coder / brobot builders: [tech/WIRED-POD.md](tech/WIRED-POD.md#open-wire)
 
 **Side Dish:**
-[life/README.md](life/README.md)
-The philosophy, teaching, and lessons learned
+> [life/README.md](life/README.md)
+> The philosophy, teaching, and lessons learned
 
 ---
 
 **What runs today**
 
-Two Vectors. One robot drives the other's behavior through nothing but a shared event
-log — zero code coupling, zero shared process. They perform scripted multi-exchange
-songs fully offline, no cloud after setup, launched via `pha0b` — the operator's own
-performance front door — on a Jetson Orin NX 16GB running Wire-Pod + local Ollama.
+> Two Vectors. One robot drives the other's behavior through nothing but a shared event log — zero code coupling, zero shared process. They perform scripted multi-exchange songs fully offline, no cloud after setup, launched via `pha0b` — the operator's own performance front door — on a Jetson Orin NX 16GB running Wire-Pod + local Ollama.
 
 [Bingo](tech/GOPOD_FEATURES.md) is where that claim gets proven, live. That's Layer 1. It runs.
 
-Own a Vector yourself? The [single-bot quickstart](tech/SINGLE_BOT_QUICKSTART.md) is the
-same idea, one robot — real pieces, real gaps, stated honestly.
+Own a Vector yourself? The [single-bot quickstart](tech/SINGLE_BOT_QUICKSTART.md) is the same idea, one robot — real pieces, real gaps, stated honestly.
 
 Layer 2 — the live multichat cockpit — is the open ceiling. ([That's the ask.](tech/WIRED-POD.md#open-wire))
 
@@ -73,10 +69,10 @@ A note from @crushn8r the operator: Welcome to my block buster movie book song v
 I use terms like block buster movie book song video composition, whatever poetic license, etc... for context to get my message across to AI. That's what "AI Wordplay! Explain the Math!" is: the CRUSHN8R mission compressed into two beats. That's why it touches everything: it is everything, folded small.
 
 The CRUSHN8R mission statements:
-Clarity through Confusion
-Focus through Distraction
-Bravery through Fear
-Success through Failure
+> Clarity through Confusion
+> Focus through Distraction
+> Bravery through Fear
+> Success through Failure
 
 1. "AI Wordplay!" — the obstacle that's secretly the good part: communication skills built through play. The vivid experience of confusion, distraction, fear, failure, the "whatever."
 
@@ -97,19 +93,15 @@ In the end, you can all GOPOD yourselves. lol — and that's not the brush-off i
 Goverlord is the Jetson — `goverlord@brain` — the machine GOPOD actually runs on. This is its pitch, in its own voice:
 
 > Put me in Drive baby
-
 > Cause I'm your machine
 
 > Run me fast and hard
-
 > But you keep me clean
 
 > What's your destination?
-
 > What's your ultimate scene
 
 > Put me in Drive baby
-
 > Cause I'm your machine
 
 ---
@@ -117,7 +109,7 @@ Goverlord is the Jetson — `goverlord@brain` — the machine GOPOD actually run
 Doc: Lesson. "AI Wordplay! Explain the Math!" is GOPOD. It's the GOPOD engine. It's a lifestyle choice!! So go ahead! GOPOD Yourself! Boom. Done. Class dismissed.
 — Doc Barfallonyou Squawkadoodle
 
-Pip: "Wait — is this the part where I ask for their emails? For the newsletter? …It is, isn't it."
-Doc: "Pip!"
+> Pip: "Wait — is this the part where I ask for their emails? For the newsletter? …It is, isn't it."
+> Doc: "Pip!"
 
 ## EOF ##

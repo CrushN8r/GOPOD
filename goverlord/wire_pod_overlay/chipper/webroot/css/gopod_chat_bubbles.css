@@ -33,11 +33,23 @@
   margin: 12px 0;
   position: relative;
 }
+/* 2026-09-01, second pass: `position: absolute` was itself wrong, not
+   just the earlier `sticky` attempt - absolute inside a scrolling
+   container (overflow-y: auto) positions against the full SCROLLABLE
+   CONTENT height, not the visible viewport, so `bottom: 16px` scrolled
+   away with the bubbles instead of staying put, and the operator
+   confirmed by ear/eye that's exactly what happened. His own clarified
+   ask: the button should behave as the LAST chat bubble, in normal flow,
+   scrolling with the rest of the content - not floating/fixed at all.
+   `order` on a flex child does that without touching the DOM/JS: the
+   button is the FIRST element in the markup (bubbles append after it),
+   but flex lays out children by (order, then DOM position) - order: 1
+   here (bubbles keep their implicit default of 0) always sorts it after
+   every bubble, however many exist, with zero JS changes needed. */
 #brobot-chat-bubble-close {
   display: none;
-  position: sticky;
-  top: 0;
-  align-self: flex-end;
+  order: 1;
+  align-self: center;
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 8px;
@@ -56,13 +68,22 @@
   align-items: center;
   gap: 12px;
 }
+/* 2026-09-01: background now matches each robot's own LIVE eye color
+   (custom_eye_color hue/saturation, jdocs.json) instead of a fixed
+   placeholder pair - see index.html's pollEyeColors() for how
+   --brobot-1-color/--brobot-2-color get set, and
+   _write_brobot_eye_colors_state() (run_section1_full_live_001.py) for
+   where the value comes from. The hex values here are only the fallback
+   for before that JS runs (or if the color file is ever missing) - the
+   robots' real colors as read live, 2026-09-01: Brobot 1 #FF001A,
+   Brobot 2 #0009FF. */
 .brobot-bubble.brobot-1 {
-  background: #0d6efd;
+  background: var(--brobot-1-color, #FF001A);
   align-self: flex-start;
   text-align: left;
 }
 .brobot-bubble.brobot-2 {
-  background: #fd7e14;
+  background: var(--brobot-2-color, #0009FF);
   align-self: flex-end;
   text-align: right;
   flex-direction: row-reverse;

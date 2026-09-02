@@ -188,7 +188,19 @@ def _twelve_hour_time_spoken(hour_24, minute):
         minute_word = f"oh {_DIGIT_WORDS[minute]}"
     else:
         minute_word = _two_digit_word(minute)
-    suffix = "am" if hour_24 < 12 else "pm"
+    # 2026-09-01, operator live-report: bare lowercase "am" fed to TTS gets
+    # read as the English WORD "am" (verb, rhymes with "ham" - a real robot
+    # run confirmed it renders as a mumbled "ammmm"). "pm" has no such
+    # collision - a live run with the hyphenated "PEE-EM" fix in place, then
+    # operator ear-check, confirmed plain lowercase "pm" alone already reads
+    # correctly as separate letters, no rewrite needed. Only "am" needs
+    # help, and the hyphenated "AY-EM" form was itself an operator-flagged
+    # miss - replaced with his own exact literal text, "'a' m" (quotes
+    # included), per his own direct correction. Spoken-only - never touches
+    # the digit/display form (twelve_
+    # digit's own "am"/"pm" stays lowercase, matching this function's own
+    # spoken-vs-display split).
+    suffix = "'a' m" if hour_24 < 12 else "pm"
     return f"{hour_word} {minute_word} {suffix}"
 
 
