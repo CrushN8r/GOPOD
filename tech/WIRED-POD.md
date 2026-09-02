@@ -324,6 +324,69 @@ canonical per-alias registry — read there for what each function actually does
 
 ---
 
+## Songs, PLAYHEAD, and phcal: the performance layer built on top
+
+Everything above is Wire-Pod itself — the engine one robot talks through. This layer is
+GOPOD's own, running beside it on the same machine: the song format, the cockpit that
+plays a song, and the bench that tunes one movement/audio primitive at a time. None of it
+is Wire-Pod code; all of it drives Wire-Pod through the same `/api-sdk/*` endpoints
+described above (`assume_behavior_control`, `say_text`, `release_behavior_control`).
+
+### A song, as a file pair
+Every song lives in its own folder under `goverlord/runtime/songs/` — two files hold the
+whole thing:
+- **`story.md`** — the text. `## STEP <step_id>` headings, each with a `> TEXT:` line (the
+  spoken content) and an optional `> FAIL:` line. `{robot_name}` is the one substitution
+  token, replaced with the actual speaker's name at runtime (`say_connected`'s TEXT reads
+  `{robot_name} connected. Loading next test.` — spoken as "Brobot 1 connected..." or
+  "Brobot 2 connected...", whichever robot is talking).
+- **`knobs.json`** — the mechanical parameters, one object per step: `note` (what kind of
+  action — `say`, `arm_cue`, `nod`, `weather`, `pause`, `connect`, `exit`, and a few more),
+  `speaker`, plus whatever that note type needs (`cycles`/`hold_seconds`/`speed` for
+  `arm_cue`, `pause_seconds`/`gap_label` for `pause`). Text and mechanics are deliberately
+  separate files — editing a line's wording never touches its timing, and vice versa.
+
+One runner reads both and plays them: `run_golden_song_001.py`'s `SONG_REGISTRY`
+(`:193`) maps a song id to its folder, which runner function handles it, and a few
+per-song flags (`manage_control` — does this song hold one continuous connection instead
+of assume/release per step; `synthesize_speaker` — does the whole run target one env-var-
+picked robot regardless of each step's own `speaker` field, the mechanism behind
+`00_brobots_awaken`'s two-pass "run brobot 1's whole song, then brobot 2's" mode).
+`story.md` is parsed by `parse_control_story_md()`; each step dispatches by its `note`
+into the matching action. A run's full result — every step, every HTTP response, timing —
+saves to `<song>/runs/golden_run_<timestamp>.json`.
+
+### PLAYHEAD — the cockpit that plays a song
+`pha0b` (`~/.gopod_alias_lib/brobots.sh:1519`) — "PlayHead A/0/B." Bare `pha0b` opens a
+menu: pick a song off disk, pick a point A/point B range (or the whole song), and it runs
+that slice live, no separate copy/paste step. A few prompts along the way, each with a
+plain default: reporter-gap seconds (a dry, run-scoped override — never rewrites
+`knobs.json`), whether to pull phcal's last-confirmed tuned values into this run, which
+robot(s) to run, live speech on or dry. Called with explicit arguments
+(`pha0b <song> <point_a> <point_b> [robot]`) skips the menu entirely.
+
+### phcal — the bench that tunes one primitive
+`phcal` (`~/.gopod_alias_lib/brobots.sh:2760`) — the sibling tool. Where `pha0b` plays
+the score, `phcal` tunes the instrument: one isolated movement/audio/animation primitive
+(arm, nod, cube light, rattle, an animation token), live, on one robot, independent of any
+song. A startup probe checks which robots are present and their battery before the menu
+draws. Every tunable primitive walks pre-filled with its last-used value (Enter keeps it,
+typing overrides) and saves what fired to `phcal_last.json` — the same file `pha0b`'s
+"pull phcal's tuned values into this run" prompt reads from, and the same file a direct
+flag call (`phcal arm 1 --hold 1.3 --cycles 3`) reads and writes too. Movement/audio logic
+is shared with the golden song runner (`run_robot_control_song_001.py`'s
+`run_move_axis()`/`run_arm_cue()`/`run_nod()`) via `~/.gopod_alias_lib/
+phcal_isolate_001.py` — tuning a primitive in phcal and running it inside a song are the
+same underlying code path, not two implementations to keep in sync.
+
+### Where to actually read more
+This section is the map, not the manual — every alias, every menu option, every knob
+`pha0b`/`phcal` expose is catalogued in one place: `tech/alias_play_studio/
+ALIAS-LIBRARY.md`. Read that for what a specific alias does; read this section for how the
+pieces fit together.
+
+---
+
 ## Brobots Chat Bubbles: the webroot UI feature
 
 A second, richer view of the same `/api/get_logs` feed the plain log textarea already
