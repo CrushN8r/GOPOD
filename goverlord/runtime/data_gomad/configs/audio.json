@@ -1,0 +1,7 @@
+{
+  "archive_target_hz": 48000,
+  "chat_target_hz": 16000,
+  "capture_native_hz": 44100,
+  "usb_audio_match_string": "USB Audio",
+  "usb_audio_exclude_terms": ["webcam", "c920"]
+}

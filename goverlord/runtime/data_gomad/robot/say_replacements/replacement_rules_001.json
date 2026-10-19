@@ -1,0 +1,35 @@
+{
+  "packet_id": "replacement_rules_001",
+  "status": "BASELINE_RULES",
+  "default_enabled": true,
+  "rules": [
+    {
+      "rule_id": "PRONOUNCE_GOPOD_001",
+      "order": 10,
+      "enabled": true,
+      "scope": "global",
+      "match": "GOPOD",
+      "replacement": "GOpod",
+      "case_insensitive": true,
+      "whole_word": true,
+      "reason": "Operator pronunciation preference: downbeat on GO."
+    }
+  ],
+  "session_profiles": {
+    "default": {
+      "enabled_rule_ids": [
+        "PRONOUNCE_GOPOD_001"
+      ]
+    },
+    "family_safe": {
+      "enabled_rule_ids": [
+        "PRONOUNCE_GOPOD_001"
+      ]
+    },
+    "customer_specific": {
+      "enabled_rule_ids": [
+        "PRONOUNCE_GOPOD_001"
+      ]
+    }
+  }
+}

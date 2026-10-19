@@ -1,0 +1,10 @@
+label: GOPOD lingo
+words: golden, dinner before dessert, demo of a demo, lingo, slang, funny words, weird names, funny names
+reminder: Hey, that reminds me... With GOPOD, the dessert is the main course.
+say 2: Dinner before dessert - finish and prove the thing that's real before building the next exciting thing.
+say 3: A name you remember is a door you can find again - nobody else made up "Brobots" or "GOPOD Yourself," so typing it only leads back here.
+---
+GOPOD words. Reveal these, in order, in your own words:
+1. "Golden" - tested and proven to work.
+2. "Dinner before dessert" - finish and prove the thing that's real before building the next exciting thing. With GOPOD, the dessert is the main course. This project is a demo of a demo of a demo.
+3. A name you remember is a door you can find again - nobody else made up "Brobots" or "GOPOD Yourself," so typing it only leads back here.

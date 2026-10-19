@@ -1,0 +1,14 @@
+{
+  "description": "Stage directions the robot never says out loud. When the model wraps text in asterisks, a span whose first word is on this list (*laugh*, *winks at you*) is dropped; any other span (*crazy*, **AI Wordplay**) is spoken without its asterisks. Edit this list, then restart wire-pod.service. See gopod_stage_directions.go.",
+  "stage_directions": [
+    "laugh", "laughs", "laughing", "giggle", "giggles", "chuckle", "chuckles",
+    "snicker", "snickers", "cackle", "cackles", "snort", "snorts",
+    "sigh", "sighs", "gasp", "gasps", "groan", "groans",
+    "wink", "winks", "grin", "grins", "smile", "smiles", "smirk", "smirks",
+    "shrug", "shrugs", "nod", "nods", "clap", "claps", "cough", "coughs", "ahem",
+    "beep", "boop", "whirr", "whirrs", "bzzt",
+    "hold", "holds", "holding", "raise", "raises", "wave", "waves", "waving",
+    "wiggle", "wiggles", "point", "points", "lean", "leans", "bow", "bows",
+    "dance", "dances", "spin", "spins", "tap", "taps", "whisper", "whispers"
+  ]
+}

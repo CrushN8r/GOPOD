@@ -1,0 +1,25 @@
+# Wire-Pod reads and writes GOPOD's files in this overlay folder (2026-10-02,
+# operator: "keep ~/wire-pod as native as possible"). Never tracked: what Wire-Pod
+# and the songs write while running, and rollback binaries.
+chipper/sessions/
+chipper/gopod_touch_interrupt_off
+chipper/gopod_song_stop_request
+chipper/webroot/gopod_chat_feed.json
+chipper/webroot/gopod_speaking_now.json
+chipper/webroot/gopod_llm_warmup.json
+chipper/webroot/gopod_audio_levels.json
+chipper/gopod_system_undo.json
+chipper/gopod_page_hidden
+chipper/webroot/gopod_record_session.json
+chipper/webroot/gopod_brobot_eye_colors.json
+chipper/webroot/gopod_rich_display_ui_state.json
+chipper/customIntents.json.bak_*
+chipper_backups/
+chipper/webroot/gopod_reporter_audio/
+chipper/webroot/gopod_reporter_audio_backup/
+chipper/webroot/gopod_audio_norm/
+# QR codes PLAYHEAD makes in live chats (gopodMakeQR) - run output
+chipper/webroot/qr/made/
+
+# 2026-10-14: the photo egg's photos (gopod_photo.go) - private, never in the repo.
+chipper/webroot/photos/

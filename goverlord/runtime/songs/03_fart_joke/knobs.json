@@ -1,0 +1,26 @@
+{
+  "song_id": "brobots_fart_joke",
+  "song_type": "bingo_capture",
+  "story_ref": "story.md",
+  "global_tempo": 0.1,
+  "chat_intro": "Fart Joke Live",
+  "sentence_split": "scripted",
+  "touch_interrupt_off": true,
+  "llm_warmup": true,
+  "llm_ready_text": "We here, are Fart Joke Ready",
+  "sounds": ["fart1.wav", "fart2.wav", "fart3.wav"],
+  "sounds_about": "The song's sound files (in fart sfx/), copied into the chat page's voice folder at Wire-Pod's start; a \"sound\" step plays one there at its volume.",
+  "steps": [
+    {"step_id": "reporter_gap_0101", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_wake", "section": "OPENING"},
+    {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPENING"},
+    {"step_id": "brat_say_0201", "note": "say_turn", "speaker": "brobot_2", "buffer_after": 0.5, "section": "ELEVATOR"},
+    {"step_id": "host_thinking_say_0202", "note": "combo", "speaker": "brobot_1", "section": "ELEVATOR", "buffer_after": 0.5, "combo": [{"note": "thinking", "buffer_after": 0.0, "text": ""}, {"note": "say_turn", "buffer_after": 0.5}]},
+    {"step_id": "brat_say_fart2_0204", "note": "combo", "speaker": "brobot_2", "section": "ELEVATOR", "combo": [{"note": "say_turn", "buffer_after": 0.0}, {"note": "sound", "sound": "fart2.wav", "volume": "30%", "buffer_after": 0.5, "text": ""}]},
+    {"step_id": "host_say_danger_beat_frustrated_0205", "note": "combo", "speaker": "brobot_1", "section": "ELEVATOR", "combo": [{"note": "sound", "sound": "danger-will-robinson.wav", "volume": "25%", "buffer_after": 0.0, "text": ""}, {"note": "emotion_beat", "animation_token": "frustrated", "hold_seconds": 1.5, "buffer_after": 0.9}]},
+    {"step_id": "brat_say_fart1_0206", "note": "combo", "speaker": "brobot_2", "section": "ELEVATOR", "combo": [{"note": "say_turn", "buffer_after": 0.0}, {"note": "sound", "sound": "fart1.wav", "volume": "30%", "buffer_after": 0.5, "text": ""}]},
+    {"step_id": "host_beat_angry_0207", "note": "emotion_beat", "speaker": "brobot_1", "animation_token": "angry", "hold_seconds": 1.5, "buffer_after": 0.9, "section": "ELEVATOR"},
+    {"step_id": "brat_say_fart3_0208", "note": "combo", "speaker": "brobot_2", "section": "ELEVATOR", "combo": [{"note": "say_turn", "buffer_after": 0.0}, {"note": "sound", "sound": "fart3.wav", "volume": "30%", "buffer_after": 0.5, "text": ""}]},
+    {"step_id": "reporter_gap_0301", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_exit", "section": "CLOSING"},
+    {"step_id": "brobots_exit_0301", "note": "exit", "speaker": "brobot_1", "section": "CLOSING"}
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "about": "The egg pictures, described for the Brobots (operator 2026-10-16: \"generate descriptions for brobots, like a list of value points, to use in their responses in live runs * not generate per live run\"). Made at Wire-Pod's start only for a picture with no points or one that changed (md5); edit points by hand freely - they stay until the picture itself changes. gopod_picture_describe.go. 2026-10-16: the first points from the vision model were mostly wrong (\"BROOOTS CHOCOLATE BRONBO\", a Sims 4 page, keychains, toy trains); each picture's points were then written by hand from the picture itself.",
+  "pictures": {
+    "chocolate_bingo_card.jpg": {
+      "md5": "fad4872d5a344fc5b4c45d2b0cebb831",
+      "points": [
+        "Brobots Chocolate Bingo, Card No. 01: a 4 x 4 quick game.",
+        "Cover any full line of 4, then shout \"BROBOTS!\"",
+        "Its squares are robot-chocolate names like Choco Servo, Mousse Motor, Brownie Byte, Cookie Circuit and Nougat Nugget, with a FREE Brobots square.",
+        "Every card in the kit is unique; print one per player, and it reads clean in black and white."
+      ]
+    },
+    "chocolate_bingo_kit.jpg": {
+      "md5": "7c8d02ca23d001c84197c0f9a502b6e0",
+      "points": [
+        "The cover of Chocolate Bingo, a Brobots CRUSHN8R CREW'D kit: the all-ages game kit and recipe pack.",
+        "It shows a 5 x 5 card of robot-chocolate names like Bonbon Beacon, Wafer Widget and Fudge Fuse, with a FREE Brobots square in the middle.",
+        "Two lanes: Kids' Lane and Adults' Lane.",
+        "Print at home, plays in black and white, and zero real brands - all Brobots."
+      ]
+    },
+    "chocolate_bingo_recipes.jpg": {
+      "md5": "6c883d9cedd7f7668c57f358b0404439",
+      "points": [
+        "The Recipe Pack: make the treats on the cards for real - two lanes, one chocolate family (Kids' Lane).",
+        "Brobots Chocolate Cookies with Nuts!!: makes 24 cookies in 25 minutes, easy.",
+        "Brobots Fudge Bolt Squares: makes 16 squares in 15 minutes plus chilling, no-bake.",
+        "A grown-up handles the oven and anything hot."
+      ]
+    },
+    "crushn8r_ca_qr.png": {
+      "md5": "38f86da0cc26b57076d2091f4bd2c884",
+      "points": [
+        "A black and white qr code image with a square in the center of it."
+      ]
+    },
+    "doc_answer_key.jpg": {
+      "md5": "0a70ef74ac7e65db2848a5c90585ad48",
+      "points": [
+        "Doc's Answer Key, \"The Answers. Obviously.\": the same problems, over-the-top correct.",
+        "One Doc line per problem names Pip's exact error - a miss is a miss, no credit for near.",
+        "The problems are factors: 12 = 2 x 6 or 3 x 4, the factors of 18 are 1, 2, 3, 6, 9 and 18, and 24 = 6 x 4."
+      ]
+    },
+    "doc_pip_workbook.jpg": {
+      "md5": "6c78d8b060988564deb6caea65b98bc9",
+      "points": [
+        "The Doc \u0026 Pip Math Workbook concept pitch board, with Doc (orange) and Pip (teal) as cartoon robots.",
+        "Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it.",
+        "Pip's mistakes are the ones real learners actually make; error on the left, correction on the right.",
+        "Its first section is Pip's Clueless Workbook."
+      ]
+    },
+    "gangster_granny.jpg": {
+      "md5": "a217210cb4c81ee89779b49305cae24d",
+      "points": [
+        "Gangster Granny: Brobot 0's sweet, adorable, gangster granny - a 93-year-old who helped him when it counted.",
+        "A cheeky little granny with white curls, big blue eyes, long lashes, rosy cheeks and a sly smirk.",
+        "Her hat: a black hat covered in sparkling rhinestones, a silver dollar sign on the side, white roses and silver leaves on top.",
+        "She's dressed to the nines: a pink fur coat with white fur cuffs, a white shirt and a big sparkly silver bow tie.",
+        "Bling everywhere: dangling diamond earrings, stacked diamond bracelets on both wrists, a big diamond ring.",
+        "In her hand, a sparkly rhinestone cigarette with a curl of smoke - gangster style."
+      ]
+    },
+    "gopod_stack.jpg": {
+      "md5": "69fcfe6c43c3d7d740ff44713ffd31ec",
+      "points": [
+        "The GOPOD rig laid out on a couch: two Vector robots on their chargers - the Brobots.",
+        "Two Cozmo robots, a microphone, a numpad, a mobile hotspot and a Coral Edge TPU stick.",
+        "The brain: a Seeed Studio box with two antennas - the Jetson that runs GOPOD locally."
+      ]
+    },
+    "hot_wheels_birthday_1.jpg": {
+      "md5": "28f9268130a21f1583c3a3c356815401",
+      "points": [
+        "A full pizza box of food-shaped Hot Wheels cars, lined up in rows on orange track.",
+        "Donut cars, blue frosted cars, chocolate cupcake cars, chocolate cake-slice cars and rows of pink cake-slice cars.",
+        "A pink donut truck and donut shop cars at the top - already bought, already sorted, for a GOPOD birthday."
+      ]
+    },
+    "hot_wheels_birthday_2.jpg": {
+      "md5": "8d01ee55e97368076021acf525f93dec",
+      "points": [
+        "More food-shaped Hot Wheels cars in the pizza box, in rows on orange track.",
+        "Teal donut cars, pink and blue cake-slice cars, chocolate cake slices, and rows of white whipped-cream cars with grape, cherry, lime and orange flavours.",
+        "Party food on wheels - the table dressing and the prize for a GOPOD birthday."
+      ]
+    }
+  }
+}

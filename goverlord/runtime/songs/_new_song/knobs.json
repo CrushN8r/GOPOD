@@ -1,0 +1,16 @@
+{
+  "song_id": "brobots_new_song",
+  "llm_warmup": true,
+  "llm_ready_text": "We here, are New Song Ready",
+  "song_type": "bingo_capture",
+  "story_ref": "story.md",
+  "global_tempo": 0.1,
+  "steps": [
+    {"step_id": "reporter_gap_0101", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_wake", "section": "OPENER"},
+    {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPENER"},
+    {"step_id": "host_arm_cue_0102", "note": "arm_cue", "speaker": "brobot_1", "cycles": 1, "hold_seconds": 1.2, "speed": 2, "section": "OPENER"},
+    {"step_id": "brat_say_0103", "note": "say_turn", "speaker": "brobot_2", "buffer_after": 0.5, "section": "OPENER"},
+    {"step_id": "reporter_gap_0201", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_exit", "section": "CLOSING"},
+    {"step_id": "brobots_exit_0201", "note": "exit", "speaker": "brobot_1", "section": "CLOSING"}
+  ]
+}

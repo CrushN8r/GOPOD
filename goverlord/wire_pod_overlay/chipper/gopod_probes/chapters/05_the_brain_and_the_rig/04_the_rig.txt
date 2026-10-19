@@ -1,0 +1,7 @@
+label: the rig
+words: rig, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile, gig, gigs
+pictures: gopod_stack.jpg
+reminder: Hey, that reminds me... One dolly, two crates - roll in, plug in, party.
+say 1: One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool.
+---
+The rig: mobile gear for high-paying local gigs. One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool. No internet needed - roll in, plug in, party.

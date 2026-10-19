@@ -1,0 +1,10 @@
+label: running offline
+words: no internet, offline, battery, power, outdoors, park, basement, in a car, where can you go, anywhere
+reminder: Hey, that reminds me... GOPOD defaults to boring. Boring works.
+say 1: GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
+say 3: Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.
+---
+Offline first. Reveal these, in order, in your own words:
+1. GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
+2. Mobile internet enhances the session; it is not the engine. Venue Wi-Fi is a bonus, not a dependency.
+3. Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.

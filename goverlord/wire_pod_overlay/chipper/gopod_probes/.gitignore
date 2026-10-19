@@ -1,0 +1,10 @@
+# gopod_probes/ in the repo holds GOPOD's Brobots-layer content and tools only.
+# Never tracked: run output, backups, caches, compiled direct-SDK binaries
+# (build them from their .go source).
+demo_runs/
+gosearch_runs/
+*.bak_*
+__pycache__/
+*.pyc
+tools/direct_sdk_*
+!tools/direct_sdk_*.go

@@ -1,0 +1,9 @@
+label: the rest of the cast
+words: other robots, more robots, cozmo, cozmos, reporter, reporters, brobot 3, brobot 4, brobot three, brobot four, chalk, who else is coming, six robots, the cast, moorebot, scout, scouts
+pictures: gopod_stack.jpg
+reminder: Hey, that reminds me... Doc and Pip are two of an eventual six-brobot cast.
+---
+Who else is coming. Reveal these, in order, in your own words:
+1. Brobots 3 and 4 are live already - two voice-only reporters, a woman's voice and a man's voice.
+2. Coming, not built yet: CHALK, a future screen host.
+3. Doc and Pip are two of an eventual six-brobot GOPOD-layer cast - Git Repo and Cache PYC, the Cozmo-bodied "unruly students", and PNFH and PNFT, the Moorebot Scout-bodied "goofy security".

@@ -1,0 +1,241 @@
+// goverlord/wire_pod_overlay/chipper/pkg/wirepod/sdkapp/gopod_typed_input.go
+package sdkapp
+
+import (
+	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
+	wirepod_ttr "github.com/kercre123/wire-pod/chipper/pkg/wirepod/ttr"
+)
+
+// gopodTypedInputHandler: POST serial=<ESN>&text=<line> from the Brobots chat
+// page's typed input line (wirepod_ttr.GopodTypedInput).
+func gopodTypedInputHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	// 2026-10-09: voice=1 from a voice command's script (the robot heard it; the
+	// page already shows what it heard).
+	input := wirepod_ttr.GopodTypedInput
+	if r.FormValue("voice") == "1" {
+		input = wirepod_ttr.GopodVoiceCommandInput
+	}
+	if err := input(r.FormValue("serial"), r.FormValue("text")); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write([]byte("ok"))
+}
+
+// gopodRecordSessionHandler: POST on=1|0 from the chat page's Record Session box
+// (wirepod_ttr.GopodRecordSessionSet).
+func gopodRecordSessionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	wirepod_ttr.GopodRecordSessionSet(r.FormValue("on") == "1")
+	w.Write([]byte("ok"))
+}
+
+// gopodOpeningHeardHandler: POST - the chat page has played the reporter hosts'
+// opening; Wire-Pod then says LLM Ready (wirepod_ttr.GopodOpeningHeard).
+func gopodOpeningHeardHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	wirepod_ttr.GopodOpeningHeard()
+	w.Write([]byte("ok"))
+}
+
+// gopodSystemSayHandler: POST text, wait_seconds - a song's system line, its
+// bubble shown with its voice; answers "heard" once the page has played it, or
+// "not_heard" after wait_seconds (wirepod_ttr.GopodSystemSayHeard). With no
+// wait_seconds it answers "queued" at once.
+func gopodSystemSayHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	wait, _ := strconv.ParseFloat(r.FormValue("wait_seconds"), 64)
+	// 2026-10-13: a song's warm-up is ready - its bubble turns ready in the
+	// chat's order, then Goverlord says the ready line (answered once said).
+	// 2026-10-13: a song's warm-up message, in the chat's order.
+	if ms := r.FormValue("warmup_text"); ms != "" {
+		started, _ := strconv.ParseInt(ms, 10, 64)
+		wirepod_ttr.GopodSongWarmupText(started, r.FormValue("text"))
+		w.Write([]byte("queued"))
+		return
+	}
+	if ms := r.FormValue("warmup_ready"); ms != "" {
+		started, _ := strconv.ParseInt(ms, 10, 64)
+		// 2026-10-17 (survey E4): the truth - heard, or not heard.
+		if wirepod_ttr.GopodSongWarmupReady(started, r.FormValue("text")) {
+			w.Write([]byte("heard"))
+		} else {
+			w.Write([]byte("not_heard"))
+		}
+		return
+	}
+	// 2026-10-11: who = a reporter (Brobot 3/4) - his line, bubble and voice,
+	// answered once it has played (a song's warmup_lines).
+	if who := r.FormValue("who"); who != "" && who != "Goverlord" {
+		if wirepod_ttr.GopodReporterSay(who, r.FormValue("text")) {
+			w.Write([]byte("heard"))
+		} else {
+			w.Write([]byte("not_heard"))
+		}
+		return
+	}
+	if wait <= 0 {
+		go wirepod_ttr.GopodSystemSayHeard(r.FormValue("text"), 0)
+		w.Write([]byte("queued"))
+		return
+	}
+	if wirepod_ttr.GopodSystemSayHeard(r.FormValue("text"), time.Duration(wait*float64(time.Second))) {
+		w.Write([]byte("heard"))
+		return
+	}
+	w.Write([]byte("not_heard"))
+}
+
+// gopodRunHandler: POST action=start|end|status - a run checking in or out with
+// Goverlord (gopod_session.go): start name kind pid -> {"ok", "busy"}; end name
+// reason; status -> {"phase", "run"}.
+func gopodRunHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	reply := map[string]any{"ok": true}
+	switch r.FormValue("action") {
+	case "start":
+		pid, _ := strconv.Atoi(r.FormValue("pid"))
+		ok, busy := wirepod_ttr.GopodRunStart(r.FormValue("name"), r.FormValue("kind"), pid)
+		reply["ok"], reply["busy"] = ok, busy
+	case "end":
+		wirepod_ttr.GopodRunEnd(r.FormValue("name"), r.FormValue("reason"))
+	default:
+		reply["phase"] = wirepod_ttr.GopodSessionPhase()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reply)
+}
+
+// gopodNativeHandler: GET -> {"on"}; POST on=1|0 - the chat page's Native? box
+// (wirepod_ttr.GopodNativeSet, gopod_native.go).
+func gopodNativeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		wirepod_ttr.GopodNativeSet(r.FormValue("on") == "1")
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"on": wirepod_ttr.GopodNativeOn()})
+}
+
+// gopodVoiceHeardHandler: POST token - the page reached that heard marker.
+func gopodVoiceHeardHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	// 2026-10-17 (survey E3: "heard means passed, not played"): skipped = the
+	// voices before it that didn't play (missing, blocked).
+	wirepod_ttr.GopodVoiceHeardSkipped(r.FormValue("token"), r.FormValue("skipped"))
+	w.Write([]byte("ok"))
+}
+
+// gopodPagePlayedHandler: POST boot, id - the page has played the feed up to id
+// (2026-10-17, operator: "the web page and terminal must have some sort of
+// coordinated dialogue"; wirepod_ttr.GopodPagePlayed).
+func gopodPagePlayedHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	boot, _ := strconv.ParseInt(r.FormValue("boot"), 10, 64)
+	id, _ := strconv.Atoi(r.FormValue("id"))
+	wirepod_ttr.GopodPagePlayed(boot, id)
+	// 2026-10-18 (step 3): the longest the page held a line before showing it.
+	if heldID, _ := strconv.Atoi(r.FormValue("held_id")); heldID > 0 {
+		heldMS, _ := strconv.ParseInt(r.FormValue("held_ms"), 10, 64)
+		wirepod_ttr.GopodPageHeld(heldID, heldMS)
+	}
+	w.Write([]byte("ok"))
+}
+
+// gopodPageShownHandler: POST shown=1|0 - the chat page is showing, or hidden
+// (another tab, minimised); a playing draft waits while it's hidden
+// (wirepod_ttr.GopodPageShown).
+func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	wirepod_ttr.GopodPageShown(r.FormValue("shown") != "0")
+	w.Write([]byte("ok"))
+}
+
+// gopodPageNoteHandler: POST note=... - a click on the chat page, written to
+// Wire-Pod's log as GOPOD_PAGE (operator 2026-10-08: "add to log numpad
+// checkbox clicks").
+func gopodPageNoteHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	note := strings.TrimSpace(r.FormValue("note"))
+	if len(note) > 200 {
+		note = note[:200]
+	}
+	if note != "" {
+		logger.Println("GOPOD_PAGE " + note)
+		// 2026-10-17: a live reply's bubble accounted for (wirepod_ttr.GopodLiveReplyNoted).
+		if rest, ok := strings.CutPrefix(note, "live reply "); ok {
+			if id, err := strconv.Atoi(strings.Fields(rest + " ")[0]); err == nil {
+				wirepod_ttr.GopodLiveReplyNoted(id)
+			}
+		}
+	}
+	w.Write([]byte("ok"))
+}
+
+// gopodNumpadMapHandler: GET - the golden numpad persona map for the chat page's
+// push-to-talk (wirepod_ttr.GopodNumpadMapJSON).
+func gopodNumpadMapHandler(w http.ResponseWriter, r *http.Request) {
+	data, err := wirepod_ttr.GopodNumpadMapJSON()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+// gopodNumpadPTTHandler: POST action=start|stop key=KP1 from the chat page's
+// numpad push-to-talk; the reply is the mic service's JSON (status, text, ...).
+func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	var out map[string]any
+	switch r.FormValue("action") {
+	case "start":
+		out = wirepod_ttr.GopodNumpadPTTStart(r.FormValue("key"))
+	case "stop":
+		out = wirepod_ttr.GopodNumpadPTTStop(r.FormValue("key"))
+	default:
+		http.Error(w, "action must be start or stop", http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(out)
+}
+
+// ## EOF

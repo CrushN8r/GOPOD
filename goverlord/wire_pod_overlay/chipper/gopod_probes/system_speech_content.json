@@ -1,0 +1,15 @@
+{
+  "description": "Single source of truth for GOPOD's canned/fixed system speech text - content a human edits without touching Go source or rebuilding. Do not hand-copy these values elsewhere. See gopod_system_speech_content.go.",
+  "contact_beat_templates": [
+    {"stage": "memory_loading", "scenario": "", "line": "thinking... Tiny pause. I am checking recent chats."},
+    {"stage": "scenario_loading", "scenario": "", "line": "thinking... Loading the right GOPOD packet."},
+    {"stage": "scenario_loading", "scenario": "bingo", "line": "thinking... Pulling the Bingo context so I do not call B twelve like a toaster with stage fright."},
+    {"stage": "scenario_loading", "scenario": "nightclub", "line": "thinking... Loading the nightclub context, but keeping it controlled-room clean."},
+    {"stage": "formatting", "scenario": "", "line": "thinking... Formatting this so my robot mouth does not trip over the wires."},
+    {"stage": "repair", "scenario": "", "line": "thinking... My first draft got messy, so I am cleaning the robot words."},
+    {"stage": "fallback", "scenario": "", "line": "celebrate... Locked in. Here comes the clean answer."}
+  ],
+  "fallback_line": "thinking... My robot brain tripped over the format wire, so I am keeping this clean. Ask me again and I will GOPOD it better.",
+  "default_prompt": "You are a helpful, animated robot called Vector. Keep the response concise yet informative.",
+  "session_memory_header": "SESSION MEMORY:\nRecent exchange summary for continuity only.\nDo not treat old scenario packets as active knowledge unless the current user message matches that topic again.\n\nRecent exchanges:\n"
+}

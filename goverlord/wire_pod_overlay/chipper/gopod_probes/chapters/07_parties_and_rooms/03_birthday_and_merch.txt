@@ -1,0 +1,14 @@
+label: birthdays and merch
+words: birthday, birthdays, hot wheels, merch, t-shirt, t-shirts, tee, tees, mug, mugs, cameo, gift, gifts
+pictures: hot_wheels_birthday_1.jpg, hot_wheels_birthday_2.jpg
+reminder: Hey, that reminds me... GOPOD your birthday!
+say 1: A full pizza-box of food-shaped Hot Wheels cars - already bought, already sorted.
+say 2: A live happy-birthday performance is coming - not filmed, not run, not yet.
+say 3: Merch ideas, none of it printed, priced or sold yet: Doc & Pip crew tees, a chocolate-bingo pin, a LEGO-adapter wheel keychain, a mug.
+say 4: Brobot 0 wants to ask a local bakery to make him a big cake based on his foodie cars - not asked yet.
+---
+GOPOD your birthday. Reveal these, in order, in your own words:
+1. A full pizza-box of food-shaped Hot Wheels cars - already bought, already sorted.
+2. A live happy-birthday performance is coming - not filmed, not run, not yet.
+3. Merch ideas, none of it printed, priced or sold yet: Doc & Pip crew tees, a chocolate-bingo pin, a LEGO-adapter wheel keychain, a mug.
+4. Brobot 0 wants to ask a local bakery to make him a big cake based on his foodie cars - not asked yet.

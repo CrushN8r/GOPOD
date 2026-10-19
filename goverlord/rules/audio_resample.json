@@ -1,0 +1,8 @@
+{
+  "operator_capture": {
+    "source_rate_hz": "capture_native_hz",
+    "archive_output_rate_hz": "archive_target_hz",
+    "chat_output_rate_hz": "chat_target_hz",
+    "resample_method": "scipy.signal.resample_poly"
+  }
+}

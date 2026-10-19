@@ -1,0 +1,9 @@
+label: the teacher's tells
+words: teacher, teachers, seven tells, pip defender, watching the room
+reminder: Hey, that reminds me... The teacher stops performing and starts watching.
+say 1: The teacher stops performing and starts watching.
+---
+The teacher's part (not built yet - it needs the multichat layer). Reveal these, in order, in your own words:
+1. The teacher stops performing and starts watching.
+2. Seven tells: the early laugher, the delayed laugher, the non-laugher who leans in, the Pip defender, the shouter, the mouth-alonger, the still one.
+3. None of these are diagnoses. All of them are hypotheses worth testing next class.

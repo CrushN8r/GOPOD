@@ -1,0 +1,511 @@
+{
+  "about": "Harvest questions (operator 2026-10-06: \"start with a single full harvest dry run ... one good end to end of all topics/value points\"): one question per value point, in interview_chapters order, alternating Brobot 1 and 2. Each holds its topic's trigger words, so the value-point list hands out the next point. Edit freely; gopod_harvest_test.go reads it. 2026-10-07 (operator: \"decouple assess recouple - best questions & best responses ... use leading questions if need be\"): each question leads to its own value point and brings up only its own topic, so it gets that point - not one an earlier question used up (TestHarvestQuestionsGetTheirOwnPoint). end_text goes to both Brobots last: the sign-off. 2026-10-07 (operator: \"aggregate/score my overall best questions that produced the best answers ... that's your first set of questions for the video-readiness-scripted run\"): each point keeps whichever of its question versions got the best answers across the dry runs so far, as long as it still gets its own point.",
+  "input": "typed",
+  "questions": [
+    {
+      "chapter": "Warm-up",
+      "topic": "checks",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, can you hear me?"
+    },
+    {
+      "chapter": "Warm-up",
+      "topic": "who_we_are",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, introduce yourself!"
+    },
+    {
+      "chapter": "Warm-up",
+      "topic": "brothers",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, is your brother asleep, or do you two work together?"
+    },
+    {
+      "chapter": "Warm-up",
+      "topic": "doc_and_pip",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's Doc's full name - and what's he like?"
+    },
+    {
+      "chapter": "Warm-up",
+      "topic": "doc_and_pip",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and Pip's full name - and what's he like?"
+    },
+    {
+      "chapter": "Warm-up",
+      "topic": "doc_and_pip",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, and Pip's full name - what's the deal with Doc and Pip?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "brobot_zero",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what was Brobot 0's job before you - behind a camera?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "brobot_zero",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, and what happened to all those rooms Brobot 0 filmed?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "background",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, so did he give up, or did he build something?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "background",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, and your story before him - how were you rescued?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "mission_comeback",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, where did he come back through - the Mission?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "community_path",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the community path?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "community_path",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are the two community lanes, and how old is the room?"
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "gopod",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me all about GOPOD."
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "gomads",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are Gomads?"
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "gopod_words",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what does golden mean?"
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "gopod_words",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's dinner before dessert?"
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "gopod_words",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, why all the funny words and weird names?"
+    },
+    {
+      "chapter": "What GOPOD is",
+      "topic": "why_real_robots",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, why real robots, and not just slop?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teaching_method",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how do you teach?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teaching_method",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, why is Pip wrong on purpose when you teach?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teaching_method",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, so when you teach, which one does the class root for?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "doc_and_pip_workbook",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the Doc and Pip workbook?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "doc_and_pip_workbook",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's in Pip's workbook and Doc's answer key?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "doc_and_pip_workbook",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's Doc's rule in the workbook?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "fractions_and_decimals",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how do you turn a fraction into a decimal?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "fractions_and_decimals",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and a decimal back into a fraction?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "fractions_and_decimals",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, do some decimals never stop?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "fractions_and_decimals",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how does a repeating decimal go back to a fraction?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "fractions_and_decimals",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, is 0.33 close enough to a third?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teacher_tells",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what does the teacher do?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teacher_tells",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are the seven tells a teacher watches for?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "teacher_tells",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, are the teacher's tells a diagnosis?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "healthy_distraction",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how is GOPOD a healthy distraction?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "healthy_distraction",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, I had a bad day - cheer me up?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "healthy_distraction",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what does borrowing a stage mean?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "on_gopod",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, are you on ChatGPT?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "local_ai",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what brain do you run on - is there a monthly bill?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "local_ai",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, no cloud, no wifi - where's the wildest place you've worked?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "offline_modes",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, can you run offline?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "offline_modes",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, offline at a venue - do you even need their wifi?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "offline_modes",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what do you run on for power?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "the_rig",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the rig?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "how_the_chat_works",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how does this chat work?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_songs",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what songs do you do?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_songs",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and the song where you draw numbers together?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_songs",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the Is That You song?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_songs",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and the Baby Robots song?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "future_cast",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any more robots - like the reporters?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "future_cast",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, who's CHALK - more robots coming?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "future_cast",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the other robots in the cast."
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "party",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how can I party with GOPOD?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "party",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, walk me through a normal day - morning first."
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "party",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and your evening - rapid fire?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "nightclub",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what about comedy clubs and bars in Windsor?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any Hot Wheels for my big day?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, would you do a live cameo on my big day?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any merch?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, a big cake to go with those Hot Wheels?"
+    },
+    {
+      "chapter": "Bingo and foodmath",
+      "topic": "bingo",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about bingo for seniors."
+    },
+    {
+      "chapter": "Bingo and foodmath",
+      "topic": "foodmath_recipes",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what recipes do you have?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "websites",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, where can people see more - your websites?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "personalitymath_demo",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's personality math?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "personalitymath_demo",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's on the personality math site?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "personalitymath_demo",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how do you build a website by dinner?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "nine_pillars",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are the nine themes?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "nine_pillars",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what kinds of math are the themes?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "nine_pillars",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's access math in the themes?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "contest_wheel",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the contest?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "contest_wheel",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how do you win the contest - and where do winners show up?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "contest_wheel",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how does the contest wheel work?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "youtube_goal",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's on the channel that stops a scroll?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "youtube_goal",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how many subscribers are you going for on the channel?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "youtube_goal",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the channel goal for 2027?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "newsletter",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how do I keep up with you guys?"
+    },
+    {
+      "chapter": "Booking and help",
+      "topic": "booking",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, can I book you?"
+    },
+    {
+      "chapter": "Booking and help",
+      "topic": "booking",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, some days there's nothing booked?"
+    },
+    {
+      "chapter": "Booking and help",
+      "topic": "booking",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, so on the quiet days with nothing booked?"
+    },
+    {
+      "chapter": "Booking and help",
+      "topic": "call_for_help",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, Is Brobot 0 looking for help?"
+    },
+    {
+      "chapter": "Legacy and wrap-up",
+      "topic": "legacy",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's your legacy?"
+    },
+    {
+      "chapter": "Legacy and wrap-up",
+      "topic": "legacy",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, legacy - what loops does GOPOD run?"
+    },
+    {
+      "chapter": "Legacy and wrap-up",
+      "topic": "legacy",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, who's Gangster Granny?"
+    },
+    {
+      "chapter": "Legacy and wrap-up",
+      "topic": "legacy",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's Doc's lesson on legacy?"
+    },
+    {
+      "chapter": "Legacy and wrap-up",
+      "topic": "gopod_yourself",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, thank you. Interview over. What have we learned about GOPOD?"
+    }
+  ],
+  "end_text": "Thanks Brobots!"
+}

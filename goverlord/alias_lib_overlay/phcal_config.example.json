@@ -1,0 +1,14 @@
+{
+  "_comment": "DEMO / TEMPLATE for phcal_config.json. Copy this file to phcal_config.json (same directory, gitignored - never commit your real one) and fill in your own real values. base_dirs below are obviously-placeholder paths - replace with your own machine's real absolute paths. robots.candidates ESNs below are obviously-fake placeholders - replace with your own robot(s) real ESN(s). The candidates list supports any number of entries (detect-first probes each one at phcal startup) but this repo has only ever tested exactly 2.",
+  "base_dirs": {
+    "gopod_repo_root": "/home/example-user/crushn8r_git/GOPOD",
+    "wirepod_home": "/home/example-user/wire-pod"
+  },
+  "robots": {
+    "_comment": "Structure supports N candidates; tested at exactly 2 in this repo. First two entries map to Brobot 1 / Brobot 2 in that order.",
+    "candidates": [
+      { "label": "Robot 1", "esn": "00000000" },
+      { "label": "Robot 2", "esn": "11111111" }
+    ]
+  }
+}

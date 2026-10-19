@@ -1,0 +1,229 @@
+{
+  "song_id": "brobots_interview",
+  "song_type": "interview",
+  "story_ref": "story.md",
+  "about": "The scripted interview (gopod_interview_song.go). note: ask (the question, read by speaker, to to), line (said by speaker) or closer (said after the run's complete line); cue: the Brobot's animation; moves: at their words (arm, nod, cube); chapter: starts a chapter at that section; pictures: shown with the ask. Played by \"start interview\" in the Brobots chat, not by pha0b.",
+  "steps": [
+    {
+      "step_id": "q01_01_reporter_1",
+      "note": "ask",
+      "speaker": "reporter_1",
+      "to": "brobot_1",
+      "section": "1. The workbook",
+      "chapter": "How Doc and Pip teach",
+      "pictures": [
+        "doc_pip_workbook.jpg",
+        "doc_answer_key.jpg"
+      ]
+    },
+    {
+      "step_id": "q01_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "1. The workbook"
+    },
+    {
+      "step_id": "q01_03_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "veryHappy",
+      "section": "1. The workbook"
+    },
+    {
+      "step_id": "q02_01_reporter_2",
+      "note": "ask",
+      "speaker": "reporter_2",
+      "to": "brobot_1",
+      "section": "2. Fractions and decimals",
+      "pictures": [
+        "doc_pip_workbook.jpg"
+      ]
+    },
+    {
+      "step_id": "q02_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "2. Fractions and decimals"
+    },
+    {
+      "step_id": "q02_03_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "dartingEyes",
+      "section": "2. Fractions and decimals"
+    },
+    {
+      "step_id": "q03_01_reporter_1",
+      "note": "ask",
+      "speaker": "reporter_1",
+      "to": "brobot_1",
+      "section": "3. The rig",
+      "chapter": "The brain and the rig",
+      "pictures": [
+        "gopod_stack.jpg"
+      ]
+    },
+    {
+      "step_id": "q03_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "3. The rig"
+    },
+    {
+      "step_id": "q03_03_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "celebrate",
+      "section": "3. The rig"
+    },
+    {
+      "step_id": "q04_01_reporter_2",
+      "note": "ask",
+      "speaker": "reporter_2",
+      "to": "brobot_2",
+      "section": "4. The rest of the cast",
+      "chapter": "Show and tell",
+      "pictures": [
+        "gopod_stack.jpg"
+      ]
+    },
+    {
+      "step_id": "q04_02_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "veryHappy",
+      "section": "4. The rest of the cast"
+    },
+    {
+      "step_id": "q04_03_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "4. The rest of the cast"
+    },
+    {
+      "step_id": "q05_01_reporter_1",
+      "note": "ask",
+      "speaker": "reporter_1",
+      "to": "brobot_2",
+      "section": "5. Birthdays and merch",
+      "chapter": "Parties and rooms",
+      "pictures": [
+        "hot_wheels_birthday_1.jpg",
+        "hot_wheels_birthday_2.jpg"
+      ]
+    },
+    {
+      "step_id": "q05_02_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "celebrate",
+      "section": "5. Birthdays and merch"
+    },
+    {
+      "step_id": "q05_03_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "5. Birthdays and merch"
+    },
+    {
+      "step_id": "q06_01_reporter_2",
+      "note": "ask",
+      "speaker": "reporter_2",
+      "to": "brobot_1",
+      "section": "6. Bingo nights",
+      "chapter": "Bingo and foodmath",
+      "pictures": [
+        "chocolate_bingo_kit.jpg",
+        "chocolate_bingo_card.jpg"
+      ]
+    },
+    {
+      "step_id": "q06_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "6. Bingo nights"
+    },
+    {
+      "step_id": "q07_01_reporter_1",
+      "note": "ask",
+      "speaker": "reporter_1",
+      "to": "brobot_2",
+      "section": "7. Foodmath recipes",
+      "pictures": [
+        "chocolate_bingo_recipes.jpg"
+      ]
+    },
+    {
+      "step_id": "q07_02_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "veryHappy",
+      "section": "7. Foodmath recipes"
+    },
+    {
+      "step_id": "q08_01_reporter_2",
+      "note": "ask",
+      "speaker": "reporter_2",
+      "to": "brobot_1",
+      "section": "8. The weather"
+    },
+    {
+      "step_id": "q08_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "happy",
+      "section": "8. The weather"
+    },
+    {
+      "step_id": "q09_01_reporter_1",
+      "note": "ask",
+      "speaker": "reporter_1",
+      "to": "brobot_2",
+      "section": "9. Roast battles"
+    },
+    {
+      "step_id": "q09_02_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "celebrate",
+      "section": "9. Roast battles"
+    },
+    {
+      "step_id": "q10_01_reporter_2",
+      "note": "ask",
+      "speaker": "reporter_2",
+      "to": "brobot_1",
+      "section": "10. Our legacy",
+      "chapter": "Legacy and wrap-up",
+      "pictures": [
+        "gangster_granny.jpg"
+      ]
+    },
+    {
+      "step_id": "q10_02_brobot_1",
+      "note": "line",
+      "speaker": "brobot_1",
+      "cue": "love",
+      "section": "10. Our legacy"
+    },
+    {
+      "step_id": "q10_03_brobot_2",
+      "note": "line",
+      "speaker": "brobot_2",
+      "cue": "love",
+      "section": "10. Our legacy"
+    },
+    {
+      "step_id": "closer_01_brobot_2",
+      "note": "closer",
+      "speaker": "brobot_2",
+      "section": "Closer"
+    }
+  ]
+}

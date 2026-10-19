@@ -1,0 +1,438 @@
+{
+  "song_id": "brobots_baby_robots_sleep",
+  "song_type": "lyric_video",
+  "story_ref": "story.md",
+  "timeline": "srt",
+  "robots_speak": false,
+  "sleepy": true,
+  "wake_clip": "anim_gotosleep_wakeup_01",
+  "section_pictures": {
+    "SLEEPY ROBOTS": "baby_brobots1.jpg",
+    "SNUGGLE": "baby_brobots2.jpg",
+    "DREAMS": "baby_brobots3.jpg",
+    "GUARDIAN": "baby_brobots4.jpg",
+    "TOGETHER": "baby_brobots5.jpg"
+  },
+  "narrator_single": true,
+  "media": "baby_brobots/Baby Robots SRT.mp4",
+  "audio": "baby_brobots_audio.wav",
+  "chat_intro": "Start Baby Brobots",
+  "llm_warmup": true,
+  "llm_ready_text": "We here, are Baby Brobots Ready",
+  "warmup_after": "",
+  "voices_required": false,
+  "llm_required": false,
+  "global_tempo": 0,
+  "steps": [
+    {
+      "step_id": "reporter_gap_intro",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0,
+      "gap_label": "intro",
+      "section": "OPEN"
+    },
+    {
+      "step_id": "brobots_wake",
+      "note": "wake_both",
+      "speaker": "brobot_1",
+      "settle_seconds": 1.5,
+      "buffer_after": 3.0,
+      "section": "OPEN"
+    },
+    {
+      "step_id": "sleep_message",
+      "note": "system_line",
+      "speaker": "brobot_1",
+      "section": "OPEN",
+      "wait_spoken": true,
+      "spoken_wait_seconds": 30.0
+    },
+    {
+      "step_id": "after_sleep_word",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 1.0,
+      "gap_label": "1 s after Sleep",
+      "section": "OPEN"
+    },
+    {
+      "step_id": "brobots_sleep",
+      "note": "sleep_both",
+      "speaker": "brobot_1",
+      "settle_seconds": 0,
+      "section": "OPEN",
+      "look_seconds": 10.0
+    },
+    {
+      "step_id": "asleep_wait",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 4.0,
+      "gap_label": "asleep, wait 4 s",
+      "section": "OPEN",
+      "timeline_after": true
+    },
+    {
+      "step_id": "line_01",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 0.166,
+      "end_seconds": 1.3,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 01"
+    },
+    {
+      "step_id": "line_02",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 1.3,
+      "end_seconds": 3.4,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 02"
+    },
+    {
+      "step_id": "line_03",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 3.8,
+      "end_seconds": 6.133,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 03"
+    },
+    {
+      "step_id": "line_04",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 6.133,
+      "end_seconds": 7.233,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 04"
+    },
+    {
+      "step_id": "line_05",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 7.366,
+      "end_seconds": 9.6,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 5"
+    },
+    {
+      "step_id": "line_06",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 9.733,
+      "end_seconds": 11.366,
+      "section": "SLEEPY ROBOTS",
+      "pause_seconds": 0,
+      "gap_label": "line 6"
+    },
+    {
+      "step_id": "line_07",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 11.9,
+      "end_seconds": 14.8,
+      "section": "SNUGGLE",
+      "pause_seconds": 0,
+      "gap_label": "line 07"
+    },
+    {
+      "step_id": "line_08",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 14.933,
+      "end_seconds": 16.433,
+      "section": "SNUGGLE",
+      "pause_seconds": 0,
+      "gap_label": "line 8"
+    },
+    {
+      "step_id": "line_09",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 16.733,
+      "end_seconds": 19.966,
+      "section": "SNUGGLE",
+      "pause_seconds": 0,
+      "gap_label": "line 09"
+    },
+    {
+      "step_id": "line_10",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 20.633,
+      "end_seconds": 21.566,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 10"
+    },
+    {
+      "step_id": "line_11",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 21.9,
+      "end_seconds": 23.966,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 11"
+    },
+    {
+      "step_id": "line_12",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 24.1,
+      "end_seconds": 25.5,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 12"
+    },
+    {
+      "step_id": "line_13",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 26.166,
+      "end_seconds": 27.966,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 13"
+    },
+    {
+      "step_id": "line_14",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 27.966,
+      "end_seconds": 31.566,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 14"
+    },
+    {
+      "step_id": "line_15",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 31.8,
+      "end_seconds": 33.666,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 15"
+    },
+    {
+      "step_id": "line_16",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 34.3,
+      "end_seconds": 36.133,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 16"
+    },
+    {
+      "step_id": "line_17",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 36.133,
+      "end_seconds": 37.266,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 17"
+    },
+    {
+      "step_id": "line_18",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 37.266,
+      "end_seconds": 40.266,
+      "section": "DREAMS",
+      "pause_seconds": 0,
+      "gap_label": "line 18"
+    },
+    {
+      "step_id": "line_19",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 40.933,
+      "end_seconds": 43.466,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 19"
+    },
+    {
+      "step_id": "line_20",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 43.7,
+      "end_seconds": 46.166,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 20"
+    },
+    {
+      "step_id": "line_21",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 47.0,
+      "end_seconds": 48.366,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 21"
+    },
+    {
+      "step_id": "line_22",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 48.8,
+      "end_seconds": 52.166,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 22"
+    },
+    {
+      "step_id": "line_23",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 52.7,
+      "end_seconds": 56.9,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 23"
+    },
+    {
+      "step_id": "soft_wake",
+      "note": "wake_sleepy",
+      "speaker": "brobot_1",
+      "start_seconds": 57.0,
+      "section": "GUARDIAN",
+      "cube_ready": "brobot_2",
+      "cube_ready_after_seconds": 8
+    },
+    {
+      "step_id": "line_24",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 57.0,
+      "end_seconds": 60.866,
+      "section": "GUARDIAN",
+      "pause_seconds": 0,
+      "gap_label": "line 24"
+    },
+    {
+      "step_id": "line_25",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 61.5,
+      "end_seconds": 63.8,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 25"
+    },
+    {
+      "step_id": "line_26",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 63.8,
+      "end_seconds": 65.033,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 26"
+    },
+    {
+      "step_id": "line_27",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 65.266,
+      "end_seconds": 66.6,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 27"
+    },
+    {
+      "step_id": "line_28",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 67.2,
+      "end_seconds": 69.6,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 28"
+    },
+    {
+      "step_id": "line_29",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 69.8,
+      "end_seconds": 72.6,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 29"
+    },
+    {
+      "step_id": "line_30",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 72.8,
+      "end_seconds": 74.833,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 30"
+    },
+    {
+      "step_id": "line_31",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 75.0,
+      "end_seconds": 78.633,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 31"
+    },
+    {
+      "step_id": "line_32",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 78.933,
+      "end_seconds": 80.566,
+      "section": "TOGETHER",
+      "pause_seconds": 0,
+      "gap_label": "line 32"
+    },
+    {
+      "step_id": "last_words",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "start_seconds": 80.566,
+      "pause_seconds": 0,
+      "gap_label": "after the last words",
+      "section": "CLOSE"
+    },
+    {
+      "step_id": "reporter_gap_outro",
+      "note": "pause",
+      "speaker": "brobot_1",
+      "pause_seconds": 0,
+      "gap_label": "outro",
+      "section": "CLOSE"
+    },
+    {
+      "step_id": "brobots_ready",
+      "note": "brobots_ready_together",
+      "speaker": "brobot_1",
+      "pronounce": true,
+      "buffer_after": 1.0,
+      "section": "CLOSE",
+      "cube_after_wake": "brobot_2"
+    },
+    {
+      "step_id": "brobots_exit",
+      "note": "exit",
+      "speaker": "brobot_1",
+      "section": "CLOSE"
+    }
+  ]
+}

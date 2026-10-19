@@ -1,0 +1,15 @@
+{
+  "wirepod": {
+    "base_url": "http://REPLACE_WITH_WIREPOD_HOST:8080"
+  },
+  "ollama": {
+    "endpoint": "http://REPLACE_WITH_OLLAMA_HOST:11434/v1/chat/completions",
+    "model": "gemma2:2b",
+    "timeout_seconds": 8.0
+  },
+  "cockpit": {
+    "url": "http://REPLACE_WITH_COCKPIT_HOST:8011/gopod_demo.html",
+    "host": "REPLACE_WITH_COCKPIT_HOST",
+    "port": 8011
+  }
+}

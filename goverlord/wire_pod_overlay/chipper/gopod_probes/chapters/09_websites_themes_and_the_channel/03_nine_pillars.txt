@@ -1,0 +1,9 @@
+label: the nine themes
+words: nine themes, themes, pillars, kinds of math, everyday math, money math, moneymath, sport math, sports math, sportsmath, fashion math, fashionmath, survival math, survivalmath, access math, accessmath, language math, languagemath, bad at math
+reminder: Hey, that reminds me... Food, Money, Sport, Fashion, Language, Personality, Survival, Access, Aftermath.
+say 1: Food, Money, Sport, Fashion, Language, Personality, Survival, Access, Aftermath.
+---
+The nine everyday-math themes (the plan is written; almost none of it is built yet - one topic at a time, on purpose). Reveal these, in order, in your own words:
+1. Food, Money, Sport, Fashion, Language, Personality, Survival, Access, Aftermath.
+2. Each one is a different everyday kind of maths - the number thinking hiding inside an ordinary moment, not a maths class.
+3. Access is maths made reachable for anyone who was told they were bad at it.

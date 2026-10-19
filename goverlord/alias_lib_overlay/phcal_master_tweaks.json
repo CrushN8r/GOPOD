@@ -1,0 +1,33 @@
+{
+  "arm": {
+    "cycles": 3,
+    "hold": 0.36,
+    "speed": 4
+  },
+  "nod": {
+    "count": 2,
+    "hold": 0.18,
+    "speed": 4
+  },
+  "rattle": {
+    "volume": 4
+  },
+  "danger": {
+    "volume": 4
+  },
+  "animation": {
+    "hold": 2.5
+  },
+  "brobots_stay_in_place": {
+    "hold": 5.0
+  },
+  "move_reverse": {
+    "hold": 0.3
+  },
+  "brobots_announce_in_sync": {
+    "phrase": "Brobots ready!"
+  },
+  "brobots_sleep_to_wake_direct_sdk": {
+    "wait": 5.0
+  }
+}

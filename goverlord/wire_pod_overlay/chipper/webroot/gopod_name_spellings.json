@@ -1,0 +1,31 @@
+{
+  "about": "GOPOD's own names (and the 'Bingo Test Live' voice command, so a voice-started Bingo run opens with that one bubble), as heard by speech-to-text, turned back into their written spelling. Whole words, case-insensitive, longest first. Used for display and for the text the Brobots chat sends to the LLM and remembers; never for robot speech (the pronunciation registry handles that) and never before voice-command matching. Read by gopod_name_spelling.go at Wire-Pod start and by index.html on page load.",
+  "name_spellings": [
+    {"from": "go pod", "to": "GOPOD"},
+    {"from": "go-pod", "to": "GOPOD"},
+    {"from": "gopod", "to": "GOPOD"},
+    {"from": "go part", "to": "GOPOD"},
+    {"from": "go put", "to": "GOPOD"},
+    {"from": "governed lord", "to": "Goverlord"},
+    {"from": "govern lord", "to": "Goverlord"},
+    {"from": "go over lord", "to": "Goverlord"},
+    {"from": "go overlord", "to": "Goverlord"},
+    {"from": "goverlord", "to": "Goverlord"},
+    {"from": "discover lowered", "to": "Goverlord"},
+    {"from": "discover lord", "to": "Goverlord"},
+    {"from": "were lord", "to": "Goverlord"},
+    {"from": "go mads", "to": "Gomads"},
+    {"from": "gomads", "to": "Gomads"},
+    {"from": "gomad", "to": "Gomad"},
+    {"from": "go minions", "to": "Gominions"},
+    {"from": "go minion", "to": "Gominion"},
+    {"from": "gominions", "to": "Gominions"},
+    {"from": "gominion", "to": "Gominion"},
+    {"from": "go marion's", "to": "Gominions"},
+    {"from": "bingo test live", "to": "Bingo Test Live"},
+    {"from": "bingo tests live", "to": "Bingo Test Live"},
+    {"from": "bingo test life", "to": "Bingo Test Live"},
+    {"from": "bingo test lives", "to": "Bingo Test Live"}
+  ],
+  "held_for_operator": ["go mad"]
+}

@@ -1,0 +1,1064 @@
+/* gopod_chat_bubbles.css — GOPOD-owned, served from the overlay webroot ahead of
+   stock Wire-Pod's (gopod_webroot.go). Not a stock Wire-Pod file —
+   extracted 2026-08-12 from index.html's inline <style> block, same GOPOD firewall
+   discipline as the native Go overlay files (kept out of stock css/style.css on
+   purpose). Linked from index.html via a plain <link rel="stylesheet"> alongside
+   the existing css/style.css link.
+
+   2026-08-08: chat-bubbles container. Default fallback: 0px, invisible - page
+   looks exactly like the original unless rich display is 'y' in pha0b. State
+   (expanded or not) comes from gopod_rich_display_ui_state.json, a plain flag
+   file pha0b writes into this same webroot dir - polled here the same way
+   /api/get_logs already is, no caching, no restart. Bubble content comes from
+   that same /api/get_logs feed's own "Brobot 1: <text>" / "Brobot 2: <text>"
+   lines (server.go's /api-sdk/say_text display_text/display_role fields, sent
+   by every song's shared Robots.say()). */
+#brobot-chat-bubbles-container {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.25s ease;
+}
+#brobot-chat-bubbles-container.expanded {
+  height: 700px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #111;
+  border-radius: 16px;
+  margin: 12px 0;
+  position: relative;
+  /* 2026-10-18 (operator: "Colourize brobots window scrollbar ... to match
+     brobots window"): the window's own dark, a soft grey thumb. */
+  scrollbar-color: #3a3a3a #111;
+  scrollbar-width: thin;
+}
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar { width: 10px; }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-track { background: #111; border-radius: 16px; }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; border: 2px solid #111; }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb:hover { background: #555; }
+/* 2026-10-04 (operator: "add a line for keyboard input at the very left ...
+   radio buttons to select robot 1 or 2. And then a text input"; then "inside
+   within the robots chat bubble"): inside the chat window, on its bottom edge,
+   left-aligned - the two Brobots, then the text box. Last in the window's order
+   whatever is added after it, and sticky, so it stays in view while the chat
+   scrolls above it. */
+.gopod-typed-input {
+  order: 9999;
+  position: sticky;
+  bottom: -20px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: auto -20px -20px;
+  /* 2026-10-04 (operator: "make the keyboard input line shorter towards the
+     bottom - minimal padding - same font size as 'Brobots Chat' button"):
+     Wire-Pod's buttons are 0.8em. */
+  padding: 4px 12px;
+  background: #111;
+  border-top: 1px solid #333;
+  font-size: 0.8em;
+  color: #fff;
+}
+.gopod-typed-input label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+/* Wire-Pod's own radio style (css/style.css: 40px, top 13px, z-index 1000)
+   is sized back down to the line here, its checked dot with it. */
+.gopod-typed-input input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  top: 0;
+  z-index: auto;
+  flex: none;
+}
+.gopod-typed-input input[type="radio"]:checked:after {
+  width: 14px;
+  height: 14px;
+  vertical-align: top;
+}
+/* The Record Session box (2026-10-04) - Wire-Pod's own checkbox style sized
+   down to the line, like the radios above; red text while it records. */
+.gopod-typed-input input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  top: 0;
+  border-width: 1px;
+  border-radius: 3px;
+  z-index: auto;
+  flex: none;
+}
+.gopod-typed-input input[type="checkbox"]:checked:after {
+  width: 3px;
+  height: 7px;
+}
+.gopod-record-session.recording {
+  color: #ff5a5a;
+}
+/* 2026-10-08: "Brobots ()1 ()2 ()All | Numpad? [] | Record? [] | 00:00:00". */
+.gopod-typed-name {
+  flex: none;
+  font-weight: 600;
+}
+.gopod-typed-sep {
+  flex: none;
+  opacity: 0.5;
+}
+/* 2026-10-07: the session timer after Record Session (hh:mm:ss). */
+.gopod-session-timer {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+.gopod-session-timer.recording {
+  color: #ff5a5a;
+  opacity: 1;
+}
+.gopod-typed-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 1em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #222;
+  color: #fff;
+}
+/* Wire-Pod's own text-box style (css/style.css) is trimmed to the line. */
+.gopod-typed-input input.gopod-typed-text {
+  height: auto;
+  max-width: none;
+  margin: 0;
+  padding: 2px 8px;
+  line-height: 1.3;
+  text-align: left;
+  border: 1px solid var(--fg-color, #555);
+  box-shadow: none;
+}
+.gopod-typed-text:focus {
+  outline: 2px solid #888;
+  outline-offset: 1px;
+}
+/* 2026-10-04 (operator: "reduce fonts & checkboxes for Show all logs & Scroll
+   to bottom, to same settings as buttons"): 0.8em labels, smaller boxes. */
+#section-log .gopod-log-options {
+  font-size: 0.8em;
+}
+#section-log .gopod-log-options input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border-width: 1px;
+  border-radius: 3px;
+}
+#section-log .gopod-log-options input[type="checkbox"]:checked:after {
+  width: 4px;
+  height: 8px;
+}
+#section-log .gopod-log-options .checkbox-label {
+  padding-top: 0;
+}
+
+.brobot-bubble {
+  max-width: 80%;
+  font-size: 34px;
+  font-weight: bold;
+  line-height: 1.3;
+  padding: 10px 14px; /* 2026-10-02: was 16px 24px - more room for text */
+  border-radius: 20px;
+  color: #fff;
+  word-wrap: break-word;
+  /* 2026-10-02 (operator): a header row ([icon] Name:) on top, the chat text
+     below it at the bubble's full width. */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.brobot-bubble-head {
+  display: flex;
+  align-items: center; /* the name sits vertically centred on the icon */
+  gap: 12px;
+}
+/* 2026-09-01: background now matches each robot's own LIVE eye color
+   (custom_eye_color hue/saturation, jdocs.json) instead of a fixed
+   placeholder pair - see index.html's pollEyeColors() for how
+   --brobot-1-color/--brobot-2-color get set, and
+   _write_brobot_eye_colors_state() (run_section1_full_live_001.py) for
+   where the value comes from. The hex values here are only the fallback
+   for before that JS runs (or if the color file is ever missing) - the
+   robots' real colors as read live, 2026-09-01: Brobot 1 #FF001A,
+   Brobot 2 #0009FF. */
+.brobot-bubble.brobot-1 {
+  background: var(--brobot-1-color, #FF001A);
+  align-self: flex-start;
+  text-align: left;
+}
+.brobot-bubble.brobot-2 {
+  background: var(--brobot-2-color, #0009FF);
+  align-self: flex-end;
+  /* 2026-09-29: inner text left-aligned (default), per the operator; the bubble
+     itself stays on the right. */
+  text-align: left;
+}
+/* Small animated Brobot eyes icon, cosmetic-only (2026-10-02, operator): a plain
+   square, the same size as before, brobot_eyes.webp fitted inside. Its eyes are
+   see-through, so they show the bubble's own colour behind them. */
+/* 2026-10-08 (operator: "make a single brobots icon template"): every icon is
+   this one template - the eyes WebP over a rectangle behind the eyes in its
+   --eye-fill (the rectangle measured 2026-10-02 on the 200 x 167 WebP: left 25,
+   top 41, 150 x 100 px, covering every eye pixel in all 111 frames, solid head
+   all round it; in the square icon, 75% x 50% at 50% / 57.5%). Each kind of
+   icon only sets --eye-fill (below): a Brobot's own colour, the operator's
+   white, the system grey. */
+.brobot-bubble-avatar {
+  --avatar-size: 50px;
+  --eye-fill: transparent;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  min-width: var(--avatar-size);
+  background:
+    url('/assets/brobot_eyes.webp') center / contain no-repeat,
+    linear-gradient(var(--eye-fill), var(--eye-fill)) 50% 57.5% / 75% 50% no-repeat;
+  flex-shrink: 0;
+}
+.brobot-bubble-text {
+  min-width: 0; /* 2026-09-28: long rich replies wrap inside the bubble */
+}
+/* 2026-09-28: rich robot replies - one block per line, a little air between lines,
+   KaTeX display math centered and scrollable if wide. */
+.brobot-bubble-line { margin: 0 0 0.35em; }
+.brobot-bubble-line:last-child { margin-bottom: 0; }
+.brobot-bubble-who { font-weight: bold; }
+.brobot-bubble-text .katex-display { margin: 0.3em 0; overflow-x: auto; overflow-y: hidden; }
+.brobot-bubble-text .katex { font-size: 1.05em; }
+/* 2026-09-28: operator bubble - what the operator said after "Hey Vector" (Wire-Pod's
+   own "Transcribed text" line). Dark grey, centered between the two robots' bubbles,
+   same max width (.brobot-bubble above), no avatar. */
+.brobot-bubble.operator {
+  /* 2026-10-04 (operator: "Please make operator bubble a lighter grey"): was
+     #3a3a3a. The system bubbles (timers, Goverlord) share it. */
+  background: var(--operator-bubble-bg);
+  align-self: center;
+  /* 2026-10-04 (operator: "extend operator chat bubble to max-width", then "Make
+     operator bubble max-window width"): the chat window's full width, on every
+     screen - the system bubbles (timers, Goverlord) too. */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* 2026-09-30, operator: "keep this bubble centered, align text to default LTR,
+     not centered"; 2026-10-04, operator: "please all default operator bubble text
+     to center-aligned". */
+  text-align: center;
+}
+/* 2026-10-06 (operator: "please align-center the operator bubble header"). */
+.brobot-bubble.operator > .brobot-bubble-head {
+  justify-content: center;
+}
+/* The icons' eye colours (the template above).
+   - A Brobot's own icon in his bubble, and his icon at the end of an operator
+     line that went to him (2026-10-04, operator: "only have the eyes show the
+     brobot's eye colour and grey around the head"): his live eye colour.
+   - The operator's icon, the first in an operator line's header (2026-10-08,
+     operator: "operator transparent-white eye colour = chat bubble text white
+     + transparency values"): the chat text's white.
+   - A system icon (2026-10-08, operator: "system brobots icon = operator
+     bubble bg colour to keep grey"): the timers, Goverlord,
+     chapters, pictures, and the end of an "Operator to Goverlord" line. */
+.brobot-bubble.brobot-1 .brobot-bubble-avatar,
+.brobot-bubble-avatar.to-brobot-1 {
+  --eye-fill: var(--brobot-1-color, #FF001A);
+}
+.brobot-bubble.brobot-2 .brobot-bubble-avatar,
+.brobot-bubble-avatar.to-brobot-2 {
+  --eye-fill: var(--brobot-2-color, #0009FF);
+}
+.brobot-bubble-avatar.to-system {
+  --eye-fill: var(--operator-bubble-bg);
+}
+.brobot-bubble-avatar.from-operator,
+.brobot-bubble.host .brobot-bubble-avatar {
+  /* 2026-10-08 (operator: "Reporter brobot icons should = operator icon eye
+     colour ... reporters aren't system messages"): the reporters' icons too. */
+  --eye-fill: var(--chat-text-white);
+}
+/* System bubbles are centred: header, timer row, text (2026-10-04, operator:
+   "ReOrder to (center-aligned)"). */
+.brobot-bubble-head.system-head {
+  justify-content: center;
+}
+.brobot-bubble.operator.warmup,
+.brobot-bubble.operator.countdown,
+.brobot-bubble.operator.countdown-kept,
+.brobot-bubble.operator.system-status {
+  align-items: center;
+  text-align: center;
+}
+/* 2026-10-01 (operator: "add a countdown timer in the brobots window"): the
+   rattle's wait. 2026-10-04: a system bubble (the operator bubble's look, the
+   "Goverlord: GOPOD Brain" header); its balls and hourglass sit in a
+   .warmup-timer row, the warm-up's own big row (2026-10-02, operator: "make the
+   countdown timer bigger"). */
+.brobot-bubble.countdown,
+.brobot-bubble.countdown-kept {
+  font-variant-numeric: tabular-nums;
+}
+/* 2026-10-02 (operator: "give me something for 'Juggling Big Shiny Bingo Balls.
+   Please Wait.'"): five Bingo balls, B I N G O, beside the hourglass while the
+   rattle plays (moved up and down at 12 frames a second by addJuggleTimer in
+   gopod_brobots_chat.js) - B, N, O in Brobot 1's bubble colour,
+   I, G in Brobot 2's (operator). */
+.countdown-hourglass {
+  display: inline-block;
+  transform-origin: 50% 50%;
+}
+/* 2026-10-04 (operator: "make the 5 balls bigger & simply move them up & down"):
+   the box is three balls wide (five places, half a ball apart) and 1.6 balls
+   tall, so UPPER and LOWER balls overlap. */
+.countdown-juggle {
+  position: relative;
+  width: 168px;
+  height: 90px;
+  flex-shrink: 0;
+}
+.juggle-ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 45%), var(--ball-color);
+  color: #fff;
+  font-size: 28px;
+  line-height: 56px;
+  text-align: center;
+}
+.juggle-ball.ball-b { --ball-color: var(--brobot-1-color, #FF001A); }
+.juggle-ball.ball-i { --ball-color: var(--brobot-2-color, #0009FF); }
+.juggle-ball.ball-n { --ball-color: var(--brobot-1-color, #FF001A); }
+.juggle-ball.ball-g { --ball-color: var(--brobot-2-color, #0009FF); }
+.juggle-ball.ball-o { --ball-color: var(--brobot-1-color, #FF001A); }
+
+/* 2026-10-04 (operator: "make it like a horizontal battery power level
+   indicator, horizontal with a series of vertical LEDs ... left to right, red to
+   green"): the LLM warm-up's power level - a battery outline with a nub on the
+   right, LEDs lit in their own colour, unlit ones dark. */
+.llm-battery {
+  position: relative;
+  display: flex;
+  gap: 5px;
+  padding: 6px;
+  border: 3px solid #ddd;
+  border-radius: 8px;
+  height: 64px;
+  box-sizing: border-box;
+  margin-right: 10px;
+}
+.llm-battery::after {
+  content: "";
+  position: absolute;
+  right: -11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+  background: #ddd;
+}
+.llm-led {
+  width: 16px;
+  border-radius: 3px;
+  background: #333;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.llm-led.lit {
+  background: var(--led-color);
+  box-shadow: 0 0 6px var(--led-color);
+}
+@media (prefers-reduced-motion: reduce) {
+  .llm-led { transition: none; }
+}
+
+/* 2026-10-03 (operator: "Use the timer as well as part of a visual cue during the
+   warm up"): the countdown's juggled balls and hourglass under the warm-up text in
+   the operator bubble, while the Brobots' LLM loads. */
+.warmup-timer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  font-size: 80px;
+}
+
+
+/* 2026-10-02 (operator: "make a really big bingo ball number display"): the
+   called number as a Bingo ball, centred - in the operator bubble's colour, with
+   a white face, the letter above the number. */
+.brobot-bubble.bingo-ball {
+  background: transparent;
+  align-self: center;
+  padding: 0;
+  /* 2026-10-02 (operator): every called ball is the operator bubble's colour. */
+  --ball-color: #3a3a3a;
+}
+
+/* 2026-10-12: the called ball under its "Bingo ball captured." words. */
+.bingo-ball-under {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75em;
+}
+.bingo-ball-under.waiting { visibility: hidden; }
+.bingo-ball-under .bingo-ball { --ball-color: #3a3a3a; }
+
+.bingo-ball-face {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 42%), var(--ball-color);
+  box-shadow: inset -14px -18px 30px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bingo-ball-inner {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.bingo-ball-letter { font-size: 52px; }
+.bingo-ball-number { font-size: 104px; font-variant-numeric: tabular-nums; }
+/* 2026-09-29: Wire-Pod chat replies - the sentences are 85% white (37% and 81% were "too
+   transparent", operator), and the sentence the robot is saying right now is
+   solid white (index.html pollSpeakingNow), then back. Per the operator. Chat-reply bubbles
+   (.brobot-bubble-live) and, since 2026-10-01, scripted song lines (.brobot-bubble-scripted,
+   the Bingo test); other song lines, which aren't highlighted, stay solid. */
+:root {
+  --chat-text-white: rgba(255, 255, 255, 0.85);
+  --operator-bubble-bg: #5c5c5c;
+}
+.brobot-bubble-live .brobot-say,
+.brobot-bubble-scripted .brobot-say,
+.brobot-bubble.narrator .brobot-say,
+.brobot-bubble.voice-lit .brobot-say {
+  color: var(--chat-text-white);
+}
+.brobot-bubble-live .brobot-say.speaking,
+.brobot-bubble-scripted .brobot-say.speaking,
+.brobot-bubble.narrator .brobot-say.speaking,
+.brobot-bubble.voice-lit .brobot-say.speaking {
+  color: #fff;
+}
+/* 2026-10-15 (operator, a global rule for highlighting: "before spoken = 0% solid
+   white, spoken/highlighted = 100% solid white, after spoken = 85% solid white";
+   "if all the text is there, I can read ahead ... it kinda spoils the fun"): the
+   bubble is built whole as before, its words there but invisible until heard -
+   lit when said, then 85% (.spoken). Opacity, so emojis hide too. */
+.brobot-bubble-live .brobot-say:not(.speaking):not(.spoken),
+.brobot-bubble-scripted .brobot-say:not(.speaking):not(.spoken),
+.brobot-bubble.narrator .brobot-say:not(.speaking):not(.spoken),
+.brobot-bubble.voice-lit .brobot-say:not(.speaking):not(.spoken) {
+  opacity: 0;
+}
+
+/* 2026-09-30: the LOGS section's GOPOD controls and chat box, moved out of
+   index.html's inline style="" attributes (operator: "offload as much as
+   possible to external css and js files"), same values. Scoped under
+   #section-log so they match the inline styles' strength over Wire-Pod's own
+   element rules. */
+#section-log .gopod-log-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+#section-log .gopod-nowrap {
+  white-space: nowrap;
+}
+#section-log .gopod-log-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  align-items: stretch;
+}
+#section-log .gopod-chat-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+#section-log .gopod-log-button {
+  min-width: 110px;
+  margin: 0;
+  padding: 2px 8px;
+}
+/* 2026-10-01 (operator): the log window is as wide as the <hr> under it - the
+   full section width (was 1300px). */
+#section-log #chat-display-handler {
+  height: 700px;
+  width: 100%;
+}
+#section-log #botTranscriptedTextArea {
+  height: 700px;
+  width: 100%;
+  max-width: none; /* Wire-Pod's style.css caps text boxes at 90% */
+  box-sizing: border-box;
+  font-size: 24px;
+}
+
+/* 2026-10-03 (operator: "make it responsive to a phone ... open the wire-pod URL
+   in my phone browser and follow along"): the Brobots Log section on a phone
+   (up to 768px wide, Wire-Pod's own phone breakpoint) - the chat window fills the
+   screen height, text and avatars shrink to fit, the big ball and the countdown
+   scale down, and the buttons wrap. Desktop is unchanged. */
+@media screen and (max-width: 768px) {
+  #section-log h2 { font-size: 1.3em; }
+  #section-log .gopod-log-options { gap: 6px 16px; }
+  #section-log .center > div { width: 100%; }
+  #section-log .gopod-log-buttons { flex-wrap: wrap; gap: 8px; }
+  #section-log .gopod-chat-buttons { flex: 1 1 140px; }
+  #section-log .gopod-log-button { min-width: 0; width: 100%; padding: 6px 8px; }
+  #section-log #chat-display-handler { height: auto; }
+  #brobot-chat-bubbles-container.expanded {
+    height: 72vh;
+    padding: 10px;
+    gap: 10px;
+    border-radius: 12px;
+    margin: 8px 0;
+  }
+  /* Bold on a phone, for easier reading (operator 2026-10-03: "I'd like this to
+     be 'accessible' to those with visual impairments"). */
+  .brobot-bubble,
+  .brobot-bubble * {
+    font-weight: 700;
+  }
+  .brobot-bubble {
+    max-width: 92%;
+    font-size: 20px;
+    padding: 8px 10px;
+    border-radius: 14px;
+    gap: 4px;
+  }
+  .brobot-bubble-head { gap: 8px; }
+  .brobot-bubble-avatar { --avatar-size: 32px; }
+  .bingo-ball-face { width: 180px; height: 180px; }
+  .bingo-ball-inner { width: 114px; height: 114px; }
+  .bingo-ball-letter { font-size: 32px; }
+  .bingo-ball-number { font-size: 62px; }
+  .warmup-timer { font-size: 44px; gap: 10px; }
+  .llm-battery { height: 40px; gap: 3px; padding: 4px; }
+  .llm-led { width: 9px; }
+  .countdown-juggle { width: 102px; height: 54px; }
+  .juggle-ball { transform-origin: 0 100%; width: 34px; height: 34px; font-size: 17px; line-height: 34px; }
+  #section-log #botTranscriptedTextArea { height: 60vh; font-size: 14px; }
+}
+
+/* 2026-10-03 (operator: "Do responsiveness to Tablets"): a touch screen wider
+   than a phone (769-1366px - a tablet, mostly held sideways). Between the phone
+   and desktop sizes, bold like the phone for easier reading. A desktop mouse
+   screen (pointer: fine) keeps the desktop layout. */
+@media screen and (min-width: 769px) and (max-width: 1366px) and (pointer: coarse) {
+  #section-log .gopod-log-button { padding: 6px 10px; }
+  #brobot-chat-bubbles-container.expanded {
+    height: 76vh;
+    padding: 14px;
+    gap: 12px;
+  }
+  .brobot-bubble,
+  .brobot-bubble * {
+    font-weight: 700;
+  }
+  .brobot-bubble {
+    max-width: 85%;
+    font-size: 26px;
+    padding: 9px 12px;
+    gap: 5px;
+  }
+  .brobot-bubble-avatar { --avatar-size: 40px; }
+  .bingo-ball-face { width: 240px; height: 240px; }
+  .bingo-ball-inner { width: 152px; height: 152px; }
+  .bingo-ball-letter { font-size: 42px; }
+  .bingo-ball-number { font-size: 84px; }
+  .warmup-timer { font-size: 60px; gap: 18px; }
+  .llm-battery { height: 52px; gap: 4px; }
+  .llm-led { width: 13px; }
+  .countdown-juggle { width: 132px; height: 70px; }
+  .juggle-ball { width: 44px; height: 44px; font-size: 22px; line-height: 44px; }
+  #section-log #botTranscriptedTextArea { height: 64vh; font-size: 18px; }
+}
+/* 2026-10-06 (operator: "Pictures in the chat"): a topic's pictures, side by
+   side, each no taller than the row. */
+.topic-pictures {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+/* 2026-10-12: a picture inside its question bubble, one line under the words. */
+.topic-pictures.in-question {
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: 1em;
+}
+.topic-pictures img {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 8px;
+  cursor: zoom-in;
+  transition: max-height 0.25s ease, box-shadow 0.25s ease;
+}
+/* GOLDEN (operator 2026-10-09: "make magnifier golden-stamped for all images"):
+   every picture in the Brobots chat gets the magnifier. The picture under the
+   mouse (or tapped) grows to the bubble's full inner width, its own shape kept
+   (operator: "on mouseover ... as if seen through a magnifying glass * expand to
+   full size or max inner bubble full display"). */
+.topic-pictures img.zoomed {
+  flex-basis: 100%;
+  width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  cursor: zoom-out;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+/* 2026-10-14 (operator: "QR codes ... aligned-top-right"; the weather faces:
+   "use same rule: aligned top-right * display 50% of actual size"): a
+   bubble's QR codes and weather face sit in its top-right corner; the
+   magnifier grows the one under the mouse (or tapped). */
+.brobot-bubble.has-corner { position: relative; }
+.brobot-bubble.has-corner .brobot-bubble-head { min-height: 64px; }
+.gopod-corner {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.gopod-corner.no-head {
+  position: static;
+  align-self: flex-end;
+}
+.gopod-corner img.gopod-qr {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  background: #fff;
+  cursor: zoom-in;
+  transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
+}
+.gopod-corner img.gopod-qr.zoomed {
+  width: 240px;
+  height: 240px;
+  cursor: zoom-out;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+/* Vector's face screen at his own size, 184x96 (operator 2026-10-14: "increase
+   weather animation size from 50% to 100%"), in the speaking Brobot's eye
+   colour (Vector draws them the same way); the magnifier shows it at 2x.
+   Faces: webroot/weather/ (the weather kit). */
+.brobot-bubble.has-weather .brobot-bubble-head { min-height: 100px; }
+.gopod-weather-face {
+  position: relative;
+  width: 184px;
+  height: 96px;
+  background: #000;
+  border-radius: 6px;
+  border: 2px solid #222;
+  overflow: hidden;
+  cursor: zoom-in;
+  transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
+}
+.gopod-weather-face.zoomed {
+  width: 368px;
+  height: 192px;
+  cursor: zoom-out;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.gopod-weather-face .tint {
+  position: absolute;
+  inset: 0;
+  background: #00e5ff;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.brobot-bubble.brobot-1 .gopod-weather-face .tint { background: var(--brobot-1-color, #FF001A); }
+.brobot-bubble.brobot-2 .gopod-weather-face .tint { background: var(--brobot-2-color, #0009FF); }
+@media (prefers-reduced-motion: reduce) {
+  .topic-pictures img { transition: none; }
+}
+/* 2026-10-06 (operator: "make the (rocking) hourglass animation empty the sand
+   from top full to bottom full over the range of the warming level"): the
+   warm-up hourglass, drawn (hourglassSprite), the size of the emoji it replaces. */
+.warmup-hourglass .hg {
+  width: 1em;
+  height: 1.33em;
+  vertical-align: middle;
+}
+.warmup-hourglass .hg-frame { fill: #8a6a3a; }
+.warmup-hourglass .hg-glass { fill: none; stroke: #d8d8d8; stroke-width: 1.2; stroke-linejoin: round; }
+.warmup-hourglass .hg-sand { fill: #e8b84a; }
+.warmup-hourglass .hg-stream { stroke: #e8b84a; stroke-width: 0.8; }
+
+/* 2026-10-13 (operator, signed off "marquee lights are fine"; then "For marquee
+   lights, please grab golden guts from this unrelated response and apply to live
+   pop ups"): a live pop-up - a Goverlord system bubble ringed by marquee bulbs
+   that gopod_brobots_chat.js places along its rounded border and lights in
+   patterns. Room inside the border for the bulbs. */
+.brobot-bubble.popup-winner {
+  position: relative;
+  padding: 22px 22px 18px;
+}
+.marquee-lights {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 2;
+}
+.marquee-light {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #3a3320;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
+  transition: background 0.08s ease, box-shadow 0.08s ease;
+}
+.marquee-light.on {
+  background: #ffd700;
+  box-shadow: 0 0 5px 1px #ffd700, 0 0 10px 2px rgba(255, 215, 0, 0.6), inset 0 0 3px #fff;
+}
+.marquee-light.on-warm {
+  background: #ffb347;
+  box-shadow: 0 0 5px 1px #ffb347, 0 0 10px 2px rgba(255, 179, 71, 0.6), inset 0 0 3px #fff;
+}
+.marquee-light.on-cool {
+  background: #e0e0ff;
+  box-shadow: 0 0 5px 1px #e0e0ff, 0 0 10px 2px rgba(224, 224, 255, 0.5), inset 0 0 3px #fff;
+}
+
+/* 2026-10-13 (operator: "add a speaker on/off toggle icon thingy, after the
+   keyboard input text field"): the background loop's speaker toggle. */
+/* 2026-10-14 (operator: "make new speaker toggle button = icon width,
+   aligned-right, for longer text field"): Wire-Pod's own button style
+   (css/style.css) is trimmed to the icon. */
+.gopod-typed-input .gopod-loop-speaker {
+  flex: none;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0 2px;
+  font-size: 1.25em;
+  line-height: 1;
+  cursor: pointer;
+}
+.gopod-loop-speaker:focus-visible {
+  outline: 2px solid #4af;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 2026-10-14 (operator: "combine a brobot's response bubble with a pop-up
+   wrapper ... like more of a surprise prize"): a live pop-up is the Brobot's
+   own reply bubble, ringed by the marquee - his name, Goverlord's
+   congratulations with the prize (grey, like Goverlord's bubbles), then his
+   name again and the reply. */
+.brobot-bubble.popup-wrap .popup-system {
+  background: var(--operator-bubble-bg);
+  border-radius: 16px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.brobot-bubble.popup-wrap .popup-congrats { font-size: 0.85em; }
+
+/* 2026-10-15 (the nap's single-bubble copy, operator: "A single narration bubble
+   stays the size of the image"; "make image 1 display in the background (behind
+   the text) at that zoomed size"; "fade in image to 50% transparency, maintain
+   during narration, fade out"): one narrator bubble, its stage the picture's own
+   shape at the bubble's full width; each section's part (picture behind words)
+   replaces the last. The fade times are set by gopod_brobots_chat.js. */
+.narrator-single .narrator-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1168 / 784;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.narrator-stage .narrator-part { position: absolute; inset: 0; display: none; }
+.narrator-stage .narrator-part.current { display: block; }
+.narrator-stage .narrator-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+.narrator-stage .narrator-bg.on { opacity: 0.5; }
+.narrator-stage .brobot-bubble-line { position: relative; padding: 12px 14px; }
+
+/* 2026-10-15 (operator: "each number highlights sequentially"): in the piece being
+   said, a run of single digits or a military time's numbers light one at a time
+   (gopod_brobots_chat.js digitSequence) - hidden until said, solid while said,
+   85% after; once the piece is over they show like the rest of it. */
+.brobot-say.speaking .seq-unit:not(.now):not(.said) { opacity: 0; }
+/* 2026-10-16: a new thought starts a new paragraph, a blank line below the last
+   (live_split.thought_lines). */
+.thought-gap { display: block; height: 0.8em; }
+.brobot-say.speaking .seq-unit.said { color: var(--chat-text-white); }
+.brobot-say.speaking .seq-unit.now { color: #fff; }
+
+/* 2026-10-15: a link in a bubble (the Weather Kit) - the bubble's own text colour,
+   underlined. */
+.brobot-bubble .bubble-link { color: inherit; text-decoration: underline; }
+/* 2026-10-17 (operator: "In terminal-results chat bubble, make terminal-bubble-text
+   font-size 50% of current bubble-text font-size"): system-set's answers. */
+.brobot-bubble-text.terminal-text { font-size: 50%; white-space: pre-line; }
+/* 2026-10-17 (operator: "RULE: For headers with more than one icon: [icon] [header
+   text] [icon] & [icon] [input] to Brobots [icon] [icon] * to give the effect of the
+   icons' animations mirroring each other in sync rather than together in sync, set
+   2nd & 3rd icons to start at the 1/2 loop point, if doable"): every icon after a
+   header's first plays brobot_eyes_half.webp - the same animation, its frames
+   starting at the loop's half (2.72 s of 5.36 s); the eye colour is unchanged. */
+.brobot-bubble-head > .brobot-bubble-avatar ~ .brobot-bubble-avatar {
+  background:
+    url('/assets/brobot_eyes_half.webp') center / contain no-repeat,
+    linear-gradient(var(--eye-fill), var(--eye-fill)) 50% 57.5% / 75% 50% no-repeat;
+}
+/* 2026-10-17 (operator: "make web page buttons text: 'Show all logs' & 'Scroll to
+   bottom' = align-left"). */
+#section-log .gopod-chat-buttons > .gopod-log-options {
+  justify-content: flex-start;
+  align-self: stretch;
+  text-align: left;
+}
+#section-log .gopod-log-options .checkbox-label { text-align: left; }
+/* 2026-10-17 (operator: "QR positioning overlaps easter egg marquee lights *
+   account for inner-width changes"): in a bubble ringed by the marquee, the QR
+   codes and weather face sit inside the bulbs' track (bulbs 9px in, 8px wide:
+   MARQUEE_INSET_PX) - anchored to the bubble's own top-right, so a narrower or
+   wider bubble keeps them clear. */
+.brobot-bubble.popup-winner > .gopod-corner {
+  top: 20px;
+  right: 24px;
+}
+/* 2026-10-17 (operator: "MouseOver to Zoom In goes below the images"). */
+.popup-zoom-line { display: block; text-align: center; margin-top: 6px; }
+/* 2026-10-17 (operator: "\"GOPOD Weather Kit\", when invisible, url link underline
+   still shows in the spaces, like \"     _       _   \""): while a link's words
+   are being revealed, only the words shown so far are underlined. */
+.brobot-say.speaking .bubble-link { text-decoration: none; }
+.brobot-say.speaking .bubble-link .seq-unit.now,
+.brobot-say.speaking .bubble-link .seq-unit.said { text-decoration: underline; }
+/* 2026-10-17 (operator: "can you replace flag-text with flag emoji"): a country
+   flag drawn as its picture (assets/flags, Twemoji), the size of the text. */
+.flag-emoji { height: 1em; width: auto; vertical-align: -0.12em; margin: 0 0.05em; }
+/* 2026-10-17 (operator: "the QR code jumps to reposition at the bottom-right,
+   respecting the same inner-width changes for marquee lights"): QR codes
+   scrolled above the chat's top sit at the bubble's bottom-right instead. */
+.brobot-bubble.corner-low > .gopod-corner { top: auto; bottom: 10px; }
+.brobot-bubble.popup-winner.corner-low > .gopod-corner { top: auto; bottom: 20px; }
+/* 2026-10-17 (operator: "QR2 is added after the call to action, invisible,
+   revealed as highlighted last"): the call to action's QR code, after its
+   words, the size of the corner's; the magnifier grows it. */
+img.gopod-qr2 {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  background: #fff;
+  vertical-align: middle;
+  margin-left: 4px;
+  cursor: zoom-in;
+  transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
+}
+img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45); }
+/* 2026-10-17 (operator: "put a centered rounded-rectangle bubble around the search
+   results * search results font @ 50% size * do a fast character by character
+   reveal"): a "search ..." line's results, centered, small, typed in. */
+.brobot-bubble.search-results {
+  align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 80%;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+}
+.search-results-text { font-size: 50%; line-height: 1.45; white-space: normal; }
+.search-results .search-char { opacity: 0; }
+.search-results .search-char.on,
+.search-results.typed .search-char { opacity: 1; }
+/* 2026-10-17 (operator: "Congratulations! Easter Egg 'Get Photo' found. * scale the
+   3 images to fit in a row"): a bubble's pictures share one row, each scaled to
+   fit; the magnified one still takes the full width. */
+.topic-pictures { flex-wrap: nowrap; }
+.topic-pictures img { flex: 1 1 0; min-width: 0; object-fit: contain; }
+.topic-pictures:has(img.zoomed) { flex-wrap: wrap; }
+.topic-pictures img.zoomed { flex: 1 1 100%; }
+/* 2026-10-18 (operator: "on any image mouseover, image 1 of 3 enlarges * make
+   independent image N mouseover only expand image N"): while one picture is
+   magnified, the others keep their small size (the first no longer stretches
+   to fill its row). */
+.topic-pictures:has(img.zoomed) img:not(.zoomed) { flex: 0 1 30%; }
+/* 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
+   chalkboard color background"): CHALK's bubbles and its egg on a chalkboard. */
+.brobot-bubble.host-chalk {
+  background: #2f4a3c;
+  color: #f2f2ea;
+}
+/* 2026-10-18 (operator: "PLAYHEAD ... his bubble background is tape ribbon color
+   of vintage video tape cassettes"): PLAYHEAD's bubbles and eggs on tape brown. */
+.brobot-bubble.host-playhead {
+  background: #3b2a1e;
+  color: #f2ece4;
+}
+/* CHALK's search-results box on its board too (it keeps its small size). */
+.brobot-bubble.search-results.host-chalk { background: #2f4a3c; }
+/* 2026-10-18 (operator: "QR codes handled by CHALK"): CHALK's QR board - each
+   code with its name under it, the magnifier on each. */
+.chalk-qr .chalk-qr-code { margin: 0 8px; text-align: center; }
+.chalk-qr .chalk-qr-code img.gopod-qr { width: 120px; height: 120px; border-radius: 4px; background: #fff; cursor: zoom-in; }
+.chalk-qr .chalk-qr-code img.gopod-qr.zoomed { width: 280px; height: 280px; }
+.chalk-qr .chalk-qr-code figcaption { font-size: 50%; margin-top: 4px; }
+/* 2026-10-18 (operator: "PLAYHEAD bubble displays inside brobot N bubble * at top
+   before brobot N 'Got it'"; "CHALK bubble displays inside brobot N bubble * at
+   bottom after brobot N response"): a manager's part inside a Brobot's bubble -
+   its own header and colour, the bubble's full width. */
+.brobot-bubble-text > .nested-host, .brobot-bubble > .nested-host {
+  max-width: 100%;
+  margin: 8px 0;
+  align-self: stretch;
+}
+.manager-qr { width: 120px; height: 120px; border-radius: 4px; background: #fff; cursor: zoom-in; }
+.manager-qr.zoomed { width: 280px; height: 280px; }
+
+/* GOLDEN system menu (2026-10-19, operator: "drop-down-menu bubble * similar to
+   manager bubbles * system bubble contains drop-down-menu bubble * full inner
+   width/height for max window space"): Goverlord's system bubble at full width,
+   the menu bubble filling it; one group open at a time. */
+.brobot-bubble.system-menu-host {
+  max-width: 100%;
+  padding: 6px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  height: min(560px, 70vh);
+}
+.system-menu {
+  flex: 0 0 50%;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--menu-bg, #1e2633);
+  color: #e8ecf2;
+  text-align: left;
+  font-size: var(--menu-font, 50%);
+}
+.system-menu-intro { margin-bottom: 6px; opacity: 0.85; }
+.system-menu-group { border-top: 1px solid rgba(255, 255, 255, 0.12); padding: 4px 0; }
+.system-menu-group > summary { cursor: pointer; font-weight: 600; padding: 3px 0; }
+.system-menu-guide, .system-menu-next { margin: 2px 0 4px; opacity: 0.8; }
+.system-menu-next { font-style: italic; }
+.system-menu-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  margin: 2px 0;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.system-menu-item:hover, .system-menu-item:focus-visible { background: rgba(255, 255, 255, 0.14); }
+.system-menu-item code {
+  white-space: nowrap;
+  color: var(--menu-code-fg, #9fd3ff);
+  background: var(--menu-code-bg, #141a24);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.system-menu-item span { opacity: 0.85; }
+/* The results under the menu: each system- line sent while it's open, and its answer. */
+.system-menu-results {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  margin-top: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--menu-results-bg, #161c26);
+  color: #e8ecf2;
+  text-align: left;
+  font-size: var(--menu-font, 50%);
+  white-space: pre-wrap;
+}
+.system-menu-results:empty { display: none; }
+.system-menu-result { margin: 2px 0 6px; }
+.system-menu-result.ask { color: var(--menu-code-fg, #9fd3ff); }
+.system-menu-results .search-results { max-width: 100%; margin: 4px 0; }
+/* The bar between the menu and its results: drag it up or down. */
+/* 2026-10-19 (operator: "I cannot adjust vertical heights? ... some visual
+   indicator would be nice"): the system bubble centres its contents, which left
+   this empty bar with no width - so it stretches now, with a grip in its middle. */
+.brobot-bubble.system-menu-host { align-items: stretch; }
+.system-menu-split {
+  flex: 0 0 12px;
+  align-self: stretch;
+  width: 100%;
+  margin: 0;
+  cursor: row-resize;
+  touch-action: none;
+  background: linear-gradient(to right, transparent calc(50% - 24px), rgba(255, 255, 255, 0.35) calc(50% - 24px), rgba(255, 255, 255, 0.35) calc(50% + 24px), transparent calc(50% + 24px)) center / 100% 3px no-repeat;
+}
+.system-menu-split:hover { background-color: rgba(255, 255, 255, 0.12); }
+.system-menu-results:empty { display: block; }
+/* GOLDEN system window, locked 2026-10-19 (operator: "Perfect. I like how window 2
+   overlaps window 1 * increase system inner width a bit, so top-right scroll bar
+   corner doesn't overlap * Lock that in"): the menu a little wider (less padding
+   on the right), its scroll bar in its own lane, clear of the rounded corner. */
+.brobot-bubble.system-menu-host { padding-right: 2px; }
+.system-menu, .system-menu-results { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+.system-menu::-webkit-scrollbar, .system-menu-results::-webkit-scrollbar { width: 8px; }
+.system-menu::-webkit-scrollbar-track, .system-menu-results::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+.system-menu::-webkit-scrollbar-thumb, .system-menu-results::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 6px; }

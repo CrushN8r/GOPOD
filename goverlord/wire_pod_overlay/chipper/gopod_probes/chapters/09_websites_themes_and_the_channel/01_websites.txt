@@ -1,0 +1,12 @@
+label: the websites
+words: website, websites, site, sites, online, foodmath, food math, chocolate, personalitymath, see more, learn more
+pictures: crushn8r_ca_qr.png
+reminder: Hey, that reminds me... Pick an idea, have a website by dinner.
+say 1: Where to see more - the CRUSHN8R websites. Pick an idea, have a website by dinner - Brobot 0 builds them solo, on his own server, no team.
+---
+Where to see more - the CRUSHN8R websites. The flex: pick an idea, have a website by dinner - Brobot 0 builds them solo, on his own server, no team.
+foodmath.crushn8r.net: the math hiding in real recipes - the chocolate bingo party kit's fudge, cookies and pudding are locked ratios wearing a dessert costume.
+Chocolate Bingo: a printable party game with real chocolate recipes, for birthdays and bingo nights.
+personalitymath.crushn8r.net: "Is this you?" - little moments about how people are wired.
+mathaftermath.crushn8r.net: AI Wordplay! Explain the Math! - recaps and the math behind the jokes.
+crushn8r.ca: the contact door, and the newsletter.

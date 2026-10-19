@@ -1,0 +1,38 @@
+use_default_settings: true
+
+server:
+  secret_key: "__GOPOD_SEARXNG_SECRET__"  # filled in privately by run_gopod_searxng.sh
+
+search:
+  formats:
+    - html
+    - json
+
+# GOPOD gosearch retune 2026-09-27 (gopod_notes/WEB_SEARCH_GOSEARCH_INTENT_BUILD_001.md).
+# Per-engine test from this IP: only these general web engines returned results.
+outgoing:
+  request_timeout: 2.5
+
+engines:
+  - name: bing
+    disabled: false
+  - name: yep
+    disabled: false
+  - name: mwmbl
+    disabled: false
+  - name: yandex
+    disabled: false
+  - name: gmx
+    disabled: false
+  - name: seznam
+    disabled: false
+  - name: google
+    disabled: true
+  - name: duckduckgo
+    disabled: true
+  - name: brave
+    disabled: true
+  - name: startpage
+    disabled: true
+  - name: wikidata
+    timeout: 2.5
