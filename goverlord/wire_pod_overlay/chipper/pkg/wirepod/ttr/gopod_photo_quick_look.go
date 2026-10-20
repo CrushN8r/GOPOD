@@ -68,6 +68,11 @@ func gopodQuickLookStart() {
 		logger.Println("GOPOD_QUICK_LOOK unable to start the worker: " + err.Error())
 		return
 	}
+	// 2026-10-20 (review): kept from the start, so system-tpu restart can stop
+	// a worker that's still loading (or stuck) instead of starting a second one.
+	gopodQuickLook.Lock()
+	gopodQuickLook.cmd, gopodQuickLook.ready = cmd, false
+	gopodQuickLook.Unlock()
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		if strings.Contains(scanner.Text(), `"ready"`) {

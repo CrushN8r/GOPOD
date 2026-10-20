@@ -247,6 +247,7 @@
       // browser) turns the loop on or off; a run quiets it (Wire-Pod's
       // loop_pause line) and its end sets it back to the toggle (loop_resume).
       var backgroundLoop = (function () {
+        var volumeCfg = 0.14;
         var file = "", volume = 0.14, ctx = null, buffer = null, source = null, gain = null, wanted = false;
         var speakerOn = true, runQuiet = false;
         try { speakerOn = localStorage.getItem("gopodLoopSpeaker") !== "off"; } catch (e) {}
@@ -289,13 +290,20 @@
           volume: function () { return volume; },
           setVolume: function (v) {
             volume = Math.max(0, Math.min(1, v));
-            try { localStorage.setItem("gopodLoopVolume", String(volume)); } catch (e) {}
+            // Review: kept with the settings' value it overrode - a new value in
+            // the settings (system-set) wins again.
+            try { localStorage.setItem("gopodLoopVolume", String(volume)); localStorage.setItem("gopodLoopVolumeCfg", String(volumeCfg)); } catch (e) {}
             applyLevel();
           },
           setup: function (cfg) {
             file = String(cfg.file || "").trim();
             volume = volumeShare(cfg.volume);
-            try { var kept = parseFloat(localStorage.getItem("gopodLoopVolume")); if (!isNaN(kept)) { volume = kept; } } catch (e) {}
+            volumeCfg = volume;
+            try {
+              var kept = parseFloat(localStorage.getItem("gopodLoopVolume"));
+              if (!isNaN(kept) && localStorage.getItem("gopodLoopVolumeCfg") === String(volumeCfg)) { volume = kept; }
+              else { localStorage.removeItem("gopodLoopVolume"); localStorage.removeItem("gopodLoopVolumeCfg"); }
+            } catch (e) {}
             applyLevel();
             wanted = !!file;
             if (wanted && pageClicked) { load(); }
@@ -3523,7 +3531,7 @@
         else if (e.who === systemRole) { showScore(e.text); }
         else if (e.who === terminalRole) { showTerminal(e.text); }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text); }
-        else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(e.text); } }
+        else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to); }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
         // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
@@ -4263,9 +4271,12 @@
       }
       // 2026-10-20 (operator: "brobot feed displaying outside results window"):
       // a picture row (not an egg) goes in the menu's results while it's open.
+      // Review: only a system command's row ("menu:", gopodMenuPictureMark) goes
+      // there - a song's or a topic's pictures stay in the chat.
       function menuPictures(list) {
         var results = systemMenuResults();
-        if (!results || String(list).indexOf("popup:") === 0) { return false; }
+        if (!results || String(list).indexOf("menu:") !== 0) { return false; }
+        list = String(list).slice("menu:".length);
         var row = document.createElement("div");
         row.className = "system-menu-result topic-pictures";
         String(list).split("|").forEach(function (src) {

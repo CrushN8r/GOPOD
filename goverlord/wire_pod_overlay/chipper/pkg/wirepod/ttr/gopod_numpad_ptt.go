@@ -122,12 +122,29 @@ var gopodMicMissing atomic.Bool
 // gopodMicCheck: the mic (numpad_ptt.mic_usb_id in lsusb) is there, or Goverlord
 // says mic_missing_text and the numpad works dry. Checked after the warm-up.
 func gopodMicCheck() {
-	id := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicUSBID)
-	if id == "" {
+	if gopodMicLook() {
 		return
 	}
+	if t := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicMissingText); t != "" {
+		gopodSystemSay(t, false)
+	}
+}
+
+// gopodMicLook: true when the mic is there (or lsusb can't tell); sets gopodMicMissing.
+func gopodMicLook() bool {
+	id := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicUSBID)
+	if id == "" {
+		gopodMicMissing.Store(false)
+		return true
+	}
+	list, err := gopodUSBDevicesErr()
+	if err != nil {
+		logger.Println("GOPOD_MIC lsusb failed (" + err.Error() + ") - not marking the mic missing")
+		gopodMicMissing.Store(false)
+		return true
+	}
 	found := false
-	for _, d := range gopodUSBDevices() {
+	for _, d := range list {
 		if strings.EqualFold(d.ID, id) {
 			found = true
 		}
@@ -135,12 +152,10 @@ func gopodMicCheck() {
 	gopodMicMissing.Store(!found)
 	if found {
 		logger.Println("GOPOD_MIC found " + id)
-		return
+	} else {
+		logger.Println("GOPOD_MIC missing " + id + " - numpad works dry")
 	}
-	logger.Println("GOPOD_MIC missing " + id + " - numpad works dry")
-	if t := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicMissingText); t != "" {
-		gopodSystemSay(t, false)
-	}
+	return found
 }
 
 // GopodNumpadPTTStart: a live key went down - the mic starts keeping the audio.
@@ -159,7 +174,8 @@ func GopodNumpadPTTStart(key string) map[string]any {
 		return map[string]any{"ok": false, "error": "not_ready"}
 	}
 	// Mic missing (gopodMicCheck): the key works dry - same messages, nothing kept.
-	if gopodMicMissing.Load() {
+	// Looked for again first (review: a mic plugged in after the warm-up works).
+	if gopodMicMissing.Load() && !gopodMicLook() {
 		logger.Println("GOPOD_NUMPAD_PTT start key=" + key + " brobot=" + brobot + " (mic disabled)")
 		return map[string]any{"ok": true, "brobot": brobot, "mic_disabled": true}
 	}

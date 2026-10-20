@@ -1490,6 +1490,13 @@ Language Model Loading...
   "Recording", then "transcribing" and "try again" (nothing_heard). Cams: one row in the results;
   a single Brobot's photo shows photo, enhancement, TPU boxes; two or more show each photo, then
   the selected one's TPU boxes. `system-tpu restart` answers when the worker is ready.
+- **Review fixes (ultrareview 2026-10-20, 10 confirmed):** only a system command's picture row
+  ("menu:" mark) goes in the menu's results - songs' and topics' stay in the chat; a run owns the
+  Brobots - KP+/KP- and system-visual show the last frame then, no wake; frame URLs keep their ?t=
+  stamp; the webcam grab times out after 8 s; system-tpu restart can stop a worker still loading;
+  a failed lsusb isn't "mic missing", and a missing mic is looked for again on each key press;
+  system-chats skips the searches themselves and slices on character boundaries; the volume
+  slider's value gives way when the settings' loop volume changes.
 - **System window rule** (operator 2026-10-19: "No header ... to recover window space * results
   window stretches to full width even when empty * no horizontal space, duo sync vertical height
   adjustment * both start at 50% window height * system menu/results, 50%/50% 10%/90%, 90%/10% *

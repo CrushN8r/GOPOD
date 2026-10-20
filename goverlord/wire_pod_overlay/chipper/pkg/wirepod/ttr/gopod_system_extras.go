@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // From the old pages and the JSON tree viewer (2026-10-20, operator: "do all 8
@@ -71,6 +73,7 @@ func gopodSystemChats(text string) string {
 	if want == "" {
 		return "system-chats <words> [operator|brobots|managers]"
 	}
+	wantRE := regexp.MustCompile("(?i)" + regexp.QuoteMeta(want))
 	var out []string
 	found := 0
 	for _, file := range gopodSessionChats() {
@@ -99,22 +102,33 @@ func gopodSystemChats(text string) string {
 					continue
 				}
 			}
-			low := strings.ToLower(l.Text)
-			at := strings.Index(low, want)
-			if at < 0 {
+			// Review: not the searches themselves (the typed command, its answer).
+			if l.Who == gopodSystemSetRole() || strings.HasPrefix(strings.ToLower(strings.TrimSpace(l.Text)), "system-") {
 				continue
 			}
+			loc := wantRE.FindStringIndex(l.Text)
+			if loc == nil {
+				continue
+			}
+			at, end := loc[0], loc[1]
 			found++
 			if len(out) < 30 {
 				// The match marked >>like this<<, a little either side.
-				from, to := at-60, at+len(want)+60
+				// Offsets from the text itself, on character boundaries (review).
+				from, to := at-60, end+60
 				if from < 0 {
 					from = 0
 				}
 				if to > len(l.Text) {
 					to = len(l.Text)
 				}
-				snip := l.Text[from:at] + ">>" + l.Text[at:at+len(want)] + "<<" + l.Text[at+len(want):to]
+				for from > 0 && !utf8.RuneStart(l.Text[from]) {
+					from--
+				}
+				for to < len(l.Text) && !utf8.RuneStart(l.Text[to]) {
+					to++
+				}
+				snip := l.Text[from:at] + ">>" + l.Text[at:end] + "<<" + l.Text[end:to]
 				out = append(out, fmt.Sprintf("%s %s: %s", l.Time, l.Who, strings.ReplaceAll(snip, "\n", " ")))
 			}
 		}

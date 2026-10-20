@@ -129,6 +129,9 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 	file := filepath.Join(gopodVisualDir(), src.ID+".jpg")
 	var err error
 	switch {
+	case src.Robot != "" && (gopodScriptPlaying.Load() || gopodRunActive()):
+		// Review: a run owns the Brobots - its last frame, no wake.
+		err = fmt.Errorf("a run is playing")
 	case src.Robot != "":
 		esn := gopodBrobotESN(src.Robot)
 		err = fmt.Errorf("not reached")
@@ -146,7 +149,10 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 		if _, e := os.Stat(src.Device); e != nil {
 			err = fmt.Errorf("%s not plugged in", src.Device)
 		} else {
-			out, e := exec.Command("ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "v4l2", "-i", src.Device, "-frames:v", "1", file).CombinedOutput()
+			// Review: a webcam that never sends a frame can't hang the call.
+			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+			out, e := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "v4l2", "-i", src.Device, "-frames:v", "1", file).CombinedOutput()
+			cancel()
 			if e != nil {
 				err = fmt.Errorf("%v %s", e, strings.TrimSpace(string(out)))
 			}
@@ -251,14 +257,15 @@ func gopodSystemVisual(text string) string {
 	return gopodVisualLine(r)
 }
 
+// gopodMenuPictureMark: a system command's picture row (review: only these go in
+// the system menu's results while it's open; a song's or a topic's stay in the chat).
+const gopodMenuPictureMark = "menu:"
+
 // gopodVisualPost: the row of pictures in the chat (the menu's results while it's open).
 func gopodVisualPost(r gopodVisualResult) {
-	var paths []string
-	for _, f := range r.Frames {
-		paths = append(paths, strings.SplitN(f, "?", 2)[0])
-	}
-	if len(paths) > 0 {
-		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, strings.Join(paths, "|"))
+	// Review: the ?t= stamps kept, so a new grab isn't shown as the old picture.
+	if len(r.Frames) > 0 {
+		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, gopodMenuPictureMark+strings.Join(r.Frames, "|"))
 	}
 }
 

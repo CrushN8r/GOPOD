@@ -325,7 +325,7 @@ func gopodSystemRobot(text string) string {
 			paths = append(paths, "/cam-stream?serial="+esn)
 			out = append(out, gopodBrobotName(esn)+": camera on")
 		}
-		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, strings.Join(paths, "|"))
+		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, gopodMenuPictureMark+strings.Join(paths, "|"))
 	default:
 		return "system-robot: \"" + what + "\"? - system-brobot alone lists them."
 	}
@@ -435,7 +435,7 @@ func gopodSystemPhotos(text string) string {
 			out = append(out, gopodBrobotName(esn)+": no photos")
 			continue
 		}
-		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, strings.Join(paths, "|"))
+		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, gopodMenuPictureMark+strings.Join(paths, "|"))
 		out = append(out, fmt.Sprintf("%s: %d photos (newest %d shown)", gopodBrobotName(esn), len(ids), len(paths)))
 	}
 	return gopodJoinLines(out)

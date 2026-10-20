@@ -23,9 +23,16 @@ type gopodUSBDevice struct {
 var gopodUSBLineRE = regexp.MustCompile(`^Bus (\d+) Device \d+: ID ([0-9a-f]{4}:[0-9a-f]{4}) ?(.*)$`)
 
 func gopodUSBDevices() []gopodUSBDevice {
+	list, _ := gopodUSBDevicesErr()
+	return list
+}
+
+// gopodUSBDevicesErr: the devices, or lsusb's error (review: a failed lsusb
+// isn't "the mic is missing").
+func gopodUSBDevicesErr() ([]gopodUSBDevice, error) {
 	out, err := exec.Command("lsusb").Output()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var list []gopodUSBDevice
 	for _, l := range strings.Split(string(out), "\n") {
@@ -39,7 +46,7 @@ func gopodUSBDevices() []gopodUSBDevice {
 		}
 		list = append(list, gopodUSBDevice{ID: m[2], Name: name, Bus: m[1]})
 	}
-	return list
+	return list, nil
 }
 
 func init() {
