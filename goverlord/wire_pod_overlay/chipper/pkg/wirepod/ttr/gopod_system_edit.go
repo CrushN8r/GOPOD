@@ -420,8 +420,11 @@ func gopodSystemNative(text string) string {
 // gopodSystemNumpad: the numpad is the page's; the page switches it as the line is sent.
 func gopodSystemNumpad(text string) string {
 	f := strings.Fields(strings.ToLower(text))
-	if len(f) < 2 || (f[1] != "on" && f[1] != "off") {
-		return "system-numpad on|off - the numpad keys as push-to-talk (KP1, KP2, KP0, KP7, KP8)."
+	if len(f) < 2 {
+		return gopodSystemNumpadList()
+	}
+	if f[1] != "on" && f[1] != "off" {
+		return "system-numpad on|off - the numpad keys as push-to-talk; alone: each key."
 	}
 	if f[1] == "on" {
 		return "Numpad on: " + gopodBrobotsSettings.NumpadPTT.Texts["on"]

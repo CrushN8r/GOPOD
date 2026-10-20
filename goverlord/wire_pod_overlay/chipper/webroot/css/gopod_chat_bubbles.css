@@ -1062,3 +1062,34 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .system-menu::-webkit-scrollbar, .system-menu-results::-webkit-scrollbar { width: 8px; }
 .system-menu::-webkit-scrollbar-track, .system-menu-results::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
 .system-menu::-webkit-scrollbar-thumb, .system-menu-results::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 6px; }
+/* 2026-10-20 (operator: "upon mouseover, display a vertical volume bar + knob to
+   adjust volume * range = 0% to 100%"): above the speaker icon, while hovered. */
+.gopod-typed-input { position: sticky; }
+.gopod-loop-volume {
+  display: none;
+  position: absolute;
+  right: 4px;
+  bottom: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: #1e2633;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+.gopod-loop-volume.open { display: flex; }
+.gopod-loop-volume input[type=range] {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  height: 120px;
+  width: 22px;
+  margin: 0;
+  accent-color: #9fd3ff;
+  cursor: pointer;
+}
+.gopod-loop-volume-label { font-size: 11px; color: #e8ecf2; }
+/* 2026-10-20 (operator: "cams feed * only a single row should appear"): a picture row in the menu's results stays one row. */
+.system-menu-results .topic-pictures { display: flex; flex-wrap: nowrap; gap: 6px; }
+.system-menu-results .topic-pictures img { flex: 1 1 0; min-width: 0; max-height: 180px; object-fit: contain; }

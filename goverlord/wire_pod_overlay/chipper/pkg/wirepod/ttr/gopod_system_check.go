@@ -134,6 +134,9 @@ func gopodSystemCheckProblems() ([]string, int) {
 			problems = append(problems, "topic "+p.Name+": no words: line (nothing finds it)")
 		}
 		for _, f := range gopodBrobotsSettings.TopicPictures.Pictures[p.Name] {
+			if strings.HasPrefix(f, "/") {
+				continue // a live stream, not a file
+			}
 			checked++
 			if !gopodFileExists(filepath.Join(web, gopodBrobotsSettings.TopicPictures.Folder, f)) {
 				problems = append(problems, "topic "+p.Name+": no picture "+f+" in webroot/"+gopodBrobotsSettings.TopicPictures.Folder)

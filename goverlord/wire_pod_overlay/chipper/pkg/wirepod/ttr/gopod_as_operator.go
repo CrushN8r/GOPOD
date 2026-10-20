@@ -22,7 +22,12 @@ func gopodAsOperator(cmd *exec.Cmd) *exec.Cmd {
 		env = os.Environ()
 	}
 	env = append(env, "GOPOD_HOME="+home)
-	if libs, _ := filepath.Glob(filepath.Join(home, ".local/lib/python3*/site-packages")); len(libs) > 0 {
+	// 2026-10-20 (live: "Edge TPU: the Edge TPU worker isn't ready" - the Python
+	// 3.10 packages put in front of the coral env's own 3.9 ones broke its PIL):
+	// a Python with its own environment (conda, venv) keeps its own packages;
+	// only the system's python3 gets the operator's ~/.local ones.
+	own := strings.Contains(cmd.Path, "/envs/") || strings.Contains(cmd.Path, "venv")
+	if libs, _ := filepath.Glob(filepath.Join(home, ".local/lib/python3*/site-packages")); len(libs) > 0 && !own {
 		if old := os.Getenv("PYTHONPATH"); old != "" {
 			libs = append(libs, old)
 		}

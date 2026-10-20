@@ -17,6 +17,7 @@ chipper/customIntents.json.bak_*
 chipper_backups/
 chipper/webroot/gopod_reporter_audio/
 chipper/webroot/gopod_reporter_audio_backup/
+chipper/webroot/visual/
 chipper/webroot/gopod_audio_norm/
 # QR codes PLAYHEAD makes in live chats (gopodMakeQR) - run output
 chipper/webroot/qr/made/

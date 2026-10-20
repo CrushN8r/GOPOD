@@ -1439,6 +1439,57 @@ Language Model Loading...
   longer CHALK's; while the menu is open it's a line in the menu's results ("no other bubble when
   system menu is open"; the error sound still plays). A drag bar between the menu and its results
   resizes them; while the menu is open the chat is scroll-locked at its top.
+- **GOPOD VISUAL CONTROL - the TPU +/- rotation** (operator 2026-10-20: "Focus on adding the tpu +/-
+  rotation"; the retired 8011 demo's ring, wdtm_demo.html): `visual_sources` - Doc, Pip, the USB
+  webcam. KP+ next feed, KP- previous, wrapping (page, numpad on); `system-visual [next|prev|<id>]`
+  typed. Each turn grabs a frame (a Brobot woken through gopodRobotCall, or the webcam with ffmpeg),
+  runs the Edge TPU quick look (objects + the boxes copy), keeps `webroot/visual/<id>.jpg` (not in
+  the repo); a source that can't give a frame shows its last one, CACHED. One visual board: FEED
+  n/N, name, LIVE/CACHED, TPU objects, the frame (magnifier) - CHALK's board, or the menu's
+  results while open; turned in place while it's the newest thing. Route `/api-sdk/gopod_visual`,
+  registered from gopod_visual.go (server.go untouched).
+- **From the old pages and the JSON viewer** (operator 2026-10-20: "do all 8 please";
+  `gopod_notes/PAGES_AND_VIEWER_ABSORB_SURVEY_001.md`): `system-cams [tpu]`, `system-chats <words>
+  [operator|brobots|managers]` (every saved session, matches marked >>like this<<),
+  `system-chat-save [session]` (chat.md in the session folder), `system-menu-theme <preset>`
+  (`system_menu.themes`), `system-numpad` alone lists the keys; "camera feed(s)" is a surprise
+  egg (`chapters/_always/04_camera_feeds.txt`, not_listed) - the Brobots' live camera streams on
+  CHALK's board (a picture path starting with "/" is used as it is).
+- **Doc & Pip workbook cards** (operator 2026-10-20: "From DocPipMath.pdf * use all applicable
+  cards in the pdf (correctly rotated, lol)"): the six cards (1A Factoring Warm-Up, 1B One Big
+  Slot, 1C Speed Round, 2A Doc's Answer Key, 2B Flip to the back, 2C No credit for close), cut
+  from the PDF's pages turned upright, are `webroot/pictures/docpip_*.jpg` - the workbook egg's
+  pictures (`04_how_doc_and_pip_teach/02_doc_and_pip_workbook.txt`), each with hand-written
+  points from its own words (`gopod_picture_descriptions.json`).
+- **Wait until I'm finished** (operator 2026-10-20: "add a 'wait until I'm finished' flag to the
+  chat bubble template"; live: a long Operator voice was still playing when the flat 30 s cap ran
+  out, and the eggs and Brobot 1 went on): a voiced line waits until the page has played it -
+  its own length plus up to `reporter_voices.finish_wait_seconds` (120) - while the chat page is
+  watched and here; with no page, the old cap (2 x max_wait_seconds).
+- **CHALK QR boards are top/bottom border phobic inside a Brobot's bubble** (operator 2026-10-20):
+  the newsletter QR board sits on the inner side of the newsletter line - after it when it opens
+  the answer, before it otherwise (`chalkCta`); any newsletter line counts, not only the CTA's
+  own words.
+- **2026-10-20 run fixes** (operator): bubble types - Operator = input; Goverlord, Gomad, Gominion
+  = output. Speaker icon: hovering shows a vertical volume bar (0-100%, the loop's share; kept per
+  browser). `system-usb` / the menu's live USB panel (every 3 s, "+ plugged in" / "- pulled out",
+  `/api-sdk/gopod_usb`). Picture rows go in the menu's results while it's open. Edge TPU: the
+  worker had broken because gopodAsOperator put the operator's Python 3.10 packages in front of
+  the coral env's 3.9 ones - a conda/venv Python now keeps its own; `system-tpu [restart]`,
+  `system-test-tpu` (in the audit). One feed (KP+/KP-, system-visual): photo, enhancement, TPU
+  boxes (no "I see" - operator: "I gave you that as a reference for where to look, not to
+  implement"); KP+/KP- turn only through the feeds there now, with one feed nothing turns
+  ("no multiple feeds to rotate = not applicable"); all feeds (system-cams, `?dir=all`): every feed's photo
+  in a row, then the selected one's TPU boxes (a 4th picture with a webcam plugged in).
+  `system-brobot` (system-robot still works) answers what it set ("location set to ...").
+- **Mic missing** (operator 2026-10-20: "if no mic or other expected devices not found * after llm
+  ready run fully completes * Goverlord knows to send out a mic missing message & disable the
+  input only, so numpad works as dry run with no mic"): after the warm-up's last step,
+  `gopodMicCheck` looks for `numpad_ptt.mic_usb_id` in lsusb; missing, Goverlord says
+  `mic_missing_text` and a numpad key works dry - the same messages, "Mic disabled" in place of
+  "Recording", then "transcribing" and "try again" (nothing_heard). Cams: one row in the results;
+  a single Brobot's photo shows photo, enhancement, TPU boxes; two or more show each photo, then
+  the selected one's TPU boxes. `system-tpu restart` answers when the worker is ready.
 - **System window rule** (operator 2026-10-19: "No header ... to recover window space * results
   window stretches to full width even when empty * no horizontal space, duo sync vertical height
   adjustment * both start at 50% window height * system menu/results, 50%/50% 10%/90%, 90%/10% *

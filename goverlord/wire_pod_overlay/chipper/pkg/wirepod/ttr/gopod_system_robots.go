@@ -71,7 +71,7 @@ var gopodRobotEyeColors = []string{"teal", "orange", "yellow", "lime", "sapphire
 func gopodSystemRobot(text string) string {
 	f := strings.Fields(text)
 	if len(f) < 2 {
-		return "system-robot stats | anims <word> | anim <name> | cube <name> | volume <0-5> | eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> | locale <en-US> | units c|f | location <place> | timezone <zone> | say <text> | wake | head|lift <speed> | wheels <left> <right> | camera   [1|2|both]"
+		return "system-brobot stats | anims <word> | anim <name> | cube <name> | volume <0-5> | eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> | locale <en-US> | units c|f | location <place> | timezone <zone> | say <text> | wake | head|lift <speed> | wheels <left> <right> | camera   [1|2|both]"
 	}
 	who, rest := gopodRobotWho(f[1:])
 	what := strings.ToLower(rest[0])
@@ -106,8 +106,13 @@ func gopodSystemRobot(text string) string {
 			if err != nil {
 				return "not done - " + err.Error()
 			}
-			if got == "" || got == "done" {
-				return "done"
+			// 2026-10-20 (operator: "in Brobot N: done, 'done' doesn't tell me
+			// what was done"): what was set.
+			if got == "" || got == "done" || route == "custom_eye_color" {
+				if what == "wake" {
+					return "woken"
+				}
+				return what + " set to " + arg
 			}
 			return got
 		}
@@ -137,7 +142,7 @@ func gopodSystemRobot(text string) string {
 	case "volume":
 		v, err := strconv.Atoi(arg)
 		if err != nil || v < 0 || v > 5 {
-			return "system-robot volume <0-5> [1|2|both]"
+			return "system-brobot volume <0-5> [1|2|both]"
 		}
 		each(call("volume", url.Values{"volume": {arg}}))
 	case "eyes":
@@ -148,7 +153,7 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if n < 0 {
-			return "system-robot eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> [1|2|both]"
+			return "system-brobot eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> [1|2|both]"
 		}
 		each(call("eye_color", url.Values{"color": {strconv.Itoa(n)}}))
 	case "locale":
@@ -156,7 +161,7 @@ func gopodSystemRobot(text string) string {
 	case "units":
 		route := map[string]string{"c": "temp_c", "f": "temp_f"}[strings.ToLower(arg)]
 		if route == "" {
-			return "system-robot units c|f [1|2|both]"
+			return "system-brobot units c|f [1|2|both]"
 		}
 		each(call(route, nil))
 	case "location":
@@ -165,7 +170,7 @@ func gopodSystemRobot(text string) string {
 		each(call("timezone", url.Values{"timezone": {arg}}))
 	case "say":
 		if arg == "" {
-			return "system-robot say <text> [1|2|both]"
+			return "system-brobot say <text> [1|2|both]"
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			resp, err := gopodLogSayText(robot, ctx, &vectorpb.SayTextRequest{
@@ -177,7 +182,7 @@ func gopodSystemRobot(text string) string {
 		})
 	case "anim":
 		if arg == "" {
-			return "system-robot anim <name> [1|2|both] - system-robot anims <word> finds names (anims sleep)."
+			return "system-brobot anim <name> [1|2|both] - system-robot anims <word> finds names (anims sleep)."
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			if _, err := gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{Animation: &vectorpb.Animation{Name: arg}, Loops: 1}); err != nil {
@@ -220,7 +225,7 @@ func gopodSystemRobot(text string) string {
 			}
 			out2 = append(out2, fmt.Sprintf("%s (%d): %s", k, len(names), strings.Join(names, ", ")))
 		}
-		return "system-robot beat <alias> [1|2|both]\n" + strings.Join(out2, "\n")
+		return "system-brobot beat <alias> [1|2|both]\n" + strings.Join(out2, "\n")
 	case "beat":
 		// 2026-10-19 (operator: "all the 100+ sleep commands"): one sleep beat -
 		// a trigger or a clip (sleep_beats, from SLEEP_BENCH_ALIASES_001.md).
@@ -233,7 +238,7 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if name == "" {
-			return "system-robot beat <alias> [1|2|both] - system-robot beats lists them."
+			return "system-brobot beat <alias> [1|2|both] - system-brobot beats lists them."
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			var err error
@@ -266,7 +271,7 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if intent == "" {
-			return "system-robot cube <" + strings.Join(names, "|") + "> [1|2|both]"
+			return "system-brobot cube <" + strings.Join(names, "|") + "> [1|2|both]"
 		}
 		eachHow(false, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			if _, err := robot.Conn.AppIntent(ctx, &vectorpb.AppIntentRequest{Intent: intent}); err != nil {
@@ -280,13 +285,13 @@ func gopodSystemRobot(text string) string {
 		// A short nudge, woken first: the move, a moment, stop.
 		g := strings.Fields(arg)
 		if (what == "wheels" && len(g) != 2) || (what != "wheels" && len(g) != 1) {
-			return "system-robot head|lift <speed, e.g. 3 or -3> | wheels <left> <right> [1|2|both]"
+			return "system-brobot head|lift <speed, e.g. 3 or -3> | wheels <left> <right> [1|2|both]"
 		}
 		var v []float64
 		for _, x := range g {
 			n, err := strconv.ParseFloat(x, 64)
 			if err != nil {
-				return "system-robot " + what + ": numbers only."
+				return "system-brobot " + what + ": numbers only."
 			}
 			v = append(v, n)
 		}
@@ -322,7 +327,7 @@ func gopodSystemRobot(text string) string {
 		}
 		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, strings.Join(paths, "|"))
 	default:
-		return "system-robot: \"" + what + "\"? - system-robot alone lists them."
+		return "system-robot: \"" + what + "\"? - system-brobot alone lists them."
 	}
 	return gopodJoinLines(out)
 }

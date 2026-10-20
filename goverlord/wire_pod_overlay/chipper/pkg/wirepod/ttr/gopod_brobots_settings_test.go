@@ -276,6 +276,9 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 		// 2026-10-16: an egg-only topic (a card egg, the roast battle) sits outside
 		// the interview's chapters, like what_else.
 		_, eggOnly := gopodBrobotsSettings.TopicPictures.Cards[name]
+		for _, n := range gopodBrobotsSettings.TopicPictures.NotListed {
+			eggOnly = eggOnly || n == name // 2026-10-20: a surprise egg (camera feeds)
+		}
 		if !inChapter[name] && name != gopodBrobotsSettings.ValuePoints.WhatElseTopic && !eggOnly {
 			t.Errorf("pack %q is in no chapter", name)
 		}
@@ -296,6 +299,9 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 			t.Errorf("pictures for unknown pack %q", topic)
 		}
 		for _, f := range files {
+			if strings.HasPrefix(f, "/") {
+				continue // 2026-10-20: a live camera stream, not a file
+			}
 			if _, err := os.Stat(filepath.Join(gopodChipperRoot(), "webroot", gopodBrobotsSettings.TopicPictures.Folder, f)); err != nil {
 				t.Errorf("picture %s: %v", f, err)
 			}

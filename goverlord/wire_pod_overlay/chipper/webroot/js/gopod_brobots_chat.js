@@ -283,9 +283,19 @@
           if (ctx && ctx.state === "suspended") { ctx.resume(); }
         }, true);
         return {
+          // 2026-10-20 (operator: "upon mouseover, display a vertical volume bar
+          // + knob to adjust volume * range = 0% to 100% * knob position set to
+          // current default"): the loop's share, set from the speaker's bar.
+          volume: function () { return volume; },
+          setVolume: function (v) {
+            volume = Math.max(0, Math.min(1, v));
+            try { localStorage.setItem("gopodLoopVolume", String(volume)); } catch (e) {}
+            applyLevel();
+          },
           setup: function (cfg) {
             file = String(cfg.file || "").trim();
             volume = volumeShare(cfg.volume);
+            try { var kept = parseFloat(localStorage.getItem("gopodLoopVolume")); if (!isNaN(kept)) { volume = kept; } } catch (e) {}
             applyLevel();
             wanted = !!file;
             if (wanted && pageClicked) { load(); }
@@ -348,6 +358,36 @@
       });
       showSpeaker();
       typedRow.appendChild(speakerToggle);
+      // The speaker's volume bar: shown while the mouse is over the speaker (or the bar).
+      var volumeWrap = document.createElement("div");
+      volumeWrap.className = "gopod-loop-volume";
+      var volumeBar = document.createElement("input");
+      volumeBar.type = "range";
+      volumeBar.min = "0";
+      volumeBar.max = "100";
+      volumeBar.step = "1";
+      volumeBar.setAttribute("aria-label", "Background loop volume");
+      var volumeLabel = document.createElement("span");
+      volumeLabel.className = "gopod-loop-volume-label";
+      volumeWrap.appendChild(volumeLabel);
+      volumeWrap.appendChild(volumeBar);
+      typedRow.appendChild(volumeWrap);
+      function showVolume() {
+        var pct = Math.round(backgroundLoop.volume() * 100);
+        volumeBar.value = String(pct);
+        volumeLabel.textContent = pct + "%";
+      }
+      volumeBar.addEventListener("input", function () {
+        backgroundLoop.setVolume(parseInt(volumeBar.value, 10) / 100);
+        volumeLabel.textContent = volumeBar.value + "%";
+      });
+      var volumeHide = null;
+      function volumeOpen() { clearTimeout(volumeHide); showVolume(); volumeWrap.classList.add("open"); }
+      function volumeClose() { clearTimeout(volumeHide); volumeHide = setTimeout(function () { volumeWrap.classList.remove("open"); }, 400); }
+      [speakerToggle, volumeWrap].forEach(function (el) {
+        el.addEventListener("mouseenter", volumeOpen);
+        el.addEventListener("mouseleave", volumeClose);
+      });
       // 2026-10-09: Esc leaves the text box (2026-10-10: the numpad's own keys
       // are push-to-talk even in the box, when Numpad? is ticked).
       typedText.addEventListener("keydown", function (ev) {
@@ -2271,10 +2311,15 @@
       function chalkCta(bubble) {
         if (!secondQr || !secondQr.after || bubble.querySelector(".chalk-cta")) { return; }
         var after = String(secondQr.after).toLowerCase(), hit = null;
-        Array.prototype.forEach.call(ownSays(bubble), function (say) {
+        var says = ownSays(bubble);
+        says.forEach(function (say) {
           if (!hit && String(say.textContent || "").toLowerCase().indexOf(after) >= 0) { hit = say; }
         });
+        // 2026-10-20 (live: "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
+        // opened an answer, in the model's own words): any newsletter line.
+        if (!hit) { says.forEach(function (say) { if (!hit && /newsletter/i.test(say.textContent || "")) { hit = say; } }); }
         if (!hit) { return; }
+        var ctaEnd = hit;
         // The call to action starts at "Wanna know more?" - the piece before, when it's that.
         var prev = hit.previousElementSibling;
         if (prev && prev.classList.contains("brobot-say") && /know more/i.test(prev.textContent || "") && !/know more/i.test(hit.textContent || "")) { hit = prev; }
@@ -2296,7 +2341,13 @@
         fig.appendChild(cap);
         row.appendChild(fig);
         box.appendChild(row);
-        hit.parentNode.insertBefore(box, hit);
+        // 2026-10-20 (operator: "upon opening with newsletter, add the QRs bubble
+        // right after ... upon closing with newsletter, insert the QRs bubble
+        // just before ... as if manager bubbles prefer to stay away (phobic) from
+        // top/bottom of brobots response window"): on the inner side of the
+        // newsletter line - after it when it opens the answer, before it otherwise.
+        if (hit === says[0] && ctaEnd !== says[says.length - 1]) { ctaEnd.parentNode.insertBefore(box, ctaEnd.nextSibling); }
+        else { hit.parentNode.insertBefore(box, hit); }
       }
       var secondQr = null;
       function addSecondQr(bubble) {
@@ -3472,7 +3523,7 @@
         else if (e.who === systemRole) { showScore(e.text); }
         else if (e.who === terminalRole) { showTerminal(e.text); }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text); }
-        else if (e.who === pictureRole) { showPictures(e.text); }
+        else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(e.text); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to); }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
         // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
@@ -3973,6 +4024,62 @@
         return api;
       }
       var numpadOpStatus = null;
+      // GOPOD VISUAL CONTROL - the TPU +/- rotation (2026-10-20, operator: "Focus
+      // on adding the tpu +/- rotation"; the retired 8011 demo's ring): KP+ / KP-
+      // turn to the next / previous feed (visual_sources: Doc, Pip, the USB
+      // webcam); Wire-Pod grabs its frame and runs the Edge TPU (gopod_visual.go).
+      // One visual board shows the feed: FEED n/N, its name, LIVE or CACHED, the
+      // TPU's objects, the frame with their boxes (magnifier). On CHALK's board
+      // (the display host), or in the system menu's results while it's open;
+      // the same board is turned in place while it's the newest thing in the chat.
+      var visualBoard = null, visualBusy = false;
+      function visualTurn(dir) {
+        if (visualBusy) { return; }
+        visualBusy = true;
+        // 2026-10-20 (operator: "no multiple feeds to rotate = not applicable"):
+        // one feed there - nothing turns, nothing shows.
+        fetch("/api-sdk/gopod_visual?dir=" + encodeURIComponent(dir), { cache: "no-store" })
+          .then(function (r) { return r.json(); })
+          .then(function (v) { if (!v.single) { visualShow(visualBoardFor(), v); } })
+          .catch(function () { /* Wire-Pod didn't answer */ })
+          .then(function () { visualBusy = false; });
+      }
+      function visualBoardFor() {
+        var results = systemMenuResults();
+        var inPlace = visualBoard && visualBoard.isConnected &&
+          (results ? visualBoard.parentNode === results : visualBoard === container.lastElementChild || visualBoard.nextElementSibling === typedRow);
+        if (inPlace) { return visualBoard; }
+        var board = document.createElement("div");
+        board.className = results ? "system-menu-result visual-board" : "brobot-bubble operator system-status visual-board";
+        if (!results) { board.appendChild(displayHead(board)); }
+        var line = document.createElement("div");
+        line.className = "visual-line";
+        board.appendChild(line);
+        var row = document.createElement("div");
+        row.className = "topic-pictures visual-frame";
+        board.appendChild(row);
+        if (results) { results.appendChild(board); results.scrollTop = results.scrollHeight; }
+        else { container.appendChild(board); revealWhenPlaced(board); }
+        visualBoard = board;
+        return board;
+      }
+      function visualShow(board, v) {
+        var objects = v.objects && v.objects.length ? v.objects.join(", ") : "-";
+        board.querySelector(".visual-line").textContent = "FEED " + v.index + "/" + v.count + " " + (v.label || v.id) +
+          " " + (v.live ? "LIVE" : "CACHED") + " - TPU: " + objects + (v.status && v.status !== "Edge TPU: ok" ? " - " + v.status : "");
+        var row = board.querySelector(".visual-frame");
+        row.innerHTML = "";
+        // 2026-10-20: photo, enhancement, TPU boxes (one feed); every feed's
+        // photo then the TPU boxes (all feeds).
+        (v.frames && v.frames.length ? v.frames : (v.frame ? [v.frame] : [])).forEach(function (src) {
+          var img = document.createElement("img");
+          img.src = src;
+          img.alt = img.title = v.label || v.id;
+          magnify(row, img);
+          row.appendChild(img);
+        });
+
+      }
       // GOLDEN system menu (2026-10-19, operator: "New system- commands
       // drop-down-menu system * start from system-restart * then group & order by
       // semantic relevance * 🔇 opens it * 🔊 closes it * similar to manager
@@ -4041,6 +4148,7 @@
             about.textContent = it.about || "";
             item.appendChild(about);
             item.addEventListener("click", function () {
+              if (it.page === "usb") { usbPanel(); return; }
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
@@ -4114,7 +4222,66 @@
           requestAnimationFrame(pin);
         })();
       }
+      // 2026-10-20 (operator: "add in a dynamic USB panel of (hot-swappable)
+      // devices"): in the menu's results, refreshed every 3 s while the menu is
+      // open; a device just plugged in is marked "+ plugged in", one pulled out
+      // "- pulled out" (for a few refreshes).
+      var usbTimer = null;
+      function usbPanel() {
+        var results = systemMenuResults();
+        if (!results) { return; }
+        var panel = results.querySelector(".usb-panel");
+        if (!panel) {
+          panel = document.createElement("div");
+          panel.className = "system-menu-result usb-panel";
+          results.appendChild(panel);
+        }
+        var known = null, gone = {};
+        clearInterval(usbTimer);
+        function poll() {
+          if (!panel.isConnected) { clearInterval(usbTimer); return; }
+          fetch("/api-sdk/gopod_usb", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (list) {
+            list = list || [];
+            var now = {}, lines = ["USB devices (" + list.length + ") - live:"];
+            list.forEach(function (d) {
+              var k = d.id + " " + d.name;
+              now[k] = true;
+              lines.push("  " + d.id + "  " + d.name + (known && !known[k] ? "   + plugged in" : ""));
+            });
+            if (known) { Object.keys(known).forEach(function (k) { if (!now[k]) { gone[k] = 4; } }); }
+            Object.keys(gone).forEach(function (k) {
+              if (now[k] || gone[k]-- <= 0) { delete gone[k]; return; }
+              lines.push("  " + k + "   - pulled out");
+            });
+            known = now;
+            panel.textContent = lines.join("\n");
+          }).catch(function () { panel.textContent = "USB devices: Wire-Pod didn't answer"; });
+        }
+        poll();
+        usbTimer = setInterval(poll, 3000);
+        results.scrollTop = results.scrollHeight;
+      }
+      // 2026-10-20 (operator: "brobot feed displaying outside results window"):
+      // a picture row (not an egg) goes in the menu's results while it's open.
+      function menuPictures(list) {
+        var results = systemMenuResults();
+        if (!results || String(list).indexOf("popup:") === 0) { return false; }
+        var row = document.createElement("div");
+        row.className = "system-menu-result topic-pictures";
+        String(list).split("|").forEach(function (src) {
+          if (!src) { return; }
+          var img = document.createElement("img");
+          img.src = src;
+          img.alt = img.title = src.split("/").pop();
+          magnify(row, img);
+          row.appendChild(img);
+        });
+        results.appendChild(row);
+        results.scrollTop = results.scrollHeight;
+        return true;
+      }
       function systemMenuClose() {
+        clearInterval(usbTimer);
         if (systemMenu) { systemMenu.remove(); systemMenu = null; }
       }
       function numpadPost(action, key) {
@@ -4135,10 +4302,12 @@
         a.status = systemStatus(numpadText("hold", { key: key, brobot: brobot }), 0, brobot);
         a.started = numpadPost("start", key).then(function (r) {
           if (!r.ok) { a.failed = true; numpadFailed(a.status, r); }
+          a.micOff = !!r.mic_disabled;
           return r;
         });
         a.holdTimer = setTimeout(function () {
-          if (numpad.active === a && !a.failed) { a.status.set(numpadText("recording", { brobot: brobot })); }
+          // 2026-10-20: with the mic missing, "Mic disabled" in place of "Recording".
+          if (numpad.active === a && !a.failed) { a.status.set(numpadText(a.micOff ? "mic_disabled" : "recording", { brobot: brobot })); }
         }, numpad.cfg.min_hold_seconds * 1000);
         a.maxTimer = setTimeout(numpadRelease, numpad.cfg.max_hold_seconds * 1000);
       }
@@ -4230,6 +4399,12 @@
         if (numpadKey && !ev.repeat) { numpadKeySound(); }
         if (ev.code === "NumLock") {
           if (!ev.repeat) { numpadExitTap(ev.code); }
+          return;
+        }
+        // GOPOD VISUAL CONTROL (2026-10-20): KP+ next feed, KP- previous (visualTurn).
+        if ((ev.code === "NumpadAdd" || ev.code === "NumpadSubtract") && !typingInBox()) {
+          ev.preventDefault();
+          if (!ev.repeat) { visualTurn(ev.code === "NumpadAdd" ? "next" : "prev"); }
           return;
         }
         // 2026-10-16 (operator: "can you extend this detection, so a long '0'

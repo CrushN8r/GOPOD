@@ -97,6 +97,10 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"mic_service"`
 	NumpadPTT struct {
 		MapFile      string            `json:"map_file"`
+		// 2026-10-20: the mic's USB id, and what Goverlord says when it's missing.
+		MicUSBID           string  `json:"mic_usb_id"`
+		MicMissingText     string  `json:"mic_missing_text"`
+		MicDisabledSeconds float64 `json:"mic_disabled_seconds"`
 		BodyToBrobot map[string]string `json:"body_to_brobot"`
 		// 2026-10-14: Goverlord says texts.on / texts.exit; made at start (gopodSystemLines).
 		Texts map[string]string `json:"texts"`
@@ -192,6 +196,19 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"chapters"`
 		TopicLabels map[string]string `json:"topic_labels"`
 	} `json:"interview_chapters"`
+	// 2026-10-20: the system menu's theme presets (system-menu-theme).
+	SystemMenu struct {
+		Themes map[string]map[string]string `json:"themes"`
+	} `json:"system_menu"`
+	// 2026-10-20: the TPU +/- rotation's sources (gopod_visual.go).
+	VisualSources struct {
+		Ring []struct {
+			ID     string `json:"id"`
+			Label  string `json:"label"`
+			Robot  string `json:"robot"`
+			Device string `json:"device"`
+		} `json:"ring"`
+	} `json:"visual_sources"`
 	// 2026-10-19: the 126 sleep beats by family (system-robot beat / beats).
 	SleepBeats struct {
 		Families map[string][]struct {
@@ -274,6 +291,7 @@ type gopodBrobotsSettingsFile struct {
 		OperatorVoice string `json:"operator_voice"`
 		// 2026-10-13: days an unused Operator voice file is kept.
 		OperatorKeepDays float64 `json:"operator_keep_days"`
+		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
 		ScriptedKeepDays float64 `json:"scripted_keep_days"`
 		LiveKeepDays     float64 `json:"live_keep_days"`
 		// 2026-10-13: the sting before a system line (gopodSystemSting).

@@ -116,6 +116,33 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 // gopodPersonaMark: a numpad "ESN" that is a voice-only persona's host.
 const gopodPersonaMark = "persona:"
 
+// gopodMicMissing: the USB mic wasn't found after the warm-up (gopodMicCheck).
+var gopodMicMissing atomic.Bool
+
+// gopodMicCheck: the mic (numpad_ptt.mic_usb_id in lsusb) is there, or Goverlord
+// says mic_missing_text and the numpad works dry. Checked after the warm-up.
+func gopodMicCheck() {
+	id := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicUSBID)
+	if id == "" {
+		return
+	}
+	found := false
+	for _, d := range gopodUSBDevices() {
+		if strings.EqualFold(d.ID, id) {
+			found = true
+		}
+	}
+	gopodMicMissing.Store(!found)
+	if found {
+		logger.Println("GOPOD_MIC found " + id)
+		return
+	}
+	logger.Println("GOPOD_MIC missing " + id + " - numpad works dry")
+	if t := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicMissingText); t != "" {
+		gopodSystemSay(t, false)
+	}
+}
+
 // GopodNumpadPTTStart: a live key went down - the mic starts keeping the audio.
 // gopodNumpadLastKey: the key of the newest numpad capture ("KP1").
 var gopodNumpadLastKey atomic.Value
@@ -130,6 +157,11 @@ func GopodNumpadPTTStart(key string) map[string]any {
 	if gopodWarmGateClosed.Load() {
 		logger.Println("GOPOD_WARMUP_GATE dropped numpad " + key + " (not ready yet)")
 		return map[string]any{"ok": false, "error": "not_ready"}
+	}
+	// Mic missing (gopodMicCheck): the key works dry - same messages, nothing kept.
+	if gopodMicMissing.Load() {
+		logger.Println("GOPOD_NUMPAD_PTT start key=" + key + " brobot=" + brobot + " (mic disabled)")
+		return map[string]any{"ok": true, "brobot": brobot, "mic_disabled": true}
 	}
 	r, err := gopodMicCall(map[string]any{"cmd": "ptt_start", "key": key, "dir": gopodSessionLogDir()}, 15*time.Second)
 	if err != nil {
@@ -151,6 +183,11 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	brobot, esn, err := gopodNumpadBrobot(key)
 	if err != nil {
 		return gopodNumpadPTTError(key, "stop", err.Error())
+	}
+	if gopodMicMissing.Load() {
+		time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.NumpadPTT.MicDisabledSeconds))
+		logger.Println("GOPOD_NUMPAD_PTT stop key=" + key + " status=nothing_heard (mic disabled)")
+		return map[string]any{"ok": true, "brobot": brobot, "status": "nothing_heard"}
 	}
 	r, err := gopodMicCall(map[string]any{"cmd": "ptt_stop"}, gopodPTTStopWait)
 	if err != nil {

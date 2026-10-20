@@ -504,6 +504,10 @@
     "error_sound_about": "2026-10-18 (operator: \"re: \\\"KP9 is Cameo (voice-only) - not live yet\\\" * play the grunge wav quiet, as an audio error cue\"): played when a key can't do its job yet (not_live).",
     "error_sound": {"file": "/gopod_reporter_audio/grunge.wav", "volume": "15%"},
     "error_texts_about": "2026-10-18 (operator: \"\\\"Too short - hold KP1 for at least 1 s\\\" = error = grunge audio plays * not live yet key press = error = grunge audio plays\"): the texts that are errors - each plays error_sound when shown.",
+    "mic_check_about": "2026-10-20 (operator: \"if no mic or other expected devices not found * after llm ready run fully completes * Goverlord knows to send out a mic missing message & disable the input only, so numpad works as dry run with no mic * keep all same messages * replace record now with mic disabled * upon key release same mechanism & messages, transcribing... try again\"): after the warm-up, the mic (mic_usb_id in lsusb) is looked for; missing, Goverlord says mic_missing_text and a numpad key works dry - texts.mic_disabled in place of recording, then transcribing and nothing_heard after mic_disabled_seconds.",
+    "mic_usb_id": "3302:12e9",
+    "mic_missing_text": "Master CrushN8r, the USB mic is missing. The numpad still works, without the mic, until it's plugged in and Wire-Pod restarts.",
+    "mic_disabled_seconds": 1.2,
     "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "error", "numlock_off", "not_live"],
     "texts": {
       "hold": "🎙 {key} → {brobot}: keep holding…",
@@ -511,6 +515,7 @@
       "transcribing": "📝 Got it - transcribing…",
       "too_short": "Too short - hold {key} for at least {min} s",
       "nothing_heard": "🤷 Didn't catch that - try again",
+      "mic_disabled": "🎙 Mic disabled - no USB mic",
       "no_mic": "🎙 No USB mic found - check the mic's plug",
       "not_ready": "⏳ Not ready yet - wait for LLM Ready",
       "error": "Push-to-talk failed: {error}",
@@ -753,6 +758,39 @@
     "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
   },
   "system_menu": {
+    "themes_about": "2026-10-20 (the JSON tree viewer's presets): system-menu-theme <name> copies one into look.",
+    "themes": {
+      "dark": {
+        "background": "#1e2633",
+        "code_background": "#141a24",
+        "code_color": "#9fd3ff",
+        "results_background": "#161c26"
+      },
+      "light": {
+        "background": "#e9edf2",
+        "code_background": "#d6dde6",
+        "code_color": "#1f4e79",
+        "results_background": "#f4f6f9"
+      },
+      "blue": {
+        "background": "#16233a",
+        "code_background": "#0f1a2c",
+        "code_color": "#8cc8ff",
+        "results_background": "#111c30"
+      },
+      "green": {
+        "background": "#1b2a22",
+        "code_background": "#122019",
+        "code_color": "#9fe0b8",
+        "results_background": "#15231c"
+      },
+      "purple": {
+        "background": "#251d33",
+        "code_background": "#1a1426",
+        "code_color": "#d2b4ff",
+        "results_background": "#1e1729"
+      }
+    },
     "look_about": "2026-10-19 (operator: \"Make [menu system- bubble] font size 50% for more room below\"; \"<code>system-restart</code> background contrast is too harsh * darken to make it easier on the eyes * where would I find this setting to edit/set within the menu?\"): the menu's look - system-set system_menu.look.<name> <value>, then F5.",
     "look": {
       "font_size": "50%",
@@ -866,6 +904,10 @@
             "fill": "system-set system_menu.look."
           },
           {
+            "cmd": "system-menu-theme",
+            "about": "dark | light | blue | green | purple (then F5)"
+          },
+          {
             "cmd": "system-set-list",
             "about": "every setting, song and step field",
             "run": true
@@ -902,6 +944,15 @@
           {
             "cmd": "system-search",
             "about": "GOPOD's own web search"
+          },
+          {
+            "cmd": "system-chats",
+            "about": "<words> [operator|brobots|managers] - search every saved session's chat"
+          },
+          {
+            "cmd": "system-chat-save",
+            "about": "a readable chat.md of the newest session (or name one)",
+            "run": true
           }
         ],
         "next": "Found it? Back to 3 to change it."
@@ -927,6 +978,11 @@
         "title": "6. Switches",
         "guide": "Turn parts on or off for this session.",
         "items": [
+          {
+            "cmd": "system-numpad",
+            "about": "each numpad key: who it talks to, live or not",
+            "run": true
+          },
           {
             "cmd": "system-numpad on",
             "about": "numpad keys are push-to-talk",
@@ -969,7 +1025,37 @@
         "guide": "Wire-Pod's bot page, here: add 1 or 2 at the end for one Brobot (both when left out).",
         "items": [
           {
-            "cmd": "system-robot stats",
+            "cmd": "system-visual next",
+            "about": "the TPU +/- rotation: next feed, photo, enhancement, TPU boxes and \"I see...\" (KP+)",
+            "run": true
+          },
+          {
+            "cmd": "system-visual prev",
+            "about": "previous feed (KP-)",
+            "run": true
+          },
+          {
+            "cmd": "system-cams",
+            "about": "every feed's photo in a row, then the TPU boxes on the selected one",
+            "run": true
+          },
+          {
+            "cmd": "system-tpu",
+            "about": "the Edge TPU worker: ready or not",
+            "run": true
+          },
+          {
+            "cmd": "system-tpu restart",
+            "about": "start the Edge TPU worker again",
+            "run": true
+          },
+          {
+            "cmd": "system-usb",
+            "about": "the USB devices plugged in, live (hot-swap)",
+            "page": "usb"
+          },
+          {
+            "cmd": "system-brobot stats",
             "about": "both Brobots' statistics",
             "run": true
           },
@@ -979,27 +1065,27 @@
             "run": true
           },
           {
-            "cmd": "system-robot volume",
+            "cmd": "system-brobot volume",
             "about": "<0-5>"
           },
           {
-            "cmd": "system-robot eyes",
+            "cmd": "system-brobot eyes",
             "about": "<teal|orange|yellow|lime|sapphire|purple|green>"
           },
           {
-            "cmd": "system-robot locale",
+            "cmd": "system-brobot locale",
             "about": "<en-US ...>"
           },
           {
-            "cmd": "system-robot units",
+            "cmd": "system-brobot units",
             "about": "c | f"
           },
           {
-            "cmd": "system-robot location",
+            "cmd": "system-brobot location",
             "about": "<place>"
           },
           {
-            "cmd": "system-robot timezone",
+            "cmd": "system-brobot timezone",
             "about": "<America/Toronto ...>"
           },
           {
@@ -1013,49 +1099,49 @@
             "fill": "system-photos "
           },
           {
-            "cmd": "system-robot cube",
+            "cmd": "system-brobot cube",
             "about": "<pickupcube|fetchcube|rollcube|popawheelie|keepaway|findcube> - his own cube moves"
           },
           {
-            "cmd": "system-robot beats",
+            "cmd": "system-brobot beats",
             "about": "the 126 sleep beats by family: sleep, rts-asleep, held-on-palm, petting",
             "run": true
           },
           {
-            "cmd": "system-robot beat",
+            "cmd": "system-brobot beat",
             "about": "<alias> - plays one sleep beat (snores, warbles, sleep moves...)"
           },
           {
-            "cmd": "system-robot anims sleep",
+            "cmd": "system-brobot anims sleep",
             "about": "every sleep animation on the robot (any word: anims happy)",
-            "fill": "system-robot anims sleep "
+            "fill": "system-brobot anims sleep "
           },
           {
-            "cmd": "system-robot anim",
+            "cmd": "system-brobot anim",
             "about": "<name> - plays one (names from anims)"
           },
           {
-            "cmd": "system-robot say",
+            "cmd": "system-brobot say",
             "about": "<text> - said by the Brobot"
           },
           {
-            "cmd": "system-robot wake",
+            "cmd": "system-brobot wake",
             "about": "\"Hey Vector\" without the words"
           },
           {
-            "cmd": "system-robot head",
+            "cmd": "system-brobot head",
             "about": "<speed, e.g. 3 or -3> - a short nudge"
           },
           {
-            "cmd": "system-robot lift",
+            "cmd": "system-brobot lift",
             "about": "<speed>"
           },
           {
-            "cmd": "system-robot wheels",
+            "cmd": "system-brobot wheels",
             "about": "<left> <right>"
           },
           {
-            "cmd": "system-robot camera",
+            "cmd": "system-brobot camera",
             "about": "live video from the Brobot's camera",
             "run": true
           }
@@ -1116,6 +1202,14 @@
           }
         ]
       }
+    ]
+  },
+  "visual_sources": {
+    "about": "GOPOD VISUAL CONTROL - the TPU +/- rotation (operator 2026-10-20: \"Focus on adding the tpu +/- rotation\"; the retired 8011 demo's VISUAL_SOURCE_RING): KP+ next, KP- previous, wrapping; each turn grabs a frame from the source (a Brobot's camera, or the USB webcam's device) and runs the Edge TPU on it. gopod_visual.go.",
+    "ring": [
+      {"id": "doc_robot", "label": "Doc (Brobot 1)", "robot": "Brobot 1"},
+      {"id": "pip_robot", "label": "Pip (Brobot 2)", "robot": "Brobot 2"},
+      {"id": "usb_c920", "label": "Logitech C920", "device": "/dev/video0"}
     ]
   },
   "sleep_beats": {
@@ -1763,7 +1857,7 @@
   },
   "system_tests": {
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
-    "audit": ["files", "python", "voices", "audio", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "page", "robots"],
+    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "page", "robots"],
     "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
   },
@@ -1798,11 +1892,11 @@
     "egg_names_about": "2026-10-16 (operator: '\"Congratulations, Master CrushN8r! You found the easter egg, Birthday\"'; '... Fractions'): an egg's name by its topic, said in egg_text; a topic not here is named by the word that found it.",
     "egg_names_2_about": "2026-10-16 (operator, on \"You found the easter egg, Ai.\": \"update this easter egg to Mobile, Gear\"): the GOPOD stack picture is the Mobile Gear egg - found by the rig's words (mobile, gear, ...); the local brain topic no longer pops it (\"ai\" in \"AI Wordplay\" found it).",
     "chapter_eggs_about": "2026-10-17 (operator: \"brobots are GOPOD reps * GOPOD = AI Wordplay! Explain the Math! * easter eggs are live run chapters * each easter egg should have a set title (chapter title) = [easter egg title] found * topics in chapters are the easter egg triggers * then the value points the brobots speak\"; \"Rule: If no image for easter egg, skip image & mouse over message\"; \"no longer easter eggs: Weather, Get Photo\"): one egg per chapter (interview_chapters.chapters), titled by the chapter, found by its topics' words, with those topics' pictures (none: no pictures, no zoom line). egg_names now names only eggs in no chapter (the roast battle).",
-    "egg_names": {"birthday_and_merch": "Birthday", "websites": "Websites", "fractions_and_decimals": "Fractions", "roast_battle": "Roast Battle", "the_rig": "Mobile Gear", "halloween": "Halloween"},
+    "egg_names": {"camera_feeds": "Camera Feeds", "birthday_and_merch": "Birthday", "websites": "Websites", "fractions_and_decimals": "Fractions", "roast_battle": "Roast Battle", "the_rig": "Mobile Gear", "halloween": "Halloween"},
     "cards_about": "2026-10-16 (operator: 'Roast Battle * All out comedic fuck you wars * Audience expected expletive laden personal attacks * Party Brobots are ready to roast each other, any and all takers'): eggs with no picture yet - their prize is this card in the egg bubble.",
     "cards_2_about": "2026-10-16 (operator: \"Update: Congratulations! Easter Egg 'Roast Battle' found: / 🔥 Roast Battle 🔥 / Party Brobots vs Any and All takers\"): a card's own lines; the egg line before a card ends with a colon.",
     "not_listed_about": "2026-10-18 (operator: \"add a short halloween easter egg, no image, use emojis * leave halloween easter egg, out of interview lists\"): eggs that pop up when found but are never on the egg list (the reminders, the interview's list). 2026-10-18 (operator: \"easter eggs hidden (roast battle, halloween) are surprise easter eggs\"): the surprise eggs.",
-    "not_listed": ["roast_battle", "halloween"],
+    "not_listed": ["roast_battle", "halloween", "camera_feeds"],
     "not_eggs_about": "2026-10-18 (operator: \"confusing overlap between system managed & easter egg * remove easter egg: 'Websites, themes and the channel'\"): eggs taken out (\"chapter:<title>\" or a topic) - never pop up, not on the egg list. The chapter stays in the interview.",
     "not_eggs": ["chapter:Websites, themes and the channel"],
     "cards": {"roast_battle": "🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers", "halloween": "🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬"},
@@ -1890,6 +1984,8 @@
     ],
     "page_lag_seconds": 0.8,
     "max_wait_seconds": 15,
+    "finish_wait_seconds_about": "2026-10-20 (operator: \"add a 'wait until I'm finished' flag to the chat bubble template\"; live: a long Operator voice was still playing when the flat 30 s cap ran out and GOPOD went on): every voiced line waits until the page has played it (heard) - its own length plus up to this many seconds for the page's queue; 0 = the old cap (2 x max_wait_seconds).",
+    "finish_wait_seconds": 120,
     "heard_margin_seconds_about": "2026-10-14 (operator: \"make GOPOD respond the lines' own length plus a few seconds * no more estimates of time padding please, or as minimal as needed * more responsive so I know what I can control\"): a line Wire-Pod waits on goes on the moment the page says it has played it (the heard check); with no answer, after the queued lines' own lengths plus this many seconds (never more than 2 x max_wait_seconds). page_lag_seconds is no longer added to a wait.",
     "heard_margin_seconds": 3,
     "generating_about": "2026-10-14 (operator: \"when this happens during a live run * rule: Display 'generating...' during the lag time * upon voice generated, update to message and play\"): a line shown with its voice whose voice file isn't made yet first shows a grey Goverlord bubble with generating_text; once the voice is made, a Goverlord line fills that bubble and plays, any other line takes its place.",

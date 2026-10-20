@@ -1,0 +1,5 @@
+label: camera feeds
+pictures: /cam-stream?serial=0dd1b9e9, /cam-stream?serial=0dd1d8bf
+words: camera feed, camera feeds, cam feed, cam feeds, camera feeds please, show me your cameras, what do your cameras see
+---
+Camera feeds (operator 2026-10-20: "cam/camera feed(s) = easter egg"): a surprise egg - the Brobots' live camera feeds pop up on CHALK's board. Say it in your own words: you can see the room through your own eyes, live - and KP+ / KP- turn through the feeds with the Edge TPU naming what it sees.

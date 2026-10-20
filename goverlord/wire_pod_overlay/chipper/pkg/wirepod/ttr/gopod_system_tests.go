@@ -189,10 +189,36 @@ var gopodSystemTests = []gopodSystemTest{
 		sink, source := get("sink"), get("source")
 		ok := sink == a.Sink && strings.Contains(source, a.SourceHas)
 		saw := "speaker " + sink + ", mic " + source
-		if !ok {
-			saw += " - fix: pactl set-default-sink " + a.Sink + " (and the USB mic as the source)"
+		if sink != a.Sink {
+			saw += " - fix: pactl set-default-sink " + a.Sink
+		}
+		if !strings.Contains(source, a.SourceHas) {
+			saw += " - fix: pactl set-default-source <the USB mic's name> (pactl list short sources | grep " + a.SourceHas + ")"
 		}
 		return ok, saw
+	}},
+	// 2026-10-20 (operator: "Edge TPU: the Edge TPU worker isn't ready * how to
+	// test or flip on in system menu?"): the worker is up and names what's in a
+	// known picture (a copy in webroot/visual, so the boxes copy lands there).
+	{"tpu", "the Edge TPU worker is ready and names what's in a picture", func() (bool, string) {
+		gopodQuickLook.Lock()
+		ready := gopodQuickLook.ready
+		gopodQuickLook.Unlock()
+		if !ready {
+			return false, "the worker isn't ready - system-tpu restart"
+		}
+		src := filepath.Join(gopodChipperRoot(), "webroot", "pictures", "doc_pip_workbook.jpg")
+		dst := filepath.Join(gopodVisualDir(), "tpu_test.jpg")
+		os.MkdirAll(gopodVisualDir(), 0o755)
+		data, err := os.ReadFile(src)
+		if err != nil || os.WriteFile(dst, data, 0o644) != nil {
+			return false, "no test picture"
+		}
+		objects, err := gopodQuickLookObjects(dst)
+		if err != nil {
+			return false, err.Error()
+		}
+		return true, fmt.Sprintf("%d objects: %s", len(objects), strings.Join(objects, ", "))
 	}},
 	{"robots", "both Brobots answered the battery watch in the last 10 minutes", func() (bool, string) {
 		gopodBatteryLast.Lock()

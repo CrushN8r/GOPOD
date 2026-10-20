@@ -258,6 +258,10 @@ func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 			gopodWarmupEndSting()
 		}
 	}
+	// 2026-10-20 (operator: "if no mic or other expected devices not found *
+	// after llm ready run fully completes * Goverlord knows to send out a mic
+	// missing message & disable the input only, so numpad works as dry run").
+	gopodMicCheck()
 }
 
 // gopodVolumePercent (2026-10-17, operator: "other story.md knobs are either

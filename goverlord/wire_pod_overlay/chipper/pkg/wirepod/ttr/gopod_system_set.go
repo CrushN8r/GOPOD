@@ -68,7 +68,7 @@ func gopodSystemSetMatch(text string) bool {
 	if gopodSystemTestMatch(text) {
 		return true
 	}
-	for _, cmd := range []string{"system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version"} {
+	for _, cmd := range []string{"system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb"} {
 		if word == cmd || strings.HasPrefix(word, cmd+" ") {
 			return true
 		}
@@ -112,7 +112,23 @@ func gopodSystemSetLine(esn, text, how string) {
 		gopodUndoBegin(strings.TrimSpace(text))
 		answer = gopodSystemTopic(text)
 		gopodUndoEnd()
-	} else if cmd == "system-robot" {
+	} else if cmd == "system-usb" {
+		answer = gopodSystemUSB()
+	} else if cmd == "system-tpu" {
+		answer = gopodSystemTPU(text)
+	} else if cmd == "system-cams" {
+		answer = gopodSystemCams(text)
+	} else if cmd == "system-chats" {
+		answer = gopodSystemChats(text)
+	} else if cmd == "system-chat-save" {
+		answer = gopodSystemChatSave(text)
+	} else if cmd == "system-menu-theme" {
+		gopodUndoBegin(strings.TrimSpace(text))
+		answer = gopodSystemMenuTheme(text)
+		gopodUndoEnd()
+	} else if cmd == "system-visual" {
+		answer = gopodSystemVisual(text)
+	} else if cmd == "system-robot" || cmd == "system-brobot" {
 		answer = gopodSystemRobot(text)
 	} else if cmd == "system-faces" {
 		answer = gopodSystemFaces(text)

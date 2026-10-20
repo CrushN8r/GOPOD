@@ -158,6 +158,12 @@ func gopodShowTopicPictures(esn, userMessage string) {
 		card := strings.TrimSpace(tp.Cards[p.Name])
 		var paths []string
 		for _, f := range files {
+			// 2026-10-20 (operator: "cam/camera feed(s) = easter egg"): a path
+			// starting with "/" (a live camera stream) is used as it is.
+			if strings.HasPrefix(f, "/") {
+				paths = append(paths, f)
+				continue
+			}
 			paths = append(paths, "/"+tp.Folder+"/"+f)
 		}
 		if !popup {
@@ -190,7 +196,11 @@ func gopodShowTopicPictures(esn, userMessage string) {
 			e.at = at
 		}
 		e.paths = append(e.paths, paths...)
-		e.files = append(e.files, files...)
+		for _, f := range files {
+			if !strings.HasPrefix(f, "/") { // a live stream isn't looked at
+				e.files = append(e.files, f)
+			}
+		}
 		if card != "" {
 			e.card = card
 		}

@@ -580,7 +580,19 @@ func gopodHeardShort(text string) string {
 func gopodHeardLimit(ends time.Time) time.Duration {
 	rv := gopodBrobotsSettings.ReporterVoices
 	limit := time.Until(ends) + gopodSecondsToDuration(rv.HeardMarginSeconds)
-	if most := gopodSecondsToDuration(2 * rv.MaxWaitSeconds); rv.MaxWaitSeconds > 0 && limit > most {
+	// 2026-10-20 (operator: "The long response voice file was played/heard, but
+	// GOPOD continued before the file finished playing * add a 'wait until I'm
+	// finished' flag"; live 05:56: a long Operator voice was still queued on the
+	// page when the flat 30 s cap ran out, and the eggs and Brobot 1 went on):
+	// with finish_wait_seconds, a line waits its own length plus that much for
+	// the page to finish it - "heard" usually ends the wait long before.
+	// Only while the chat page is here to play it - with no page, nothing is
+	// playing, and the old cap holds.
+	if fw := rv.FinishWaitSeconds; fw > 0 && gopodPageWatchOn.Load() && gopodPageHere() {
+		if l := time.Until(ends) + gopodSecondsToDuration(fw); l > limit {
+			limit = l
+		}
+	} else if most := gopodSecondsToDuration(2 * rv.MaxWaitSeconds); rv.MaxWaitSeconds > 0 && limit > most {
 		limit = most
 	}
 	if limit < 0 {
