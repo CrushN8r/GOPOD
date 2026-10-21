@@ -8,7 +8,7 @@ for the new words.
 
 - **The lines** live here (`## STEP` / `> TEXT:`), **the steps** in [knobs.json](knobs.json).
 - `(music)` in a line is shown for deaf viewers and never said.
-- `reporter_lines_0104`: `opening` plays the reporters' opening; an empty `> TEXT:` skips it.
+- `llm_song_0104` plays the `_llm_song` folder's run (the lines between "Voices ready" and "LLM ready"); swap that folder to change them.
 - `"volume"` on a step in knobs.json: `"default"` (chat_audio.volume) or a percentage of it
   (`"50%"`).
 
@@ -35,9 +35,9 @@ Language Model Loading...
 
 > TEXT:
 
-## STEP reporter_lines_0104
+## STEP llm_song_0104
 
-> TEXT: opening
+> TEXT:
 
 ---
 

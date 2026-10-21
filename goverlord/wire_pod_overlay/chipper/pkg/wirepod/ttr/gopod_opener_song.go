@@ -50,7 +50,7 @@ type gopodOpenerStep struct {
 	Done string `json:"-"`
 }
 
-var gopodOpenerNotes = map[string]bool{"warm_message": true, "warm_wait": true, "reporter_lines": true, "warm_ready": true, "sting": true}
+var gopodOpenerNotes = map[string]bool{"warm_message": true, "warm_wait": true, "reporter_lines": true, "llm_song": true, "warm_ready": true, "sting": true}
 
 // gopodOpenerSong: the opener song's steps, with their story.md words; nil
 // with no opener song set.
@@ -231,6 +231,12 @@ func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 			}
 		case "warm_wait":
 			<-warmed
+		case "llm_song":
+			// 2026-10-20: the _llm_song run (gopod_llm_song.go); no lines, nothing.
+			if lines, _ := gopodOpenerLLMSongLines(); len(lines) == 0 {
+				continue
+			}
+			gopodWarmupOpening()
 		case "reporter_lines":
 			// 2026-10-17 (operator: "to skip in-between messages, a single
 			// in-between message = \"\" = the indication to skip"): "opening"

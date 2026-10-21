@@ -411,6 +411,29 @@ def combo_parts(step):
     return parts
 
 
+def _llm_song_lines(song_dir, control_mod, fallback):
+    """The song's _llm_song run (_llm_song/knobs.json + story.md, note "line",
+    speaker a reporter host) as warm-up lines [{"who", "text"}]; with no such
+    folder, fallback. An unreadable run says no lines (it never stops the song)."""
+    run = Path(song_dir) / "_llm_song"
+    if not (run / "knobs.json").is_file():
+        return fallback
+    try:
+        knobs = json.loads((run / "knobs.json").read_text(encoding="utf-8"))
+        texts = control_mod.parse_control_story_md((run / "story.md").read_text(encoding="utf-8")) if (run / "story.md").is_file() else {}
+    except Exception as exc:  # noqa: BLE001 - a bad run never stops the song
+        print(f"LLM_SONG {run}: unreadable ({type(exc).__name__}) - no lines", flush=True)
+        return []
+    lines = []
+    for step in knobs.get("steps", []):
+        text = texts.get(step.get("step_id", "")) if isinstance(texts, dict) else None
+        if isinstance(text, dict):
+            text = text.get("text", "")
+        if step.get("note") == "line" and step.get("speaker") and text:
+            lines.append({"who": step["speaker"], "text": str(text).strip()})
+    return lines
+
+
 def load_golden_song(song_dir, control_mod, _seen=None):
     """Same parsing shape as run_songs_runner_001.py's own
     load_bingo_capture_song(): reuses control_mod.parse_control_story_md() for
@@ -461,7 +484,9 @@ def load_golden_song(song_dir, control_mod, _seen=None):
         # every song unless its knobs.json says "llm_warmup": false.
         "llm_warmup": bool(knobs.get("llm_warmup", True)),
         "llm_ready_text": knobs.get("llm_ready_text", ""),
-        "warmup_lines": knobs.get("warmup_lines", []),
+        # 2026-10-20 (operator: "all llm warmings load an expected run"): the
+        # song's _llm_song run when it has one, else its knobs' warmup_lines.
+        "warmup_lines": _llm_song_lines(song_dir, control_mod, knobs.get("warmup_lines", [])),
         # 2026-10-17: a song needing no voice files made / no language model.
         "voices_required": knobs.get("voices_required", True) is not False,
         "llm_required": knobs.get("llm_required", True) is not False,
@@ -1858,6 +1883,9 @@ def step_name_problem(step_id, plays):
             i += 1
         elif w == "arm" and nxt == "cue":
             want.append(("arm_cue", "")); i += 2
+        elif w == "llm" and nxt == "song":
+            # 2026-10-20: llm_song_ - the folder's _llm_song run (gopod_llm_song.go).
+            want.append(("llm_song", "")); i += 2
         elif w == "warm" and nxt in ("wait", "ready"):
             want.append(("warm_" + nxt, "")); i += 2
         elif w == "warm":

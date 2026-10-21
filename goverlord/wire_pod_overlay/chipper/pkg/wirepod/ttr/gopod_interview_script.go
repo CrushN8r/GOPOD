@@ -609,6 +609,10 @@ func gopodBookends(opening bool) []gopodHostLine {
 	own := rv.Closing
 	if opening {
 		own = rv.Opening
+		// 2026-10-20: the opener's _llm_song run, when the opener uses one.
+		if lines, ok := gopodOpenerLLMSongLines(); ok {
+			return lines
+		}
 	}
 	if !gopodBrobotsSettings.InterviewScript.BookendsFromDraft {
 		return own

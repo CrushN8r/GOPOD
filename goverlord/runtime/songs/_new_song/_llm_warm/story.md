@@ -9,7 +9,7 @@ knobs.json its own `song_id`. The standard is
 - **The lines** live here (`## STEP` / `> TEXT:`), **the steps** in [knobs.json](knobs.json).
   Both files name the same steps.
 - `(music)` in a line is shown for deaf viewers and never said.
-- `reporter_lines_0104`: `opening` plays the reporters' opening; an empty `> TEXT:` skips it.
+- `llm_song_0104` plays the `_llm_song` folder's run (the lines between "Voices ready" and "LLM ready"); swap that folder to change them.
 - `"volume"` on a step in knobs.json: `"default"` (chat_audio.volume) or a percentage of it
   (`"50%"`).
 - A step with no words keeps an empty `> TEXT:`.
@@ -30,9 +30,9 @@ knobs.json its own `song_id`. The standard is
 
 > TEXT:
 
-## STEP reporter_lines_0104
+## STEP llm_song_0104
 
-> TEXT: opening
+> TEXT:
 
 ---
 

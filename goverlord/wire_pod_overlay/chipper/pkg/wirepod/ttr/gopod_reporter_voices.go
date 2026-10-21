@@ -921,8 +921,15 @@ func gopodReporterAllLines() []gopodHostLine {
 			if json.Unmarshal(data, &k) != nil {
 				continue
 			}
-			for _, l := range k.WarmupLines {
-				add(gopodReporterHost(l.Who), l.Text)
+			// 2026-10-20: the song's _llm_song run, when it has one.
+			if lines, found := gopodLLMSongLines(dir); found {
+				for _, l := range lines {
+					add(l.Host, l.Text)
+				}
+			} else {
+				for _, l := range k.WarmupLines {
+					add(gopodReporterHost(l.Who), l.Text)
+				}
 			}
 			if k.ReadyText != "" {
 				add(gopodBrobotsSettings.SignOff.SystemRole, gopodRunReadyLine(k.ReadyText))

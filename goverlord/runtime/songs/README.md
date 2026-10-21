@@ -2,7 +2,9 @@
 
 The standard every song follows (the notes, the fields, the golden rules, making a new song)
 is [ALIAS-PLAY-STUDIO.md](../../../ALIAS-PLAY-STUDIO.md). Start a new song by copying
-`_new_song/` (an LLM warm song: `_new_song/_llm_warm/`).
+`_new_song/` (an LLM warm song: `_new_song/_llm_warm/`). Every warm-up song has a fixed-name
+`_llm_song/` run - the lines between "Voices ready" and "LLM ready"; swap the folder to change
+them, no steps = nothing said.
 
 One folder per song: `story.md` (the lines) and `knobs.json` (what each step does, and when).
 Play the Bingo test with `pha0b` (Take Out part 1) or `start bingo test` in the Brobots chat,

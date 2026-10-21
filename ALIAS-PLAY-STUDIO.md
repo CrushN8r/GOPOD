@@ -138,7 +138,7 @@ nothing it plays; the two files only have to name it the same (locked by
 | `host` | Brobot 1 (`brobot_1`) |
 | `brat` | Brobot 2 (`brobot_2`) |
 | `brobots` | both (`wake`, `ready`, `sleep`, `exit`) |
-| `reporter` | an edit mark for the reporters (`reporter_gap`), or their in-between lines (`reporter_lines`) |
+| `reporter` | an edit mark for the reporters (`reporter_gap`) |
 | `goverlord` | Goverlord, the system voice (the LLM warm notes) |
 
 | Part in the name | Plays (`knobs.json`) | Example |
@@ -164,7 +164,7 @@ nothing it plays; the two files only have to name it the same (locked by
 | `anim-<token>` | `animation` with `animation_token` (short form of `<token>_animation`) | `host_anim-kgsuccess_0202` |
 | `warm` | `warm_message` - the System llm bubble's message, shown and said; `"wait_voices": true` waits for the voice files | `goverlord_warm_0101` |
 | `warm_wait` | `warm_wait` - waits until the language model is loaded | `goverlord_warm_wait_0103` |
-| `lines` | `reporter_lines` - the reporters' in-between lines (the opening) | `reporter_lines_0104` |
+| `llm_song` | `llm_song` - the folder's `_llm_song` run, the lines between "Voices ready" and "LLM ready" | `llm_song_0104` |
 | `warm_ready` | `warm_ready` - the ready message, shown and said | `goverlord_warm_ready_0105` |
 | `sting` | `sting` - the system sting (`system_stings.default`) | `goverlord_sting_0106` |
 
@@ -414,7 +414,7 @@ live question.
    `00_llm_warming/` (`song_id` `brobots_llm_warming`, settings `llm.opener_song_id`). Wire-Pod's
    start plays its steps in order: `goverlord_warm_0101` (message 1, waits for the voices),
    `goverlord_warm_0102` (message 2), `goverlord_warm_wait_0103` (the model loaded),
-   `reporter_lines_0104` (the reporters' opening), `goverlord_warm_ready_0105` (message 3),
+   `llm_song_0104` (its `_llm_song` run: the reporters' opening), `goverlord_warm_ready_0105` (message 3),
    `goverlord_sting_0106` (the end sting). Its words are its `story.md`; edit one and `wpr 2`
    (the voice file is made for the new words). No song, or one Wire-Pod can't read: the built-in
    opener from the settings (`voices_text`, `warmup_text`, `ready_text`), logged
@@ -1107,8 +1107,8 @@ skip". A song's knobs.json `"voices_required": false` shows `llm.no_voices_text`
 Generation Required" in place of the voice files part of its warming message; `"llm_required":
 false` shows `llm.no_llm_text` "No Language Model Required" in place of the language model part
 and of "Language Model Loaded, Master CrushN8r.", and calls no model. The nap has both false. A
-`warmup_lines` line with no words is skipped; in an LLM warm song, `reporter_lines` with an empty
-`> TEXT:` is skipped and `opening` plays the reporters' opening (`00_llm_warming`). Locked by
+A song's warm-up lines are its `_llm_song` run (else knobs' `warmup_lines`); a run with no steps
+says nothing. Locked by
 `NoneRequiredWarmupTests`, `TestOpenerSkipsEmptyLines`.
 
 ### (music) places the sting (2026-10-17)
@@ -1503,6 +1503,19 @@ Language Model Loading...
   the reporters' queued lines and voices up to the next line that isn't theirs or the opening's
   end. Heard markers still pass, so Wire-Pod and the songs go on. Managers and Brobots are never
   skipped. Page-only (`skipReporters`).
+- **The _llm_song run - every LLM warm-up's middle** (operator 2026-10-20: "voice generation part ...
+  voice ready/llm warming part ... load 'internal-run' from expected required external
+  mini-run/song file, per llm ... the run file can be a non-run, 0 setting ... mix/shuffle internal
+  runs as I desire without breaking GOPOD ... llm ready part"; "If _llm_song folder name is
+  unchanged, that's how we make the folders interchangeable"): each warm-up song folder (the opener
+  `00_llm_warming`, every golden song, the `_new_song` and `_llm_warm` templates) has a fixed-name
+  `_llm_song/` - knobs.json (steps, note `line`, speaker a reporter host) + story.md (the words). It
+  is said between "Voices ready" and "LLM ready"; swap the whole folder to change it, no steps =
+  nothing said. The opener's step is `llm_song_0104` (note `llm_song`; was `reporter_lines`); its
+  run holds the reporters' opening. A song's warm-up reads its `_llm_song` before knobs'
+  `warmup_lines`. Guards: system-check flags a warm-up song with no `_llm_song`; a missing or
+  unreadable run says no lines (GOPOD_CHECK / LLM_SONG log) and never stops the warm-up; Esc /
+  system-skip skips its lines. `gopod_llm_song.go`, `_llm_song_lines` (run_golden_song_001.py).
 - **System window rule** (operator 2026-10-19: "No header ... to recover window space * results
   window stretches to full width even when empty * no horizontal space, duo sync vertical height
   adjustment * both start at 50% window height * system menu/results, 50%/50% 10%/90%, 90%/10% *

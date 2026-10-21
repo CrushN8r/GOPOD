@@ -190,6 +190,18 @@ func gopodSystemCheckProblems() ([]string, int) {
 		if err != nil {
 			continue
 		}
+		// 2026-10-20 (the _llm_song guard): a song with an LLM warm-up has its run.
+		var warm struct {
+			LLMWarmup *bool  `json:"llm_warmup"`
+			SongType  string `json:"song_type"`
+		}
+		json.Unmarshal(data, &warm)
+		if (warm.LLMWarmup == nil || *warm.LLMWarmup) && warm.SongType != "interview" && !strings.HasPrefix(song, "_") {
+			checked++
+			if _, found := gopodLLMSongLines(dir); !found {
+				problems = append(problems, "song "+song+": no "+gopodLLMSongDir+" folder (its warm-up run; an empty one = no lines)")
+			}
+		}
 		steps, _, _ := gopodSystemSetKnobsFileData(data)
 		have := map[string]bool{}
 		for _, s := range steps {

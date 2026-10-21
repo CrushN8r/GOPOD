@@ -1,0 +1,5 @@
+{
+  "run_type": "llm_song",
+  "about": "The song's _llm_song run (operator 2026-10-20: \"load 'internal-run' from expected required external mini-run/song file, per llm * the run file can be a non-run, 0 setting\"; \"If _llm_song folder name is unchanged, that's how we make the folders interchangeable\"): the lines said between \"Voices ready\" and \"LLM ready\" in this song's warm-up. Swap the whole folder for another run to change them; no steps = nothing said. Notes: line (speaker: a reporter host, Brobot 3 or Brobot 4). Esc or system-skip skips them.",
+  "steps": []
+}

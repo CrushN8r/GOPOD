@@ -2,13 +2,43 @@
   "song_id": "brobots_llm_warming",
   "song_type": "llm_warm",
   "story_ref": "story.md",
-  "about": "The opener LLM Warming song (operator 2026-10-16: \"from the LLM warm template, make the opener LLM Warming song\"): Wire-Pod plays it at every start, in place of its built-in opener (settings llm.opener_song_id; no song folder = the built-in one). Played by Wire-Pod (gopod_opener_song.go), not by pha0b. Notes: warm_message (the System llm bubble's message, shown and said; \"wait_voices\": true waits for the voice files before it's said), warm_wait (waits until the language model is loaded), reporter_lines (the reporters' in-between lines), warm_ready (the ready message, shown and said), sting (the system sting, settings reporter_voices.system_stings.default). Every step: \"volume\": \"\" (chat_audio.volume, the master) or a percentage of it (\"50%\"), on its voices and stings (operator 2026-10-16: \"add volume, default or %age\").",
+  "about": "The opener LLM Warming song (operator 2026-10-16: \"from the LLM warm template, make the opener LLM Warming song\"): Wire-Pod plays it at every start, in place of its built-in opener (settings llm.opener_song_id; no song folder = the built-in one). Played by Wire-Pod (gopod_opener_song.go), not by pha0b. Notes: warm_message (the System llm bubble's message, shown and said; \"wait_voices\": true waits for the voice files before it's said), warm_wait (waits until the language model is loaded), llm_song (this folder's _llm_song run: the lines between \\\"Voices ready\\\" and \\\"LLM ready\\\"; swap the _llm_song folder to change them, no steps = nothing said), warm_ready (the ready message, shown and said), sting (the system sting, settings reporter_voices.system_stings.default). Every step: \"volume\": \"\" (chat_audio.volume, the master) or a percentage of it (\"50%\"), on its voices and stings (operator 2026-10-16: \"add volume, default or %age\").",
   "steps": [
-    {"step_id": "goverlord_warm_0101", "note": "warm_message", "volume": "", "wait_voices": true, "section": "WARM UP"},
-    {"step_id": "goverlord_warm_0102", "note": "warm_message", "volume": "", "section": "WARM UP"},
-    {"step_id": "goverlord_warm_wait_0103", "note": "warm_wait", "section": "WARM UP"},
-    {"step_id": "reporter_lines_0104", "note": "reporter_lines", "volume": "", "section": "WARM UP"},
-    {"step_id": "goverlord_warm_ready_0105", "note": "warm_ready", "volume": "", "section": "READY"},
-    {"step_id": "goverlord_sting_0106", "note": "sting", "volume": "", "section": "READY"}
+    {
+      "step_id": "goverlord_warm_0101",
+      "note": "warm_message",
+      "volume": "",
+      "wait_voices": true,
+      "section": "WARM UP"
+    },
+    {
+      "step_id": "goverlord_warm_0102",
+      "note": "warm_message",
+      "volume": "",
+      "section": "WARM UP"
+    },
+    {
+      "step_id": "goverlord_warm_wait_0103",
+      "note": "warm_wait",
+      "section": "WARM UP"
+    },
+    {
+      "step_id": "llm_song_0104",
+      "note": "llm_song",
+      "volume": "",
+      "section": "WARM UP"
+    },
+    {
+      "step_id": "goverlord_warm_ready_0105",
+      "note": "warm_ready",
+      "volume": "",
+      "section": "READY"
+    },
+    {
+      "step_id": "goverlord_sting_0106",
+      "note": "sting",
+      "volume": "",
+      "section": "READY"
+    }
   ]
 }
