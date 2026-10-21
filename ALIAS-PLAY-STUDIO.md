@@ -910,6 +910,24 @@ with Brobot 2"), whoever answers first ends with one more thought, handing over 
 
 ## 8. A live reply
 
+**The thought bubbles template - the answer chain (GOLDEN).** How an answer is put together is a list
+in the settings (`answer_chains`), not code order. `base` is the scaffold; each response group is a
+copy (`{"from": "base"}`) or its own list of parts.
+
+| Part | Kind | What it adds |
+|---|---|---|
+| `start_snippet` | stitch | a scripted line said first, word for word |
+| `llm` | answer | the language model's answer (stitch parts before it go first, after it go last) |
+| `weather_kit` | stitch | the follow-up's weather kit link (`live_weather.follow_up_kit_line`) |
+| `end_snippet` | stitch | "Hey, that reminds me..." and other end lines |
+| `redirect` | stitch | the first answer in a line to both hands over (`addressing.redirect_text`) |
+| `who_line` | answer | a manager's own who line, word for word (`managers.who_words`) |
+| `manager_take` | answer | a manager's take (weather, time and place) |
+
+Answer parts end the chain when they apply; a part that doesn't apply this time is skipped. Groups:
+`brobots`, `brobots_follow_up` (the second Brobot in a line to both), `gomad_persona` (a line to
+CHALK or PLAYHEAD). (`gopod_answer_chain.go`)
+
 ### 8.1 The steps of a reply
 
 1. The Brobot who answers is chosen ([7.7](#77-who-answers-addressing-and-all)).

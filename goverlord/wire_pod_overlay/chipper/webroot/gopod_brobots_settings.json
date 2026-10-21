@@ -759,6 +759,13 @@
     "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right.",
     "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
   },
+  "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
+  "answer_chains": {
+    "base": {"parts": ["start_snippet", "llm", "weather_kit", "end_snippet", "redirect"]},
+    "brobots": {"from": "base"},
+    "brobots_follow_up": {"from": "base"},
+    "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
+  },
   "system_menu": {
     "themes_about": "2026-10-20 (the JSON tree viewer's presets): system-menu-theme <name> copies one into look.",
     "themes": {

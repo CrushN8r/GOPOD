@@ -690,39 +690,10 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 						rawRespText = gopodMathReply(rawRespText, mathSteps, extra)
 						logger.Println("GOPOD_MATH " + gopodBrobotName(esn) + ": " + rawRespText)
 					} else {
-						// GOPOD 2026-10-05: a scripted snippet is said first, word for word
-						// (gopodScriptedSnippet, gopod_kgsim_response_shaping.go).
-						if snippet := gopodScriptedSnippet(esn, transcribedText, "start", ""); snippet != "" {
-							rawRespText = gopodStitchSnippet(snippet, rawRespText)
-							logger.Println("BROBOT_SCRIPTED_SNIPPET=" + snippet)
-						}
-						// GOPOD 2026-10-15 (operator: "can you add in brobot 2 follow up,
-						// the link to the weather kit web page? * somewhere before the, hey
-						// that reminds me..."): live_weather.follow_up_kit_line.
-						if line := strings.TrimSpace(gopodBrobotsSettings.LiveWeather.FollowUpKitLine); line != "" && gopodIsFollowingUp(esn) &&
-							gopodHasWholeWords(strings.ToLower(transcribedText), "weather") {
-							// 2026-10-16 (operator: "make this thought bubble ... as a new
-							// paragraph"): its own thought.
-							rawRespText = strings.TrimSpace(rawRespText) + gopodThoughtGap() + line
-						}
-						// 2026-10-17 (live: Brobot 2's follow-up ended with the same "Hey,
-						// you can also play Chocolate Bingo, for kids of all ages!" as
-						// Brobot 1's): a follow-up doesn't end with his brother's end line.
-						if snippet := gopodScriptedSnippet(esn, transcribedText, "end", rawRespText); snippet != "" && !gopodBrotherSaid(esn, snippet) {
-							rawRespText = gopodStitchEndSnippet(snippet, rawRespText)
-							logger.Println("BROBOT_SCRIPTED_SNIPPET_END=" + snippet)
-						}
-						// GOPOD 2026-10-21 (operator: "whichever brobot answers first, add a
-						// final thought bubble as a redirect to the other brobot, like brobot
-						// N, what say you on this, gear brain?"): a line to both - the first
-						// answer ends handing over (addressing.redirect_text).
-						if _, first := gopodAllFirstAnswer.LoadAndDelete(esn); first {
-							if t := strings.TrimSpace(gopodBrobotsSettings.Addressing.RedirectText); t != "" {
-								line := strings.ReplaceAll(t, "{brother}", gopodBrobotName(gopodBrotherOf(esn)))
-								rawRespText = strings.TrimSpace(rawRespText) + gopodThoughtGap() + line
-								logger.Println("BROBOT_REDIRECT " + gopodBrobotName(esn) + ": " + line)
-							}
-						}
+						// GOPOD 2026-10-21: the thought bubbles template - the answer chain
+						// (answer_chains, gopod_answer_chain.go): the start snippet, the
+						// answer, the weather kit line, the end snippet, the hand-over.
+						rawRespText = gopodShapeBrobotAnswer(esn, transcribedText, rawRespText)
 					}
 				}
 				// 2026-09-30: the animation cue is marked "happy___" (gopod_animation_marker.go);

@@ -198,6 +198,11 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"chapters"`
 		TopicLabels map[string]string `json:"topic_labels"`
 	} `json:"interview_chapters"`
+	// 2026-10-21: the thought bubbles template (gopod_answer_chain.go).
+	AnswerChains map[string]struct {
+		From  string   `json:"from"`
+		Parts []string `json:"parts"`
+	} `json:"answer_chains"`
 	// 2026-10-20: the system menu's theme presets (system-menu-theme).
 	SystemMenu struct {
 		Themes map[string]map[string]string `json:"themes"`

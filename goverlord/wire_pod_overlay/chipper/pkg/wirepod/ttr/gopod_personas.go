@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
 // The reporters' live personas (2026-10-18, operator: "Shared reporters persona =
@@ -106,27 +105,9 @@ func gopodPersonaReply(host, text, how string) {
 	// 2026-10-18 (operator: "KP7 to CHALK ... ["Generating..." + hourglass]/
 	// [transcription]"): read in the Operator voice, like a line to the Brobots.
 	gopodReporterReadsOperator(text, how, host)
-	// "Who are you?" gets the operator's own line, word for word (managers.who_words).
-	if who := strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].WhoLine); who != "" {
-		if at, _ := gopodEggWord(strings.ToLower(text), gopodBrobotsSettings.Managers.WhoWords); at >= 0 {
-			logger.Println("GOPOD_PERSONA " + host + " (who): " + who)
-			gopodReporterSay(host, who, true, true)
-			return
-		}
-	}
-	// 2026-10-18 (operator: "If I ask CHALK, PLAYHEAD ... = take over trigger"):
-	// a take's words (the weather, the time and place) - its manager does the job.
-	if take, _, ok := gopodManagerTakes(strings.ToLower(text)); ok {
-		gopodManagerDo(take, text)
-		return
-	}
-	reply, err := gopodPersonaAsk(host, text)
-	if err != nil {
-		logger.Println("GOPOD_PERSONA " + host + ": " + err.Error())
-		return
-	}
-	logger.Println("GOPOD_PERSONA " + host + ": " + reply)
-	gopodReporterSay(host, reply, true, true)
+	// 2026-10-21: the gomad_persona answer chain (gopod_answer_chain.go) - the
+	// who line, a manager's take, the persona's answer, in its order.
+	gopodGomadAnswer(host, text)
 }
 
 // ## EOF
