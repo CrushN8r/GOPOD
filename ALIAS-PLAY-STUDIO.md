@@ -1255,6 +1255,26 @@ line:
 
 ### 9.5 Highlight and word reveal
 
+**The highlight rules, in one place (GOLDEN).** Highlighting is one mechanism for every bubble:
+it comes in, lights by these rules, and gets out.
+
+1. **The chain, largest to smallest.** A reply is cut once, by Wire-Pod, into **pieces** (per
+   pause: commas, sentences). The piece being said is lit **word by word**; inside a word, a run of
+   single digits, a military time or a clock time lights **one number (or spoken part) at a time**.
+2. **Three states.** Not said yet: hidden. Being said: solid white. Said: 85%.
+3. **Three timing sources, each naming its bubble exactly:**
+   - **A Brobot's speech:** Wire-Pod reports the piece number *and the bubble's chat event*
+     (`gopod_speaking_now.json`: `piece`, `feed`); the page lights that piece in that bubble.
+   - **A voice** (reporters, managers, Goverlord): the line names its own voice file
+     (`lit:<file>|` or, while it's made, `wait:<file>|`); the words light at that voice's own word
+     times (Vosk) as it plays.
+   - **The narrator:** its SRT times, on the soundtrack's clock.
+4. **No timing source:** the words show after `voiceLitWaitMs` (15 s) once the bubble is up; a
+   Brobot that stops speaking leaves the rest of his bubble shown as said.
+5. **Nested parts** (a manager's part, an egg summary inside a Brobot's bubble) light on their own;
+   the Brobot's own pieces never count them (`ownSays`).
+
+
 **Pieces, per pause (locked - change the split, highlight or bubble look only with a plain
 before/after and the owner's OK).** A Brobot's line is cut into pieces at its pauses (comma
 pieces): `join_up_to_words` 0. Locked by `TestHighlightPiecesGolden`.

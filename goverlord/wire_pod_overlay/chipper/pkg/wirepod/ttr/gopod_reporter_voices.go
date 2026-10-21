@@ -194,7 +194,13 @@ func gopodSayShown(host, to, text string) (string, float64, bool) {
 		return page, seconds, ok
 	}
 	if !waiting {
-		gopodChatFeedAddEventVia(host, to, "", "", text)
+		// 2026-10-21: a made voice's line names its file too ("lit:<page>|text"),
+		// so its highlight is tied to that voice, never to the last line shown.
+		if rv.GeneratingMarker != "" && page != "" {
+			gopodChatFeedAddEventVia(host, to, "", "", rv.GeneratingMarker+"lit:"+page+"|"+text)
+		} else {
+			gopodChatFeedAddEventVia(host, to, "", "", text)
+		}
 	}
 	return page, seconds, ok
 }

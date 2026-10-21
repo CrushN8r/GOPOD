@@ -233,6 +233,11 @@ func gopodChatFeedAddEventVia(who, to, by, via, text string) {
 	gopodChatFeed.Lock()
 	gopodChatFeed.next++
 	event := gopodChatFeedEvent{ID: gopodChatFeed.next, Who: who, To: to, By: by, Via: via, Text: text, TimeMS: time.Now().UnixMilli()}
+	// 2026-10-21 (operator: "highlighting ... should run as an independent agent on
+	// any & all bubbles"): a Brobot's newest bubble, so his speech names it exactly.
+	if who == "Brobot 1" || who == "Brobot 2" {
+		gopodLastBrobotFeed.Store(who, event.ID)
+	}
 	// 2026-10-17 (operator: "one event list, single source of truth"; "both the
 	// terminal run & web page run must be the same run"): every line the page
 	// will show or play is in the journal too, numbered, in the same order.

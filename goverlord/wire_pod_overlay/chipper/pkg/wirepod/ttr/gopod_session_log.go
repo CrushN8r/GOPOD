@@ -171,7 +171,23 @@ func gopodSessionLogFeed(e gopodChatFeedEvent) {
 	if e.By != "" {
 		via = e.By
 	}
-	gopodSessionLogLine(gopodRecordLine{TimeMS: e.TimeMS, Source: "feed", Who: e.Who, To: e.To, Text: e.Text, FeedID: e.ID}, note, via)
+	gopodSessionLogLine(gopodRecordLine{TimeMS: e.TimeMS, Source: "feed", Who: e.Who, To: e.To, Text: gopodShownText(e.Text), FeedID: e.ID}, note, via)
+}
+
+// gopodShownText: a line's words without its voice tag ("generating:wait:<file>|"
+// or "generating:lit:<file>|", gopodSayShown) - what the session log keeps.
+func gopodShownText(text string) string {
+	m := gopodBrobotsSettings.ReporterVoices.GeneratingMarker
+	for _, tag := range []string{"wait:", "lit:"} {
+		if m != "" && strings.HasPrefix(text, m+tag) {
+			rest := text[len(m+tag):]
+			if bar := strings.Index(rest, "|"); bar > 0 && strings.HasPrefix(rest, "/") {
+				return rest[bar+1:]
+			}
+			return rest
+		}
+	}
+	return text
 }
 
 // gopodSessionLogAnswer: a Brobot's chat answer (live or scripted).

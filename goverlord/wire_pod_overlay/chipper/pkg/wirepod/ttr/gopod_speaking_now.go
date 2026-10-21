@@ -29,6 +29,9 @@ var gopodSpeakingNowSeq int64
 var gopodSpeakingNowLast = map[string]string{}
 var gopodSpeakingNowLastPiece = map[string]int{}
 
+// gopodLastBrobotFeed: each Brobot's newest bubble's chat event id.
+var gopodLastBrobotFeed sync.Map
+
 type gopodSpeakingNow struct {
 	ESN         string `json:"esn"`
 	Text        string `json:"text"`
@@ -38,6 +41,9 @@ type gopodSpeakingNow struct {
 	// -1 when there is none and the page matches by words instead.
 	Piece  int   `json:"piece"`
 	Seq    int64 `json:"seq"`
+	// Feed: the chat event of the bubble being said (2026-10-21) - the page lights
+	// that bubble, no guessing which.
+	Feed int `json:"feed,omitempty"`
 	TimeMs int64 `json:"time_ms"`
 }
 
@@ -59,7 +65,11 @@ func gopodWriteSpeakingPiece(esn, text string, piece int, active, interrupted bo
 		gopodSpeakingNowLast[esn] = text
 		gopodSpeakingNowLastPiece[esn] = piece
 	}
-	data, _ := json.Marshal(gopodSpeakingNow{ESN: esn, Text: text, Active: active, Interrupted: interrupted, Piece: piece, Seq: gopodSpeakingNowSeq, TimeMs: time.Now().UnixMilli()})
+	feed := 0
+	if v, ok := gopodLastBrobotFeed.Load(gopodBrobotName(esn)); ok {
+		feed, _ = v.(int)
+	}
+	data, _ := json.Marshal(gopodSpeakingNow{ESN: esn, Text: text, Active: active, Interrupted: interrupted, Piece: piece, Seq: gopodSpeakingNowSeq, TimeMs: time.Now().UnixMilli(), Feed: feed})
 	tmp := gopodSpeakingNowPath + ".tmp"
 	if err := os.WriteFile(tmp, data, 0644); err != nil {
 		logger.Println("GOPOD speaking-now write failed: " + err.Error())

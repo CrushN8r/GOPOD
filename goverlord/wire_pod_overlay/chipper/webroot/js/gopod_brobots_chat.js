@@ -760,6 +760,7 @@
         var shell = nestShells[who];
         if (shell && shell.isConnected && !shell.dataset.filled && !restoringChat) {
           shell.dataset.filled = "1";
+          if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
           bubble.className.split(" ").forEach(function (c) { if (c) { shell.classList.add(c); } });
           if (inPopup) { shell.classList.add("popup-winner"); }
           shell.appendChild(textEl);
@@ -769,6 +770,7 @@
           return;
         }
         if (inPopup) { bubble.classList.add("popup-winner"); }
+        if (feedIdNow && /^Brobot [12]$/.test(who)) { bubble.dataset.feed = String(feedIdNow); }
         bubble.appendChild(bubbleHead(who));
         bubble.appendChild(textEl);
         attachPendingBall(bubble, spoken);
@@ -1945,7 +1947,7 @@
       // voiced line - Goverlord's, a reporter's, a manager's, the Operator's own
       // (slotWaiting) - waits in its own bubble with generatingText and the
       // hourglass (generatingGlass), and turns into its words as its voice plays.
-      var lineWaits = false, voiceWaits = [], voiceWaitFor = {};
+      var lineWaits = false, lineVoice = "", voiceWaits = [], voiceWaitFor = {};
       // THE one Generating template (2026-10-21, operator: "A single robust
       // bulletproof clean boring deterministic 'Generating...' mechanism template"):
       // voiceWaitOn puts generatingText + the hourglass just before an element
@@ -1982,6 +1984,7 @@
         line.appendChild(say);
         var waits = lineWaits;
         lineWaits = false;
+        if (lineVoice) { voiceWaitFor[lineVoice] = say; lineVoice = ""; }
         if (restoringChat) { say.classList.add("spoken"); return; }
         // Skipping the reporters' lines: shown whole, not waited on.
         if (skippingReporters) { say.classList.add("spoken"); bubble.classList.add("voice-lit"); return; }
@@ -3489,7 +3492,9 @@
         skippingReporters = false;
         return false;
       }
+      var feedIdNow = 0; // the chat event being shown (a Brobot bubble keeps it: data-feed)
       function showFeedEvent(e, done) {
+        feedIdNow = e.id || 0;
         // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
         if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) { skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } done(); return; }
         if (skippedEvent(e)) { done(); return; }
@@ -3593,6 +3598,13 @@
         // GOLDEN global message: a line whose voice is being made ("wait:") shows
         // in its own bubble with "Generating..." and the hourglass (voiceLitLine).
         lineWaits = false;
+        lineVoice = "";
+        // "lit:<voice file>|text" (2026-10-21): a made voice's line, tied to its file.
+        if (generatingMarker && String(e.text).indexOf(generatingMarker + "lit:") === 0) {
+          e.text = String(e.text).slice((generatingMarker + "lit:").length);
+          var litBar = e.text.indexOf("|");
+          if (litBar > 0 && e.text.charAt(0) === "/") { lineVoice = e.text.slice(0, litBar); e.text = e.text.slice(litBar + 1); }
+        }
         if (generatingMarker && String(e.text).indexOf(generatingMarker + "wait:") === 0) {
           e.text = String(e.text).slice((generatingMarker + "wait:").length);
           lineWaits = true;
@@ -3966,10 +3978,13 @@
             // his newest reply bubble - never an egg - and while he's still in a
             // reply (past its first piece) the bubble he's been lighting.
             var newest = null;
-            for (var b = bubbles.length - 1; b >= 0; b--) {
+            // 2026-10-21: Wire-Pod names the bubble (its chat event) - that one, exactly.
+            var named = now.feed ? container.querySelector('.brobot-bubble[data-feed="' + now.feed + '"]') : null;
+            if (named) { newest = named; }
+            for (var b = bubbles.length - 1; !named && b >= 0; b--) {
               if (!bubbles[b].classList.contains("popup-wrap") && ownSays(bubbles[b]).length) { newest = bubbles[b]; break; }
             }
-            if (now.active && typeof now.piece === "number" && now.piece > 0 && lastSpeakingBubble && lastSpeakingBubble.isConnected &&
+            if (!named && now.active && typeof now.piece === "number" && now.piece > 0 && lastSpeakingBubble && lastSpeakingBubble.isConnected &&
                 newest !== lastSpeakingBubble && ownSays(lastSpeakingBubble)[now.piece]) {
               newest = lastSpeakingBubble;
             }
