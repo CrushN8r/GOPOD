@@ -5,7 +5,12 @@ with a local AI. No cloud.
 
 > AI Wordplay! Explain the Math!
 
-**Watch:** [VIDEO PLACEHOLDER — one recorded `start interview` run]
+Wire-Pod is the open-source local server that keeps Anki Vector robots running without the
+original cloud. GOPOD runs two of them, Brobot 1 and Brobot 2, on one Jetson: one shared
+conversation, scripted performances, and upstream Wire-Pod left untouched through an overlay
+build.
+
+**Watch:** [VIDEO PLACEHOLDER — `start bingo test` run]
 
 ![The Brobots in their harness](goverlord/wire_pod_overlay/chipper/webroot/pictures/rig_brobots_in_harness.jpg)
 
@@ -25,8 +30,15 @@ with a local AI. No cloud.
   crushn8r.ca.
 - **Generate, then script.** The local LLM writes the interview, you keep the best takes,
   and the result is a plain script you can edit and replay.
-- **Native Wire-Pod stays stock.** GOPOD changes eight Wire-Pod files through Go's overlay
+- **Native Wire-Pod stays stock.** GOPOD changes nine Wire-Pod files through Go's overlay
   build and keeps everything else in its own folder.
+
+## What's new
+
+- **System menu.** Click the speaker icon on the chat page: every setting, song, voice and
+  test, grouped in order, answered in the same window. Edit GOPOD without a terminal.
+- **Camera feeds.** Each Brobot's camera in the chat, with the Edge TPU's object boxes.
+  KP+ / KP- switch feeds.
 
 ## Take it home
 

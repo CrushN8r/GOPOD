@@ -401,12 +401,16 @@
       typedText.addEventListener("keydown", function (ev) {
         if (ev.key === "Escape") { typedText.blur(); }
       });
+      document.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape" && !typingInBox()) { skipReporters(); }
+      });
       typedRow.addEventListener("submit", function (ev) {
         ev.preventDefault();
         var text = typedText.value.trim();
         var chosen = typedRow.querySelector("input[name=gopod-typed-robot]:checked");
         if (!text || !chosen) { return; }
         typedText.value = "";
+        if (/^system-skip\b/i.test(text)) { skipReporters(); return; }
         // system-numpad on|off: the numpad is this page's - switched here too.
         var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(text);
         if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
@@ -3364,6 +3368,7 @@
         var finish = function () {
           if (finished) { return; }
           finished = true;
+          if (voicePlaying && voicePlaying.finish === finish) { voicePlaying = null; }
           // 2026-10-18 (leak: a voice that errored or hit its cap left its line
           // "being said", and the baton held every next bubble up to 2 min):
           // however a voice ends, its line is said.
@@ -3385,6 +3390,7 @@
           if (pooled) { audio = pooled; }
           audio.addEventListener("ended", finish, { once: true });
           audio.addEventListener("error", skip, { once: true });
+          voicePlaying = { audio: audio, finish: finish };
           var from = Date.now();
           (function playWhenShown() {
             var b = audio._bubble;
@@ -3413,7 +3419,33 @@
           })();
         } catch (err) { skip(); }
       }
+      // 2026-10-20 (operator: "every time I do a wpr 2 ... I have to wait for the
+      // reporters to finish their spoken lines * how to add keyboard 'Esc' key
+      // press to skip to the end of the in-between run"): Esc (or system-skip)
+      // stops the reporter line being said and drops the reporters' queued
+      // lines and voices, up to the next line that isn't theirs (Goverlord's
+      // "ready", a song's start) or the opening's end. Heard markers still pass,
+      // so Wire-Pod and the songs go on as if they'd played. The managers
+      // (CHALK, PLAYHEAD) and the Brobots are never skipped.
+      var skippingReporters = false, voicePlaying = null;
+      function skipReporters() {
+        skippingReporters = true;
+        if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
+      }
+      function skippedEvent(e) {
+        if (!skippingReporters) { return false; }
+        var t = String(e.text);
+        if (e.who === reporterRole) {
+          if (heardMarker && t.indexOf(heardMarker) === 0) { return false; }
+          if (t.trim() === openingEndText) { skippingReporters = false; return false; }
+          return /\.wav(#vol=[0-9.]+)?$/.test(t); // a voice (or sting) in the stretch
+        }
+        if (hostNames[e.who] && !managerHosts[e.who]) { return true; }
+        skippingReporters = false;
+        return false;
+      }
       function showFeedEvent(e, done) {
+        if (skippedEvent(e)) { done(); return; }
         // A held rattle timer gives its place to the next bubble (voices aren't bubbles).
         if (countdownDoneAt && e.who !== reporterRole && e.who !== countdownRole && e.who !== songAudioRole) {
           afterCountdown(function () { showFeedEvent(e, done); }, e.who === ballRole);
@@ -4157,6 +4189,7 @@
             item.appendChild(about);
             item.addEventListener("click", function () {
               if (it.page === "usb") { usbPanel(); return; }
+              if (it.page === "skip") { skipReporters(); return; }
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }

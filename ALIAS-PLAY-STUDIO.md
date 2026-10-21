@@ -1497,6 +1497,12 @@ Language Model Loading...
   a failed lsusb isn't "mic missing", and a missing mic is looked for again on each key press;
   system-chats skips the searches themselves and slices on character boundaries; the volume
   slider's value gives way when the settings' loop volume changes.
+- **Skip the reporters' warm-up** (operator 2026-10-20: "how to add keyboard 'Esc' key press to skip
+  to the end of the in-between run in the llm run * how to add a 'skip' command?"): Esc (outside the
+  text box) or `system-skip` (typed or menu group 1) stops the reporter line being said and drops
+  the reporters' queued lines and voices up to the next line that isn't theirs or the opening's
+  end. Heard markers still pass, so Wire-Pod and the songs go on. Managers and Brobots are never
+  skipped. Page-only (`skipReporters`).
 - **System window rule** (operator 2026-10-19: "No header ... to recover window space * results
   window stretches to full width even when empty * no horizontal space, duo sync vertical height
   adjustment * both start at 50% window height * system menu/results, 50%/50% 10%/90%, 90%/10% *

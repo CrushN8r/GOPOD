@@ -192,6 +192,7 @@ func gopodSystemHelp() string {
 		"  system-add / system-remove <path> <item>   an item in a list, or key = value in a group",
 		"  system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)",
 		"  system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures",
+		"  system-skip  (or Esc)             skip the reporters' warm-up lines, on to the end of that stretch",
 		"  system-restart [go]               Wire-Pod restarts; the page reloads itself (click Log for sound)",
 		"  system-score <song>               a song's score: every step and its words",
 		"  system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]   a song or part of it (pha0b)",

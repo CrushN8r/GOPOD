@@ -812,6 +812,11 @@
             "fill": "system-restart"
           },
           {
+            "cmd": "system-skip",
+            "about": "skip the reporters' warm-up lines (or press Esc)",
+            "page": "skip"
+          },
+          {
             "cmd": "system-status",
             "about": "Wire-Pod, language model, page, run, battery",
             "run": true

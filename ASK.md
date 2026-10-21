@@ -1,6 +1,6 @@
 # Ask
 
-Two Vectors, Doc and Pip. They perform scored songs and a scripted interview from a local studio built on Wire-Pod.
+Two Vectors, Doc and Pip. They perform scored songs and a scripted interview from a local studio built on Wire-Pod, the open-source server that keeps Vector robots running without the original cloud.
 
 The act runs. The public machine does not.
 
@@ -17,6 +17,7 @@ I am not asking anyone to invent the act, staff a five-year company, or own soci
 ## Where it stands
 
 - **The act runs.** The Bingo test song: [VIDEO PLACEHOLDER — listed YouTube link]. Two robots talk live on one page.
+- **New:** a system menu on the chat page (edit everything without a terminal) and live camera feeds with object boxes.
 - **The interview is ready to record.** Ten questions, two reporter voices, the same run every time.
 - **The websites are up.** The newsletter (crushn8r.ca) is set up, not yet sending.
 - **The social accounts are named,** not yet on a schedule.
