@@ -712,6 +712,17 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 							rawRespText = gopodStitchEndSnippet(snippet, rawRespText)
 							logger.Println("BROBOT_SCRIPTED_SNIPPET_END=" + snippet)
 						}
+						// GOPOD 2026-10-21 (operator: "whichever brobot answers first, add a
+						// final thought bubble as a redirect to the other brobot, like brobot
+						// N, what say you on this, gear brain?"): a line to both - the first
+						// answer ends handing over (addressing.redirect_text).
+						if _, first := gopodAllFirstAnswer.LoadAndDelete(esn); first {
+							if t := strings.TrimSpace(gopodBrobotsSettings.Addressing.RedirectText); t != "" {
+								line := strings.ReplaceAll(t, "{brother}", gopodBrobotName(gopodBrotherOf(esn)))
+								rawRespText = strings.TrimSpace(rawRespText) + gopodThoughtGap() + line
+								logger.Println("BROBOT_REDIRECT " + gopodBrobotName(esn) + ": " + line)
+							}
+						}
 					}
 				}
 				// 2026-09-30: the animation cue is marked "happy___" (gopod_animation_marker.go);

@@ -668,7 +668,8 @@
           .catch(function () { /* no list - names show as heard */ });
       }
 
-      function appendBubble(who, spoken, format, to, via) {
+      function appendBubble(who, spoken, format, to, via, then) {
+        var next = function () { if (then) { then(); } };
         voiceLitNext = null; // the next voice is this bubble's (the Operator's), not an earlier line's
         if (!restoringChat) {
           spoken = spellNames(spoken);
@@ -742,6 +743,7 @@
             operatorInBatch = true;
           }
           revealWhenPlaced(bubble);
+          next();
           return;
         }
         var textEl = document.createElement("span");
@@ -767,6 +769,7 @@
           attachPendingBall(shell, spoken);
           if (inPopup) { marqueeAttach(shell); }
           addQrCodes(shell);
+          next();
           return;
         }
         if (inPopup) { bubble.classList.add("popup-winner"); }
@@ -774,10 +777,9 @@
         bubble.appendChild(bubbleHead(who));
         bubble.appendChild(textEl);
         attachPendingBall(bubble, spoken);
-        container.appendChild(bubble);
-        if (inPopup) { marqueeAttach(bubble); }
-        if (restoringChat) { return; }
-        revealWhenPlaced(bubble);
+        // A Brobot's own bubble, on the raw bubble template (built and loaded
+        // hidden, then shown); the marquee lights once it's in the chat.
+        placeBubble(bubble, next, function (b) { if (inPopup) { marqueeAttach(b); } });
       }
 
       // 2026-09-30, one rule for every new bubble - a backpack question and its
@@ -1283,12 +1285,12 @@
       // log formats back to back (a "Brobot N:" line and an "LLM response for"
       // line), only the first becomes a bubble.
       var lastRobotBubble = { who: "", norm: "", format: "" };
-      function robotBubbleOnce(who, text, format) {
+      function robotBubbleOnce(who, text, format, then) {
         var norm = String(text).toLowerCase().replace(/[^a-z0-9]+/g, "");
-        if (!norm) { return "no words"; }
-        if (lastRobotBubble.who === who && lastRobotBubble.norm === norm && lastRobotBubble.format !== format) { return "same words as the bubble before"; }
+        if (!norm) { if (then) { then(); } return "no words"; }
+        if (lastRobotBubble.who === who && lastRobotBubble.norm === norm && lastRobotBubble.format !== format) { if (then) { then(); } return "same words as the bubble before"; }
         lastRobotBubble = { who: who, norm: norm, format: format };
-        appendBubble(who, text, format);
+        appendBubble(who, text, format, undefined, undefined, then);
         return "";
       }
       // 2026-10-17 (operator: "If a reply bubble goes missing or shows twice ...
@@ -1822,22 +1824,74 @@
         bubble.classList.add("host-" + who.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
         return reporterHead(hostLabels[who] || who);
       }
-      function showTerminal(text) {
+      // GOLDEN raw bubble template (2026-10-21, operator: "before bubble types
+      // there is the raw bubble scaffolding * build up bubble types from the raw
+      // basic bubble boiler template * whatever processes/rules apply to a bubble
+      // must complete before the next bubble"; "every bubble ... must fully render
+      // & pre-load hidden * somewhere so as not to affect live scrolling"). Every
+      // bubble type is built on these, one type at a time:
+      //   rawBubble(spec)        the bubble, whole: kind, classes, header, lines
+      //   bubbleTask(b, promise) a job it must finish before it shows
+      //   placeBubble(b, then)   built in the hidden staging area (outside the
+      //                          chat - no scroll), its tasks (and its pictures
+      //                          loading) done, then into the chat and shown;
+      //                          "then" - the next event - only after that.
+      // Types on it so far: system/terminal answers; reporter and manager lines;
+      // Goverlord's lines; Brobot replies. Exceptions (their own rules): the chat window, the
+      // Operator bubble (the one input type), the system window (menu).
+      var bubbleStaging = null, BUBBLE_TASK_MAX_MS = 10000;
+      function bubbleStage() {
+        if (!bubbleStaging || !bubbleStaging.isConnected) {
+          bubbleStaging = document.createElement("div");
+          bubbleStaging.className = "bubble-staging";
+          bubbleStaging.setAttribute("aria-hidden", "true");
+          document.body.appendChild(bubbleStaging);
+        }
+        return bubbleStaging;
+      }
+      function rawBubble(spec) {
+        var b = document.createElement("div");
+        b.className = "brobot-bubble " + (spec.classes || "");
+        if (spec.kind) { b.dataset.kind = spec.kind; }
+        if (spec.head) { b.appendChild(spec.head); }
+        (spec.lines || (spec.text != null ? [spec.text] : [])).forEach(function (t) {
+          var line = document.createElement("span");
+          line.className = "brobot-bubble-text" + (spec.lineClass ? " " + spec.lineClass : "");
+          line.textContent = String(t);
+          b.appendChild(line);
+        });
+        b._tasks = [];
+        return b;
+      }
+      function bubbleTask(b, promise) { b._tasks.push(promise); return promise; }
+      function placeBubble(b, then, onPlaced) {
+        var finished = false;
+        function finish() {
+          if (finished) { return; }
+          finished = true;
+          container.appendChild(b);
+          if (onPlaced) { onPlaced(b); }
+          if (!restoringChat) { revealWhenPlaced(b); }
+          if (then) { then(); }
+        }
+        if (restoringChat) { finish(); return; }
+        var stage = bubbleStage();
+        stage.style.width = container.clientWidth + "px";
+        stage.appendChild(b);
+        Array.prototype.forEach.call(b.querySelectorAll("img"), function (img) {
+          if (!img.complete) {
+            bubbleTask(b, new Promise(function (ok) { img.addEventListener("load", ok, { once: true }); img.addEventListener("error", ok, { once: true }); }));
+          }
+        });
+        var tasks = (b._tasks || []).map(function (t) { return Promise.resolve(t).catch(function () {}); });
+        Promise.race([Promise.all(tasks), new Promise(function (ok) { setTimeout(ok, BUBBLE_TASK_MAX_MS); })]).then(finish);
+      }
+      function showTerminal(text, then) {
         // While the system menu is open, its answers go in its results (systemMenuResult).
-        if (systemMenuResult(String(text), "answer")) { return; }
-        var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status score terminal";
-        // 2026-10-21 (operator: "System answers grouping makes them Goverlord's * if I
-        // ask the captain a mechanical question, the Captain would direct me to the
-        // correct sailor-gomad"): a system answer is Goverlord's.
-        bubble.appendChild(systemHead(systemLabel));
-        var line = document.createElement("span");
-        line.className = "brobot-bubble-text terminal-text";
-        line.textContent = String(text);
-        bubble.appendChild(line);
-        container.appendChild(bubble);
-        if (restoringChat) { return; }
-        revealWhenPlaced(bubble);
+        if (systemMenuResult(String(text), "answer")) { if (then) { then(); } return; }
+        // 2026-10-21: a system answer is Goverlord's (the Captain's).
+        placeBubble(rawBubble({ kind: "terminal", classes: "operator system-status score terminal",
+          head: systemHead(systemLabel), text: text, lineClass: "terminal-text" }), then);
       }
       // 2026-10-17 (operator: "Don't speak or highlight search results * put a
       // centered rounded-rectangle bubble around the search results * search
@@ -1897,20 +1951,15 @@
       }
       // 2026-10-12 (operator: Reporter 0, "Reporter 0, Goverlord"): Goverlord's
       // own lines are headed with its reporter label (reporter_voices.labels).
-      function showScore(text, label) {
+      function showScore(text, label, then) {
         if (!restoringChat) { recordBubble(scoreRole, String(text), "score"); }
-        // Its voice was being made: the "Generating..." slot becomes this line.
-        if (!restoringChat && fillSlot("brobot-bubble operator system-status score", systemHead(label || systemLabel), text)) { return; }
-        var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status score";
-        bubble.appendChild(systemHead(label || systemLabel));
+        // On the raw bubble template (built and loaded hidden, then shown).
+        var bubble = rawBubble({ kind: "system", classes: "operator system-status score", head: systemHead(label || systemLabel) });
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
         bubble.appendChild(line);
         voiceLitLine(bubble, line, text);
-        container.appendChild(bubble);
-        if (restoringChat) { return; }
-        revealWhenPlaced(bubble);
+        placeBubble(bubble, then);
       }
       // GOLDEN, one slot for a voice being made (2026-10-18, operator: "where a
       // voice is being generated displays the generating + hourglass 'message'
@@ -1921,16 +1970,6 @@
       // hourglass); the next voiced line - Goverlord's or a reporter's - fills
       // that same bubble with its own header and words, in place (no swap, no
       // jump). The Operator's own bubble does the same in itself ("op").
-      function fillSlot(className, head, text) {
-        if (!generatingBubble || !generatingBubble.isConnected) { return null; }
-        var slot = generatingBubble;
-        generatingBubble = null;
-        slot.className = className;
-        var oldHead = slot.querySelector(".brobot-bubble-head");
-        if (oldHead) { slot.replaceChild(head, oldHead); } else { slot.insertBefore(head, slot.firstChild); }
-        voiceLitLine(slot, slotReady(slot, text), text);
-        return slot;
-      }
       // GOLDEN highlight for voices the page plays (2026-10-18, operator:
       // "Highlighting mechanism is awesome * can you apply this independent
       // working mechanism to system and reporter voices?"): a reporter's or
@@ -2702,59 +2741,53 @@
         voiceLitLine(at.outer, line, text);
         return row;
       }
-      function showHostLine(who, text, to) {
+      function showHostLine(who, text, to, then) {
+        var next = function () { if (then) { then(); } };
+        var hostClass = "operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-");
         if (String(text).indexOf("qr:") !== 0) {
           var joined = hostLineInto(who, text);
           if (joined) {
             if (!restoringChat && !/^Brobot [12]$/.test(String(to || ""))) { recordBubble(who, String(text), "host"); }
             if (/^Brobot [12]$/.test(String(to || ""))) { addWeatherFace(joined.closest(".nested-host") || joined); }
+            next();
             return;
           }
         }
         if (/^Brobot [12]$/.test(String(to || ""))) {
-          if (who === displayHost && chalkBottom(who, text, to)) { return; }
+          if (who === displayHost && chalkBottom(who, text, to)) { next(); return; }
           // Inside Brobot N's bubble, at its top.
           generatingGone();
           var shell = nestShell(to);
           var boxes = shell.querySelectorAll(".nested-host.host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"));
           var box = boxes.length && String(text).indexOf("qr:") === 0 ? boxes[boxes.length - 1] : nestBox(shell, who, true);
-          if (String(text).indexOf("qr:") === 0) { hostQr(box, text); return; }
+          if (String(text).indexOf("qr:") === 0) { hostQr(box, text); next(); return; }
           var nline = document.createElement("span");
           nline.className = "brobot-bubble-text";
           box.appendChild(nline);
           voiceLitLine(shell, nline, text);
           addWeatherFace(box);
+          next();
           return;
         }
+        // Its own bubble, on the raw bubble template (built and loaded hidden, then shown).
+        var bubble = rawBubble({ kind: "host", classes: hostClass, head: reporterHead(hostLabels[who] || who) });
+        bubble.dataset.host = who;
         if (String(text).indexOf("qr:") === 0) {
-          var own = document.createElement("div");
-          own.className = "brobot-bubble operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-          own.appendChild(reporterHead(hostLabels[who] || who));
-          hostQr(own, text);
-          container.appendChild(own);
-          if (!restoringChat) { revealWhenPlaced(own); }
+          hostQr(bubble, text);
+          placeBubble(bubble, next);
           return;
         }
         if (!restoringChat) { recordBubble(who, String(text), "host"); }
-        // Its voice was being made: the slot becomes this line (fillSlot).
-        var filled = !restoringChat && fillSlot("brobot-bubble operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"), reporterHead(hostLabels[who] || who), text);
-        if (filled) { filled.dataset.host = who; return; }
-        var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        bubble.dataset.host = who;
-        bubble.appendChild(reporterHead(hostLabels[who] || who));
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
         bubble.appendChild(line);
         voiceLitLine(bubble, line, text);
-        container.appendChild(bubble);
-        // 2026-10-06 (operator: "ensure this timer is always 'after' all
-        // reporter bubbles as they appear ... so the timer is always in view"):
-        // while the LLM warms up, its timer moves back under each host line.
-        if (warmupBubble && warmupBubble.isConnected) { container.appendChild(warmupBubble); }
-        else if (warmupBeforeOpening && warmupBeforeOpening.isConnected) { container.appendChild(warmupBeforeOpening); }
-        if (restoringChat) { return; }
-        revealWhenPlaced(bubble);
+        placeBubble(bubble, next, function () {
+          // 2026-10-06 (operator: "ensure this timer is always 'after' all
+          // reporter bubbles as they appear"): the warm-up timer moves back under it.
+          if (warmupBubble && warmupBubble.isConnected) { container.appendChild(warmupBubble); }
+          else if (warmupBeforeOpening && warmupBeforeOpening.isConnected) { container.appendChild(warmupBeforeOpening); }
+        });
       }
 
       // 2026-10-09 (operator: "instead of line by line, do several phrases in
@@ -3619,15 +3652,15 @@
         }
         else if (e.who === ballRole) { showBingoBall(e.text); }
         else if (e.who === chapterRole) { showChapter(e.text); }
-        else if (e.who === scoreRole) { showScore(e.text); }
+        else if (e.who === scoreRole) { showScore(e.text, undefined, done); return; }
         // 2026-10-13 (operator: "all system messages out = \"Goverlord: GOPOD
         // Brain\" * \"Reporter 0\" is a decoration label"): one header for them all.
-        else if (e.who === systemRole) { showScore(e.text); }
-        else if (e.who === terminalRole) { showTerminal(e.text); }
+        else if (e.who === systemRole) { showScore(e.text, undefined, done); return; }
+        else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("eggsum:") === 0) { eggSummary(e.to, String(e.text).slice(7)); }
         else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
-        else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to); }
+        else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to, done); return; }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
         // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
         // Brobot 1" (operator 2026-10-10: "assigned reporter bubbles fall under
@@ -3638,8 +3671,8 @@
         else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via); }
         // 2026-10-17 (operator: "one event list, single source of truth"): a live
         // reply comes on the feed (via "llm"), in order with every other line.
-        else if (e.via === "llm") { noteLiveReply(e, robotBubbleOnce(e.who, kgReplyText(e.text), "llm")); }
-        else { robotBubbleOnce(e.who, e.text, "brobot"); }
+        else if (e.via === "llm") { noteLiveReply(e, robotBubbleOnce(e.who, kgReplyText(e.text), "llm", done)); return; }
+        else { robotBubbleOnce(e.who, e.text, "brobot", done); return; }
         done();
       }
 

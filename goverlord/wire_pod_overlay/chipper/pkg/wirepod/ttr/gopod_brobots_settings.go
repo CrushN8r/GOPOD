@@ -78,6 +78,8 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"brothers"`
 	Addressing struct {
 		StartWithinWords  int     `json:"start_within_words"`
+		// 2026-10-21: the first answer in a line to both ends handing over.
+		RedirectText string `json:"redirect_text"`
 		FirstHeardSeconds float64 `json:"first_heard_seconds"`
 		QuietAnimation    string  `json:"quiet_animation"`
 		// 2026-10-14: "All": Brobot 1 answers, then Brobot 2 (gopodTypedInputAll).

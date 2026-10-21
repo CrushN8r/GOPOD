@@ -178,6 +178,8 @@
     "asleep_note": "[Not a question - your brother is asleep right now: he was told to sleep and said \"zzz\". If he comes up, say he's asleep.]"
   },
   "addressing": {
+    "redirect_text_about": "2026-10-21 (operator: \"when 'All' is selected ... applies to 'starting with brobot 2' * whichever brobot answers first, add a final thought bubble as a redirect to the other brobot, like brobot N, what say you on this, gear brain?\"): the first answer in a line to both ends with this, its own thought; {brother} = the other Brobot. Empty = none.",
+    "redirect_text": "{brother}, what say you on this, gear brain?",
     "about": "Only the Brobot you call answers (operator 2026-10-04: \"The vocal rule is to call for \\\"Brobot 1\\\" or \\\"Brobot 2\\\"\", \"aim to confidently match brobot over robot, but robot if you must\"). \"Hey Vector\" wakes both; a chat question that opens with one of names (within the first start_within_words words, whole words) is answered by that Brobot only. The \"brobot\" forms are checked first, the \"robot\" forms only if none match. Forms are how speech-to-text hears the name; add a new mishearing here. A question with no name is answered by the Brobot heard first; his brother, hearing the same question within first_heard_seconds, stays quiet. The quiet Brobot plays quiet_animation (an animation_vocab.json token) once and goes back to idle - no answer, nothing in the chat. (The responder's 1 s searching + kgSuccess buffer was dropped 2026-10-09, operator: \"drop the buffer\", so every reply starts the same way: chat_moves.thinking_moves.)",
     "start_within_words": 2,
     "first_heard_seconds": 3,

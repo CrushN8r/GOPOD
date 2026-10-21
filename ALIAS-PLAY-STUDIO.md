@@ -904,6 +904,10 @@ after an edit. The face photo as a prize is not built yet. `system-faces` lists 
 
 ---
 
+**Handing over in a line to both.** When a line goes to both Brobots (All, KP0 held, or "starting
+with Brobot 2"), whoever answers first ends with one more thought, handing over to his brother:
+`addressing.redirect_text` ("{brother}, what say you on this, gear brain?"). Empty = none.
+
 ## 8. A live reply
 
 ### 8.1 The steps of a reply
@@ -1115,6 +1119,15 @@ GOPOD's own web search, no LLM in it: the `gopod-searxng` container (this machin
 
 ## 9. The chat page and its bubbles
 
+**The raw bubble template (GOLDEN, being built type by type).** Every bubble type is built on one
+template: `rawBubble(spec)` makes the bubble whole (kind, classes, header, lines);
+`bubbleTask(b, promise)` adds a job it must finish before it shows; `placeBubble(b, then)` builds it
+in a hidden staging area outside the chat (so it never moves the chat's scroll), waits for its tasks
+and its pictures to load (10 s at most), then puts it in the chat and shows it - and only then does
+the next event start. The exceptions keep their own rules: the chat window (scrolling, the baton),
+the Operator bubble (the one input type) and the system window (the menu). On the template so far:
+system / terminal answers, reporter and manager lines (their own bubbles), Goverlord's lines, Brobot replies.
+
 ### 9.1 The Chat Bubbles Window: the machine
 
 **Draft for signature** - once the owner signs it, this is the locked rule set.
@@ -1269,8 +1282,10 @@ it comes in, lights by these rules, and gets out.
      (`lit:<file>|` or, while it's made, `wait:<file>|`); the words light at that voice's own word
      times (Vosk) as it plays.
    - **The narrator:** its SRT times, on the soundtrack's clock.
-4. **No timing source:** the words show after `voiceLitWaitMs` (15 s) once the bubble is up; a
-   Brobot that stops speaking leaves the rest of his bubble shown as said.
+4. **Timing within a piece:** a voice uses its Vosk word times; a Brobot's speech gets the real
+   start of each piece from Wire-Pod and a best guesstimate for the words in it; with no timing at
+   all, a guesstimate (`word_reveal.seconds_per_word`). A line whose voice never plays shows after
+   `voiceLitWaitMs` (15 s); a Brobot that stops speaking leaves the rest of his bubble shown as said.
 5. **Nested parts** (a manager's part, an egg summary inside a Brobot's bubble) light on their own;
    the Brobot's own pieces never count them (`ownSays`).
 

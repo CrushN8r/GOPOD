@@ -232,6 +232,7 @@ func gopodTypedInputAll(text, how string) error {
 			<-read
 			done := gopodReplyDone(first)
 			failed := make(chan struct{})
+			gopodAllFirstAnswer.Store(first, true) // his answer hands over to his brother (kgsim.go)
 			if first != gopodBrobot1ESN {
 				gopodAnswerNext.Store(first, true)
 			}

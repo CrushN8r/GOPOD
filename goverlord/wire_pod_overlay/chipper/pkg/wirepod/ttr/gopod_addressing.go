@@ -134,6 +134,10 @@ func gopodShouldAnswer(esn, text string, now time.Time) (answer bool, to string)
 // heard it first ("All", gopodTypedInputAll).
 var gopodAnswerNext sync.Map
 
+// gopodAllFirstAnswer: the Brobot answering first in a line to both - his answer
+// ends with addressing.redirect_text (2026-10-21).
+var gopodAllFirstAnswer sync.Map
+
 // gopodFollowingUp: a Brobot answering after his brother on the same line (All,
 // Explain the Math) - operator 2026-10-15: '"All" = Brobot 1 \'answers\',
 // Brobot 2 \'follows up\', no repeats'. While it's set his reply follows up:
