@@ -1093,3 +1093,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 /* 2026-10-20 (operator: "cams feed * only a single row should appear"): a picture row in the menu's results stays one row. */
 .system-menu-results .topic-pictures { display: flex; flex-wrap: nowrap; gap: 6px; }
 .system-menu-results .topic-pictures img { flex: 1 1 0; min-width: 0; max-height: 180px; object-fit: contain; }
+/* 2026-10-21 (operator: "Brobot's bubble as PLAYHEAD's part * smaller font size rule applies"): search results nested in a Brobot's bubble keep the results' small type. */
+.brobot-bubble > .search-results.nested-host .search-results-text { font-size: 50%; }
+/* 2026-10-21: a found egg's summary inside a Brobot's bubble - small type. */
+.egg-summary .egg-summary-text { font-size: 60%; line-height: 1.4; }

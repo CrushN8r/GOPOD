@@ -2,6 +2,11 @@
 
 > Wire-Pod gets one robot talking. This is what GOPOD adds on top of it, and how to take it home.
 
+**What this is.** A reference for Wire-Pod owners: what GOPOD changes in Wire-Pod, how it stays
+out of Wire-Pod's own files, how to build and test it, and how to set it up on your own machine
+in three parts. The full show standard (songs, the chat page, every rule and command) is
+[ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md).
+
 - **Native Wire-Pod:** [`kercre123/wire-pod`](https://github.com/kercre123/wire-pod), as its author ships it.
 - **Brobots Wire-Pod (this document):** two Vectors, Brobot 1 and Brobot 2, talking through
   Wire-Pod with GOPOD on top. Everything runs locally: a small LLM, no cloud.
@@ -10,7 +15,18 @@ Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
 
 ---
 
-## What's new for Wire-Pod owners
+## Contents
+
+1. [What's new for Wire-Pod owners](#1-whats-new-for-wire-pod-owners)
+2. [Stay thin: how GOPOD touches Wire-Pod](#2-stay-thin-how-gopod-touches-wire-pod)
+3. [Build, deploy and test](#3-build-deploy-and-test)
+4. [Voice commands](#4-voice-commands-customintentsjson)
+5. [Take Out: set it up at home](#5-take-out-set-it-up-at-home)
+6. [Where this stands](#6-where-this-stands)
+
+---
+
+## 1. What's new for Wire-Pod owners
 
 - **Two Brobots, one conversation.** Ask either Vector. Both share one chat memory, and each
   knows which brother it is by its serial. Call one by name ("Hey Vector, Brobot 1, …") and
@@ -30,8 +46,9 @@ Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
   (`goverlord/runtime/songs/02_brobots_interview/`: `story.md` for the words, `knobs.json` for
   who says each line, cues and moves) that you edit and replay. Every run is the same, ready to
   record.
-- **Three page voices.** Two Kokoro reporters read the questions and host the show. A third,
-  Goverlord, says the system lines (LLM Ready, chapters, "You're welcome.").
+- **Page voices.** Two Kokoro reporters read the questions and host the show. A third voice,
+  Goverlord, says the system lines (LLM Ready, chapters, "You're welcome."). Your own typed and
+  numpad lines are read out in an Operator voice.
 - **Record a session.** Tick one box: the chat, Wire-Pod's log and the room mic are saved
   together. Say "Thanks Brobots" and a Brobot asks whether to keep it.
 - **One settings file.** Every value and text lives in
@@ -39,16 +56,15 @@ Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
 
 ---
 
-## Stay thin: how GOPOD touches Wire-Pod
+## 2. Stay thin: how GOPOD touches Wire-Pod
 
-`~/wire-pod` stays byte-for-byte upstream (commit `dc6ae0c`, updated 2026-10-19). GOPOD
-reaches it only two ways:
+`~/wire-pod` stays byte-for-byte upstream (commit `dc6ae0c`). GOPOD reaches it only two ways:
 
 1. **The overlay build.** Go's `-overlay` flag swaps in GOPOD's copies of nine native files
    and adds GOPOD's own Go files. A plain `go build` gives you stock Wire-Pod.
 2. **One line** in Wire-Pod's `chipper/source.sh`: `source <overlay>/chipper/gopod_env.sh`.
 
-**The nine native files GOPOD changes:**
+### The nine native files GOPOD changes
 
 | File | What GOPOD changes |
 |---|---|
@@ -56,11 +72,16 @@ reaches it only two ways:
 | `ttr/kgsim_cmds.go` | Animation and speech go through the live-speech gate; an animation call gives up after 10 s, so Wire-Pod's own animation queue is never held by a robot that dropped. |
 | `ttr/kgsim_interrupt.go` | A touch stops a reply at the end of the current piece. |
 | `ttr/weather.go` | A network error no longer crashes Wire-Pod. |
-| `ttr/matchIntentSend.go` | Wire-Pod's own voice answers can be switched off (the chat's Native? box), and are always off during a run. |
+| `ttr/matchIntentSend.go` | Wire-Pod's own voice answers can be switched off (the chat's `system-native on\|off`), and are always off during a run. |
 | `sdkapp/server.go` | The chat window's routes: typed input, Record Session, numpad push-to-talk, the LLM warm-up. |
 | `config-ws/webserver.go` | The web page is served from GOPOD's folder first, native after. |
 | `sdkapp/bcassume.go` | Crash guard: the robot is found by its serial. |
 | `sdkapp/robot.go` | The same crash guard in the connection timer. |
+
+**Following upstream.** GOPOD's copies follow upstream `dc6ae0c`, which changed 2 of the 9
+files. Upstream's `kgsim.go` OpenAI model-setting fix is carried into GOPOD's copy. Upstream's
+MaxCompletionTokens switch is not carried: GOPOD's copies keep their tuned MaxTokens 5120 for the
+local LLM. `system-version` in the chat shows which of the nine files changed upstream.
 
 Everything else (the `gopod_*` Go files, prompts, topic packs, tools, the chat page, the voice
 commands) lives in `goverlord/wire_pod_overlay/`, and Wire-Pod reads it from there.
@@ -68,16 +89,23 @@ commands) lives in `goverlord/wire_pod_overlay/`, and Wire-Pod reads it from the
 **Never in this repo:** `apiConfig.json` (keys), `jdocs/` and `certs/` (robot tokens),
 `sessions/` (conversation logs and recordings).
 
+---
+
+## 3. Build, deploy and test
+
 **Build and deploy:** `goverlord/wire_pod_overlay/deploy_overlay_build.sh` runs the tests,
 builds, backs up the live binary and swaps the new one in. If a test fails, nothing deploys.
 Then restart `wire-pod.service`.
 
 **Tests:**
-`GOPOD_OVERLAY_CHIPPER=<overlay>/chipper go test -tags nolibopusfile -overlay=<overlay>/overlay.json ./pkg/wirepod/ttr/`
+
+```
+GOPOD_OVERLAY_CHIPPER=<overlay>/chipper go test -tags nolibopusfile -overlay=<overlay>/overlay.json ./pkg/wirepod/ttr/
+```
 
 ---
 
-## Voice commands (`customIntents.json`)
+## 4. Voice commands (`customIntents.json`)
 
 | Say | Does |
 |---|---|
@@ -86,13 +114,16 @@ Then restart `wire-pod.service`.
 | "start baby brobots" | Runs the nap's lyric video: its soundtrack and captions in the chat while the Brobots sleep, then "Brobots Ready!". |
 | "stop run" | Stops the running interview or song at its next safe spot. |
 | "GOPOD Yourself" | The wake phrase. Brobot 1 answers with the newsletter, Brobot 2 with crushn8r.ca. |
+| "remember my face" | The robot scans and saves your face (Wire-Pod's own "my name is CrushN8r"). Voice only. |
 
-Typed in the chat, the same phrases do the same thing. Wire-Pod caches this file at start, and its web config page rewrites the
-whole file on any edit: after editing it by hand, restart Wire-Pod before touching that page.
+Typed in the chat, the same phrases do the same thing.
+
+**Gotcha:** Wire-Pod caches this file at start, and its web config page rewrites the whole file
+on any edit. After editing it by hand, restart Wire-Pod before touching that page.
 
 ---
 
-## Take Out
+## 5. Take Out: set it up at home
 
 From the GOPOD kitchen: a thank-you back to the Wire-Pod community, packed to go in three
 parts. Order one, two or all three. Each part says what you need, what to copy, what to
@@ -101,10 +132,11 @@ change, and how to know it works.
 ### Part 1: the alias play studio
 
 The full standard (the notes, the song folder, the golden rules, how to make a new song) is
-[ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md). The cockpit for scored songs and robot tuning: `pha0b` (PLAYHEAD: pick a song, play a range of
-it, live or dry) and `phcal` (tune one arm, nod, cube light or animation on one robot and save
-it). A song is a folder under `goverlord/runtime/songs/`: `story.md` (the lines) and
-`knobs.json` (what each step does, and when).
+[ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md). The cockpit for scored songs and robot tuning:
+`pha0b` (PLAYHEAD: pick a song, play a range of it, live or dry) and `phcal` (tune one arm, nod,
+cube light or animation on one robot and save it). A song is a folder under
+`goverlord/runtime/songs/`: `story.md` (the lines) and `knobs.json` (what each step does, and
+when).
 
 - **You need:** Part 2's Wire-Pod (the studio drives the robots through its `/api-sdk/*`
   endpoints), Python 3, bash.
@@ -120,10 +152,10 @@ it). A song is a folder under `goverlord/runtime/songs/`: `story.md` (the lines)
 
 ### Part 2: the chat page
 
-Everything in "What's new for Wire-Pod owners" above.
+Everything in [What's new for Wire-Pod owners](#1-whats-new-for-wire-pod-owners) above.
 
-- **You need:** Wire-Pod working with your robots (`chipper/v1.5.10`, `11e7b22`), Go, Part 3's
-  LLM. For the reporter and Goverlord voices: Kokoro-82M in its own Python venv (set
+- **You need:** Wire-Pod working with your robots (`chipper/v1.5.10`, commit `dc6ae0c`), Go,
+  Part 3's LLM. For the reporter and Goverlord voices: Kokoro-82M in its own Python venv (set
   `reporter_voices.python` and `worker` in the settings file); without it the chat runs
   without them. For numpad push-to-talk and Record Session: a USB mic.
 - **Copy:** clone this repo. The overlay is `goverlord/wire_pod_overlay/`.
@@ -159,7 +191,7 @@ The Brobots think with a small local model: no cloud, no monthly bill, no intern
 
 ---
 
-## Where this stands
+## 6. Where this stands
 
 **Live-tested:** the Brobots chat, shared memory, personas, the piece-by-piece highlight,
 the LLM warm-up, the scripted interview run, the Bingo test song, numpad push-to-talk with a

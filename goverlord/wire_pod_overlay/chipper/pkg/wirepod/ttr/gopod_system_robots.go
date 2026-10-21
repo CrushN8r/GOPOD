@@ -488,3 +488,56 @@ var gopodOverlayNativeFiles = []string{
 }
 
 // ## EOF
+
+// gopodSystemAnim (2026-10-21, operator: "How doable to test playAnimationWI via
+// GOPOD keyboard input * test text to enter: "{{playAnimationWI||angry}} wait 1,
+// 2, 3 ..." * can I have the makings (WIP) of an animationWI tester, in system
+// menu?"): the text through Wire-Pod's own say route - the path the song engine's
+// emotion beats use - with control taken first (the 1.5 s settle), then given
+// back. "system-anim list": the animation tokens. The clip played and its time
+// are in the journal (GOPOD_ROBOT_CMD lines, with the battery).
+func gopodSystemAnim(text string) string {
+	rest := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), strings.Fields(text)[0]))
+	if rest == "" {
+		return "system-anim <text with {{playAnimationWI||token}}> [1|2|both] - system-anim list for the tokens"
+	}
+	if strings.EqualFold(rest, "list") {
+		return "animation tokens: " + strings.Join(verifiedTokenNames(loadedAnimationVocab), ", ")
+	}
+	if gopodScriptPlaying.Load() || gopodRunActive() {
+		return gopodBrobotsSettings.Session.BusyText
+	}
+	who := []string{gopodBrobot1ESN}
+	f := strings.Fields(rest)
+	switch strings.ToLower(f[len(f)-1]) {
+	case "1":
+		rest = strings.TrimSpace(strings.TrimSuffix(rest, f[len(f)-1]))
+	case "2":
+		who, rest = []string{gopodBrobot2ESN}, strings.TrimSpace(strings.TrimSuffix(rest, f[len(f)-1]))
+	case "both":
+		who, rest = []string{gopodBrobot1ESN, gopodBrobot2ESN}, strings.TrimSpace(strings.TrimSuffix(rest, f[len(f)-1]))
+	}
+	var out []string
+	for _, esn := range who {
+		lock := gopodRobotCallLock(esn)
+		lock.Lock()
+		start := time.Now()
+		_, aerr := gopodWirePodCall("assume_behavior_control", esn, url.Values{"priority": {"high"}})
+		time.Sleep(1500 * time.Millisecond)
+		got, err := gopodWirePodCall("say_text", esn, url.Values{"text": {rest}})
+		took := time.Since(start).Round(100 * time.Millisecond)
+		gopodWirePodCall("release_behavior_control", esn, nil)
+		lock.Unlock()
+		line := fmt.Sprintf("%s: %s in %s", gopodBrobotName(esn), map[bool]string{true: "done", false: "failed"}[err == nil], took)
+		if aerr != nil {
+			line += " (control: " + aerr.Error() + ")"
+		}
+		if err != nil {
+			line += " - " + err.Error()
+		} else if got != "" && got != "done" {
+			line += " - " + gopodShort(got, 80)
+		}
+		out = append(out, line+gopodBatteryNote(esn))
+	}
+	return gopodJoinLines(append(out, "the clip and its time: system-find GOPOD_ROBOT_CMD"))
+}

@@ -218,6 +218,10 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	status, _ := r["status"].(string)
 	text, _ := r["text"].(string)
 	logger.Println("GOPOD_NUMPAD_PTT stop key=" + key + " status=" + status + " text=" + text)
+	// 2026-10-21: "skip" said into the mic skips the reporters' lines.
+	if status == "ok" && gopodSkipLine(text, "mic") {
+		return r
+	}
 	if status == "ok" && strings.TrimSpace(text) != "" {
 		gopodNumpadLastKey.Store(key) // the bubble reads "KP1 to Brobot 1"
 		go func() {

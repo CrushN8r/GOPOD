@@ -213,6 +213,11 @@ func gopodShowTopicPictures(esn, userMessage string) {
 			line = strings.Trim(line+"|"+gopodEggCardMark+strings.ReplaceAll(e.card, "|", " "), "|")
 		}
 		eggs = append(eggs, gopodEgg{at: e.at, files: e.files, show: func() {
+			// 2026-10-21 (operator: "upon 1st reveal, easter egg bubble outside
+			// brobots bubble + summary inside brobots window * upon more same egg
+			// reveals, summary in brobots bubble only"): the egg's summary goes in
+			// the answering Brobot's bubble every time it's found.
+			defer gopodEggSummaryPost(who, e.key, e.title, e.card)
 			// 2026-10-13: up to topic_pictures.max_per_session times per Wire-Pod start.
 			if !gopodPopupAllowed(e.key) {
 				return
@@ -247,6 +252,39 @@ func gopodShowTopicPictures(esn, userMessage string) {
 	for _, e := range eggs {
 		e.show()
 	}
+}
+
+// gopodEggSummaryMark: an egg's summary for a Brobot's bubble ("eggsum:<title>|<summary>").
+const gopodEggSummaryMark = "eggsum:"
+
+// gopodEggSummaryPost: the egg's summary to the Brobot answering - a chapter's
+// summary (interview_chapters), a card egg's card, else its topic's first say line.
+func gopodEggSummaryPost(who, key, title, card string) {
+	if who != "Brobot 1" && who != "Brobot 2" {
+		return
+	}
+	summary := ""
+	if strings.HasPrefix(key, "chapter:") {
+		for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
+			if "chapter:"+c.Title == key {
+				summary = strings.TrimSpace(c.Summary)
+			}
+		}
+	} else if strings.TrimSpace(card) != "" {
+		summary = strings.TrimSpace(card)
+	} else {
+		_, always, _ := gopodReadChaptersFolder()
+		for _, t := range always {
+			if t.Name == key {
+				summary = strings.TrimSpace(t.SayLines[1])
+			}
+		}
+	}
+	if summary == "" {
+		return
+	}
+	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, who,
+		gopodEggSummaryMark+strings.ReplaceAll(title, "|", " ")+"|"+strings.ReplaceAll(summary, "|", " "))
 }
 
 // gopodShowEgg: one egg bubble ("popup:Brobot 1::msg=<congrats>::<prize>") and

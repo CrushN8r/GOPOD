@@ -292,18 +292,12 @@
             volume = Math.max(0, Math.min(1, v));
             // Review: kept with the settings' value it overrode - a new value in
             // the settings (system-set) wins again.
-            try { localStorage.setItem("gopodLoopVolume", String(volume)); localStorage.setItem("gopodLoopVolumeCfg", String(volumeCfg)); } catch (e) {}
             applyLevel();
           },
           setup: function (cfg) {
             file = String(cfg.file || "").trim();
             volume = volumeShare(cfg.volume);
             volumeCfg = volume;
-            try {
-              var kept = parseFloat(localStorage.getItem("gopodLoopVolume"));
-              if (!isNaN(kept) && localStorage.getItem("gopodLoopVolumeCfg") === String(volumeCfg)) { volume = kept; }
-              else { localStorage.removeItem("gopodLoopVolume"); localStorage.removeItem("gopodLoopVolumeCfg"); }
-            } catch (e) {}
             applyLevel();
             wanted = !!file;
             if (wanted && pageClicked) { load(); }
@@ -385,9 +379,20 @@
         volumeBar.value = String(pct);
         volumeLabel.textContent = pct + "%";
       }
+      // 2026-10-21 (operator: "background loop volume setting to remember over full
+      // system restarts"): saved to the settings (background_loop.volume) when let go.
+      var volumeSave = null;
       volumeBar.addEventListener("input", function () {
         backgroundLoop.setVolume(parseInt(volumeBar.value, 10) / 100);
         volumeLabel.textContent = volumeBar.value + "%";
+        clearTimeout(volumeSave);
+        volumeSave = setTimeout(function () {
+          fetch("/api-sdk/gopod_loop_volume", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "v=" + encodeURIComponent(volumeBar.value)
+          }).catch(function () { /* Wire-Pod not up */ });
+        }, 600);
       });
       var volumeHide = null;
       function volumeOpen() { clearTimeout(volumeHide); showVolume(); volumeWrap.classList.add("open"); }
@@ -402,7 +407,7 @@
         if (ev.key === "Escape") { typedText.blur(); }
       });
       document.addEventListener("keydown", function (ev) {
-        if (ev.key === "Escape" && !typingInBox()) { skipReporters(); }
+        if (ev.key === "Escape" && !typingInBox()) { skipReporters("Esc"); }
       });
       typedRow.addEventListener("submit", function (ev) {
         ev.preventDefault();
@@ -410,7 +415,10 @@
         var chosen = typedRow.querySelector("input[name=gopod-typed-robot]:checked");
         if (!text || !chosen) { return; }
         typedText.value = "";
-        if (/^system-skip\b/i.test(text)) { skipReporters(); return; }
+        // 2026-10-20 (operator: "Goverlord should know by context what a skip
+        // command means * upon 'skip' input, obey same as 'Esc' key press"): a
+        // line that's only "skip" (or system-skip) skips - it's never a question.
+        if (/^(system-)?skip[.!]?$/i.test(text)) { skipReporters("typed"); return; }
         // system-numpad on|off: the numpad is this page's - switched here too.
         var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(text);
         if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
@@ -1817,7 +1825,10 @@
         if (systemMenuResult(String(text), "answer")) { return; }
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble operator system-status score terminal";
-        bubble.appendChild(displayHead(bubble));
+        // 2026-10-21 (operator: "System answers grouping makes them Goverlord's * if I
+        // ask the captain a mechanical question, the Captain would direct me to the
+        // correct sailor-gomad"): a system answer is Goverlord's.
+        bubble.appendChild(systemHead(systemLabel));
         var line = document.createElement("span");
         line.className = "brobot-bubble-text terminal-text";
         line.textContent = String(text);
@@ -1833,8 +1844,10 @@
       // typed in a character at a time (system_search.reveal_ms_per_char, at
       // most reveal_max_seconds).
       var searchSettings = { results_role: "Search Results" };
-      function showSearchResults(text) {
+      function showSearchResults(text, to) {
         var bubble = document.createElement("div");
+        // 2026-10-21: a "search ..." to a Brobot - PLAYHEAD's part at the top of his bubble.
+        var nestTo = /^Brobot [12]$/.test(String(to || "")) && !restoringChat ? to : "";
         bubble.className = "brobot-bubble search-results";
         // 2026-10-19 (operator: "system-search = location = PLAYHEAD, not CHALK"):
         // system_search.results_host draws them (else the display host).
@@ -1854,11 +1867,19 @@
           chars.push(ch);
         });
         bubble.appendChild(line);
-        var inMenu = !restoringChat && systemMenuResults();
-        if (inMenu) { inMenu.appendChild(bubble); inMenu.scrollTop = inMenu.scrollHeight; }
+        var inMenu = !restoringChat && !nestTo && systemMenuResults();
+        if (nestTo) {
+          generatingGone();
+          var shell = nestShell(nestTo);
+          bubble.classList.add("nested-host");
+          bubble.dataset.host = resultsHost;
+          var reply = shell.querySelector(":scope > .brobot-bubble-text");
+          if (reply) { shell.insertBefore(bubble, reply); } else { shell.appendChild(bubble); }
+        }
+        else if (inMenu) { inMenu.appendChild(bubble); inMenu.scrollTop = inMenu.scrollHeight; }
         else { container.appendChild(bubble); }
         if (restoringChat) { bubble.classList.add("typed"); return; }
-        if (!inMenu) { revealWhenPlaced(bubble); }
+        if (!inMenu && !nestTo) { revealWhenPlaced(bubble); }
         var per = searchSettings.reveal_ms_per_char || 6;
         var most = (searchSettings.reveal_max_seconds || 2) * 1000;
         if (per * chars.length > most) { per = most / Math.max(1, chars.length); }
@@ -1924,14 +1945,32 @@
       // voiced line - Goverlord's, a reporter's, a manager's, the Operator's own
       // (slotWaiting) - waits in its own bubble with generatingText and the
       // hourglass (generatingGlass), and turns into its words as its voice plays.
-      var lineWaits = false, voiceWaits = [];
+      var lineWaits = false, voiceWaits = [], voiceWaitFor = {};
+      // THE one Generating template (2026-10-21, operator: "A single robust
+      // bulletproof clean boring deterministic 'Generating...' mechanism template"):
+      // voiceWaitOn puts generatingText + the hourglass just before an element
+      // (a voiced line's words, or the Operator's own words), keyed by the voice
+      // file it waits for; voiceWaitEnd takes it away and shows the words - when
+      // that voice starts (voiceLitStart), or for all on "off" (voiceWaitsGone).
+      function voiceWaitOn(bubble, el, file) {
+        var wait = document.createElement("span");
+        wait.className = "voice-wait";
+        wait.appendChild(generatingGlass(bubble));
+        wait.appendChild(document.createTextNode(generatingText));
+        el.parentNode.insertBefore(wait, el);
+        el._wait = wait;
+        if (el._plain) { el.style.display = "none"; }
+        if (file) { voiceWaitFor[file] = el; }
+        voiceWaits.push(el);
+      }
       function voiceWaitEnd(say) {
         if (say && say._wait) { say._wait.remove(); say._wait = null; }
+        if (say && say._plain) { say.style.display = ""; }
         voiceWaits = voiceWaits.filter(function (x) { return x !== say; });
       }
       // "off": the voice failed - the waiting lines show their words.
       function voiceWaitsGone() {
-        voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); say.classList.add("spoken"); });
+        voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); if (!say._plain) { say.classList.add("spoken"); } });
       }
       function voiceLitLine(bubble, line, text) {
         line.textContent = "";
@@ -1944,18 +1983,12 @@
         var waits = lineWaits;
         lineWaits = false;
         if (restoringChat) { say.classList.add("spoken"); return; }
+        // Skipping the reporters' lines: shown whole, not waited on.
+        if (skippingReporters) { say.classList.add("spoken"); bubble.classList.add("voice-lit"); return; }
         bubble.classList.add("voice-lit");
         voiceLitNext = say;
         // message0 until its voice plays: "Generating..." and the hourglass.
-        if (waits) {
-          var wait = document.createElement("span");
-          wait.className = "voice-wait";
-          wait.appendChild(generatingGlass(bubble));
-          wait.appendChild(document.createTextNode(generatingText));
-          line.insertBefore(wait, say);
-          say._wait = wait;
-          voiceWaits.push(say);
-        }
+        if (waits) { voiceWaitOn(bubble, say, typeof waits === "string" ? waits : ""); }
         var shownAt = 0;
         (function showAnyway() {
           if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
@@ -1972,9 +2005,15 @@
         })();
       }
       // Its voice starts: the words revealed across seconds, then said.
-      function voiceLitStart(seconds, words) {
-        var say = voiceLitNext && voiceLitNext.isConnected ? voiceLitNext : null;
-        voiceLitNext = null;
+      function voiceLitStart(seconds, words, src) {
+        // The line waiting for this very voice file, else the line shown last.
+        var path = String(src || "").replace(/#.*$/, "").replace(/^https?:\/\/[^/]+/, "");
+        var own = path && voiceWaitFor[path];
+        if (own) { delete voiceWaitFor[path]; }
+        // The Operator's own words: shown as the voice starts, not lit.
+        if (own && own._plain) { voiceWaitEnd(own); return null; }
+        var say = own && own.isConnected ? own : (voiceLitNext && voiceLitNext.isConnected ? voiceLitNext : null);
+        if (!own || say === voiceLitNext) { voiceLitNext = null; }
         voiceWaitEnd(say);
         if (!say || say.classList.contains("spoken")) { return null; }
         if (!(seconds > 0)) { seconds = Math.max(1, sayWords(say.textContent).length * (wordReveal.seconds_per_word || 0.38)); }
@@ -3145,18 +3184,15 @@
       }
       // The Operator's own bubble is its slot ("op"): waiting while its voice
       // is made, its words back as the voice plays (or fails: "off").
-      var opGenerating = null;
-      function operatorGenerating() {
+      function operatorGenerating(file) {
         var own = container.querySelectorAll(".brobot-bubble[data-own='1']");
         var bubble = own.length ? own[own.length - 1] : null;
         if (!bubble) { return; }
-        operatorGenerated();
-        if (slotWaiting(bubble)) { opGenerating = bubble; }
-      }
-      function operatorGenerated() {
-        var bubble = opGenerating;
-        opGenerating = null;
-        if (bubble) { slotReady(bubble); bubble.classList.remove("ready"); }
+        var texts = bubble.querySelectorAll(":scope > .brobot-bubble-text");
+        var el = texts.length ? texts[texts.length - 1] : null;
+        if (!el || el._wait) { return; }
+        el._plain = true;
+        voiceWaitOn(bubble, el, file);
       }
       document.addEventListener("pointerdown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
       document.addEventListener("keydown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
@@ -3404,8 +3440,7 @@
               return;
             }
             audio.volume = chatLevel(audio._share * audioLevel(audio.src));
-            // The Operator line's voice: its words come back as it plays.
-            operatorGenerated();
+            // The Operator line's voice: its words come back as it plays (voiceLitStart).
             // 2026-10-17 (survey E2: a 60 s cap, set before the up-to-126 s wait
             // for its bubble, let the queue move on while this voice could still
             // start later, out of order): the cap starts when it plays - its own
@@ -3414,7 +3449,7 @@
             var capMs = isFinite(audio.duration) && audio.duration > 0 ? audio.duration * 1000 + 5000 : 60000;
             setTimeout(finish, capMs);
             // A reporter's or Goverlord's line lights with its voice (voiceLitStart).
-            if (!pooled && voiceLitNext) { litDone = voiceLitStart(audio.duration, audio._words); }
+            if (!pooled && (voiceLitNext || voiceWaitFor[String(src).replace(/#.*$/, "")])) { litDone = voiceLitStart(audio.duration, audio._words, src); }
             audio.play().catch(skip);
           })();
         } catch (err) { skip(); }
@@ -3428,7 +3463,13 @@
       // so Wire-Pod and the songs go on as if they'd played. The managers
       // (CHALK, PLAYHEAD) and the Brobots are never skipped.
       var skippingReporters = false, voicePlaying = null;
-      function skipReporters() {
+      function skipReporters(how) {
+        // 2026-10-21 (operator: "add to logging * skipped [input] (Esc, numpad, mic, typed)").
+        fetch("/api-sdk/gopod_page_note", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "note=" + encodeURIComponent("skipped (" + (how || "Esc") + ")")
+        }).catch(function () { /* Wire-Pod not up */ });
         skippingReporters = true;
         if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
       }
@@ -3436,15 +3477,21 @@
         if (!skippingReporters) { return false; }
         var t = String(e.text);
         if (e.who === reporterRole) {
+          if (t.indexOf("skip:") === 0) { return false; }
           if (heardMarker && t.indexOf(heardMarker) === 0) { return false; }
           if (t.trim() === openingEndText) { skippingReporters = false; return false; }
           return /\.wav(#vol=[0-9.]+)?$/.test(t); // a voice (or sting) in the stretch
         }
-        if (hostNames[e.who] && !managerHosts[e.who]) { return true; }
+        // 2026-10-20 (operator: "upon 'Esc' or skip * display all bubbles (in
+        // the opener it'd be showing all the reporter lines) first, then llm
+        // ready"): a skipped reporter line still shows, all its words at once.
+        if (hostNames[e.who] && !managerHosts[e.who]) { return false; }
         skippingReporters = false;
         return false;
       }
       function showFeedEvent(e, done) {
+        // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
+        if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) { skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } done(); return; }
         if (skippedEvent(e)) { done(); return; }
         // A held rattle timer gives its place to the next bubble (voices aren't bubbles).
         if (countdownDoneAt && e.who !== reporterRole && e.who !== countdownRole && e.who !== songAudioRole) {
@@ -3511,8 +3558,8 @@
           }
           if (generatingMarker && String(e.text).indexOf(generatingMarker) === 0) {
             var genKind = String(e.text).slice(generatingMarker.length);
-            if (genKind === "op") { operatorGenerating(); done(); return; }
-            if (genKind === "off") { operatorGenerated(); voiceWaitsGone(); }
+            if (genKind.indexOf("op") === 0) { operatorGenerating(genKind.slice(3)); done(); return; }
+            if (genKind === "off") { voiceWaitsGone(); }
             generatingGone();
             done();
             return;
@@ -3549,6 +3596,9 @@
         if (generatingMarker && String(e.text).indexOf(generatingMarker + "wait:") === 0) {
           e.text = String(e.text).slice((generatingMarker + "wait:").length);
           lineWaits = true;
+          // "wait:<voice file>|text": this line's own voice (2026-10-21).
+          var bar = e.text.indexOf("|");
+          if (bar > 0 && e.text.charAt(0) === "/") { lineWaits = e.text.slice(0, bar); e.text = e.text.slice(bar + 1); }
         }
         if (e.who !== systemRole && e.who !== scoreRole && !hostNames[e.who]) { generatingGone(); }
         if (e.who === countdownRole) {
@@ -3562,7 +3612,8 @@
         // Brain\" * \"Reporter 0\" is a decoration label"): one header for them all.
         else if (e.who === systemRole) { showScore(e.text); }
         else if (e.who === terminalRole) { showTerminal(e.text); }
-        else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text); }
+        else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to); }
+        else if (e.who === pictureRole && String(e.text).indexOf("eggsum:") === 0) { eggSummary(e.to, String(e.text).slice(7)); }
         else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to); }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
@@ -4040,7 +4091,7 @@
         }
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble operator system-status";
-        bubble.appendChild(numpadTo ? operatorHead(numpadTo, "Numpad", "") : displayHead(bubble));
+        bubble.appendChild(numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel));
         var textEl = document.createElement("span");
         textEl.className = "brobot-bubble-text";
         textEl.textContent = text;
@@ -4189,7 +4240,7 @@
             item.appendChild(about);
             item.addEventListener("click", function () {
               if (it.page === "usb") { usbPanel(); return; }
-              if (it.page === "skip") { skipReporters(); return; }
+              if (it.page === "skip") { skipReporters("menu"); return; }
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
@@ -4306,6 +4357,25 @@
       // a picture row (not an egg) goes in the menu's results while it's open.
       // Review: only a system command's row ("menu:", gopodMenuPictureMark) goes
       // there - a song's or a topic's pictures stay in the chat.
+      // 2026-10-21 (operator: "upon 1st reveal, easter egg bubble outside brobots
+      // bubble + summary inside brobots window * upon more same egg reveals,
+      // summary in brobots bubble only"): a found egg's summary - its title and a
+      // line - at the top of the answering Brobot's bubble, small type.
+      function eggSummary(to, text) {
+        if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }
+        var bar = text.indexOf("|");
+        var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
+        var shell = nestShell(to);
+        var box = document.createElement("div");
+        box.className = "brobot-bubble operator system-status nested-host egg-summary";
+        box.appendChild(systemHead("Easter Egg '" + title + "'"));
+        var words = document.createElement("span");
+        words.className = "brobot-bubble-text egg-summary-text";
+        words.textContent = line;
+        box.appendChild(words);
+        var reply = shell.querySelector(":scope > .brobot-bubble-text");
+        if (reply) { shell.insertBefore(box, reply); } else { shell.appendChild(box); }
+      }
       function menuPictures(list) {
         var results = systemMenuResults();
         if (!results || String(list).indexOf("menu:") !== 0) { return false; }
@@ -4443,6 +4513,12 @@
         if (numpadKey && !ev.repeat) { numpadKeySound(); }
         if (ev.code === "NumLock") {
           if (!ev.repeat) { numpadExitTap(ev.code); }
+          return;
+        }
+        // 2026-10-20 (operator: "upon numpad's '*' input, obey same as 'Esc' key press").
+        if (ev.code === "NumpadMultiply" && !typingInBox()) {
+          ev.preventDefault();
+          if (!ev.repeat) { skipReporters("numpad *"); }
           return;
         }
         // GOPOD VISUAL CONTROL (2026-10-20): KP+ next feed, KP- previous (visualTurn).

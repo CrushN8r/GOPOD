@@ -158,7 +158,9 @@ func gopodSearchShow(q string, got []gopodSearchResult) {
 	for _, r := range got {
 		lines = append(lines, strings.TrimSpace(r.Title+": "+r.Content))
 	}
-	GopodChatFeedAdd(role, strings.Join(lines, "\n"))
+	// 2026-10-21 (operator: "'search ...' results * PLAYHEAD's bubble in brobot
+	// bubble * since not a direct call to the gomad"): to the Brobot answering.
+	GopodChatFeedAddTo(role, gopodManagerTo(), strings.Join(lines, "\n"))
 }
 
 // gopodSearchLine: the reply's opening line - the first result's first sentence.

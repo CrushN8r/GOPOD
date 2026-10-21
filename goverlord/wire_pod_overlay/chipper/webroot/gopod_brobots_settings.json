@@ -1165,6 +1165,16 @@
             "cmd": "system-tweaks on",
             "about": "then system-play uses the tuned values",
             "run": true
+          },
+          {
+            "cmd": "system-anim list",
+            "about": "the animation tokens",
+            "run": true
+          },
+          {
+            "cmd": "system-anim",
+            "about": "the animationWI tester (WIP): a token and words, e.g. angry with a count",
+            "fill": "system-anim {{playAnimationWI||angry}} wait 1, 2, 3, 4, 5, 6, 7, 8, 9, 0"
           }
         ],
         "next": "Play that part: system-play <song> from <step> to <step> (group 2)."

@@ -22,8 +22,21 @@ import (
 // A call that never gets a "done" line is the one the robot was stuck on.
 
 func gopodRobotCmdSend(robot *vector.Vector, what string) time.Time {
-	logger.Println("GOPOD_ROBOT_CMD " + gopodBrobotName(robot.Cfg.SerialNo) + " send " + what)
+	logger.Println("GOPOD_ROBOT_CMD " + gopodBrobotName(robot.Cfg.SerialNo) + " send " + what + gopodBatteryNote(robot.Cfg.SerialNo))
 	return time.Now()
+}
+
+// gopodBatteryNote (2026-10-21, operator: "with every robot log entry include
+// battery power level"): the Brobot's last battery reading (battery watch) and how
+// old it is, e.g. " [4.00 V, FULL, 2m ago]".
+func gopodBatteryNote(esn string) string {
+	gopodBatteryLast.Lock()
+	defer gopodBatteryLast.Unlock()
+	text, at := gopodBatteryLast.text[esn], gopodBatteryLast.at[esn]
+	if text == "" {
+		return " [battery: no reading yet]"
+	}
+	return fmt.Sprintf(" [%s, %s ago]", text, time.Since(at).Round(time.Minute))
 }
 
 func gopodRobotCmdDone(robot *vector.Vector, what string, sent time.Time, err error) {
@@ -31,6 +44,7 @@ func gopodRobotCmdDone(robot *vector.Vector, what string, sent time.Time, err er
 	if err != nil {
 		line += " err=" + err.Error()
 	}
+	line += gopodBatteryNote(robot.Cfg.SerialNo)
 	logger.Println(line)
 }
 

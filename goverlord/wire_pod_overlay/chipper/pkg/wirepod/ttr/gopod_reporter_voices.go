@@ -180,7 +180,11 @@ func gopodSayShown(host, to, text string) (string, float64, bool) {
 	_, _, made := gopodReporterCached(host, said)
 	waiting := !made && rv.GeneratingMarker != ""
 	if waiting {
-		gopodChatFeedAddEventVia(host, to, "", "", rv.GeneratingMarker+"wait:"+text)
+		// 2026-10-21 (operator: "Voice bubble generating + hours glass, is
+		// unstable"): the line names its voice file ("wait:<page>|text"), so the
+		// page ties that voice to this line - not to whichever line came last.
+		_, page := gopodReporterPaths(host, said)
+		gopodChatFeedAddEventVia(host, to, "", "", rv.GeneratingMarker+"wait:"+page+"|"+text)
 	}
 	page, seconds, ok := gopodReporterFile(host, says)
 	if !ok {
@@ -658,7 +662,9 @@ func gopodReporterReadsOperator(text, how, to string) {
 			// made yet - the page shows its Operator bubble generating.
 			if rv.GeneratingMarker != "" {
 				if _, _, made := gopodReporterCached(host, gopodReporterSays(text)); !made {
-					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"op")
+					// 2026-10-21: names its voice file, like every waiting line.
+					_, page := gopodReporterPaths(host, gopodReporterSays(text))
+					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"op:"+page)
 				}
 			}
 			gopodReporterSay(host, text, false, true)

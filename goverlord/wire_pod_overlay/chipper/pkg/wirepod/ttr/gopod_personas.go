@@ -61,10 +61,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	}
 	body, _ := json.Marshal(map[string]any{
 		"model": model, "stream": false,
-		"messages": []map[string]string{
-			{"role": "system", "content": gopodPersonaPrompt(host)},
-			{"role": "user", "content": text},
-		},
+		"messages": gopodPersonaMessages(host, text),
 		"options": map[string]any{"num_predict": 120},
 	})
 	client := &http.Client{Timeout: 60 * time.Second}
@@ -87,6 +84,20 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 		return "", errors.New("the language model said nothing")
 	}
 	return reply, nil
+}
+
+// gopodPersonaMessages (2026-10-21, operator: "a manager is still a participant
+// in the chat, so yes to context is required, so yes to chat history access"):
+// the persona's prompt, the Brobots' shared chat (the same recent exchanges the
+// Brobots answer from), then the line.
+func gopodPersonaMessages(host, text string) []map[string]string {
+	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPrompt(host)}}
+	for _, m := range gopodSharedBrobotChat() {
+		if c := strings.TrimSpace(m.Content); c != "" && (m.Role == "user" || m.Role == "assistant") {
+			msgs = append(msgs, map[string]string{"role": m.Role, "content": c})
+		}
+	}
+	return append(msgs, map[string]string{"role": "user", "content": text})
 }
 
 // gopodPersonaReply: the operator's line to a persona, and its answer.
