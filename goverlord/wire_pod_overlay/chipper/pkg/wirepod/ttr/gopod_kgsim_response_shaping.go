@@ -706,10 +706,10 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 		}
 	}
 	// 2026-10-06: a point's exact line comes first (gopodSayLine, gopod_value_points.go).
-	if at == "start" {
-		if line := gopodSayLine(esn); line != "" {
-			return line
-		}
+	// 2026-10-22: it's the answer chain's colour:value_point part now; with
+	// one, no flavour start line (still one start line at most).
+	if at == "start" && gopodSayLine(esn) != "" {
+		return ""
 	}
 	loaded := map[string]bool{}
 	for _, packet := range loadScenarioPacketsForMessage(userMessage) {

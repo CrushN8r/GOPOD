@@ -1266,6 +1266,7 @@
               hostLabels = settings.reporter_voices.labels || hostLabels;
               displayNames = settings.display_names || displayNames;
               if (settings.skip_gate) { skipGate.enable_on = settings.skip_gate.enable_on || []; }
+              if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
               heardMarker = settings.reporter_voices.heard_marker || heardMarker;
               generatingMarker = settings.reporter_voices.generating_marker || generatingMarker;
@@ -2613,13 +2614,36 @@
           });
         }
       }
+      // 2026-10-22 (operator: "Goverlord orchestrates * Gomads do most of the
+      // thinking * Gominions do with little to no thinking * There should be 5
+      // bubbles essentially now"): every bubble in the chat gets its kind
+      // (bubble_kinds.rules, first match: operator, gominion, other, gomad,
+      // goverlord) as data-tier; one with none is logged as a loose chain.
+      var bubbleKinds = [], untaggedSeen = {};
+      function tagBubbleKind(node) {
+        if (!node || !node.classList || !node.classList.contains("brobot-bubble") || !bubbleKinds.length) { return; }
+        var kind = "";
+        for (var i = 0; i < bubbleKinds.length && !kind; i++) {
+          var r = bubbleKinds[i];
+          (r.has || []).forEach(function (c) {
+            if (kind) { return; }
+            if (c === "[own]" ? node.dataset.own === "1" : node.classList.contains(c)) { kind = r.kind; }
+          });
+        }
+        if (kind) { node.dataset.tier = kind; return; }
+        var sig = node.className;
+        if (untaggedSeen[sig]) { return; }
+        untaggedSeen[sig] = true;
+        fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "note=" + encodeURIComponent("GOPOD_CHECK bubble without a kind (loose chain): " + sig) }).catch(function () {});
+      }
       function addQrCodesToAll() {
         Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble"), addQrCodes);
       }
       if (container) {
         new MutationObserver(function (changes) {
           changes.forEach(function (change) {
-            Array.prototype.forEach.call(change.addedNodes, function (node) { addQrCodes(node); addWeatherFace(node); });
+            Array.prototype.forEach.call(change.addedNodes, function (node) { addQrCodes(node); addWeatherFace(node); tagBubbleKind(node); });
           });
         }).observe(container, { childList: true });
       }

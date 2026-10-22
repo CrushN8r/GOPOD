@@ -352,6 +352,10 @@ type gopodBrobotsSettingsFile struct {
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
+	// 2026-10-22: the colour slots' cap (gopod_answer_chain.go).
+	ColourSlots struct {
+		MaxSentences int `json:"max_sentences"`
+	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
 	PrebuildContext struct {
 		Header string   `json:"header"`

@@ -935,6 +935,8 @@ copy (`{"from": "base"}`) or its own list of parts.
 | `weather_kit` | stitch | the follow-up's weather kit link (`live_weather.follow_up_kit_line`) |
 | `end_snippet` | stitch | "Hey, that reminds me..." and other end lines |
 | `redirect` | stitch | the first answer in a line to both hands over (`host_personas.handover`, else `addressing.redirect_text`) |
+| `colour:value_point` | stitch | 2026-10-22: a value point's exact line (its say line) first, word for word; the model's part after it is its colour, cut to `colour_slots.max_sentences` (4), even with `budget_off` |
+| `reminder` | stitch | 2026-10-22: a free answer (no value point given) always ends with "Hey, that reminds me..." (the next points on the list); then no other end line |
 | `who_line` | answer | a manager's own who line, word for word (`managers.who_words`) |
 | `manager_take` | answer | a manager's take (weather, time and place) |
 
@@ -1755,6 +1757,13 @@ line. (`gopodEggSummaryPost`; the bubble notice template: `gopodBubbleNotice`, p
 question only when the answer is done; the page puts it above that Brobot's open bubble when the
 bubble was made after the question (`dataset.asked`, `operatorSeq`), as it already did for an egg
 pop-up.
+
+**The 5 bubble kinds** (2026-10-22, `bubble_kinds`, page `tagBubbleKind`): Goverlord
+orchestrates, gomads think, gominions do. Every bubble in the chat gets one kind as `data-tier`
+- operator (input), goverlord (system), gomad (CHALK, PLAYHEAD - inside a Brobot's notice unless
+called directly), gominion (Brobot 1 and 2 and their output), other (eggs, pictures, chapters,
+countdown, narrator) - by its classes, the first rule that matches. A bubble with no kind is
+logged once: "GOPOD_CHECK bubble without a kind (loose chain)".
 
 **Names, three layers** (2026-10-22): base = the robot by ESN; Wire-Pod = Brobot N; GOPOD = the
 persona name, a chat participant. Brobot 1/2 -> Doc / Pip (to be); Reporter 1/2 (no robot) ->

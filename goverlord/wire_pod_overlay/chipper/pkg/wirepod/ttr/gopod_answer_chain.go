@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -41,6 +42,19 @@ func gopodAnswerChain(group string) []string {
 		group = c.From
 	}
 	return nil
+}
+
+// gopodReminderSaid: the reminder part ended this answer (esn -> true).
+var gopodReminderSaid sync.Map
+
+// gopodChainHas: this Brobot's group for this answer has the part.
+func gopodChainHas(esn, part string) bool {
+	for _, p := range gopodAnswerChain(gopodBrobotChainGroup(esn)) {
+		if p == part {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodBrobotChainGroup: the Brobots' group for this answer.
@@ -87,13 +101,38 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			logger.Println("BROBOT_SCRIPTED_SNIPPET=" + snippet)
 			return gopodStitchSnippet(snippet, raw)
 		}
+	case "colour:value_point":
+		// 2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 3; operator: "set cap from 5
+		// sentences to 4 sentences"): the point's exact line (its say line), said
+		// word for word first; the model's part after it is its colour, cut to
+		// colour_slots.max_sentences (gopodTightenReply).
+		if line := gopodSayLine(esn); line != "" {
+			logger.Println("BROBOT_COLOUR_SLOT value_point: " + line)
+			return gopodStitchSnippet(line, raw)
+		}
 	case "weather_kit":
 		// live_weather.follow_up_kit_line: the follow-up's weather kit link, its own thought.
 		if line := strings.TrimSpace(gopodBrobotsSettings.LiveWeather.FollowUpKitLine); line != "" && gopodIsFollowingUp(esn) &&
 			gopodHasWholeWords(strings.ToLower(question), "weather") {
 			return strings.TrimSpace(raw) + gopodThoughtGap() + line
 		}
+	case "reminder":
+		// 2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 4; operator: "Every answer
+		// steers back to the money"): a free answer (no value point given) ends
+		// with "Hey, that reminds me..." - the next points still on the list -
+		// always; then no other end line (end_snippet).
+		if len(gopodGivenPoints(esn)) == 0 && !gopodIsFollowingUp(esn) && !gopodIsThanks(question) {
+			if line := gopodReminderLine(question); line != "" && !gopodBrotherSaid(esn, line) {
+				logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + ": " + line)
+				gopodReminderSaid.Store(esn, true)
+				return gopodStitchEndSnippet(line, raw)
+			}
+		}
 	case "end_snippet":
+		// One end line: none after the reminder part's.
+		if _, said := gopodReminderSaid.LoadAndDelete(esn); said {
+			return raw
+		}
 		// A follow-up doesn't end with his brother's end line.
 		if snippet := gopodScriptedSnippet(esn, question, "end", raw); snippet != "" && !gopodBrotherSaid(esn, snippet) {
 			logger.Println("BROBOT_SCRIPTED_SNIPPET_END=" + snippet)

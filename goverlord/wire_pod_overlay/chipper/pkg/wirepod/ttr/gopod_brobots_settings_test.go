@@ -582,8 +582,12 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	say := gopodBrobotsSettings.ValuePoints.SayLines
 	ask := "Brobot 1, what's Doc's full name?"
 	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
-	if got := gopodScriptedSnippet(gopodBrobot1ESN, ask, "start", ""); got != say["doc_and_pip 1"] {
+	// 2026-10-22: said by the answer chain's colour:value_point part.
+	if got := gopodSayLine(gopodBrobot1ESN); got != say["doc_and_pip 1"] {
 		t.Errorf("point 1: %q", got)
+	}
+	if got := gopodChainStitch("colour:value_point", gopodBrobot1ESN, ask, "his colour.", true); !strings.Contains(got, say["doc_and_pip 1"]) {
+		t.Errorf("colour:value_point didn't say point 1: %q", got)
 	}
 	if got := gopodSayLine(gopodBrobot2ESN); got != "" {
 		t.Errorf("the other Brobot got a say line: %q", got)

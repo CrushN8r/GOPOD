@@ -406,6 +406,16 @@
       "How to best answer: {steps}."
     ]
   },
+  "bubble_kinds": {
+    "about": "2026-10-22 (operator: \"Goverlord orchestrates * Gomads do most of the thinking * Gominions do with little to no thinking * There is a chain of command * There should be 5 bubbles essentially now: 1) Operator: input 2) Goverlord: System 3) Gomads: Managers help & are chat participants - unless called upon directly, gomads manage within a brobot bubble notice-bubble 4) Gominions: Performing brobots + output 5) Other: easter eggs, etc...\"): every bubble in the chat gets one kind (data-tier), by its classes - the first rule that matches ([own] = the operator's own line). One with no kind is logged once (GOPOD_CHECK bubble without a kind) - a loose chain to place. Page only: F5.",
+    "rules": [
+      {"kind": "operator", "has": ["[own]"]},
+      {"kind": "gominion", "has": ["brobot-1", "brobot-2"]},
+      {"kind": "other", "has": ["narrator", "countdown", "chapter", "pictures", "popup-winner", "egg"]},
+      {"kind": "gomad", "has": ["host", "search-results", "chalk-qr"]},
+      {"kind": "goverlord", "has": ["score", "terminal", "warmup", "system-menu-host", "system-status"]}
+    ]
+  },
   "skip_gate": {
     "about": "2026-10-22 (operator: \"skip is set to disabled * only upon voices ready can skip be enabled * upon skipped, 'skip' skip is set to disabled * otherwise template this everywhere\"): every skip (Esc, numpad *, the menu's skip, typed or spoken \"skip\") goes through this gate - off until a warm-up line starting with one of enable_on shows (every warm-up song's \"Voices ready.\", the opener's too), off again once used. A skip while off does nothing (logged: skip ignored). Page only: F5.",
     "enable_on": ["Voices ready."]
@@ -813,8 +823,13 @@
     "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
   },
   "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
+  "colour_slots": {
+    "about": "2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 3; operator: \"set cap from 5 sentences to 4 sentences\"): colour:value_point in answer_chains - a value point's exact line (its topic's say N: line) said word for word first, the model's part after it its colour, cut to max_sentences (even with reply_tighten.budget_off). Doc and Pip colour it their own way (host_personas).",
+    "max_sentences": 4,
+    "reminder_about": "2026-10-22 (step 4; operator: \"Every answer steers back to the money\"): the answer chain's reminder part - a free answer (no value point given, not a thank-you, not a follow-up) always ends with value_points.reminder_topics_text (\"Hey, that reminds me...\"), then no other end line."
+  },
   "answer_chains": {
-    "base": {"parts": ["start_snippet", "llm", "weather_kit", "end_snippet", "redirect"]},
+    "base": {"parts": ["start_snippet", "colour:value_point", "llm", "weather_kit", "reminder", "end_snippet", "redirect"]},
     "brobots": {"from": "base"},
     "brobots_follow_up": {"from": "base"},
     "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}

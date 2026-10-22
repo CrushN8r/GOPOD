@@ -124,6 +124,10 @@ func gopodTightenReply(reply, question, esn string) string {
 	if t.BudgetOff {
 		budget = 0
 	}
+	// 2026-10-22: a colour slot's colour is capped all the same (colour_slots).
+	if c := gopodBrobotsSettings.ColourSlots.MaxSentences; c > 0 && gopodSayLine(esn) != "" && gopodChainHas(esn, "colour:value_point") && (budget == 0 || budget > c) {
+		budget = c
+	}
 	if budget > 0 {
 		body = gopodFirstSentences(body, budget)
 	}
