@@ -47,6 +47,8 @@ three parts. Part 1 is the alias play studio, part 2 the chat page, part 3 the o
 Each part lists what you need, what to copy, what to change, and how to know it works. How songs are built, note by
 note, is in [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md).
 
+**GOPOD not tested on other devices or set ups. Back up your stuff and attempt at your own risk.**
+
 ## The rig
 
 ![Inside the top crate](goverlord/wire_pod_overlay/chipper/webroot/pictures/rig_crate_inside.jpg)

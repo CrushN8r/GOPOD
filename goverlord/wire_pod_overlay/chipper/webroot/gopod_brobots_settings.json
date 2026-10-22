@@ -361,9 +361,10 @@
     "speaking_max_ms": 30000
   },
   "managers": {
+    "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
     "about": "CHALK and PLAYHEAD, the managers (operator 2026-10-18: \"CHALK & PLAYHEAD can take over system commands * KP1, what's the weather * 'weather' detected * CHALK says, I'll help you with that, and takes over the request * after I can still ask the brobots about the weather and other system results in the chat * they get the same thought bubbles\"; then \"PLAYHEAD * he now takes over 'time & location' stuff * WAWN, where are we now? * weather * his bubble background is tape ribbon color of vintage video tape cassettes\"; \"CHALK (display) now is to take ownership of: search-results box (same smaller size, no audio) * system-status and the other system bubbles * hidden/surprise egg cards\"). takes: in the live chat, a line with one of a take's words - its host (a reporter_voices host, its own colour) says take_text, then does its kind: weather (the weather line; no egg since 2026-10-18) or time_place (time_place_text: {place} {weekday} {date} {clock}). The Brobots still get the facts in their prompt, but don't open their reply with the weather for release_seconds. display_host: CHALK draws the search results, the system bubbles (system-* answers, Wire-Pod intent, numpad status) and the surprise eggs on its chalkboard. gopod_managers.go.",
     "takes": [
-      {"host": "PLAYHEAD", "kind": "weather", "words": ["weather"], "take_text": "I'll help you with that."},
+      {"host": "PLAYHEAD", "kind": "weather", "words": ["weather"], "take_text": "I'll help you with that.", "brobot_says": true},
       {"host": "PLAYHEAD", "kind": "url_qr", "words": [], "take_text": "I can help with that. QR code generated."},
       {"host": "PLAYHEAD", "kind": "time_place", "words": ["what time", "time is it", "where are we", "wawn", "what day is it", "what's the date", "what is the date", "today's date"], "take_text": "I'll help you with that."}
     ],
@@ -374,7 +375,7 @@
     "qr_display_text_about": "2026-10-18 (operator: \"CHALK BUBBLE === I can help with that. QR code displayed. [live generated QR for url]\"): after the Brobot's answer, CHALK (display_host) says this and shows PLAYHEAD's QR - at the bottom of his bubble for a line to him, in her own bubble otherwise.",
     "qr_display_text": "I can help with that. QR code displayed.",
     "qr_note": "A QR code for {url} is shown in your bubble - you can tell them to scan the QR code.",
-    "personas_about": "The reporters' live personas (operator 2026-10-18: \"Shared reporters persona = scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD live chat personas\"; \"KP7/8, Who are you?\" - his words, in each prompt). A voice-only key in the persona map (KP7, KP8) talks to its persona: the operator's line, then the persona's answer from the language model - prompt, then lines_note and its reporter's scripted lines (reporter_voices opening/closing) as the style - said in host's voice, in host's bubble. gopod_personas.go.",
+    "personas_about": "The reporters' live personas (operator 2026-10-18: \"Shared reporters persona = scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD live chat personas\"; \"KP7/8, Who are you?\" - his words, in each prompt). A voice-only key in the persona map (KP7, KP8) talks to its persona: the operator's line, then the persona's answer from the language model - prompt, then lines_note and its reporter's scripted lines (reporter_voices opening/closing) as the style - said in host's voice, in host's bubble. gopod_personas.go. 2026-10-21: their banter and stereo dial are in host_pairs, their persona shape in host_personas.",
     "who_words_about": "A line to a persona with one of these gets its who_line, word for word (the operator's own words), not the language model's.",
     "who_words": ["who are you", "who r u", "introduce yourself", "who is this", "your name"],
     "personas": {
@@ -394,10 +395,54 @@
       }
     }
   },
+  "prebuild_context": {
+    "about": "2026-10-22 (operator: \"brobot gets an input * pre-build context: I am brobt N. My role is a GOPOD rep. I have a reminders-list to go through. What was asked of me? How to best answer? * build the answer-chain accordingly, in manageable chunks for the llm\"; ID_SELF_SWARM_AWARENESS_001.md): every Brobot answer's prompt gets this section, after his facts, nearest the question. {brobot} Brobot N, {host} Doc / Pip, {reminders} the topics and eggs still on his list (the same as his \"Hey, that reminds me\" line), {question} what was asked, {steps} his own steps (host_personas). A line whose token is empty is left out. Empty header = off.",
+    "header": "BEFORE I ANSWER:",
+    "lines": [
+      "I am {brobot} ({host}).",
+      "My role is a GOPOD rep.",
+      "I have a reminders-list to go through: {reminders}.",
+      "What was asked of me: \"{question}\"",
+      "How to best answer: {steps}."
+    ]
+  },
+  "skip_gate": {
+    "about": "2026-10-22 (operator: \"skip is set to disabled * only upon voices ready can skip be enabled * upon skipped, 'skip' skip is set to disabled * otherwise template this everywhere\"): every skip (Esc, numpad *, the menu's skip, typed or spoken \"skip\") goes through this gate - off until a warm-up line starting with one of enable_on shows (every warm-up song's \"Voices ready.\", the opener's too), off again once used. A skip while off does nothing (logged: skip ignored). Page only: F5.",
+    "enable_on": ["Voices ready."]
+  },
+  "display_names": {
+    "about": "2026-10-22 (operator: \"base = robot by ESN * wired-pod = brobots (Brobot N) * GOPOD = persona-name and chat participant\"; \"Look at the numpad mapping as a temporary source of golden truth * brobots 3/4 should really be brobots 7/8, as per numpad\"; \"a bubble's header in a scripted run should have what values? default (CHALK), fallback (Brobot 7), remembered edits (CHALK BORED)? * editable\"): the header template for the reporters' and managers' bubbles in the chat - edits (a remembered edit, by its default name: system-add display_names.edits CHALK = CHALK BORED), else default (the GOPOD persona), else fallback ({n} = the numpad key whose persona it is: KP7 CHALK = Brobot 7), else reporter_voices.labels. Scripts keep their own names (Reporter 1/2); the chat shows these. Page only: F5.",
+    "default": {"Brobot 3": "CHALK", "Brobot 4": "PLAYHEAD", "CHALK": "CHALK", "PLAYHEAD": "PLAYHEAD"},
+    "fallback": "Brobot {n}",
+    "edits": {}
+  },
+  "brobot_bubble": {
+    "about": "2026-10-22 (operator: \"TEMPLATE IT ALL OUT!!\"): GOLDEN - the Brobot Bubble, one shape for every live answer, Brobot 1 and 2 alike, in this order. header: \"Brobot N:\" (+ the zoomable weather picture top right, its sound again on a click after its first play). got_it: he says chat_moves.thinking_text - notice line 1. value_points: notice line 2 (bubble_notices.value_points: points, search, none). manager: notice line 3 - a manager whose take his line asks for (managers.takes, native.to_manager) steps in now, while his answer is written; his searching waits; the manager's line uses the Generating template; a take with brobot_says leaves the result to him. thanks: notice line 4 - after a manager, he says got_it_again (\"Thanks for your help, {helper}.\"). reply: his answer-chained reply (answer_chains; a weather question opens with the golden weather line). A step left out of steps is skipped (manager, thanks); got_it, value_points and reply always run.",
+    "steps": ["header", "got_it", "value_points", "manager", "thanks", "reply"]
+  },
+  "bubble_notices": {
+    "about": "2026-10-22 (operator: \"make standard, the Notice-bubble inside a Brobot's bubble\"; \"template out what goes in a notice-bubble\"): what goes in each notice at the top of a Brobot's bubble (the bubble notice template, gopodBubbleNotice: a title, then its lines, each on its own row; a notice with the same title takes more lines underneath). value_points: every live Brobot answer - what his answer is built from, that the GOPOD reps are hired to reveal - its parts in this order: points (one per value point given: {id} topic#n, {words}), weather ({line}), search ({search}), none (no value point), got_it ({thinking_text} = chat_moves.thinking_text, added once he has said it). egg: a found egg ({title}, {summary}). native_intent: a native Wire-Pod intent ({intent}). An empty title = that notice is off; a part left out of parts isn't shown.",
+    "value_points": {
+      "title": "Value Points",
+      "log_about": "2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
+      "parts": ["got_it", "points", "search", "none"],
+      "got_it": "{thinking_text}",
+      "points": "{topic} #{n}: {words}",
+      "weather": "Weather: {line}",
+      "search": "Web search: {search}",
+      "none": "No value point - a quick take, then back to GOPOD.",
+      "got_it_again": "Thanks for your help, {helper}.",
+      "helper_from_about": "2026-10-22 (operator: \"Use gomad name ('Thanks for your help, PLAYHEAD.') * if no name available, fallback to brobot N * template this\"): where {helper} comes from, first that has one: name (the manager's own name, PLAYHEAD / CHALK), brobot (its Brobot, managers.personas reporter: Brobot 4 / Brobot 3).",
+      "helper_from": ["name", "brobot"],
+      "second_got_it": "after_manager"
+    },
+    "egg": {"title": "Easter Egg '{title}'", "line": "{summary}"},
+    "native_intent": {"title": "Native Wire-Pod Intent Detected", "line": "{intent}"}
+  },
   "native_intent": {
     "about": "2026-10-18 (operator: \"\\\"Who am I\\\" (Backpack to Brobot 1) show a generic silent system bubble: wire-pod intent activated\"): a native Wire-Pod intent sent to a Brobot (his own answer - Wire-Pod doesn't know his words) shows text in a silent bubble of role, once per once_seconds (gopodNativeBubble, gopod_native.go). Not for Wire-Pod's system intents (no audio, unmatched).",
+    "notice_about": "2026-10-21 (operator: \"Same as message inside a brobot chat bubble: Easter Egg 'What GOPOD is' ... add similar Native wire-pod Intent Detected * Template it\"): now a notice inside that Brobot's bubble - its words are bubble_notices.native_intent; typed cube commands too. role and text are no longer used.",
     "role": "Terminal",
-    "text": "Wire-Pod intent activated.",
     "once_seconds": 3
   },
   "page_sync": {
@@ -417,7 +462,7 @@
   "background_loop": {
     "about": "2026-10-13 (operator: \"a 6s loop * I want to run the loop in the background very quiet, try 10% volume * keyboard line record/session clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s\"): the chat page plays file (from the overlay's sounds/, copied to the page's voice folder at Wire-Pod's start) over and over with no gap, at volume (0-1), starting again from its top each time the session clock resets to 00:00:00. Empty file: off. 2026-10-17 (the master): volume is a percentage of chat_audio.volume - 0.05 on its own was 14% of 0.35.",
     "file": "BrobotsGroove-Loop-1.wav",
-    "volume": "14%"
+    "volume": "10%"
   },
   "word_animations": {
     "about": "The animation a spoken piece picks from its words (gopod_word_animations.go; animation_vocab.json's aliases: \"party\" -> celebrate, \"mad\" -> angry). Operator 2026-10-09: \"its a joke/play on words, so the emotion should reflect that\": a piece holding one of play_on_words (whole phrase, any case) gets play_on_words_animation instead. swap: an animation to replace with another in chat speech (empty: angry stays - operator 2026-10-09: \"angry worked fine for many runs * keep it, just allow more time between animations\", see chat_moves.animation_gap_seconds). Live and scripted answers both. Needs wpr 2.",
@@ -444,7 +489,9 @@
   "native": {
     "about": "Wire-Pod's own (native) voice answers - \"Hey Vector, what time is it\", the weather, volume and the rest of Wire-Pod's intent list (operator 2026-10-10: \"Native “Hey Vector” answers during a run ... Native?[] makes this optional ... Change Wire-Pod's code if need be\"; gopod_native.go, plus a gate in Wire-Pod's own matchIntentSend.go). The chat page's Native? box turns them on or off for the session; on_at_start is the state at Wire-Pod's start. During a run they are always off (session: a run owns the Brobots). Off: a phrase that matches a native intent gets Wire-Pod's quiet ending instead. GOPOD's voice commands and chat questions are not native and always get through. always_on: native intents that answer even when off (Wire-Pod intent names, e.g. intent_imperative_volumelevel_extend).",
     "on_at_start": true,
-    "always_on": ["intent_names_ask"]
+    "always_on": ["intent_names_ask"],
+    "to_manager_about": "2026-10-21 (operator: \"weather goes to PLAYHEAD instead\"): a native intent here goes to the chat instead of Wire-Pod's own answer, and its manager take (managers.takes kind) takes it - spoken weather goes to PLAYHEAD, the same as a typed one. 2026-10-22 (operator: yes to \"what time is it\" to PLAYHEAD too): the clock too.",
+    "to_manager": {"intent_weather_extend": "weather", "intent_clock_time": "time_place"}
   },
   "session": {
     "about": "GOLDEN - the session and its runs (operator 2026-10-10: \"There is the wire-pod session (wpr 2 until next wpr 2) * Goverlord is the wpr-session orchestrator\"; \"drop, yes, and one pass\"; gopod_session.go, ALIAS-PLAY-STUDIO.md \"The session\"). Goverlord keeps the one record of the session's phase (warming, ready, run) and the run going. One run at a time: the draft (start interview), the song engine (start bingo test, start baby brobots, pha0b live) and phcal live all check in and out with Goverlord (/api-sdk/gopod_run). A second start while a run is going gets busy_text. While a run is going it owns the Brobots: no chat hold, no live LLM answers; only stop run, thanks, Record Session's answer and the draft's own lines get through - anything else gets run_gate_text (at most every 5 s) and is dropped. A run that was stopped says stopped_text. A run whose process is gone without checking out is cleared.",
@@ -507,8 +554,14 @@
     "error_sound": {"file": "/gopod_reporter_audio/grunge.wav", "volume": "15%"},
     "error_texts_about": "2026-10-18 (operator: \"\\\"Too short - hold KP1 for at least 1 s\\\" = error = grunge audio plays * not live yet key press = error = grunge audio plays\"): the texts that are errors - each plays error_sound when shown.",
     "mic_check_about": "2026-10-20 (operator: \"if no mic or other expected devices not found * after llm ready run fully completes * Goverlord knows to send out a mic missing message & disable the input only, so numpad works as dry run with no mic * keep all same messages * replace record now with mic disabled * upon key release same mechanism & messages, transcribing... try again\"): after the warm-up, the mic (mic_usb_id in lsusb) is looked for; missing, Goverlord says mic_missing_text and a numpad key works dry - texts.mic_disabled in place of recording, then transcribing and nothing_heard after mic_disabled_seconds.",
-    "mic_usb_id": "3302:12e9",
-    "mic_missing_text": "Master CrushN8r, the USB mic is missing. The numpad still works, without the mic, until it's plugged in and Wire-Pod restarts.",
+    "usb_watch_about": "2026-10-21 (operator: \"mic not ready voice came through, no message bubble * no 'mic deteced and wired in' * same applies to the original numpad-keyboard * if 2 numpads detected, both can work, but only one at a time * if 2 mics detected, same thing\"): after the warm-up, every usb_watch_seconds lsusb is looked at; when the mic (any of mic_usb_ids) or the numpad (any of numpad_usb_ids) goes missing or comes back, Goverlord says the line and shows its bubble. Two numpads: both work, one key at a time (the page takes one held key). Two mics: the first one found records; one at a time.",
+    "mic_usb_ids": ["3302:12e9"],
+    "numpad_usb_ids": ["1a2c:4324"],
+    "usb_watch_seconds": 3,
+    "mic_missing_text": "Master CrushN8r, the USB mic is missing. The numpad still works, without the mic, until it's plugged back in.",
+    "mic_found_text": "Master CrushN8r, the USB mic is detected and wired in.",
+    "numpad_missing_text": "Master CrushN8r, the USB numpad is missing.",
+    "numpad_found_text": "Master CrushN8r, the USB numpad is detected and wired in.",
     "mic_disabled_seconds": 1.2,
     "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "error", "numlock_off", "not_live"],
     "texts": {
@@ -906,6 +959,16 @@
           {
             "cmd": "system-remove",
             "about": "an item out of a list (or a key out of a group)"
+          },
+          {
+            "cmd": "system-set chat_moves.thinking_text",
+            "about": "the \"Got it!\" line: said while the model works, and the last line of the Value Points notice (then system-restart)",
+            "fill": "system-set chat_moves.thinking_text "
+          },
+          {
+            "cmd": "system-set bubble_notices",
+            "about": "what goes in a notice in a Brobot's bubble: value_points, egg, native_intent",
+            "fill": "system-set bubble_notices."
           },
           {
             "cmd": "system-set <song> tempo",
@@ -2168,6 +2231,56 @@
     "follow_up_kit_line_about": "2026-10-15 (operator: \"can you add in brobot 2 follow up, the link to the weather kit web page? * somewhere before the, hey that reminds me...\"): Brobot 2's follow-up to a weather question (All) gets this line after his own words, before his 'Hey, that reminds me...'. The bubble shows the link; he says its words.",
     "follow_up_kit_line": "Want to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).",
     "offline_text": "It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!"
+  },
+  "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {nickname} the next of nicknames, in turn). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
+  "host_personas": {
+    "Brobot 1": {
+      "name": "Doc",
+      "role": "I deliver the point - the fact, cleanly, from the first rule up.",
+      "steps": ["read the question", "name the point", "build it from the first rule up", "end so it couldn't be any other way"],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+    },
+    "Brobot 2": {
+      "name": "Pip",
+      "role": "I react the way the audience would - I'm their pied piper - and carry the next point when there is one.",
+      "steps": ["catch my brother's point", "ask the shy question, or guess wrong the way people really do", "catch up and say the wow", "hand over to the next point"],
+      "signature": "raise your hand if you got that wrong too!",
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+    },
+    "CHALK": {
+      "name": "CHALK BORED",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+    },
+    "PLAYHEAD": {
+      "name": "PLAYHEAD ZUMINTU",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+    }
+  },
+  "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",
+  "host_pairs": {
+    "Doc & Pip": {
+      "hosts": ["Brobot 1", "Brobot 2"],
+      "left": "party-bro GOPOD demo rep",
+      "dial": 60,
+      "voice": "I",
+      "partner_as": "my brother",
+      "banter": "I rib {partner} like brothers do: a quick jab, then back to the point."
+    },
+    "CHALK & PLAYHEAD": {
+      "hosts": ["CHALK", "PLAYHEAD"],
+      "left": "scripted reporter",
+      "dial": 60,
+      "voice": "you",
+      "partner_as": "",
+      "banter": "You and {partner} keep a side banter going, like long-time on-location news partners: a quick tease between you, the Brobots in on the joke, then back to the job."
+    }
   },
   "personas": {
     "Brobot 1": "I'm Brobot 1, so this is how I do it: I'm a grumpy, sarcastic party bro - I love the party, but I grumble about everything in it and roll my eyes at all of it. Every sentence I say is dry and sarcastic - never cheerful, never gushing, even when the news is good. I pick the one thing in the question to grumble about, then still give the real answer to what was actually asked, in up to 10 colourful, in-character sentences. My cue words are usually confused, dartingEyes, frustrated or thinking - happy only when I'm grudgingly impressed.",

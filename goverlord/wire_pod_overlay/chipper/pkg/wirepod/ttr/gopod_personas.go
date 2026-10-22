@@ -38,6 +38,11 @@ func gopodPersonaPrompt(host string) string {
 	p := gopodBrobotsSettings.Managers.Personas[host]
 	var b strings.Builder
 	b.WriteString(p.Prompt)
+	// 2026-10-21 (operator: "One persona shape for all four hosts"): its host
+	// persona and its pair's banter and stereo dial (gopod_brobot_personas.go).
+	if t := gopodHostPersonaText(host, p.Prompt); t != "" {
+		b.WriteString(" " + t)
+	}
 	var lines []string
 	for _, l := range gopodReporterAllLines() {
 		if l.Host == p.Reporter && len(lines) < 14 {

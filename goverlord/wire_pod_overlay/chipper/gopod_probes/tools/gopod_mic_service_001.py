@@ -81,9 +81,21 @@ class Mic:
         index, name = golden.resolve_audio_device_by_name(
             golden.AUDIO_SOURCE_NAME_MATCH, exclude_terms=golden.AUDIO_SOURCE_EXCLUDE_TERMS
         )
-        if index is None:
-            return "no_mic"
         sd = golden._sounddevice
+        if index is None:
+            # 2026-10-21 (live: a mic plugged in after the start was never found -
+            # PortAudio lists the devices once): look again, fresh, once.
+            try:
+                sd._terminate()
+                sd._initialize()
+            except Exception as exc:  # noqa: BLE001
+                log(f"RESCAN_FAILED {exc}")
+            index, name = golden.resolve_audio_device_by_name(
+                golden.AUDIO_SOURCE_NAME_MATCH, exclude_terms=golden.AUDIO_SOURCE_EXCLUDE_TERMS
+            )
+            if index is None:
+                return "no_mic"
+            log(f"RESCAN found {name!r}")
 
         def callback(indata, frames, time_info, status) -> None:  # noqa: ARG001
             self.blocks.put(bytes(indata))

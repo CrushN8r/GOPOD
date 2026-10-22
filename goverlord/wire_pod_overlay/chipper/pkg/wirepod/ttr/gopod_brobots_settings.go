@@ -100,8 +100,14 @@ type gopodBrobotsSettingsFile struct {
 	NumpadPTT struct {
 		MapFile      string            `json:"map_file"`
 		// 2026-10-20: the mic's USB id, and what Goverlord says when it's missing.
-		MicUSBID           string  `json:"mic_usb_id"`
+		MicUSBIDs          []string `json:"mic_usb_ids"`
 		MicMissingText     string  `json:"mic_missing_text"`
+		// 2026-10-21: the USB watch (gopod_usb_watch.go).
+		NumpadUSBIDs      []string `json:"numpad_usb_ids"`
+		USBWatchSeconds   float64  `json:"usb_watch_seconds"`
+		MicFoundText      string   `json:"mic_found_text"`
+		NumpadMissingText string   `json:"numpad_missing_text"`
+		NumpadFoundText   string   `json:"numpad_found_text"`
 		MicDisabledSeconds float64 `json:"mic_disabled_seconds"`
 		BodyToBrobot map[string]string `json:"body_to_brobot"`
 		// 2026-10-14: Goverlord says texts.on / texts.exit; made at start (gopodSystemLines).
@@ -346,6 +352,33 @@ type gopodBrobotsSettingsFile struct {
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
+	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	PrebuildContext struct {
+		Header string   `json:"header"`
+		Lines  []string `json:"lines"`
+	} `json:"prebuild_context"`
+	// 2026-10-22: the Brobot Bubble's steps, in order (gopodBubbleStep).
+	BrobotBubble struct {
+		Steps []string `json:"steps"`
+	} `json:"brobot_bubble"`
+	// 2026-10-22: what goes in each notice in a Brobot's bubble (gopod_value_points_notice.go).
+	BubbleNotices struct {
+		ValuePoints struct {
+			Title   string   `json:"title"`
+			Parts   []string `json:"parts"`
+			Points  string   `json:"points"`
+			Weather string   `json:"weather"`
+			Search  string   `json:"search"`
+			None    string   `json:"none"`
+			GotIt   string   `json:"got_it"`
+			// 2026-10-22: the notice log's 4th line (gopodNoticeGotItAgain).
+			GotItAgain   string `json:"got_it_again"`
+			SecondGotIt  string `json:"second_got_it"`
+			HelperFrom   []string `json:"helper_from"`
+		} `json:"value_points"`
+		Egg          gopodNoticeWords `json:"egg"`
+		NativeIntent gopodNoticeWords `json:"native_intent"`
+	} `json:"bubble_notices"`
 	NativeIntent struct {
 		Role        string  `json:"role"`
 		Text        string  `json:"text"`
@@ -416,6 +449,10 @@ type gopodBrobotsSettingsFile struct {
 		LLMReadyText string `json:"llm_ready_text"`
 	} `json:"interview_script"`
 	Personas map[string]string `json:"personas"`
+	// 2026-10-21: the Doc & Pip persona template (gopod_brobot_personas.go).
+	HostPersonas map[string]gopodHostPersona `json:"host_personas"`
+	// 2026-10-21: each pair of hosts - partner, banter, stereo dial.
+	HostPairs map[string]gopodHostPair `json:"host_pairs"`
 	// 2026-10-08: lines said after the "thanks Brobots" sign-off.
 	SignOff struct {
 		Lines []struct {
@@ -449,6 +486,8 @@ type gopodBrobotsSettingsFile struct {
 	Native struct {
 		OnAtStart bool     `json:"on_at_start"`
 		AlwaysOn  []string `json:"always_on"`
+		// 2026-10-21: native intents a manager takes instead (gopodNativeToManager).
+		ToManager map[string]string `json:"to_manager"`
 	} `json:"native"`
 	// 2026-10-10: the session and its runs (gopod_session.go).
 	Session struct {
@@ -648,6 +687,7 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	for _, name := range []string{"Brobot 1", "Brobot 2"} {
 		check(strings.TrimSpace(s.Bingo.Takes[name]) != "", "bingo.takes."+name)
 		check(strings.TrimSpace(s.Personas[name]) != "", "personas."+name)
+		check(strings.TrimSpace(s.HostPersonas[name].Name) != "", "host_personas."+name+".name")
 		check(len(s.Addressing.Names[name]["brobot"]) > 0, "addressing.names."+name+".brobot")
 	}
 	if len(missing) > 0 {

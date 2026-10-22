@@ -694,6 +694,7 @@
           bubble.appendChild(operatorHead(to || operatorTarget(spoken), via, spoken));
           bubble.appendChild(opText);
           bubble.dataset.own = "1"; // the operator's own line
+          operatorSeq++;
           // A new question: an unanswered pop-up keeps only its prize. 2026-10-14
           // (live 20:24, "what's in front of you" by voice: the prize and the reply
           // came as two bubbles): a backpack line is logged once the answer is
@@ -721,6 +722,16 @@
           }
           // (popupWraps: each Brobot's first egg for this question - a late
           // backpack line goes above it.)
+          // 2026-10-22 (operator: "Chronologically, this bubble should appear
+          // before the response, correct?"): a backpack line goes above the
+          // answer it asked for too - that Brobot's open bubble, made after it
+          // was asked, with no operator line above it yet.
+          var askedShell = via === "Backpack" ? nestShells[to] : null;
+          if (!askedWrap && askedShell && askedShell.isConnected && !askedShell.dataset.asked) {
+            askedWrap = askedShell;
+            askedShell.dataset.asked = "1";
+            shellOperatorSeq[to] = operatorSeq;
+          }
           if (askedWrap && askedWrap.isConnected) { container.insertBefore(bubble, askedWrap); }
           else { container.appendChild(bubble); }
           // 2026-10-16 (comb-through: the marquee stuck after a voice question
@@ -769,6 +780,8 @@
           attachPendingBall(shell, spoken);
           if (inPopup) { marqueeAttach(shell); }
           addQrCodes(shell);
+          // 2026-10-22: his weather line's picture in this bubble too.
+          addWeatherFace(shell);
           next();
           return;
         }
@@ -1251,6 +1264,8 @@
               reporterRole = settings.reporter_voices.role || reporterRole;
               hostNames = settings.reporter_voices.hosts || hostNames;
               hostLabels = settings.reporter_voices.labels || hostLabels;
+              displayNames = settings.display_names || displayNames;
+              if (settings.skip_gate) { skipGate.enable_on = settings.skip_gate.enable_on || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
               heardMarker = settings.reporter_voices.heard_marker || heardMarker;
               generatingMarker = settings.reporter_voices.generating_marker || generatingMarker;
@@ -1742,6 +1757,7 @@
         var cut = rest.indexOf("|");
         var ms = cut < 0 ? rest.trim() : rest.slice(0, cut).trim();
         var message = cut < 0 ? "" : rest.slice(cut + 1);
+        skipGateCheck(message);
         if (!ms || isSeen("warm|" + ms)) { return false; }
         if (warmupBubble && !warmupBubble.isConnected) { warmupBubble = null; }
         if (!warmupBubble || warmupBubble.dataset.started !== ms) { warmupBubble = buildWarmupBubble(ms); }
@@ -1822,7 +1838,7 @@
       function hostHeadFor(bubble, who) {
         if (!who) { return systemHead(systemLabel); }
         bubble.classList.add("host-" + who.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
-        return reporterHead(hostLabels[who] || who);
+        return reporterHead(hostHeader(who));
       }
       // GOLDEN raw bubble template (2026-10-21, operator: "before bubble types
       // there is the raw bubble scaffolding * build up bubble types from the raw
@@ -1996,8 +2012,9 @@
       function voiceWaitOn(bubble, el, file) {
         var wait = document.createElement("span");
         wait.className = "voice-wait";
-        wait.appendChild(generatingGlass(bubble));
+        // 2026-10-22 (operator: "generating + hourglass, not hourglass + generating").
         wait.appendChild(document.createTextNode(generatingText));
+        wait.appendChild(generatingGlass(bubble));
         el.parentNode.insertBefore(wait, el);
         el._wait = wait;
         if (el._plain) { el.style.display = "none"; }
@@ -2542,15 +2559,17 @@
       }
       // The weather sound, loaded now, played once as bubble shows (weather_card.volume).
       function weatherSoundOnShow(bubble, sound) {
-        if (restoringChat || !sound) { return; }
+        if (restoringChat || !sound) { return null; }
         var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
         audio.preload = "auto";
+        audio.addEventListener("ended", function () { audio._playedOnce = true; });
         try { audio.load(); } catch (err) { /* no audio */ }
         whenShown(bubble, function () {
           // 2026-10-17: a share of the master, like every volume knob.
           audio.volume = chatLevel(volumeShare(weatherCard.volume));
-          audio.play().catch(function () { /* the page hasn't been clicked yet */ });
+          audio.play().catch(function () { audio._playedOnce = true; /* the page hasn't been clicked yet */ });
         }, 60000);
+        return audio;
       }
       // A Brobot bubble with the weather line, during a run: the face in its
       // corner. 2026-10-14 (operator: "during live, can you treat 'weather'
@@ -2559,7 +2578,8 @@
       function addWeatherFace(bubble) {
         // 2026-10-17 (operator: "no longer easter eggs: Weather"): live too.
         if (!weatherCard || !bubble.classList || !bubble.classList.contains("brobot-bubble") || bubble.querySelector(".gopod-weather-face")) { return; }
-        var textEl = bubble.querySelector(".brobot-bubble-text");
+        // His own words - not a notice's or a manager's part nested in it.
+        var textEl = bubble.querySelector(":scope > .brobot-bubble-text");
         if (!textEl) { return; }
         var said = String(textEl.textContent || "").toLowerCase();
         // Only the weather's own words ("... degrees Fahrenheit, and light rain,
@@ -2576,8 +2596,22 @@
         if (!face) { return; }
         var box = cornerBox(bubble, textEl, 190);
         bubble.classList.add("has-weather");
-        box.appendChild(weatherScreen(face.name, function () { return box; }));
-        weatherSoundOnShow(bubble, face.sound);
+        var screen = weatherScreen(face.name, function () { return box; });
+        box.appendChild(screen);
+        var sound = weatherSoundOnShow(bubble, face.sound);
+        // 2026-10-22 (operator: "after weather audio has finished playing the 1st
+        // time, upon zoomed mouseclick, play the image's audio again * can only
+        // play once at a time no matter how many image clicks"): a click that
+        // zooms it plays its sound again - after the first play, never twice at once.
+        if (sound) {
+          screen.addEventListener("click", function () {
+            // Any click (the hover already zooms it; a click may unzoom it).
+            if (!sound._playedOnce || !sound.paused) { return; }
+            sound.currentTime = 0;
+            sound.volume = chatLevel(volumeShare(weatherCard.volume));
+            sound.play().catch(function () {});
+          });
+        }
       }
       function addQrCodesToAll() {
         Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble"), addQrCodes);
@@ -2635,6 +2669,27 @@
       // 2026-10-06 (operator: "Reporter 1, Brobot 3:" / "Reporter 2, Brobot 4:"):
       // the header is the host's label (reporter_voices.labels).
       var reporterRole = "Reporter Voice", hostNames = {}, hostLabels = {};
+      // 2026-10-22 (operator: "a bubble's header in a scripted run should have
+      // what values? default (CHALK), fallback (Brobot 7), remembered edits
+      // (CHALK BORED)? * editable"): the header template (display_names) - a
+      // remembered edit, else the default (the GOPOD persona), else the fallback
+      // from the numpad map ("Brobot 7": the key whose persona it is), else its label.
+      var displayNames = {};
+      function hostHeader(who) {
+        var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who];
+        if (def && edits[def]) { return edits[def]; }
+        if (edits[who]) { return edits[who]; }
+        if (def) { return def; }
+        var on = numpad.map && numpad.map.numlock_on;
+        if (on && dn.fallback) {
+          for (var k in on) {
+            if (on[k] && String(on[k].persona || "").toUpperCase() === String(who).toUpperCase()) {
+              return String(dn.fallback).replace("{n}", k.replace(/^KP/, ""));
+            }
+          }
+        }
+        return hostLabels[who] || who;
+      }
       // 2026-10-09 (the nap, a lyric video): a song's soundtrack plays in the
       // background, and its captions show as the narrator's bubbles.
       var songAudioRole = "Song Audio", narratorRole = "Narrator", songAudio = null;
@@ -2646,10 +2701,16 @@
       // the manager's part at the top; his reply fills the same bubble below it
       // (appendBubble); CHALK's QR codes go in at the bottom (chalkQrs).
       var nestShells = {};
+      // A Brobot's bubble made after an operator line already has its question
+      // above it (dataset.asked); one made before (a spoken question, shown when
+      // the answer is done) takes the backpack line above it.
+      var operatorSeq = 0, shellOperatorSeq = {};
       function nestShell(brobot) {
         var shell = nestShells[brobot];
         if (shell && shell.isConnected && !shell.dataset.filled) { return shell; }
         shell = document.createElement("div");
+        if (operatorSeq > (shellOperatorSeq[brobot] || 0)) { shell.dataset.asked = "1"; }
+        shellOperatorSeq[brobot] = operatorSeq;
         shell.className = "brobot-bubble " + (brobot === "Brobot 2" ? "brobot-2" : "brobot-1") + " nest-shell";
         shell.dataset.nest = brobot;
         shell.appendChild(bubbleHead(brobot));
@@ -2663,7 +2724,15 @@
         var box = document.createElement("div");
         box.className = "brobot-bubble operator system-status host nested-host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-");
         box.dataset.host = who;
-        box.appendChild(reporterHead(hostLabels[who] || who));
+        box.appendChild(reporterHead(hostHeader(who)));
+        // 2026-10-22 (operator's notice log, line 3): a manager's part at the top
+        // goes in his notice, after its lines - its header and line on one row.
+        var notice = atTop ? shell.querySelector(":scope > .bubble-notice") : null;
+        if (notice) {
+          box.classList.add("in-notice");
+          notice.appendChild(box);
+          return box;
+        }
         var reply = shell.querySelector(":scope > .brobot-bubble-text");
         if (atTop && reply) { shell.insertBefore(box, reply); } else { shell.appendChild(box); }
         return box;
@@ -2770,7 +2839,7 @@
           return;
         }
         // Its own bubble, on the raw bubble template (built and loaded hidden, then shown).
-        var bubble = rawBubble({ kind: "host", classes: hostClass, head: reporterHead(hostLabels[who] || who) });
+        var bubble = rawBubble({ kind: "host", classes: hostClass, head: reporterHead(hostHeader(who)) });
         bubble.dataset.host = who;
         if (String(text).indexOf("qr:") === 0) {
           hostQr(bubble, text);
@@ -3205,8 +3274,11 @@
         var text = bubble.querySelector(".brobot-bubble-text");
         if (!text || bubble.querySelector(".generating-timer")) { return false; }
         bubble.dataset.words = text.textContent;
+        // 2026-10-22: the one Generating look - its text, then the hourglass
+        // (the text's height, on its line; .voice-wait).
         text.textContent = generatingText;
-        bubble.insertBefore(generatingGlass(bubble), text);
+        text.classList.add("voice-wait");
+        text.appendChild(generatingGlass(bubble));
         return true;
       }
       function slotReady(bubble, words) {
@@ -3214,6 +3286,7 @@
         if (row) { row.remove(); }
         bubble.classList.add("ready");
         var text = bubble.querySelector(".brobot-bubble-text");
+        if (text) { text.classList.remove("voice-wait"); }
         if (text && words == null && bubble.dataset.words != null) { text.textContent = bubble.dataset.words; }
         delete bubble.dataset.words;
         return text;
@@ -3371,6 +3444,7 @@
         var v = audioLevels[name];
         return typeof v === "number" && v > 0 ? v : 1;
       }
+      var VOICE_READY_MAX_MS = 3000;
       function voiceAudio(src) {
         var key = String(src);
         if (!voiceCache[key]) {
@@ -3382,11 +3456,17 @@
           try { a.load(); } catch (err) { a._failed = true; }
           // 2026-10-18 (forced alignment): a made voice's word times, beside it.
           var plain = key.replace(/#.*$/, "");
+          a._wordsDone = true;
           if (/\/gopod_reporter_audio\/[a-z]{2}_[a-z]+_(s\d+_)?[0-9a-f]{16}\.wav$/.test(plain)) {
+            // 2026-10-22 (live: PLAYHEAD's fresh weather line lit out of step):
+            // the voice waits for these (playWhenShown) - a just-made voice
+            // started before they came in, and lit by the estimate.
+            a._wordsDone = false;
             fetch(plain.replace(/\.wav$/, ".words.json"), { cache: "no-store" })
               .then(function (r) { return r.ok ? r.json() : null; })
               .then(function (d) { if (d && d.words && d.words.length) { a._words = d.words; } })
-              .catch(function () { /* none: the timed estimate */ });
+              .catch(function () { /* none: the timed estimate */ })
+              .then(function () { a._wordsDone = true; });
           }
           voiceCache[key] = a;
         }
@@ -3475,6 +3555,14 @@
               setTimeout(playWhenShown, 50);
               return;
             }
+            // 2026-10-22: GOLDEN voice start - shown, then its length and word
+            // times in (up to VOICE_READY_MAX_MS), then it plays and lights.
+            if (!audio._readyFrom) { audio._readyFrom = Date.now(); }
+            if ((!audio._wordsDone || !(audio.duration > 0)) && !audio._failed && Date.now() - audio._readyFrom < VOICE_READY_MAX_MS) {
+              setTimeout(playWhenShown, 50);
+              return;
+            }
+            audio._readyFrom = 0;
             audio.volume = chatLevel(audio._share * audioLevel(audio.src));
             // The Operator line's voice: its words come back as it plays (voiceLitStart).
             // 2026-10-17 (survey E2: a 60 s cap, set before the up-to-126 s wait
@@ -3499,7 +3587,25 @@
       // so Wire-Pod and the songs go on as if they'd played. The managers
       // (CHALK, PLAYHEAD) and the Brobots are never skipped.
       var skippingReporters = false, voicePlaying = null;
+      // 2026-10-22 (operator: "skip is set to disabled * only upon voices ready
+      // can skip be enabled * upon skipped, 'skip' skip is set to disabled"):
+      // the skip gate (skip_gate) - off until a line starting with one of
+      // enable_on shows ("Voices ready."), off again once used.
+      var skipGate = { enable_on: [], on: false };
+      function skipGateCheck(message) {
+        if (restoringChat) { return; }
+        var m = String(message || "").trim();
+        (skipGate.enable_on || []).forEach(function (w) {
+          if (w && m.indexOf(w) === 0) { skipGate.on = true; }
+        });
+      }
       function skipReporters(how) {
+        if (!skipGate.on) {
+          fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "note=" + encodeURIComponent("skip ignored (" + (how || "Esc") + "): not enabled") }).catch(function () {});
+          return;
+        }
+        skipGate.on = false;
         // 2026-10-21 (operator: "add to logging * skipped [input] (Esc, numpad, mic, typed)").
         fetch("/api-sdk/gopod_page_note", {
           method: "POST",
@@ -3515,7 +3621,7 @@
         if (e.who === reporterRole) {
           if (t.indexOf("skip:") === 0) { return false; }
           if (heardMarker && t.indexOf(heardMarker) === 0) { return false; }
-          if (t.trim() === openingEndText) { skippingReporters = false; return false; }
+          if (t.trim() === openingEndText) { skippingReporters = false; skipEndScroll(); return false; }
           return /\.wav(#vol=[0-9.]+)?$/.test(t); // a voice (or sting) in the stretch
         }
         // 2026-10-20 (operator: "upon 'Esc' or skip * display all bubbles (in
@@ -3523,13 +3629,24 @@
         // ready"): a skipped reporter line still shows, all its words at once.
         if (hostNames[e.who] && !managerHosts[e.who]) { return false; }
         skippingReporters = false;
+        skipEndScroll();
         return false;
+      }
+      // 2026-10-22 (operator: "upon voices ready skips * update template so chat
+      // bubble also scrolls to bottom position"): a skip's end takes the chat to
+      // its bottom, once the shown bubbles are placed.
+      function skipEndScroll() {
+        [300, 1200].forEach(function (ms) { setTimeout(function () { scrollChatTo(chatMaxScroll()); }, ms); });
       }
       var feedIdNow = 0; // the chat event being shown (a Brobot bubble keeps it: data-feed)
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
         // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
-        if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) { skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } done(); return; }
+        if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) {
+          // The mic's "skip" (Wire-Pod's skip: line) goes through the skip gate too.
+          if (!skipGate.on) { done(); return; }
+          skipGate.on = false;
+          skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } done(); return; }
         if (skippedEvent(e)) { done(); return; }
         // A held rattle timer gives its place to the next bubble (voices aren't bubbles).
         if (countdownDoneAt && e.who !== reporterRole && e.who !== countdownRole && e.who !== songAudioRole) {
@@ -3658,7 +3775,7 @@
         else if (e.who === systemRole) { showScore(e.text, undefined, done); return; }
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to); }
-        else if (e.who === pictureRole && String(e.text).indexOf("eggsum:") === 0) { eggSummary(e.to, String(e.text).slice(7)); }
+        else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) { bubbleNotice(e.to, String(e.text).slice(7)); }
         else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to, done); return; }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
@@ -3666,7 +3783,7 @@
         // Brobot 1" (operator 2026-10-10: "assigned reporter bubbles fall under
         // 'Operator' = white eyed icon to brobot(s)").
         else if (e.who === "Operator" && e.by && hostNames[e.by]) {
-          appendBubble("Operator", e.text, undefined, e.to, String(hostLabels[e.by] || e.by).split(/[,:]/)[0]);
+          appendBubble("Operator", e.text, undefined, e.to, hostHeader(e.by));
         }
         else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via); }
         // 2026-10-17 (operator: "one event list, single source of truth"): a live
@@ -4326,7 +4443,7 @@
         // adjustments work like this: system menu/results, 50%/50% 10%/90%,
         // 90%/10%"): the menu's share of the height, 10% to 90%; the results
         // take the rest.
-        menu.style.flex = "0 0 50%";
+        menu.style.flex = "0 0 70%"; // 2026-10-21 (operator: "system pane vs results pane to 70%/30%")
         split.addEventListener("pointerdown", function (ev) {
           ev.preventDefault();
           split.setPointerCapture(ev.pointerId);
@@ -4409,14 +4526,29 @@
       // bubble + summary inside brobots window * upon more same egg reveals,
       // summary in brobots bubble only"): a found egg's summary - its title and a
       // line - at the top of the answering Brobot's bubble, small type.
-      function eggSummary(to, text) {
+      // 2026-10-21 (operator: "Same as message inside a brobot chat bubble.
+      // Template it"): the bubble notice template - a titled notice at the top of
+      // a Brobot's bubble ("notice:<title>|<line>"): an egg's summary, a native
+      // Wire-Pod intent.
+      function bubbleNotice(to, text) {
         if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }
         var bar = text.indexOf("|");
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
         var shell = nestShell(to);
+        // 2026-10-22 (operator: "in the same notice-bubble, if more info incoming
+        // add it in underneath"): a notice with the same title takes the line.
+        var same = Array.prototype.filter.call(shell.querySelectorAll(":scope > .bubble-notice"), function (n) { return n.dataset.title === title; })[0];
+        if (same) {
+          var more = document.createElement("span");
+          more.className = "brobot-bubble-text egg-summary-text";
+          more.textContent = line;
+          same.appendChild(more);
+          return;
+        }
         var box = document.createElement("div");
-        box.className = "brobot-bubble operator system-status nested-host egg-summary";
-        box.appendChild(systemHead("Easter Egg '" + title + "'"));
+        box.className = "brobot-bubble operator system-status nested-host egg-summary bubble-notice";
+        box.dataset.title = title;
+        box.appendChild(systemHead(title));
         var words = document.createElement("span");
         words.className = "brobot-bubble-text egg-summary-text";
         words.textContent = line;

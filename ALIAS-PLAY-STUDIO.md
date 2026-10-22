@@ -349,7 +349,7 @@ steps, live or dry.
 | `combo` | One story step played as several notes in order (named for them: `brat_nod_kg_success_0203`). A part with `text` says those words, cut from the step's TEXT ("Lol!", "Excuse Me?"); the part without `text` says the rest. One chat bubble for the whole step ("…maturity level? Lol!"), put up with the first words; each part lights its own pieces in it (`piece_offset`). | `combo` (the parts) | Bingo test |
 | `sound` | One of the song's own sound files (knobs.json `sounds`, copied to the chat page at Wire-Pod's start), or one of Wire-Pod's shared `sounds/` (`danger-will-robinson.wav`), played on the page at `volume`; the song waits its length. | `sound`, `volume` | fart joke |
 | `picture` | One picture (or a list) from the chat page's `pictures/` folder, shown in a picture bubble at this step, alone or as a combo part; the magnifier as ever. A missing file warns, never stops the song. | `picture` | |
-| `thinking` | The live chat's own thinking process, run by Wire-Pod (`/api-sdk/gopod_thinking`, `gopodThinkingProcess`): arm, nod, the thinking line, searching (at least `searching_min_seconds`), the get-out. One process for live and scripted runs. Locked by `TestThinkingProcessIsOne`. | | fart joke |
+| `thinking` | The live chat's own thinking process, run by Wire-Pod (`/api-sdk/gopod_thinking`, `gopodThinkingProcess`): arm, nod, the thinking line, searching (at least `searching_min_seconds`), the get-out. One process for live and scripted runs. While a manager has the floor (`gopodManagerBusy`, set by `gopodManagerDo`), the searching stops (one get-out) and starts again after (2026-10-22). Locked by `TestThinkingProcessIsOne`. | | fart joke |
 | `timer` | A timed wait. | `seconds` | engine |
 | `sequence` | Another song's steps, in place, by its `song_id`. | | engine |
 | `pause` | A silent gap. At 0 seconds it's an edit mark for the reporters' voiceover. | `pause_seconds`, `gap_label` | Bingo test, nap |
@@ -765,13 +765,19 @@ Once per ending, in this order (`gopodThanksEnding`):
 
 Locked by `TestThanksClosesOutTheDraft`, `TestReporterClosingOncePerEnding`.
 
-### 6.11 Mic missing
+### 6.11 Mic missing, USB watch
 
-After the warm-up's last step, `gopodMicCheck` looks for `numpad_ptt.mic_usb_id` in `lsusb`.
-If the mic is missing, Goverlord says `mic_missing_text`, and only the mic input is disabled: a
+After the warm-up's last step, `gopodMicCheck` looks for any of `numpad_ptt.mic_usb_ids` in `lsusb`.
+If the mic is missing, Goverlord says `mic_missing_text` (with his bubble), and only the mic input is disabled: a
 numpad key works as a dry run - the same messages, "Mic disabled" in place of "Recording", then
 "transcribing" and "try again" (`nothing_heard`). A failed `lsusb` isn't "mic missing", and a
 missing mic is looked for again on each key press.
+
+The USB watch (`gopod_usb_watch.go`, from then on, every `usb_watch_seconds`): when the mic or
+the numpad (`numpad_usb_ids`) goes missing or comes back, Goverlord says and shows
+`mic_missing_text` / `mic_found_text` / `numpad_missing_text` / `numpad_found_text`. Two numpads
+both work, one key at a time; two mics, the first found records. The mic service looks for the
+mic fresh when it finds none (a mic plugged in later is found).
 
 ### 6.12 Battery watchdog
 
@@ -847,9 +853,15 @@ menu (🔊), and turns it off and closes it (🔇).
   weather...) lets go of his chat hold first, so his own behaviours (face behaviours too) run
   (`gopodNativeLetGo`, called from Wire-Pod's `IntentPass`); the hold returns with the next chat
   answer.
-- **Native intent bubble:** a native Wire-Pod intent sent to a Brobot shows "Wire-Pod intent
-  activated." in a silent Terminal bubble (`native_intent`, `gopodNativeBubble`); his own words
-  aren't known to Wire-Pod.
+- **Native intent notice:** a native Wire-Pod intent sent to a Brobot (spoken, or a typed cube
+  command) shows "Native Wire-Pod Intent Detected" and the intent's name inside his bubble - the
+  bubble notice template (`bubble_notices.native_intent`, `gopodNativeBubble`); his own words aren't
+  known to Wire-Pod. Wire-Pod's own pass that closes a chat answer's voice request
+  (intent_greeting_hello) is no native intent and shows nothing (`gopodLLMClosePass`).
+- **Native weather goes to PLAYHEAD** (2026-10-21): a native intent in `native.to_manager`
+  (intent_weather_extend -> weather, intent_clock_time -> time_place) goes to the chat instead,
+  and its manager takes it - spoken weather and time are PLAYHEAD's, the same as typed
+  (`gopodNativeToManager`).
 - Locked by `TestNativeAnswersOnOffAndDuringARun`.
 
 ### 7.5 GOPOD commands: Wire-Pod intents by text
@@ -906,7 +918,9 @@ after an edit. The face photo as a prize is not built yet. `system-faces` lists 
 
 **Handing over in a line to both.** When a line goes to both Brobots (All, KP0 held, or "starting
 with Brobot 2"), whoever answers first ends with one more thought, handing over to his brother:
-`addressing.redirect_text` ("{brother}, what say you on this, gear brain?"). Empty = none.
+his own hand-over line (`host_personas.<host>.handover`: "{partner}, what say you on this,
+{nickname}?", the nicknames in turn - gear-head, cranky-shaft, coolant-leak,
+incompatible-particulate); without one, `addressing.redirect_text`. Empty = none.
 
 ## 8. A live reply
 
@@ -920,7 +934,7 @@ copy (`{"from": "base"}`) or its own list of parts.
 | `llm` | answer | the language model's answer (stitch parts before it go first, after it go last) |
 | `weather_kit` | stitch | the follow-up's weather kit link (`live_weather.follow_up_kit_line`) |
 | `end_snippet` | stitch | "Hey, that reminds me..." and other end lines |
-| `redirect` | stitch | the first answer in a line to both hands over (`addressing.redirect_text`) |
+| `redirect` | stitch | the first answer in a line to both hands over (`host_personas.handover`, else `addressing.redirect_text`) |
 | `who_line` | answer | a manager's own who line, word for word (`managers.who_words`) |
 | `manager_take` | answer | a manager's take (weather, time and place) |
 
@@ -1274,6 +1288,17 @@ line:
 - The page shows the generating text (`reporter_voices.generating_text`, "Voice file
   generating.") and the hourglass, rocking and draining, under the header in that line's own
   bubble, until its voice plays; then its words. "off" (voice failed) shows the words.
+- 2026-10-22: one Generating look everywhere - the text, then the hourglass, the text's own
+  height, on its line (`.voice-wait`; `voiceWaitOn` and `slotWaiting`).
+- A skip's end (Esc, numpad *, `system-skip`) takes the chat to its bottom (`skipEndScroll`).
+- **The skip gate** (2026-10-22, `skip_gate`): every skip (Esc, numpad *, the menu, typed or
+  spoken "skip") is off until a warm-up line starting with `enable_on` ("Voices ready.") shows -
+  the opener's and every warm-up song's - and off again once used. A skip while off does nothing
+  (logged: skip ignored).
+- **GOLDEN voice start** (2026-10-22): every made voice plays the same way - its bubble shown,
+  then its length and its word times (`.words.json`) loaded (up to `VOICE_READY_MAX_MS`, 3 s),
+  then it plays and lights. A just-made voice no longer starts before its word times arrive
+  (it lit by the estimate, out of step).
 - It works the same for an operator line, a reporter's, a Goverlord bubble, a manager's, and the
   opener's System llm bubble. The Operator's own words wait the same way ("op:<file>"). No
   separate "Generating..." bubble.
@@ -1446,7 +1471,7 @@ dialogue.
 
 - A Goverlord system bubble at full width holding the menu bubble; no header (to recover window
   space). The system bubble centres its contents.
-- Two windows, menu above and results below, start 50/50. The thin bar between them (row-resize
+- Two windows, menu above and results below, start 70/30. The thin bar between them (row-resize
   cursor, a grip line, stretching across) sets the menu's share, 10% to 90%; the results take the
   rest. The results window is full width, empty or not. Window 2 overlaps window 1.
 - The menu a little wider (right padding 2px); each window's scroll bar in its own lane, clear of
@@ -1555,6 +1580,24 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 - **The reporters' shared persona** = scripted lines and voices. Reporter 1 and 2's lines are
   the scaffolding for CHALK and PLAYHEAD's live chat personas.
 - **The managers** take the system jobs.
+- **The four hosts, one persona shape** (RULE, 2026-10-21: Brobot 1 = Doc, Brobot 2 = Pip, the
+  GOPOD hosts; the Brobots = party bros, GOPOD demo reps). `host_personas`: `name` (said only
+  when his base text doesn't already say it), `role`, `steps`, `signature`, `handover`. Added
+  after his `personas` line (Brobots) or `managers.personas` prompt (CHALK, PLAYHEAD)
+  (`gopodHostPersonaText`, `gopod_brobot_personas.go`). Doc delivers the point (read the
+  question, name the point, build it from the first rule up, end so it couldn't be any other
+  way). Pip is the audience's pied piper (catch the point, ask the shy question or guess wrong
+  the real way, catch up and say the wow, hand over; signature "raise your hand if you got that
+  wrong too!"). Doc and Pip never name each other in the prompt ("my brother").
+- **Pre-build context** (2026-10-22, `prebuild_context`, `gopodPrebuildContext`): every Brobot
+  answer's prompt gets "BEFORE I ANSWER:" after his facts - I am Brobot N (Doc / Pip); my role
+  is a GOPOD rep; my reminders-list (the same names as his "Hey, that reminds me" line); what was
+  asked of me; how to best answer (his `steps`). A line with an empty token is left out.
+- **Pairs and the stereo dial** (`host_pairs`: Doc & Pip, CHALK & PLAYHEAD): `partner_as`,
+  `banter`, and `dial` - like a stereo balance, 0 = all left (the base: `left`, party-bro GOPOD
+  demo rep / scripted reporter), 50 = pointing up (50/50), 100 = all right (the host persona).
+  Both at 60 = 40/60. Said in the prompt as "My stereo dial: 40% party-bro GOPOD demo rep, 60%
+  Doc."
 
 ### 12.2 Who does what
 
@@ -1705,7 +1748,79 @@ The first time an egg is found, its pop-up shows outside the Brobot's bubble, an
 shows inside the answering Brobot's bubble, at the top: "Easter Egg '<title>'" and one line. Every
 later time the same egg is found, only the summary shows. The line is the chapter's own summary
 (`interview_chapters`) for a chapter egg, the card for a card egg, else the topic's first `say`
-line. (`gopodEggSummaryPost`, page `eggSummary`, marker `eggsum:`.)
+line. (`gopodEggSummaryPost`; the bubble notice template: `gopodBubbleNotice`, page
+`bubbleNotice`, marker `notice:<title>|<line>` - also the native intent notice.)
+
+**A spoken question goes above its answer** (2026-10-22). Wire-Pod logs a spoken (backpack)
+question only when the answer is done; the page puts it above that Brobot's open bubble when the
+bubble was made after the question (`dataset.asked`, `operatorSeq`), as it already did for an egg
+pop-up.
+
+**Names, three layers** (2026-10-22): base = the robot by ESN; Wire-Pod = Brobot N; GOPOD = the
+persona name, a chat participant. Brobot 1/2 -> Doc / Pip (to be); Reporter 1/2 (no robot) ->
+CHALK / PLAYHEAD - their scripted voices, and chat participants, GOPOD reps too. **The header
+template** (`display_names`, page `hostHeader`): a reporter's or manager's bubble shows a
+remembered edit (`edits`, e.g. CHALK BORED), else the default (CHALK / PLAYHEAD), else the
+fallback from the numpad map (`Brobot {n}`: KP7 = Brobot 7, KP8 = Brobot 8). Scripts keep their
+own names (Reporter 1/2); only the chat shows these.
+
+**GOLDEN: the Brobot Bubble template** (2026-10-22, operator's spec; Brobot 1 and 2 alike):
+
+```
+===== Brobot Bubble =====
+header: Brobot N:                         (+ zoomable weather picture, top right)
+=== notice: Value Points ===
+1. Got it!                                (said by him - the communication received)
+2. <topic> #<n>: <point>  /  No value point - a quick take, then back to GOPOD.
+   (Web search: <search>, when there was one)
+3. (optional) [icon] PLAYHEAD [icon] I'll help you with that.   (one row; his searching waits)
+4. Thanks for your help, PLAYHEAD.        (said by him - the floor back to him after a manager's part)
+=== end notice ===
+<his answer-chained reply>                (a weather question: it opens with the golden weather line)
+===== Brobot Bubble =====
+```
+
+- The order is one settings template, `brobot_bubble.steps` (header, got_it, value_points,
+  manager, thanks, reply); manager and thanks can be left out.
+- Line 3 (2026-10-22, live: PLAYHEAD came only after the whole answer was written, so the
+  Brobot searched, PLAYHEAD spoke, the Brobot searched again): a manager steps in right after
+  lines 1-2, while the answer is written (`gopodManagerStepIn`, once per line), its lines in
+  this Brobot's notice (`gopodManagerDoFor`). The Brobot waits until the manager is done, even
+  with his answer ready.
+- Line 1 and 2 are posted together once his "Got it!" is said and his prompt is made
+  (`gopodValuePointsNoticePost` / `gopodValuePointsNoticeGotIt`). Line 3 is a manager's top part,
+  put in the notice by the page (`nestBox`, `.in-notice`). Line 4: `got_it_again`, "Thanks for
+  your help, {helper}." ({helper} from `helper_from`: the manager's name, PLAYHEAD / CHALK; else
+  its Brobot, Brobot 4 / Brobot 3),
+  said and shown only after a manager's part; `second_got_it` `after_manager` or `off`.
+- A manager's part in the notice is one plain line, no bubble of its own: "[icon] PLAYHEAD [icon]
+  I'll help you with that." (`.in-notice`).
+- A manager's line uses the Generating template like every voice: "Voice file generating." then
+  the hourglass while its voice is made (once - "I'll help you with that." is reused, so it
+  skips straight to its words), then its words lit to its voice.
+- Weather: PLAYHEAD says only `take_text` (`brobot_says`); no weather voice is made; the
+  Brobot's reply opens with the golden weather line, and its picture goes top right of his
+  bubble. After its sound has played once, a click that zooms the picture plays it again -
+  never two at once. Hovering still zooms it without sound.
+
+**Notices inside a Brobot's bubble** (2026-10-22, standard). What goes in each is one template,
+`bubble_notices`: a title, then its lines, each on its own row; a notice with the same title takes
+more lines underneath. `value_points` - every live Brobot answer opens with it: the value points
+his answer is built from (`{id}: {words}`, id = topic#n), then weather, search, or "none", then
+the "Got it!" line once he has said it (`chat_moves.thinking_text`; in the menu under 3).
+`egg` - a found egg's summary. `native_intent` - a native Wire-Pod intent.
+(`gopod_value_points_notice.go`.)
+
+### Value points - golden and locked
+
+Value points are what GOPOD sells; chapter > topics > value points. A value point is each numbered
+line (`1. ...`) after a topic file's `---`, or - for a topic with none - its whole text as one point.
+Each has an id, `<topic>#<n>` (e.g. `bingo#1`). Their words are locked in
+`gopod_probes/chapters/value_points_golden.json` with a checksum (written the first time Wire-Pod
+starts without one). `system-check` flags a point whose words changed, a new point not locked yet,
+and a locked point that's gone. `system-value-points` shows the state, `system-value-points
+<topic>` lists a topic's points, `system-value-points lock` locks changes on purpose
+(`system-undo` puts the old index back). (`gopod_value_points_golden.go`)
 
 ## 14. The system menu and commands
 
@@ -1963,10 +2078,11 @@ data; the code only guides the flow. Wire-Pod checks every key at start.
 | `background_loop` | The loop file and `volume` (14%). |
 | `weather_card` | The weather faces; `volume`. |
 | `live_weather` | `offline_text`, `follow_up_kit_line`. |
-| `numpad_ptt` | The numpad map, `all_hold_seconds` (0.5), `key_sound` (off), `error_sound` (15%), `error_texts`, `texts`, `mic_usb_id`, `mic_missing_text`. |
+| `numpad_ptt` | The numpad map, `all_hold_seconds` (0.5), `key_sound` (off), `error_sound` (15%), `error_texts`, `texts`, `mic_usb_ids`, `numpad_usb_ids`, `usb_watch_seconds`, the missing/found texts. |
 | `native` | `on_at_start`, `always_on` (`intent_names_ask`). |
 | `native_cube` | `intents`: the GOPOD commands list. |
-| `native_intent` | The "Wire-Pod intent activated." bubble. |
+| `native_intent` | The native intent notice: `once_seconds` (its words are in `bubble_notices`). |
+| `bubble_notices` | What goes in a notice in a Brobot's bubble: `value_points` (`title`, `parts` order, `points`, `weather`, `search`, `none`, `got_it`), `egg`, `native_intent` (`title`, `line`). |
 | `addressing` | `follow_up_note`, `all_next_wait_seconds`. |
 | `topic_pictures` | `max_per_session` (5), `popup_text`, `egg_text`, `egg_zoom_text`, `egg_names`, `describe`, `describe_note`, `describe_wait_seconds` (30), `describe_on_ask`, `describe_wait_text`, `describe_done_text`, `not_listed`, `not_eggs`. |
 | `topic_pictures.cards` | Egg cards (`cards.halloween`, the Roast Battle card). |
@@ -1975,6 +2091,8 @@ data; the code only guides the flow. Wire-Pod checks every key at start.
 | `photo` | `vision_model` (moondream), `awake_seconds` (2.5), `quick_look` (`pictures`, `enhance`), `quick_text`, `gathering_text`, `stall_lines`, `detail_strip_prefixes`, `egg_name`. |
 | `clean_politics` | `words`, `allowed_topics`. |
 | `qr_codes` | `codes`, `second`. |
+| `host_personas` | The four hosts' one persona shape: `name`, `role`, `steps`, `signature`, `handover` (`line`, `nicknames`). |
+| `host_pairs` | Doc & Pip, CHALK & PLAYHEAD: `hosts`, `left`, `dial` (0-100, the stereo dial), `voice`, `partner_as`, `banter`. |
 | `managers` | `personas` (CHALK, PLAYHEAD: `prompt`, `who_words`, `who_line`), `time_place_text`, `display_host`, `qr_note`, `qr_display_text`. |
 | `system_search` | The search settings; `results_role`, `results_host` (PLAYHEAD). |
 | `system_set` | `role` (the terminal bubble). |

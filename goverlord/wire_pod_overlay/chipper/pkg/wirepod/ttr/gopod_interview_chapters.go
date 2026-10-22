@@ -238,11 +238,9 @@ func gopodShowTopicPictures(esn, userMessage string) {
 	// weather isn't the Brobots' egg; 2026-10-18 CHALK takes it (gopodChalkWeather):
 	// "I'll help you with that", the weather egg on a chalkboard, the weather line.
 	// (gopod_managers.go: PLAYHEAD takes the weather and the time and place.)
-	if popup {
-		if take, at, ok := gopodManagerTakes(lower); ok {
-			eggs = append(eggs, gopodEgg{at: at, show: func() { gopodManagerDo(take, userMessage) }})
-		}
-	}
+	// 2026-10-22 (operator's Brobot Bubble template, notice line 3): a manager
+	// takes his line from the Brobot's notice instead, right after his "Got it!"
+	// and value point line (gopodManagerStepIn) - not here, before or after him.
 	// 2026-10-14: the Explain the Math egg (gopodMathPopup), with the others.
 	if popup && mathLine {
 		at, _ := gopodEggWord(lower, []string{strings.ToLower(gopodBrobotsSettings.Math.Trigger)})
@@ -254,8 +252,17 @@ func gopodShowTopicPictures(esn, userMessage string) {
 	}
 }
 
-// gopodEggSummaryMark: an egg's summary for a Brobot's bubble ("eggsum:<title>|<summary>").
-const gopodEggSummaryMark = "eggsum:"
+// gopodBubbleNoticeMark: the bubble notice template (2026-10-21, operator:
+// "Same as message inside a brobot chat bubble. Template it") - a small titled
+// notice at the top of a Brobot's bubble ("notice:<title>|<line>"): an egg's
+// summary, a native Wire-Pod intent.
+const gopodBubbleNoticeMark = "notice:"
+
+// gopodBubbleNotice posts a notice for brobot's bubble.
+func gopodBubbleNotice(brobot, title, line string) {
+	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, brobot,
+		gopodBubbleNoticeMark+strings.ReplaceAll(strings.TrimSpace(title), "|", " ")+"|"+strings.ReplaceAll(strings.TrimSpace(line), "|", " "))
+}
 
 // gopodEggSummaryPost: the egg's summary to the Brobot answering - a chapter's
 // summary (interview_chapters), a card egg's card, else its topic's first say line.
@@ -283,8 +290,7 @@ func gopodEggSummaryPost(who, key, title, card string) {
 	if summary == "" {
 		return
 	}
-	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, who,
-		gopodEggSummaryMark+strings.ReplaceAll(title, "|", " ")+"|"+strings.ReplaceAll(summary, "|", " "))
+	gopodNoticeShow(who, gopodBrobotsSettings.BubbleNotices.Egg, map[string]string{"title": title, "summary": summary})
 }
 
 // gopodShowEgg: one egg bubble ("popup:Brobot 1::msg=<congrats>::<prize>") and

@@ -2,7 +2,9 @@
 package wirepod_ttr
 
 import (
+	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/sashabaranov/go-openai"
@@ -24,8 +26,176 @@ import (
 // himself Brobot 2 in 9 of 18 replies; without it, 0 of 18. gemma2 has no system
 // slot, so the prompt sits at the top of the chat, far from the question - the
 // last name it reads near the question is the one it takes.
-// The lines are personas in gopod_brobots_settings.json.
-var gopodBrobotPersonaLines = gopodBrobotsSettings.Personas
+// The lines are personas in gopod_brobots_settings.json, each followed by his
+// host persona (host_personas: Doc & Pip, operator 2026-10-21).
+var gopodBrobotPersonaLines = gopodHostPersonaLines()
+
+// gopodHostPersona: one GOPOD host's persona - the same shape for Doc, Pip,
+// CHALK and PLAYHEAD (host_personas in gopod_brobots_settings.json).
+type gopodHostPersona struct {
+	Name      string   `json:"name"`
+	Role      string   `json:"role"`
+	Steps     []string `json:"steps"`
+	Signature string   `json:"signature"`
+	Handover  struct {
+		Line      string   `json:"line"`
+		Nicknames []string `json:"nicknames"`
+	} `json:"handover"`
+}
+
+// gopodHostPair: two hosts - their banter and stereo dial (host_pairs). Dial is
+// how far right, 0-100: 0 all left (the base), 50 pointing up, 100 all right
+// (the host persona).
+type gopodHostPair struct {
+	Hosts     []string `json:"hosts"`
+	Left      string   `json:"left"`
+	Dial      int      `json:"dial"`
+	Voice     string   `json:"voice"`
+	PartnerAs string   `json:"partner_as"`
+	Banter    string   `json:"banter"`
+}
+
+// gopodHostPairOf: the host's pair and his partner's key.
+func gopodHostPairOf(host string) (gopodHostPair, string, bool) {
+	for _, pair := range gopodBrobotsSettings.HostPairs {
+		if len(pair.Hosts) == 2 {
+			if pair.Hosts[0] == host {
+				return pair, pair.Hosts[1], true
+			}
+			if pair.Hosts[1] == host {
+				return pair, pair.Hosts[0], true
+			}
+		}
+	}
+	return gopodHostPair{}, "", false
+}
+
+// gopodHostPersonaText renders a host's persona and his pair's banter and
+// stereo dial as a few plain sentences, added after base (his own text).
+func gopodHostPersonaText(host, base string) string {
+	h := gopodBrobotsSettings.HostPersonas[host]
+	pair, partner, paired := gopodHostPairOf(host)
+	i, my := "I", "My"
+	if strings.EqualFold(pair.Voice, "you") {
+		i, my = "you", "Your"
+	}
+	var parts []string
+	if n := strings.TrimSpace(h.Name); n != "" && !strings.Contains(base, n) {
+		parts = append(parts, "As a GOPOD host "+i+" go by "+n+".")
+	}
+	if r := strings.TrimSpace(h.Role); r != "" {
+		parts = append(parts, r)
+	}
+	if len(h.Steps) > 0 {
+		parts = append(parts, my+" way through an answer: "+strings.Join(h.Steps, ", then ")+".")
+	}
+	if sig := strings.TrimSpace(h.Signature); sig != "" {
+		parts = append(parts, "When it fits, "+i+" say: \""+sig+"\"")
+	}
+	if paired {
+		as := strings.TrimSpace(pair.PartnerAs)
+		if as == "" {
+			as = gopodBrobotsSettings.HostPersonas[partner].Name
+		}
+		if t := strings.TrimSpace(pair.Banter); t != "" {
+			parts = append(parts, strings.ReplaceAll(t, "{partner}", as))
+		}
+		if n := strings.TrimSpace(h.Name); n != "" && strings.TrimSpace(pair.Left) != "" && pair.Dial >= 0 && pair.Dial <= 100 {
+			parts = append(parts, my+" stereo dial: "+strconv.Itoa(100-pair.Dial)+"% "+strings.TrimSpace(pair.Left)+", "+strconv.Itoa(pair.Dial)+"% "+n+".")
+		}
+	}
+	return strings.Join(parts, " ")
+}
+
+// gopodHostPersonaLines: each brother's personas line, then his host persona.
+func gopodHostPersonaLines() map[string]string {
+	lines := map[string]string{}
+	for name, line := range gopodBrobotsSettings.Personas {
+		if t := gopodHostPersonaText(name, line); t != "" {
+			line = strings.TrimSpace(line) + " " + t
+		}
+		lines[name] = line
+	}
+	return lines
+}
+
+// gopodPrebuildContext (2026-10-22, operator: "brobot gets an input *
+// pre-build context: I am brobt N. My role is a GOPOD rep. I have a
+// reminders-list to go through. What was asked of me? How to best answer?"):
+// the section for his prompt, from prebuild_context; "" when off. A line whose
+// token is empty is left out.
+func gopodPrebuildContext(esn, question string) string {
+	pc := gopodBrobotsSettings.PrebuildContext
+	brobot := gopodBrobotName(esn)
+	if strings.TrimSpace(pc.Header) == "" || (brobot != "Brobot 1" && brobot != "Brobot 2") {
+		return ""
+	}
+	h := gopodBrobotsSettings.HostPersonas[brobot]
+	fill := map[string]string{
+		"brobot":    brobot,
+		"host":      strings.TrimSpace(h.Name),
+		"reminders": gopodReminderTopics(question),
+		"question":  strings.TrimSpace(question),
+		"steps":     strings.Join(h.Steps, ", then "),
+	}
+	out := []string{strings.TrimSpace(pc.Header)}
+	for _, line := range pc.Lines {
+		empty := false
+		for k, v := range fill {
+			if strings.Contains(line, "{"+k+"}") && v == "" {
+				empty = true
+			}
+			line = strings.ReplaceAll(line, "{"+k+"}", v)
+		}
+		if !empty && strings.TrimSpace(line) != "" {
+			out = append(out, strings.TrimSpace(strings.ReplaceAll(line, " ()", "")))
+		}
+	}
+	return strings.Join(out, "\n")
+}
+
+// gopodReminderTopics: the names in his "Hey, that reminds me" line, "" for none.
+func gopodReminderTopics(question string) string {
+	line := gopodReminderLine(question)
+	tpl := gopodBrobotsSettings.ValuePoints.ReminderTopicsText
+	at := strings.Index(tpl, "{topics}")
+	if line == "" || at < 0 {
+		return ""
+	}
+	before, after := tpl[:at], tpl[at+len("{topics}"):]
+	if !strings.HasPrefix(line, before) || !strings.HasSuffix(line, after) || len(line) < len(before)+len(after) {
+		return ""
+	}
+	return strings.TrimSpace(line[len(before) : len(line)-len(after)])
+}
+
+// gopodHandoverAt: each host's next nickname (in turn, never twice running).
+var gopodHandoverAt = struct {
+	sync.Mutex
+	next map[string]int
+}{next: map[string]int{}}
+
+// gopodHandoverLine (2026-10-21, operator: "Each host's hand-over line * can we
+// use variations of gear-head? * gear-head/cranky-shaft/coolant-leak/
+// incompatible-particulate"): the host's hand-over line to partner, with his
+// next nickname; "" when he has none.
+func gopodHandoverLine(host, partner string) string {
+	h := gopodBrobotsSettings.HostPersonas[host].Handover
+	line := strings.TrimSpace(h.Line)
+	if line == "" {
+		return ""
+	}
+	nick := ""
+	if len(h.Nicknames) > 0 {
+		gopodHandoverAt.Lock()
+		n := gopodHandoverAt.next[host] % len(h.Nicknames)
+		gopodHandoverAt.next[host] = n + 1
+		gopodHandoverAt.Unlock()
+		nick = strings.TrimSpace(h.Nicknames[n])
+	}
+	line = strings.ReplaceAll(line, "{partner}", partner)
+	return strings.ReplaceAll(line, "{nickname}", nick)
+}
 
 // Each brother's own take on the Bingo test, added to the shared chat's Bingo
 // snapshot note when a Bingo run is in the chat memory - so "how was Bingo?"

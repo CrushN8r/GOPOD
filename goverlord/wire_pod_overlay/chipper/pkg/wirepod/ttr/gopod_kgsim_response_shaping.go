@@ -610,7 +610,8 @@ func gopodQuestionFacts(userMessage string) string {
 func gopodQuestionFactsFor(esn, userMessage string) string {
 	var facts []byte
 	var given []string
-	defer func() { gopodGivenSet(esn, given) }()
+	notice := map[string][]string{} // 2026-10-22: the value points notice's parts (gopodNoticeSet)
+	defer func() { gopodGivenSet(esn, given); gopodNoticeSet(esn, userMessage, notice) }()
 	// 2026-10-01 (operator): the Bingo hosting pitch stays apart from a Bingo
 	// test run. With a run in memory the pitch pack is left out, so the answer
 	// comes from the run; with none (the Bingo-played flag at 0), a Bingo question
@@ -625,16 +626,19 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 			facts = appendPromptSection(facts, packFacts)
 			if point != "" {
 				given = append(given, point)
+				notice["points"] = append(notice["points"], gopodNoticePoint(packet.Name, packet.Content, point))
 			}
 			logger.Println(fmt.Sprintf("BROBOT_SCENARIO_PACKET_LOADED=%s file=%s bytes=%d", packet.Name, packet.File, len(packet.Content)))
 		}
 	}
 	// 2026-10-10 (operator: "brobot did not check actual weather ... like in
 	// scripted interview"): a weather question gets the real weather.
-	if note := gopodBrobotsSettings.LiveWeatherNote; note != "" && gopodHasWholeWords(strings.ToLower(userMessage), "weather") {
+	// 2026-10-22: a native weather intent PLAYHEAD takes counts too ("whether").
+	if note := gopodBrobotsSettings.LiveWeatherNote; note != "" && (gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)) {
 		// The golden weather call, the same as the scripted draft's {weather}.
 		if line, live := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
 			facts = appendPromptSection(facts, []byte(note+" "+line))
+			notice["weather"] = append(notice["weather"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Weather, map[string]string{"line": line}))
 			logger.Println(fmt.Sprintf("BROBOT_LIVE_WEATHER=added live=%v", live))
 		}
 	}
@@ -642,6 +646,7 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	// [search-text]'"): a "search ..." line gets the web's snippets as facts.
 	if searched := gopodSearchFacts(userMessage); searched != "" {
 		facts = appendPromptSection(facts, []byte(searched))
+		notice["search"] = append(notice["search"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Search, map[string]string{"search": gopodSearchQuery(userMessage)}))
 		logger.Println("BROBOT_SYSTEM_SEARCH=added")
 	}
 	// 2026-10-18 (operator: "QR codes are brobot N's bubble * thought bubble *
@@ -687,7 +692,7 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 	// still said "a high of 63°F" and "a scorcher"): a weather question's reply
 	// starts with the golden weather line itself, said by the code word for word.
 	// 2026-10-18: not when a manager said it (gopod_managers.go) - the Brobots are released from it.
-	if at == "start" && gopodHasWholeWords(strings.ToLower(userMessage), "weather") && !gopodManagerTookWeather() {
+	if at == "start" && (gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)) && !gopodManagerTookWeather() {
 		if line, _ := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
 			return line
 		}

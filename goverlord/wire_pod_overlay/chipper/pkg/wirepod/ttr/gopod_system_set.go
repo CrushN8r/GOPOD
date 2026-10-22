@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -68,7 +69,7 @@ func gopodSystemSetMatch(text string) bool {
 	if gopodSystemTestMatch(text) {
 		return true
 	}
-	for _, cmd := range []string{"system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim"} {
+	for _, cmd := range []string{"system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points"} {
 		if word == cmd || strings.HasPrefix(word, cmd+" ") {
 			return true
 		}
@@ -111,6 +112,10 @@ func gopodSystemSetLine(esn, text, how string) {
 	} else if cmd == "system-topic" {
 		gopodUndoBegin(strings.TrimSpace(text))
 		answer = gopodSystemTopic(text)
+		gopodUndoEnd()
+	} else if cmd == "system-value-points" {
+		gopodUndoBegin(strings.TrimSpace(text))
+		answer = gopodSystemValuePoints(text)
 		gopodUndoEnd()
 	} else if cmd == "system-anim" {
 		answer = gopodSystemAnim(text)
@@ -572,6 +577,13 @@ func gopodWriteFileSafe(path string, data []byte) error {
 	tmp := path + ".system-set.tmp"
 	if err := os.WriteFile(tmp, data, mode); err != nil {
 		return err
+	}
+	// 2026-10-21 (the speaker bar's save left the settings file root's, so the
+	// operator could no longer edit it): the file keeps its owner.
+	if err == nil {
+		if st, ok := info.Sys().(*syscall.Stat_t); ok {
+			gopodRecordChown(int(st.Uid), int(st.Gid), tmp)
+		}
 	}
 	return os.Rename(tmp, path)
 }

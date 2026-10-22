@@ -30,12 +30,25 @@ func gopodThinkingLineSpoken() string {
 // line was sometimes not heard, so the robot's own report is logged, and the line
 // is said once more only if the robot reports it didn't finish.
 func gopodSayThinkingLine(robot *vector.Vector, esn string) {
+	gopodSayThinkingWords(robot, esn)
+	// 2026-10-22 (operator: "Got it isn't said in the chat"): the notice log's
+	// first line.
+	gopodValuePointsNoticeGotIt(esn)
+}
+
+// gopodSayThinkingWords: the line said (once more if the robot says it didn't finish).
+func gopodSayThinkingWords(robot *vector.Vector, esn string) {
+	gopodSayWords(robot, esn, gopodThinkingLineSpoken())
+}
+
+// gopodSayWords: a short line of his, said the thinking line's way.
+func gopodSayWords(robot *vector.Vector, esn, text string) {
 	for attempt := 1; attempt <= 2; attempt++ {
 		started := time.Now()
 		resp, err := gopodLogSayText(robot, context.Background(), &vectorpb.SayTextRequest{
 			DurationScalar: 1,
 			UseVectorVoice: true,
-			Text:           gopodThinkingLineSpoken(),
+			Text:           text,
 		})
 		state := "no reply"
 		if resp != nil {
@@ -98,7 +111,29 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	searchStart := time.Now()
 	minRun := gopodSecondsToDuration(cm.SearchingMinSeconds)
 	done := func() bool { return ready() && time.Since(searchStart) >= minRun }
-	for !done() {
+	paused, hadManager := false, false
+	// A manager still talking keeps him waiting, even with his answer ready.
+	for !done() || gopodManagerBusy.Load() {
+		// 2026-10-22 (operator: "the moment a gomad steps in, that's a cue for
+		// the brobot searching to disengage, so the weather response can be
+		// heard"): while a manager has the floor (gopodManagerBusy), no
+		// searching - one get-out, then he waits quietly; searching again after.
+		if gopodManagerBusy.Load() {
+			if !paused {
+				paused, hadManager = true, true
+				logger.Println("GOPOD_THINKING " + gopodBrobotName(esn) + " searching paused (a manager has the floor)")
+				gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
+					Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_getout_01"},
+					Loops:     1,
+				})
+			}
+			time.Sleep(100 * time.Millisecond)
+			continue
+		}
+		if paused {
+			paused = false
+			logger.Println("GOPOD_THINKING " + gopodBrobotName(esn) + " searching again")
+		}
 		sent := time.Now()
 		gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
 			Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_01"},
@@ -108,7 +143,7 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 		if time.Since(searchStart) >= minRun {
 			gap = gopodSecondsToDuration(cm.SearchingResendSeconds)
 		}
-		for !done() && time.Since(sent) < gap {
+		for !done() && !gopodManagerBusy.Load() && time.Since(sent) < gap {
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
@@ -116,6 +151,13 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 		Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_getout_01"},
 		Loops:     1,
 	})
+	// 2026-10-22 (the notice log's 4th line): the floor is back to him - "Got
+	// it!" again, said after a manager had the floor.
+	if brobot {
+		if line := gopodNoticeGotItAgain(esn, hadManager); line != "" {
+			gopodSayWords(robot, esn, line)
+		}
+	}
 }
 
 // GopodThinkingProcess: the process for a song's Brobot (/api-sdk/gopod_thinking),

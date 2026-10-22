@@ -119,41 +119,29 @@ const gopodPersonaMark = "persona:"
 // gopodMicMissing: the USB mic wasn't found after the warm-up (gopodMicCheck).
 var gopodMicMissing atomic.Bool
 
-// gopodMicCheck: the mic (numpad_ptt.mic_usb_id in lsusb) is there, or Goverlord
-// says mic_missing_text and the numpad works dry. Checked after the warm-up.
+// gopodMicCheck: the mic (any of numpad_ptt.mic_usb_ids in lsusb) is there, or
+// Goverlord says mic_missing_text (with its bubble) and the numpad works dry.
+// Checked after the warm-up, which then starts the USB watch (gopod_usb_watch.go).
 func gopodMicCheck() {
-	if gopodMicLook() {
-		return
+	if !gopodMicLook() {
+		gopodSystemShowSay(gopodBrobotsSettings.NumpadPTT.MicMissingText)
 	}
-	if t := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicMissingText); t != "" {
-		gopodSystemSay(t, false)
-	}
+	gopodUSBWatchStart()
 }
 
 // gopodMicLook: true when the mic is there (or lsusb can't tell); sets gopodMicMissing.
 func gopodMicLook() bool {
-	id := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MicUSBID)
-	if id == "" {
-		gopodMicMissing.Store(false)
-		return true
-	}
-	list, err := gopodUSBDevicesErr()
+	found, err := gopodUSBAnyOf(gopodBrobotsSettings.NumpadPTT.MicUSBIDs)
 	if err != nil {
 		logger.Println("GOPOD_MIC lsusb failed (" + err.Error() + ") - not marking the mic missing")
 		gopodMicMissing.Store(false)
 		return true
 	}
-	found := false
-	for _, d := range list {
-		if strings.EqualFold(d.ID, id) {
-			found = true
-		}
-	}
 	gopodMicMissing.Store(!found)
 	if found {
-		logger.Println("GOPOD_MIC found " + id)
+		logger.Println("GOPOD_MIC found")
 	} else {
-		logger.Println("GOPOD_MIC missing " + id + " - numpad works dry")
+		logger.Println("GOPOD_MIC missing - numpad works dry")
 	}
 	return found
 }

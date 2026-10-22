@@ -977,7 +977,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   height: min(560px, 70vh);
 }
 .system-menu {
-  flex: 0 0 50%;
+  flex: 0 0 70%; /* 2026-10-21: system pane 70%, results 30% */
   min-height: 0;
   overflow-y: auto;
   margin-top: 0;
@@ -1097,6 +1097,30 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .brobot-bubble > .search-results.nested-host .search-results-text { font-size: 50%; }
 /* 2026-10-21: a found egg's summary inside a Brobot's bubble - small type. */
 .egg-summary .egg-summary-text { font-size: 60%; line-height: 1.4; }
+/* 2026-10-22: each line of a notice on its own row (value points, then "Got it!"). */
+.bubble-notice .egg-summary-text { display: block; }
 /* GOLDEN raw bubble template (2026-10-21): the hidden staging area - bubbles are
    built and their pictures loaded here, outside the chat, before they show. */
 .bubble-staging { position: fixed; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }
+
+/* 2026-10-22 (operator: "Voice file generating. + hourglass * hourglass same as
+   line height as text * text & resized hourglass on same line"): the Generating
+   line - the hourglass the text's own height, on the text's line, before it. */
+.voice-wait { display: inline-flex; align-items: center; gap: 0.35em; }
+.voice-wait .warmup-timer.generating-timer { display: inline-flex; font-size: 1em; gap: 0; margin: 0; padding: 0; }
+.voice-wait .countdown-hourglass .hg { width: 0.75em; height: 1em; }
+
+/* 2026-10-22 (operator's notice log, line 3: "[icon] PLAYHEAD [icon] I'll help you
+   with that."): a manager's part inside a notice - its header and its line on one
+   row, the notice's own size; its Generating line on that row too. */
+/* 2026-10-22 (operator: "single line, no bubble: [] PLAYHEAD [] I'll help you
+   with that."): no bubble of its own - a plain line of the notice. */
+.bubble-notice .nested-host.in-notice {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4em;
+  margin: 0; padding: 0; font-size: 60%; line-height: 1.4;
+  background: none !important; border: 0 !important; box-shadow: none !important;
+  border-radius: 0; min-height: 0; width: auto; max-width: none;
+}
+.bubble-notice .nested-host.in-notice::before, .bubble-notice .nested-host.in-notice::after { display: none !important; }
+.bubble-notice .nested-host.in-notice .brobot-bubble-head { margin: 0; padding-right: 0 !important; }
+.bubble-notice .nested-host.in-notice .brobot-bubble-text { display: inline; font-size: 1em; }

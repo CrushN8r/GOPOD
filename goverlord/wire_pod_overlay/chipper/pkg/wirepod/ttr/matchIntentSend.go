@@ -274,6 +274,10 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 					logger.Println("Bot " + botSerial + " Perfect match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
 					// GOPOD 2026-10-10: Wire-Pod's own answer, unless the Native? box
 					// is off or a run is going (gopod_native.go).
+					// GOPOD 2026-10-21: a manager takes it in the chat instead (gopodNativeToManager).
+					if gopodNativeToManager(botSerial, b.Name, voiceText) {
+						return false
+					}
 					if gopodNativeBlocked(req, botSerial, b.Name, voiceText) {
 					} else if isOpus {
 						ParamChecker(req, b.Name, voiceText, botSerial)
@@ -299,6 +303,10 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 				for _, c := range b.Keyphrases {
 					if strings.Contains(voiceText, strings.ToLower(c)) && !b.RequireExactMatch {
 						logger.Println("Bot " + botSerial + " Partial match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
+						// GOPOD 2026-10-21: a manager takes it in the chat instead (gopodNativeToManager).
+						if gopodNativeToManager(botSerial, b.Name, voiceText) {
+							return false
+						}
 						if gopodNativeBlocked(req, botSerial, b.Name, voiceText) {
 						} else if isOpus {
 							ParamChecker(req, b.Name, voiceText, botSerial)

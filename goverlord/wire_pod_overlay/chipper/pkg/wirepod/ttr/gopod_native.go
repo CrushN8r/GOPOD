@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -79,9 +80,58 @@ func gopodNativeBlocked(req interface{}, esn, intent, text string) bool {
 // unmatched) don't.
 var gopodNativeBubbleAt = map[string]time.Time{}
 
+// gopodNativeToManager (2026-10-21, operator: "weather goes to PLAYHEAD
+// instead"): a native intent in native.to_manager goes to the chat instead
+// (true: Wire-Pod's own answer is skipped), and the Brobot's chat answer gets
+// that manager take (gopodNativeTakeFor) - spoken weather is PLAYHEAD's, the
+// same as a typed one, even when Vosk heard "whether".
+var gopodNativeTake sync.Map // Brobot name -> gopodNativeAsk
+
+// gopodNativeAsk: the take kind a native intent left, and the line it came with.
+type gopodNativeAsk struct{ kind, text string }
+
+func gopodNativeToManager(esn, intent, text string) bool {
+	kind, ok := gopodBrobotsSettings.Native.ToManager[intent]
+	// A run owns the Brobots (gopodManagerTakes is live only).
+	if !ok || kind == "" || gopodScriptPlaying.Load() || gopodRunActive() {
+		return false
+	}
+	gopodNativeTake.Store(gopodBrobotName(esn), gopodNativeAsk{kind, strings.TrimSpace(strings.ToLower(text))})
+	logger.Println("GOPOD_NATIVE " + intent + " to the chat for its manager (" + kind + "): " + text)
+	return true
+}
+
+// gopodNativeTakeIs: a native intent left this take kind for this line of his.
+func gopodNativeTakeIs(brobot, kind, question string) bool {
+	v, ok := gopodNativeTake.Load(brobot)
+	return ok && v.(gopodNativeAsk).kind == kind && v.(gopodNativeAsk).text == strings.TrimSpace(strings.ToLower(question))
+}
+
+// gopodNativeTakeFor: the manager take a native intent left for this Brobot's answer.
+func gopodNativeTakeFor(brobot, question string) (gopodManagerTake, bool) {
+	v, ok := gopodNativeTake.Load(brobot)
+	if !ok || v.(gopodNativeAsk).text != strings.TrimSpace(strings.ToLower(question)) {
+		return gopodManagerTake{}, false
+	}
+	for _, t := range gopodBrobotsSettings.Managers.Takes {
+		if t.Kind == v.(gopodNativeAsk).kind && t.Host != "" {
+			return t, true
+		}
+	}
+	return gopodManagerTake{}, false
+}
+
+// gopodLLMClosePass (2026-10-21, live 21:25: "Wire-Pod intent activated." after
+// a chat answer): Wire-Pod closes a chat answer's voice request with
+// intent_greeting_hello - that pass is no native intent, so no bubble.
+var gopodLLMClosePass sync.Map
+
 func gopodNativeBubble(esn, intent string) {
+	if _, closing := gopodLLMClosePass.LoadAndDelete(esn); closing {
+		return
+	}
 	ni := gopodBrobotsSettings.NativeIntent
-	if esn == "" || ni.Role == "" || ni.Text == "" || strings.HasPrefix(intent, "intent_system_") {
+	if esn == "" || strings.HasPrefix(intent, "intent_system_") {
 		return
 	}
 	gopodChatFeed.Lock()
@@ -95,7 +145,8 @@ func gopodNativeBubble(esn, intent string) {
 		return
 	}
 	logger.Println("GOPOD_NATIVE " + gopodBrobotName(esn) + ": " + intent)
-	GopodChatFeedAdd(ni.Role, ni.Text)
+	// 2026-10-21: a notice inside his bubble (the bubble notice template).
+	gopodNoticeShow(gopodBrobotName(esn), gopodBrobotsSettings.BubbleNotices.NativeIntent, map[string]string{"intent": intent})
 }
 
 func gopodNativeLetGo(esn, intent string) {

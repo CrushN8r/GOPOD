@@ -102,8 +102,14 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 	case "redirect":
 		// A line to both: the first answer hands over (addressing.redirect_text).
 		if _, first := gopodAllFirstAnswer.LoadAndDelete(esn); first {
-			if t := strings.TrimSpace(gopodBrobotsSettings.Addressing.RedirectText); t != "" {
-				line := strings.ReplaceAll(t, "{brother}", gopodBrobotName(gopodBrotherOf(esn)))
+			// 2026-10-21: his own hand-over line (host_personas.handover) first.
+			brother := gopodBrobotName(gopodBrotherOf(esn))
+			t := gopodHandoverLine(gopodBrobotName(esn), brother)
+			if t == "" {
+				t = strings.ReplaceAll(strings.TrimSpace(gopodBrobotsSettings.Addressing.RedirectText), "{brother}", brother)
+			}
+			if t != "" {
+				line := t
 				logger.Println("BROBOT_REDIRECT " + gopodBrobotName(esn) + ": " + line)
 				return strings.TrimSpace(raw) + gopodThoughtGap() + line
 			}

@@ -13,6 +13,8 @@ in three parts. The full show standard (songs, the chat page, every rule and com
 
 Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
 
+**GOPOD not tested on other devices or set ups. Back up your stuff and attempt at your own risk.**
+
 ---
 
 ## Contents

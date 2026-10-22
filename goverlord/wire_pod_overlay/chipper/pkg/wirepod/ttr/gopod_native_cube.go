@@ -52,6 +52,7 @@ func gopodRunNativeCube(esn, text string) bool {
 		return false
 	}
 	logger.Println("Bot " + esn + " Native cube intent (typed): " + intent)
+	gopodNativeBubble(esn, intent)
 	go func() {
 		gopodChatHoldLetGo(esn)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

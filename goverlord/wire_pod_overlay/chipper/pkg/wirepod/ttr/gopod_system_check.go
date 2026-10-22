@@ -162,6 +162,10 @@ func gopodSystemCheckProblems() ([]string, int) {
 			}
 		}
 	}
+	// 2026-10-21: the golden value points (gopod_value_points_golden.go).
+	vp := gopodValuePointsProblems()
+	checked += len(gopodValuePointsNow())
+	problems = append(problems, vp...)
 	for name := range gopodBrobotsSettings.TopicPictures.EggNames {
 		checked++
 		if !topics[name] {
@@ -313,6 +317,7 @@ func gopodSystemCheck() string {
 
 // gopodSystemCheckAtStart writes every problem to the journal at Wire-Pod's start.
 func gopodSystemCheckAtStart() {
+	gopodValuePointsFirstLock()
 	problems, checked := gopodSystemCheckProblems()
 	for _, p := range problems {
 		logger.Println("GOPOD_CHECK " + p)

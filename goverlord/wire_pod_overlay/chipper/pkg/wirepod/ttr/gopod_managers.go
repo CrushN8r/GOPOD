@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -40,6 +41,8 @@ type gopodManagerTake struct {
 	Kind     string   `json:"kind"`
 	Words    []string `json:"words"`
 	TakeText string   `json:"take_text"`
+	// 2026-10-22: the Brobot says the result, the manager only take_text.
+	BrobotSays bool `json:"brobot_says"`
 }
 
 // gopodManagerTakes: the take this line asks for (the first word in the line), live only.
@@ -101,11 +104,57 @@ func gopodManagerTo() string {
 	return ""
 }
 
+// gopodManagerBusy: a manager has the floor (gopodManagerDo) - a Brobot's
+// searching waits (gopodThinkingProcess).
+var gopodManagerBusy atomic.Bool
+
+// gopodManagerLastHost: the manager who last had the floor ("PLAYHEAD").
+var gopodManagerLastHost atomic.Value
+
+// gopodManagerStepIn (2026-10-22, the Brobot Bubble template's notice line 3):
+// the take this Brobot's line asks for (its words, or a native intent's), done
+// now - after his "Got it!" and value point line, while his answer is being
+// written; its lines go in his notice. Once per line (the second Brobot in a line
+// to both doesn't take it again).
+var gopodManagerStepped = struct {
+	sync.Mutex
+	line string
+	at   time.Time
+}{}
+
+func gopodManagerStepIn(brobot, question string) {
+	take, _, ok := gopodManagerTakes(strings.ToLower(question))
+	if !ok {
+		take, ok = gopodNativeTakeFor(brobot, question)
+	}
+	if !ok {
+		return
+	}
+	line := strings.TrimSpace(strings.ToLower(question))
+	gopodManagerStepped.Lock()
+	again := gopodManagerStepped.line == line && time.Since(gopodManagerStepped.at) < time.Minute
+	if !again {
+		gopodManagerStepped.line, gopodManagerStepped.at = line, time.Now()
+	}
+	gopodManagerStepped.Unlock()
+	if again {
+		return
+	}
+	gopodManagerDoFor(take, question, brobot)
+}
+
 // gopodManagerDo: the manager takes the line and does its job.
 func gopodManagerDo(t gopodManagerTake, userMessage string) {
+	gopodManagerDoFor(t, userMessage, gopodManagerTo())
+}
+
+// gopodManagerDoFor: gopodManagerDo with its lines in this Brobot's bubble.
+func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
+	gopodManagerBusy.Store(true)
+	gopodManagerLastHost.Store(t.Host)
+	defer gopodManagerBusy.Store(false)
 	place := gopodWeatherPlace(userMessage)
-	to := gopodManagerTo()
-	if t.Kind == "weather" {
+	if t.Kind == "weather" && !t.BrobotSays {
 		gopodManagerWeatherAt.Store(time.Now().UnixMilli())
 	}
 	if s := strings.TrimSpace(t.TakeText); s != "" {
@@ -113,6 +162,11 @@ func gopodManagerDo(t gopodManagerTake, userMessage string) {
 	}
 	switch t.Kind {
 	case "weather":
+		// 2026-10-22 (operator: "no weather voice generation or display, weather
+		// spoken by brobot"): his reply opens with the golden weather line.
+		if t.BrobotSays {
+			return
+		}
 		line, _ := gopodWeatherSayAt(gopodBrobot1ESN, place)
 		// 2026-10-18 (operator: "please remove easter egg status from weather * no
 		// more weather pop up. too common"): no egg - the line only.

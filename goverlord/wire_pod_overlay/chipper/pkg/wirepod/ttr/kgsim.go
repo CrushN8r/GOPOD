@@ -241,6 +241,10 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText)); facts != "" {
 			smsg.Content += "\n\n" + gopodBrobotsSettings.QuestionFactsHeader + "\n" + facts
 		}
+		// GOPOD 2026-10-22: his pre-build context, after the facts (gopodPrebuildContext).
+		if pre := gopodPrebuildContext(esn, transcribedText); pre != "" {
+			smsg.Content += "\n\n" + pre
+		}
 		smsg.Content = string(appendPromptSection([]byte(smsg.Content), []byte(gopodReplyShapeSection(gopodBrobotName(esn)))))
 		smsg.Content = string(appendPromptSection([]byte(smsg.Content), []byte(gopodFinalOutputGuard)))
 	} else {
@@ -383,6 +387,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		// (gopod_record_session.go).
 		if GopodRecordSessionAnswer(transcribedText) {
 			if !isKG && req != nil {
+				gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
 				IntentPass(req, "intent_greeting_hello", "", map[string]string{}, false)
 			}
 			return "", nil
@@ -551,6 +556,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	successIntent := make(chan bool)
 
 	aireq := CreateAIReq(transcribedText, esn, false, isKG)
+	// GOPOD 2026-10-22: the value points notice in his bubble (gopodValuePointsNoticePost).
+	gopodValuePointsNoticePost(esn)
 	// GOPOD 2026-10-15: a pop-up's picture as the vision model saw it
 	// (gopod_picture_describe.go), before the question; a question about
 	// chocolate bingo has its pictures looked at now (describe_on_ask).
@@ -730,6 +737,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				// GOPOD 2026-10-04: a typed question (gopod_typed_input.go) has no
 				// voice request to close.
 				if !isKG && req != nil {
+					gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
 					IntentPass(req, "intent_greeting_hello", transcribedText, map[string]string{}, false)
 				}
 				// GOPOD 2026-10-06: the interview's chapter title before the reply.
