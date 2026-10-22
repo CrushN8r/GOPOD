@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"sync"
 	"bytes"
 	"errors"
 	"os/exec"
@@ -298,10 +299,40 @@ func gopodAllStartsWith(text string) string {
 
 // gopodAllFirst: the Brobot answering first in a line to both (Brobot 1 unless told).
 func gopodAllFirst(text string) string {
-	if gopodAllStartsWith(text) == "Brobot 2" {
+	if gopodAllStartsWith(text) == "Brobot 2" || gopodAllFirstPicked(text) == "2" {
 		return gopodBrobot2ESN
 	}
 	return gopodBrobot1ESN
+}
+
+// The page's All menu (2026-10-22, operator: "replace 'All' radio button with a
+// small drop down menu: 1/2 * default = '1' (brobot 1) * '2' = (brobot 2) *
+// template drop down menu selection with default brobot 1/'Starting with Brobot
+// 2'"): "2" is the same as "Starting with Brobot 2" for that line - kept by its
+// words, so only that line is turned round (typed_line.all_first).
+var gopodAllFirstPick = struct {
+	sync.Mutex
+	text, first string
+}{}
+
+// GopodAllFirstPick: the menu's choice for a typed line ("" = the default).
+func GopodAllFirstPick(text, first string) {
+	first = strings.TrimSpace(first)
+	if first == "" {
+		first = strings.TrimSpace(gopodBrobotsSettings.TypedLine.AllFirst)
+	}
+	gopodAllFirstPick.Lock()
+	gopodAllFirstPick.text, gopodAllFirstPick.first = strings.TrimSpace(text), first
+	gopodAllFirstPick.Unlock()
+}
+
+func gopodAllFirstPicked(text string) string {
+	gopodAllFirstPick.Lock()
+	defer gopodAllFirstPick.Unlock()
+	if gopodAllFirstPick.text != "" && gopodAllFirstPick.text == strings.TrimSpace(text) {
+		return gopodAllFirstPick.first
+	}
+	return ""
 }
 
 // gopodShowCommandLine: a command line's Operator bubble ("Keyboard to Brobot

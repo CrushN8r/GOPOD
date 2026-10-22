@@ -1,6 +1,7 @@
 label: clubs and comedy rooms
 words: bar, bars, club, clubs, nightclub, nightclubs, comedy club, comedy clubs, nightlife, comedy, casino, casinos, windsor
 say 1: GOPOD gives controlled rooms an interactive character-driven event machine. It can support clubs, comedy rooms, bars, banquet halls, weddings, and other events.
+notes 1: rooms & events | clubs, comedy, bars, weddings | fast attention, shareable moments
 ---
 GOPOD gives controlled rooms an interactive character-driven event machine.
 

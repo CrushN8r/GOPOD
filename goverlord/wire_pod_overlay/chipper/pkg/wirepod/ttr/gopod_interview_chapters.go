@@ -290,6 +290,10 @@ func gopodEggSummaryPost(who, key, title, card string) {
 	if summary == "" {
 		return
 	}
+	// 2026-10-22: a line of his one Value Points notice (gopodNoticeEgg).
+	if gopodNoticeEgg(who, title, summary) {
+		return
+	}
 	gopodNoticeShow(who, gopodBrobotsSettings.BubbleNotices.Egg, map[string]string{"title": title, "summary": summary})
 }
 

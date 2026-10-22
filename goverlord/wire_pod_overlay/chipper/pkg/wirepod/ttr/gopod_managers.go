@@ -143,6 +143,32 @@ func gopodManagerStepIn(brobot, question string) {
 	gopodManagerDoFor(take, question, brobot)
 }
 
+// gopodWeatherLineEnd (2026-10-22, operator: "add weather image centered below,
+// after weather report fully spoken * then the rest of the response"): this
+// spoken piece ends the golden weather line ("... as of 4:45 AM or 0445 Hours
+// Military Time.").
+func gopodWeatherLineEnd(said string) bool {
+	l := strings.ToLower(said)
+	return strings.Contains(l, "as of ") && (strings.Contains(l, "military time") || strings.Contains(l, "ay-emm") || strings.Contains(l, "pee-emm") || strings.Contains(l, " am") || strings.Contains(l, " pm"))
+}
+
+// gopodWeatherShowMark: the page shows his weather picture and plays its sound.
+const gopodWeatherShowMark = "weathershow:"
+
+// gopodWeatherLineSaid: his weather line is said - the page shows its picture
+// and plays its sound; he waits weather_card.pause_seconds, then goes on.
+func gopodWeatherLineSaid(esn string) {
+	brobot := gopodBrobotName(esn)
+	if (brobot != "Brobot 1" && brobot != "Brobot 2") || !gopodBrobotsSettings.WeatherCard.Picture {
+		return
+	}
+	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, brobot, gopodWeatherShowMark)
+	if p := gopodBrobotsSettings.WeatherCard.PauseSeconds; p > 0 {
+		logger.Println(fmt.Sprintf("GOPOD_WEATHER %s: picture and sound, then %.1f s", brobot, p))
+		time.Sleep(gopodSecondsToDuration(p))
+	}
+}
+
 // gopodManagerDo: the manager takes the line and does its job.
 func gopodManagerDo(t gopodManagerTake, userMessage string) {
 	gopodManagerDoFor(t, userMessage, gopodManagerTo())

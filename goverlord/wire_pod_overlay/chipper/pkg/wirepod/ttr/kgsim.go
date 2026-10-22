@@ -245,6 +245,10 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if pre := gopodPrebuildContext(esn, transcribedText); pre != "" {
 			smsg.Content += "\n\n" + pre
 		}
+		// GOPOD 2026-10-22: the answer chain's shape for the model (gopodChainPrompt).
+		if cp := gopodChainPrompt(esn, transcribedText); cp != "" {
+			smsg.Content += "\n\n" + cp
+		}
 		smsg.Content = string(appendPromptSection([]byte(smsg.Content), []byte(gopodReplyShapeSection(gopodBrobotName(esn)))))
 		smsg.Content = string(appendPromptSection([]byte(smsg.Content), []byte(gopodFinalOutputGuard)))
 	} else {
@@ -500,6 +504,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		})
 	}
 	spokenCount := 0
+	weatherShown := false // GOPOD 2026-10-22: his weather line's picture, once
 	var interrupted bool
 	markRawResponseLocked := func(result gopodStreamResult) {
 		if !markerZeroSeen {
@@ -998,6 +1003,12 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				close(actionStop)
 				if act.Action == ActionSayText {
 					logger.LogDebugUI(fmt.Sprintf("GOPOD_VECTOR_PHRASE: %s done took=%dms", gopodBrobotName(robot.Cfg.SerialNo), time.Since(actStart).Milliseconds()))
+					// GOPOD 2026-10-22: his weather line said - its picture and sound,
+					// then the rest (gopodWeatherLineSaid).
+					if !weatherShown && gopodWeatherLineEnd(act.Parameter) {
+						weatherShown = true
+						gopodWeatherLineSaid(robot.Cfg.SerialNo)
+					}
 				}
 				if disconnect {
 					break

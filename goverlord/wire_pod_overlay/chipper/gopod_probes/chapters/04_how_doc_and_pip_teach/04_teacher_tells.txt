@@ -2,6 +2,9 @@ label: the teacher's tells
 words: teacher, teachers, seven tells, pip defender, watching the room
 reminder: Hey, that reminds me... The teacher stops performing and starts watching.
 say 1: The teacher stops performing and starts watching.
+notes 1: the teacher | stops performing, starts watching
+notes 2: seven tells | laughers, leaners, Pip defenders | shouters and still ones
+notes 3: not diagnoses | hunches to test next class
 ---
 The teacher's part (not built yet - it needs the multichat layer). Reveal these, in order, in your own words:
 1. The teacher stops performing and starts watching.

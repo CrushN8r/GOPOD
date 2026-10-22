@@ -376,6 +376,43 @@ func gopodLiveWeatherLine(esn, place string) string {
 		where, facts.Local.Format("January 2"), facts.Local.Year(), units, facts.Description, clock)
 }
 
+// gopodWeatherReportLine (2026-10-22, operator's multiple responses template:
+// "BROBOT N responding first: Brobot Weather Report for [Windsor Ontario Canada]
+// [🇨🇦], [October 22, 2026]. Temperature is [68° Fahrenheit] and [clear] sky as of
+// 3:49 PM * brobot 2 is imperial/F/12-hour clock"; "BROBOT N responding next:
+// Confirmed. Temperature is [20° Celsius] at [1549 Hours Military Time] * brobot 1
+// is metric/C/24-hour clock"): the weather line in a weather_lines format -
+// "report" (first or only) or "confirm" (next) - in this robot's own unit and
+// clock; "" when that format is empty or there's no weather (the golden line then).
+func gopodWeatherReportLine(esn, place, kind string) string {
+	format := strings.TrimSpace(gopodBrobotsSettings.WeatherLines[kind])
+	if format == "" {
+		return ""
+	}
+	facts, err := gopodLiveWeatherFacts(place)
+	if err != nil && place != "" {
+		facts, err = gopodLiveWeatherFacts("")
+	}
+	if err != nil {
+		return ""
+	}
+	fahrenheit, clock24 := gopodRobotWeatherFormat(esn)
+	temp := fmt.Sprintf("%d° Celsius", int(math.Round(facts.TempC)))
+	if fahrenheit {
+		temp = fmt.Sprintf("%d° Fahrenheit", int(math.Round(facts.TempC*9/5+32)))
+	}
+	clock := facts.Local.Format("3:04 PM")
+	if clock24 {
+		clock = facts.Local.Format("15:04")
+		if label := gopodBrobotsSettings.LiveWeather.MilitaryLabel; label != "" {
+			clock = facts.Local.Format("1504") + " " + label
+		}
+	}
+	where, _ := gopodPlaceAndClock(esn, facts)
+	return strings.NewReplacer("{place}", where, "{date}", fmt.Sprintf("%s, %d", facts.Local.Format("January 2"), facts.Local.Year()),
+		"{temp}", temp, "{sky}", facts.Description, "{time}", clock).Replace(format)
+}
+
 // gopodPlaceAndClock: the place ("Windsor Ontario Canada 🇨🇦") and the time
 // ("1405 Hours Military Time or 2:05 PM") as the weather line says them - shared
 // with PLAYHEAD's time and place line (gopod_managers.go).

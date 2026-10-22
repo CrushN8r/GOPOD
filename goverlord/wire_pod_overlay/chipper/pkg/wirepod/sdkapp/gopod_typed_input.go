@@ -21,6 +21,8 @@ func gopodTypedInputHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// 2026-10-09: voice=1 from a voice command's script (the robot heard it; the
 	// page already shows what it heard).
+	// 2026-10-22: the page's All 1/2 menu - who answers first.
+	wirepod_ttr.GopodAllFirstPick(r.FormValue("text"), r.FormValue("first"))
 	input := wirepod_ttr.GopodTypedInput
 	if r.FormValue("voice") == "1" {
 		input = wirepod_ttr.GopodVoiceCommandInput

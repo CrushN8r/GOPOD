@@ -3,6 +3,10 @@ words: songs, song, awaken, baby robots, is that you song, your routines, what s
 reminder: Hey, that reminds me... We perform songs too - Awaken, Bingo, Is That You.
 say 1: Awaken: a brobot wakes up, checks its arms and head, tells you the weather, and says it's ready.
 say 4: Baby Robots Sleep: one brobot alone, telling where it came from and how it got its name.
+notes 1: Awaken | wake up, check arms and head | the weather | ready
+notes 2: Bingo | drawing numbers together | ribbing each other
+notes 3: Is That You | call one Brobot | the other answers
+notes 4: Baby Robots Sleep | one Brobot | where it came from, how it got its name
 ---
 Your songs - scored sequences you perform together. Reveal these, in order, in your own words:
 1. Awaken: a brobot wakes up, checks its arms and head, tells you the weather, and says it's ready.

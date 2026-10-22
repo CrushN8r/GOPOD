@@ -4,6 +4,10 @@ pictures: gangster_granny.jpg
 reminder: Hey, that reminds me... Teach how to think, not what to think.
 say 1: Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.
 say 4: Method is a loop. Method carries.
+notes 1: Doc's teaching | how to think, not what | fishing, not fish
+notes 2: the loops | ideas and ways of thinking | carried by the people who meet them
+notes 3: Gangster Granny | 93 years young | helped Brobot 0 when it counted | sparkly bling cap
+notes 4: Doc's lesson | how to think | method carries
 ---
 Legacy. Reveal these, in order, in your own words:
 1. Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.

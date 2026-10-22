@@ -117,12 +117,12 @@
       {
         "when": "reminder",
         "at": "end",
-        "chance": 0.5
+        "why": "2026-10-22 (operator, on the random end lines: \"see my comment about generating answer-chains\" - value points generate the answer chains): no dice - a topic answer always ends steering to the next points."
       },
       {
-        "when": "any",
+        "when": "newsletter",
         "at": "end",
-        "chance": 0.25,
+        "why": "2026-10-22: was any + a 25% chance; now the newsletter topic's own end (value points, not dice).",
         "lines": [
           "Wanna know more? Get CREW'd by subscribing to our newsletter!",
           "And if you ever feel the urge, just GOPOD Yourself!"
@@ -335,7 +335,8 @@
   },
   "system_set": {
     "about": "2026-10-17 (operator: \"automate the editing of all song pieces * like ask Goverlord to do it via the chat window * similar to start run-name, use \\\"system-set\\\" ... I type: system-set this-volume 13%\"; \"send \\\"system-set\\\" from web page keyboard as a terminal-command * terminal-results are sent back to chat bubbles window * In terminal-results chat bubble, make terminal-bubble-text font-size 50% of current bubble-text font-size\"): typed on the chat page's keyboard only (not voice, not the numpad). A fixed list of edits, never a terminal command: a named setting (system-set lists them) or one field of one song step (volume, text, timing), written into this file, the song's knobs.json (and zKnobs.json) or story.md - only that value, checked before it's saved. The answer (old -> new, and when it takes effect: F5, wpr 2, or the next run) shows in a terminal bubble from role. gopod_system_set.go.",
-    "role": "Terminal"
+    "role": "Terminal",
+    "role_about": "2026-10-22 (operator: \"Terminal under Goverlord & adjust accordingly\"): Goverlord's terminal bubble - Goverlord's header, a goverlord bubble kind; \"Terminal\" is only the role's inside name."
   },
   "chat_window": {
     "about": "The chat bubbles window's timings and sizes (operator 2026-10-18: \"ensure flexible data/info values/variables are in loadable files (css, js, json, md, etc...) * code is dumb flow guiding machine\"), read by the page on F5: max_bubbles/max_seen - the saved chat; baton_max_ms - the longest a bubble waits for the one above to finish; bubble_ready_max_ms - for its pictures to load; reply_delay_ms - a reply after its question; top_gap_px - space above the newest bubble; scroll_ms - one scroll; focus_dead_zone - how far the highlight may drift before the chat follows (share of the window); countdown_hold_ms / countdown_hold_most_ms - the next line after a countdown; voice_lit_wait_ms - a reporter/Goverlord line's words show anyway after this with no voice; marquee_* - the egg bulbs; narrator_fade_* - the narrator bubbles' fades (seconds); reveal_rest_ms - a reply's rest shows after this with no more highlight.",
@@ -422,7 +423,8 @@
   },
   "display_names": {
     "about": "2026-10-22 (operator: \"base = robot by ESN * wired-pod = brobots (Brobot N) * GOPOD = persona-name and chat participant\"; \"Look at the numpad mapping as a temporary source of golden truth * brobots 3/4 should really be brobots 7/8, as per numpad\"; \"a bubble's header in a scripted run should have what values? default (CHALK), fallback (Brobot 7), remembered edits (CHALK BORED)? * editable\"): the header template for the reporters' and managers' bubbles in the chat - edits (a remembered edit, by its default name: system-add display_names.edits CHALK = CHALK BORED), else default (the GOPOD persona), else fallback ({n} = the numpad key whose persona it is: KP7 CHALK = Brobot 7), else reporter_voices.labels. Scripts keep their own names (Reporter 1/2); the chat shows these. Page only: F5.",
-    "default": {"Brobot 3": "CHALK", "Brobot 4": "PLAYHEAD", "CHALK": "CHALK", "PLAYHEAD": "PLAYHEAD"},
+    "default_about": "2026-10-22 (operator: \"numpad mapping sounds like a good template to form from\"): left empty, the default comes from the numpad map (~/.gopod_alias_lib/numpad_persona_map_001.json) - its persona for that voice (managers.personas reporter links Brobot 3 -> CHALK, Brobot 4 -> PLAYHEAD). A name here overrides it.",
+    "default": {},
     "fallback": "Brobot {n}",
     "edits": {}
   },
@@ -430,12 +432,23 @@
     "about": "2026-10-22 (operator: \"TEMPLATE IT ALL OUT!!\"): GOLDEN - the Brobot Bubble, one shape for every live answer, Brobot 1 and 2 alike, in this order. header: \"Brobot N:\" (+ the zoomable weather picture top right, its sound again on a click after its first play). got_it: he says chat_moves.thinking_text - notice line 1. value_points: notice line 2 (bubble_notices.value_points: points, search, none). manager: notice line 3 - a manager whose take his line asks for (managers.takes, native.to_manager) steps in now, while his answer is written; his searching waits; the manager's line uses the Generating template; a take with brobot_says leaves the result to him. thanks: notice line 4 - after a manager, he says got_it_again (\"Thanks for your help, {helper}.\"). reply: his answer-chained reply (answer_chains; a weather question opens with the golden weather line). A step left out of steps is skipped (manager, thanks); got_it, value_points and reply always run.",
     "steps": ["header", "got_it", "value_points", "manager", "thanks", "reply"]
   },
+  "gravity": {
+    "about": "2026-10-22 (operator: \"remember the gravitational pull to reveal all value points * please template this somewhere in the flow, lol * kinda like 'Back on track'\"; GOPOD = a game of query for value points - however far it's pushed, it steers back): the pull, in every Brobot answer's flow - 1. his prompt's pre-build context names his reminders-list (prebuild_context: the points still to say); 2. his notice names them - \"Back on track: ...\" after a free answer, \"Next up: ...\" after a topic answer (bubble_notices.value_points.recovery / next); 3. his reply ends steering to them - \"Hey, that reminds me...\" (answer_chains reminder part for a free answer, the reminder end line for a topic answer; no dice). All three name the same points (gopodReminderLine)."
+  },
   "bubble_notices": {
     "about": "2026-10-22 (operator: \"make standard, the Notice-bubble inside a Brobot's bubble\"; \"template out what goes in a notice-bubble\"): what goes in each notice at the top of a Brobot's bubble (the bubble notice template, gopodBubbleNotice: a title, then its lines, each on its own row; a notice with the same title takes more lines underneath). value_points: every live Brobot answer - what his answer is built from, that the GOPOD reps are hired to reveal - its parts in this order: points (one per value point given: {id} topic#n, {words}), weather ({line}), search ({search}), none (no value point), got_it ({thinking_text} = chat_moves.thinking_text, added once he has said it). egg: a found egg ({title}, {summary}). native_intent: a native Wire-Pod intent ({intent}). An empty title = that notice is off; a part left out of parts isn't shown.",
     "value_points": {
       "title": "Value Points",
       "log_about": "2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
-      "parts": ["got_it", "points", "search", "none"],
+      "parts": ["got_it", "points", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score"],
+      "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
+      "note": "-{note}",
+      "egg": "Easter Egg '{title}': {summary}",
+      "combo": "Combo: {topics}",
+      "chapter": "Chapter cleared: {chapter}",
+      "recovery": "Back on track: {topics}",
+      "next": "Next up: {topics}",
+      "score": "Value Points {said} / {total}",
       "got_it": "{thinking_text}",
       "points": "{topic} #{n}: {words}",
       "weather": "Weather: {line}",
@@ -573,7 +586,7 @@
     "numpad_missing_text": "Master CrushN8r, the USB numpad is missing.",
     "numpad_found_text": "Master CrushN8r, the USB numpad is detected and wired in.",
     "mic_disabled_seconds": 1.2,
-    "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "error", "numlock_off", "not_live"],
+    "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "wait_message", "error", "numlock_off", "not_live"],
     "texts": {
       "hold": "🎙 {key} → {brobot}: keep holding…",
       "recording": "🔴 Recording for {brobot} - talk, then let go",
@@ -583,6 +596,7 @@
       "mic_disabled": "🎙 Mic disabled - no USB mic",
       "no_mic": "🎙 No USB mic found - check the mic's plug",
       "not_ready": "⏳ Not ready yet - wait for LLM Ready",
+      "wait_message": "⏳ Wait - Goverlord is still giving the mic's message",
       "error": "Push-to-talk failed: {error}",
       "numlock_off": "NumLock is off - {key} needs NumLock on",
       "not_live": "{key} is {persona} ({body}) - not live yet",
@@ -799,6 +813,10 @@
   "weather_card": {
     "about": "2026-10-14 (operator: \"In chat bubbles, use the animations where possible (cold has no animation) * pre-load related audio to play @ 10 % volume * use same rule: aligned top-right * display 50% of actual size\"): a bubble holding the live weather line (\"... Celsius, and <weather>, as of ...\") gets Vector's weather face (folder/faces/<face>.webp, the weather kit; gopod_weather_kit.html shows them all) in its top-right corner at Vector's own size (184x96), in the speaking Brobot's eye colour, with the magnifier; its sound (folder/sounds/<sound>.mp3) is loaded with the bubble and plays once as it shows, at chat_audio.volume. faces: the first whose words are in the line wins; night_face/night_sound from night_from to night_to o'clock (the line's \"as of\" time). Cold has no face on Vector, so none here. The page reads it on F5.",
     "folder": "weather",
+    "pause_about": "2026-10-22 (operator: \"add weather image centered below, after weather report fully spoken * weather audio still plays 1st without the weather image * then the rest of the response\"): the weather sound plays once as his bubble shows (a background effect, he doesn't wait for it); once he has said the weather line, its picture shows centred under it (weathershow:) and he waits pause_seconds before the rest - the template for any \"wait for a picture/sound\" spot later (gopodWeatherLineSaid).",
+    "pause_seconds": 3,
+    "picture_about": "2026-10-22 (operator: \"pin weather image for later * remove weather image from response for now, too much complexity * keep the 1st weather audio played\"): false - no picture in the reply, only its sound once as the bubble shows, and no pause; true puts the picture back under the weather line (with pause_seconds).",
+    "picture": false,
     "volume_about": "2026-10-14 (operator: \"Weather audio too loud, lol * play @ 10% volume in the background while brobot is speaking * increase weather animation size from 50% to 100%\"): the weather sound's own level (0-1), not a share of chat_audio.volume, like the background loop. The face shows at Vector's own size, 184x96. 2026-10-17 (the master): a percentage of chat_audio.volume now, like every volume knob - 0.1 on its own was 29% of 0.35.",
     "volume": "29%",
     "night_from": 20,
@@ -823,6 +841,19 @@
     "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
   },
   "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
+  "multiple_responses_about": "2026-10-22 (operator: \"Multiple Responses Template * no reminders in 1st brobot response * this is how I see answer-chains handling different queries * cater answer-chains to handle known/expected/desired prompts to reveal value points\"): a line to both - the first Brobot: weather report (weather_lines.report), weather comment, his value point, the hand-over (answer_chains.brobots_all_first, no reminders); the next: weather confirmed (weather_lines.confirm), comment following his brother's, his value point, the Weather Kit, the reminders (brobots_follow_up). A single answer: report, comment, value point, reminders (brobots). Each Brobot's own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C / 24-hour). The model's parts: chain_prompts.",
+  "weather_lines": {
+    "report": "Brobot Weather Report for {place}, {date}. Temperature is {temp} and {sky} as of {time}.",
+    "confirm": "Confirmed. Temperature is {temp} at {time}."
+  },
+  "chain_prompts": {
+    "weather_point_first": "Write two short paragraphs: first one line about this weather; then, on a new line, party on your value point above, your way.",
+    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way."
+  },
+  "typed_line": {
+    "about": "2026-10-22 (operator: \"replace 'All' radio button with a small drop down menu: 1/2 * default selection = '1' (brobot 1) * selection '2' = (brobot 2) * look at 'Starting with Brobot 2' flag/condition * template drop down menu selection with default brobot 1/'Starting with Brobot 2'\"): the page's All menu picks who answers first in a line to both - 2 is the same as \"Starting with Brobot 2\" (gopodAllFirst); all_first is the default when the page sends none. The words still win: \"Starting with Brobot 2\" turns it round with the menu on 1.",
+    "all_first": "1"
+  },
   "colour_slots": {
     "about": "2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 3; operator: \"set cap from 5 sentences to 4 sentences\"): colour:value_point in answer_chains - a value point's exact line (its topic's say N: line) said word for word first, the model's part after it its colour, cut to max_sentences (even with reply_tighten.budget_off). Doc and Pip colour it their own way (host_personas).",
     "max_sentences": 4,
@@ -830,8 +861,9 @@
   },
   "answer_chains": {
     "base": {"parts": ["start_snippet", "colour:value_point", "llm", "weather_kit", "reminder", "end_snippet", "redirect"]},
-    "brobots": {"from": "base"},
-    "brobots_follow_up": {"from": "base"},
+    "brobots": {"parts": ["start_snippet", "colour:value_point", "llm", "reminder", "end_snippet"]},
+    "brobots_all_first": {"parts": ["start_snippet", "colour:value_point", "llm", "redirect"]},
+    "brobots_follow_up": {"parts": ["start_snippet", "colour:value_point", "llm", "weather_kit", "reminder", "end_snippet"]},
     "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
   },
   "system_menu": {
@@ -2167,6 +2199,8 @@
     "reminder_chapters_text": "Hey, that reminds me... coming up: {chapters}",
     "reminder_note_2026_10_07b": "Approved 2026-10-07. A topic or chapter a reminder has named isn't named again (per Wire-Pod start); the chapter form is the next chapter with its summary, then the one after by title only.",
     "reminder_topics_text": "Hey, that reminds me... we've still got {topics} to get to!",
+    "pick_about": "2026-10-22 (live: \"Tell me about Pip\" got Doc's point and \"Who is Doc\" got Pip's; operator: \"go on step 1\"): a topic's next point is the one not said yet whose words (the point, its notes, its say line) share the most with the question; with none shared, the next in order (the pull). These words don't count.",
+    "pick_skip_words": ["the", "and", "you", "your", "are", "what", "who", "how", "why", "tell", "about", "this", "that", "with", "for", "our", "has", "have", "was", "his", "her", "its", "there", "here", "they", "them", "can", "does", "did", "brobot", "brobots", "bro", "bros", "hey", "know", "more", "please", "say", "talk", "lol", "like", "just", "some", "any", "get", "got", "want"],
     "reminder_topic_count": 3,
     "reminder_eggs_about": "2026-10-17 (operator: \"'Hey that reminds me' thought bubbles need to be updated * updated to center around a list of easter eggs (chapter/topics/value-points) * during live chat, whatever easter eggs not discovered, are left on the list to mention * so brobots in their responses also finish with helping to keep the conversation flowing * like a fallback list of sellable features the brobots have, as GOPOD reps\"): the egg list (gopod_egg_list.go) is every topic with a prize (its pictures or card; named by topic_pictures.egg_names, else interview_chapters.topic_labels), in the chapters' order, then these eggs that aren't a topic's (key: their pop-up's name). An egg found since Wire-Pod's start is off the list. Each reminder names at least one egg still to find; a question on no topic still ends with reminder_egg_count of them (not a thank-you). Each egg in turn; once all have been named, round again. Labels are drafts for the operator to change.",
     "reminder_eggs": [
@@ -2254,28 +2288,28 @@
       "role": "I deliver the point - the fact, cleanly, from the first rule up.",
       "steps": ["read the question", "name the point", "build it from the first rule up", "end so it couldn't be any other way"],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
     },
     "Brobot 2": {
       "name": "Pip",
       "role": "I react the way the audience would - I'm their pied piper - and carry the next point when there is one.",
       "steps": ["catch my brother's point", "ask the shy question, or guess wrong the way people really do", "catch up and say the wow", "hand over to the next point"],
       "signature": "raise your hand if you got that wrong too!",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
     },
     "CHALK": {
       "name": "CHALK BORED",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
     },
     "PLAYHEAD": {
       "name": "PLAYHEAD ZUMINTU",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate"]}
+      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
     }
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",

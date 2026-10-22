@@ -2,5 +2,6 @@ label: the call for help
 words: help wanted, need help, looking for help, hiring, social media help, volunteer, join the team, work with you, work for you
 reminder: Hey, that reminds me... Brobot 0 is looking for help with the social media side.
 say 1: Brobot 0 is looking for help: one person, or a small team, for the social media side of GOPOD. He's looking for help here in Windsor-Essex. The way in: crushn8r.ca.
+notes 1: help wanted | social media, coach or hands-on | short videos every week | Windsor-Essex, crushn8r.ca
 ---
 Brobot 0 is looking for help: one person, or a small team, for the social media side of GOPOD - coaching (teach him to run it) or hands-on (run it for him). Social accounts set up and on a schedule, a posting template he can repeat, two Shorts and one long cut a week. Not inventing the act, not a five-year company. He's looking for help here in Windsor-Essex. The way in: crushn8r.ca.

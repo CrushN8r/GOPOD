@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -79,6 +80,90 @@ func gopodCoverageFacts(name string, content []byte) []byte {
 // gopodCoverageReveal is gopodCoverageFacts, plus the point it gave out
 // ("doc_and_pip 1/3"), "" when none.
 func gopodCoverageReveal(name string, content []byte) ([]byte, string) {
+	return gopodCoverageRevealFor(name, content, "")
+}
+
+// gopodCoverageSaid: which of a topic's points have been given (topic -> point
+// number -> true), beside revealed's count; cleared when the count is reset.
+var gopodCoverageSaid = map[string]map[int]bool{}
+
+var gopodPickWordRE = regexp.MustCompile(`[a-z0-9']+`)
+
+// gopodPickWords: a text's words for matching - lower case, "pip's" -> "pip",
+// three letters or more, not in value_points.pick_skip_words.
+func gopodPickWords(text string) map[string]bool {
+	skip := map[string]bool{}
+	for _, w := range gopodBrobotsSettings.ValuePoints.PickSkipWords {
+		skip[strings.ToLower(strings.TrimSpace(w))] = true
+	}
+	out := map[string]bool{}
+	for _, w := range gopodPickWordRE.FindAllString(strings.ToLower(text), -1) {
+		w = strings.TrimSuffix(strings.Trim(w, "'"), "'s")
+		// "runs" and "run" count as one word.
+		if len(w) > 3 && strings.HasSuffix(w, "s") && !strings.HasSuffix(w, "ss") {
+			w = strings.TrimSuffix(w, "s")
+		}
+		if len(w) >= 3 && !skip[w] {
+			out[w] = true
+		}
+	}
+	return out
+}
+
+// gopodPickPoint (2026-10-22, live: "Tell me about Pip" got Doc's point and "Who
+// is Doc" got Pip's - points went out in order, not by what was asked;
+// operator: "go on step 1"): of a topic's points not said yet, the one whose
+// words (the point, its notes, its say line) share the most with the question;
+// with none shared, the next in order - the pull stays. 0-based; -1 = none left.
+func gopodPickPoint(name string, points []string, said map[int]bool, question string) int {
+	asked := gopodPickWords(question)
+	// Words that name the topic itself ask for the topic, not one of its points:
+	// the whole name in the question ("what's the community path?"), or a
+	// one-word name's start ("book" for booking) - four letters or more.
+	// ("a decimal back into a fraction" still picks its point: the name isn't
+	// said whole.)
+	phrase := strings.ReplaceAll(name, "_", " ")
+	nameWords := gopodPickWords(phrase)
+	if strings.Contains(strings.ToLower(question), phrase) {
+		for n := range nameWords {
+			delete(asked, n)
+		}
+	} else if len(nameWords) == 1 {
+		for n := range nameWords {
+			for w := range asked {
+				if len(w) >= 4 && strings.HasPrefix(n, w) {
+					delete(asked, w)
+				}
+			}
+		}
+	}
+	best, bestScore := -1, 0
+	for i, p := range points {
+		if said[i+1] {
+			continue
+		}
+		if best < 0 {
+			best = i // the next in order
+		}
+		key := name + " " + strconv.Itoa(i+1)
+		words := gopodPickWords(p + " " + gopodBrobotsSettings.ValuePoints.Notes[key] + " " + gopodBrobotsSettings.ValuePoints.SayLines[key])
+		score := 0
+		// A longer word is a more telling one ("granny" over "live").
+		for w := range asked {
+			if words[w] {
+				score += len(w)
+			}
+		}
+		if score > bestScore {
+			best, bestScore = i, score
+		}
+	}
+	return best
+}
+
+// gopodCoverageRevealFor: gopodCoverageReveal for this question - the point it
+// asks about first (gopodPickPoint).
+func gopodCoverageRevealFor(name string, content []byte, question string) ([]byte, string) {
 	if name == gopodBrobotsSettings.ValuePoints.WhatElseTopic {
 		return gopodWhatElseFacts(content), ""
 	}
@@ -89,18 +174,54 @@ func gopodCoverageReveal(name string, content []byte) ([]byte, string) {
 	if total == 0 {
 		total = 1
 	}
-	n := gopodCoverage.revealed[name]
-	if n >= total {
+	count := gopodCoverage.revealed[name]
+	if count >= total {
 		logger.Println("BROBOT_VALUE_POINT topic=" + name + " covered")
 		return content, ""
 	}
-	gopodCoverage.revealed[name] = n + 1
+	said := gopodCoverageSaid[name]
+	if said == nil || len(said) > count {
+		said = map[int]bool{} // the count was reset (a new session, a test)
+	}
+	n := count
+	if len(points) > 0 {
+		n = gopodPickPoint(name, points, said, question)
+		if n < 0 {
+			return content, ""
+		}
+	}
+	said[n+1] = true
+	gopodCoverageSaid[name] = said
+	gopodCoverage.revealed[name] = count + 1
 	given := fmt.Sprintf("%s %d/%d", name, n+1, total)
-	logger.Println(fmt.Sprintf("BROBOT_VALUE_POINT topic=%s point=%d/%d", name, n+1, total))
+	logger.Println(fmt.Sprintf("BROBOT_VALUE_POINT topic=%s point=%d/%d (picked by the question: %v)", name, n+1, total, n != count))
 	if len(points) == 0 {
 		return content, given
 	}
-	return []byte(opening + "\n" + points[n] + "\n"), given
+	// 2026-10-22 (operator: "should be note form for the llm to flavour"): a
+	// point with notes goes to the model as its notes.
+	point := points[n]
+	if title, notes := gopodPointNotes(name, n+1); title != "" {
+		point = fmt.Sprintf("%d. %s: %s", n+1, title, strings.Join(notes, "; "))
+	}
+	return []byte(opening + "\n" + point + "\n"), given
+}
+
+// gopodPointNotes: a point's note form (its topic's "notes N:" line) - its
+// title and notes; "" when it has none.
+func gopodPointNotes(topic string, n int) (string, []string) {
+	raw := strings.TrimSpace(gopodBrobotsSettings.ValuePoints.Notes[topic+" "+strconv.Itoa(n)])
+	if raw == "" {
+		return "", nil
+	}
+	parts := strings.Split(raw, "|")
+	var notes []string
+	for _, p := range parts[1:] {
+		if p = strings.TrimSpace(p); p != "" {
+			notes = append(notes, p)
+		}
+	}
+	return strings.TrimSpace(parts[0]), notes
 }
 
 // The points given out for each Brobot's current question ("doc_and_pip 1/3"),
@@ -133,11 +254,31 @@ func gopodSayLine(esn string) string {
 		if i := strings.LastIndex(key, "/"); i >= 0 {
 			key = key[:i]
 		}
+		// 2026-10-22 (operator: "only the model's flavoured version of the notes *
+		// I'd rather the llm go brobots party on the idea * details don't matter as
+		// much"): a point with notes has no exact line - the model flavours them.
+		if gopodBrobotsSettings.ValuePoints.Notes[key] != "" {
+			continue
+		}
 		if line := gopodBrobotsSettings.ValuePoints.SayLines[key]; line != "" {
 			return line
 		}
 	}
 	return ""
+}
+
+// gopodGivenHasNotes: a point given to this Brobot has notes (the model flavours them).
+func gopodGivenHasNotes(esn string) bool {
+	for _, given := range gopodGivenPoints(esn) {
+		key := given
+		if i := strings.LastIndex(key, "/"); i >= 0 {
+			key = key[:i]
+		}
+		if gopodBrobotsSettings.ValuePoints.Notes[key] != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodTopicCovered: all of a topic's points have been revealed.

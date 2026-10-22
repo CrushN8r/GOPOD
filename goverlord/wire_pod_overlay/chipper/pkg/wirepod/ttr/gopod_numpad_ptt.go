@@ -70,13 +70,21 @@ func GopodNumpadMapJSON() ([]byte, error) {
 	}
 	// 2026-10-18: the voice-only personas' hosts (KP7 CHALK, KP8 PLAYHEAD).
 	personas := map[string]string{}
+	// 2026-10-22 (operator: "numpad mapping sounds like a good template to form
+	// from"): each scripted voice's persona ("Brobot 3" -> CHALK), for the page's
+	// header template - the numpad map's names are the source.
+	reporters := map[string]string{}
 	for name, p := range gopodBrobotsSettings.Managers.Personas {
 		personas[name] = p.Host
+		if r := strings.TrimSpace(p.Reporter); r != "" {
+			reporters[r] = name
+		}
 	}
 	return json.Marshal(map[string]any{
-		"map":            json.RawMessage(raw),
-		"body_to_brobot": gopodBrobotsSettings.NumpadPTT.BodyToBrobot,
-		"persona_hosts":  personas,
+		"map":               json.RawMessage(raw),
+		"body_to_brobot":    gopodBrobotsSettings.NumpadPTT.BodyToBrobot,
+		"persona_hosts":     personas,
+		"persona_reporters": reporters,
 	})
 }
 
@@ -160,6 +168,11 @@ func GopodNumpadPTTStart(key string) map[string]any {
 	if gopodWarmGateClosed.Load() {
 		logger.Println("GOPOD_WARMUP_GATE dropped numpad " + key + " (not ready yet)")
 		return map[string]any{"ok": false, "error": "not_ready"}
+	}
+	// 2026-10-22: Goverlord's mic message isn't done yet - wait for its bubble.
+	if gopodUSBSaying.Load() {
+		logger.Println("GOPOD_NUMPAD_PTT dropped " + key + " (the mic message isn't done yet)")
+		return map[string]any{"ok": false, "error": "wait_message"}
 	}
 	// Mic missing (gopodMicCheck): the key works dry - same messages, nothing kept.
 	// Looked for again first (review: a mic plugged in after the warm-up works).

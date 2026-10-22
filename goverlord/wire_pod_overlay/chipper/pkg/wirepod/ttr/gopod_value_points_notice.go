@@ -80,7 +80,139 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 	if label == "" {
 		label = topic
 	}
+	// 2026-10-22 (operator: note form): a point with notes shows its title, then
+	// each note on its own line (value_points.note).
+	if k, err := strconv.Atoi(n); err == nil {
+		if title, notes := gopodPointNotes(topic, k); title != "" {
+			vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
+			line := gopodNoticeFill(vp.Points, map[string]string{"id": id, "topic": label, "n": n, "words": title})
+			for _, note := range notes {
+				line += "\n" + gopodNoticeFill(vp.Note, map[string]string{"note": note})
+			}
+			return line
+		}
+	}
 	return gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Points, map[string]string{"id": id, "topic": label, "n": n, "words": strings.TrimSpace(words)})
+}
+
+// One notice per Brobot bubble (2026-10-22, operator: "brobot 2 response isn't
+// same structure as brobot 1 response"): an egg found for his line is a line of
+// his Value Points notice, not a notice of its own. Held until his notice is
+// made (gopodNoticeSet); after it's posted, added to it at once.
+var gopodNoticeEggs = struct {
+	sync.Mutex
+	lines map[string][]string // Brobot -> egg lines waiting
+}{lines: map[string][]string{}}
+
+// gopodNoticeEgg: an egg's line for this Brobot's notice; false when there's
+// no live notice (the egg's own notice is used instead).
+func gopodNoticeEgg(brobot, title, summary string) bool {
+	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
+	if strings.TrimSpace(vp.Title) == "" || strings.TrimSpace(vp.Egg) == "" || gopodScriptPlaying.Load() || !gopodNoticePart("egg") {
+		return false
+	}
+	line := gopodNoticeFill(vp.Egg, map[string]string{"title": title, "summary": summary})
+	esn := gopodBrobotESN(brobot)
+	gopodNotice.Lock()
+	posted := gopodNotice.open[esn]
+	gopodNotice.Unlock()
+	if posted {
+		gopodBubbleNotice(brobot, gopodNoticeTitle(esn), line)
+		return true
+	}
+	gopodNoticeEggs.Lock()
+	gopodNoticeEggs.lines[brobot] = append(gopodNoticeEggs.lines[brobot], line)
+	gopodNoticeEggs.Unlock()
+	return true
+}
+
+// The game lines (2026-10-22, operator: "Game survey: 1-4";
+// GAME_FEEL_SURVEY_001.md): combo, chapter cleared, back on track, score.
+var gopodChapterCleared = struct {
+	sync.Mutex
+	said map[string]bool
+}{said: map[string]bool{}}
+
+func gopodNoticeGame(esn, question string, parts map[string][]string) {
+	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
+	labelOf := func(topic string) string {
+		if l := strings.TrimSpace(gopodBrobotsSettings.InterviewChapters.TopicLabels[topic]); l != "" {
+			return l
+		}
+		return topic
+	}
+	var topics []string
+	seen := map[string]bool{}
+	for _, g := range gopodGivenPoints(esn) {
+		if f := strings.Fields(g); len(f) == 2 && !seen[f[0]] {
+			seen[f[0]] = true
+			topics = append(topics, f[0])
+		}
+	}
+	// 3. combo: one answer, points from two topics or more.
+	if len(topics) >= 2 && vp.Combo != "" {
+		var names []string
+		for _, t := range topics {
+			names = append(names, labelOf(t))
+		}
+		parts["combo"] = []string{gopodNoticeFill(vp.Combo, map[string]string{"topics": strings.Join(names, " + ")})}
+	}
+	names, counts := gopodPackPointCounts()
+	gopodCoverage.Lock()
+	said, total := 0, 0
+	for _, n := range names {
+		r := gopodCoverage.revealed[n]
+		if r > counts[n] {
+			r = counts[n]
+		}
+		said += r
+		total += counts[n]
+	}
+	covered := func(t string) bool { return gopodCoverage.revealed[t] >= counts[t] && counts[t] > 0 }
+	// 2. chapter cleared: every topic of a chapter this answer touched is covered.
+	var cleared []string
+	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
+		touched, all := false, len(c.Topics) > 0
+		for _, t := range c.Topics {
+			if seen[t] {
+				touched = true
+			}
+			if _, ok := counts[t]; ok && !covered(t) {
+				all = false
+			}
+		}
+		if touched && all {
+			cleared = append(cleared, c.Title)
+		}
+	}
+	gopodCoverage.Unlock()
+	for _, title := range cleared {
+		gopodChapterCleared.Lock()
+		again := gopodChapterCleared.said[title]
+		gopodChapterCleared.said[title] = true
+		gopodChapterCleared.Unlock()
+		if !again && vp.Chapter != "" {
+			parts["chapter"] = append(parts["chapter"], gopodNoticeFill(vp.Chapter, map[string]string{"chapter": title}))
+		}
+	}
+	// 4. the gravitational pull (2026-10-22, operator: "remember the
+	// gravitational pull to reveal all value points * please template this
+	// somewhere in the flow, kinda like Back on track"): every answer names the
+	// next points on the list - a free answer "Back on track", a topic answer
+	// "Next up" (value_points.recovery / next; the gravity block).
+	if !gopodIsThanks(question) {
+		if next := gopodReminderTopics(question); next != "" {
+			if len(topics) == 0 && vp.Recovery != "" {
+				parts["recovery"] = []string{gopodNoticeFill(vp.Recovery, map[string]string{"topics": next})}
+			} else if len(topics) > 0 && vp.Next != "" {
+				parts["next"] = []string{gopodNoticeFill(vp.Next, map[string]string{"topics": next})}
+			}
+		}
+	}
+	// 1. score: the points said so far, of them all.
+	if vp.Score != "" && total > 0 {
+		parts["score"] = []string{gopodNoticeFill(vp.Score, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total)})}
+	}
 }
 
 // gopodNoticeSet keeps this answer's lines, in value_points.parts order
@@ -90,6 +222,11 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && !gopodIsThanks(question) {
 		parts["none"] = []string{vp.None}
 	}
+	gopodNoticeEggs.Lock()
+	parts["egg"] = append(parts["egg"], gopodNoticeEggs.lines[gopodBrobotName(esn)]...)
+	delete(gopodNoticeEggs.lines, gopodBrobotName(esn))
+	gopodNoticeEggs.Unlock()
+	gopodNoticeGame(esn, question, parts)
 	var keep []string
 	content := false
 	for _, part := range vp.Parts {
@@ -172,8 +309,10 @@ func gopodNoticePostLines(esn string, lines []string) {
 		if l == "\x00got_it" {
 			l = gopodNoticeFill(vp.GotIt, map[string]string{"thinking_text": gopodThinkingLineSpoken()})
 		}
-		if l != "" {
-			gopodBubbleNotice(gopodBrobotName(esn), title, l)
+		for _, one := range strings.Split(l, "\n") {
+			if one = strings.TrimSpace(one); one != "" {
+				gopodBubbleNotice(gopodBrobotName(esn), title, one)
+			}
 		}
 	}
 }

@@ -44,6 +44,24 @@ for path in (REPO_ROOT, GOLDEN_WRITER_DIR):
 
 import gopod_ptt_chat_writer_013 as golden  # noqa: E402
 
+
+def pulse_mic(sd):
+    """2026-10-22 (live: GNOME's Sound settings was open, so PulseAudio held the
+    USB mic and PortAudio didn't list it): when PulseAudio's default source is
+    the USB mic, record through PulseAudio ("pulse") instead. (None, "") if not."""
+    try:
+        src = subprocess.run(["pactl", "get-default-source"], capture_output=True, text=True, timeout=3).stdout.strip()
+    except Exception:  # noqa: BLE001
+        return None, ""
+    want = golden.AUDIO_SOURCE_NAME_MATCH.replace(" ", "_").lower()
+    if want not in src.lower():
+        return None, ""
+    for index, device in enumerate(sd.query_devices()):
+        if device.get("max_input_channels", 0) > 0 and str(device.get("name", "")).lower() == "pulse":
+            log(f"PULSE_FALLBACK the mic is held by PulseAudio - recording through it ({src})")
+            return index, "pulse (" + src + ")"
+    return None, ""
+
 VOSK_MODEL_PATH = golden.DEFAULT_VOSK_MODEL_PATH  # the golden writer's own (its root fixed 2026-10-04)
 TARGET_RATE = golden.ARCHIVE_TARGET_SAMPLE_RATE  # 48000
 CHAT_RATE = golden.CHAT_TARGET_SAMPLE_RATE  # 16000
@@ -74,7 +92,7 @@ class Mic:
 
     # --- the stream, open only while something needs it ---
 
-    def open(self) -> str:
+    def open(self) -> str:  # noqa: C901
         if self.stream is not None:
             return ""
         golden.ensure_audio_libs_loaded()
@@ -93,6 +111,8 @@ class Mic:
             index, name = golden.resolve_audio_device_by_name(
                 golden.AUDIO_SOURCE_NAME_MATCH, exclude_terms=golden.AUDIO_SOURCE_EXCLUDE_TERMS
             )
+            if index is None:
+                index, name = pulse_mic(sd)
             if index is None:
                 return "no_mic"
             log(f"RESCAN found {name!r}")

@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -32,10 +33,19 @@ func gopodUSBAnyOf(ids []string) (bool, error) {
 	return false, nil
 }
 
-// gopodSystemShowSay: Goverlord's line, said and shown as his bubble.
+// gopodUSBSaying (2026-10-22, operator: "after llm ready, mic may not be ready *
+// so mic not ready message * if voice not generated yet, 'wait until the message
+// bubble completes' * same with mic detected"): Goverlord's mic or numpad
+// message is being made or said - a numpad key waits for it (wait_message).
+var gopodUSBSaying atomic.Bool
+
+// gopodSystemShowSay: Goverlord's line, said and shown as his bubble; returns
+// once it's been heard (its voice made first, if need be).
 func gopodSystemShowSay(text string) {
 	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" && strings.TrimSpace(text) != "" {
-		gopodReporterSay(role, strings.TrimSpace(text), true, false)
+		gopodUSBSaying.Store(true)
+		defer gopodUSBSaying.Store(false)
+		gopodReporterSay(role, strings.TrimSpace(text), true, true)
 	}
 }
 

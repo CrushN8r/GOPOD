@@ -90,9 +90,9 @@ hidden in code.
 | **System bubble** | Goverlord's grey-eyed bubbles (warm-up, countdowns, chapters, system messages). Reporter and narrator bubbles are system bubbles with white eyes. | the chat |
 | **System llm bubble** | The one warm-up bubble a run opens with ("Goverlord: GOPOD Brain", LEDs, hourglass). | `llm_warmup` |
 | **System message** | A Goverlord line in a grey bubble, said in the system voice ("Brobots. Go to sleep now please.", "Run complete."). | note `system_line` |
-| **Terminal bubble** | Where system commands answer (`system_set.role`, text at 50% size). | system- commands |
+| **Goverlord's terminal bubble** | Under Goverlord (2026-10-22): where system commands answer - Goverlord's header, text at 50% size (`system_set.role`, the role's name inside only). | system- commands |
 | **Brobot bubble** | A Brobot's line, in his eye colours, each piece lit as it's said. | note `say_turn`, a reply |
-| **Reporter bubble** | Brobot 3 or 4 (voice only), headed "Reporter 1: Brobot 3" / "Reporter 2: Brobot 4" (the same form as "Goverlord: GOPOD Brain"), white-eyed icons. | the interview, `ask` |
+| **Reporter bubble** | CHALK or PLAYHEAD's scripted voice (Reporter 1 / 2 in scripts), headed by the header template (`display_names`: CHALK / PLAYHEAD), white-eyed icons. | the interview, `ask` |
 | **Narrator bubble** | A timed song's captions, one bubble per section, each phrase lit as it's read. | `robots_speak: false` |
 | **Manager bubble** | CHALK's chalkboard or PLAYHEAD's tape-brown bubble, or their part inside a Brobot's bubble. | `managers` |
 | **Egg bubble** | A found easter egg, ringed by marquee bulbs. | [Eggs](#13-eggs) |
@@ -773,6 +773,12 @@ numpad key works as a dry run - the same messages, "Mic disabled" in place of "R
 "transcribing" and "try again" (`nothing_heard`). A failed `lsusb` isn't "mic missing", and a
 missing mic is looked for again on each key press.
 
+A numpad key while Goverlord's mic or numpad message is still being made or said waits for it:
+"⏳ Wait - Goverlord is still giving the mic's message" (`wait_message`, `gopodUSBSaying`).
+
+The mic service records through PulseAudio when PulseAudio holds the USB mic (GNOME's Sound
+settings open; its default source is the mic) - `PULSE_FALLBACK` (2026-10-22).
+
 The USB watch (`gopod_usb_watch.go`, from then on, every `usb_watch_seconds`): when the mic or
 the numpad (`numpad_usb_ids`) goes missing or comes back, Goverlord says and shows
 `mic_missing_text` / `mic_found_text` / `numpad_missing_text` / `numpad_found_text`. Two numpads
@@ -1213,7 +1219,7 @@ carries the same show, line for line (`GOPOD_FEED <id>`, the page answering
 | Brobot | "[eye-colour icon] Brobot N:" | his eye colours, one icon |
 | Narrator | no header | one per poem section |
 | Manager | CHALK's chalkboard, PLAYHEAD's tape-brown (the colour of vintage video tape cassettes) | see [12](#12-managers-chalk-and-playhead) |
-| Terminal | Goverlord's header | text at 50% size; system answers |
+| Goverlord (terminal) | Goverlord's header | text at 50% size; system answers |
 
 - System answers and non-numpad status lines carry Goverlord's header.
 - **Header icons mirror each other.** For headers with more than one icon, every icon after the
@@ -1758,6 +1764,34 @@ question only when the answer is done; the page puts it above that Brobot's open
 bubble was made after the question (`dataset.asked`, `operatorSeq`), as it already did for an egg
 pop-up.
 
+**The multiple responses template** (2026-10-22, `answer_chains`, `weather_lines`,
+`chain_prompts`): a line to both -
+- first Brobot (`brobots_all_first`): "Brobot Weather Report for <place>, <date>. Temperature
+  is <temp> and <sky> as of <time>." - his weather comment - his value point - the hand-over.
+  No reminders.
+- next Brobot (`brobots_follow_up`): "Confirmed. Temperature is <temp> at <time>." - a comment
+  following his brother's - his value point - the Weather Kit - the reminders.
+- a single answer (`brobots`): the report - the comment - the value point - the reminders.
+Each Brobot in his own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C /
+24-hour). For a weather question with a value point the model is asked for two paragraphs:
+the weather line, then the point (`chain_prompts`). The typed line's All is a 1/2 menu - who
+answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2"); the All radio
+stays, the menu beside it. Hand-over
+nicknames: gear-head, cranky-shaft, coolant-leak, incompatible-particulate, fumble-nuts.
+
+**Which value point** (2026-10-22, `gopodPickPoint`, `value_points.pick_skip_words`): of a topic's
+points not said yet, the one whose words (the point, its notes, its say line) share the most with
+the question - longer words count more; filler words don't count; the topic's own name doesn't
+pick a point (the whole name said, or a one-word name's start: "book" for booking). With nothing
+shared, the next in order - the pull stays. ("Tell me about Pip" -> Pip's point; "My granny
+lives there" -> Gangster Granny.) Locked by the golden interview questions
+(`TestHarvestQuestionsGetTheirOwnPoint`).
+
+**The gravitational pull** (2026-10-22, `gravity`): GOPOD is a game of query for value points -
+however far it's pushed, every answer steers back to the points still to say, in three places
+that name the same points (`gopodReminderLine`): his pre-build context (his reminders-list), his
+notice ("Back on track:" / "Next up:"), and his reply's end ("Hey, that reminds me...").
+
 **The 5 bubble kinds** (2026-10-22, `bubble_kinds`, page `tagBubbleKind`): Goverlord
 orchestrates, gomads think, gominions do. Every bubble in the chat gets one kind as `data-tier`
 - operator (input), goverlord (system), gomad (CHALK, PLAYHEAD - inside a Brobot's notice unless
@@ -1770,7 +1804,10 @@ persona name, a chat participant. Brobot 1/2 -> Doc / Pip (to be); Reporter 1/2 
 CHALK / PLAYHEAD - their scripted voices, and chat participants, GOPOD reps too. **The header
 template** (`display_names`, page `hostHeader`): a reporter's or manager's bubble shows a
 remembered edit (`edits`, e.g. CHALK BORED), else the default (CHALK / PLAYHEAD), else the
-fallback from the numpad map (`Brobot {n}`: KP7 = Brobot 7, KP8 = Brobot 8). Scripts keep their
+fallback from the numpad map (`Brobot {n}`: KP7 = Brobot 7, KP8 = Brobot 8). The default itself
+comes from the numpad map (its persona for that voice: `managers.personas.<name>.reporter` links
+Brobot 3 -> CHALK, Brobot 4 -> PLAYHEAD; `persona_reporters` on `/api-sdk/gopod_numpad_map`);
+`display_names.default` only overrides it. Scripts keep their
 own names (Reporter 1/2); only the chat shows these.
 
 **GOLDEN: the Brobot Bubble template** (2026-10-22, operator's spec; Brobot 1 and 2 alike):
@@ -1781,7 +1818,13 @@ header: Brobot N:                         (+ zoomable weather picture, top right
 === notice: Value Points ===
 1. Got it!                                (said by him - the communication received)
 2. <topic> #<n>: <point>  /  No value point - a quick take, then back to GOPOD.
-   (Web search: <search>, when there was one)
+   a point with notes (its topic's "notes N: title | note | note"): <topic> #<n>: <title>,
+   then -<note> lines; the model gets the notes and parties on the idea - no exact line is said
+   for it (2026-10-22: "only the model's flavoured version of the notes"); exact math
+   (fractions) and the Brobots' instructions keep their own words
+   (Web search: <search>; Easter Egg '<title>': <summary> - one notice per bubble)
+   (game: Combo: <topics> / Chapter cleared: <chapter> / Back on track: <topics> (free
+   answer) or Next up: <topics> (topic answer) / Value Points <said> / <total>)
 3. (optional) [icon] PLAYHEAD [icon] I'll help you with that.   (one row; his searching waits)
 4. Thanks for your help, PLAYHEAD.        (said by him - the floor back to him after a manager's part)
 === end notice ===
@@ -1808,8 +1851,12 @@ header: Brobot N:                         (+ zoomable weather picture, top right
   the hourglass while its voice is made (once - "I'll help you with that." is reused, so it
   skips straight to its words), then its words lit to its voice.
 - Weather: PLAYHEAD says only `take_text` (`brobot_says`); no weather voice is made; the
-  Brobot's reply opens with the golden weather line, and its picture goes top right of his
-  bubble. After its sound has played once, a click that zooms the picture plays it again -
+  Brobot's reply opens with the golden weather line. Its picture is pinned for later
+  (`weather_card.picture: false`: no picture, no pause). Its sound plays once as his bubble shows (a
+  background effect - he doesn't wait for it). Once he has said the line, its picture shows
+  centred under it (Wire-Pod's `weathershow:`, page `weatherShowFor`) and he waits
+  `weather_card.pause_seconds` (3) before the rest - the template for any later "wait for a
+  picture or sound" spot (`gopodWeatherLineSaid`). After its sound has played once, a click that zooms the picture plays it again -
   never two at once. Hovering still zooms it without sound.
 
 **Notices inside a Brobot's bubble** (2026-10-22, standard). What goes in each is one template,

@@ -173,6 +173,12 @@
         typedRow.appendChild(span);
       }
       typedRowText("Brobots", "gopod-typed-name");
+      // 2026-10-22 (operator: "replace 'All' radio button with a small drop down
+      // menu: 1/2 * default selection = '1' (brobot 1) * selection '2' = (brobot 2)
+      // * template drop down menu selection with default brobot 1/'Starting with
+      // Brobot 2'"): All is a small 1/2 menu - who answers first (typed_line.all_first,
+      // the same rule as "Starting with Brobot 2"); choosing it is choosing All.
+      var allFirstSelect = null;
       Object.keys(TYPED_TARGETS).forEach(function (esn) {
         var label = document.createElement("label");
         var radio = document.createElement("input");
@@ -181,9 +187,31 @@
         radio.value = esn;
         radio.checked = esn === savedRobot;
         label.appendChild(radio);
-        label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
+        if (esn === "all") {
+          radio.className = "gopod-all-radio";
+          label.className = "gopod-all-pick";
+          label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
+          allFirstSelect = document.createElement("select");
+          allFirstSelect.className = "gopod-all-first";
+          allFirstSelect.title = "All: who answers first";
+          ["1", "2"].forEach(function (n) {
+            var o = document.createElement("option");
+            o.value = n;
+            o.textContent = n;
+            allFirstSelect.appendChild(o);
+          });
+          allFirstSelect.value = "1";
+          ["focus", "change", "mousedown"].forEach(function (ev) {
+            allFirstSelect.addEventListener(ev, function () { radio.checked = true; });
+          });
+          label.appendChild(allFirstSelect);
+        } else {
+          label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
+        }
         typedRow.appendChild(label);
       });
+      // A line to All, sent with Brobot 2 first: its Operator icons in that order.
+      var allSecondFirst = {};
       typedRowText("|", "gopod-typed-sep");
       // 2026-10-19 (operator: "New Operator Line: Brobots ()1 ()2 ()All [Type to the
       // Brobot, press Enter] | Record? [] | HH:MM:SS 🔇 * make Native?[] Numpad?[]
@@ -425,10 +453,12 @@
         sendTypedLine(chosen.value, text);
       });
       function sendTypedLine(serial, text) {
+        var first = serial === "all" && allFirstSelect ? allFirstSelect.value : "";
+        if (first === "2") { allSecondFirst[text] = true; }
         fetch("/api-sdk/gopod_typed_input", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "serial=" + encodeURIComponent(serial) + "&text=" + encodeURIComponent(text)
+          body: "serial=" + encodeURIComponent(serial) + "&text=" + encodeURIComponent(text) + (first ? "&first=" + first : "")
         }).then(function (r) {
           if (!r.ok) { typedText.value = text; }
         }).catch(function () { typedText.value = text; });
@@ -1458,7 +1488,7 @@
         var head = bubbleHead((via || "Operator") + " to " + to, true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
-        if (to === "Brobots" && BROBOT2_FIRST.test(String(text || ""))) { icons.reverse(); }
+        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || allSecondFirst[String(text || "")])) { icons.reverse(); }
         icons.forEach(function (cls) {
           var icon = document.createElement("div");
           icon.className = "brobot-bubble-avatar to-" + cls;
@@ -2558,6 +2588,22 @@
         magnify(row, screen);
         return screen;
       }
+      // His weather line is said: the newest waiting weather picture of his shows.
+      function weatherShowFor(brobot) {
+        var cls = brobot === "Brobot 2" ? "brobot-2" : "brobot-1";
+        var boxes = container.querySelectorAll(".brobot-bubble." + cls + " .gopod-weather-after:not(.shown)");
+        var box = boxes.length ? boxes[boxes.length - 1] : null;
+        if (box && box._show) { box._show(); }
+      }
+      // The weather sound, loaded now (played by its picture's showing).
+      function weatherSoundLoad(sound) {
+        if (!sound) { return null; }
+        var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
+        audio.preload = "auto";
+        audio.addEventListener("ended", function () { audio._playedOnce = true; });
+        try { audio.load(); } catch (err) { /* no audio */ }
+        return audio;
+      }
       // The weather sound, loaded now, played once as bubble shows (weather_card.volume).
       function weatherSoundOnShow(bubble, sound) {
         if (restoringChat || !sound) { return null; }
@@ -2585,7 +2631,8 @@
         var said = String(textEl.textContent || "").toLowerCase();
         // Only the weather's own words ("... degrees Fahrenheit, and light rain,
         // as of ..."), never the place's ("Windsor" holds "wind").
-        var what = /(?:degrees|°) (?:celsius|fahrenheit), and (.+?), as of /.exec(said);
+        // 2026-10-22: the Weather Report form too ("68° Fahrenheit and clear sky as of").
+        var what = /(?:degrees|°) (?:celsius|fahrenheit),? and (.+?),? as of /.exec(said);
         if (!what) { return; }
         var hour = null;
         var at = /as of (\d{1,2}):?\d{2}( ?[ap]m)?/.exec(said);
@@ -2595,15 +2642,60 @@
         }
         var face = weatherFaceFor(what[1], hour);
         if (!face) { return; }
-        var box = cornerBox(bubble, textEl, 190);
+        // 2026-10-22 (operator: "pin weather image for later * remove weather image
+        // from response for now, too much complexity * keep the 1st weather audio
+        // played"): with weather_card.picture off, only its sound, once, as the
+        // bubble shows.
+        if (weatherCard.picture === false) {
+          if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnShow(bubble, face.sound); }
+          return;
+        }
+        // 2026-10-22 (operator: "current position isn't a good spot for it * add
+        // weather image centered below, after weather report fully spoken *
+        // weather audio still plays 1st without the weather image * then the rest
+        // of the response"): the picture goes centred right under the weather
+        // line, hidden until that line has been said - then it shows and its
+        // sound plays, together. (A bubble without pieces: the corner, as before.)
+        var pieces = Array.prototype.filter.call(textEl.querySelectorAll(".brobot-say"), function (x) { return !x.closest(".nested-host"); });
+        var endPiece = null, seenAsOf = false;
+        for (var p = 0; p < pieces.length && !endPiece; p++) {
+          var pt = String(pieces[p].textContent || "").toLowerCase();
+          if (pt.indexOf("as of ") >= 0) { seenAsOf = true; }
+          if (seenAsOf && /[.!?]["'”]?\s*$/.test(pt.trim())) { endPiece = pieces[p]; }
+        }
         bubble.classList.add("has-weather");
+        var box;
+        if (endPiece) {
+          box = document.createElement("div");
+          box.className = "gopod-weather-after";
+          endPiece.parentNode.insertBefore(box, endPiece.nextSibling);
+        } else {
+          box = cornerBox(bubble, textEl, 190);
+        }
         var screen = weatherScreen(face.name, function () { return box; });
         box.appendChild(screen);
+        // 2026-10-22 (operator: "keep as-was, play audio (less the image) once
+        // only upon bubble display * then weather image centered underneath + 3 s
+        // wait"): the sound once as the bubble shows (a background effect); the
+        // picture once his weather line is said.
         var sound = weatherSoundOnShow(bubble, face.sound);
+        function showNow() { box.classList.add("shown"); }
+        // Shown when Wire-Pod says his weather line is said ("weathershow:",
+        // weatherShowFor), or once the next piece lights, whichever comes first.
+        if (!endPiece || restoringChat || endPiece.classList.contains("spoken")) {
+          if (endPiece) { box.classList.add("shown"); if (sound) { sound._playedOnce = true; } } else { showNow(); }
+        } else {
+          var once = false;
+          box._show = function () { if (once) { return; } once = true; watch.disconnect(); showNow(); };
+          var watch = new MutationObserver(function () {
+            if (endPiece.classList.contains("spoken")) { box._show(); }
+          });
+          watch.observe(endPiece, { attributes: true, attributeFilter: ["class"] });
+        }
         // 2026-10-22 (operator: "after weather audio has finished playing the 1st
         // time, upon zoomed mouseclick, play the image's audio again * can only
-        // play once at a time no matter how many image clicks"): a click that
-        // zooms it plays its sound again - after the first play, never twice at once.
+        // play once at a time no matter how many image clicks"): after the first
+        // play, a click plays it again - never twice at once.
         if (sound) {
           screen.addEventListener("click", function () {
             // Any click (the hover already zooms it; a click may unzoom it).
@@ -2699,19 +2791,24 @@
       // remembered edit, else the default (the GOPOD persona), else the fallback
       // from the numpad map ("Brobot 7": the key whose persona it is), else its label.
       var displayNames = {};
+      // 2026-10-22 (operator: "numpad mapping sounds like a good template to form
+      // from"): the default is the numpad map's persona - a scripted voice's own
+      // persona (persona_reporters: "Brobot 3" -> CHALK) or the persona itself -
+      // unless display_names.default names one.
+      function numpadPersona(who) {
+        var on = numpad.map && numpad.map.numlock_on, name = (numpad.personaReporters || {})[who] || who;
+        for (var k in (on || {})) {
+          if (on[k] && String(on[k].persona || "").toUpperCase() === String(name).toUpperCase()) { return { name: on[k].persona, key: k }; }
+        }
+        return null;
+      }
       function hostHeader(who) {
-        var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who];
+        var np = numpadPersona(who);
+        var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
         if (def && edits[def]) { return edits[def]; }
         if (edits[who]) { return edits[who]; }
         if (def) { return def; }
-        var on = numpad.map && numpad.map.numlock_on;
-        if (on && dn.fallback) {
-          for (var k in on) {
-            if (on[k] && String(on[k].persona || "").toUpperCase() === String(who).toUpperCase()) {
-              return String(dn.fallback).replace("{n}", k.replace(/^KP/, ""));
-            }
-          }
-        }
+        if (np && dn.fallback) { return String(dn.fallback).replace("{n}", np.key.replace(/^KP/, "")); }
         return hostLabels[who] || who;
       }
       // 2026-10-09 (the nap, a lyric video): a song's soundtrack plays in the
@@ -3800,6 +3897,7 @@
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) { bubbleNotice(e.to, String(e.text).slice(7)); }
+        else if (e.who === pictureRole && String(e.text).indexOf("weathershow:") === 0) { weatherShowFor(e.to); }
         else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to, done); return; }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
@@ -4255,7 +4353,7 @@
       fetch("/api-sdk/gopod_numpad_map", { cache: "no-store" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
-          if (data && data.map) { numpad.map = data.map; numpad.bodyToBrobot = data.body_to_brobot || {}; numpad.personaHosts = data.persona_hosts || {}; }
+          if (data && data.map) { numpad.map = data.map; numpad.bodyToBrobot = data.body_to_brobot || {}; numpad.personaHosts = data.persona_hosts || {}; numpad.personaReporters = data.persona_reporters || {}; }
         }).catch(function () { /* no map - push-to-talk stays quiet */ });
       // 2026-10-18 (operator: "live KPN = no grunge audio as this is not an error *
       // \"Too short - hold KP1 for at least 1 s\" = error = grunge audio plays * not
@@ -4297,6 +4395,9 @@
             if (textEl.textContent === t) { return; }
             textEl.appendChild(document.createElement("br"));
             textEl.appendChild(document.createTextNode(t));
+            // 2026-10-22 (operator: "scrolling isn't handling these bubbles
+            // well"): a status line that grows the newest bubble keeps it in view.
+            if (lastPlacedChild() === bubble) { scrollChatTo(Math.max(container.scrollTop, chatContentEnd())); }
           },
           done: function () { /* stays in the chat */ }
         };
@@ -4611,7 +4712,7 @@
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }
       function numpadFailed(status, r) {
-        status.set(r.error === "no_mic" || r.error === "not_ready" ? numpadText(r.error) : numpadText("error", { error: r.error || "unknown" }));
+        status.set(r.error === "no_mic" || r.error === "not_ready" || r.error === "wait_message" ? numpadText(r.error) : numpadText("error", { error: r.error || "unknown" }));
         status.done(5000);
       }
       function numpadStart(key, brobot) {

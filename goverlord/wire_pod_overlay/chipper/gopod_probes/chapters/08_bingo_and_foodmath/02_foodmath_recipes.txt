@@ -2,6 +2,7 @@ label: foodmath recipes
 words: recipe, recipes, fudge, pudding, muffin, muffins, cocoa, food cars, party food, foodmath, food math, chocolate bingo, kids lane, adults lane, kit, party kit
 pictures: chocolate_bingo_recipes.jpg
 reminder: Hey, that reminds me... Foodmath: the math hiding in real party food.
+notes 1: Foodmath | the math in party food | the Chocolate Bingo kit | foodmath.crushn8r.net
 ---
 Foodmath recipes - the math hiding in real party food, on foodmath.crushn8r.net:
 - Chocolate Bingo: the tray and the numbers.

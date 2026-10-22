@@ -352,6 +352,19 @@ type gopodBrobotsSettingsFile struct {
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
+	// 2026-10-22: after his weather line, its picture and sound, then a pause.
+	WeatherCard struct {
+		PauseSeconds float64 `json:"pause_seconds"`
+		Picture      bool    `json:"picture"`
+	} `json:"weather_card"`
+	// 2026-10-22: the weather line's formats, per answer position (gopodWeatherReportLine).
+	WeatherLines map[string]string `json:"weather_lines"`
+	// 2026-10-22: the answer chain's prompt lines (gopodChainPrompt).
+	ChainPrompts map[string]string `json:"chain_prompts"`
+	// 2026-10-22: the typed line's All menu - who answers first by default.
+	TypedLine struct {
+		AllFirst string `json:"all_first"`
+	} `json:"typed_line"`
 	// 2026-10-22: the colour slots' cap (gopod_answer_chain.go).
 	ColourSlots struct {
 		MaxSentences int `json:"max_sentences"`
@@ -375,6 +388,14 @@ type gopodBrobotsSettingsFile struct {
 			Search  string   `json:"search"`
 			None    string   `json:"none"`
 			GotIt   string   `json:"got_it"`
+			Note    string   `json:"note"`
+			// 2026-10-22: one notice per bubble - the egg's line; the game lines.
+			Egg      string `json:"egg"`
+			Combo    string `json:"combo"`
+			Chapter  string `json:"chapter"`
+			Recovery string `json:"recovery"`
+			Next     string `json:"next"`
+			Score    string `json:"score"`
 			// 2026-10-22: the notice log's 4th line (gopodNoticeGotItAgain).
 			GotItAgain   string `json:"got_it_again"`
 			SecondGotIt  string `json:"second_got_it"`
@@ -415,6 +436,10 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"reminder_eggs"`
 		ReminderEggCount int               `json:"reminder_egg_count"`
 		SayLines         map[string]string `json:"say_lines"`
+		// 2026-10-22: points in note form, "topic N" -> "title | note | note".
+		Notes map[string]string `json:"notes"`
+		// 2026-10-22: words left out when matching a question to a point.
+		PickSkipWords []string `json:"pick_skip_words"`
 	} `json:"value_points"`
 	ReplyTighten struct {
 		BudgetOff           bool           `json:"budget_off"`

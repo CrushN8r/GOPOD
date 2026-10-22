@@ -2,6 +2,9 @@ label: the rest of the cast
 words: other robots, more robots, cozmo, cozmos, reporter, reporters, brobot 3, brobot 4, brobot three, brobot four, chalk, who else is coming, six robots, the cast, moorebot, scout, scouts
 pictures: gopod_stack.jpg
 reminder: Hey, that reminds me... Doc and Pip are two of an eventual six-brobot cast.
+notes 1: Brobots 3 and 4 | two voice-only reporters | live already
+notes 2: CHALK | a screen host | coming
+notes 3: the full cast | six Brobots someday | students and security, on new robot bodies
 ---
 Who else is coming. Reveal these, in order, in your own words:
 1. Brobots 3 and 4 are live already - two voice-only reporters, a woman's voice and a man's voice.

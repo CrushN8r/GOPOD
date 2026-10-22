@@ -622,7 +622,8 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 			logger.Println("BROBOT_SCENARIO_PACKET_SKIPPED=" + packet.Name + " reason=bingo_run_in_memory")
 		} else {
 			// 2026-10-06: the next value point only (gopod_value_points.go).
-			packFacts, point := gopodCoverageReveal(packet.Name, packet.Content)
+			// 2026-10-22: the point this question asks about first (gopodPickPoint).
+			packFacts, point := gopodCoverageRevealFor(packet.Name, packet.Content, userMessage)
 			facts = appendPromptSection(facts, packFacts)
 			if point != "" {
 				given = append(given, point)
@@ -693,6 +694,15 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 	// starts with the golden weather line itself, said by the code word for word.
 	// 2026-10-18: not when a manager said it (gopod_managers.go) - the Brobots are released from it.
 	if at == "start" && (gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)) && !gopodManagerTookWeather() {
+		// 2026-10-22: the multiple responses template - "report" first or alone,
+		// "confirm" next (weather_lines); the golden line when they're empty.
+		kind := "report"
+		if gopodIsFollowingUp(esn) {
+			kind = "confirm"
+		}
+		if line := gopodWeatherReportLine(esn, gopodWeatherPlace(userMessage), kind); line != "" {
+			return line
+		}
 		if line, _ := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
 			return line
 		}

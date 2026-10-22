@@ -580,25 +580,32 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
 	say := gopodBrobotsSettings.ValuePoints.SayLines
+	// 2026-10-22 (operator: "only the model's flavoured version of the notes"): a
+	// point with notes has no exact line - Doc & Pip's points have notes now.
 	ask := "Brobot 1, what's Doc's full name?"
 	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
-	// 2026-10-22: said by the answer chain's colour:value_point part.
-	if got := gopodSayLine(gopodBrobot1ESN); got != say["doc_and_pip 1"] {
+	if got := gopodSayLine(gopodBrobot1ESN); got != "" {
+		t.Errorf("a point with notes got an exact line: %q", got)
+	}
+	if !gopodGivenHasNotes(gopodBrobot1ESN) {
+		t.Errorf("doc_and_pip 1 has no notes")
+	}
+	// Exact math keeps its exact lines (no notes).
+	ask = "Brobot 1, convert a fraction to a decimal"
+	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
+	if got := gopodSayLine(gopodBrobot1ESN); got != say["fractions_and_decimals 1"] {
 		t.Errorf("point 1: %q", got)
 	}
-	if got := gopodChainStitch("colour:value_point", gopodBrobot1ESN, ask, "his colour.", true); !strings.Contains(got, say["doc_and_pip 1"]) {
+	// Said by the answer chain's colour:value_point part.
+	if got := gopodChainStitch("colour:value_point", gopodBrobot1ESN, ask, "his colour.", true); !strings.Contains(got, say["fractions_and_decimals 1"]) {
 		t.Errorf("colour:value_point didn't say point 1: %q", got)
 	}
 	if got := gopodSayLine(gopodBrobot2ESN); got != "" {
 		t.Errorf("the other Brobot got a say line: %q", got)
 	}
 	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
-	if got := gopodSayLine(gopodBrobot1ESN); got != say["doc_and_pip 2"] {
+	if got := gopodSayLine(gopodBrobot1ESN); got != say["fractions_and_decimals 2"] {
 		t.Errorf("point 2: %q", got)
-	}
-	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
-	if got := gopodSayLine(gopodBrobot1ESN); got != say["doc_and_pip 3"] {
-		t.Errorf("point 3: %q", got)
 	}
 	reply := gopodStitchSnippet(say["doc_and_pip 1"], "happy___ "+say["doc_and_pip 1"]+" Yo bro!")
 	if strings.Count(reply, "Squawkadoodle") != 1 {

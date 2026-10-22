@@ -44,6 +44,23 @@ func gopodAnswerChain(group string) []string {
 	return nil
 }
 
+// gopodChainPrompt (2026-10-22, the multiple responses template: "2) Weather
+// comment 3) [a day of parties] #1"): what the model writes, in its parts - a
+// weather question with a value point: one line on the weather (first) or
+// following his brother's (next), then a new paragraph on the point
+// (chain_prompts). "" when nothing applies.
+func gopodChainPrompt(esn, question string) string {
+	weather := gopodHasWholeWords(strings.ToLower(question), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", question)
+	if !weather || len(gopodGivenPoints(esn)) == 0 {
+		return ""
+	}
+	key := "weather_point_first"
+	if gopodIsFollowingUp(esn) {
+		key = "weather_point_next"
+	}
+	return strings.TrimSpace(gopodBrobotsSettings.ChainPrompts[key])
+}
+
 // gopodReminderSaid: the reminder part ended this answer (esn -> true).
 var gopodReminderSaid sync.Map
 
@@ -58,9 +75,18 @@ func gopodChainHas(esn, part string) bool {
 }
 
 // gopodBrobotChainGroup: the Brobots' group for this answer.
+// 2026-10-22 (operator: "Multiple Responses Template * no reminders in 1st
+// brobot response * cater answer-chains to handle known/expected/desired prompts
+// to reveal value points"): the first answer in a line to both is
+// brobots_all_first, the next brobots_follow_up, a single answer brobots.
 func gopodBrobotChainGroup(esn string) string {
 	if gopodIsFollowingUp(esn) {
 		return "brobots_follow_up"
+	}
+	if _, first := gopodAllFirstAnswer.Load(esn); first {
+		if _, ok := gopodBrobotsSettings.AnswerChains["brobots_all_first"]; ok {
+			return "brobots_all_first"
+		}
 	}
 	return "brobots"
 }
@@ -119,9 +145,9 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 	case "reminder":
 		// 2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 4; operator: "Every answer
 		// steers back to the money"): a free answer (no value point given) ends
-		// with "Hey, that reminds me..." - the next points still on the list -
-		// always; then no other end line (end_snippet).
-		if len(gopodGivenPoints(esn)) == 0 && !gopodIsFollowingUp(esn) && !gopodIsThanks(question) {
+		// always; then no other end line (end_snippet). 2026-10-22 (the multiple
+		// responses template): wherever a group lists it - the group decides.
+		if !gopodIsThanks(question) {
 			if line := gopodReminderLine(question); line != "" && !gopodBrotherSaid(esn, line) {
 				logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + ": " + line)
 				gopodReminderSaid.Store(esn, true)

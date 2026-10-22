@@ -41,14 +41,16 @@ import (
 var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/chapters")
 
 type gopodTopicFile struct {
-	Name       string
-	Path       string
-	Label      string
-	Words      []string
-	Pictures   []string
-	Reminder   string
-	Sentences  *int
-	SayLines   map[int]string
+	Name      string
+	Path      string
+	Label     string
+	Words     []string
+	Pictures  []string
+	Reminder  string
+	Sentences *int
+	SayLines  map[int]string
+	// 2026-10-22: a point in note form, "notes N: title | note | note" (gopodPointNotes).
+	Notes      map[int]string
 	StartLines []string
 	EndLines   []string
 }
@@ -113,6 +115,7 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 			Name:     gopodTopicNumberPrefix.ReplaceAllString(strings.TrimSuffix(e.Name(), ".txt"), ""),
 			Path:     path,
 			SayLines: map[int]string{},
+			Notes:    map[int]string{},
 		}
 		head, _ := gopodSplitTopicFile(string(data))
 		for _, kv := range head {
@@ -134,6 +137,10 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 				t.StartLines = append(t.StartLines, value)
 			case key == "end line":
 				t.EndLines = append(t.EndLines, value)
+			case strings.HasPrefix(key, "notes "):
+				if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(key, "notes "))); err == nil {
+					t.Notes[n] = value
+				}
 			case strings.HasPrefix(key, "say "):
 				if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(key, "say "))); err == nil {
 					t.SayLines[n] = value
@@ -227,6 +234,7 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 	pictures := map[string][]string{}
 	sayLines := map[string]string{}
 	reminders := map[string]string{}
+	notes := map[string]string{}
 	sentences := map[string]int{}
 	topic := func(t gopodTopicFile) {
 		if t.Label != "" {
@@ -237,6 +245,9 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 		}
 		for n, line := range t.SayLines {
 			sayLines[t.Name+" "+strconv.Itoa(n)] = line
+		}
+		for n, line := range t.Notes {
+			notes[t.Name+" "+strconv.Itoa(n)] = line
 		}
 		if t.Reminder != "" {
 			reminders[t.Name] = t.Reminder
@@ -289,6 +300,7 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 	s.InterviewChapters.TopicLabels = labels
 	s.TopicPictures.Pictures = pictures
 	s.ValuePoints.SayLines = sayLines
+	s.ValuePoints.Notes = notes
 	s.ValuePoints.Reminders = reminders
 	s.ReplyTighten.TopicSentences = sentences
 }
