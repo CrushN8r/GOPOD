@@ -877,6 +877,7 @@
         stageBubble(bubble);
         // 2026-10-12: the voice that comes right after this bubble's line.
         if (nextBubbleVoice) { bubble._voice = nextBubbleVoice; nextBubbleVoice._bubble = bubble; nextBubbleVoice = null; }
+        bubble._feedId = feedIdNow;
         pendingReveal.push(bubble);
         if (revealTimer === null) {
           revealTimer = setTimeout(placeNewBubbles, 0);
@@ -937,7 +938,10 @@
           // 2026-10-18 (leak backstop): a line lit longer than
           // chat_window.speaking_max_ms (a robot that froze, a lost "done")
           // no longer holds the next bubble.
-          if (el._litAt && Date.now() - el._litAt > SPEAKING_MAX_MS) { return false; }
+          // 2026-10-23: a line lit some other way gets its lit time when first seen,
+          // so it times out like every other (never holds the chat for good).
+          if (!el._litAt) { el._litAt = Date.now(); }
+          if (Date.now() - el._litAt > SPEAKING_MAX_MS) { return false; }
           return b && !b.classList.contains("narrator") && b.style.visibility !== "hidden";
         });
       }
@@ -986,9 +990,26 @@
           then();
         })();
       }
+      // 2026-10-23 (live: the interview's end held ~57 s): a bubble waiting on the
+      // baton longer than 10 s logs what holds it (a lit line, its text).
+      var batonNoted = 0;
+      function batonHolder() {
+        var held = Array.prototype.filter.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
+          var b = el.closest(".brobot-bubble");
+          return b && !b.classList.contains("narrator") && b.style.visibility !== "hidden" && !(el._litAt && Date.now() - el._litAt > SPEAKING_MAX_MS);
+        })[0];
+        if (held) { return "lit line: " + String(held.textContent).slice(0, 60) + (held._litAt ? "" : " (no lit time)"); }
+        if (narratorLines.some(function (n) { return n.shown; })) { return "narrator line"; }
+        return "";
+      }
       function placeNewBubbles() {
         var waitFrom = performance.now();
         (function waitForBaton() {
+          if (performance.now() - waitFrom > 10000 && Date.now() - batonNoted > 10000 && batonHeld()) {
+            batonNoted = Date.now();
+            fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "note=" + encodeURIComponent("GOPOD_CHECK baton held 10 s+ by " + batonHolder()) }).catch(function () {});
+          }
           // 2026-10-11 (operator: "upon new operator bubble appearing, scrolling
           // gets messed up again"): the operator's own line waits its turn too,
           // so it never scrolls away a reply still being said.
@@ -1234,6 +1255,7 @@
               if (typeof cw.narrator_fade_out_end_s === "number") { NARRATOR_FADE_OUT_END_S = cw.narrator_fade_out_end_s; }
               if (typeof cw.reveal_rest_ms === "number") { REVEAL_REST_MS = cw.reveal_rest_ms; }
               if (typeof cw.speaking_max_ms === "number") { SPEAKING_MAX_MS = cw.speaking_max_ms; }
+              if (typeof cw.voice_ready_max_ms === "number") { VOICE_READY_MAX_MS = cw.voice_ready_max_ms; }
             }
             if (settings.highlight_scroll && settings.highlight_scroll.dead_zone >= 0) { FOCUS_DEAD_ZONE = Number(settings.highlight_scroll.dead_zone); }
             if (settings.live_weather && settings.live_weather.military_label) { militaryLabel = settings.live_weather.military_label; }
@@ -2069,18 +2091,16 @@
         wait.appendChild(generatingGlass(bubble));
         el.parentNode.insertBefore(wait, el);
         el._wait = wait;
-        if (el._plain) { el.style.display = "none"; }
         if (file) { voiceWaitFor[file] = el; }
         voiceWaits.push(el);
       }
       function voiceWaitEnd(say) {
         if (say && say._wait) { say._wait.remove(); say._wait = null; }
-        if (say && say._plain) { say.style.display = ""; }
         voiceWaits = voiceWaits.filter(function (x) { return x !== say; });
       }
       // "off": the voice failed - the waiting lines show their words.
       function voiceWaitsGone() {
-        voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); if (!say._plain) { say.classList.add("spoken"); } });
+        voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); say.classList.add("spoken"); });
       }
       function voiceLitLine(bubble, line, text) {
         line.textContent = "";
@@ -2121,8 +2141,6 @@
         var path = String(src || "").replace(/#.*$/, "").replace(/^https?:\/\/[^/]+/, "");
         var own = path && voiceWaitFor[path];
         if (own) { delete voiceWaitFor[path]; }
-        // The Operator's own words: shown as the voice starts, not lit.
-        if (own && own._plain) { voiceWaitEnd(own); return null; }
         var say = own && own.isConnected ? own : (voiceLitNext && voiceLitNext.isConnected ? voiceLitNext : null);
         if (!own || say === voiceLitNext) { voiceLitNext = null; }
         voiceWaitEnd(say);
@@ -3470,17 +3488,37 @@
         delete bubble.dataset.words;
         return text;
       }
-      // The Operator's own bubble is its slot ("op"): waiting while its voice
-      // is made, its words back as the voice plays (or fails: "off").
-      function operatorGenerating(file) {
+      // The Operator's own bubble is its slot ("op:" its voice is being made,
+      // "oplit:" made): "Generating..." and the hourglass while it's made, then
+      // its words lit word by word as the voice plays (2026-10-23, operator:
+      // "generating + hourglass, or per-word highlighted text") - the same
+      // template as every voiced line. No voice: its words show anyway.
+      function operatorGenerating(file, waits) {
         var own = container.querySelectorAll(".brobot-bubble[data-own='1']");
         var bubble = own.length ? own[own.length - 1] : null;
-        if (!bubble) { return; }
+        if (!bubble || restoringChat) { return; }
         var texts = bubble.querySelectorAll(":scope > .brobot-bubble-text");
         var el = texts.length ? texts[texts.length - 1] : null;
-        if (!el || el._wait) { return; }
-        el._plain = true;
-        voiceWaitOn(bubble, el, file);
+        if (!el || el._wait || el._litSay) { return; }
+        var say = document.createElement("span");
+        say.className = "brobot-say";
+        while (el.firstChild) { say.appendChild(el.firstChild); }
+        el.appendChild(say);
+        el._litSay = say;
+        if (skippingReporters) { say.classList.add("spoken"); return; }
+        bubble.classList.add("voice-lit");
+        if (file) { voiceWaitFor[file] = say; }
+        if (waits) { voiceWaitOn(bubble, say, file); }
+        var shownAt = 0;
+        (function showAnyway() {
+          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
+          if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
+          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
+            if (!shownAt) { shownAt = Date.now(); }
+            if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
+          }
+          setTimeout(showAnyway, 500);
+        })();
       }
       document.addEventListener("pointerdown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
       document.addEventListener("keydown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
@@ -3713,6 +3751,7 @@
         try {
           // 2026-10-11: a song sound's volume rides on its path ("#vol=0.8").
           var audio = voiceAudio(src);
+          var voiceFeedId = feedIdNow;
           delete voiceCache[String(src)];
           // 2026-10-17 (operator: "If system audio can be preloaded to play
           // multiple times, preload and play as needed * grunge, djent"): a sting
@@ -3729,7 +3768,11 @@
             // showed - its link lost, or the 20 s wait shorter than the baton's):
             // a voice waits while its bubble, or any bubble before it, is still
             // waiting to show - as long as the baton can be held.
-            var waiting = (b && b.isConnected && b.style.visibility === "hidden") || pendingReveal.length > 0;
+            // 2026-10-23 (live: the interview's end held 4.5 min): only bubbles that
+            // came BEFORE this voice hold it - a later one (the grand prize) waits
+            // for this line to be said, so it must never hold the voice back.
+            var waiting = (b && b.isConnected && b.style.visibility === "hidden") ||
+              pendingReveal.some(function (p) { return !(voiceFeedId && p._feedId > voiceFeedId); });
             if (waiting && Date.now() - from < CHAT_BATON_MAX_MS + BUBBLE_READY_MAX_MS) {
               setTimeout(playWhenShown, 50);
               return;
@@ -3892,7 +3935,8 @@
           }
           if (generatingMarker && String(e.text).indexOf(generatingMarker) === 0) {
             var genKind = String(e.text).slice(generatingMarker.length);
-            if (genKind.indexOf("op") === 0) { operatorGenerating(genKind.slice(3)); done(); return; }
+            if (genKind.indexOf("oplit:") === 0) { operatorGenerating(genKind.slice(6), false); done(); return; }
+            if (genKind.indexOf("op:") === 0) { operatorGenerating(genKind.slice(3), true); done(); return; }
             if (genKind === "off") { voiceWaitsGone(); }
             generatingGone();
             done();
@@ -4718,9 +4762,9 @@
       // a Brobot's bubble ("notice:<title>|<line>"): an egg's summary, a native
       // Wire-Pod intent.
       function bubbleNoticeSaid(to) {
-        var shell = nestShells[to];
-        if (!shell) { return; }
-        Array.prototype.forEach.call(shell.querySelectorAll(".bubble-notice .brobot-say.speaking"), function (x) {
+        // Any of his notices' lit lines (his shell may already be a new one).
+        var cls = to === "Brobot 2" ? "brobot-2" : "brobot-1";
+        Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble." + cls + " .bubble-notice .brobot-say.speaking"), function (x) {
           x.classList.remove("speaking");
           x.classList.add("spoken");
         });
@@ -4732,6 +4776,7 @@
         if (said && !restoringChat) {
           var say = document.createElement("span");
           say.className = "brobot-say speaking";
+          say._litAt = Date.now(); // a lit line that never hears "said" times out (batonHeld)
           say.textContent = line;
           el.appendChild(say);
         } else {

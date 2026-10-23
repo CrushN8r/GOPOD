@@ -168,8 +168,8 @@ func gopodYoureWelcome() {
 	if confirm, _ := gopodRecordConfirm.Swap("").(string); confirm != "" {
 		text = confirm + " " + text
 	}
-	GopodChatFeedAdd(so.SystemRole, text)
-	gopodSystemSay(text, true)
+	// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
+	gopodReporterSay(so.SystemRole, text, true, true)
 }
 
 // ## EOF

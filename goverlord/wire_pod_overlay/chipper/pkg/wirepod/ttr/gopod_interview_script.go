@@ -127,11 +127,51 @@ func GopodPageShown(shown bool) {
 		}
 	}
 	if changed {
-		gopodPageHiddenFlag(!shown)
+		gopodPagePause(!shown)
 	} else if shown && gopodBrobotsSettings.Session.PageHiddenFile != "" {
 		// A flag left from before a restart never holds a song.
 		os.Remove(filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.Session.PageHiddenFile))
 	}
+}
+
+// gopodPagePause (2026-10-23, live: a tab flicker posted "Interview paused" /
+// "Interview continues" twice in 5 s): the run is paused - its flag and its
+// paused line - only once the page has stayed hidden session.pause_after_ms;
+// shown again before then, nothing is said.
+var gopodPagePauseState = struct {
+	sync.Mutex
+	timer  *time.Timer
+	paused bool
+}{}
+
+func gopodPagePause(hidden bool) {
+	gopodPagePauseState.Lock()
+	defer gopodPagePauseState.Unlock()
+	if gopodPagePauseState.timer != nil {
+		gopodPagePauseState.timer.Stop()
+		gopodPagePauseState.timer = nil
+	}
+	if !hidden {
+		if gopodPagePauseState.paused {
+			gopodPagePauseState.paused = false
+			go gopodPageHiddenFlag(false)
+		}
+		return
+	}
+	if gopodPagePauseState.paused {
+		return
+	}
+	gopodPagePauseState.timer = time.AfterFunc(time.Duration(gopodBrobotsSettings.Session.PauseAfterMS)*time.Millisecond, func() {
+		gopodPagePauseState.Lock()
+		if !gopodPageHidden.Load() || gopodPagePauseState.paused {
+			gopodPagePauseState.Unlock()
+			return
+		}
+		gopodPagePauseState.paused = true
+		gopodPagePauseState.timer = nil
+		gopodPagePauseState.Unlock()
+		gopodPageHiddenFlag(true)
+	})
 }
 
 // gopodPageHiddenFlag (2026-10-12, operator: "Upon page unfocus = pause at next
@@ -332,9 +372,10 @@ func gopodPlayDraft(draft gopodDraft) {
 		if gopodScriptStop.Load() {
 			reason = "stopped"
 		}
-		var closer func()
+		// 2026-10-23 (A5): the grand prize, if the song revealed every point, before the closer.
+		closer := func() { gopodGameWinCheck() }
 		if len(draft.Closer) > 0 {
-			closer = func() { gopodSayDraftLines(draft.Closer) }
+			closer = func() { gopodGameWinCheck(); gopodSayDraftLines(draft.Closer) }
 		}
 		GopodRunEndThen("interview", reason, closer)
 	}()
@@ -345,8 +386,8 @@ func gopodPlayDraft(draft gopodDraft) {
 	// 2026-10-08 (operator: "upon 'start draft' add in a system draft started
 	// message"): in Goverlord's bubble and voice.
 	if so := gopodBrobotsSettings.SignOff; so.SystemRole != "" && so.StartedText != "" {
-		GopodChatFeedAdd(so.SystemRole, so.StartedText)
-		gopodSystemSay(so.StartedText, true)
+		// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
+		gopodReporterSay(so.SystemRole, so.StartedText, true, true)
 	}
 	// 2026-10-08: the reporters' handoff into question 1 (interview_script.start_lines),
 	// inside the opener's warm-up (2026-10-12, gopodRunWarmup).
@@ -495,6 +536,10 @@ func gopodScriptAnswer(esn, question string) (string, bool) {
 		return "", false
 	}
 	delete(gopodScript.pending, esn)
+	// 2026-10-23 (A5): the song's answer reveals its value point (the game's score).
+	for _, p := range a.Points {
+		go gopodCoverageMark(p)
+	}
 	gopodScript.moves[esn] = append([]gopodDraftMove(nil), a.Moves...)
 	gopodScript.logged[esn] = append([]gopodDraftMove(nil), a.Moves...)
 	say := gopodScriptFill(esn, a.Say)

@@ -3,11 +3,11 @@ package wirepod_ttr
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
-	"strconv"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -1297,5 +1297,178 @@ func TestDuoRunBugsStayOut(t *testing.T) {
 	// (A name counts in a line's first words: addressing.start_within_words.)
 	if got := gopodAddressedTo("bro but to, what's the weather like"); got != "Brobot 2" {
 		t.Errorf("bro but to: %q", got)
+	}
+}
+
+// 2026-10-23 (FINISH_PLAN_001.md A5): the interview song built from the game
+// reveals every value point exactly once, chapter by core topic, and plays (its
+// story and knobs read back as the same draft).
+func TestInterviewFromGame(t *testing.T) {
+	d, err := gopodInterviewDraftFromGame([]gopodDraftLine{{Who: "Brobot 2", Text: "Press my backpack."}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]int{}
+	for _, q := range d.Questions {
+		if q.Ask == "" || q.Chapter == "" || len(q.Answers) != 1 || strings.TrimSpace(q.Answers[0].Say) == "" {
+			t.Errorf("question %d incomplete: %+v", q.N, q)
+		}
+		for _, p := range q.Answers[0].Points {
+			seen[p]++
+		}
+	}
+	for _, id := range gopodBrobotsSettings.ValuePoints.CorePoints {
+		if seen[id] != 1 {
+			t.Errorf("%s revealed %d times", id, seen[id])
+		}
+	}
+	story, knobs, err := gopodInterviewSongFiles(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	texts, err := gopodInterviewStory(story)
+	if err != nil || len(texts) == 0 || len(knobs) == 0 {
+		t.Fatalf("story didn't read back: %v", err)
+	}
+}
+
+// 2026-10-23 (operator: "a template-oriented machine is supposed to snuff out your
+// repeated 'oops, sorry' * is there still any lazy patch work in my clean GOPOD?"):
+// every voiced line goes through the one template - gopodReporterSay(..., show
+// true, ...): its bubble, Generating and the hourglass, then its words lit. The
+// voice-only path (gopodSystemSay, gopodSystemSayNoSting, gopodReporterSay with
+// show false) is allowed only where another template already shows that bubble,
+// each named here with its reason. New code on the voice-only path fails the deploy.
+func TestEveryVoicedLineUsesTheTemplate(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	allowed := map[string]int{
+		"gopod_chat_feed.go":          1, // a song's system_say_role line: its warm-up bubble shows it
+		"gopod_interview_chapters.go": 1, // an egg: its pop-up bubble waits as one line (lineWaits)
+		"gopod_llm_warmup.go":         3, // the LLM warm-up bubble's own lines (llm_warmup)
+		"gopod_opener_song.go":        3, // the opener's warm-up bubble lines (golden opener)
+		"gopod_reporter_voices.go":    4, // the template itself, and the Operator's own line (generating:op)
+	}
+	re := regexp.MustCompile(`gopodSystemSay\(|gopodSystemSayNoSting\(|gopodReporterSay\([^()]*,[^()]*,\s*false\s*,`)
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		data, _ := os.ReadFile(f)
+		n := 0
+		for _, line := range strings.Split(string(data), "\n") {
+			l := strings.TrimSpace(line)
+			if strings.HasPrefix(l, "//") || strings.HasPrefix(l, "func ") {
+				continue
+			}
+			if re.MatchString(l) {
+				n++
+			}
+		}
+		if n > allowed[filepath.Base(f)] {
+			t.Errorf("%s: %d voice-only calls (allowed %d) - use gopodReporterSay(role, text, true, wait), the one voiced-line template", filepath.Base(f), n, allowed[filepath.Base(f)])
+		}
+	}
+}
+
+// TestWordsLiveInTheSettings (2026-10-23, operator: "TEMPLATE IT ALL OUT UNTIL
+// ALL THAT's LEFT IS TO MOVE FLEXIBLE DATA INTO LOADABLE/EDITABLE FILES"): the
+// words the Brobots are told and the page's waits live in the settings file,
+// never back in code.
+func TestWordsLiveInTheSettings(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	s := gopodBrobotsSettings
+	f := s.HostPersonaFrames
+	sm := s.SessionMemory
+	for name, v := range map[string]string{
+		"chain_prompts.weather_lead": s.ChainPrompts["weather_lead"], "chain_prompts.weather_lead_next": s.ChainPrompts["weather_lead_next"],
+		"interview_build.default_ask": s.InterviewBuild.DefaultAsk,
+		"host_persona_frames.name":    f.Name, "host_persona_frames.steps": f.Steps, "host_persona_frames.signature": f.Signature, "host_persona_frames.dial": f.Dial,
+		"session_memory.line": sm.Line, "session_memory.scenario": sm.Scenario, "session_memory.empty_text": sm.EmptyText,
+	} {
+		if strings.TrimSpace(v) == "" {
+			t.Errorf("%s is empty", name)
+		}
+	}
+	if len(s.InterviewBuild.Reporters) == 0 || len(s.BrotherRepeat.PlainWords) == 0 {
+		t.Error("interview_build.reporters or brother_repeat.plain_words is empty")
+	}
+	gone := []string{"First one short line about this weather", "As a GOPOD host ", " way through an answer: ", "When it fits, ", " stereo dial: ",
+		"* User asked ", "Prior matched scenario: ", "a short GOPOD point", "Tell us about ", `"Reporter 1", "Reporter 2"`, "gonna wanna"}
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	for _, file := range files {
+		if strings.HasSuffix(file, "_test.go") {
+			continue
+		}
+		data, _ := os.ReadFile(file)
+		for _, line := range strings.Split(string(data), "\n") {
+			if strings.HasPrefix(strings.TrimSpace(line), "//") {
+				continue
+			}
+			for _, g := range gone {
+				if strings.Contains(line, g) {
+					t.Errorf("%s: %q is back in code - it lives in the settings", filepath.Base(file), g)
+				}
+			}
+		}
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, k := range []string{"speaking_max_ms", "voice_ready_max_ms", "reveal_rest_ms", "marquee_pattern_ms", "baton_max_ms"} {
+		if !strings.Contains(string(page), "cw."+k) {
+			t.Errorf("the page doesn't read chat_window.%s", k)
+		}
+	}
+	// The persona sentences read the same as before the move.
+	if got := gopodPersonaFrame(f.Name, "I", "My", "{name}", "Doc"); got != "As a GOPOD host I go by Doc." {
+		t.Errorf("persona name line: %q", got)
+	}
+}
+
+// TestInterviewEndAndPauseHold (2026-10-23, live: the interview's end held 4.5
+// min; a tab flicker said paused/continues twice; the question bubble had no
+// Generating or highlight): a later bubble never holds an earlier voice; the
+// Operator's line is lit word by word ("oplit:") or generating ("op:"); a page
+// hidden shorter than session.pause_after_ms pauses nothing.
+func TestInterviewEndAndPauseHold(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{"p._feedId > voiceFeedId", `genKind.indexOf("oplit:") === 0`, "bubble._feedId = feedIdNow"} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_reporter_voices.go"))
+	if !strings.Contains(string(src), `"oplit:"`) {
+		t.Error("the Operator's made voice no longer names its file (oplit:)")
+	}
+	old := gopodBrobotsSettings.Session.PauseAfterMS
+	defer func() { gopodBrobotsSettings.Session.PauseAfterMS = old; GopodPageShown(true) }()
+	gopodBrobotsSettings.Session.PauseAfterMS = 60
+	GopodPageShown(true)
+	GopodPageShown(false)
+	GopodPageShown(true)
+	time.Sleep(150 * time.Millisecond)
+	gopodPagePauseState.Lock()
+	flicker := gopodPagePauseState.paused
+	gopodPagePauseState.Unlock()
+	if flicker {
+		t.Error("a short flicker paused the run")
+	}
+	GopodPageShown(false)
+	time.Sleep(150 * time.Millisecond)
+	gopodPagePauseState.Lock()
+	held := gopodPagePauseState.paused
+	gopodPagePauseState.Unlock()
+	if !held {
+		t.Error("a page hidden past pause_after_ms didn't pause")
 	}
 }

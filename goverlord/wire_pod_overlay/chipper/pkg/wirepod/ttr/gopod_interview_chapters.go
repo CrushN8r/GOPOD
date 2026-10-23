@@ -69,9 +69,16 @@ func gopodShowChapter(userMessage string) {
 		gopodInterviewShown.chapter = title
 		gopodInterviewShown.Unlock()
 		if changed {
-			GopodChatFeedAdd(role, title)
-			// 2026-10-08: said in the system voice, before the question is read.
-			gopodSystemSay(gopodChapterSaid(title), false)
+			// 2026-10-23 (operator: "Chapter: What GOPOD is - no generating +
+			// hourglass * ANY generated voice file goes through the same template"):
+			// the chapter is Goverlord's voiced line, shown and said the one way -
+			// Generating and the hourglass while its voice is made, then its words
+			// lit as it's said (gopodSayShown).
+			if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" {
+				gopodReporterSay(sr, gopodChapterSaid(title), true, false)
+			} else {
+				GopodChatFeedAdd(role, title)
+			}
 		}
 		return
 	}

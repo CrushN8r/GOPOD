@@ -373,8 +373,8 @@ func gopodRecordDecide(keep bool, reason string) {
 		return
 	}
 	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" {
-		GopodChatFeedAdd(role, confirm)
-		gopodSystemSay(confirm, true)
+		// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
+		gopodReporterSay(role, confirm, true, true)
 	}
 }
 

@@ -52,13 +52,15 @@ func gopodBrotherOf(esn string) string {
 	return ""
 }
 
-// gopodRepeatPlainWords: words that carry no meaning of their own.
-var gopodRepeatPlainWords = map[string]bool{}
-
-func init() {
-	for _, w := range strings.Fields("a an the and or but so of in on at to for with from by as is are was were be been it its it's this that these those there here i i'm me my you your you're we our us he his him she her they them their what who how yeah yes no not just like really very too also oh hey bro bros dude man ha haha lol well now then all some any can do does did got get gonna wanna about up out if") {
-		gopodRepeatPlainWords[w] = true
+// gopodRepeatPlainWord: a word that carries no meaning of its own
+// (brother_repeat.plain_words).
+func gopodRepeatPlainWord(w string) bool {
+	for _, p := range gopodBrobotsSettings.BrotherRepeat.PlainWords {
+		if strings.EqualFold(p, w) {
+			return true
+		}
 	}
+	return false
 }
 
 // gopodDropBrotherRepeat: the follow-up's reply with every sentence that only
@@ -75,7 +77,7 @@ func gopodDropBrotherRepeat(reply, brother string) string {
 	out := gopodEchoSentenceRe.ReplaceAllStringFunc(reply, func(sentence string) string {
 		meaning := 0
 		for _, w := range gopodHighlightWords(sentence) {
-			if gopodRepeatPlainWords[w.word] {
+			if gopodRepeatPlainWord(w.word) {
 				continue
 			}
 			meaning++

@@ -82,16 +82,16 @@ func gopodHostPersonaText(host, base string) string {
 	}
 	var parts []string
 	if n := strings.TrimSpace(h.Name); n != "" && !strings.Contains(base, n) {
-		parts = append(parts, "As a GOPOD host "+i+" go by "+n+".")
+		parts = append(parts, gopodPersonaFrame(gopodBrobotsSettings.HostPersonaFrames.Name, i, my, "{name}", n))
 	}
 	if r := strings.TrimSpace(h.Role); r != "" {
 		parts = append(parts, r)
 	}
 	if len(h.Steps) > 0 {
-		parts = append(parts, my+" way through an answer: "+strings.Join(h.Steps, ", then ")+".")
+		parts = append(parts, gopodPersonaFrame(gopodBrobotsSettings.HostPersonaFrames.Steps, i, my, "{steps}", strings.Join(h.Steps, ", then ")))
 	}
 	if sig := strings.TrimSpace(h.Signature); sig != "" {
-		parts = append(parts, "When it fits, "+i+" say: \""+sig+"\"")
+		parts = append(parts, gopodPersonaFrame(gopodBrobotsSettings.HostPersonaFrames.Signature, i, my, "{signature}", sig))
 	}
 	if paired {
 		as := strings.TrimSpace(pair.PartnerAs)
@@ -102,10 +102,20 @@ func gopodHostPersonaText(host, base string) string {
 			parts = append(parts, strings.ReplaceAll(t, "{partner}", as))
 		}
 		if n := strings.TrimSpace(h.Name); n != "" && strings.TrimSpace(pair.Left) != "" && pair.Dial >= 0 && pair.Dial <= 100 {
-			parts = append(parts, my+" stereo dial: "+strconv.Itoa(100-pair.Dial)+"% "+strings.TrimSpace(pair.Left)+", "+strconv.Itoa(pair.Dial)+"% "+n+".")
+			parts = append(parts, strings.NewReplacer("{left_pct}", strconv.Itoa(100-pair.Dial), "{left}", strings.TrimSpace(pair.Left), "{right_pct}", strconv.Itoa(pair.Dial), "{name}", n).Replace(gopodPersonaFrame(gopodBrobotsSettings.HostPersonaFrames.Dial, i, my, "", "")))
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+// gopodPersonaFrame: one host persona sentence from its frame
+// (host_persona_frames): {i}, {my} and the one value filled in.
+func gopodPersonaFrame(frame, i, my, key, value string) string {
+	r := []string{"{i}", i, "{my}", my}
+	if key != "" {
+		r = append(r, key, value)
+	}
+	return strings.NewReplacer(r...).Replace(frame)
 }
 
 // gopodHostPersonaLines: each brother's personas line, then his host persona.

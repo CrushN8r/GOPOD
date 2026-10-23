@@ -56,11 +56,11 @@ func gopodChainPrompt(esn, question string) string {
 	if gopodChainHas(esn, "point_bubbles") {
 		if pp := gopodPointBubblesPrompt(esn); pp != "" {
 			if weather {
-				lead := "First one short line about this weather. Then: "
+				lead := gopodBrobotsSettings.ChainPrompts["weather_lead"]
 				if gopodIsFollowingUp(esn) {
-					lead = "First one short line following up your brother's weather comment. Then: "
+					lead = gopodBrobotsSettings.ChainPrompts["weather_lead_next"]
 				}
-				return lead + pp
+				return strings.TrimSpace(lead + " " + pp)
 			}
 			return pp
 		}

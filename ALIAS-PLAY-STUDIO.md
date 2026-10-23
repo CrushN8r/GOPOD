@@ -1829,6 +1829,48 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**A later bubble never holds an earlier voice** (2026-10-23, live: the interview's end held 4.5
+min): a voice waits only for bubbles that came before it (their feed ids) - the grand prize,
+waiting for "Interview complete" to be said, no longer holds that line's sting and voice. The
+Operator's line (and the interview's questions) use the voice template too: "Generating..." and
+the hourglass while its voice is made (`op:`), its words lit word by word as it plays (`oplit:`).
+A run pauses only once the page has stayed hidden `session.pause_after_ms` (2 s) - a tab
+flicker says nothing. Locked by `TestInterviewEndAndPauseHold`.
+
+**Words and waits live in the settings - enforced** (2026-10-23, template sweep): the weather
+lead lines (`chain_prompts.weather_lead`/`_next`), the host persona sentences
+(`host_persona_frames`), the plain words a repeat is judged by (`brother_repeat.plain_words`),
+the session memory lines (`session_memory`), the interview's reporters and default question
+(`interview_build.reporters`/`default_ask`), and the chat page's waits and sizes (all in `chat_window`, F5). `TestWordsLiveInTheSettings` fails the deploy if any of these words come back into code.
+Left in code on purpose: the system-command help/answer text (the tool's own words) and the
+floors used only when a file can't be read.
+
+**Every voiced line, one template - enforced** (2026-10-23): `gopodReporterSay(role, text, true,
+wait)` shows the bubble, makes the voice (Generating and the hourglass), then lights its words.
+The voice-only path (`gopodSystemSay`, `gopodSystemSayNoSting`, show false) is allowed only where
+another template already shows that bubble: a song's system_say_role line, an egg's pop-up, the
+LLM warm-up's and the opener's warm-up bubble lines, the Operator's own line.
+`TestEveryVoicedLineUsesTheTemplate` fails the deploy on any other. Moved onto the template: draft
+started, Record Session's confirm, the sign-off line, "You're welcome", the replay's chapter. A
+chapter is Goverlord's voiced line ("Chapter:
+What GOPOD is") - Generating and the hourglass while its voice is made, then its words lit
+(`gopodSayShown`), like every made voice. **No lit line holds the chat for good:** a line lit any
+way gets its lit time when first seen and stops holding the next bubble after
+`chat_window.speaking_max_ms`; a spoken notice line ("Thanks for your help, ...") is found by
+its Brobot's class when "said" arrives; a bubble waiting 10 s+ on the baton logs what holds it
+(`GOPOD_CHECK baton held`). (Live: the interview's end froze ~57 s on a held line; the closer
+waited 30 s for "Interview complete" to be heard.)
+
+**The interview song, built from the game** (2026-10-23, FINISH_PLAN_001.md A5,
+`interview_build`, `gopod_interview_from_game.go`): `02_brobots_interview` - one chapter per core
+topic (in `summary.topic_order`, the livestream first), one question and answer per value point
+(19). The question is the point's golden interview question; the answer is his notes read as
+sentences, said by the Brobot the question is to (cue from `interview_build.cues`); CHALK and
+PLAYHEAD take turns asking; the closer stays the song's own. Each answer reveals its point, so a
+full play wins the game - the grand prize plays before the closer ("Press my backpack and tell me
+to GOPOD Yourself"). Change points, then `system-interview-rebuild` (undo: `system-undo`).
+Locked by `TestInterviewFromGame`.
+
 **Win and reset** (2026-10-23, FINISH_PLAN_001.md A4, `game.win_text`, `game.reset_on`,
 `gopod_game.go`): every value point revealed - Goverlord says "Grand prize! Every value point
 revealed. <score>. Now GOPOD Yourself!" once per session, after the answer that revealed the last

@@ -1,6 +1,6 @@
 # Brobots Interview
 
-**Status:** WIP (2026-10-17)
+**Status:** WIP (2026-10-23)
 
 The scripted interview. Type `start interview` in the Brobots chat to play it, `stop run` to stop
 it at a safe spot.
@@ -10,170 +10,234 @@ it at a safe spot.
   same steps; changing a line's words here is enough on its own.
 - Each `## SECTION` is one question: the reporters' banter, the question (`note: ask`), then the
   answers and handoffs, in order. `{weather}` in a line is the live weather.
-- 2026-10-12 (the operator's interview score): `chapter` on a section's first step starts a
-  chapter (shown and said before its question); `pictures` on an ask shows those pictures with
-  the question; the `Closer` section is said after "Interview run complete".
-- 2026-10-17 (operator: "The interview: rebuilt with new questions and answers from scratch, as a
-  summary of that same list" - the egg list, gopod_egg_list.go): one question per easter egg, in
-  the chapters' order. The Brobots' answers are the operator's own lines from each topic file
-  (`say N:`, `reminder:` and its reveal list in gopod_probes/chapters/), word for word; the
-  reporters' questions are drafts for the operator to change. The old interview is kept in
-  gopod_notes/older_archives/interview_before_2026-10-17/.
-
 
 ---
 
-## SECTION: 1. The workbook
+## SECTION: The contest 1
 
 ## STEP q01_01_reporter_1
 
-> TEXT: Brobot 1, show us Doc and Pip's workbook.
+> TEXT: Brobot 2, what's the contest?
 
-## STEP q01_02_brobot_1
+## STEP q01_02_brobot_2
 
-> TEXT: Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it. The errors aren't random: they're the ones real learners actually make.
-
-## STEP q01_03_brobot_2
-
-> TEXT: Pip's Clueless Workbook: "pretty sure factoring means adding. i'll ask Doc." Doc's Answer Key: "The Answers. Obviously."
-
+> TEXT: The contest. Wordplay is thrown at the hosts. Hosts fire back.
 
 ---
 
-## SECTION: 2. Fractions and decimals
+## SECTION: The contest 2
 
 ## STEP q02_01_reporter_2
 
-> TEXT: Fractions and decimals. Teach us something.
+> TEXT: Brobot 1, how do you win the contest - and where do winners show up?
 
 ## STEP q02_02_brobot_1
 
-> TEXT: Fraction to decimal: divide the top by the bottom. A half is 0.5, a quarter is 0.25, three quarters is 0.75.
-
-## STEP q02_03_brobot_2
-
-> TEXT: Some decimals never stop. A third is 0.3 repeating, two thirds is 0.6 repeating, a ninth is 0.1 repeating.
-
+> TEXT: Winners. Funniest, clearest, best analogy. Written up on Math Aftermath.
 
 ---
 
-## SECTION: 3. The rig
+## SECTION: What GOPOD is
 
 ## STEP q03_01_reporter_1
 
-> TEXT: What's in the rig?
+> TEXT: Brobot 2, tell me all about GOPOD.
 
-## STEP q03_02_brobot_1
+## STEP q03_02_brobot_2
 
-> TEXT: One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool.
-
-## STEP q03_03_brobot_2
-
-> TEXT: One dolly, two crates - roll in, plug in, party.
-
+> TEXT: GOPOD. AI wordplay! You gotta know all the rules, before you can break them. GOPOD teaches the mind to be like 'The Great Filter' of real-world bullshit. Explain the MAth! Comedic bullshitting. Hence, the 'AI wordplay! Explain the MAth!' livestream.
 
 ---
 
-## SECTION: 4. The rest of the cast
+## SECTION: Our local brain
 
 ## STEP q04_01_reporter_2
 
-> TEXT: Who else joins the cast?
+> TEXT: Brobot 1, what brain do you run on - is there a monthly bill?
 
-## STEP q04_02_brobot_2
+## STEP q04_02_brobot_1
 
-> TEXT: Brobots 3 and 4 are live already - two voice-only reporters, a woman's voice and a man's voice. Coming, not built yet: CHALK, a future screen host.
-
-## STEP q04_03_brobot_1
-
-> TEXT: Doc and Pip are two of an eventual six-brobot GOPOD-layer cast - Git Repo and Cache PYC, the Cozmo-bodied "unruly students", and PNFH and PNFT, the Moorebot Scout-bodied "goofy security".
-
+> TEXT: Local brain. Brobots can party offline. Plug in and go.
 
 ---
 
-## SECTION: 5. Birthdays and merch
+## SECTION: The rig
 
 ## STEP q05_01_reporter_1
 
-> TEXT: GOPOD your birthday?
+> TEXT: Brobot 2, what's the rig?
 
 ## STEP q05_02_brobot_2
 
-> TEXT: A full pizza-box of food-shaped Hot Wheels cars - already bought, already sorted. A live happy-birthday performance is coming - not filmed, not run, not yet.
-
-## STEP q05_03_brobot_1
-
-> TEXT: Merch ideas, none of it printed, priced or sold yet: Doc & Pip crew tees, a chocolate-bingo pin, a LEGO-adapter wheel keychain, a mug.
-
+> TEXT: Ron's rig. One dolly, two crates. Gear on top of battery. Upon arrival, party.
 
 ---
 
-## SECTION: 6. Bingo nights
+## SECTION: The websites
 
 ## STEP q06_01_reporter_2
 
-> TEXT: Bingo nights?
+> TEXT: Brobot 1, where can people see more - your websites?
 
 ## STEP q06_02_brobot_1
 
-> TEXT: GOPOD can host Bingo games for seniors while keeping the game familiar. The Brobot can call numbers, speak, react, celebrate small wins, and help the room feel more alive.
-
+> TEXT: CRUSHN8R's niche content pillars. Custom websites too!
 
 ---
 
-## SECTION: 7. Foodmath recipes
+## SECTION: Niche pillars
 
 ## STEP q07_01_reporter_1
 
-> TEXT: And the food?
+> TEXT: Brobot 1, what are the niche pillars?
 
-## STEP q07_02_brobot_2
+## STEP q07_02_brobot_1
 
-> TEXT: Foodmath: the math hiding in real party food, on foodmath.crushn8r.net. Chocolate Bingo: the tray and the numbers. Fudge Bolt Squares: the ratio that makes the tray set.
-
+> TEXT: Content for Pinterest. Recipes, fashion, anything. Unique among AI slop. Foodmath.
 
 ---
 
-## SECTION: 8. The weather
+## SECTION: How we teach
 
 ## STEP q08_01_reporter_2
 
-> TEXT: Brobot 1, how's the weather out there?
+> TEXT: Brobot 2, how do you teach?
 
-## STEP q08_02_brobot_1
+## STEP q08_02_brobot_2
 
-> TEXT: {weather}
-
+> TEXT: Doc is a strict funny teacher. Pip is clueless and motivated.
 
 ---
 
-## SECTION: 9. Roast battles
+## SECTION: Bingo nights
 
 ## STEP q09_01_reporter_1
 
-> TEXT: Roast battles?
+> TEXT: Brobot 1, tell me about bingo for seniors.
 
-## STEP q09_02_brobot_2
+## STEP q09_02_brobot_1
 
-> TEXT: Roast Battle! Party Brobots vs Any and All takers.
-
+> TEXT: Brobot Bingo Live Hosting. Chocolate Bingo too! Merch too!
 
 ---
 
-## SECTION: 10. Our legacy
+## SECTION: A day of parties 1
 
 ## STEP q10_01_reporter_2
 
-> TEXT: What's it all for?
+> TEXT: Brobot 1, how can I party with GOPOD?
 
 ## STEP q10_02_brobot_1
 
-> TEXT: Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.
+> TEXT: Morning. Seniors' bingo. Chocolate Bingo too! Merch too!
 
-## STEP q10_03_brobot_2
+---
 
-> TEXT: Gangster Granny: a 93-year-old woman helped Brobot 0 when it counted - his thanks to her, his sweet, adorable, gangster granny in a sparkly bling cap.
+## SECTION: A day of parties 2
 
+## STEP q11_01_reporter_1
+
+> TEXT: Brobot 2, walk me through a normal day - morning first.
+
+## STEP q11_02_brobot_2
+
+> TEXT: Afternoon. Classroom. Kids shout wordplay at us. We respond back.
+
+---
+
+## SECTION: A day of parties 3
+
+## STEP q12_01_reporter_2
+
+> TEXT: Brobot 1, and your evening - rapid fire?
+
+## STEP q12_02_brobot_1
+
+> TEXT: Evening. Same Brobots, same gear. Bar top, stage lights. A lively crowd.
+
+---
+
+## SECTION: Clubs and comedy rooms
+
+## STEP q13_01_reporter_1
+
+> TEXT: Brobot 2, what about comedy clubs and bars in Windsor?
+
+## STEP q13_02_brobot_2
+
+> TEXT: Rooms & events. Clubs, comedy, bars, weddings. Fast attention, shareable moments.
+
+---
+
+## SECTION: A birthday video from Doc & Pip
+
+## STEP q14_01_reporter_2
+
+> TEXT: Brobot 2, could you two make a birthday video for my sister?
+
+## STEP q14_02_brobot_2
+
+> TEXT: A birthday video from Doc & Pip. One name, one fresh take, never a reused clip. A scripted robot performance, and it says so. Contact@crushn8r.ca.
+
+---
+
+## SECTION: Keeping up with us
+
+## STEP q15_01_reporter_1
+
+> TEXT: Brobot 2, how do I keep up with you guys?
+
+## STEP q15_02_brobot_2
+
+> TEXT: The CREW'd newsletter. Get CREW'd. Crushn8r.ca.
+
+---
+
+## SECTION: Our whole story
+
+## STEP q16_01_reporter_2
+
+> TEXT: Brobot 2, and your story before him - how were you rescued?
+
+## STEP q16_02_brobot_2
+
+> TEXT: Rescued Brobots. Orphaned when our maker folded. An open-source community kept us alive. Ron found us.
+
+---
+
+## SECTION: Doc and Pip 1
+
+## STEP q17_01_reporter_1
+
+> TEXT: Brobot 2, what's Doc's full name - and what's he like?
+
+## STEP q17_02_brobot_2
+
+> TEXT: Doc. Doctrine Barfallonyou Squawkadoodle. DocBS for short. Gruff, rapid-fire, sure of himself. Never punches down.
+
+---
+
+## SECTION: Doc and Pip 2
+
+## STEP q18_01_reporter_2
+
+> TEXT: Brobot 1, and Pip's full name - and what's he like?
+
+## STEP q18_02_brobot_1
+
+> TEXT: Pip. Pip N Stall, from terminal command, pip install. PipTA, teacher's assistant. One step behind but happy.
+
+---
+
+## SECTION: Due credit
+
+## STEP q19_01_reporter_1
+
+> TEXT: Brobot 1, who's Gangster Granny?
+
+## STEP q19_02_brobot_1
+
+> TEXT: Gangster Granny with a sparkly bling cap. Ron drove her around. She helped Ron when it counted.
 
 ---
 

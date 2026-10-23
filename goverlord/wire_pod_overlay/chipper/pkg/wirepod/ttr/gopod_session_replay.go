@@ -329,8 +329,12 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 		case "chapter":
 			// Shown and said in the system voice, as in the draft (operator
 			// 2026-10-12: "Chapter bubbles aren't spoken").
-			GopodChatFeedAdd(act.Who, act.Text)
-			gopodSystemSay(gopodChapterSaid(act.Text), true)
+			// 2026-10-23: the chapter as Goverlord's voiced line, like the live run's.
+			if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" {
+				gopodReporterSay(sr, gopodChapterSaid(act.Text), true, true)
+			} else {
+				GopodChatFeedAdd(act.Who, act.Text)
+			}
 		case "handoff":
 			for _, a := range act.Answers {
 				if say := strings.TrimSpace(gopodDisplayReply(a.Say)); say != "" {

@@ -77,9 +77,9 @@ type gopodBrobotsSettingsFile struct {
 		AsleepNote string `json:"asleep_note"`
 	} `json:"brothers"`
 	Addressing struct {
-		StartWithinWords  int     `json:"start_within_words"`
+		StartWithinWords int `json:"start_within_words"`
 		// 2026-10-21: the first answer in a line to both ends handing over.
-		RedirectText string `json:"redirect_text"`
+		RedirectText      string  `json:"redirect_text"`
 		FirstHeardSeconds float64 `json:"first_heard_seconds"`
 		QuietAnimation    string  `json:"quiet_animation"`
 		// 2026-10-14: "All": Brobot 1 answers, then Brobot 2 (gopodTypedInputAll).
@@ -98,18 +98,18 @@ type gopodBrobotsSettingsFile struct {
 		Script string `json:"script"`
 	} `json:"mic_service"`
 	NumpadPTT struct {
-		MapFile      string            `json:"map_file"`
+		MapFile string `json:"map_file"`
 		// 2026-10-20: the mic's USB id, and what Goverlord says when it's missing.
-		MicUSBIDs          []string `json:"mic_usb_ids"`
-		MicMissingText     string  `json:"mic_missing_text"`
+		MicUSBIDs      []string `json:"mic_usb_ids"`
+		MicMissingText string   `json:"mic_missing_text"`
 		// 2026-10-21: the USB watch (gopod_usb_watch.go).
-		NumpadUSBIDs      []string `json:"numpad_usb_ids"`
-		USBWatchSeconds   float64  `json:"usb_watch_seconds"`
-		MicFoundText      string   `json:"mic_found_text"`
-		NumpadMissingText string   `json:"numpad_missing_text"`
-		NumpadFoundText   string   `json:"numpad_found_text"`
-		MicDisabledSeconds float64 `json:"mic_disabled_seconds"`
-		BodyToBrobot map[string]string `json:"body_to_brobot"`
+		NumpadUSBIDs       []string          `json:"numpad_usb_ids"`
+		USBWatchSeconds    float64           `json:"usb_watch_seconds"`
+		MicFoundText       string            `json:"mic_found_text"`
+		NumpadMissingText  string            `json:"numpad_missing_text"`
+		NumpadFoundText    string            `json:"numpad_found_text"`
+		MicDisabledSeconds float64           `json:"mic_disabled_seconds"`
+		BodyToBrobot       map[string]string `json:"body_to_brobot"`
 		// 2026-10-14: Goverlord says texts.on / texts.exit; made at start (gopodSystemLines).
 		Texts map[string]string `json:"texts"`
 		// 2026-10-16: 0 held talks to all the Brobots (gopod_numpad_ptt.go).
@@ -305,10 +305,10 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-13: the voice that reads a live operator line.
 		OperatorVoice string `json:"operator_voice"`
 		// 2026-10-13: days an unused Operator voice file is kept.
-		OperatorKeepDays float64 `json:"operator_keep_days"`
+		OperatorKeepDays  float64 `json:"operator_keep_days"`
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
-		ScriptedKeepDays float64 `json:"scripted_keep_days"`
-		LiveKeepDays     float64 `json:"live_keep_days"`
+		ScriptedKeepDays  float64 `json:"scripted_keep_days"`
+		LiveKeepDays      float64 `json:"live_keep_days"`
 		// 2026-10-13: the sting before a system line (gopodSystemSting).
 		SystemStings map[string]struct {
 			File string `json:"file"`
@@ -390,6 +390,29 @@ type gopodBrobotsSettingsFile struct {
 		Queries []string `json:"queries"`
 		Line    string   `json:"line"`
 	} `json:"golden_answers"`
+	// 2026-10-23 (A5): the interview song built from the game (gopod_interview_from_game.go).
+	InterviewBuild struct {
+		Cues       map[string]string `json:"cues"`
+		Reporters  []string          `json:"reporters"`
+		DefaultAsk string            `json:"default_ask"`
+	} `json:"interview_build"`
+	// 2026-10-23 (template sweep): the host persona's sentences (gopod_brobot_personas.go).
+	HostPersonaFrames struct {
+		Name      string `json:"name"`
+		Steps     string `json:"steps"`
+		Signature string `json:"signature"`
+		Dial      string `json:"dial"`
+	} `json:"host_persona_frames"`
+	// 2026-10-23 (template sweep): words that carry no meaning of their own (gopod_brother_repeat.go).
+	BrotherRepeat struct {
+		PlainWords []string `json:"plain_words"`
+	} `json:"brother_repeat"`
+	// 2026-10-23 (template sweep): the session memory's lines (gopod_session_memory.go).
+	SessionMemory struct {
+		Line      string `json:"line"`
+		Scenario  string `json:"scenario"`
+		EmptyText string `json:"empty_text"`
+	} `json:"session_memory"`
 	// 2026-10-23: the summary answer type (gopod_summary_answer.go).
 	Summary struct {
 		Queries    []string `json:"queries"`
@@ -451,9 +474,9 @@ type gopodBrobotsSettingsFile struct {
 			Summary  string `json:"summary"`
 			Score    string `json:"score"`
 			// 2026-10-22: the notice log's 4th line (gopodNoticeGotItAgain).
-			GotItAgain   string `json:"got_it_again"`
-			SecondGotIt  string `json:"second_got_it"`
-			HelperFrom   []string `json:"helper_from"`
+			GotItAgain  string   `json:"got_it_again"`
+			SecondGotIt string   `json:"second_got_it"`
+			HelperFrom  []string `json:"helper_from"`
 		} `json:"value_points"`
 		Egg          gopodNoticeWords `json:"egg"`
 		NativeIntent gopodNoticeWords `json:"native_intent"`
@@ -469,7 +492,7 @@ type gopodBrobotsSettingsFile struct {
 		HeldLogSeconds   float64 `json:"held_log_seconds"`
 	} `json:"page_sync"`
 	ChatAudio struct {
-		Volume      float64 `json:"volume"`
+		Volume       float64 `json:"volume"`
 		NormalizeDB  float64 `json:"normalize_db"`
 		LoudnessLUFS float64 `json:"loudness_lufs"`
 	} `json:"chat_audio"`
@@ -597,6 +620,7 @@ type gopodBrobotsSettingsFile struct {
 		StopSession    []string `json:"stop_session_words"`
 		PausedText     string   `json:"paused_text"`
 		ContinuesText  string   `json:"continues_text"`
+		PauseAfterMS   int      `json:"pause_after_ms"`
 		PageHiddenFile string   `json:"page_hidden_file"`
 		// 2026-10-17: the chat page away (gopod_page_presence.go).
 		AwaitsText         string            `json:"awaits_text"`

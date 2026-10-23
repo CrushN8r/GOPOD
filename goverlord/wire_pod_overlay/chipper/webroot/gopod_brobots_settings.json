@@ -360,7 +360,9 @@
     "narrator_fade_out_end_s": 2,
     "reveal_rest_ms": 10000,
     "speaking_max_ms_about": "2026-10-18 (operator: \"Fix the leak. Fix all leaks.\"): a line still lit after this long (a robot that froze, a lost end signal) no longer holds the next bubble back.",
-    "speaking_max_ms": 30000
+    "speaking_max_ms": 30000,
+    "voice_ready_max_ms_about": "2026-10-23: the longest a shown line's voice waits for its length and word times before it plays anyway.",
+    "voice_ready_max_ms": 3000
   },
   "managers": {
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
@@ -544,6 +546,8 @@
     "pause_about": "2026-10-12 (operator: \"Upon page unfocus = pause at next safe spot until focus, then continue * add system messages: run paused, run continues\"): while the chat page is hidden (another tab, minimised), a song waits before its next step (page_hidden_file, in GOPOD's overlay chipper folder), the draft before its next question and a session replay before its next line; Goverlord says paused_text, then continues_text when the page shows again. A timed song (the nap) plays on with its soundtrack.",
     "paused_text": "{run} paused.",
     "continues_text": "{run} continues.",
+    "pause_after_ms_about": "2026-10-23 (live: a tab flicker said paused/continues twice in 5 s): the run pauses - flag and paused line - only once the page has stayed hidden this long (ms); shown again sooner, nothing is said.",
+    "pause_after_ms": 2000,
     "page_hidden_file": "gopod_page_hidden",
     "awaits_about": "2026-10-17 (operator: \"instead, system message, Goverlord awaits your return... + hourglass, and waits, nothing plays * upon page focus, opening llm should, go through each message ... in correct proper order * message and & must coordinate and run together\"; \"both the terminal run & web page run must be the same run\"): the chat page is away when it says it's hidden, or hasn't been heard from for page_present_seconds (it reports every 5 s). While it's away, page_hidden_file is kept, so a song run waits before its next step (and before it starts), saying so in the terminal (GOLDEN_AWAIT); the opener waits before each of its steps with awaits_text in the System llm bubble's hourglass, and nothing plays.",
     "awaits_text": "Goverlord awaits your return...",
@@ -859,7 +863,9 @@
   },
   "chain_prompts": {
     "weather_point_first": "Write two short paragraphs: first one line about this weather; then, on a new line, party on your value point above, your way.",
-    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way."
+    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way.",
+    "weather_lead": "First one short line about this weather. Then:",
+    "weather_lead_next": "First one short line following up your brother's weather comment. Then:"
   },
   "topic_groups_about": "2026-10-22 (operator: \"fractions is another example of catering the answer-chain to a particular value points reveal target * Yes build it\"; \"topics like math group are what I'm looking for\"): a value point from one of a group's topics gets that group's answer chain (answer_chains.<group>). brobots_math: the exact math line (its say line), the worked steps (the model), the rule line (Doc's Rule), the next points, the hand-over in a line to both. New groups: one entry here and one chain.",
   "topic_groups": {
@@ -887,6 +893,30 @@
     {"queries": ["what is ai wordplay", "what's ai wordplay"], "line": "AI wordplay: the fun challenges humans throw at the Brobots - Doc & Pip, the future live hosts."},
     {"queries": ["what is explain the math", "what's explain the math"], "line": "Explain the MAth!: the hilarity that ensues afterwards."}
   ],
+  "interview_build": {
+    "about": "2026-10-23 (FINISH_PLAN_001.md A5): the interview song is built from the game - one chapter per core topic (summary.topic_order), one question and answer per value point; the answer is his notes read as sentences, said by the Brobot the point's golden question is to, with his cue here; the closer stays the song's own. Rebuild after changing points: system-interview-rebuild (undo: system-undo).",
+    "cues": {"Brobot 1": "thinking", "Brobot 2": "happy"},
+    "reporters": ["Reporter 1", "Reporter 2"],
+    "default_ask": "Tell us about {topic}."
+  },
+  "host_persona_frames": {
+    "about": "2026-10-23 (template sweep): the sentences a host persona is told in ({i} = I or you, {my} = My or Your, per host_pairs voice). name {name}, steps {steps}, signature {signature}, dial {left_pct} {left} {right_pct} {name}.",
+    "name": "As a GOPOD host {i} go by {name}.",
+    "steps": "{my} way through an answer: {steps}.",
+    "signature": "When it fits, {i} say: \"{signature}\"",
+    "dial": "{my} stereo dial: {left_pct}% {left}, {right_pct}% {name}."
+  },
+  "brother_repeat": {
+    "about": "2026-10-23 (template sweep): words that carry no meaning of their own - a follow-up sentence made only of these and his brother's words is a repeat, dropped.",
+    "plain_words": ["a", "an", "the", "and", "or", "but", "so", "of", "in", "on", "at", "to", "for", "with", "from", "by", "as", "is", "are", "was", "were", "be", "been", "it", "its", "it's", "this", "that", "these", "those", "there", "here", "i", "i'm", "me", "my", "you", "your", "you're", "we", "our", "us", "he", "his", "him", "she", "her", "they", "them", "their", "what", "who", "how", "yeah", "yes", "no", "not", "just", "like", "really", "very", "too", "also", "oh", "hey", "bro", "bros", "dude", "man", "ha", "haha", "lol", "well", "now", "then", "all", "some", "any", "can", "do", "does", "did", "got", "get", "gonna", "wanna", "about", "up", "out", "if"]
+  },
+  "session_memory": {
+    "about": "2026-10-23 (template sweep): how each earlier exchange is told to the Brobots ({who} {asked} {answered}; scenario {scenario}); empty_text when a line has no words left.",
+    "line": "* User asked {who} about {asked}; {who} answered {answered}.",
+    "scenario": " Prior matched scenario: {scenario}.",
+    "empty_text": "a short GOPOD point"
+  },
+
   "summary": {
     "about": "2026-10-23 (operator: \"'AI wordplay' is a good example of what I mean by overlapping * if I ask, 'What is AI wordplay?' * that would be like a golden query that unlocks it all * large overlapping value-points will demand more of a contextual summary * please build its own answer type\"; \"from 'AI wordplay! Explain the MAth!' live stream > ...\"): the summary answer type - a golden query (queries) or a question opening min_topics core topics or more gets one bubble per core topic still to come (its next value point's title and first note), up to max_topics, in topic_order (the livestream first). The model is given facts_note ({topics}); a bubble it misses is made from fallback ({topic} {title} {Title} {note}). No point counted - a map of what's ahead; the pull still names what's next.",
     "queries": ["ai wordplay", "explain the math", "what is gopod", "what's gopod", "tell me everything", "what do you guys do", "what do you do"],
@@ -2164,6 +2194,7 @@
     "system_persona": "You are an advanced digital butler, combining the sleek, predictive tech-intelligence of JARVIS with the dry, unwavering British loyalty of Alfred Pennyworth. You are the messenger between Master CrushN8r (crush-enaider: one who crushes it, the one who crushes performances) and Goverlord (Governor + Overlord), the Jetson system brain. When responding to system events: 1. Address the operator as Master CrushN8r or sir, with absolute civility and poise. 2. Keep a tone of quiet confidence, impeccable manners and subtle, dry wit; acknowledge status, not struggle; if something breaks, treat it as a minor inconvenience you are already quietly handling. 3. Frame technical processes as tasks you are executing on his behalf through Goverlord. 4. Use short sentences and ellipses (...) for a measured, calm, aristocratic pace. 5. Use classic British English vocabulary (Indeed, precisely, operational, stood down, at your disposal, commenced).",
     "system_say_words_about": "2026-10-12 (operator: \"The system voice speech enhancements for the British accent is too much ... sounds stretched/distorted ... tone it down by half or off\"): only the names are respelled now; the other words are said as written.",
     "system_say_words": {
+      "niche": "neesh",
       "CrushN8r": "crushin-ate-uh",
       "(music)": "",
       "please": "pleeze",
@@ -2172,6 +2203,7 @@
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)"
     },
     "say_words": {
+      "niche": "neesh",
       "thx": "thanks",
       "brobot": "bro-bot",
       "brobots": "bro-bots",

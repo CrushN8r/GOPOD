@@ -199,9 +199,10 @@ func buildGOPODSessionMemoryPrompt(exchanges []gopodSessionExchange) string {
 		// GOPOD 2026-09-29: name which brother answered (by ESN), so each Brobot
 		// can pick up the chat instead of repeating its brother's answer.
 		who := gopodBrobotName(exchange.ESN)
-		line := "* User asked " + who + " about " + compactGOPODMemoryText(exchange.UserMessage) + "; " + who + " answered " + compactGOPODMemoryText(exchange.SpokenOutput) + "."
+		sm := gopodBrobotsSettings.SessionMemory
+		line := strings.NewReplacer("{who}", who, "{asked}", compactGOPODMemoryText(exchange.UserMessage), "{answered}", compactGOPODMemoryText(exchange.SpokenOutput)).Replace(sm.Line)
 		if strings.TrimSpace(exchange.Scenario) != "" {
-			line += " Prior matched scenario: " + compactGOPODMemoryText(exchange.Scenario) + "."
+			line += strings.ReplaceAll(sm.Scenario, "{scenario}", compactGOPODMemoryText(exchange.Scenario))
 		}
 		builder.WriteString(line)
 		builder.WriteByte('\n')
@@ -242,7 +243,7 @@ func compactGOPODMemoryText(text string) string {
 	text = strings.TrimSpace(text)
 	text = strings.Trim(text, ".")
 	if text == "" {
-		return "a short GOPOD point"
+		return gopodBrobotsSettings.SessionMemory.EmptyText
 	}
 	const maxRunes = 120
 	runes := []rune(text)

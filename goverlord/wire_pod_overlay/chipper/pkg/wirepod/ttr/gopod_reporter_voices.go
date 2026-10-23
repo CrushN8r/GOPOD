@@ -667,10 +667,15 @@ func gopodReporterReadsOperator(text, how, to string) {
 			// hourglass * update message upon voice wav play"): a voice not
 			// made yet - the page shows its Operator bubble generating.
 			if rv.GeneratingMarker != "" {
+				// 2026-10-21: names its voice file, like every waiting line.
+				// 2026-10-23 (operator: "generating + hourglass, or per-word
+				// highlighted text"): a made voice names it too ("oplit:"), so
+				// the Operator's words light word by word as it plays.
+				_, page := gopodReporterPaths(host, gopodReporterSays(text))
 				if _, _, made := gopodReporterCached(host, gopodReporterSays(text)); !made {
-					// 2026-10-21: names its voice file, like every waiting line.
-					_, page := gopodReporterPaths(host, gopodReporterSays(text))
 					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"op:"+page)
+				} else {
+					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"oplit:"+page)
 				}
 			}
 			gopodReporterSay(host, text, false, true)
@@ -783,8 +788,8 @@ func gopodDraftRunCompleted() {
 	if so.SystemRole == "" || so.SystemText == "" || !gopodScriptRan.CompareAndSwap(true, false) {
 		return
 	}
-	GopodChatFeedAdd(so.SystemRole, so.SystemText)
-	gopodSystemSay(so.SystemText, true)
+	// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
+	gopodReporterSay(so.SystemRole, so.SystemText, true, true)
 }
 
 // gopodSystemSay says a system line in the system voice (reporter_voices.

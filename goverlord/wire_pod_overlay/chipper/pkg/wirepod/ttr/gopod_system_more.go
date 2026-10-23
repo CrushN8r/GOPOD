@@ -203,6 +203,7 @@ func gopodSystemHelp() string {
 		"  system-brobot <stats|volume|eyes|locale|units|location|timezone|say|wake|head|lift|wheels|camera> [1|2|both]",
 		"  system-faces [list|rename|delete|add] [1|2]   the faces a Brobot knows",
 		"  system-value-points [lock|<topic>]   the golden value points: locked? changed? a topic's; lock on purpose",
+		"  system-interview-rebuild            the interview song, rebuilt from the game's topics and value points",
 		"  system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route",
 		"  system-usb                        the USB devices plugged in (live in the menu)",
 		"  system-tpu [restart]              the Edge TPU worker's state, or start it again",
