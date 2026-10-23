@@ -1829,6 +1829,16 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**RULE: every voiced line gets the voice template** (2026-10-23, operator: "RULE: Every voiced
+line gets generating+hourglass/voice per-word highlighting * when any voiced line is created,
+the fucking template applies!!"): "Generating..." + the hourglass while its voice is made, then
+its words lit word by word as it plays. A line with its own bubble: `gopodSayShown` (`wait:` /
+`lit:`). A voice whose words show some other way (warm-up and opener lines, an egg, the
+Operator's own line): `gopodSayForShownLine` names the voice and its words (`forwait:` /
+`forlit:`) and the page ties them to that line (`voiceForLine`). A voice reaches the page only
+from the template - `TestInterviewEndAndPauseHold` fails the deploy otherwise. The score reads
+"Easter Eggs".
+
 **A later bubble never holds an earlier voice** (2026-10-23, live: the interview's end held 4.5
 min): a voice waits only for bubbles that came before it (their feed ids) - the grand prize,
 waiting for "Interview complete" to be said, no longer holds that line's sting and voice. The

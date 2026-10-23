@@ -1759,7 +1759,8 @@
         // generated. Please wait.", "LLM Warming Up. Please wait.", "Please wait.").
         var label = ready ? (readyText || llmWarm.readyText) : (warmingText || llmWarm.warmText);
         var labelEl = bubble.querySelector(".brobot-bubble-text");
-        labelEl.textContent = label;
+        // 2026-10-23: the same words keep their voice's lit line (voiceForLine).
+        if (voiceLineWords(labelEl.textContent) !== voiceLineWords(label)) { labelEl.textContent = label; }
         // 2026-10-16 (operator: "NEW system message ... lines"): one line each.
         labelEl.style.whiteSpace = "pre-line";
         var leds = bubble.querySelectorAll(".llm-led");
@@ -2140,6 +2141,9 @@
         // The line waiting for this very voice file, else the line shown last.
         var path = String(src || "").replace(/#.*$/, "").replace(/^https?:\/\/[^/]+/, "");
         var own = path && voiceWaitFor[path];
+        // A voice-only line not on the page when its voice was named: tied now.
+        if (!own && path && voiceForText[path]) { own = voiceLineTie(path, voiceForText[path], false); }
+        if (path) { delete voiceForText[path]; }
         if (own) { delete voiceWaitFor[path]; }
         var say = own && own.isConnected ? own : (voiceLitNext && voiceLitNext.isConnected ? voiceLitNext : null);
         if (!own || say === voiceLitNext) { voiceLitNext = null; }
@@ -3488,37 +3492,67 @@
         delete bubble.dataset.words;
         return text;
       }
-      // The Operator's own bubble is its slot ("op:" its voice is being made,
-      // "oplit:" made): "Generating..." and the hourglass while it's made, then
-      // its words lit word by word as the voice plays (2026-10-23, operator:
-      // "generating + hourglass, or per-word highlighted text") - the same
-      // template as every voiced line. No voice: its words show anyway.
-      function operatorGenerating(file, waits) {
-        var own = container.querySelectorAll(".brobot-bubble[data-own='1']");
-        var bubble = own.length ? own[own.length - 1] : null;
-        if (!bubble || restoringChat) { return; }
-        var texts = bubble.querySelectorAll(":scope > .brobot-bubble-text");
-        var el = texts.length ? texts[texts.length - 1] : null;
-        if (!el || el._wait || el._litSay) { return; }
-        var say = document.createElement("span");
-        say.className = "brobot-say";
-        while (el.firstChild) { say.appendChild(el.firstChild); }
-        el.appendChild(say);
-        el._litSay = say;
-        if (skippingReporters) { say.classList.add("spoken"); return; }
-        bubble.classList.add("voice-lit");
-        if (file) { voiceWaitFor[file] = say; }
-        if (waits) { voiceWaitOn(bubble, say, file); }
-        var shownAt = 0;
-        (function showAnyway() {
-          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
-          if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
-          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
-            if (!shownAt) { shownAt = Date.now(); }
-            if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
-          }
-          setTimeout(showAnyway, 500);
-        })();
+      // GOLDEN voice template, for a line shown some other way (2026-10-23,
+      // operator: "RULE: Every voiced line gets generating+hourglass/voice
+      // per-word highlighting * when any voiced line is created, the fucking
+      // template applies!!"): Wire-Pod names the voice and its words
+      // ("forwait:" being made, "forlit:" made); the newest shown line with those
+      // words - a warm-up or opener line, the Operator's own line - becomes the
+      // voice's line: "Generating..." and the hourglass while it's made, then lit
+      // word by word as it plays. A line already in the template is left as is.
+      // Not on the page yet: tied when its voice plays (voiceLitStart).
+      var voiceForText = {};
+      function voiceLineWords(t) { return String(t).replace(/\s+/g, " ").trim(); }
+      function voiceLineSpan(el, t) {
+        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+        while ((n = walker.nextNode())) {
+          var at = n.nodeValue.indexOf(t);
+          if (at < 0) { continue; }
+          var mid = at > 0 ? n.splitText(at) : n;
+          if (mid.nodeValue.length > t.length) { mid.splitText(t.length); }
+          var span = document.createElement("span");
+          span.className = "brobot-say";
+          mid.parentNode.insertBefore(span, mid);
+          span.appendChild(mid);
+          return span;
+        }
+        if (voiceLineWords(el.textContent) !== t) { return null; }
+        var whole = document.createElement("span");
+        whole.className = "brobot-say";
+        while (el.firstChild) { whole.appendChild(el.firstChild); }
+        el.appendChild(whole);
+        return whole;
+      }
+      function voiceLineTie(file, t, waits) {
+        var els = container.querySelectorAll(".brobot-bubble-text, .brobot-bubble-line");
+        for (var i = els.length - 1; i >= 0 && i >= els.length - 40; i--) {
+          var el = els[i], bubble = el.closest(".brobot-bubble");
+          if (!bubble || voiceLineWords(el.textContent).indexOf(t) < 0) { continue; }
+          if (el.querySelector(".brobot-say") || el.closest(".brobot-say")) { return el.querySelector(".brobot-say") || el.closest(".brobot-say"); }
+          var say = voiceLineSpan(el, t);
+          if (!say) { continue; }
+          if (skippingReporters) { say.classList.add("spoken"); return say; }
+          bubble.classList.add("voice-lit");
+          if (waits) { voiceWaitOn(bubble, say, file); }
+          var shownAt = 0;
+          (function showAnyway() {
+            if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
+            if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
+            if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
+              if (!shownAt) { shownAt = Date.now(); }
+              if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
+            }
+            setTimeout(showAnyway, 500);
+          })();
+          return say;
+        }
+        return null;
+      }
+      function voiceForLine(file, text, waits) {
+        var t = voiceLineWords(text);
+        if (!t || !file || restoringChat) { return; }
+        var say = voiceLineTie(file, t, waits);
+        if (say) { voiceWaitFor[file] = say; } else { voiceForText[file] = t; }
       }
       document.addEventListener("pointerdown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
       document.addEventListener("keydown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
@@ -3935,8 +3969,14 @@
           }
           if (generatingMarker && String(e.text).indexOf(generatingMarker) === 0) {
             var genKind = String(e.text).slice(generatingMarker.length);
-            if (genKind.indexOf("oplit:") === 0) { operatorGenerating(genKind.slice(6), false); done(); return; }
-            if (genKind.indexOf("op:") === 0) { operatorGenerating(genKind.slice(3), true); done(); return; }
+            // GOLDEN: a voice whose words are shown some other way (gopodSayForShownLine).
+            var forKind = genKind.indexOf("forwait:") === 0 ? "forwait:" : (genKind.indexOf("forlit:") === 0 ? "forlit:" : "");
+            if (forKind) {
+              var forRest = genKind.slice(forKind.length), forBar = forRest.indexOf("|");
+              if (forBar > 0) { voiceForLine(forRest.slice(0, forBar), forRest.slice(forBar + 1), forKind === "forwait:"); }
+              done();
+              return;
+            }
             if (genKind === "off") { voiceWaitsGone(); }
             generatingGone();
             done();

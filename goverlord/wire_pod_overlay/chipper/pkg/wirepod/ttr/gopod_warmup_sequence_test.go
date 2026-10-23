@@ -56,6 +56,8 @@ func TestWarmupSequenceGolden(t *testing.T) {
 					continue // a voice or a sting
 				} else if hm := gopodBrobotsSettings.ReporterVoices.HeardMarker; hm != "" && strings.HasPrefix(text, hm) {
 					continue // the page's heard check
+				} else if gm := gopodBrobotsSettings.ReporterVoices.GeneratingMarker; gm != "" && strings.HasPrefix(text, gm) {
+					continue // the voice template's own marks (generating, lit, off)
 				}
 			}
 			out = append(out, e.Who+": "+text)
@@ -241,7 +243,8 @@ func TestWarmupStings(t *testing.T) {
 		defer gopodChatFeed.Unlock()
 		var out []string
 		for _, e := range gopodChatFeed.events {
-			if e.Who == role && strings.Contains(e.Text, ".wav") {
+			gm := gopodBrobotsSettings.ReporterVoices.GeneratingMarker
+			if e.Who == role && strings.Contains(e.Text, ".wav") && (gm == "" || !strings.HasPrefix(e.Text, gm)) {
 				out = append(out, e.Text)
 			}
 		}

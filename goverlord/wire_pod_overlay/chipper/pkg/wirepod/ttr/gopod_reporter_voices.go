@@ -490,6 +490,38 @@ func gopodReporterSay(host, text string, show, wait bool) bool {
 	return gopodReporterSayTo(host, "", text, show, wait)
 }
 
+// gopodSayForShownLine (2026-10-23, operator: "RULE: Every voiced line gets
+// generating+hourglass/voice per-word highlighting * when any voiced line is
+// created, the fucking template applies!!"): a voice whose words are already on
+// the page (a warm-up/opener line, an egg, the Operator's own line) - its line
+// is named with its voice file, so the page ties them: "forwait:<page>|text"
+// (Generating... and the hourglass while it's made) or "forlit:<page>|text"
+// (made), then its words lit word by word as it plays. The same template as
+// gopodSayShown, for a line shown some other way.
+func gopodSayForShownLine(host, text string) (string, float64, bool) {
+	rv := gopodBrobotsSettings.ReporterVoices
+	says := gopodReporterSays(text)
+	said := says
+	if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+		said = gopodSaySwap(said, rv.SystemSayWords)
+	}
+	cachedPage, _, made := gopodReporterCached(host, said)
+	shown := strings.TrimSpace(text)
+	if rv.GeneratingMarker != "" && shown != "" {
+		if made {
+			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forlit:"+cachedPage+"|"+shown)
+		} else {
+			_, page := gopodReporterPaths(host, said)
+			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+shown)
+		}
+	}
+	page, seconds, ok := gopodReporterFile(host, says)
+	if !ok && !made && rv.GeneratingMarker != "" {
+		GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"off")
+	}
+	return page, seconds, ok
+}
+
 // gopodReporterSayTo: gopodReporterSay with its bubble's "to" - a manager's line
 // for a Brobot shows inside that Brobot's bubble (2026-10-18, gopod_managers.go).
 func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
@@ -500,7 +532,7 @@ func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
 	if show {
 		page, seconds, ok = gopodSayShown(host, to, text)
 	} else {
-		page, seconds, ok = gopodReporterFile(host, gopodReporterSays(text))
+		page, seconds, ok = gopodSayForShownLine(host, text)
 	}
 	if !ok {
 		if gopodDryVoice != nil {
@@ -664,20 +696,9 @@ func gopodReporterReadsOperator(text, how, to string) {
 		if from == how {
 			// 2026-10-16 (operator: "Operator bubble (as voice file is being
 			// generated) * update message to \"Voice file generating.\" +
-			// hourglass * update message upon voice wav play"): a voice not
-			// made yet - the page shows its Operator bubble generating.
-			if rv.GeneratingMarker != "" {
-				// 2026-10-21: names its voice file, like every waiting line.
-				// 2026-10-23 (operator: "generating + hourglass, or per-word
-				// highlighted text"): a made voice names it too ("oplit:"), so
-				// the Operator's words light word by word as it plays.
-				_, page := gopodReporterPaths(host, gopodReporterSays(text))
-				if _, _, made := gopodReporterCached(host, gopodReporterSays(text)); !made {
-					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"op:"+page)
-				} else {
-					GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"oplit:"+page)
-				}
-			}
+			// hourglass * update message upon voice wav play"); 2026-10-23: the
+			// voice template does it (gopodSayForShownLine) - Generating and
+			// the hourglass while it's made, then lit word by word.
 			gopodReporterSay(host, text, false, true)
 			return
 		}

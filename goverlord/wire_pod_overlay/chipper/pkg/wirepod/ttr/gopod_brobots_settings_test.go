@@ -1433,7 +1433,8 @@ func TestWordsLiveInTheSettings(t *testing.T) {
 // TestInterviewEndAndPauseHold (2026-10-23, live: the interview's end held 4.5
 // min; a tab flicker said paused/continues twice; the question bubble had no
 // Generating or highlight): a later bubble never holds an earlier voice; the
-// Operator's line is lit word by word ("oplit:") or generating ("op:"); a page
+// voice-only line (the Operator's, a warm-up line) gets the voice template too
+// ("forwait:"/"forlit:"); a page
 // hidden shorter than session.pause_after_ms pauses nothing.
 func TestInterviewEndAndPauseHold(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
@@ -1441,14 +1442,28 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
 	}
 	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
-	for _, want := range []string{"p._feedId > voiceFeedId", `genKind.indexOf("oplit:") === 0`, "bubble._feedId = feedIdNow"} {
+	for _, want := range []string{"p._feedId > voiceFeedId", `genKind.indexOf("forwait:") === 0`, "bubble._feedId = feedIdNow", "voiceForText[path]"} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
 		}
 	}
 	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_reporter_voices.go"))
-	if !strings.Contains(string(src), `"oplit:"`) {
-		t.Error("the Operator's made voice no longer names its file (oplit:)")
+	if !strings.Contains(string(src), "page, seconds, ok = gopodSayForShownLine(host, text)") {
+		t.Error("a voice-only line skips the voice template (gopodSayForShownLine)")
+	}
+	// RULE (operator 2026-10-23: "when any voiced line is created, the fucking
+	// template applies!!"): a voice reaches the page only from the template.
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	for _, file := range files {
+		if strings.HasSuffix(file, "_test.go") {
+			continue
+		}
+		data, _ := os.ReadFile(file)
+		n := strings.Count(string(data), "gopodWithVolumeShare(page)")
+		base := filepath.Base(file)
+		if n > 0 && base != "gopod_reporter_voices.go" && base != "gopod_say_heard.go" {
+			t.Errorf("%s puts a voice on the page outside the voice template", base)
+		}
 	}
 	old := gopodBrobotsSettings.Session.PauseAfterMS
 	defer func() { gopodBrobotsSettings.Session.PauseAfterMS = old; GopodPageShown(true) }()
