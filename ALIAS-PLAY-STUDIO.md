@@ -1829,6 +1829,41 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**MASTER LIST: content -> its template** (2026-10-23, operator: "Generate a master list please
+that maps content to its template"; aim: "Single unified template ... or at least the minimum set
+of epic cooperative templates"). Every chat bubble = header + content; each content's rules live
+in the settings, its template runs them, a test locks it ("none yet" = no lock test).
+
+| # | Content | Template (code) | Rules (settings) | Lock |
+|---|---|---|---|---|
+| 1 | Bubble header | `appendBubble` head row (page) | `bubble_kinds`, `display_names`, `brobot_bubble` | none yet |
+| 2 | Bubble placing, scroll, the baton | `revealWhenPlaced`, `batonHeld` (page) | `chat_window`, `gravity`, `highlight_scroll` | `TestInterviewEndAndPauseHold` |
+| 3 | Voiced line, own bubble (Goverlord, reporters, chapter, manager) | `gopodSayShown` -> `wait:`/`lit:` -> `voiceLitLine` | `reporter_voices`, `sign_off`, `hourglass` | `TestEveryVoicedLineUsesTheTemplate` |
+| 4 | Voiced line shown some other way (warm-up, opener, egg, Operator) | `gopodSayForShownLine` -> `forwait:`/`forlit:` -> `voiceForLine` | `reporter_voices`, `hourglass` | `TestInterviewEndAndPauseHold` |
+| 5 | Brobot reply, live | `gopodAnswerChain` + answer shapes -> pieces -> highlight | `answer_chains`, `answer_shapes`, `colour_slots`, `live_split`, `highlight` | `TestAnswerShapesHold`, `TestHighlightPiecesGolden` |
+| 6 | Brobot reply, scripted (interview, draft) | scripted snippets -> pieces | `scripted_snippets`, `scripted_split`, `interview_script`, `interview_build` | `TestScriptedPiecesAreSaidAsSent`, `TestInterviewFromGame` |
+| 7 | Duo answers (a line to both) | `gopodDuoRule` -> `duo_a`/`duo_b` chains | `duo`, `typed_line` | `TestDuoAnswersHold` |
+| 8 | Value point bubbles | `gopodPointBubbles` | `point_bubbles`, `value_points` | `TestPointBubblesShapeAlwaysHolds` |
+| 9 | Summary bubbles | `gopodSummaryBubbles` | `summary` | `TestAnswerShapesHold` |
+| 10 | Math answers | `brobots_math` chain | `topic_groups`, `math` | `TestMathAnswers`, `TestMathExplainTheMath` |
+| 11 | Notice log (inside a Brobot bubble) | `bubbleNotice` | `bubble_notices` | `TestNoticeCountsValuePoints` |
+| 12 | Score, grand prize, reset | `gopodCoverageScoreText`, `gopod_game.go` | `value_points.score_text`, `game` | `TestGameWinAndReset` |
+| 13 | Weather | weather lines + card | `weather_lines`, `weather_card`, `live_weather` | `TestLiveWeatherWords` |
+| 14 | Pictures, pop-ups, eggs | `showPictures` | `topic_pictures` | `TestPopupsOnlyLive`, `TestEggZooms` |
+| 15 | LLM warm-up bubble | `buildWarmupBubble`, `showWarmupLevel` | `llm`, `hourglass` | `TestWarmupSequenceGolden`, `TestLLMWarmTemplate` |
+| 16 | Narrator lines (songs) | `showNarratorLine` | `chat_window.narrator_*` | none yet |
+| 17 | Countdown | `showCountdown` | `countdown` | none yet |
+| 18 | Bingo ball | `showBingoBall` | `bingo_ball` | none yet |
+| 19 | Search results | `showSearchResults` | `system_search` | none yet |
+| 20 | System menu, terminal | `showTerminal` | `system_menu`, `system_bubble` | none yet |
+| 21 | QR codes | QR pictures | `qr_codes` | none yet |
+
+The minimum set it folds into (the aim): **(A) the bubble** - header + placing + baton (rows 1-2);
+**(B) the voiced line** - Generating + hourglass, then lit word by word (rows 3-4; a Brobot's own
+speech, rows 5-6, lights the same way); **(C) the content chain** - an ordered list of parts, each
+with its rules (rows 5-21 are parts: point bubbles, summary, notice, score, pictures, weather...).
+Folding them together is a later step, on his go.
+
 **RULE: every voiced line gets the voice template** (2026-10-23, operator: "RULE: Every voiced
 line gets generating+hourglass/voice per-word highlighting * when any voiced line is created,
 the fucking template applies!!"): "Generating..." + the hourglass while its voice is made, then
