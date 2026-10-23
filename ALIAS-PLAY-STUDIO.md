@@ -1814,7 +1814,7 @@ What GOPOD is, How Doc & Pip teach, Book us, The livestream, Join the crew, Due 
 these are given, counted and pulled toward, every other point stays known. Renamed topics (his
 names): the_rig -> mobile_gear, party -> bookings, contest_wheel -> AIWP_livestream; Gangster
 Granny is its own topic, due_credit; niche_pillars is new. One score template,
-`value_points.score_text`: "Topics N of 7 · Value Points N of 16 · Eggs N of 4" (hidden eggs
+`value_points.score_text`: "Topics N of 7 · Value Points N of 19 · Eggs N of 4" (hidden eggs
 count too) - in the notice, in the Brobots' pre-build
 context ("Our score so far: ..."), and in "what else". The rules for the Brobots: `game.rules`
 ("The game: ..."). Grand prize: every value point revealed (`target: points`). The point mechanics
@@ -1853,8 +1853,9 @@ part), then the answer's type. New topic `cameo` (Book us): a birthday video fro
 **Duo answer types** (2026-10-23, `duo`): the boilerplate for a line to both - A answers first,
 B next, each its own chain (`duo_a`, `duo_b`) and the rules every answer type follows there: A
 ends with the hand-over in place of the reminder (math keeps its reminder, then hands over); B's
-weather is "Confirmed...". Who's A: the All menu (`typed_line.all_first`) or the words ("Starting
-with Brobot 2"). A multi answer type later = more letters in `duo`. Soft-locked by
+weather is "Confirmed...". Who's A, in this order: the words ("Starting with Brobot 2"), then the Brobot named first
+anywhere in the line ("for both of you bro but to, ..." -> Brobot 2; `gopodFirstNamed`, the page's
+icons alike), then the All menu (`typed_line.all_first`). A multi answer type later = more letters in `duo`. Soft-locked by
 `TestDuoAnswersHold`.
 
 **GOLDEN answer shapes** (2026-10-23, FINISH_PLAN_001.md step A2, `answer_shapes`,

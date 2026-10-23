@@ -2280,7 +2280,7 @@
     "target_about": "2026-10-23 (operator: \"Perhaps its the topics I'm after, to dig up value points the brobot is supposed to reveal? * value points, since they can overlap nearly everywhere, is too much to handle at this stage * Go\"): what the game counts - topics: one point said opens a topic; the score (\"Topics {said} / {total}\"), Next up, the reminders and Chapter cleared all count topics. points: every point, as before.",
     "target": "points",
     "core_points_about": "2026-10-23 (FINISH_PLAN_001.md step A3; CORE_TOPICS_002.md; operator: \"aim to reveal all value points as the grand prize?\"): the value points themselves - his 16 (2026-10-23: \"Go with this to start\"; A3_CORE_POINTS_002.md). Only these are given, counted and pulled toward; every other point stays known to the Brobots, never a target. core_topics: the seven core topics and their topic files - a core topic is opened by any of its points. target points: the grand prize is all of them.",
-    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1"],
+    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "bookings#2", "bookings#3", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1"],
     "core_topics": {
       "Who we are": ["background", "doc_and_pip"],
       "What GOPOD is": ["gopod", "local_ai", "mobile_gear", "websites", "niche_pillars"],

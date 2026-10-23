@@ -1432,6 +1432,25 @@
       // Brobot a typed line went to, or the Brobots - and ends with that Brobot's
       // icon in his own colour (both for the Brobots).
       var addressing = null;
+      // 2026-10-23 (operator: "When 'All' selected, whatever Brobot N is called in
+      // the input first ... starting with brobot N answering first"): the Brobot
+      // named first anywhere in the line (Wire-Pod's gopodFirstNamed, the same names).
+      function firstNamedBrobot(text) {
+        if (!addressing || !addressing.names) { return ""; }
+        var words = String(text).toLowerCase().split(/[^a-z0-9']+/).filter(Boolean);
+        var best = "", bestAt = words.length;
+        ["brobot", "robot"].forEach(function (kind) {
+          ["Brobot 1", "Brobot 2"].forEach(function (brobot) {
+            ((addressing.names[brobot] || {})[kind] || []).forEach(function (form) {
+              var name = String(form).toLowerCase().split(/[^a-z0-9']+/).filter(Boolean);
+              for (var start = 0; name.length && start + name.length <= words.length && start < bestAt; start++) {
+                if (words.slice(start, start + name.length).join(" ") === name.join(" ")) { best = brobot; bestAt = start; break; }
+              }
+            });
+          });
+        });
+        return best;
+      }
       function operatorTarget(text) {
         if (!addressing || !addressing.names) { return "Brobots"; }
         var words = String(text).toLowerCase().split(/[^a-z0-9']+/).filter(Boolean);
@@ -1489,7 +1508,7 @@
         var head = bubbleHead((via || "Operator") + " to " + to, true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
-        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || allSecondFirst[String(text || "")])) { icons.reverse(); }
+        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || (allSecondFirst[String(text || "")] && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
         icons.forEach(function (cls) {
           var icon = document.createElement("div");
           icon.className = "brobot-bubble-avatar to-" + cls;

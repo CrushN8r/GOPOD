@@ -58,6 +58,34 @@ func gopodFindCall(text string) (string, int, int) {
 	return "", 0, 0
 }
 
+// gopodFirstNamed (2026-10-23, operator: "When 'All' selected, whatever Brobot N
+// is called in the input first, that typically means, for both brobots, starting
+// with brobot N answering first"): the Brobot named first anywhere in the line
+// (addressing.names), "" for none.
+func gopodFirstNamed(text string) string {
+	spans := gopodAddressWordSpans(text)
+	words := make([]string, len(spans))
+	for i, sp := range spans {
+		words[i] = strings.ToLower(text[sp[0]:sp[1]])
+	}
+	a := gopodBrobotsSettings.Addressing
+	best, bestAt := "", len(words)
+	for _, kind := range []string{"brobot", "robot"} {
+		for _, brobot := range []string{"Brobot 1", "Brobot 2"} {
+			for _, form := range a.Names[brobot][kind] {
+				name := gopodAddressWords(form)
+				for start := 0; start+len(name) <= len(words) && start < bestAt; start++ {
+					if gopodWordsEqual(words[start:start+len(name)], name) {
+						best, bestAt = brobot, start
+						break
+					}
+				}
+			}
+		}
+	}
+	return best
+}
+
 // gopodCanonicalCall writes the opening call as the Brobot's own name ("bro
 // bought two, can you hear me" -> "Brobot 2, can you hear me"), so the chat
 // model sees it's being called (operator 2026-10-04: "brobots acknowledge my

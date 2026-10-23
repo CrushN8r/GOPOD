@@ -299,7 +299,21 @@ func gopodAllStartsWith(text string) string {
 
 // gopodAllFirst: the Brobot answering first in a line to both (Brobot 1 unless told).
 func gopodAllFirst(text string) string {
-	if gopodAllStartsWith(text) == "Brobot 2" || gopodAllFirstPicked(text) == "2" {
+	// The words first: "Starting with Brobot 2", then the Brobot named first in
+	// the line (gopodFirstNamed), then the All menu (typed_line.all_first).
+	switch gopodAllStartsWith(text) {
+	case "Brobot 2":
+		return gopodBrobot2ESN
+	case "Brobot 1":
+		return gopodBrobot1ESN
+	}
+	switch gopodFirstNamed(text) {
+	case "Brobot 2":
+		return gopodBrobot2ESN
+	case "Brobot 1":
+		return gopodBrobot1ESN
+	}
+	if gopodAllFirstPicked(text) == "2" {
 		return gopodBrobot2ESN
 	}
 	return gopodBrobot1ESN

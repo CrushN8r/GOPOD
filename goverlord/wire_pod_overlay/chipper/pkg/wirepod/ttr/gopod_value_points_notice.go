@@ -84,6 +84,27 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 	if label == "" {
 		label = topic
 	}
+	// 2026-10-23 (live: "a day of parties #1 of 3" with only #1 a value point;
+	// operator: "where's: a day of parties #2 of 3"): #N of N counts the topic's
+	// value points (core_points) - its place among them, of how many.
+	shownN, shownTotal := n, total
+	if k, err := strconv.Atoi(n); err == nil && len(gopodBrobotsSettings.ValuePoints.CorePoints) > 0 {
+		if all, err := strconv.Atoi(total); err == nil {
+			rank, count := 0, 0
+			for i := 1; i <= all; i++ {
+				if gopodCorePoint(topic, i) {
+					count++
+					if i <= k {
+						rank = count
+					}
+				}
+			}
+			if count > 0 && rank > 0 {
+				shownN, shownTotal = strconv.Itoa(rank), strconv.Itoa(count)
+			}
+		}
+	}
+	n, total = shownN, shownTotal
 	// 2026-10-22 (operator: note form): a point with notes shows its title, then
 	// each note on its own line (value_points.note).
 	if k, err := strconv.Atoi(n); err == nil {

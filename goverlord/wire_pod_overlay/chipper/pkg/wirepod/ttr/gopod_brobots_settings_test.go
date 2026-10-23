@@ -2,6 +2,9 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
+	"strconv"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1168,6 +1171,13 @@ func TestDuoAnswersHold(t *testing.T) {
 	if gopodAllFirst("Starting with Brobot 2, "+line) != gopodBrobot2ESN {
 		t.Errorf("the words: Brobot 2 isn't first")
 	}
+	// 2026-10-23: the Brobot named first anywhere in the line answers first.
+	if gopodAllFirst("for both of you bro but to what's the weather like") != gopodBrobot2ESN {
+		t.Errorf("named first (Brobot 2, mid-line): not first")
+	}
+	if gopodAllFirst("hey you two, brobot one then brobot two, what's up?") != gopodBrobot1ESN {
+		t.Errorf("named first (Brobot 1): not first")
+	}
 	GopodAllFirstPick("", "")
 	gopodAllFirstAnswer.Store(gopodBrobot2ESN, true)
 	if r, ok := gopodDuoRule(gopodBrobot2ESN); !ok || r.Chain != gopodBrobotsSettings.Duo["a"].Chain || gopodBrobotChainGroup(gopodBrobot2ESN) != r.Chain {
@@ -1222,5 +1232,70 @@ func TestGameWinAndReset(t *testing.T) {
 	}
 	if s, _ := gopodCoverageScoreText(); !strings.Contains(s, "Value Points 0 of") {
 		t.Errorf("score after reset %q", s)
+	}
+}
+
+// 2026-10-23 (live: "a day of parties #1 of 3" with only #1 a value point;
+// operator: "Please template these bugs out of GOPOD"): every value point's notice
+// line says its place among its topic's value points, "#N of N" - never the topic
+// file's line count.
+func TestNoticeCountsValuePoints(t *testing.T) {
+	core := gopodBrobotsSettings.ValuePoints.CorePoints
+	if len(core) == 0 {
+		t.Skip("no core_points")
+	}
+	perTopic := map[string][]int{}
+	for _, id := range core {
+		f := strings.SplitN(id, "#", 2)
+		n, _ := strconv.Atoi(f[1])
+		perTopic[f[0]] = append(perTopic[f[0]], n)
+	}
+	for topic, nums := range perTopic {
+		sort.Ints(nums)
+		var content []byte
+		for _, p := range gopodTopicRegistry() {
+			if p.Name == topic {
+				content, _ = gopodReadTopicFacts(p.File)
+			}
+		}
+		_, points := gopodSplitPoints(string(content))
+		total := len(points)
+		if total == 0 {
+			total = 1
+		}
+		for rank, n := range nums {
+			line := gopodNoticePoint(topic, content, fmt.Sprintf("%s %d/%d", topic, n, total))
+			want := fmt.Sprintf("#%d of %d", rank+1, len(nums))
+			if !strings.Contains(line, want) {
+				t.Errorf("%s#%d: %q, want %q", topic, n, line, want)
+			}
+		}
+	}
+}
+
+// 2026-10-23 (operator: "Please template these bugs out of GOPOD"): the duo run's
+// bugs stay out - duo B calls no manager (no second "Thanks for your help"); a
+// country alone with its continent is that country ("zimbabwe africa"), its
+// capital the place; "bro but to" is Brobot 2.
+func TestDuoRunBugsStayOut(t *testing.T) {
+	if b := gopodBrobotsSettings.Duo["b"]; !b.NoManager {
+		t.Errorf("duo B may call a manager again")
+	}
+	city, country := gopodWeatherCountry("zimbabwe africa")
+	if country != "ZW" {
+		t.Errorf("zimbabwe africa: country %q", country)
+	}
+	for _, c := range gopodBrobotsSettings.CleanPolitics.Continents {
+		city = strings.TrimSpace(strings.ReplaceAll(" "+strings.ToLower(city)+" ", " "+c+" ", " "))
+	}
+	if city == "" {
+		city = gopodBrobotsSettings.CleanPolitics.Capitals[country]
+	}
+	if city != "Harare" {
+		t.Errorf("zimbabwe africa: place %q, want Harare", city)
+	}
+	// (A name counts in a line's first words: addressing.start_within_words.)
+	if got := gopodAddressedTo("bro but to, what's the weather like"); got != "Brobot 2" {
+		t.Errorf("bro but to: %q", got)
 	}
 }
