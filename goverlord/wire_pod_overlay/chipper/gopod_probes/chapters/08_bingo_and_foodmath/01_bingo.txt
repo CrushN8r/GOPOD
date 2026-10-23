@@ -3,7 +3,7 @@ words: bingo, gobingo, caller, number call, bingo card, seniors bingo, perspecti
 pictures: chocolate_bingo_kit.jpg, chocolate_bingo_card.jpg
 say 1: GOPOD can host Bingo games for seniors while keeping the game familiar. The Brobot can call numbers, speak, react, celebrate small wins, and help the room feel more alive.
 end line: Hey, you can also play Chocolate Bingo, for kids of all ages!
-notes 1: Brobot Bingo | the familiar game, live hosts | calls, reactions, small wins | cards, signs & merch
+notes 1: Brobot Bingo Live Hosting | Chocolate Bingo too! | Merch too!
 ---
 GOPOD turns Bingo from “someone calls numbers” into a tiny live Brobot-hosted event.
 

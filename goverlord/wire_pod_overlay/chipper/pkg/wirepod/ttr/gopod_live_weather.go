@@ -179,6 +179,13 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	// a country named in the place (clean_politics.countries, the flags' own
 	// list) is sent as its code, "Toronto,,US", first - and only a place in it wins.
 	city, country := gopodWeatherCountry(place)
+	// 2026-10-23: a continent isn't a city; a country alone is its capital.
+	for _, c := range gopodBrobotsSettings.CleanPolitics.Continents {
+		city = strings.TrimSpace(strings.ReplaceAll(" "+strings.ToLower(city)+" ", " "+c+" ", " "))
+	}
+	if country != "" && city == "" {
+		city = gopodBrobotsSettings.CleanPolitics.Capitals[country]
+	}
 	if country != "" && city != "" {
 		tries = append([]string{city + ",," + country, city + "," + country}, tries...)
 	}

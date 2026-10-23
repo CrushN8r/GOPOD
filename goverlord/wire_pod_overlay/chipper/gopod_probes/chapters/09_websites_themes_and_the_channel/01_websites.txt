@@ -3,7 +3,7 @@ words: website, websites, site, sites, online, foodmath, food math, chocolate, p
 pictures: crushn8r_ca_qr.png
 reminder: Hey, that reminds me... Pick an idea, have a website by dinner.
 say 1: Where to see more - the CRUSHN8R websites. Pick an idea, have a website by dinner - Brobot 0 builds them solo, on his own server, no team.
-notes 1: the CRUSHN8R websites | an idea to a site by dinner | built solo | foodmath and more
+notes 1: CRUSHN8R's niche content pillars | custom websites too!
 ---
 Where to see more - the CRUSHN8R websites. The flex: pick an idea, have a website by dinner - Brobot 0 builds them solo, on his own server, no team.
 foodmath.crushn8r.net: the math hiding in real recipes - the chocolate bingo party kit's fudge, cookies and pudding are locked ratios wearing a dessert costume.

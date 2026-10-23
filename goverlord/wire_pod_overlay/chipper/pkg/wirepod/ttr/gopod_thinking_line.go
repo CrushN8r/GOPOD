@@ -156,6 +156,7 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	if brobot {
 		if line := gopodNoticeGotItAgain(esn, hadManager); line != "" {
 			gopodSayWords(robot, esn, line)
+			gopodNoticeSaid(esn)
 		}
 	}
 }

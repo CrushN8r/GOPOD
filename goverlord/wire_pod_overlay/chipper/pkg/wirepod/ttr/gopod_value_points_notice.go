@@ -64,7 +64,11 @@ func gopodNoticePart(part string) bool {
 // gopodNoticePoint: one value point's line ({topic} its label, {n}, {id} topic#n, {words}).
 func gopodNoticePoint(topic string, content []byte, given string) string {
 	id, n, words := topic, "", ""
+	total := ""
 	if f := strings.Fields(given); len(f) == 2 {
+		if parts := strings.SplitN(f[1], "/", 2); len(parts) == 2 {
+			total = parts[1]
+		}
 		if k, err := strconv.Atoi(strings.SplitN(f[1], "/", 2)[0]); err == nil {
 			n = strconv.Itoa(k)
 			id = topic + "#" + n
@@ -85,14 +89,14 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 	if k, err := strconv.Atoi(n); err == nil {
 		if title, notes := gopodPointNotes(topic, k); title != "" {
 			vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
-			line := gopodNoticeFill(vp.Points, map[string]string{"id": id, "topic": label, "n": n, "words": title})
+			line := gopodNoticeFill(vp.Points, map[string]string{"id": id, "topic": label, "n": n, "total": total, "words": title})
 			for _, note := range notes {
 				line += "\n" + gopodNoticeFill(vp.Note, map[string]string{"note": note})
 			}
 			return line
 		}
 	}
-	return gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Points, map[string]string{"id": id, "topic": label, "n": n, "words": strings.TrimSpace(words)})
+	return gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Points, map[string]string{"id": id, "topic": label, "n": n, "total": total, "words": strings.TrimSpace(words)})
 }
 
 // One notice per Brobot bubble (2026-10-22, operator: "brobot 2 response isn't
@@ -160,7 +164,16 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 	names, counts := gopodPackPointCounts()
 	gopodCoverage.Lock()
 	said, total := 0, 0
+	byTopic := gopodBrobotsSettings.ValuePoints.Target == "topics"
 	for _, n := range names {
+		if byTopic {
+			// 2026-10-23: the game counts topics - one point opens one.
+			total++
+			if gopodCoverage.revealed[n] > 0 {
+				said++
+			}
+			continue
+		}
 		r := gopodCoverage.revealed[n]
 		if r > counts[n] {
 			r = counts[n]
@@ -168,7 +181,7 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 		said += r
 		total += counts[n]
 	}
-	covered := func(t string) bool { return gopodCoverage.revealed[t] >= counts[t] && counts[t] > 0 }
+	covered := func(t string) bool { return counts[t] > 0 && gopodTopicDoneLocked(t, counts[t]) }
 	// 2. chapter cleared: every topic of a chapter this answer touched is covered.
 	var cleared []string
 	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
@@ -209,9 +222,11 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 			}
 		}
 	}
-	// 1. score: the points said so far, of them all.
+	// 1. score: the one score template (value_points.score_text, A3) - topics,
+	// value points and eggs, N of N.
 	if vp.Score != "" && total > 0 {
-		parts["score"] = []string{gopodNoticeFill(vp.Score, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total)})}
+		score, _ := gopodCoverageScoreText()
+		parts["score"] = []string{gopodNoticeFill(vp.Score, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total), "score": score})}
 	}
 }
 
@@ -219,7 +234,7 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 // (gopodQuestionFactsFor); "got_it" is where his "Got it!" goes.
 func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
-	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && !gopodIsThanks(question) {
+	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && len(parts["summary"]) == 0 && !gopodIsThanks(question) {
 		parts["none"] = []string{vp.None}
 	}
 	gopodNoticeEggs.Lock()
@@ -277,6 +292,14 @@ func gopodNoticeFlushLocked(esn string) ([]string, string, bool) {
 	return lines, asked, true
 }
 
+const gopodNoticeSayMark = "noticesay:"
+const gopodNoticeSaidMark = "noticesaid:"
+
+// gopodNoticeSaid: his spoken notice line has been said.
+func gopodNoticeSaid(esn string) {
+	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, gopodBrobotName(esn), gopodNoticeSaidMark)
+}
+
 // gopodBubbleStep: this Brobot Bubble step is on (brobot_bubble.steps).
 func gopodBubbleStep(step string) bool {
 	for _, s := range gopodBrobotsSettings.BrobotBubble.Steps {
@@ -294,6 +317,9 @@ func gopodNoticeFlushed(esn string, lines []string, asked string, ok bool) {
 		return
 	}
 	gopodNoticePostLines(esn, lines)
+	if r, ok := gopodDuoRule(esn); ok && r.NoManager {
+		return // duo B: his brother's manager already helped (duo.b.no_manager)
+	}
 	if b := gopodBrobotName(esn); gopodBubbleStep("manager") && (b == "Brobot 1" || b == "Brobot 2") && !gopodScriptPlaying.Load() && strings.TrimSpace(asked) != "" {
 		go gopodManagerStepIn(b, asked)
 	}
@@ -352,7 +378,11 @@ func gopodNoticeGotItAgain(esn string, hadManager bool) string {
 	helper := gopodNoticeHelper(host)
 	l := gopodNoticeFill(vp.GotItAgain, map[string]string{"thinking_text": gopodThinkingLineSpoken(), "helper": helper})
 	if l != "" {
-		gopodBubbleNotice(gopodBrobotName(esn), gopodNoticeTitle(esn), l)
+		// 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in
+		// highlighting pipeline"): he says it - lit as he does (noticesay:), shown
+		// said once he's done (gopodNoticeSaid).
+		GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, gopodBrobotName(esn),
+			gopodNoticeSayMark+strings.ReplaceAll(gopodNoticeTitle(esn), "|", " ")+"|"+strings.ReplaceAll(l, "|", " "))
 	}
 	return l
 }

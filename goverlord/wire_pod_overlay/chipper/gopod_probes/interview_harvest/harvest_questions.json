@@ -256,7 +256,7 @@
     },
     {
       "chapter": "The brain and the rig",
-      "topic": "the_rig",
+      "topic": "mobile_gear",
       "to": "Brobot 2",
       "ask": "Brobot 2, what's the rig?"
     },
@@ -310,19 +310,19 @@
     },
     {
       "chapter": "Parties and rooms",
-      "topic": "party",
+      "topic": "bookings",
       "to": "Brobot 1",
       "ask": "Brobot 1, how can I party with GOPOD?"
     },
     {
       "chapter": "Parties and rooms",
-      "topic": "party",
+      "topic": "bookings",
       "to": "Brobot 2",
       "ask": "Brobot 2, walk me through a normal day - morning first."
     },
     {
       "chapter": "Parties and rooms",
-      "topic": "party",
+      "topic": "bookings",
       "to": "Brobot 1",
       "ask": "Brobot 1, and your evening - rapid fire?"
     },
@@ -355,6 +355,12 @@
       "topic": "birthday_and_merch",
       "to": "Brobot 1",
       "ask": "Brobot 1, a big cake to go with those Hot Wheels?"
+    },
+    {
+      "chapter": "Parties and rooms",
+      "topic": "cameo",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, could you two make a birthday video for my sister?"
     },
     {
       "chapter": "Bingo and foodmath",
@@ -412,19 +418,19 @@
     },
     {
       "chapter": "Websites, themes and the channel",
-      "topic": "contest_wheel",
+      "topic": "AIWP_livestream",
       "to": "Brobot 2",
       "ask": "Brobot 2, what's the contest?"
     },
     {
       "chapter": "Websites, themes and the channel",
-      "topic": "contest_wheel",
+      "topic": "AIWP_livestream",
       "to": "Brobot 1",
       "ask": "Brobot 1, how do you win the contest - and where do winners show up?"
     },
     {
       "chapter": "Websites, themes and the channel",
-      "topic": "contest_wheel",
+      "topic": "AIWP_livestream",
       "to": "Brobot 2",
       "ask": "Brobot 2, how does the contest wheel work?"
     },
@@ -451,6 +457,12 @@
       "topic": "newsletter",
       "to": "Brobot 2",
       "ask": "Brobot 2, how do I keep up with you guys?"
+    },
+    {
+      "chapter": "Websites, themes and the channel",
+      "topic": "niche_pillars",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are the niche pillars?"
     },
     {
       "chapter": "Booking and help",
@@ -491,14 +503,14 @@
     {
       "chapter": "Legacy and wrap-up",
       "topic": "legacy",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, who's Gangster Granny?"
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's Doc's lesson on legacy?"
     },
     {
       "chapter": "Legacy and wrap-up",
-      "topic": "legacy",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, what's Doc's lesson on legacy?"
+      "topic": "due_credit",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, who's Gangster Granny?"
     },
     {
       "chapter": "Legacy and wrap-up",

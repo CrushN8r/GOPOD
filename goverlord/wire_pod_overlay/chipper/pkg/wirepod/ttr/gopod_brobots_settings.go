@@ -246,6 +246,8 @@ type gopodBrobotsSettingsFile struct {
 		NotListed []string `json:"not_listed"`
 		// 2026-10-18: eggs taken out (their key, "chapter:<title>"): never pop up, not on the list.
 		NotEggs []string `json:"not_eggs"`
+		// 2026-10-22: the only eggs (when set) - gopodNotEgg.
+		EggsKeep []string `json:"eggs_keep"`
 		// 2026-10-13: a live pop-up's congratulations, shown and said.
 		PopupText string `json:"popup_text"`
 		// 2026-10-13: how many times a topic's pictures show per Wire-Pod start.
@@ -361,6 +363,57 @@ type gopodBrobotsSettingsFile struct {
 	WeatherLines map[string]string `json:"weather_lines"`
 	// 2026-10-22: the answer chain's prompt lines (gopodChainPrompt).
 	ChainPrompts map[string]string `json:"chain_prompts"`
+	// 2026-10-22: topics that get their own answer chain group (gopodTopicGroupFor).
+	TopicGroups map[string]struct {
+		Topics   []string `json:"topics"`
+		RuleLine string   `json:"rule_line"`
+	} `json:"topic_groups"`
+	// 2026-10-23: the point bubbles part (gopod_point_bubbles.go).
+	PointBubbles struct {
+		Prompt   string `json:"prompt"`
+		Fallback struct {
+			Title string `json:"title"`
+			Note  string `json:"note"`
+		} `json:"fallback"`
+		Hype          map[string][]string `json:"hype"`
+		KeepLeadLines int                 `json:"keep_lead_lines"`
+	} `json:"point_bubbles"`
+	// 2026-10-23 (A3): the game's rules, for the Brobots (prebuild_context {game}).
+	Game struct {
+		Rules string `json:"rules"`
+		// 2026-10-23 (A4): the grand prize line, and when the game resets.
+		WinText string `json:"win_text"`
+		ResetOn string `json:"reset_on"`
+	} `json:"game"`
+	// 2026-10-23: exact answers to golden questions (the golden_line part).
+	GoldenAnswers []struct {
+		Queries []string `json:"queries"`
+		Line    string   `json:"line"`
+	} `json:"golden_answers"`
+	// 2026-10-23: the summary answer type (gopod_summary_answer.go).
+	Summary struct {
+		Queries    []string `json:"queries"`
+		MinTopics  int      `json:"min_topics"`
+		MaxTopics  int      `json:"max_topics"`
+		TopicOrder []string `json:"topic_order"`
+		FactsNote  string   `json:"facts_note"`
+		Fallback   string   `json:"fallback"`
+	} `json:"summary"`
+	// 2026-10-23: the duo answer types - A answers first, B next (gopodDuoRule).
+	Duo map[string]struct {
+		Chain             string   `json:"chain"`
+		EndsWith          string   `json:"ends_with"`
+		NoReminder        bool     `json:"no_reminder"`
+		KeepReminderTypes []string `json:"keep_reminder_types"`
+		WeatherType       string   `json:"weather_type"`
+		NoManager         bool     `json:"no_manager"`
+	} `json:"duo"`
+	// 2026-10-23: the golden answer shapes (gopod_answer_shapes.go).
+	AnswerShapes struct {
+		Shapes    map[string][]string `json:"shapes"`
+		Marks     map[string]string   `json:"marks"`
+		MarkOrder []string            `json:"mark_order"`
+	} `json:"answer_shapes"`
 	// 2026-10-22: the typed line's All menu - who answers first by default.
 	TypedLine struct {
 		AllFirst string `json:"all_first"`
@@ -395,6 +448,7 @@ type gopodBrobotsSettingsFile struct {
 			Chapter  string `json:"chapter"`
 			Recovery string `json:"recovery"`
 			Next     string `json:"next"`
+			Summary  string `json:"summary"`
 			Score    string `json:"score"`
 			// 2026-10-22: the notice log's 4th line (gopodNoticeGotItAgain).
 			GotItAgain   string `json:"got_it_again"`
@@ -440,6 +494,17 @@ type gopodBrobotsSettingsFile struct {
 		Notes map[string]string `json:"notes"`
 		// 2026-10-22: words left out when matching a question to a point.
 		PickSkipWords []string `json:"pick_skip_words"`
+		// 2026-10-22: topics the Brobots know, never a value point target.
+		BackgroundTopics []string `json:"background_topics"`
+		// 2026-10-23: what the game counts - "topics" (one point opens a topic) or "points".
+		Target string `json:"target"`
+		// 2026-10-23 (A3): the value points themselves, and the seven core topics.
+		CorePoints []string            `json:"core_points"`
+		CoreTopics map[string][]string `json:"core_topics"`
+		// 2026-10-23: the answer chain map - which topics lead to which.
+		TopicLinks map[string][]string `json:"topic_links"`
+		// 2026-10-23: the funnels - lists of topics in order (gopodTopicLinksFor).
+		Funnels [][]string `json:"funnels"`
 	} `json:"value_points"`
 	ReplyTighten struct {
 		BudgetOff           bool           `json:"budget_off"`
@@ -594,6 +659,9 @@ type gopodBrobotsSettingsFile struct {
 		AllowedTopics []string          `json:"allowed_topics"`
 		Words         []string          `json:"words"`
 		Countries     map[string]string `json:"countries"`
+		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
+		Capitals   map[string]string `json:"capitals"`
+		Continents []string          `json:"continents"`
 	} `json:"clean_politics"`
 	// 2026-10-15: the battery watchdog (gopod_battery_watch.go).
 	BatteryWatch struct {

@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
@@ -138,6 +139,10 @@ func gopodPrebuildContext(esn, question string) string {
 		"question":  strings.TrimSpace(question),
 		"steps":     strings.Join(h.Steps, ", then "),
 	}
+	// 2026-10-23 (A3): the score, so he answers from it too.
+	score, _ := gopodCoverageScoreText()
+	fill["score"] = score
+	fill["game"] = strings.TrimSpace(gopodBrobotsSettings.Game.Rules)
 	out := []string{strings.TrimSpace(pc.Header)}
 	for _, line := range pc.Lines {
 		empty := false
@@ -187,8 +192,14 @@ func gopodHandoverLine(host, partner string) string {
 	}
 	nick := ""
 	if len(h.Nicknames) > 0 {
+		// 2026-10-23 (operator: "randomize 'gear-head' variations more"): a random
+		// one, never the same twice in a row (the end lines' rule, gopodPickSnippetLine).
 		gopodHandoverAt.Lock()
-		n := gopodHandoverAt.next[host] % len(h.Nicknames)
+		last := gopodHandoverAt.next[host] - 1
+		n := rand.Intn(len(h.Nicknames))
+		for len(h.Nicknames) > 1 && n == last {
+			n = rand.Intn(len(h.Nicknames))
+		}
 		gopodHandoverAt.next[host] = n + 1
 		gopodHandoverAt.Unlock()
 		nick = strings.TrimSpace(h.Nicknames[n])

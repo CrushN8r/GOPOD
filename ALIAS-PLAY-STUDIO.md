@@ -1701,7 +1701,9 @@ Explain the Math!" is GOPOD as a whole).
   prize, then `egg_zoom_text` "MouseOver to Zoom In" on its own line under a prize that zooms (a
   picture, a photo). No header above it.
 - Goverlord says the congratulations as it shows, revealed as it's said (`voiceLitLine`), zoom
-  kept, after the question has been read out, before the next egg.
+  kept, after the question has been read out, before the next egg. The zoom line, said last in
+  the same voice, lights with it too (2026-10-23): lit once the congratulations' last word is
+  said, shown said when the voice ends.
 - **Order:** the prize and the spoken congratulations, then the thinking line, then the reply.
   His reply comes after, in his own marquee bubble with his "Brobot N:" header.
 - **To All:** when the question found an egg, every Brobot's answer wears the marquee - each in
@@ -1779,6 +1781,20 @@ answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2");
 stays, the menu beside it. Hand-over
 nicknames: gear-head, cranky-shaft, coolant-leak, incompatible-particulate, fumble-nuts.
 
+**Core topics, background, eggs** (2026-10-22, CORE_TOPICS_002.md): seven core topics - Who we
+are, What GOPOD is, How Doc & Pip teach, Book us, The contest, Join the crew, The comeback.
+Every other topic is background (`value_points.background_topics`): the Brobots still get its
+facts, but it's never a value point - none given, not in the score, never reminded. Eggs
+(`topic_pictures.eggs_keep`): Chocolate Bingo (the Bingo and foodmath chapter), Gangster Granny
+(the Legacy and wrap-up chapter), Explain the Math, Roast Battle (18+); no other topic's pictures
+pop up.
+
+**Topic groups** (2026-10-22, `topic_groups`, `gopodTopicGroupFor`): a value point from one of a
+group's topics gets that group's answer chain. `brobots_math` (fractions_and_decimals): the
+exact math line, the worked steps (the model), "Doc's Rule: no credit for close." (`rule`
+part, not when the point already is the rule), the next points, the hand-over in a line to
+both.
+
 **Which value point** (2026-10-22, `gopodPickPoint`, `value_points.pick_skip_words`): of a topic's
 points not said yet, the one whose words (the point, its notes, its say line) share the most with
 the question - longer words count more; filler words don't count; the topic's own name doesn't
@@ -1786,6 +1802,87 @@ pick a point (the whole name said, or a one-word name's start: "book" for bookin
 shared, the next in order - the pull stays. ("Tell me about Pip" -> Pip's point; "My granny
 lives there" -> Gangster Granny.) Locked by the golden interview questions
 (`TestHarvestQuestionsGetTheirOwnPoint`).
+
+**Exact brand strings** (2026-10-23): "AI Wordplay! Explain the MAth!" - written MAth everywhere the
+Brobots say it (`reply_tighten.brand_words`, the "robot" -> "Brobot" template; a phrase ending
+in a mark now matches too), said "math" (the Brobots lingo: `MAth` = `math`).
+
+**The game: 20 value points, one session score** (2026-10-23, FINISH_PLAN_001.md A3,
+A3_CORE_POINTS_001.md): "AI Wordplay! Explain the MAth!" is a game. `value_points.core_points` -
+his 16 value points (A3_CORE_POINTS_002.md; the seven core topics in `core_topics`: Who we are,
+What GOPOD is, How Doc & Pip teach, Book us, The livestream, Join the crew, Due Credit); only
+these are given, counted and pulled toward, every other point stays known. Renamed topics (his
+names): the_rig -> mobile_gear, party -> bookings, contest_wheel -> AIWP_livestream; Gangster
+Granny is its own topic, due_credit; niche_pillars is new. One score template,
+`value_points.score_text`: "Topics N of 7 · Value Points N of 16 · Eggs N of 4" (hidden eggs
+count too) - in the notice, in the Brobots' pre-build
+context ("Our score so far: ..."), and in "what else". The rules for the Brobots: `game.rules`
+("The game: ..."). Grand prize: every value point revealed (`target: points`). The point mechanics
+tests run over every point (`gopodAllPointsForTest`); the answer shapes run with the 20.
+
+**Fixes from the duo run** (2026-10-23): duo B gets no manager step-in (`duo.b.no_manager`), so no
+second "Thanks for your help"; "Thanks for your help, PLAYHEAD." is lit while he says it
+(`noticesay:` / `noticesaid:`); an egg's congratulations wait as one Generating line; its "MouseOver
+to Zoom In" is lit word by word at its own words' times in the same voice; the hourglass drains
+smoothly and loops (`hourglass`); a country alone is its capital, continents aren't cities
+(`clean_politics.capitals`, `continents`; Zimbabwe 🇿🇼 added); "bro but to" = Brobot 2; "live" is
+said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
+must say its title; a scripted line may open or close any answer shape.
+
+**Win and reset** (2026-10-23, FINISH_PLAN_001.md A4, `game.win_text`, `game.reset_on`,
+`gopod_game.go`): every value point revealed - Goverlord says "Grand prize! Every value point
+revealed. <score>. Now GOPOD Yourself!" once per session, after the answer that revealed the last
+one has been said. The "thanks" ending resets the game: score, points said, reminders, chapters
+cleared and eggs found all back to 0 for the next session. Locked by `TestGameWinAndReset`.
+
+**The summary answer type** (2026-10-23, `summary`, `gopod_summary_answer.go`): a golden query
+("What is AI wordplay?", `summary.queries`) or a question opening 3+ core topics gets one bubble
+per core topic still to come - its next value point's title and first note - up to 3, the
+livestream first ("AI Wordplay! Explain the MAth!" live stream: the content engine). No point
+counted; the notice says "Summary: ...", the pull names what's next. Chain `brobots_summary`
+(`llm`, `summary_bubbles`, `reminder`); a bubble the model misses is made from the notes.
+
+**Funnels and golden answers** (2026-10-23): `value_points.funnels` - his funnels as lists of
+topics in order (livestream > content engine > social media > websites > contact/subscribe;
+livestream > book us live > subscribe; livestream > book a cameo > subscribe); the pull follows
+the next step of each, then `topic_links` - reorder by editing a list. `golden_answers`: "What is
+AI wordplay?" / "What is Explain the MAth?" get his line word for word, first (`golden_line`
+part), then the answer's type. New topic `cameo` (Book us): a birthday video from Doc & Pip
+(crushn8r.ca/booking1.html). gopod #1's notes: his "What is GOPOD?" words.
+
+**Duo answer types** (2026-10-23, `duo`): the boilerplate for a line to both - A answers first,
+B next, each its own chain (`duo_a`, `duo_b`) and the rules every answer type follows there: A
+ends with the hand-over in place of the reminder (math keeps its reminder, then hands over); B's
+weather is "Confirmed...". Who's A: the All menu (`typed_line.all_first`) or the words ("Starting
+with Brobot 2"). A multi answer type later = more letters in `duo`. Soft-locked by
+`TestDuoAnswersHold`.
+
+**GOLDEN answer shapes** (2026-10-23, FINISH_PLAN_001.md step A2, `answer_shapes`,
+`gopod_answer_shapes.go`): one shape per answer type - the order of his thought bubbles:
+- weather: Brobot Weather Report, his words, his point, the reminder
+- weather (next in a line to both): Confirmed. Temperature..., his words, his point, the Weather
+  Kit, the reminder
+- topic: his point (title line, then its notes as his words), the reminder
+- free: his words, the reminder
+- math: the exact math line, his words, Doc's Rule, the reminder
+- thanks: his words only (no hand-over either)
+Single-Brobot output (to Brobot 1 or 2) and multi-Brobot output (All, starting with 1 or 2: the
+first answer ends with the hand-over in place of the reminder; math keeps its reminder, then hands
+over). Every answer is checked as it's made - `BROBOT_SHAPE ... ok`, or `DRIFT` and the shape it
+wanted - and every type at every place (single 1, single 2, All-1 first/next, All-2 first/next)
+runs through the real answer chain at deploy (`TestAnswerShapesHold`).
+
+**Point bubbles** (2026-10-23, `point_bubbles`, `gopod_point_bubbles.go`): a value point with notes
+becomes his thought bubbles - a hype line for its title, then one party line per note. The model
+is asked for exactly that; a missing line, or one sharing no word with its note, is made from the
+note ("{Note}."), so the shape always holds. His weather comment, when there is one, stays first.
+Locked by `TestPointBubblesShapeAlwaysHolds`.
+
+**The pull's map** (2026-10-23, `value_points.topic_links`): after a topic, "Next up" and the
+reminder name the first open topic it links to - the repo's lanes
+(`GOPOD_NICHE_BUZZ_PLANNER_001.md`: contest -> websites + social; websites -> newsletter +
+contest; social -> newsletter + contest; gear -> videos) and recipes > Chocolate Bingo > foodmath;
+with none open, the most alike topic.
 
 **The gravitational pull** (2026-10-22, `gravity`): GOPOD is a game of query for value points -
 however far it's pushed, every answer steers back to the points still to say, in three places

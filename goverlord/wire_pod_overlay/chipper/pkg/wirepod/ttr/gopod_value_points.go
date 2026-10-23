@@ -89,6 +89,47 @@ var gopodCoverageSaid = map[string]map[int]bool{}
 
 var gopodPickWordRE = regexp.MustCompile(`[a-z0-9']+`)
 
+// gopodTopicLinksFor (2026-10-23, operator: "livestream > content engine > ...
+// > subscribe * Where you can further decouple for easier reordering/shuffling,
+// please do"): the topics this one leads to - the next step of every funnel it's
+// in (value_points.funnels), then its topic_links.
+func gopodTopicLinksFor(from string) []string {
+	var out []string
+	seen := map[string]bool{}
+	for _, f := range gopodBrobotsSettings.ValuePoints.Funnels {
+		for i := 0; i+1 < len(f); i++ {
+			if f[i] == from && !seen[f[i+1]] {
+				seen[f[i+1]] = true
+				out = append(out, f[i+1])
+			}
+		}
+	}
+	for _, t := range gopodBrobotsSettings.ValuePoints.TopicLinks[from] {
+		if !seen[t] {
+			seen[t] = true
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
+// gopodCorePoint (2026-10-23, FINISH_PLAN_001.md A3; CORE_TOPICS_002.md): with
+// value_points.core_points set, only those are value points (topic#n); the rest
+// of a topic stays known, never a target.
+func gopodCorePoint(topic string, n int) bool {
+	core := gopodBrobotsSettings.ValuePoints.CorePoints
+	if len(core) == 0 {
+		return true
+	}
+	id := topic + "#" + strconv.Itoa(n)
+	for _, c := range core {
+		if c == id {
+			return true
+		}
+	}
+	return false
+}
+
 // gopodPickWords: a text's words for matching - lower case, "pip's" -> "pip",
 // three letters or more, not in value_points.pick_skip_words.
 func gopodPickWords(text string) map[string]bool {
@@ -139,7 +180,7 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 	}
 	best, bestScore := -1, 0
 	for i, p := range points {
-		if said[i+1] {
+		if said[i+1] || !gopodCorePoint(name, i+1) {
 			continue
 		}
 		if best < 0 {
@@ -163,7 +204,23 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 
 // gopodCoverageRevealFor: gopodCoverageReveal for this question - the point it
 // asks about first (gopodPickPoint).
+// gopodBackgroundTopic (2026-10-22, operator: "Do 1 and 2 together first";
+// CORE_TOPICS_002.md - seven core topics): a topic the Brobots still know, but
+// never a value point - no point given, not in the score, never reminded.
+func gopodBackgroundTopic(name string) bool {
+	for _, t := range gopodBrobotsSettings.ValuePoints.BackgroundTopics {
+		if t == name {
+			return true
+		}
+	}
+	return false
+}
+
 func gopodCoverageRevealFor(name string, content []byte, question string) ([]byte, string) {
+	if gopodBackgroundTopic(name) && name != gopodBrobotsSettings.ValuePoints.WhatElseTopic {
+		logger.Println("BROBOT_VALUE_POINT topic=" + name + " background (known, not a target)")
+		return content, ""
+	}
 	if name == gopodBrobotsSettings.ValuePoints.WhatElseTopic {
 		return gopodWhatElseFacts(content), ""
 	}
@@ -281,10 +338,23 @@ func gopodGivenHasNotes(esn string) bool {
 	return false
 }
 
-// gopodTopicCovered: all of a topic's points have been revealed.
+// gopodTopicCovered: the topic is done - one point said with value_points.target
+// "topics" (2026-10-23, operator: "Perhaps its the topics I'm after * value points
+// ... too much to handle at this stage * Go"), all its points with "points".
 func gopodTopicCovered(name string, total int) bool {
 	gopodCoverage.Lock()
 	defer gopodCoverage.Unlock()
+	return gopodTopicDoneLocked(name, total)
+}
+
+// gopodTopicDoneLocked: gopodTopicCovered with gopodCoverage held.
+func gopodTopicDoneLocked(name string, total int) bool {
+	if total <= 0 {
+		return true
+	}
+	if gopodBrobotsSettings.ValuePoints.Target == "topics" {
+		return gopodCoverage.revealed[name] >= 1
+	}
 	return gopodCoverage.revealed[name] >= total
 }
 
@@ -297,13 +367,28 @@ func gopodPackPointCounts() ([]string, map[string]int) {
 		if err != nil {
 			continue
 		}
-		if p.Name == gopodBrobotsSettings.ValuePoints.WhatElseTopic {
-			continue // the question itself, not a topic
+		if p.Name == gopodBrobotsSettings.ValuePoints.WhatElseTopic || gopodBackgroundTopic(p.Name) {
+			continue // the question itself, or a background topic - not a value point
 		}
 		_, points := gopodSplitPoints(string(data))
 		counts[p.Name] = len(points)
 		if counts[p.Name] == 0 {
 			counts[p.Name] = 1
+		}
+		// 2026-10-23 (A3): only its value points count (core_points); a topic with
+		// none isn't a target.
+		if len(gopodBrobotsSettings.ValuePoints.CorePoints) > 0 {
+			n := 0
+			for i := 1; i <= counts[p.Name]; i++ {
+				if gopodCorePoint(p.Name, i) {
+					n++
+				}
+			}
+			if n == 0 {
+				delete(counts, p.Name)
+				continue
+			}
+			counts[p.Name] = n
 		}
 		names = append(names, p.Name)
 	}
@@ -418,7 +503,20 @@ func gopodReminderLine(userMessage string) string {
 	var chain []string
 	for from := current; len(chain) < want; {
 		best, bestSim := "", -1.0
+		// 2026-10-23 (operator: "Answer chain!! Start at what is GOPOD * GOPOD =
+		// 'AI Wordplay! Explain the MAth!' = live stream > contest > ... = content
+		// engine for websites * recipes > chocolate bingo > foodmath website"): the
+		// map first - the first open topic linked from this one (topic_links).
+		for _, t := range gopodTopicLinksFor(from) {
+			if !used[t] && !skip[t] && open(t) && ic.TopicLabels[t] != "" && !gopodReminded(t) {
+				best, bestSim = t, 2
+				break
+			}
+		}
 		for _, t := range order {
+			if best != "" && bestSim == 2 {
+				break
+			}
 			if used[t] || skip[t] || !open(t) || ic.TopicLabels[t] == "" || gopodReminded(t) {
 				continue
 			}
@@ -517,9 +615,44 @@ func gopodCoverageScoreText() (string, string) {
 		detail = append(detail, fmt.Sprintf("%s=%d/%d", name, n, counts[name]))
 	}
 	sort.Strings(detail)
+	topicsTotal := len(names)
+	// 2026-10-23 (A3; operator: "keep list score for topics, easter eggs, value
+	// points N of N so I can see my progress * and so can the brobots"): topics
+	// are the seven core topics (core_topics), opened by any of their points.
+	if ct := gopodBrobotsSettings.ValuePoints.CoreTopics; len(ct) > 0 {
+		topics, topicsTotal = 0, len(ct)
+		for _, files := range ct {
+			for _, f := range files {
+				if gopodCoverage.revealed[f] > 0 {
+					topics++
+					break
+				}
+			}
+		}
+	}
+	eggs, eggsTotal := 0, 0
+	listed := map[string]bool{}
+	for _, e := range gopodEggList() {
+		listed[e.Key] = true
+		eggsTotal++
+		if gopodEggFound(e.Key) {
+			eggs++
+		}
+	}
+	// 2026-10-23 (operator: "List hidden easter eggs as well"): the surprise eggs
+	// (topic_pictures.not_listed) count too, when they're eggs.
+	for _, k := range gopodBrobotsSettings.TopicPictures.NotListed {
+		if !listed[k] && !gopodNotEgg(k) {
+			eggsTotal++
+			if gopodEggFound(k) {
+				eggs++
+			}
+		}
+	}
 	text := strings.NewReplacer(
 		"{points}", fmt.Sprint(points), "{points_total}", fmt.Sprint(total),
-		"{topics}", fmt.Sprint(topics), "{topics_total}", fmt.Sprint(len(names)),
+		"{topics}", fmt.Sprint(topics), "{topics_total}", fmt.Sprint(topicsTotal),
+		"{eggs}", fmt.Sprint(eggs), "{eggs_total}", fmt.Sprint(eggsTotal),
 	).Replace(gopodBrobotsSettings.ValuePoints.ScoreText)
 	return text, strings.Join(detail, " ")
 }

@@ -1296,6 +1296,7 @@
               hostLabels = settings.reporter_voices.labels || hostLabels;
               displayNames = settings.display_names || displayNames;
               if (settings.skip_gate) { skipGate.enable_on = settings.skip_gate.enable_on || []; }
+              if (settings.hourglass) { hourglassCfg = settings.hourglass; }
               if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
               heardMarker = settings.reporter_voices.heard_marker || heardMarker;
@@ -1739,8 +1740,9 @@
       // sand in the top bulb drains to the neck, the bottom bulb fills from its
       // base, with a thin stream between while it runs.
       var HOURGLASS_SPRITES = 5;
-      function hourglassSprite(stage) {
-        var f = stage / (HOURGLASS_SPRITES - 1); // share of the sand at the bottom
+      var hourglassCfg = {};
+      function hourglassSprite(stage, steps) {
+        var f = stage / ((steps || HOURGLASS_SPRITES) - 1); // share of the sand at the bottom
         var top = 1 - f;
         var p = function (x, y) { return x.toFixed(2) + "," + y.toFixed(2); };
         var topSand = top > 0 ? "<polygon class=\"hg-sand\" points=\"" + p(12 - 8 * top, 16 - 12 * top) + " " + p(12 + 8 * top, 16 - 12 * top) + " " + p(12, 16) + "\"/>" : "";
@@ -2111,9 +2113,20 @@
         say.dataset.end = String(seconds);
         say._spokenWords = words || null;
         lightSpan(say);
+        // 2026-10-23: a line said last in the same voice, shown apart (the egg's
+        // "MouseOver to Zoom In") - lit word by word at its own words' times.
+        var tail = say._zoom;
+        if (tail && tail.isConnected) {
+          var n = sayWords(tail.textContent).length;
+          tail._spokenWords = words && words.length >= n ? words.slice(words.length - n) : null;
+          tail.dataset.at = "0";
+          tail.dataset.end = String(seconds);
+          lightSpan(tail);
+        }
         return function () {
           say.classList.remove("speaking");
           say.classList.add("spoken");
+          if (tail) { tail.classList.remove("speaking"); tail.classList.add("spoken"); }
         };
       }
       // 2026-10-06 (operator: "Pictures in the chat"): a topic's pictures, one
@@ -2182,6 +2195,10 @@
           holder.appendChild(prize);
           // 2026-10-18 (step 5, eggs on the bubble machine): Goverlord's
           // congratulations revealed as it's said, like every voice (voiceLitLine).
+          // 2026-10-23 (operator: "no generating + hourglass while voice is
+          // generating * I prefer to see a single generating + hourglass for both
+          // lines"): the congratulations wait as one line (the Generating template).
+          lineWaits = true;
           voiceLitLine(bubble, prize, eggText);
           bubble.appendChild(holder);
           // 2026-10-15 (operator: "Whichever Brobot triggers however many easter
@@ -2196,6 +2213,7 @@
           congrats.className = "brobot-bubble-text";
           congrats.style.whiteSpace = "pre-line";
           bubble.appendChild(congrats);
+          lineWaits = true;
           voiceLitLine(bubble, congrats, eggText);
         }
         var row = document.createElement("div");
@@ -2273,8 +2291,24 @@
         if (zoomLine && row.children.length) {
           var zoomEl = document.createElement("span");
           zoomEl.className = popup && popWho ? "popup-congrats popup-zoom-line" : "brobot-bubble-text popup-zoom-line";
-          zoomEl.textContent = zoomLine;
+          // 2026-10-23 (operator: "same with highlighting on, mouseover to zoom in
+          // message, no highlighting?"): Goverlord says it last, in the same voice
+          // as the congratulations - so it lights with that voice too: lit when the
+          // congratulations' last word is said, shown said when the voice ends.
+          var zoomSay = document.createElement("span");
+          zoomSay.className = "brobot-say";
+          zoomSay.textContent = zoomLine;
+          zoomEl.appendChild(zoomSay);
           holder.appendChild(zoomEl);
+          // Lit word by word from the congratulations' own voice (its last words,
+          // voiceLitStart), like every voiced line.
+          var litHost = popup && popWho ? prize : (popup ? congrats : null);
+          var congratsSay = litHost ? litHost.querySelector(".brobot-say") : null;
+          if (!congratsSay || restoringChat || skippingReporters || congratsSay.classList.contains("spoken")) {
+            zoomSay.classList.add("spoken");
+          } else {
+            congratsSay._zoom = zoomSay;
+          }
         }
         container.appendChild(bubble);
         if (popup) { marqueeAttach(bubble); }
@@ -3379,10 +3413,15 @@
         glass.innerHTML = hourglassSprite(0);
         row.appendChild(glass);
         rockHourglass(bubble, glass, 0);
+        // 2026-10-23 (operator: "animated hourglass: make sand empty from top/fill
+        // the bottom, then loop from top"): a smooth drain, a short hold full at
+        // the bottom, then from the top again (hourglass.steps, step_ms, hold_ms).
+        var steps = hourglassCfg.steps || 16, stepMs = hourglassCfg.step_ms || 150, holdMs = hourglassCfg.hold_ms || 400;
         (function drain(stage) {
           if (!bubble.isConnected || bubble.classList.contains("ready") || !row.isConnected) { return; }
-          glass.innerHTML = hourglassSprite(stage);
-          setTimeout(function () { drain((stage + 1) % HOURGLASS_SPRITES); }, 600);
+          glass.innerHTML = hourglassSprite(stage, steps);
+          var last = stage >= steps - 1;
+          setTimeout(function () { drain(last ? 0 : stage + 1); }, last ? holdMs : stepMs);
         })(0);
         return row;
       }
@@ -3897,6 +3936,10 @@
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) { bubbleNotice(e.to, String(e.text).slice(7)); }
+        // 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in highlighting
+        // pipeline"): a notice line he says - lit while he says it, said after.
+        else if (e.who === pictureRole && String(e.text).indexOf("noticesay:") === 0) { bubbleNotice(e.to, String(e.text).slice(10), true); }
+        else if (e.who === pictureRole && String(e.text).indexOf("noticesaid:") === 0) { bubbleNoticeSaid(e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("weathershow:") === 0) { weatherShowFor(e.to); }
         else if (e.who === pictureRole) { if (!menuPictures(e.text)) { showPictures(String(e.text).replace(/^menu:/, "")); } }
         else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to, done); return; }
@@ -4655,7 +4698,29 @@
       // Template it"): the bubble notice template - a titled notice at the top of
       // a Brobot's bubble ("notice:<title>|<line>"): an egg's summary, a native
       // Wire-Pod intent.
-      function bubbleNotice(to, text) {
+      function bubbleNoticeSaid(to) {
+        var shell = nestShells[to];
+        if (!shell) { return; }
+        Array.prototype.forEach.call(shell.querySelectorAll(".bubble-notice .brobot-say.speaking"), function (x) {
+          x.classList.remove("speaking");
+          x.classList.add("spoken");
+        });
+      }
+      // A notice line's words, as plain text or (said) as a lit piece.
+      function noticeLine(line, said) {
+        var el = document.createElement("span");
+        el.className = "brobot-bubble-text egg-summary-text";
+        if (said && !restoringChat) {
+          var say = document.createElement("span");
+          say.className = "brobot-say speaking";
+          say.textContent = line;
+          el.appendChild(say);
+        } else {
+          el.textContent = line;
+        }
+        return el;
+      }
+      function bubbleNotice(to, text, said) {
         if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }
         var bar = text.indexOf("|");
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
@@ -4664,10 +4729,7 @@
         // add it in underneath"): a notice with the same title takes the line.
         var same = Array.prototype.filter.call(shell.querySelectorAll(":scope > .bubble-notice"), function (n) { return n.dataset.title === title; })[0];
         if (same) {
-          var more = document.createElement("span");
-          more.className = "brobot-bubble-text egg-summary-text";
-          more.textContent = line;
-          same.appendChild(more);
+          same.appendChild(noticeLine(line, said));
           return;
         }
         var box = document.createElement("div");

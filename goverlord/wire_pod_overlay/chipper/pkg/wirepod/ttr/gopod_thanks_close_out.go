@@ -151,6 +151,10 @@ func gopodThanksEnding() {
 	gopodYoureWelcome()
 	// The session ends here; the next one starts at 00:00:00 (gopod_session_log.go).
 	GopodSessionLogEnd("thanks")
+	// 2026-10-23 (A4): and the game starts at 0 (game.reset_on, gopod_game.go).
+	if gopodBrobotsSettings.Game.ResetOn == "thanks" {
+		gopodGameReset("thanks")
+	}
 }
 
 // gopodYoureWelcome closes the thanks process: sign_off.welcome_text in a

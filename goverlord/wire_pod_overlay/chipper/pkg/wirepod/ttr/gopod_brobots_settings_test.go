@@ -439,6 +439,8 @@ func TestBrobotZeroSelfNameAndReporters(t *testing.T) {
 // 2026-10-06: the value-point list - one point at a time, then covered; the
 // reminder points to the next uncovered topic; the score counts it all.
 func TestValuePointCoverage(t *testing.T) {
+	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
+	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
 	gopodCoverage.revealed = map[string]int{}
@@ -486,7 +488,8 @@ func TestValuePointCoverage(t *testing.T) {
 		t.Errorf("chapters reminder %q", got)
 	}
 	text, detail := gopodCoverageScoreText()
-	if !strings.Contains(text, "Covered ") || !strings.Contains(detail, "doc_and_pip=") || strings.Contains(text, "{") {
+	// 2026-10-23 (A3): the one score template - every token filled.
+	if text == "" || !strings.Contains(detail, "doc_and_pip=") || strings.Contains(text, "{") {
 		t.Errorf("score %q / %q", text, detail)
 	}
 }
@@ -535,6 +538,8 @@ func TestWhatElseCanWeTalkAbout(t *testing.T) {
 
 // 2026-10-06: through the real prompt path, a topic gives one point, then the next.
 func TestValuePointsReachThePrompt(t *testing.T) {
+	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
+	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
 	gopodCoverage.revealed = map[string]int{}
@@ -573,6 +578,8 @@ func TestScriptedLinesKeptFromMemory(t *testing.T) {
 // first when that point is given out - to the Brobot it was given to - and each
 // line is the point's own words.
 func TestSayLinesForHardPoints(t *testing.T) {
+	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
+	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
 	gopodCoverage.revealed = map[string]int{}
@@ -622,6 +629,10 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	for key, line := range say {
 		i := strings.LastIndex(key, " ")
 		topic, n := key[:i], key[i+1:]
+		// 2026-10-22: a background topic's lines aren't value points (CORE_TOPICS_002.md).
+		if gopodBackgroundTopic(topic) {
+			continue
+		}
 		if counts[topic] == 0 || n < "1" || len(n) != 1 || int(n[0]-'0') > counts[topic] {
 			t.Errorf("%s: no such point", key)
 			continue
@@ -667,7 +678,7 @@ func TestTightenReply(t *testing.T) {
 	if got != want {
 		t.Errorf("got  %q\nwant %q", got, want)
 	}
-	line := gopodBrobotsSettings.ValuePoints.SayLines["legacy 4"]
+	line := gopodBrobotsSettings.ValuePoints.SayLines["legacy 3"]
 	if out := gopodStitchSnippet(line, got); !strings.Contains(out, line) {
 		t.Errorf("say line lost: %q", out)
 	}
@@ -1025,5 +1036,191 @@ func TestPopupsOnlyLive(t *testing.T) {
 	gopodShowTopicPictures(gopodBrobot2ESN, question)
 	if n := popups(); n != 0 {
 		t.Fatalf("%q found %d pop-ups during a run", question, n)
+	}
+}
+
+// 2026-10-23 (operator: "either the machine (game-mechanism) fucking works or it
+// doesn't, regardless of the editable data"): a point with notes always comes out
+// as its bubbles - a title line, then one line per note - whatever the model said.
+func TestPointBubblesShapeAlwaysHolds(t *testing.T) {
+	gopodCoverage.Lock()
+	saved := gopodCoverage.revealed
+	gopodCoverage.revealed = map[string]int{}
+	gopodCoverage.Unlock()
+	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
+	gopodQuestionFactsFor(gopodBrobot1ESN, "Brobot 1, tell me about Pip")
+	title, notes := gopodPointBubblesNotes(gopodBrobot1ESN)
+	if title == "" || len(notes) == 0 {
+		t.Fatalf("no notes given: %v", gopodGivenPoints(gopodBrobot1ESN))
+	}
+	for _, raw := range []string{"", "happy___ Toronto, eh? I love dinosaurs.", "happy___ " + title + " rocks! " + notes[0] + " for sure."} {
+		got := gopodPointBubbles(gopodBrobot1ESN, "Brobot 1, tell me about Pip", raw)
+		lines := strings.Split(got, gopodThoughtGap())
+		if len(lines) < len(notes)+1 || !strings.Contains(got, title) {
+			t.Errorf("%q -> %q", raw, got)
+		}
+	}
+}
+
+// 2026-10-23 (FINISH_PLAN_001.md step A2): every answer type, run through the real
+// answer chain with fixed model words, has its golden shape (answer_shapes).
+func TestAnswerShapesHold(t *testing.T) {
+	gopodCoverage.Lock()
+	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
+	gopodCoverage.revealed, gopodCoverage.reminded = map[string]int{}, map[string]bool{}
+	gopodCoverage.Unlock()
+	defer func() {
+		gopodCoverage.Lock()
+		gopodCoverage.revealed, gopodCoverage.reminded = saved, savedRem
+		gopodCoverage.Unlock()
+	}()
+	gopodWeatherCache.Lock()
+	savedWx := gopodWeatherCache.places
+	gopodWeatherCache.places = map[string]gopodWeatherCached{strings.ToLower(strings.TrimSpace(gopodBrobotsSettings.LiveWeather.Location)): {
+		facts: gopodWeatherFacts{Name: "Windsor", State: "Ontario", Country: "CA", Description: "clear sky", TempC: 20, Local: time.Date(2026, 10, 23, 15, 49, 0, 0, time.UTC)},
+		at:    time.Now(),
+	}}
+	gopodWeatherCache.Unlock()
+	defer func() { gopodWeatherCache.Lock(); gopodWeatherCache.places = savedWx; gopodWeatherCache.Unlock() }()
+	raw := "happy___ Nice one, bro! That's the vibe."
+	// 2026-10-23 (operator: "input to a single brobot 1 or 2 * input to 'All'
+	// brobots starting with 1 or 2"): every type, at every place an answer can be.
+	asks := []struct{ name, ask string }{
+		{"weather", "what's the weather?"},
+		{"topic", "tell me about Pip"},
+		{"free", "what's your favourite colour?"},
+		{"math", "convert a fraction to a decimal"},
+		{"thanks", "thanks brobots"},
+		{"summary", "what is AI wordplay?"},
+	}
+	places := []struct {
+		name        string
+		esn         string
+		first, next bool
+	}{
+		{"single to Brobot 1", gopodBrobot1ESN, false, false},
+		{"single to Brobot 2", gopodBrobot2ESN, false, false},
+		{"All starting with 1, Brobot 1 first", gopodBrobot1ESN, true, false},
+		{"All starting with 1, Brobot 2 next", gopodBrobot2ESN, false, true},
+		{"All starting with 2, Brobot 2 first", gopodBrobot2ESN, true, false},
+		{"All starting with 2, Brobot 1 next", gopodBrobot1ESN, false, true},
+	}
+	type shapeCase struct {
+		name, ask, esn string
+		first, next    bool
+	}
+	var cases []shapeCase
+	for _, a := range asks {
+		for _, p := range places {
+			cases = append(cases, shapeCase{a.name + ", " + p.name, a.ask, p.esn, p.first, p.next})
+		}
+	}
+	for _, c := range cases {
+		if c.first {
+			gopodAllFirstAnswer.Store(c.esn, true)
+		}
+		if c.next {
+			gopodFollowingUp.Store(c.esn, true)
+		}
+		gopodQuestionFactsFor(c.esn, c.ask)
+		got := gopodShapeBrobotAnswerParts(c.esn, c.ask, raw)
+		shape := gopodAnswerShape(c.esn, c.ask, c.first)
+		labels := gopodShapeLabels(c.esn, got)
+		if len(shape) == 0 || !gopodShapeMatches(shape, labels) {
+			t.Errorf("%s (%s): %v, want %v\n%s", c.name, gopodAnswerType(c.esn, c.ask), labels, shape, got)
+		}
+		gopodAllFirstAnswer.Delete(c.esn)
+		gopodFollowingUp.Delete(c.esn)
+		// A fresh list for the next case (the pull names what's left).
+		gopodCoverage.Lock()
+		gopodCoverage.revealed, gopodCoverage.reminded = map[string]int{}, map[string]bool{}
+		gopodCoverage.Unlock()
+	}
+}
+
+// gopodAllPointsForTest: every point a value point while a test runs (the
+// mechanics tests); returns the undo.
+func gopodAllPointsForTest() func() {
+	saved := gopodBrobotsSettings.ValuePoints.CorePoints
+	savedTopics := gopodBrobotsSettings.ValuePoints.CoreTopics
+	gopodBrobotsSettings.ValuePoints.CorePoints = nil
+	gopodBrobotsSettings.ValuePoints.CoreTopics = nil
+	return func() {
+		gopodBrobotsSettings.ValuePoints.CorePoints = saved
+		gopodBrobotsSettings.ValuePoints.CoreTopics = savedTopics
+	}
+}
+
+// 2026-10-23 (operator: "for brobot 2 first, the mechanics appear to work
+// correctly, when my intent is to call brobot 2 first, so please soft lock this
+// templated mechanism"): the All menu's 2, or the words, make Brobot 2 duo A and
+// Brobot 1 duo B; the menu's 1 (the default) the other way round.
+func TestDuoAnswersHold(t *testing.T) {
+	line := "what's the weather?"
+	GopodAllFirstPick(line, "2")
+	if gopodAllFirst(line) != gopodBrobot2ESN {
+		t.Errorf("menu 2: Brobot 2 isn't first")
+	}
+	GopodAllFirstPick(line, "1")
+	if gopodAllFirst(line) != gopodBrobot1ESN {
+		t.Errorf("menu 1: Brobot 1 isn't first")
+	}
+	if gopodAllFirst("Starting with Brobot 2, "+line) != gopodBrobot2ESN {
+		t.Errorf("the words: Brobot 2 isn't first")
+	}
+	GopodAllFirstPick("", "")
+	gopodAllFirstAnswer.Store(gopodBrobot2ESN, true)
+	if r, ok := gopodDuoRule(gopodBrobot2ESN); !ok || r.Chain != gopodBrobotsSettings.Duo["a"].Chain || gopodBrobotChainGroup(gopodBrobot2ESN) != r.Chain {
+		t.Errorf("Brobot 2 first isn't duo A")
+	}
+	gopodAllFirstAnswer.Delete(gopodBrobot2ESN)
+	gopodFollowingUp.Store(gopodBrobot1ESN, true)
+	if r, ok := gopodDuoRule(gopodBrobot1ESN); !ok || r.Chain != gopodBrobotsSettings.Duo["b"].Chain || gopodBrobotChainGroup(gopodBrobot1ESN) != r.Chain {
+		t.Errorf("Brobot 1 next isn't duo B")
+	}
+	gopodFollowingUp.Delete(gopodBrobot1ESN)
+}
+
+// 2026-10-23 (FINISH_PLAN_001.md A4): every value point revealed gets the grand
+// prize once; the reset starts the next session at 0.
+func TestGameWinAndReset(t *testing.T) {
+	gopodCoverage.Lock()
+	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
+	gopodCoverage.Unlock()
+	defer func() {
+		gopodCoverage.Lock()
+		gopodCoverage.revealed, gopodCoverage.reminded = saved, savedRem
+		gopodCoverage.Unlock()
+	}()
+	gopodGameReset("test")
+	if gopodGameAllRevealed() || gopodGameWinCheck() {
+		t.Fatalf("won at 0")
+	}
+	names, counts := gopodPackPointCounts()
+	gopodCoverage.Lock()
+	for _, n := range names {
+		gopodCoverage.revealed[n] = counts[n]
+	}
+	gopodCoverage.Unlock()
+	if !gopodGameAllRevealed() {
+		t.Fatalf("not all revealed")
+	}
+	text := gopodGameWinText()
+	score, _ := gopodCoverageScoreText()
+	if text == "" || !strings.Contains(text, score) || strings.Contains(text, "{") {
+		t.Errorf("win text %q", text)
+	}
+	gopodGame.Lock()
+	gopodGame.won = true // the line itself plays on the page; once is the rule
+	gopodGame.Unlock()
+	if gopodGameWinCheck() {
+		t.Errorf("won twice")
+	}
+	gopodGameReset("test")
+	if gopodGameAllRevealed() {
+		t.Errorf("the reset didn't start at 0")
+	}
+	if s, _ := gopodCoverageScoreText(); !strings.Contains(s, "Value Points 0 of") {
+		t.Errorf("score after reset %q", s)
 	}
 }

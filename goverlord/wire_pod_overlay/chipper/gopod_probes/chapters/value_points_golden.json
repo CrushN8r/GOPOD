@@ -1,6 +1,18 @@
 {
  "about": "GOLDEN value points (chapter \u003e topic \u003e value point): each topic's numbered lines after ---, or its whole text as one point, by id \u003ctopic\u003e#\u003cn\u003e. Locked - system-check flags any change; system-value-points lock writes this again on purpose. gopod_value_points_golden.go.",
  "points": {
+  "AIWP_livestream#1": {
+   "words": "Throw a confusing number or claim at the room, and watch people fight to explain it.",
+   "sum": "196fddb44ce1"
+  },
+  "AIWP_livestream#2": {
+   "words": "Funniest explanation, clearest explanation, best analogy wins - winners get written up on Math Aftermath.",
+   "sum": "cc52fb9ce9fb"
+  },
+  "AIWP_livestream#3": {
+   "words": "The topics aren't a list - they're a wheel. \"This week: Survival Math.\" Nine themes, each its own year-long contest stretch.",
+   "sum": "ea9ffc2b187b"
+  },
   "background#1": {
    "words": "He didn't give up. He came back, and he built us - two Brobots who actually hear you, think it over, and answer out loud, live, right here.",
    "sum": "974fb3a88acd"
@@ -41,6 +53,18 @@
    "words": "The machine's never idle. If we're not performing, we're building the next performance.",
    "sum": "a4230e046892"
   },
+  "bookings#1": {
+   "words": "Morning: forty people playing bingo at a seniors' residence on a Thursday, no wifi in the building - doesn't matter, we're already running.",
+   "sum": "a14d154a725e"
+  },
+  "bookings#2": {
+   "words": "Afternoon: a classroom full of kids shouting out spelling words at us like we're the strictest, funniest teacher they've ever had.",
+   "sum": "a47688b10054"
+  },
+  "bookings#3": {
+   "words": "Evening: same two Brobots, same gear, now on a bar top under stage lights, working a crowd that's had a few drinks.",
+   "sum": "28b2c56bc1a9"
+  },
   "brobot_zero#1": {
    "words": "Ron used to make the nightlife look good on camera - bars, clubs, packed rooms all over Mississauga and the GTA, lights up, cameras rolling, real scale.",
    "sum": "9b4dbf65c665"
@@ -57,6 +81,10 @@
    "words": "Brobot 0 is looking for help: one person, or a small team, for the social media side of GOPOD - coaching (teach him to run it) or hands-on (run it for him). Social accounts set up and on a schedule, a posting template he can repeat, two Shorts and one long cut a week. Not inventing the act, not a five-year company. He's looking for help here in Windsor-Essex. The way in: crushn8r.ca.",
    "sum": "03a86a17590e"
   },
+  "cameo#1": {
+   "words": "Book a cameo: a happy-birthday video from Doc \u0026 Pip - two real Vector robots record a brand-new birthday message for one name, one fresh take, never a reused clip. It's a scripted robot performance, and the video says so. Send the request to contact@crushn8r.ca; the reply gives a price in CAD and a date; say yes and pay; get the video as a private link, for personal use.",
+   "sum": "a7123e3a6a67"
+  },
   "camera_feeds#1": {
    "words": "Camera feeds (operator 2026-10-20: \"cam/camera feed(s) = easter egg\"): a surprise egg - the Brobots' live camera feeds pop up on CHALK's board. Say it in your own words: you can see the room through your own eyes, live - and KP+ / KP- turn through the feeds with the Edge TPU naming what it sees.",
    "sum": "553fecd9bdaa"
@@ -72,18 +100,6 @@
   "community_path#2": {
    "words": "Two lanes: community (trust) and paid - bars and comedy clubs, 18+. The room is adult, the material isn't. Gambling is never raised.",
    "sum": "e6b269689e86"
-  },
-  "contest_wheel#1": {
-   "words": "Throw a confusing number or claim at the room, and watch people fight to explain it.",
-   "sum": "196fddb44ce1"
-  },
-  "contest_wheel#2": {
-   "words": "Funniest explanation, clearest explanation, best analogy wins - winners get written up on Math Aftermath.",
-   "sum": "cc52fb9ce9fb"
-  },
-  "contest_wheel#3": {
-   "words": "The topics aren't a list - they're a wheel. \"This week: Survival Math.\" Nine themes, each its own year-long contest stretch.",
-   "sum": "ea9ffc2b187b"
   },
   "doc_and_pip#1": {
    "words": "Doc's full name is Doctrine Barfallonyou Squawkadoodle - \"Doc\" for short, DocBS for shorter: gruff, rapid-fire, sure of himself. Never punches down on people - punches hard at delay theater, committee brain, and fake caution.",
@@ -108,6 +124,10 @@
   "doc_and_pip_workbook#3": {
    "words": "Doc's Rule: \"No credit for close.\" \"E for Effort. Which is an F. Here's how you actually do it.\"",
    "sum": "bb96645b6c50"
+  },
+  "due_credit#1": {
+   "words": "Due credit: Gangster Granny - a 93-year-old woman helped Brobot 0 when it counted - his thanks to her, his sweet, adorable, gangster granny in a sparkly bling cap.",
+   "sum": "52f5995258f4"
   },
   "foodmath_recipes#1": {
    "words": "Foodmath recipes - the math hiding in real party food, on foodmath.crushn8r.net:\n- Chocolate Bingo: the tray and the numbers.\n- Fudge Bolt Squares: the ratio that makes the tray set.\n- Cocoa Pudding Pods: yield math.\n- Double-Choc Muffin Mechs: cost per batch.\n- Birthday food cars on the table.\nThe GOPOD Chocolate Bingo kit: print at home, plays in black and white, zero real brands - all Brobots. Kids' Lane: ages 4+ with adult supervision. Adults' Lane: grown-ups only - if a recipe is spiked, keep it 21+ and sip, don't gulp. First full line shouts \"BROBOTS!\" Treats like Muffin Magnet, Brownie Byte, Fudge Bot, Choco Servo and Toffee Turbo.",
@@ -202,10 +222,6 @@
    "sum": "6ea7dd274a0b"
   },
   "legacy#3": {
-   "words": "Gangster Granny: a 93-year-old woman helped Brobot 0 when it counted - his thanks to her, his sweet, adorable, gangster granny in a sparkly bling cap.",
-   "sum": "5c62c9767169"
-  },
-  "legacy#4": {
    "words": "Doc's lesson: how to think, not what. Method is a loop. Method carries.",
    "sum": "51841f534935"
   },
@@ -221,9 +237,17 @@
    "words": "The comeback: Brobot 0 came up through the Windsor Downtown Mission's Enterprise program. GOPOD is him coming back with something built - a maker who came back through a community program and turned two \"trashed\" Brobots into a working show.",
    "sum": "6b6ee4c9ab9d"
   },
+  "mobile_gear#1": {
+   "words": "The rig: mobile gear for high-paying local gigs. One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool. No internet needed - roll in, plug in, party.",
+   "sum": "00ad2e4cc682"
+  },
   "newsletter#1": {
    "words": "The CRUSHN8R CREW'd newsletter, at crushn8r.ca - your own take: behind the scenes, Brobot experiments, live sessions - you're not subscribing, you're joining the crew.\nVideos: the CrushN8r YouTube channel, \"Crazy Off-Course Crash-Courses!\" - two Brobots explaining the math behind the wordplay.\nThe handle everywhere is @crushn8r.",
    "sum": "ebcbc77d4a52"
+  },
+  "niche_pillars#1": {
+   "words": "Niche pillars: content for Pinterest - recipes, fashion, anything - unique among AI slop. Foodmath is one.",
+   "sum": "5638f0b1b669"
   },
   "nightclub#1": {
    "words": "GOPOD gives controlled rooms an interactive character-driven event machine.\n\nIt can support clubs, comedy rooms, bars, banquet halls, weddings, and other events.\n\nThe value is fast attention, repeatable room participation, local personality, and shareable moments people remember.\n\nKeep controlled-room answers useful and clean: room, event, pilot, audience, staff, and repeatable moment.",
@@ -256,18 +280,6 @@
   "on_gopod#1": {
    "words": "In your own way, one line on what being on GOPOD means: GOPOD - AI Wordplay! Explain the Math! - running on a local brain right here, no cloud.",
    "sum": "3f4573dc02dc"
-  },
-  "party#1": {
-   "words": "Morning: forty people playing bingo at a seniors' residence on a Thursday, no wifi in the building - doesn't matter, we're already running.",
-   "sum": "a14d154a725e"
-  },
-  "party#2": {
-   "words": "Afternoon: a classroom full of kids shouting out spelling words at us like we're the strictest, funniest teacher they've ever had.",
-   "sum": "a47688b10054"
-  },
-  "party#3": {
-   "words": "Evening: same two Brobots, same gear, now on a bar top under stage lights, working a crowd that's had a few drinks.",
-   "sum": "28b2c56bc1a9"
   },
   "personalitymath_demo#1": {
    "words": "Pick an idea. Have a website by dinner.",
@@ -308,10 +320,6 @@
   "teaching_method#3": {
    "words": "The audience does not identify with Doc. The audience identifies with Pip. That is the whole trick.",
    "sum": "09dbb9076111"
-  },
-  "the_rig#1": {
-   "words": "The rig: mobile gear for high-paying local gigs. One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool. No internet needed - roll in, plug in, party.",
-   "sum": "00ad2e4cc682"
   },
   "the_songs#1": {
    "words": "Awaken: a brobot wakes up, checks its arms and head, tells you the weather, and says it's ready.",

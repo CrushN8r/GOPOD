@@ -1033,6 +1033,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		} else {
 			gopodWriteSpeakingNow(robot.Cfg.SerialNo, "", false, false)
 		}
+		// GOPOD 2026-10-23 (A4): the grand prize, once its last point has been said.
+		gopodGameWinCheck()
 		// A reply that never got to speak still shows its bubble.
 		showReply()
 		// GOPOD 2026-10-09: the battery after each Brobot reply (gopod_robot_cmd_log.go).

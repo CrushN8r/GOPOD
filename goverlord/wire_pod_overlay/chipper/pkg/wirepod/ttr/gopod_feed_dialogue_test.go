@@ -188,7 +188,17 @@ func TestChapterEggs(t *testing.T) {
 			t.Errorf("%s is no longer an egg", e.Key)
 		}
 	}
-	if chapters != len(gopodBrobotsSettings.InterviewChapters.Chapters)-len(gopodBrobotsSettings.TopicPictures.NotEggs) || roast {
+	// 2026-10-22 (operator: "fewer easter eggs"): with eggs_keep, its chapters only.
+	wantChapters := len(gopodBrobotsSettings.InterviewChapters.Chapters) - len(gopodBrobotsSettings.TopicPictures.NotEggs)
+	if keep := gopodBrobotsSettings.TopicPictures.EggsKeep; len(keep) > 0 {
+		wantChapters = 0
+		for _, k := range keep {
+			if strings.HasPrefix(k, "chapter:") {
+				wantChapters++
+			}
+		}
+	}
+	if chapters != wantChapters || roast {
 		t.Fatalf("chapters %d of %d, roast %v: %+v", chapters, len(gopodBrobotsSettings.InterviewChapters.Chapters), roast, list)
 	}
 	if key, title := gopodTopicChapter("birthday_and_merch"); key != "chapter:Parties and rooms" || title != "Parties and rooms" {

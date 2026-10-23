@@ -108,7 +108,17 @@ func gopodTightenReply(reply, question, esn string) string {
 	// 2026-10-09 (operator: "every 'robot' possible = 'brobot' ... for
 	// branding"): brand_words, whole words, any case.
 	for _, w := range t.BrandWords {
-		body = regexp.MustCompile(`(?i)\b`+regexp.QuoteMeta(w.From)+`\b`).ReplaceAllString(body, w.To)
+		// 2026-10-23 (operator: "Keep exact test string: 'MAth' * If I say Keep
+		// 'MAth' update the template"): a phrase that starts or ends with a mark
+		// ("... Explain the MAth!") has no word edge there.
+		re := regexp.QuoteMeta(w.From)
+		if r := []rune(w.From); len(r) > 0 && (unicode.IsLetter(r[0]) || unicode.IsDigit(r[0])) {
+			re = `\b` + re
+		}
+		if r := []rune(w.From); len(r) > 0 && (unicode.IsLetter(r[len(r)-1]) || unicode.IsDigit(r[len(r)-1])) {
+			re += `\b`
+		}
+		body = regexp.MustCompile(`(?i)`+re).ReplaceAllString(body, w.To)
 	}
 	body = strings.Join(strings.Fields(body), " ")
 	if strings.TrimFunc(body, func(r rune) bool { return !unicode.IsLetter(r) }) == "" {
@@ -125,7 +135,9 @@ func gopodTightenReply(reply, question, esn string) string {
 		budget = 0
 	}
 	// 2026-10-22: a colour slot's colour is capped all the same (colour_slots).
-	if c := gopodBrobotsSettings.ColourSlots.MaxSentences; c > 0 && (gopodSayLine(esn) != "" || gopodGivenHasNotes(esn)) && gopodChainHas(esn, "colour:value_point") && (budget == 0 || budget > c) {
+	// The point bubbles bound his notes' answer themselves (gopod_point_bubbles.go).
+	pointBubbles := gopodGivenHasNotes(esn) && gopodChainHas(esn, "point_bubbles")
+	if c := gopodBrobotsSettings.ColourSlots.MaxSentences; c > 0 && !pointBubbles && (gopodSayLine(esn) != "" || gopodGivenHasNotes(esn)) && gopodChainHas(esn, "colour:value_point") && (budget == 0 || budget > c) {
 		budget = c
 	}
 	if budget > 0 {

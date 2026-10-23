@@ -254,6 +254,8 @@ func gopodHarvestWriteJSON(t *testing.T, path string, v interface{}) {
 // responses ... use leading questions"): every harvest question gets its own
 // value point - the next one in chapter order - and no other topic's.
 func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
+	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
+	defer gopodAllPointsForTest()()
 	// As at a Wire-Pod start: no Bingo test played, an empty chat memory.
 	t.Setenv("GOPOD_SESSION_DIR", t.TempDir())
 	played := gopodBingoPlayed.Load()
@@ -271,7 +273,18 @@ func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
 	if err != nil || json.Unmarshal(data, &qfile) != nil {
 		t.Fatalf("questions: %v", err)
 	}
-	_, counts := gopodPackPointCounts()
+	// 2026-10-22: every interview question still has its point in the files; a
+	// background topic's question gets no point (CORE_TOPICS_002.md).
+	counts := map[string]int{}
+	for _, p := range gopodTopicRegistry() {
+		if data, err := gopodReadTopicFacts(p.File); err == nil {
+			_, points := gopodSplitPoints(string(data))
+			counts[p.Name] = len(points)
+			if counts[p.Name] == 0 {
+				counts[p.Name] = 1
+			}
+		}
+	}
 	var want []string
 	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
 		for _, topic := range c.Topics {
@@ -288,6 +301,12 @@ func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
 		text := gopodSpellNames(q.Ask)
 		gopodQuestionFactsFor(esnOf[q.To], text)
 		got := gopodGivenPoints(esnOf[q.To])
+		if gopodBackgroundTopic(strings.Fields(want[i])[0]) {
+			if len(got) != 0 {
+				t.Errorf("question %d %q: background topic, given %v", i+1, q.Ask, got)
+			}
+			continue
+		}
 		if len(got) != 1 || got[0] != want[i] {
 			var loaded []string
 			for _, p := range loadScenarioPacketsForMessage(text) {

@@ -40,7 +40,7 @@ func gopodEggList() []gopodListEgg {
 	}
 
 	for _, p := range gopodTopicRegistry() {
-		if seen[p.Name] || (len(tp.Pictures[p.Name]) == 0 && strings.TrimSpace(tp.Cards[p.Name]) == "") {
+		if seen[p.Name] || gopodNotEgg(p.Name) || (len(tp.Pictures[p.Name]) == 0 && strings.TrimSpace(tp.Cards[p.Name]) == "") {
 			continue
 		}
 		if key, _ := gopodTopicChapter(p.Name); key != "" {
@@ -57,7 +57,7 @@ func gopodEggList() []gopodListEgg {
 		out = append(out, gopodListEgg{p.Name, label})
 	}
 	for _, e := range gopodBrobotsSettings.ValuePoints.ReminderEggs {
-		if e.Key != "" && e.Label != "" && !seen[e.Key] {
+		if e.Key != "" && e.Label != "" && !seen[e.Key] && !gopodNotEgg(e.Key) {
 			seen[e.Key] = true
 			out = append(out, gopodListEgg{e.Key, e.Label})
 		}
@@ -68,7 +68,20 @@ func gopodEggList() []gopodListEgg {
 // gopodNotEgg (2026-10-18, operator: "confusing overlap between system managed &
 // easter egg * remove easter egg: 'Websites, themes and the channel'"): the egg
 // is taken out (topic_pictures.not_eggs).
+// 2026-10-22 (operator: "fewer easter eggs would be nice * Do 1 and 2 together";
+// CORE_TOPICS_002.md): with topic_pictures.eggs_keep set, only those are eggs.
 func gopodNotEgg(key string) bool {
+	if keep := gopodBrobotsSettings.TopicPictures.EggsKeep; len(keep) > 0 {
+		in := false
+		for _, k := range keep {
+			if k == key {
+				in = true
+			}
+		}
+		if !in {
+			return true
+		}
+	}
 	for _, n := range gopodBrobotsSettings.TopicPictures.NotEggs {
 		if n == key {
 			return true

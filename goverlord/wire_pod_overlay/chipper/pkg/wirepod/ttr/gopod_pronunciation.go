@@ -92,7 +92,23 @@ func gopodApplyPronunciations(text string) string {
 // degrees"): the bubble keeps "16°C"; the robot says "16 degrees Celsius".
 var gopodDegreesSaid = strings.NewReplacer("°C", " degrees Celsius", "°F", " degrees Fahrenheit", "°", " degrees")
 
-func gopodSayDegrees(text string) string { return gopodDegreesSaid.Replace(text) }
+// 2026-10-23 (operator: "So it's a 57° day (degrees is singular here, how to
+// handle?)"): "°" before a word that isn't its unit is one word with it - "a 57°
+// day" is said "a 57 degree day"; "57° Fahrenheit" stays "degrees".
+var gopodDegreeBeforeWordRE = regexp.MustCompile(`°(\s+)(\p{L}+)`)
+
+func gopodSayDegrees(text string) string {
+	text = strings.NewReplacer("°C", " degrees Celsius", "°F", " degrees Fahrenheit").Replace(text)
+	text = gopodDegreeBeforeWordRE.ReplaceAllStringFunc(text, func(m string) string {
+		sub := gopodDegreeBeforeWordRE.FindStringSubmatch(m)
+		switch strings.ToLower(sub[2]) {
+		case "celsius", "fahrenheit", "c", "f", "and", "or", "at", "in", "with", "outside", "today", "out":
+			return " degrees" + sub[1] + sub[2]
+		}
+		return " degree" + sub[1] + sub[2]
+	})
+	return gopodDegreesSaid.Replace(text)
+}
 
 // gopodSayStretchedWords (stretched_words in gopod_brobots_settings.json;
 // operator 2026-10-06: "Long 'brooooo' = 'bro-o-o'"): a word ending in one

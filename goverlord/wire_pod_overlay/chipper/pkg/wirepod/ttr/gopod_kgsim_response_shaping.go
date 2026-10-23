@@ -612,6 +612,16 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	var given []string
 	notice := map[string][]string{} // 2026-10-22: the value points notice's parts (gopodNoticeSet)
 	defer func() { gopodGivenSet(esn, given); gopodNoticeSet(esn, userMessage, notice) }()
+	// 2026-10-23: a golden query gets the summary across the core topics, in
+	// place of one value point (gopod_summary_answer.go).
+	if sf := gopodSummaryFacts(esn, userMessage); sf != "" {
+		var titles []string
+		for _, it := range gopodSummaryItemsFor(esn) {
+			titles = append(titles, it.topic)
+		}
+		notice["summary"] = []string{gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Summary, map[string]string{"topics": strings.Join(titles, ", ")})}
+		return sf
+	}
 	// 2026-10-01 (operator): the Bingo hosting pitch stays apart from a Bingo
 	// test run. With a run in memory the pitch pack is left out, so the answer
 	// comes from the run; with none (the Bingo-played flag at 0), a Bingo question
