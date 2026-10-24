@@ -175,9 +175,9 @@ var gopodSystemTests = []gopodSystemTest{
 			uid = fmt.Sprint(u)
 		}
 		get := func(what string) string {
-			cmd := exec.Command("pactl", "get-default-"+what)
+			cmd := gopodAsOperator(exec.Command("pactl", "get-default-"+what))
 			if os.Geteuid() == 0 && uid != "" {
-				cmd = exec.Command("setpriv", "--reuid="+uid, "--regid="+uid, "--init-groups", "pactl", "get-default-"+what)
+				cmd = gopodAsOperator(exec.Command("setpriv", "--reuid="+uid, "--regid="+uid, "--init-groups", "pactl", "get-default-"+what))
 			}
 			cmd.Env = append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+uid)
 			out, err := cmd.Output()

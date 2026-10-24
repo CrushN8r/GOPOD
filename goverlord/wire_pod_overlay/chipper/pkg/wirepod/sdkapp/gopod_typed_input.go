@@ -3,6 +3,7 @@ package sdkapp
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,6 +24,22 @@ func gopodTypedInputHandler(w http.ResponseWriter, r *http.Request) {
 	// page already shows what it heard).
 	// 2026-10-22: the page's All 1/2 menu - who answers first.
 	wirepod_ttr.GopodAllFirstPick(r.FormValue("text"), r.FormValue("first"))
+	// 2026-10-24: a visitor's line goes through the chat sign-up (gopod_visitors.go):
+	// passed under their username, or dropped with why ("Waiting for approval", "Muted").
+	if !wirepod_ttr.GopodIsAdmin(r.RemoteAddr) {
+		pass, how, note := wirepod_ttr.GopodVisitorLine(r.RemoteAddr, r.FormValue("visitor"), r.UserAgent(), r.FormValue("text"))
+		w.Header().Set("Content-Type", "application/json")
+		if !pass {
+			json.NewEncoder(w).Encode(map[string]string{"note": note})
+			return
+		}
+		if err := wirepod_ttr.GopodVisitorTypedInput(r.FormValue("serial"), r.FormValue("text"), how); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write([]byte(`{"ok":true}`))
+		return
+	}
 	input := wirepod_ttr.GopodTypedInput
 	if r.FormValue("voice") == "1" {
 		input = wirepod_ttr.GopodVoiceCommandInput
@@ -50,6 +67,11 @@ func gopodRecordSessionHandler(w http.ResponseWriter, r *http.Request) {
 func gopodOpeningHeardHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	// 2026-10-23 (C1): only the main page's reports time the run.
+	if !wirepod_ttr.GopodIsMainPage(r.FormValue("page")) {
+		w.Write([]byte("viewer"))
 		return
 	}
 	wirepod_ttr.GopodOpeningHeard()
@@ -148,6 +170,10 @@ func gopodVoiceHeardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// 2026-10-17 (survey E3: "heard means passed, not played"): skipped = the
 	// voices before it that didn't play (missing, blocked).
+	if !wirepod_ttr.GopodIsMainPage(r.FormValue("page")) {
+		w.Write([]byte("viewer"))
+		return
+	}
 	wirepod_ttr.GopodVoiceHeardSkipped(r.FormValue("token"), r.FormValue("skipped"))
 	w.Write([]byte("ok"))
 }
@@ -158,6 +184,10 @@ func gopodVoiceHeardHandler(w http.ResponseWriter, r *http.Request) {
 func gopodPagePlayedHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
+		return
+	}
+	if !wirepod_ttr.GopodIsMainPage(r.FormValue("page")) {
+		w.Write([]byte("viewer"))
 		return
 	}
 	boot, _ := strconv.ParseInt(r.FormValue("boot"), 10, 64)
@@ -179,8 +209,23 @@ func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
 		return
 	}
-	wirepod_ttr.GopodPageShown(r.FormValue("shown") != "0")
-	w.Write([]byte("ok"))
+	// 2026-10-23 (C1): every page reports in; the main page's shown state is the
+	// run's (a viewer hidden pauses nothing). The answer tells the page its role.
+	shown := r.FormValue("shown") != "0"
+	// Only a page on GOPOD's own machine is the admin and can be the main page;
+	// a phone is a visitor - silent, no system window.
+	admin := wirepod_ttr.GopodIsAdmin(r.RemoteAddr) && r.FormValue("viewer") != "1"
+	if !admin {
+		wirepod_ttr.GopodVisitorSeen(r.RemoteAddr, r.FormValue("visitor"), r.UserAgent())
+	}
+	main := wirepod_ttr.GopodMainPageClaim(r.FormValue("page"), shown && admin)
+	if main {
+		wirepod_ttr.GopodPageShown(shown)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	// A viewer follows the main page: how far it has played.
+	boot, played := wirepod_ttr.GopodMainPlayed()
+	w.Write([]byte(fmt.Sprintf(`{"main":%t,"admin":%t,"boot":%d,"played":%d}`, main, admin, boot, played)))
 }
 
 // gopodPageNoteHandler: POST note=... - a click on the chat page, written to

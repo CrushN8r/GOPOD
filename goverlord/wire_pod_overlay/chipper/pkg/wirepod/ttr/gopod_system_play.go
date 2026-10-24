@@ -41,6 +41,7 @@ func gopodPlayScript() string {
 func gopodPlayStart(env []string, args ...string) error {
 	cmd := exec.Command(gopodPlayScript(), args...)
 	cmd.Env = append(os.Environ(), env...)
+	gopodAsOperator(cmd)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("%v %s", err, strings.TrimSpace(string(out)))
 	}

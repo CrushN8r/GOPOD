@@ -151,7 +151,7 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 		} else {
 			// Review: a webcam that never sends a frame can't hang the call.
 			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
-			out, e := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "v4l2", "-i", src.Device, "-frames:v", "1", file).CombinedOutput()
+			out, e := gopodAsOperator(exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "v4l2", "-i", src.Device, "-frames:v", "1", file)).CombinedOutput()
 			cancel()
 			if e != nil {
 				err = fmt.Errorf("%v %s", e, strings.TrimSpace(string(out)))

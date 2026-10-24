@@ -7,6 +7,7 @@ import "testing"
 func TestGopodStripLeadingAnimationWords(t *testing.T) {
 	tests := map[string]string{
 		"celebrate  Oh man! Get ready.":           "Oh man! Get ready.",
+		"🎉 celebrate So what's the plan, man? 😎":  "🎉 So what's the plan, man? 😎",
 		"excited love   okay, so like, let's go!": "okay, so like, let's go!",
 		"thinking  well, i guess it's a test-run": "well, i guess it's a test-run",
 		"veryHappy   Man oh man! The Party robot": "Man oh man! The Party robot",

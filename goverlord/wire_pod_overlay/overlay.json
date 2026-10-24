@@ -185,6 +185,8 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_llm_song.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_llm_song.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_page_controls.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_page_controls.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_answer_chain.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_answer_chain.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_value_points_golden.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_value_points_golden.go"
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_value_points_golden.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_value_points_golden.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_main_page.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_main_page.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_visitors.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_visitors.go"
   }
 }

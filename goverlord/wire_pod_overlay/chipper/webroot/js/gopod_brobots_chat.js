@@ -155,6 +155,13 @@
       // starts on All at every page load (see savedRobot below).
       // Which Brobot each robot ESN is (also used for the "zzz" bubble below).
       var ESN_TO_BROBOT = { "0dd1b9e9": "Brobot 1", "0dd1d8bf": "Brobot 2" };
+      // The admin (2026-10-23, operator: "System Window for admin users only
+      // (me)"): the page opened on GOPOD's own machine. Other devices are
+      // visitors (an admin PIN for them comes with C5).
+      // Wire-Pod says which page is the admin (gopod_main_page.go): one opened on
+      // GOPOD's own machine, by localhost or its network address. Until it says,
+      // no page is.
+      var isAdminPage = false;
       var typedRow = document.createElement("form");
       typedRow.className = "gopod-typed-input";
       typedRow.setAttribute("autocomplete", "off");
@@ -365,7 +372,8 @@
       var typedText = document.createElement("input");
       typedText.type = "text";
       typedText.className = "gopod-typed-text";
-      typedText.placeholder = "Type to the Brobot, press Enter";
+      var typedPlaceholder = "Type to the Brobot, press Enter";
+      typedText.placeholder = typedPlaceholder;
       typedText.setAttribute("aria-label", "Type to the chosen Brobot");
       typedRow.insertBefore(typedText, typedFirstSep);
       // The loop's speaker toggle, at the end of the line.
@@ -383,10 +391,16 @@
         backgroundLoop.setSpeaker(!backgroundLoop.speaker());
         showSpeaker();
         // 2026-10-19 (operator: "🔇 opens it * 🔊 closes it"): the system menu
-        // opens with the loop, and closes with it.
+        // opens with the loop, and closes with it - for the admin only
+        // (2026-10-23, operator: "for visitors, detach System Window from 🔇 *
+        // 🔇 + System Window for admin users only (me)"): a visitor's 🔇 is the
+        // loop alone.
+        if (!isAdminPage) { return; }
         if (backgroundLoop.speaker()) { systemMenuOpen(); } else { systemMenuClose(); }
       });
       showSpeaker();
+      // 2026-10-23 (operator: "| 00:56:42 |🔇"): a bar before the speaker too.
+      typedRowText("|", "gopod-typed-sep");
       typedRow.appendChild(speakerToggle);
       // The speaker's volume bar: shown while the mouse is over the speaker (or the bar).
       var volumeWrap = document.createElement("div");
@@ -458,9 +472,17 @@
         fetch("/api-sdk/gopod_typed_input", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "serial=" + encodeURIComponent(serial) + "&text=" + encodeURIComponent(text) + (first ? "&first=" + first : "")
+          body: "serial=" + encodeURIComponent(serial) + "&text=" + encodeURIComponent(text) + (first ? "&first=" + first : "") + "&visitor=" + encodeURIComponent(visitorId)
         }).then(function (r) {
-          if (!r.ok) { typedText.value = text; }
+          if (!r.ok) { typedText.value = text; return null; }
+          return r.text();
+        }).then(function (body) {
+          // 2026-10-24 (gopod_visitors.go): a visitor's dropped line says why -
+          // "Waiting for approval" or "Muted" - in the text field.
+          var note = "";
+          try { note = body && body.charAt(0) === "{" ? (JSON.parse(body).note || "") : ""; } catch (err) { note = ""; }
+          typedText.placeholder = note || typedPlaceholder;
+          typedText.classList.toggle("gopod-typed-note", !!note);
         }).catch(function () { typedText.value = text; });
       }
       // 2026-10-04 (operator: "the keyboard input line would be inside within the
@@ -468,6 +490,32 @@
       // (CSS: last in the window's order, sticky to its bottom) while bubbles are
       // added above it.
       container.appendChild(typedRow);
+      // 2026-10-23 (operator: "New responsive Brobots-Input-Row single line can
+      // adjust to 3 lines"): one line while everything fits beside a usable text
+      // field, else three (.stacked, gopod_responsive.css).
+      var TYPED_TEXT_MIN_PX = 200;
+      function fitTypedRow() {
+        var need = TYPED_TEXT_MIN_PX, gap = parseFloat(getComputedStyle(typedRow).columnGap) || 0;
+        Array.prototype.forEach.call(typedRow.children, function (el) {
+          if (el === typedText || getComputedStyle(el).position === "absolute" || el.offsetParent === null) { return; }
+          need += el.offsetWidth + gap;
+        });
+        var room = typedRow.clientWidth - (parseFloat(getComputedStyle(typedRow).paddingLeft) || 0) - (parseFloat(getComputedStyle(typedRow).paddingRight) || 0);
+        typedRow.classList.toggle("stacked", room > 0 && need > room);
+      }
+      // The row's height changes (one line to two, a visitor's shorter row): a
+      // chat at its end stays at its end, its newest bubble just above the row.
+      var typedRowHeight = 0;
+      function typedRowResized() {
+        fitTypedRow();
+        var h = typedRow.offsetHeight;
+        if (h === typedRowHeight) { return; }
+        var atEnd = container.scrollTop >= chatMaxScroll() - Math.abs(h - typedRowHeight) - 8;
+        typedRowHeight = h;
+        if (atEnd && !pendingReveal.length) { scrollChatTo(chatContentEnd()); }
+      }
+      if (typeof ResizeObserver === "function") { new ResizeObserver(typedRowResized).observe(typedRow); }
+      window.addEventListener("resize", fitTypedRow);
 
       // 2026-10-14 (operator: "When I refresh & click log button, I get Brobots Log
       // correctly * ensure bubbles window also scrolls to bottom position"): the
@@ -505,6 +553,38 @@
           });
         }
       };
+
+      // GOLDEN chat-only view (2026-10-23, FINISH_PLAN_001.md C2; operator: "C2
+      // please, but from the wire-pod page 'Log' button tap"): on a visitor's
+      // device (a phone - "phone = visitor"), tapping Log opens the chat alone -
+      // the Brobots chat and the typing row, the whole screen, no Wire-Pod
+      // settings; "‹ Wire-Pod" goes back. The admin's Log stays as it was.
+      // "?visitor" in the address shows the visitor's view on GOPOD's machine.
+      var chatBack = document.createElement("button");
+      chatBack.type = "button";
+      chatBack.className = "gopod-chat-back";
+      chatBack.textContent = "\u2039 Wire-Pod";
+      chatBack.addEventListener("click", function () { document.body.classList.remove("gopod-chat-only"); });
+      // 2026-10-24 (live: the PC got the visitor's view - Log was tapped before
+      // Wire-Pod had said who the page is): it waits for that answer.
+      var chatOnlyPending = false;
+      function chatOnlyOn() {
+        if (!pageRoleKnown) { chatOnlyPending = true; return; }
+        if (isAdminPage) { document.body.classList.remove("gopod-chat-only"); return; }
+        var log = document.getElementById("section-log");
+        if (log && chatBack.parentNode !== log) { log.insertBefore(chatBack, log.firstChild); }
+        document.body.classList.add("gopod-chat-only");
+        if (!container.classList.contains("expanded")) { window.showBrobotChatBubbles(); }
+      }
+      window.addEventListener("load", function () {
+        var wirePodShowLog = window.showLog;
+        if (typeof wirePodShowLog !== "function") { return; }
+        window.showLog = function () {
+          var r = wirePodShowLog.apply(this, arguments);
+          chatOnlyOn();
+          return r;
+        };
+      });
 
       // Clear Chat button: empties the bubbles now, and the saved copy. Lines
       // already shown stay marked as seen, so they don't come back on the next poll.
@@ -879,6 +959,9 @@
         if (nextBubbleVoice) { bubble._voice = nextBubbleVoice; nextBubbleVoice._bubble = bubble; nextBubbleVoice = null; }
         bubble._feedId = feedIdNow;
         pendingReveal.push(bubble);
+        // Drawn hidden: its voiced lines go into the template before it shows
+        // (after this event has filled it in, before anything is painted).
+        Promise.resolve().then(voiceTieAhead);
         if (revealTimer === null) {
           revealTimer = setTimeout(placeNewBubbles, 0);
         } else {
@@ -932,6 +1015,7 @@
       // stuck on for 2 minutes lets go.
       var CHAT_BATON_MAX_MS = 120000, SPEAKING_MAX_MS = 30000;
       function batonHeld() {
+        if (viewerBehind()) { return false; }
         if (narratorLines.some(function (n) { return n.shown; })) { return true; }
         return Array.prototype.some.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
           var b = el.closest(".brobot-bubble");
@@ -984,7 +1068,10 @@
             return imgs || voice;
           });
           if (waiting && performance.now() - from < BUBBLE_READY_MAX_MS) {
-            revealTimer = setTimeout(check, 50);
+            // 2026-10-23 (live: every bubble after the granny photo waited until
+            // F5): its own timer - revealTimer means "bubbles being placed", and
+            // a picture's wait (showPictures) must never leave it set.
+            setTimeout(check, 50);
             return;
           }
           then();
@@ -1042,7 +1129,7 @@
           if (!was || h <= was || !b.isConnected || b.style.visibility === "hidden" || pendingReveal.length) { return; }
           if (b !== container.lastElementChild && b !== warmupBubble) { return; }
           var top = contentY(b) - container.scrollTop;
-          if (top > container.clientHeight || top + h < 0) { return; }
+          if (top > chatViewHeight() || top + h < 0) { return; }
           scrollChatTo(bubbleTarget(b));
         });
       }) : null;
@@ -1063,7 +1150,7 @@
             });
             return;
           }
-          if (chatMove || performance.now() - started < CHAT_REPLY_DELAY_MS) {
+          if (chatMove || performance.now() - started < (viewerBehind() ? 0 : CHAT_REPLY_DELAY_MS)) {
             revealTimer = setTimeout(waitForPlace, 40);
             return;
           }
@@ -1115,6 +1202,12 @@
         return { t: t, pos: pos, speed: speed };
       }
       function chatMaxScroll() { return Math.max(0, container.scrollHeight - container.clientHeight); }
+      // 2026-10-24 (operator: "ensure bubbles scroll correct & proper to adjusted
+      // brobots row-height"): the chat's visible height - above the typing row
+      // (one, two or three lines, whatever it is now).
+      function chatViewHeight() {
+        return Math.max(1, container.clientHeight - (typedRow.isConnected && typedRow.offsetParent !== null ? typedRow.offsetHeight : 0));
+      }
       function contentY(el) {
         var box = container.getBoundingClientRect();
         var rect = el.getBoundingClientRect();
@@ -1124,7 +1217,7 @@
         var target = Math.max(0, Math.min(top, chatMaxScroll()));
         var reduce = false;
         try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
-        if (reduce) {
+        if (reduce || viewerBehind()) {
           if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
           container.scrollTop = target;
           return;
@@ -1169,9 +1262,10 @@
         // re-centre, unless bottom/bottom is reached first"): no move until the
         // lit piece is FOCUS_DEAD_ZONE of the window below centre (the window's
         // own scroll included), then one move back to centre.
-        var below = middle - (container.scrollTop + container.clientHeight / 2);
-        if (below < container.clientHeight * FOCUS_DEAD_ZONE && !chatMove) { return; }
-        var target = middle - container.clientHeight / 2;
+        var view = chatViewHeight();
+        var below = middle - (container.scrollTop + view / 2);
+        if (below < view * FOCUS_DEAD_ZONE && !chatMove) { return; }
+        var target = middle - view / 2;
         // It stops at the chat's end.
         target = Math.min(target, chatContentEnd());
         if (target > container.scrollTop + 4) { scrollChatTo(target); }
@@ -1256,6 +1350,8 @@
               if (typeof cw.reveal_rest_ms === "number") { REVEAL_REST_MS = cw.reveal_rest_ms; }
               if (typeof cw.speaking_max_ms === "number") { SPEAKING_MAX_MS = cw.speaking_max_ms; }
               if (typeof cw.voice_ready_max_ms === "number") { VOICE_READY_MAX_MS = cw.voice_ready_max_ms; }
+              if (settings.page_sync && typeof settings.page_sync.viewer_catch_up_events === "number") { VIEWER_CATCH_UP_EVENTS = settings.page_sync.viewer_catch_up_events; }
+              if (typeof cw.typed_text_min_px === "number") { TYPED_TEXT_MIN_PX = cw.typed_text_min_px; fitTypedRow(); }
             }
             if (settings.highlight_scroll && settings.highlight_scroll.dead_zone >= 0) { FOCUS_DEAD_ZONE = Number(settings.highlight_scroll.dead_zone); }
             if (settings.live_weather && settings.live_weather.military_label) { militaryLabel = settings.live_weather.military_label; }
@@ -1760,7 +1856,15 @@
         var label = ready ? (readyText || llmWarm.readyText) : (warmingText || llmWarm.warmText);
         var labelEl = bubble.querySelector(".brobot-bubble-text");
         // 2026-10-23: the same words keep their voice's lit line (voiceForLine).
-        if (voiceLineWords(labelEl.textContent) !== voiceLineWords(label)) { labelEl.textContent = label; }
+        if (voiceLineWords(labelEl.textContent) !== voiceLineWords(label)) {
+          labelEl.textContent = label;
+          // Its lines already said stay said; the next line is tied before it shows.
+          Object.keys(bubble._spoken || {}).forEach(function (t) {
+            var said = voiceLineSpan(labelEl, t);
+            if (said) { said.classList.add("spoken"); }
+          });
+          voiceTieAhead();
+        }
         // 2026-10-16 (operator: "NEW system message ... lines"): one line each.
         labelEl.style.whiteSpace = "pre-line";
         var leds = bubble.querySelectorAll(".llm-led");
@@ -2167,6 +2271,8 @@
         return function () {
           say.classList.remove("speaking");
           say.classList.add("spoken");
+          var saidIn = say.closest(".brobot-bubble");
+          if (saidIn) { (saidIn._spoken = saidIn._spoken || {})[voiceLineWords(say.textContent)] = true; }
           if (tail) { tail.classList.remove("speaking"); tail.classList.add("spoken"); }
         };
       }
@@ -3419,16 +3525,18 @@
       // played the feed goes back to Wire-Pod (/api-sdk/gopod_page_played), which
       // writes "GOPOD_PAGE played <id> ..." under its own "GOPOD_FEED <id> ...".
       var playedId = 0, playedSent = 0, playedBoot = 0, heldMost = { id: 0, ms: 0 };
+      // 2026-10-24: told within a quarter second, so a visitor follows closely.
       setInterval(function () {
         if (!playedBoot || playedId <= playedSent) { return; }
         var body = new URLSearchParams();
         body.set("boot", String(playedBoot));
         body.set("id", String(playedId));
+        body.set("page", pageId);
         // 2026-10-18 (step 3): the longest a line waited here before it showed.
         if (heldMost.id) { body.set("held_id", String(heldMost.id)); body.set("held_ms", String(heldMost.ms)); heldMost = { id: 0, ms: 0 }; }
         playedSent = playedId;
         fetch("/api-sdk/gopod_page_played", { method: "POST", body: body }).catch(function () { playedSent = 0; });
-      }, 1000);
+      }, 250);
       var pageClicked = false, openingEndText = "opening_end", voiceGapMs = 300;
       var heardMarker = "";
       // 2026-10-14 (operator: "rule: Display 'generating...' during the lag time *
@@ -3506,6 +3614,7 @@
       function voiceLineSpan(el, t) {
         var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
         while ((n = walker.nextNode())) {
+          if (n.parentNode && n.parentNode.closest && n.parentNode.closest(".brobot-say")) { continue; }
           var at = n.nodeValue.indexOf(t);
           if (at < 0) { continue; }
           var mid = at > 0 ? n.splitText(at) : n;
@@ -3516,7 +3625,7 @@
           span.appendChild(mid);
           return span;
         }
-        if (voiceLineWords(el.textContent) !== t) { return null; }
+        if (voiceLineWords(el.textContent) !== t || el.querySelector(".brobot-say")) { return null; }
         var whole = document.createElement("span");
         whole.className = "brobot-say";
         while (el.firstChild) { whole.appendChild(el.firstChild); }
@@ -3528,7 +3637,12 @@
         for (var i = els.length - 1; i >= 0 && i >= els.length - 40; i--) {
           var el = els[i], bubble = el.closest(".brobot-bubble");
           if (!bubble || voiceLineWords(el.textContent).indexOf(t) < 0) { continue; }
-          if (el.querySelector(".brobot-say") || el.closest(".brobot-say")) { return el.querySelector(".brobot-say") || el.closest(".brobot-say"); }
+          // Already in the template (its own bubble's line, or tied ahead): that line.
+          if (el.closest(".brobot-say") && !el.closest(".brobot-say").classList.contains("spoken")) { return el.closest(".brobot-say"); }
+          var mine = Array.prototype.filter.call(el.querySelectorAll(".brobot-say"), function (x) {
+            return voiceLineWords(x.textContent) === t && !x.classList.contains("spoken");
+          })[0];
+          if (mine) { return mine; }
           var say = voiceLineSpan(el, t);
           if (!say) { continue; }
           if (skippingReporters) { say.classList.add("spoken"); return say; }
@@ -3547,6 +3661,27 @@
           return say;
         }
         return null;
+      }
+      // GOLDEN, from the ground up (2026-10-23, operator: "a message text appears
+      // solid, then vanishes then appears as highlighted * TEMPLATE!! ...
+      // applies everywhere!!"): a voiced line is in the template from the moment
+      // it's drawn, never after - when a line is drawn, any voice named for its
+      // words still waiting in the queue ties to it right then, before it shows.
+      function voiceTieAhead() {
+        if (!generatingMarker || restoringChat) { return; }
+        feedQueue.forEach(function (item) {
+          var text = item.e && String(item.e.text || "");
+          if (!text || text.indexOf(generatingMarker) !== 0) { return; }
+          var kind = text.slice(generatingMarker.length);
+          var waits = kind.indexOf("forwait:") === 0;
+          if (!waits && kind.indexOf("forlit:") !== 0) { return; }
+          var rest = kind.slice(waits ? 8 : 7), bar = rest.indexOf("|");
+          if (bar <= 0) { return; }
+          var file = rest.slice(0, bar), t = voiceLineWords(rest.slice(bar + 1));
+          if (!t || voiceWaitFor[file]) { return; }
+          var say = voiceLineTie(file, t, waits);
+          if (say) { voiceWaitFor[file] = say; }
+        });
       }
       function voiceForLine(file, text, waits) {
         var t = voiceLineWords(text);
@@ -3574,6 +3709,10 @@
         var at = feedQueue.length;
         while (at > 0 && feedQueue[at - 1].timeMs > timeMs) { at--; }
         feedQueue.splice(at, 0, item);
+        // 2026-10-23 (operator: "audio files don't appear to be pre-loading for
+        // instant playability upon bubble display"): every voice starts loading
+        // the moment it reaches the page, not when its turn comes.
+        if (item.e && isVoiceEvent(item.e) && !restoringChat && !stingFiles[String(item.e.text).replace(/#vol=[0-9.]+$/, "").split("/").pop()]) { voiceAudio(item.e.text); }
         runFeedQueue();
       }
       // A log line's time ("2026.10.07 20:17:19"), at the end of its second, so
@@ -3584,7 +3723,13 @@
         return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() + 999;
       }
       function runFeedQueue() {
-        if (feedRunning || !feedQueue.length || !chatViewable()) { return; }
+        if (feedRunning || !feedQueue.length || !chatViewable() || !pageRoleKnown) { return; }
+        // GOLDEN, a visitor mirrors the admin (2026-10-24, operator: "GOPOD phone
+        // page does nothing but zombie-follows GOPOD admin page display, wherever
+        // the fuck admin page display is at"): a visitor never shows a line the
+        // main page hasn't reached - at most the one it's on now (played + 1).
+        // When the main page moves on, this queue moves on (reportShown).
+        if (!isMainPage && feedQueue[0].e && feedQueue[0].e.id > mainPlayed + 1) { return; }
         feedRunning = true;
         var item = feedQueue.shift();
         delete feedQueued[item.key];
@@ -3611,6 +3756,49 @@
       // draft waits before its next question while it isn't
       // (/api-sdk/gopod_page_shown, gopod_interview_script.go).
       var lastShown = null;
+      // GOLDEN, one page owns the show (2026-10-23, FINISH_PLAN_001.md C1,
+      // gopod_main_page.go): Wire-Pod names one main page - it plays the sound,
+      // and its shown/played/heard reports time the run. Every other open page
+      // is a viewer: the same bubbles, silent (chatLevel 0), its reports
+      // ignored. The page's id lives with its tab, so F5 keeps its role; "?view"
+      // in the address makes it a viewer by choice. Nothing plays until its
+      // role is known.
+      var pageId = "", pageViewOnly = /[?&]view(=|&|$)/.test(location.search);
+      var isMainPage = false, pageRoleKnown = false;
+      // A viewer follows the main page (2026-10-23, operator: "timing between the
+      // phone & pc appear to be in sync then fall out of sync due to slower
+      // scrolling on the phone"): more than page_sync.viewer_catch_up_events
+      // lines behind it, the viewer catches up - scrolls at once, no waits, its
+      // voices passed (it's silent anyway) - until it's back in step.
+      var mainPlayed = 0, VIEWER_CATCH_UP_EVENTS = 2;
+      function viewerBehind() {
+        return pageRoleKnown && !isMainPage && mainPlayed > playedId + VIEWER_CATCH_UP_EVENTS;
+      }
+      try { pageId = sessionStorage.getItem("gopod_page_id") || ""; } catch (err) { /* no storage */ }
+      if (!pageId) {
+        pageId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        try { sessionStorage.setItem("gopod_page_id", pageId); } catch (err) { /* no storage */ }
+      }
+      // A visitor's own ID (2026-10-24, operator: "Save the visitor profile in case
+      // of a disconnect reconnect"): kept in this browser, so Wire-Pod knows the
+      // same phone again after a reconnect, even on a new network address.
+      var visitorId = "";
+      try { visitorId = localStorage.getItem("gopod_visitor_id") || ""; } catch (err) { /* no storage */ }
+      if (!visitorId) {
+        visitorId = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        try { localStorage.setItem("gopod_visitor_id", visitorId); } catch (err) { /* no storage */ }
+      }
+      function setPageRole(main) {
+        var changed = !pageRoleKnown || main !== isMainPage;
+        isMainPage = main;
+        pageRoleKnown = true;
+        if (!changed) { return; }
+        backgroundLoop.setVolume(backgroundLoop.volume());
+        var body = new URLSearchParams();
+        body.set("note", "page " + pageId + (main ? " is the main page (plays the sound)" : " is a viewer (silent)"));
+        fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () { /* Wire-Pod gone */ });
+        runFeedQueue();
+      }
       function reportShown(force) {
         var log = document.getElementById("section-log");
         // 2026-10-17 (survey E1: the page said "shown" before it could play - it
@@ -3621,11 +3809,27 @@
         fetch("/api-sdk/gopod_page_shown", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "shown=" + (shown ? "1" : "0")
-        }).catch(function () { /* Wire-Pod not up yet */ });
+          body: "shown=" + (shown ? "1" : "0") + "&page=" + encodeURIComponent(pageId) + "&visitor=" + encodeURIComponent(visitorId) + (pageViewOnly || /[?&]visitor(=|&|$)/.test(location.search) ? "&viewer=1" : "")
+        }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || typeof d.main !== "boolean") { return; }
+            isAdminPage = d.admin === true;
+            // A visitor's typing row is two lines (2026-10-24, operator: "remove
+            // 3rd line: | Record? [] | 00:25:46 | 🔇"): the Brobots, then the text.
+            if (document.body.classList.contains("gopod-visitor") === isAdminPage) {
+              document.body.classList.toggle("gopod-visitor", !isAdminPage);
+              fitTypedRow();
+            }
+            if (isAdminPage) { document.body.classList.remove("gopod-chat-only"); }
+            if (chatOnlyPending) { chatOnlyPending = false; setTimeout(chatOnlyOn, 0); }
+            setPageRole(d.main);
+            if (typeof d.played === "number" && d.boot === playedBoot) { mainPlayed = d.played; runFeedQueue(); }
+          })
+          .catch(function () { /* Wire-Pod not up yet */ });
       }
       document.addEventListener("visibilitychange", function () { reportShown(false); runFeedQueue(); });
-      setInterval(function () { reportShown(false); }, 1000);
+      // A viewer reports in twice a second, to hear how far the main page is.
+      setInterval(function () { reportShown(pageRoleKnown && !isMainPage); }, 500);
       // 2026-10-17: every 5 s, so Wire-Pod knows the page is here soon after a
       // restart (gopod_page_presence.go).
       setInterval(function () { reportShown(true); }, 5000);
@@ -3640,6 +3844,8 @@
       // song step's) is its share of it. The background loop keeps its own.
       var chatVolume = 0.35;
       function chatLevel(share) {
+        // A viewer page is silent (C1): the main page plays the sound.
+        if (!isMainPage) { return 0; }
         var v = typeof share === "number" && !isNaN(share) ? share : 1;
         return Math.max(0, Math.min(1, chatVolume * v));
       }
@@ -3767,6 +3973,14 @@
       // Wire-Pod with that marker, so the journal says so.
       var voicesSkipped = 0;
       function playVoiceThen(src, done) {
+        // A viewer catching up passes the voice: its line shown said, at once.
+        if (viewerBehind()) {
+          delete voiceCache[String(src)];
+          var passed = voiceLitStart(0.1, null, src);
+          if (passed) { passed(); }
+          setTimeout(done, 0);
+          return;
+        }
         var finished = false, litDone = null;
         var finish = function () {
           if (finished) { return; }
@@ -3990,7 +4204,9 @@
           if (String(e.text).trim() === openingEndText) {
             openingDone = true;
             warmupBeforeOpening = null;
-            fetch("/api-sdk/gopod_opening_heard", { method: "POST" }).catch(function () { /* Wire-Pod gone */ });
+            var openingBody = new URLSearchParams();
+            openingBody.set("page", pageId);
+            fetch("/api-sdk/gopod_opening_heard", { method: "POST", body: openingBody }).catch(function () { /* Wire-Pod gone */ });
             done();
             return;
           }
@@ -4000,6 +4216,7 @@
             var heardBody = new URLSearchParams();
             heardBody.set("token", String(e.text).slice(heardMarker.length));
             heardBody.set("skipped", String(voicesSkipped));
+            heardBody.set("page", pageId);
             voicesSkipped = 0;
             fetch("/api-sdk/gopod_voice_heard", { method: "POST", body: heardBody }).catch(function () { /* Wire-Pod gone */ });
             done();
@@ -4701,6 +4918,7 @@
           });
           menu.appendChild(group);
         });
+        menu.appendChild(visitorsGroup(menu));
         outer.appendChild(menu);
         // 2026-10-19 (operator: "system window has 2 windows, system- commands &
         // results * upon mouseover of the horizontal space between them, cursor
@@ -4740,6 +4958,13 @@
         // window scroll position"): while it's open the chat stays at its top.
         (function pin() {
           if (systemMenu !== outer || !outer.isConnected) { return; }
+          // 2026-10-23 (operator: "when open, this causes the results window to
+          // scroll down past the brobots input row * If I close 1. the system
+          // window resizes correctly just above the brobots row"): the window
+          // is exactly the room above the typing row (one line or three),
+          // whichever group is open.
+          var room = Math.max(160, container.clientHeight - 12 - (typedRow.isConnected ? typedRow.offsetHeight : 0) - 8);
+          if (outer.style.height !== room + "px") { outer.style.height = room + "px"; }
           if (outer.style.visibility !== "hidden") {
             var want = Math.max(0, outer.offsetTop - 12);
             if (Math.abs(container.scrollTop - want) > 2) {
@@ -4865,7 +5090,103 @@
         results.scrollTop = results.scrollHeight;
         return true;
       }
+      // The visitors slot (2026-10-24, operator: "In my system window, add an
+      // additional slot for local network visitors * every detectable visitor
+      // listed as nameless-visitor * whatever the 1st input is from a visitor,
+      // that's their username request * I approve or clear ... While chat
+      // participation is ON * Visitors are listed by their approved usernames *
+      // add a checkbox to username as my mute switch"): the participation switch
+      // (starts OFF), then each visitor - a nameless one by its network address,
+      // a name request with Approve / Clear, an approved one with its box
+      // (unticked = muted) and Clear. Refreshed every 2 s while the window is open.
+      var visitorsTimer = null;
+      function visitorsGroup(menu) {
+        var group = document.createElement("details");
+        group.className = "system-menu-group system-menu-visitors";
+        var title = document.createElement("summary");
+        title.textContent = "Local network visitors";
+        group.appendChild(title);
+        var body = document.createElement("div");
+        body.className = "system-visitors";
+        group.appendChild(body);
+        group.addEventListener("toggle", function () {
+          if (!group.open) { return; }
+          Array.prototype.forEach.call(menu.querySelectorAll("details"), function (d) { if (d !== group) { d.open = false; } });
+        });
+        function act(action, key, on) {
+          var form = new URLSearchParams();
+          form.set("action", action);
+          if (key) { form.set("key", key); }
+          form.set("on", on ? "1" : "0");
+          fetch("/api-sdk/gopod_visitors", { method: "POST", body: form }).then(function (r) { return r.ok ? r.json() : null; }).then(draw).catch(function () {});
+        }
+        function button(label, onClick) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "system-visitor-button";
+          b.textContent = label;
+          b.addEventListener("click", onClick);
+          return b;
+        }
+        function draw(d) {
+          if (!d) { return; }
+          body.textContent = "";
+          var on = document.createElement("label");
+          on.className = "system-visitors-on";
+          var onBox = document.createElement("input");
+          onBox.type = "checkbox";
+          onBox.checked = !!d.participation;
+          onBox.addEventListener("change", function () { act("participation", "", onBox.checked); });
+          on.appendChild(onBox);
+          on.appendChild(document.createTextNode(" Visitor chat participation " + (d.participation ? "ON" : "OFF")));
+          body.appendChild(on);
+          var list = d.visitors || [];
+          title.textContent = "Local network visitors (" + list.length + ")";
+          if (!list.length) {
+            var none = document.createElement("div");
+            none.className = "system-visitor";
+            none.textContent = "No visitors.";
+            body.appendChild(none);
+          }
+          list.forEach(function (v) {
+            var row = document.createElement("div");
+            row.className = "system-visitor";
+            var who = document.createElement("span");
+            who.className = "system-visitor-name";
+            if (v.approved) {
+              var box = document.createElement("input");
+              box.type = "checkbox";
+              box.checked = !!v.allowed;
+              box.title = v.allowed ? "Talking - untick to mute" : "Muted - tick to let them talk";
+              box.addEventListener("change", function () { act("allow", v.key, box.checked); });
+              row.appendChild(box);
+              who.textContent = v.name;
+            } else if (v.name) {
+              who.textContent = "asks for: " + v.name;
+            } else {
+              who.textContent = "nameless-visitor";
+            }
+            row.appendChild(who);
+            var meta = document.createElement("span");
+            meta.className = "system-visitor-meta";
+            meta.textContent = " " + v.addr + (v.device ? " · " + v.device : "");
+            row.appendChild(meta);
+            if (v.name && !v.approved) { row.appendChild(button("Approve", function () { act("approve", v.key, true); })); }
+            if (v.name) { row.appendChild(button("Clear", function () { act("clear", v.key, false); })); }
+            body.appendChild(row);
+          });
+        }
+        function poll() {
+          if (!group.isConnected) { clearInterval(visitorsTimer); return; }
+          fetch("/api-sdk/gopod_visitors", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(draw).catch(function () {});
+        }
+        clearInterval(visitorsTimer);
+        visitorsTimer = setInterval(poll, 2000);
+        setTimeout(poll, 0);
+        return group;
+      }
       function systemMenuClose() {
+        clearInterval(visitorsTimer);
         clearInterval(usbTimer);
         if (systemMenu) { systemMenu.remove(); systemMenu = null; }
       }

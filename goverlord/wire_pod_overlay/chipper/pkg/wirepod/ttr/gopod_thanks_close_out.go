@@ -38,7 +38,7 @@ func gopodStopRuns(why string) bool {
 	if gopodSongRunning() {
 		ss := gopodBrobotsSettings.SongStop
 		script := filepath.Join(gopodChipperRoot(), ss.SafeScript)
-		if err := exec.Command(script).Run(); err != nil {
+		if err := gopodAsOperator(exec.Command(script)).Run(); err != nil {
 			logger.Println("GOPOD_STOP_RUN " + why + ": song stop failed: " + err.Error())
 		} else {
 			logger.Println("GOPOD_STOP_RUN " + why + ": the song stops at its next safe spot")

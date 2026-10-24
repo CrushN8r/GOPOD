@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -12,6 +13,9 @@ import (
 // TestPythonRunsAsOperator: every Python GOPOD starts goes through
 // gopodAsOperator (Wire-Pod runs as root; the libraries are the operator's).
 func TestPythonRunsAsOperator(t *testing.T) {
+	if cmd := gopodAsOperator(exec.Command("true")); !strings.Contains(strings.Join(cmd.Env, "\n"), "\nHOME="+strings.TrimRight(gopodHomePath("~/"), "/")) {
+		t.Error("gopodAsOperator no longer gives the operator's home (HOME)")
+	}
 	start := regexp.MustCompile(`exec\.Command(Context)?\(`)
 	files, _ := filepath.Glob(filepath.Join(gopodChipperRoot(), "pkg/wirepod/ttr", "gopod_*.go"))
 	if len(files) < 20 {
@@ -23,8 +27,21 @@ func TestPythonRunsAsOperator(t *testing.T) {
 		}
 		data, _ := os.ReadFile(f)
 		for i, line := range strings.Split(string(data), "\n") {
-			if start.MatchString(line) && strings.Contains(strings.ToLower(line), "python") && !strings.Contains(line, "gopodAsOperator(") {
-				t.Errorf("%s:%d starts Python without gopodAsOperator: %s", f, i+1, strings.TrimSpace(line))
+			// 2026-10-24 (operator: "RULE!! ANYTHING UNDER ROOT, FIX TO MY HOME"):
+			// every program GOPOD starts runs with the operator's home - only the
+			// system's own tools that must stay root (systemctl, lsusb) don't.
+			if start.MatchString(line) && !strings.Contains(line, "gopodAsOperator(") && !strings.Contains(line, `"systemctl"`) && !strings.Contains(line, `"lsusb"`) {
+				// a start wrapped on its own line just after (cmd.Env set first)
+				lines := strings.Split(string(data), "\n")
+				wrapped := false
+				for j := i + 1; j < len(lines) && j <= i+3; j++ {
+					if strings.Contains(lines[j], "gopodAsOperator(cmd)") {
+						wrapped = true
+					}
+				}
+				if !wrapped {
+					t.Errorf("%s:%d starts a program without gopodAsOperator (root's home): %s", f, i+1, strings.TrimSpace(line))
+				}
 			}
 		}
 	}

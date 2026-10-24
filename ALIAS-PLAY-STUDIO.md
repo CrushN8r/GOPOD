@@ -1829,6 +1829,75 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**Visitors and the chat sign-up** (2026-10-24, `gopod_visitors.go`, settings `visitors`; operator:
+"set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat
+participant gathering * initially visitor chat participation is OFF"): the admin is GOPOD's own
+machine or a device in `visitors.admin_addresses_file` (private, outside the repo); everyone else
+is a visitor, one per device (its browser ID, else its address). A visitor's first line is their
+username request - first come, first served, a taken name gets a number (name1, name2); lines after
+it are dropped ("Waiting for approval") until the admin approves it in the system window's "Local
+network visitors" slot (nameless visitors listed by network address and device; Approve / Clear).
+With participation ON (starts OFF every start) an approved visitor with their box ticked talks to
+the Brobots under their username; unticked = muted ("Muted"). A visitor never runs the show
+(commands dropped). Profiles (name, approval, box) are saved in `visitors.profiles_file` (private)
+and come back after a dropped connection or a restart ("like the brobot reboot recovery thing").
+A visitor's typing row is two lines - the Brobots, then the text field (Record, timer
+and speaker are the admin's); Wire-Pod's own intents pass for a visitor, GOPOD's commands ("thx
+bros", start, stop, system-) never. Every scroll rule measures the chat above the typing row
+(`chatViewHeight`), and a chat at its end stays at its end when the row changes height.
+Locked by `TestVisitorSignUp`. RULE (operator 2026-10-24: "ANYTHING UNDER ROOT, FIX TO MY HOME"; live: the
+admin list at "~/" was read from root's home, so the PC stayed a visitor): every "~/" path is the
+operator's home (`gopodHomePath`), and every program GOPOD starts runs with the operator's HOME
+(`gopodAsOperator`; only systemctl/lsusb exempt; `TestPythonRunsAsOperator` scans every start).
+
+**Chat-only view, from the Log button** (2026-10-23, FINISH_PLAN_001.md C2; operator: "C2 please,
+but from the wire-pod page 'Log' button tap"): on a visitor's device (a phone), tapping Log opens
+the chat alone - the Brobots chat and the typing row, the whole screen, no Wire-Pod settings;
+"‹ Wire-Pod" goes back. The admin's Log is unchanged. `?visitor` in the address shows the visitor's
+view on GOPOD's machine. Locked by `TestChatOnlyViewHolds`.
+
+**The whole page on a phone** (2026-10-23, C4 start, operator: "extend phone and tablet rules to
+the whole page in a separate GOPOD stylesheet ... Go ahead"): `css/gopod_responsive.css`, loaded
+after Wire-Pod's own `style.css` (untouched) at the same 768px phone breakpoint - the Brobots'
+battery rows stacked ("can you stack the home page battery level entries on top of each other?"),
+the typing row wraps instead of running off the right edge. Checked at 390px wide: nothing runs
+past the edge on any section, Server Settings or Bot Settings. Then (same day): Bot Settings reads "Vector Config"
+(GOPOD's copies `webroot/sdkapp/index.html`/`settings.html`, title only; the overlay serves a
+folder's own `index.html`); "Scroll to bottom" on one line; the typing row is one line while it
+fits ("Brobots ()1 ()2 ()All[1] [text] | Record? [] | 00:56:42 |🔇") and three when it doesn't
+(`.stacked`, any screen; `chat_window.typed_text_min_px`); 🔇 opens the system window for the
+admin only (the page on GOPOD's own machine; a PIN for other devices comes with C5) - a visitor's
+🔇 is the loop alone; the system window is exactly the room above the typing row, whichever group
+is open. Locked by `TestPhoneLayoutHolds`.
+
+**Bubble placing never waits on a picture; every voice preloads** (2026-10-23, live: every
+bubble after the granny photo waited until F5, on both pages): `revealTimer` means only "bubbles
+being placed" - a picture's load wait (`whenBubblesReady` from `showPictures`) has its own timer.
+Every voice starts loading the moment it reaches the page (stings have their own pool), so it
+plays as its bubble shows. Listed expletives (`"strike": true` in the Brobots lingo list) show
+struck through in every chat line (`gopodStrikeExpletives`, one place: the feed), said as their
+substitute. Locked by `TestStrikeAndPlacingHold`.
+
+**One page owns the show: main page, viewer pages** (2026-10-23, FINISH_PLAN_001.md C1,
+`gopod_main_page.go`): Wire-Pod names one main page - it plays the sound and its shown, played
+and heard reports time the run. Every other open page is a viewer: the same bubbles, silent, its
+reports ignored (a viewer's tab hidden pauses nothing). The first page that can play (shown,
+clicked) is main and keeps it while it reports in; gone past `page_sync.main_lease_seconds`
+(12 s), the next page that can play takes over. The page's id lives with its tab, so F5 keeps
+its role. `?view` in the address = a viewer by choice. Nothing plays until a page knows its
+role. Locked by `TestOnePageOwnsTheShow`. A viewer follows the main page (2026-10-23, operator: "timing
+between the phone & pc appear to be in sync then fall out of sync"): Wire-Pod tells each viewer how
+far the main page has played; more than `page_sync.viewer_catch_up_events` (2) lines behind, it
+catches up - scrolls at once, no waits, its voices passed - until it's back in step
+(`TestViewerFollowsTheMainPage`). A visitor mirrors the admin (2026-10-24, operator: "GOPOD phone page does
+nothing but zombie-follows GOPOD admin page display, wherever the fuck admin page display is at"):
+it never shows a line the main page hasn't reached - at most the one it's on (played + 1); the main
+page tells its place every quarter second, a visitor asks twice a second. Only a page on GOPOD's own machine (localhost or the machine's own network address,
+checked by Wire-Pod from where the page connects) is the admin and can be the main page; any other
+device is always a silent visitor (live: the phone took the main page after a restart and the PC
+went silent; `TestOnlyGOPODsMachineIsMain`). The phone stays a visitor: no system window (operator: "Stay with
+phone = visitor, no system window").
+
 **MASTER LIST: content -> its template** (2026-10-23, operator: "Generate a master list please
 that maps content to its template"; aim: "Single unified template ... or at least the minimum set
 of epic cooperative templates"). Every chat bubble = header + content; each content's rules live
@@ -1836,7 +1905,10 @@ in the settings, its template runs them, a test locks it ("none yet" = no lock t
 
 | # | Content | Template (code) | Rules (settings) | Lock |
 |---|---|---|---|---|
-| 1 | Bubble header | `appendBubble` head row (page) | `bubble_kinds`, `display_names`, `brobot_bubble` | none yet |
+| 0 | Which page plays (main / viewer) | `GopodMainPageClaim` (Wire-Pod), `setPageRole` (page) | `page_sync.main_lease_seconds` | `TestOnePageOwnsTheShow` |
+| 0c | Visitors, sign-up, mute | `GopodVisitorLine`, `visitorsGroup` (system window) | `visitors` | `TestVisitorSignUp` |
+| 0b | Chat-only view (a visitor's Log) | `chatOnlyOn` (page) | `gopod_responsive.css` (`body.gopod-chat-only`) | `TestChatOnlyViewHolds` |
+| 1 | Bubble header | `appendBubble` head row (page) | `bubble_kinds`, `display_names`, `brobot_bubble` | `TestHeaderTemplateHolds` |
 | 2 | Bubble placing, scroll, the baton | `revealWhenPlaced`, `batonHeld` (page) | `chat_window`, `gravity`, `highlight_scroll` | `TestInterviewEndAndPauseHold` |
 | 3 | Voiced line, own bubble (Goverlord, reporters, chapter, manager) | `gopodSayShown` -> `wait:`/`lit:` -> `voiceLitLine` | `reporter_voices`, `sign_off`, `hourglass` | `TestEveryVoicedLineUsesTheTemplate` |
 | 4 | Voiced line shown some other way (warm-up, opener, egg, Operator) | `gopodSayForShownLine` -> `forwait:`/`forlit:` -> `voiceForLine` | `reporter_voices`, `hourglass` | `TestInterviewEndAndPauseHold` |
@@ -1851,12 +1923,12 @@ in the settings, its template runs them, a test locks it ("none yet" = no lock t
 | 13 | Weather | weather lines + card | `weather_lines`, `weather_card`, `live_weather` | `TestLiveWeatherWords` |
 | 14 | Pictures, pop-ups, eggs | `showPictures` | `topic_pictures` | `TestPopupsOnlyLive`, `TestEggZooms` |
 | 15 | LLM warm-up bubble | `buildWarmupBubble`, `showWarmupLevel` | `llm`, `hourglass` | `TestWarmupSequenceGolden`, `TestLLMWarmTemplate` |
-| 16 | Narrator lines (songs) | `showNarratorLine` | `chat_window.narrator_*` | none yet |
-| 17 | Countdown | `showCountdown` | `countdown` | none yet |
-| 18 | Bingo ball | `showBingoBall` | `bingo_ball` | none yet |
-| 19 | Search results | `showSearchResults` | `system_search` | none yet |
-| 20 | System menu, terminal | `showTerminal` | `system_menu`, `system_bubble` | none yet |
-| 21 | QR codes | QR pictures | `qr_codes` | none yet |
+| 16 | Narrator lines (songs) | `showNarratorLine` | `chat_window.narrator_*` | `TestNarratorTemplateHolds` |
+| 17 | Countdown | `showCountdown` | `countdown` | `TestCountdownAndBingoBallTemplatesHold` |
+| 18 | Bingo ball | `showBingoBall` | `bingo_ball` | `TestCountdownAndBingoBallTemplatesHold` |
+| 19 | Search results | `showSearchResults` | `system_search` | `TestSearchResultsTemplateHolds` |
+| 20 | System menu, terminal | `showTerminal` | `system_menu`, `system_bubble` | `TestSystemMenuTemplateHolds` |
+| 21 | QR codes | QR pictures | `qr_codes` | `TestQRCodeTemplateHolds` |
 
 The minimum set it folds into (the aim): **(A) the bubble** - header + placing + baton (rows 1-2);
 **(B) the voiced line** - Generating + hourglass, then lit word by word (rows 3-4; a Brobot's own
@@ -1870,7 +1942,10 @@ the fucking template applies!!"): "Generating..." + the hourglass while its voic
 its words lit word by word as it plays. A line with its own bubble: `gopodSayShown` (`wait:` /
 `lit:`). A voice whose words show some other way (warm-up and opener lines, an egg, the
 Operator's own line): `gopodSayForShownLine` names the voice and its words (`forwait:` /
-`forlit:`) and the page ties them to that line (`voiceForLine`). A voice reaches the page only
+`forlit:`) and the page ties them to that line (`voiceForLine`). From the ground up: a voiced line is in the
+template from the moment it's drawn, never after - when any line is drawn (a bubble placed, the
+warm-up bubble's message), a voice named for its words still waiting in the queue ties to it
+right then (`voiceTieAhead`), so it never shows solid, vanishes, then lights. A voice reaches the page only
 from the template - `TestInterviewEndAndPauseHold` fails the deploy otherwise. The score reads
 "Easter Eggs".
 

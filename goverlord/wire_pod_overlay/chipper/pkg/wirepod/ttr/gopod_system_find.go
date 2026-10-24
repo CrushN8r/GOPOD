@@ -35,7 +35,7 @@ const (
 var gopodFindJournal = func() ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
-	return exec.CommandContext(ctx, "journalctl", "-u", "wire-pod", "--since", gopodFindHours, "--no-pager", "-o", "short").Output()
+	return gopodAsOperator(exec.CommandContext(ctx, "journalctl", "-u", "wire-pod", "--since", gopodFindHours, "--no-pager", "-o", "short")).Output()
 }
 
 func gopodSystemFind(text string) string {

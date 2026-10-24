@@ -407,6 +407,16 @@ type gopodBrobotsSettingsFile struct {
 	BrotherRepeat struct {
 		PlainWords []string `json:"plain_words"`
 	} `json:"brother_repeat"`
+	// 2026-10-24: visitors and the chat sign-up (gopod_visitors.go).
+	Visitors struct {
+		Participation      bool    `json:"participation"`
+		AdminAddressesFile string  `json:"admin_addresses_file"`
+		ProfilesFile       string  `json:"profiles_file"`
+		SeenSeconds        float64 `json:"seen_seconds"`
+		NameMax            int     `json:"name_max"`
+		WaitingText        string  `json:"waiting_text"`
+		MutedText          string  `json:"muted_text"`
+	} `json:"visitors"`
 	// 2026-10-23 (template sweep): the session memory's lines (gopod_session_memory.go).
 	SessionMemory struct {
 		Line      string `json:"line"`
@@ -490,6 +500,7 @@ type gopodBrobotsSettingsFile struct {
 	PageSync struct {
 		ReplyWaitSeconds float64 `json:"reply_wait_seconds"`
 		HeldLogSeconds   float64 `json:"held_log_seconds"`
+		MainLeaseSeconds float64 `json:"main_lease_seconds"`
 	} `json:"page_sync"`
 	ChatAudio struct {
 		Volume       float64 `json:"volume"`

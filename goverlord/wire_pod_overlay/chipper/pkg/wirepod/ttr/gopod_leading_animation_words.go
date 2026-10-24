@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 // The model sometimes opens a reply (or a paragraph) with animation words and
@@ -37,7 +38,12 @@ func gopodIsAnimationWord(word string) bool {
 func gopodStripLeadingAnimationWords(text string) string {
 	lines := strings.Split(text, "\n")
 	for i, line := range lines {
-		indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+		// 2026-10-23 (live: "🎉 celebrate So what's the plan, man?"): emoji and
+		// marks before the first word are kept, and the word after them is
+		// checked like a line's first word.
+		indent := line[:len(line)-len(strings.TrimLeftFunc(line, func(r rune) bool {
+			return !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '"' && r != '\'' && r != '*'
+		}))]
 		rest := line[len(indent):]
 		count, firstGap, cut, firstLower := 0, 0, 0, false
 		for count < 3 {

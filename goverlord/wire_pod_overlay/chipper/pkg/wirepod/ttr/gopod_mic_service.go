@@ -84,7 +84,7 @@ func gopodMicStartLocked() error {
 				"HOME=" + u.HomeDir, "XDG_RUNTIME_DIR=/run/user/" + strconv.Itoa(uid)}, args...)
 		}
 	}
-	cmd := exec.Command(args[0], args[1:]...)
+	cmd := gopodAsOperator(exec.Command(args[0], args[1:]...))
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err

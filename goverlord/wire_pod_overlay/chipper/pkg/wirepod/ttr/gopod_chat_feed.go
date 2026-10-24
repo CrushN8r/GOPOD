@@ -103,6 +103,10 @@ func gopodOperatorVia(how string) string {
 	case gopodMicHow:
 		return "Mic"
 	}
+	// 2026-10-24: a visitor's line is named by their approved username.
+	if strings.HasPrefix(how, gopodVisitorHowPrefix) {
+		return strings.TrimPrefix(how, gopodVisitorHowPrefix)
+	}
 	return ""
 }
 
@@ -224,6 +228,8 @@ func gopodChatFeedAddEventVia(who, to, by, via, text string) {
 	if who == "" || text == "" {
 		return
 	}
+	// 2026-10-23: listed expletives shown struck through (gopodStrikeExpletives).
+	text = gopodStrikeExpletives(text)
 	// A Brobot saying a Bingo test line means the Bingo test has been played
 	// since this Wire-Pod start (gopodBingoPlayed, gopod_brobot_personas.go).
 	// The operator typing "Bingo Test Live" doesn't count; the song's own lines do.

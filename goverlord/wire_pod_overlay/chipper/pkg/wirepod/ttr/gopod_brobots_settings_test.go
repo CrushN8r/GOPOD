@@ -1442,7 +1442,7 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
 	}
 	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
-	for _, want := range []string{"p._feedId > voiceFeedId", `genKind.indexOf("forwait:") === 0`, "bubble._feedId = feedIdNow", "voiceForText[path]"} {
+	for _, want := range []string{"p._feedId > voiceFeedId", `genKind.indexOf("forwait:") === 0`, "bubble._feedId = feedIdNow", "voiceForText[path]", "Promise.resolve().then(voiceTieAhead)", "          voiceTieAhead();\n        }"} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
 		}
@@ -1485,5 +1485,424 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 	gopodPagePauseState.Unlock()
 	if !held {
 		t.Error("a page hidden past pause_after_ms didn't pause")
+	}
+}
+
+// TestOnePageOwnsTheShow (2026-10-23, FINISH_PLAN_001.md C1): one main page -
+// it plays the sound and its reports time the run; every other page is a
+// silent viewer whose reports are ignored; gone past the lease, the next page
+// that can play takes over; a viewer by choice never does.
+func TestOnePageOwnsTheShow(t *testing.T) {
+	old := gopodBrobotsSettings.PageSync.MainLeaseSeconds
+	defer func() {
+		gopodBrobotsSettings.PageSync.MainLeaseSeconds = old
+		gopodMainPage.Lock()
+		gopodMainPage.id = ""
+		gopodMainPage.Unlock()
+	}()
+	gopodBrobotsSettings.PageSync.MainLeaseSeconds = 0.1
+	gopodMainPage.Lock()
+	gopodMainPage.id = ""
+	gopodMainPage.Unlock()
+	if GopodMainPageClaim("b", false) {
+		t.Error("a page that can't play claimed the show")
+	}
+	if !GopodMainPageClaim("a", true) || GopodMainPageClaim("b", true) {
+		t.Error("the first page that can play is main, the second a viewer")
+	}
+	if GopodIsMainPage("b") || !GopodIsMainPage("a") || !GopodIsMainPage("") {
+		t.Error("only the main page's reports (or an older page's, no id) count")
+	}
+	time.Sleep(150 * time.Millisecond)
+	if !GopodMainPageClaim("b", true) || GopodIsMainPage("a") {
+		t.Error("the main page gone past the lease: the next page takes over")
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{`if (!isMainPage) { return 0; }`, `|| !pageRoleKnown) { return; }`, `heardBody.set("page", pageId)`, `openingBody.set("page", pageId)`, `body.set("page", pageId)`} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	h, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/sdkapp/gopod_typed_input.go"))
+	if strings.Count(string(h), "GopodIsMainPage(r.FormValue(\"page\"))") != 3 || !strings.Contains(string(h), "GopodMainPageClaim(") {
+		t.Error("Wire-Pod no longer takes the run's timing from the main page only")
+	}
+}
+
+// TestStrikeAndPlacingHold (2026-10-23): listed expletives show struck through
+// (said as their substitute); a picture's load wait never blocks bubble placing
+// (live: every bubble after the granny photo waited until F5); every voice
+// loads the moment it reaches the page.
+func TestStrikeAndPlacingHold(t *testing.T) {
+	if got := gopodStrikeExpletives("Comedic bullshit. Bullshitting! Bullseye."); got != "Comedic b̶u̶l̶l̶s̶h̶i̶t̶. B̶u̶l̶l̶s̶h̶i̶t̶t̶i̶n̶g̶! Bullseye." {
+		t.Errorf("strike: %q", got)
+	}
+	if got := gopodStrikeExpletives(gopodStrikeExpletives("bullshit")); strings.Count(got, "̶") != 8 {
+		t.Errorf("struck twice: %q", got)
+	}
+	if got := gopodApplyPronunciations("bullshitting"); got != "bull bitting" {
+		t.Errorf("said: %q", got)
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	if strings.Contains(string(page), "revealTimer = setTimeout(check") {
+		t.Error("whenBubblesReady sets revealTimer again - a picture's wait blocks every bubble after it")
+	}
+	if !strings.Contains(string(page), "isVoiceEvent(item.e) && !restoringChat") {
+		t.Error("voices no longer load the moment they reach the page")
+	}
+}
+
+// TestPhoneLayoutHolds (2026-10-23, C4): the typing row is one line or three,
+// the system window is the admin's only and fills the room above the row, and
+// Bot Settings reads "Vector Config".
+func TestPhoneLayoutHolds(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{"if (!isAdminPage) { return; }", `typedRow.classList.toggle("stacked"`, `outer.style.height = room + "px"`} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	css, _ := os.ReadFile(filepath.Join(root, "webroot/css/gopod_responsive.css"))
+	for _, want := range []string{".gopod-typed-input.stacked .gopod-typed-text { flex: 1 1 100%; }", "#botStats {", ".brobot-bubble.system-menu-host { flex: none; }"} {
+		if !strings.Contains(string(css), want) {
+			t.Errorf("gopod_responsive.css lost %q", want)
+		}
+	}
+	index, _ := os.ReadFile(filepath.Join(root, "webroot/index.html"))
+	if !strings.Contains(string(index), `href="css/gopod_responsive.css"`) {
+		t.Error("the page no longer loads gopod_responsive.css")
+	}
+	for _, f := range []string{"index.html", "settings.html"} {
+		b, _ := os.ReadFile(filepath.Join(root, "webroot/sdkapp", f))
+		if !strings.Contains(string(b), `<h1 class="center">Vector Config</h1>`) {
+			t.Errorf("sdkapp/%s: not \"Vector Config\"", f)
+		}
+	}
+}
+
+// TestViewerFollowsTheMainPage (2026-10-23): a viewer more than
+// page_sync.viewer_catch_up_events lines behind the main page catches up.
+func TestViewerFollowsTheMainPage(t *testing.T) {
+	if gopodBrobotsSettings.PageSync.MainLeaseSeconds <= 0 {
+		t.Error("page_sync.main_lease_seconds is not set")
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{"mainPlayed > playedId + VIEWER_CATCH_UP_EVENTS", "if (reduce || viewerBehind())", "if (viewerBehind()) { return false; }", "var passed = voiceLitStart(0.1, null, src);", "if (!isMainPage && feedQueue[0].e && feedQueue[0].e.id > mainPlayed + 1) { return; }"} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	h, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/sdkapp/gopod_typed_input.go"))
+	if !strings.Contains(string(h), "wirepod_ttr.GopodMainPlayed()") {
+		t.Error("Wire-Pod no longer tells a viewer how far the main page is")
+	}
+}
+
+// The seven templates the master list had no lock for (2026-10-23, operator:
+// "Lock tests"): each one's rules in the settings, and the page's one builder.
+func gopodRawSettingsForTest(t *testing.T) (map[string]any, string) {
+	t.Helper()
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	data, err := os.ReadFile(filepath.Join(root, "webroot/gopod_brobots_settings.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var raw map[string]any
+	if err := json.Unmarshal(data, &raw); err != nil {
+		t.Fatal(err)
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	return raw, string(page)
+}
+
+func gopodBlockForTest(t *testing.T, raw map[string]any, key string) map[string]any {
+	t.Helper()
+	b, ok := raw[key].(map[string]any)
+	if !ok {
+		t.Fatalf("settings: no %s block", key)
+	}
+	return b
+}
+
+// TestHeaderTemplateHolds: every bubble kind rule names one of the five kinds,
+// the display names have their fallback, and the page builds a header one way.
+func TestHeaderTemplateHolds(t *testing.T) {
+	raw, page := gopodRawSettingsForTest(t)
+	kinds := map[string]bool{"operator": true, "goverlord": true, "gomad": true, "gominion": true, "other": true}
+	rules, _ := gopodBlockForTest(t, raw, "bubble_kinds")["rules"].([]any)
+	if len(rules) == 0 {
+		t.Error("bubble_kinds.rules is empty")
+	}
+	for _, r := range rules {
+		m, _ := r.(map[string]any)
+		has, _ := m["has"].([]any)
+		if k, _ := m["kind"].(string); !kinds[k] || len(has) == 0 {
+			t.Errorf("bubble_kinds rule %v: a kind of the five, and what it has", m)
+		}
+	}
+	if fb, _ := gopodBlockForTest(t, raw, "display_names")["fallback"].(string); !strings.Contains(fb, "{n}") {
+		t.Errorf("display_names.fallback %q: no {n}", fb)
+	}
+	if n := strings.Count(page, `head.className = "brobot-bubble-head"`); n != 1 {
+		t.Errorf("the page builds a bubble header %d ways, want 1", n)
+	}
+}
+
+// TestNarratorTemplateHolds: the narrator's fades are set and in order.
+func TestNarratorTemplateHolds(t *testing.T) {
+	raw, page := gopodRawSettingsForTest(t)
+	cw := gopodBlockForTest(t, raw, "chat_window")
+	in, _ := cw["narrator_fade_in_s"].(float64)
+	outMax, _ := cw["narrator_fade_out_max_s"].(float64)
+	outEnd, _ := cw["narrator_fade_out_end_s"].(float64)
+	if in <= 0 || outMax <= 0 || outEnd < outMax {
+		t.Errorf("narrator fades: in %v, out max %v, out end %v", in, outMax, outEnd)
+	}
+	if strings.TrimSpace(gopodBrobotsSettings.ReporterVoices.NarratorRole) == "" || !strings.Contains(page, "function showNarratorLine(") {
+		t.Error("the narrator lines have no role or no builder")
+	}
+}
+
+// TestCountdownAndBingoBallTemplatesHold: their roles are set, and the page
+// takes them from the settings.
+func TestCountdownAndBingoBallTemplatesHold(t *testing.T) {
+	_, page := gopodRawSettingsForTest(t)
+	if strings.TrimSpace(gopodBrobotsSettings.Countdown.Role) == "" || strings.TrimSpace(gopodBrobotsSettings.BingoBall.Role) == "" {
+		t.Error("countdown.role or bingo_ball.role is empty")
+	}
+	for _, want := range []string{"countdownRole = settings.countdown.role", "ballRole = settings.bingo_ball.role", "function showCountdown(", "function showBingoBall("} {
+		if !strings.Contains(page, want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+}
+
+// TestSearchResultsTemplateHolds: the results have their role, count and lines.
+func TestSearchResultsTemplateHolds(t *testing.T) {
+	_, page := gopodRawSettingsForTest(t)
+	s := gopodBrobotsSettings.SystemSearch
+	if s.ResultsRole == "" || s.Results <= 0 || s.TimeoutSeconds <= 0 || strings.TrimSpace(s.NoneNote) == "" {
+		t.Errorf("system_search: role %q, results %d, timeout %v, none_note %q", s.ResultsRole, s.Results, s.TimeoutSeconds, s.NoneNote)
+	}
+	if !strings.Contains(page, "searchSettings = settings.system_search") || !strings.Contains(page, "function showSearchResults(") {
+		t.Error("the page no longer shows search results from system_search")
+	}
+}
+
+// TestSystemMenuTemplateHolds: every system- command in the menu is one
+// Wire-Pod knows (system-help lists it), every item has words.
+func TestSystemMenuTemplateHolds(t *testing.T) {
+	raw, page := gopodRawSettingsForTest(t)
+	help := gopodSystemHelp()
+	groups, _ := gopodBlockForTest(t, raw, "system_menu")["groups"].([]any)
+	if len(groups) == 0 {
+		t.Fatal("system_menu.groups is empty")
+	}
+	for _, g := range groups {
+		gm, _ := g.(map[string]any)
+		items, _ := gm["items"].([]any)
+		for _, it := range items {
+			im, _ := it.(map[string]any)
+			cmd, _ := im["cmd"].(string)
+			if strings.TrimSpace(cmd) == "" {
+				t.Errorf("system_menu %v: an item with no command", gm["title"])
+				continue
+			}
+			word := strings.Fields(cmd)[0]
+			if strings.HasPrefix(word, "system-") && !strings.Contains(help, strings.TrimRight(word, "-")) {
+				t.Errorf("system_menu: %q isn't a system command (system-help)", word)
+			}
+		}
+	}
+	if !strings.Contains(page, "function systemMenuOpen(") || !strings.Contains(page, "if (!isAdminPage) { return; }") {
+		t.Error("the system menu lost its builder or its admin-only rule")
+	}
+}
+
+// TestQRCodeTemplateHolds: every QR code has its words, address, title and
+// picture file.
+func TestQRCodeTemplateHolds(t *testing.T) {
+	raw, page := gopodRawSettingsForTest(t)
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	codes, _ := gopodBlockForTest(t, raw, "qr_codes")["codes"].([]any)
+	if len(codes) == 0 {
+		t.Fatal("qr_codes.codes is empty")
+	}
+	for _, c := range codes {
+		m, _ := c.(map[string]any)
+		words, _ := m["words"].([]any)
+		url, _ := m["url"].(string)
+		img, _ := m["image"].(string)
+		title, _ := m["title"].(string)
+		if len(words) == 0 || !strings.HasPrefix(url, "http") || title == "" || img == "" {
+			t.Errorf("qr code %v: words, url, title and image", m)
+			continue
+		}
+		if _, err := os.Stat(filepath.Join(root, "webroot", img)); err != nil {
+			t.Errorf("qr code %q: no picture %s", title, img)
+		}
+	}
+	if !strings.Contains(page, "qrCodes = settings.qr_codes.codes") {
+		t.Error("the page no longer takes its QR codes from qr_codes")
+	}
+}
+
+// TestChatOnlyViewHolds (2026-10-23, C2: "from the wire-pod page 'Log' button
+// tap"): a visitor's Log opens the chat alone; the admin's Log is unchanged.
+func TestChatOnlyViewHolds(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{"if (!pageRoleKnown) { chatOnlyPending = true; return; }", "if (isAdminPage) { document.body.classList.remove(\"gopod-chat-only\"); return; }", "window.showLog = function () {", `document.body.classList.add("gopod-chat-only")`} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	css, _ := os.ReadFile(filepath.Join(root, "webroot/css/gopod_responsive.css"))
+	if !strings.Contains(string(css), "body.gopod-chat-only .main-nav-parent") {
+		t.Error("the chat-only view no longer hides Wire-Pod's settings")
+	}
+}
+
+// TestOnlyGOPODsMachineIsMain (2026-10-23, live: the phone took the main page
+// after a restart and the PC went silent): only a page on GOPOD's own machine is
+// the admin and can be the main page.
+func TestOnlyGOPODsMachineIsMain(t *testing.T) {
+	for addr, want := range map[string]bool{"127.0.0.1:51000": true, "[::1]:51000": true, "203.0.113.9:51000": false, "nonsense": false} {
+		if got := GopodIsLocalMachine(addr); got != want {
+			t.Errorf("GopodIsLocalMachine(%q) = %v, want %v", addr, got, want)
+		}
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	h, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/sdkapp/gopod_typed_input.go"))
+	if !strings.Contains(string(h), "GopodMainPageClaim(r.FormValue(\"page\"), shown && admin)") {
+		t.Error("a page off GOPOD's machine can claim the main page again")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	if !strings.Contains(string(page), "isAdminPage = d.admin === true;") {
+		t.Error("the page no longer takes its admin role from Wire-Pod")
+	}
+}
+
+// TestVisitorSignUp (2026-10-24, operator: "allow a chat participant gathering *
+// initially visitor chat participation is OFF ... Save the visitor profile in
+// case of a disconnect reconnect"): a visitor's first line asks for a username
+// (first come, first served; taken: name1), lines after it are dropped until
+// approved; ON and ticked passes under their name; commands never; clear asks
+// again; profiles come back after a restart; the admin list sets the admin.
+func TestVisitorSignUp(t *testing.T) {
+	dir := t.TempDir()
+	oldVS := gopodBrobotsSettings.Visitors
+	defer func() {
+		gopodBrobotsSettings.Visitors = oldVS
+		gopodVisitors.Lock()
+		gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
+		gopodVisitors.Unlock()
+	}()
+	vs := &gopodBrobotsSettings.Visitors
+	vs.Participation, vs.ProfilesFile, vs.AdminAddressesFile = false, filepath.Join(dir, "visitors.json"), filepath.Join(dir, "admins")
+	vs.SeenSeconds, vs.NameMax, vs.WaitingText, vs.MutedText = 30, 20, "Waiting for approval", "Muted"
+	os.WriteFile(vs.AdminAddressesFile, []byte("# laptop\n203.0.113.7\n"), 0o600)
+	gopodVisitors.Lock()
+	gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
+	gopodVisitors.Unlock()
+	if !GopodIsAdmin("203.0.113.7:5000") || GopodIsAdmin("203.0.113.5:5000") {
+		t.Error("the admin list: the laptop is admin, another device a visitor")
+	}
+	phone := "203.0.113.5:5000"
+	line := func(addr, id, text string) (bool, string, string) { return GopodVisitorLine(addr, id, "Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130", text) }
+	if pass, _, note := line(phone, "idA", "Pip"); pass || note != "Waiting for approval" {
+		t.Errorf("name request: pass %v note %q", pass, note)
+	}
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Waiting for approval" {
+		t.Errorf("before approval: pass %v note %q", pass, note)
+	}
+	line("203.0.113.9:1", "idB", "pip")
+	line("203.0.113.10:1", "idC", "Operator")
+	list := gopodVisitorList()
+	names := map[string]string{}
+	for _, v := range list {
+		names[v.Key] = v.Name
+	}
+	if names["id:idA"] != "Pip" || names["id:idB"] != "pip1" || names["id:idC"] != "Operator1" {
+		t.Errorf("names first come, first served: %v", names)
+	}
+	gopodVisitorAct("approve", "id:idA", true)
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Muted" {
+		t.Errorf("approved, participation OFF: pass %v note %q", pass, note)
+	}
+	gopodVisitorAct("participation", "", true)
+	if pass, how, _ := line(phone, "idA", "hello Brobots"); !pass || how != "Visitor: Pip" {
+		t.Errorf("approved, ON, ticked: pass %v how %q", pass, how)
+	}
+	if pass, _, _ := line(phone, "idA", "stop run"); pass {
+		t.Error("a visitor ran a command")
+	}
+	gopodVisitorAct("allow", "id:idA", false)
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Muted" {
+		t.Errorf("unticked: pass %v note %q", pass, note)
+	}
+	gopodVisitorAct("allow", "id:idA", true)
+	// A reconnect on a new address is the same visitor (its browser ID).
+	if pass, how, _ := line("203.0.113.66:1", "idA", "still me"); !pass || how != "Visitor: Pip" {
+		t.Errorf("reconnected: pass %v how %q", pass, how)
+	}
+	gopodVisitorAct("clear", "id:idB", false)
+	line("203.0.113.9:1", "idB", "Doc Fan")
+	// A restart: the profiles come back, participation starts OFF.
+	gopodVisitors.Lock()
+	gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
+	gopodVisitors.Unlock()
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Muted" {
+		t.Errorf("after a restart: approved Pip, participation OFF - pass %v note %q", pass, note)
+	}
+	back := map[string]gopodVisitor{}
+	for _, v := range gopodVisitorList() {
+		back[v.Key] = v
+	}
+	if !back["id:idA"].Approved || back["id:idB"].Name != "Doc Fan" {
+		t.Errorf("profiles after a restart: %+v", back)
+	}
+	// Wire-Pod runs as root: "~/" must be the operator's home, never root's.
+	if root := os.Getenv("GOPOD_OVERLAY_CHIPPER"); root != "" {
+		src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_visitors.go"))
+		if strings.Contains(string(src), "os.UserHomeDir()") || strings.Count(string(src), "gopodHomePath(") < 2 {
+			t.Error("the visitor files must use the operator's home (gopodHomePath), not root's")
+		}
+	}
+	// Wire-Pod's own intents yes; GOPOD's commands never (2026-10-24, operator:
+	// "visitors can trigger native wire-pod intents * not GOPOD admin or other
+	// system level commands, like the 'thx bros'").
+	for text, cmd := range map[string]bool{"what time is it": false, "what's the weather": false, "thx bros": true, "thanks Brobots": true, "system-status": true, "stop run": true} {
+		if got := gopodVisitorCommand(text); got != cmd {
+			t.Errorf("gopodVisitorCommand(%q) = %v, want %v", text, got, cmd)
+		}
+	}
+	if got := gopodDeviceKind("Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130"); got != "Android phone · Chrome" {
+		t.Errorf("device: %q", got)
 	}
 }

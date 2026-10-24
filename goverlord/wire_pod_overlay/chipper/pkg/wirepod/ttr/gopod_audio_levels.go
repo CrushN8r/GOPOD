@@ -159,7 +159,7 @@ var gopodLoudnessFile = func(in, out string) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
-	meter, _ := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-nostats", "-i", in, "-af", "ebur128", "-f", "null", "-").CombinedOutput()
+	meter, _ := gopodAsOperator(exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-nostats", "-i", in, "-af", "ebur128", "-f", "null", "-")).CombinedOutput()
 	gain := 0.0
 	if m := gopodLoudnessIRE.FindAllSubmatch(meter, -1); len(m) > 0 {
 		if lufs, err := strconv.ParseFloat(string(m[len(m)-1][1]), 64); err == nil && lufs > -60 {
@@ -181,7 +181,7 @@ var gopodLoudnessFile = func(in, out string) error {
 	}
 	tmp := out + ".tmp.wav"
 	filter := fmt.Sprintf("volume=%.2fdB,alimiter=limit=%.4f:level=disabled:attack=5:release=50", gain, limit)
-	if msg, err := exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", in, "-af", filter, "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact", "-c:a", "pcm_s16le", tmp).CombinedOutput(); err != nil {
+	if msg, err := gopodAsOperator(exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", in, "-af", filter, "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact", "-c:a", "pcm_s16le", tmp)).CombinedOutput(); err != nil {
 		os.Remove(tmp)
 		return fmt.Errorf("ffmpeg: %v %s", err, strings.TrimSpace(string(msg)))
 	}

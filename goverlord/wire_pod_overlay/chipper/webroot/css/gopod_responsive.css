@@ -1,0 +1,93 @@
+/* goverlord/wire_pod_overlay/chipper/webroot/css/gopod_responsive.css */
+
+/* 2026-10-23 (FINISH_PLAN_001.md C4; operator: "extend phone and tablet rules to
+   the whole page in a separate GOPOD stylesheet, without touching Wire-Pod's own
+   files * Go ahead with that"; "can you stack the home page battery level entries
+   on top of each other? ... that's all I'd need for the home page"): the whole
+   Wire-Pod page on a phone, beside the chat's own phone rules
+   (gopod_chat_bubbles.css, 2026-10-03). Wire-Pod's css/style.css is untouched;
+   this file loads after it and wins at the same 768px phone breakpoint. */
+@media screen and (max-width: 768px) {
+  /* The Brobots' battery rows, one above the other (side by side they ran off
+     the left edge). */
+  #botStats {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+    padding: 6px 0;
+  }
+  #botStats .batteryContainer { margin: 0; }
+  /* "Scroll to bottom" (and "Show all logs"): the box and its words on one line. */
+  /* The typing row sits on the chat's bottom edge: the phone chat's padding is
+     10px (gopod_chat_bubbles.css), so the row reaches 10px out, not 20px (its
+     last line was cut off). */
+  .gopod-typed-input {
+    bottom: -10px;
+    margin: auto -10px -10px;
+  }
+  #section-log .gopod-log-options.gopod-nowrap {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+}
+
+/* The Brobots typing row (2026-10-23, operator: "New responsive
+   Brobots-Input-Row single line can adjust to 3 lines"): one line while it fits -
+   "Brobots ()1 ()2 ()All[1] [Type to the Brobot] | Record? [] | 00:56:42 |🔇" -
+   and, any screen size, three when it doesn't (.stacked, set by the page when
+   the line can't fit): the Brobots, the text field on its own line, then
+   "| Record? [] | 00:56:42 |🔇". Never runs off the edge. */
+.gopod-typed-input {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+.gopod-typed-input .gopod-typed-text { flex: 1 1 0; width: auto; min-width: 0; }
+.gopod-typed-input.stacked .gopod-typed-text { flex: 1 1 100%; }
+
+/* The system window fills the room above the typing row (its height is set by
+   the page), never shrinking under it. */
+.brobot-bubble.system-menu-host { flex: none; }
+
+/* GOLDEN chat-only view (2026-10-23, C2; operator: "C2 please, but from the
+   wire-pod page 'Log' button tap"): a visitor's Log is the chat alone - the
+   Brobots chat and its typing row, the whole screen; "‹ Wire-Pod" goes back. */
+.gopod-chat-back { display: none; }
+body.gopod-chat-only #content > h1,
+body.gopod-chat-only #botStats,
+body.gopod-chat-only #content > hr,
+body.gopod-chat-only .main-nav-parent,
+body.gopod-chat-only #section-log > h2,
+body.gopod-chat-only #section-log > .small-hr,
+body.gopod-chat-only #section-log .gopod-log-buttons,
+body.gopod-chat-only #section-log #botTranscriptedTextArea { display: none !important; }
+body.gopod-chat-only .gopod-chat-back {
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 6px 0;
+  padding: 4px 10px;
+  font-size: 0.7em;
+}
+body.gopod-chat-only #brobot-chat-bubbles-container.expanded {
+  height: calc(100dvh - 60px);
+  margin: 0;
+}
+
+
+/* The system window's visitors slot (2026-10-24) and a visitor's note in the
+   text field ("Waiting for approval", "Muted"). */
+.system-visitors { display: flex; flex-direction: column; gap: 4px; margin: 4px 0; }
+.system-visitors-on { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.system-visitor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 3px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); }
+.system-visitor-meta { opacity: 0.7; }
+.system-visitor .system-visitor-button { width: auto; min-width: 0; margin: 0; padding: 1px 8px; font-size: 1em; }
+.gopod-typed-input .gopod-typed-text.gopod-typed-note::placeholder { color: #ffb347; opacity: 1; }
+
+/* A visitor's typing row (2026-10-24, operator: "visitor page brobots input row *
+   remove 3rd line: | Record? [] | 00:25:46 | 🔇"): two lines - the Brobots, then
+   the text field. Record, the session timer and the speaker are the admin's. */
+body.gopod-visitor .gopod-typed-input .gopod-typed-sep,
+body.gopod-visitor .gopod-typed-input .gopod-record-session,
+body.gopod-visitor .gopod-typed-input .gopod-session-timer,
+body.gopod-visitor .gopod-typed-input .gopod-loop-speaker,
+body.gopod-visitor .gopod-typed-input .gopod-loop-volume { display: none !important; }

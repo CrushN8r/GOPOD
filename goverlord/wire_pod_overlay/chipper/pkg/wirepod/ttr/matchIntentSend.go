@@ -147,10 +147,10 @@ func customIntentHandler(req interface{}, voiceText string, botSerial string) bo
 					var customIntentExec *exec.Cmd
 					if len(args) == 0 {
 						logger.Println("Bot " + botSerial + " Executing: " + c.Exec)
-						customIntentExec = exec.Command(c.Exec)
+						customIntentExec = gopodAsOperator(exec.Command(c.Exec)) // GOPOD 2026-10-24: the operator's home, not root's
 					} else {
 						logger.Println("Bot " + botSerial + " Executing: " + c.Exec + " " + strings.Join(args, " "))
-						customIntentExec = exec.Command(c.Exec, args...)
+						customIntentExec = gopodAsOperator(exec.Command(c.Exec, args...)) // GOPOD 2026-10-24
 					}
 					var out bytes.Buffer
 					var stderr bytes.Buffer

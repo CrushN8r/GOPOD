@@ -37,7 +37,10 @@ type gopodPronunciationEntry struct {
 	// ("chocoyum" -> "chalkyum"); Except: whole words it leaves alone.
 	WordStart bool     `json:"word_start"`
 	Except    []string `json:"except"`
-	pattern   *regexp.Regexp
+	// Strike (2026-10-23, operator: "for listed expletives, can you use
+	// strikethrough characters?"): shown struck through in the chat; said as To.
+	Strike  bool `json:"strike"`
+	pattern *regexp.Regexp
 }
 
 var gopodPronunciationBlockPattern = regexp.MustCompile("(?s)```json SPEECH_PRONUNCIATION_REGISTRY_001[ \\t]*\\r?\\n(.*?)\\n```")
@@ -235,6 +238,33 @@ func gopodSplitMergedWords(text string) string {
 
 // gopodReplaceWholeWords applies a from/to list (already sorted longest first)
 // to whole-word matches only; shared by the pronunciation and name-spelling lists.
+// gopodStrikeExpletives: every listed expletive (strike) shown struck through -
+// each letter followed by a combining long stroke (U+0336), whole words only.
+func gopodStrikeExpletives(text string) string {
+	for _, e := range loadedGOPODPronunciations {
+		if !e.Strike {
+			continue
+		}
+		var b strings.Builder
+		last := 0
+		for _, m := range e.pattern.FindAllStringIndex(text, -1) {
+			before, after := []rune(text[:m[0]]), []rune(text[m[1]:])
+			if (len(before) > 0 && gopodIsWordRune(before[len(before)-1])) || (len(after) > 0 && (gopodIsWordRune(after[0]) || after[0] == '\u0336')) {
+				continue
+			}
+			b.WriteString(text[last:m[0]])
+			for _, r := range text[m[0]:m[1]] {
+				b.WriteRune(r)
+				b.WriteRune('\u0336')
+			}
+			last = m[1]
+		}
+		b.WriteString(text[last:])
+		text = b.String()
+	}
+	return text
+}
+
 func gopodReplaceWholeWords(text string, list []gopodPronunciationEntry) string {
 	for _, e := range list {
 		var b strings.Builder

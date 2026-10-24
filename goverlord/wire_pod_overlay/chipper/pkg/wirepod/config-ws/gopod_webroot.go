@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
@@ -32,6 +33,14 @@ func gopodWebRoot(native string) http.Handler {
 		if info, err := os.Stat(filepath.Join(overlay, filepath.FromSlash(name))); err == nil && !info.IsDir() {
 			overlayFS.ServeHTTP(w, r)
 			return
+		}
+		// 2026-10-23: a folder's own page ("/sdkapp/" -> sdkapp/index.html),
+		// when the overlay has one - GOPOD's copy of Bot Settings.
+		if strings.HasSuffix(r.URL.Path, "/") {
+			if info, err := os.Stat(filepath.Join(overlay, filepath.FromSlash(name), "index.html")); err == nil && !info.IsDir() {
+				overlayFS.ServeHTTP(w, r)
+				return
+			}
 		}
 		nativeFS.ServeHTTP(w, r)
 	})

@@ -362,7 +362,9 @@
     "speaking_max_ms_about": "2026-10-18 (operator: \"Fix the leak. Fix all leaks.\"): a line still lit after this long (a robot that froze, a lost end signal) no longer holds the next bubble back.",
     "speaking_max_ms": 30000,
     "voice_ready_max_ms_about": "2026-10-23: the longest a shown line's voice waits for its length and word times before it plays anyway.",
-    "voice_ready_max_ms": 3000
+    "voice_ready_max_ms": 3000,
+    "typed_text_min_px_about": "2026-10-23 (operator: \"New responsive Brobots-Input-Row single line can adjust to 3 lines\"): the narrowest the text field may get on one line; narrower, the row takes three lines.",
+    "typed_text_min_px": 200
   },
   "managers": {
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
@@ -484,7 +486,11 @@
   "page_sync": {
     "about": "Step 3, the engine conducts (operator 2026-10-18: \"Finish Step 3\"; the plan: \"Wire-Pod decides order and timing. The page shows what it's told and answers shown, played and heard ... terminal and page run the same show, line for line\"). reply_wait_seconds: a Brobot's reply goes on the feed, then he waits up to this long for the page to show his bubble before he speaks, so he never talks over a line the page is still playing (a page that's away isn't waited for; GOPOD_SYNC lines say when he waited or the page was behind). held_log_seconds: a line the page held longer than this before showing it (the bubble above, a countdown, the warm-up) is written to the journal (GOPOD_PAGE held). gopod_page_sync.go.",
     "reply_wait_seconds": 10,
-    "held_log_seconds": 3
+    "held_log_seconds": 3,
+    "main_lease_seconds_about": "2026-10-23 (C1, one page owns the show): the main page plays the sound and its reports time the run; every other page is a silent viewer. Gone longer than this (s), the next page that can play takes over.",
+    "main_lease_seconds": 12,
+    "viewer_catch_up_events_about": "2026-10-23 (operator: \"timing between the phone & pc appear to be in sync then fall out of sync\"): a viewer more than this many lines behind the main page catches up - scrolls at once, no waits, its voices passed - until it's back in step.",
+    "viewer_catch_up_events": 2
   },
   "chat_audio": {
     "about": "2026-10-14 (operator: \"Rule: Please make all chat bubble audio default to volume variable to play at 10% volume * the background loop volume variable is set to play at 5% * all chat bubbles, system bubbles, reporter/narrator bubbles, brobots' chat bubbles, etc... * song sequences as well * Later, I may want to edit other play volumes as well\"): every sound the chat page plays - voices, stings, a song's sounds and soundtrack, the weather sounds - plays at volume (0-1). 2026-10-14 (operator: \"increase default volume from 10% to 35%\"): 0.35. A sound's own volume (a sting's here, a song step's \"volume\") is its share of it: 1 = this volume, 0.8 = 80% of it. The background loop keeps its own volume (background_loop). The page reads it on F5.",
@@ -909,6 +915,17 @@
   "brother_repeat": {
     "about": "2026-10-23 (template sweep): words that carry no meaning of their own - a follow-up sentence made only of these and his brother's words is a repeat, dropped.",
     "plain_words": ["a", "an", "the", "and", "or", "but", "so", "of", "in", "on", "at", "to", "for", "with", "from", "by", "as", "is", "are", "was", "were", "be", "been", "it", "its", "it's", "this", "that", "these", "those", "there", "here", "i", "i'm", "me", "my", "you", "your", "you're", "we", "our", "us", "he", "his", "him", "she", "her", "they", "them", "their", "what", "who", "how", "yeah", "yes", "no", "not", "just", "like", "really", "very", "too", "also", "oh", "hey", "bro", "bros", "dude", "man", "ha", "haha", "lol", "well", "now", "then", "all", "some", "any", "can", "do", "does", "did", "got", "get", "gonna", "wanna", "about", "up", "out", "if"]
+  },
+  "visitors": {
+    "about": "2026-10-24 (operator: \"set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat participant gathering * initially visitor chat participation is OFF\"): the admin is GOPOD's own machine or a device in admin_addresses_file (private, outside the repo: one address a line); everyone else is a visitor, one per device. A visitor's first line is their username request (first come, first served; taken: name1, name2); lines after it are dropped until the admin approves it in the system window (Local network visitors). participation (starts OFF) and each approved visitor's box (unticked = muted) let their lines through, under their username. A dropped line tells them waiting_text or muted_text. A visitor never runs the show (commands dropped). seen_seconds: a nameless visitor stays listed this long after their page last reported in. name_max: the longest username.",
+    "participation": false,
+    "admin_addresses_file": "~/.gopod_admin_addresses",
+    "profiles_file_about": "2026-10-24 (operator: \"Save the visitor profile in case of a disconnect reconnect, like the brobot reboot recovery thing\"): each visitor's username, approval and mute box, kept here (private, outside the repo) and back after a dropped connection or a restart - by the phone's own browser ID, so a new network address is still the same visitor.",
+    "profiles_file": "~/.gopod_visitors.json",
+    "seen_seconds": 30,
+    "name_max": 20,
+    "waiting_text": "Waiting for approval",
+    "muted_text": "Muted"
   },
   "session_memory": {
     "about": "2026-10-23 (template sweep): how each earlier exchange is told to the Brobots ({who} {asked} {answered}; scenario {scenario}); empty_text when a line has no words left.",

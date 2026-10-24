@@ -34,6 +34,11 @@ func GopodTypedInput(esn, text string) error {
 	return gopodOperatorLine(esn, text, "Typed text")
 }
 
+// GopodVisitorTypedInput: an approved visitor's line, under their username.
+func GopodVisitorTypedInput(esn, text, how string) error {
+	return gopodOperatorLine(esn, text, how)
+}
+
 // GopodVoiceCommandInput: a line a voice command's script hands over (start
 // interview, stop run, GOPOD Yourself) - the robot heard it, so the page already
 // shows it as the operator's line and no second one is added.
@@ -431,7 +436,7 @@ func gopodRunTypedCommand(esn, text string) bool {
 			}
 			logger.Println("Bot " + esn + " Custom Intent Matched (typed): " + c.Name)
 			logger.Println("Bot " + esn + " Executing: " + c.Exec + " " + strings.Join(args, " "))
-			cmd := exec.Command(c.Exec, args...)
+			cmd := gopodAsOperator(exec.Command(c.Exec, args...))
 			var out bytes.Buffer
 			cmd.Stdout, cmd.Stderr = &out, &out
 			go func() {

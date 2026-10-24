@@ -446,7 +446,7 @@ func gopodSystemPhotos(text string) string {
 // WIRED-POD.md, gopod_notes/WIREPOD_PAGES_ABSORB_SURVEY_001.md).
 func gopodSystemVersion() string {
 	git := func(args ...string) string {
-		cmd := exec.Command("git", append([]string{"-c", "safe.directory=*", "-C", gopodHomePath("~/wire-pod")}, args...)...)
+		cmd := gopodAsOperator(exec.Command("git", append([]string{"-c", "safe.directory=*", "-C", gopodHomePath("~/wire-pod")}, args...)...))
 		out, _ := cmd.Output()
 		return strings.TrimSpace(string(out))
 	}
