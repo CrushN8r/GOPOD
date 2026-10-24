@@ -1303,15 +1303,6 @@
         if (target > container.scrollTop + 4) { scrollChatTo(target); }
       }
 
-      // 2026-09-28: the operator's words come from the /api/get_logs lines
-      // Wire-Pod already writes ("<time>: Intent matched: ..., transcribed text:
-      // '<words>', device: ..."), and Wire-Pod's own chat replies from its
-      // timestamped "LLM response for" lines - both carry a time, so each is shown
-      // once. Song/tool lines come from the numbered feed (pollFeed, 2026-09-30).
-      // ":" then an optional space - the log page trims a line, so a reply that
-      // starts on the next line leaves "LLM response for <ESN>:" with no space
-      // (live 2026-10-01 15:54, no bubble).
-      var KG_REPLY_RE = /^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}): LLM response for (\S+?):\s?([\s\S]*)$/;
       // The animation marker and the prompt's placeholder word come from
       // gopod_brobots_settings.json, the same file Wire-Pod reads (2026-10-01,
       // operator: one source of truth). Until it loads, nothing is stripped.
@@ -1954,14 +1945,11 @@
       // segmented with chapters"): a chapter title, in a system bubble
       // (interview_chapters in the settings file, gopod_interview_chapters.go).
       var chapterRole = "Chapter", chapterLabel = "Chapter: {title}";
-      function showChapter(title) {
+      // 2026-10-24 (the root-to-leaf pass, link 3): on the raw bubble template and
+      // placed the one way (placeBubble) - the next line waits for it (then).
+      function showChapter(title, then) {
         if (!restoringChat) { recordBubble(chapterRole, String(title), "chapter"); }
-        var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status chapter";
-        bubble.appendChild(systemHead(chapterLabel.replace("{title}", String(title))));
-        container.appendChild(bubble);
-        if (restoringChat) { return; }
-        revealWhenPlaced(bubble);
+        placeBubble(rawBubble({ kind: "chapter", classes: "operator system-status chapter", head: systemHead(chapterLabel.replace("{title}", String(title))) }), then);
       }
       // 2026-10-06 (operator: "Yes, please build this way, with score bubble"):
       // the session's value-point score at "Thanks Brobots", in a Goverlord
@@ -3476,10 +3464,12 @@
               }
             }
             if (feed.boot && feed.boot !== playedBoot) { playedBoot = feed.boot; playedId = 0; playedSent = 0; }
+            // A viewer plays none of it (the display mirror) - nothing queued.
+            if (pageRoleKnown && !isMainPage) { return; }
             feed.events.forEach(function (e) {
               var key = "feed|" + feed.boot + "|" + e.id;
               if (isSeen(key) || feedQueued[key] || !e.who || !e.text) { return; }
-              queueBubble(key, e.time_ms || Date.now(), null, e);
+              queueBubble(key, e);
             });
             runFeedQueue();
           })
@@ -3676,28 +3666,22 @@
           (!log || log.style.display !== "none") && container.offsetParent !== null &&
           container.classList.contains("expanded");
       }
-      // 2026-10-07 (operator: "one bubble must complete before the next
-      // appears"): the Brobots' replies from the log join this same line, in time
-      // order - before, they skipped it, and showed ahead of the questions and
-      // reporter lines still waiting (a dead speaker, or the tab away).
-      function queueBubble(key, timeMs, run, e) {
+      // GOLDEN, the feed is the one line (2026-10-24, the root-to-leaf pass, link 2):
+      // everything the page shows comes from Wire-Pod's numbered feed, played in its
+      // own numbers' order (2026-10-07: "one bubble must complete before the next
+      // appears"; the old time order merged lines read from Wire-Pod's log, which
+      // the page no longer reads).
+      function queueBubble(key, e) {
         feedQueued[key] = true;
-        var item = { key: key, timeMs: timeMs, run: run, e: e, at: Date.now() };
+        var item = { key: key, e: e, at: Date.now() };
         var at = feedQueue.length;
-        while (at > 0 && feedQueue[at - 1].timeMs > timeMs) { at--; }
+        while (at > 0 && feedQueue[at - 1].e.id > e.id) { at--; }
         feedQueue.splice(at, 0, item);
         // 2026-10-23 (operator: "audio files don't appear to be pre-loading for
         // instant playability upon bubble display"): every voice starts loading
         // the moment it reaches the page, not when its turn comes.
         if (isMainPage && item.e && isVoiceEvent(item.e) && !restoringChat && !stingFiles[String(item.e.text).replace(/#vol=[0-9.]+$/, "").split("/").pop()]) { voiceAudio(item.e.text); }
         runFeedQueue();
-      }
-      // A log line's time ("2026.10.07 20:17:19"), at the end of its second, so
-      // it lines up after a feed line from the same second.
-      function logTimeMs(stamp) {
-        var m = String(stamp).match(/^(\d{4})\.(\d{2})\.(\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
-        if (!m) { return Date.now(); }
-        return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() + 999;
       }
       function runFeedQueue() {
         // Only the main page runs the chat; every other page only shows what the
@@ -3717,7 +3701,6 @@
           feedRunning = false;
           runFeedQueue();
         };
-        if (item.run) { item.run(); next(); return; }
         // 2026-10-12: the voice right behind this line loads with its bubble.
         nextBubbleVoice = !isVoiceEvent(item.e) && feedQueue.length && isVoiceEvent(feedQueue[0].e) ? voiceAudio(feedQueue[0].e.text) : null;
         showFeedEvent(item.e, next);
@@ -3794,6 +3777,7 @@
         isMainPage = main;
         pageRoleKnown = true;
         if (!changed) { return; }
+        if (!main) { feedQueue = []; feedQueued = {}; } // a viewer plays none of the feed
         backgroundLoop.setVolume(backgroundLoop.volume());
         var body = new URLSearchParams();
         body.set("note", "page " + pageId + (main ? " is the main page (plays the sound)" : " is a viewer (silent)"));
@@ -4367,7 +4351,7 @@
           else { showCountdown(parseInt(e.text, 10), e.time_ms); }
         }
         else if (e.who === ballRole) { showBingoBall(e.text); }
-        else if (e.who === chapterRole) { showChapter(e.text); }
+        else if (e.who === chapterRole) { showChapter(e.text, done); return; }
         else if (e.who === scoreRole) { showScore(e.text, undefined, done); return; }
         // 2026-10-13 (operator: "all system messages out = \"Goverlord: GOPOD
         // Brain\" * \"Reporter 0\" is a decoration label"): one header for them all.
@@ -4858,15 +4842,10 @@
           systemMenuResult(text, "answer");
           return { bubble: null, textEl: null, set: function (t) { systemMenuResult(t, "answer"); }, done: function () {} };
         }
-        var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status";
-        bubble.appendChild(numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel));
-        var textEl = document.createElement("span");
-        textEl.className = "brobot-bubble-text";
-        textEl.textContent = text;
-        bubble.appendChild(textEl);
-        container.appendChild(bubble);
-        revealWhenPlaced(bubble);
+        // 2026-10-24 (link 3): the raw bubble template, placed the one way.
+        var bubble = rawBubble({ kind: "status", classes: "operator system-status", head: numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel), text: text });
+        var textEl = bubble.querySelector(".brobot-bubble-text");
+        placeBubble(bubble);
         // 2026-10-14 (operator: "When I key press I get the correct messages to
         // record & transcribe, etc.. * can you leave those in the chat window? (no
         // audio)"): each new message is added on its own line under the last, and

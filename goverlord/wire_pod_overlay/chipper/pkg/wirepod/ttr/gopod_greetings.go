@@ -54,24 +54,6 @@ func gopodGreetingLine(esn, text string, now time.Time) string {
 	return strings.TrimSpace(strings.NewReplacer("{said}", said, "{part}", part, "{time}", gopodClockFor(esn, now)).Replace(tmpl))
 }
 
-// gopodHeardLine (2026-10-24, live: "Backpack to Brobot N / good afternoon"
-// showed under his answer - the page read the heard line from Wire-Pod's log,
-// written only once the answer was ready): a line a Brobot heard himself
-// (backpack, Hey Vector) goes in the chat the moment it's heard - the Operator's
-// bubble, "[Backpack]", to the Brobot it names first, else to him - in the
-// feed's order, before anything answers it. The one source, like a typed line.
-func gopodHeardLine(esn, text string) {
-	text = strings.TrimSpace(text)
-	if esn == "" || text == "" {
-		return
-	}
-	to := gopodFirstNamed(text)
-	if to == "" {
-		to = gopodBrobotName(esn)
-	}
-	gopodChatFeedAddOperator(to, text, gopodOperatorVia(gopodVoiceCommandHow))
-}
-
 // gopodClockFor: the time as this Brobot's own clock says it (his 12/24-hour
 // setting, the weather line's way): "10:19 AM", or "1019 Hours Military Time".
 func gopodClockFor(esn string, t time.Time) string {

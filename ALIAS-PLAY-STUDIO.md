@@ -1911,6 +1911,26 @@ plays as its bubble shows. Listed expletives (`"strike": true` in the Brobots li
 struck through in every chat line (`gopodStrikeExpletives`, one place: the feed), said as their
 substitute. Locked by `TestStrikeAndPlacingHold`.
 
+**Root-to-leaf pass, link 1: the way in** (2026-10-24, `gopod_operator_line.go`; operator: "typed,
+mic, numpad, backpack and visitor lines all enter as one Operator line template"): every Operator
+line - typed, numpad (its mic recording), visitor, command, system-set, a manager's, Record
+Session's answer, GOPOD Yourself - is shown by `gopodOperatorShow` and read out by
+`gopodOperatorRead`; a line a Brobot heard himself is shown once, the moment it's heard
+(`gopodHeardLine`), never again on its way in (was: a backpack "start interview" showed twice).
+Nothing else posts an Operator bubble (`TestOperatorLineTemplate`).
+
+**Root-to-leaf pass, link 2: the feed** (2026-10-24): everything the page shows comes from Wire-Pod's
+numbered feed - one append (`gopodChatFeedAddEventVia`), mirrored to the journal, the newest
+`page_sync.feed_max` (300) lines kept - and the page plays it in its numbers' order (the old time
+order merged lines read from Wire-Pod's log, which the page no longer reads; that code is gone). A
+viewer queues none of it (the display mirror). `TestFeedIsTheOneLine`.
+
+**Root-to-leaf pass, link 3: the bubble** (2026-10-24, in chunks; `gopod_notes/BUBBLE_LIBRARY_001.md`):
+the one way - built by `rawBubble`, placed by `placeBubble` (hidden, pictures loaded, then shown;
+the next feed line waits). 3a: the chapter and status bubbles moved onto it. Next: the Operator
+bubble's turn (3b), countdown / bingo ball / search results (3c), pictures and pop-ups (3d),
+nested parts (3e), narrator (3f). `TestBubbleOneWay`.
+
 **The game sweep** (2026-10-24, `gopod_game_sweep.go`; operator: "Test every: Topic, Value Point,
 Easter Egg * fullest run without live brobots"): `system-test-game` (system menu "9. Test one
 thing", and in system-test-all) - every topic found by its own words, every value point given by

@@ -489,6 +489,8 @@
     "held_log_seconds": 3,
     "main_lease_seconds_about": "2026-10-23 (C1, one page owns the show): the main page plays the sound and its reports time the run; every other page is a silent viewer. Gone longer than this (s), the next page that can play takes over.",
     "main_lease_seconds": 12,
+    "feed_max_about": "2026-10-24 (the root-to-leaf pass, link 2): the chat feed - the one line everything the page shows comes from, numbered - keeps its newest this many lines.",
+    "feed_max": 300,
     "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
     "display_bubbles": 12,
     "display_ms": 150

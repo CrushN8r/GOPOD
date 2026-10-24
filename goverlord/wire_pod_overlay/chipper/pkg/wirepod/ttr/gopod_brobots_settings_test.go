@@ -2135,7 +2135,7 @@ func TestMicVoiceAndVisitorRowHold(t *testing.T) {
 		"pkg/wirepod/ttr/gopod_reporter_voices.go":          {"if gopodMicVoiceSay(host, text) {", "func gopodVoicePlay("},
 		"gopod_probes/tools/gopod_reporter_voice_worker.py": {`if job.get("align"):`},
 		"pkg/wirepod/ttr/kgsim.go":                          {"if streamResult.Fallback {"},
-		"pkg/wirepod/ttr/gopod_record_session.go":           {"gopodReporterReadsOperator(text, how, to)"},
+		"pkg/wirepod/ttr/gopod_record_session.go":           {"gopodOperatorRead(to, text, how)"},
 		"webroot/js/gopod_brobots_chat.js":                  {"function visitorOpenChat() {", "function marqueeTrack(bubble, layer) {", `l.textContent = "";`, `typedSubmit.type = "submit";`},
 		"webroot/css/gopod_responsive.css":                  {"body.gopod-visitor .gopod-typed-input .gopod-typed-submit {", "body.gopod-visitor .brobot-bubble { font-size: 15px; }", ".narrator-single .narrator-stage { aspect-ratio: auto;"},
 	}
@@ -2166,5 +2166,110 @@ func TestGameSweep(t *testing.T) {
 	src, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "pkg/wirepod/ttr/gopod_record_session.go"))
 	if !strings.Contains(string(src), "GopodChatFeedAddLive(esn, text)") || !strings.Contains(string(src), "gopodWaitReplyShown(esn)") {
 		t.Error("the ending's Brobot lines no longer wait for their bubble (not lit)")
+	}
+}
+
+// TestOperatorLineTemplate (2026-10-24, the root-to-leaf pass, link 1; operator:
+// "typed, mic, numpad, backpack and visitor lines all enter as one Operator line
+// template"): an Operator bubble and its read-out come only from the template
+// (gopod_operator_line.go); a heard line is shown once (at hearing), never again
+// on its way in. And the photo Easter egg counts in the game's score.
+func TestOperatorLineTemplate(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	for _, f := range files {
+		base := filepath.Base(f)
+		if strings.HasSuffix(base, "_test.go") || base == "gopod_operator_line.go" {
+			continue
+		}
+		data, _ := os.ReadFile(f)
+		for i, line := range strings.Split(string(data), "\n") {
+			l := strings.TrimSpace(line)
+			if strings.HasPrefix(l, "func ") || strings.HasPrefix(l, "//") {
+				continue
+			}
+			if strings.Contains(l, "gopodChatFeedAddOperator(") || strings.Contains(l, "gopodReporterReadsOperator(") {
+				t.Errorf("%s:%d an Operator line outside the template: %s", base, i+1, l)
+			}
+		}
+	}
+	gopodChatFeed.Lock()
+	before := len(gopodChatFeed.events)
+	gopodChatFeed.Unlock()
+	gopodOperatorShow("Brobot 1", "start interview", gopodVoiceCommandHow)
+	gopodOperatorShow("Brobot 1", "hello", "Typed text")
+	gopodChatFeed.Lock()
+	added := len(gopodChatFeed.events) - before
+	gopodChatFeed.Unlock()
+	if added != 1 {
+		t.Errorf("a heard line shown again on its way in (%d bubbles, want 1)", added)
+	}
+	photo := false
+	for _, e := range gopodEggList() {
+		if e.Key == "photo" {
+			photo = true
+		}
+	}
+	if !photo {
+		t.Error("the photo Easter egg isn't in the game's egg list (the score counts that list)")
+	}
+}
+
+// TestFeedIsTheOneLine (2026-10-24, the root-to-leaf pass, link 2): everything the
+// page shows comes from the numbered feed - one append, played in its numbers'
+// order; the page reads no log; a viewer queues none of it; the cap is a setting.
+func TestFeedIsTheOneLine(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	appends := 0
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		data, _ := os.ReadFile(f)
+		appends += strings.Count(string(data), "gopodChatFeed.events = append(")
+	}
+	if appends != 1 {
+		t.Errorf("the feed is added to in %d places, want 1 (gopodChatFeedAddEventVia)", appends)
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{"feedQueue[at - 1].e.id > e.id", "if (pageRoleKnown && !isMainPage) { return; }"} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	for _, gone := range []string{"KG_REPLY_RE", "logTimeMs", "/api/get_logs\")"} {
+		if strings.Contains(string(page), gone) {
+			t.Errorf("log-era code is back: %s", gone)
+		}
+	}
+	if gopodBrobotsSettings.PageSync.FeedMax <= 0 {
+		t.Error("page_sync.feed_max is not set")
+	}
+}
+
+// TestBubbleOneWay (2026-10-24, the root-to-leaf pass, link 3; BUBBLE_LIBRARY_001.md):
+// bubbles move onto the one template - built by rawBubble, placed by placeBubble,
+// the next feed line waiting. 3a: the chapter and the status bubbles.
+func TestBubbleOneWay(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	for _, want := range []string{
+		`placeBubble(rawBubble({ kind: "chapter"`,
+		`else if (e.who === chapterRole) { showChapter(e.text, done); return; }`,
+		`var bubble = rawBubble({ kind: "status"`,
+	} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
 	}
 }

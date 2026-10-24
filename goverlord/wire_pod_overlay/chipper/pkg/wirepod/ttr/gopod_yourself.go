@@ -65,10 +65,9 @@ func gopodYourselfCommand(esn, text, how string) bool {
 		who, to = []string{"Brobot 1", "Brobot 2"}, "Brobots"
 	}
 	// Spoken, the page already shows what the robot heard (live 15:21: two
-	// operator lines, Brobot 1's bubble between them).
-	if how != gopodVoiceCommandHow {
-		gopodChatFeedAddOperator(to, text, gopodOperatorVia(how))
-	} else {
+	// operator lines, Brobot 1's bubble between them) - gopodOperatorShow.
+	gopodOperatorShow(to, text, how)
+	if how == gopodVoiceCommandHow {
 		gopodSessionLogHeard(to, text)
 	}
 	logger.Println("GOPOD_YOURSELF to " + to)

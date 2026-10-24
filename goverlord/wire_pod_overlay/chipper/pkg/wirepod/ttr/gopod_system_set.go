@@ -83,7 +83,7 @@ func gopodSystemSetLine(esn, text, how string) {
 	if esn == gopodTypedAll {
 		to = "Brobots"
 	}
-	gopodChatFeedAddOperator(to, text, gopodOperatorVia(how))
+	gopodOperatorShow(to, text, how)
 	answer := ""
 	if how != "Typed text" {
 		answer = "system commands work from the chat page's keyboard only."

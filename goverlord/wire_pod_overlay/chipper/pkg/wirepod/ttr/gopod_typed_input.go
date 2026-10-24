@@ -2,12 +2,12 @@
 package wirepod_ttr
 
 import (
-	"sync"
 	"bytes"
 	"errors"
 	"os/exec"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -144,17 +144,17 @@ func gopodOperatorLine(esn, text, how string) error {
 	// 2026-10-07: a new chapter's title before the question, not after it
 	// (gopod_interview_chapters.go; shown once, so the reply doesn't repeat it).
 	gopodShowChapter(gopodSpellNames(text))
-	gopodChatFeedAddOperator(gopodBrobotName(esn), text, gopodOperatorVia(how))
+	gopodOperatorShow(gopodBrobotName(esn), text, how)
 	// 2026-10-10 (operator: "\"start bingo test\" not spoken"): a typed run
 	// command is read out first, then the run starts.
 	if gopodTypedCommandMatch(text) {
 		go func() {
-			gopodReporterReadsOperator(text, how, gopodBrobotName(esn))
+			gopodOperatorRead(gopodBrobotName(esn), text, how)
 			gopodRunTypedCommand(esn, text)
 		}()
 		return nil
 	}
-	if gopodStartNotFound(text, func() { gopodReporterReadsOperator(text, how, gopodBrobotName(esn)) }) {
+	if gopodStartNotFound(text, func() { gopodOperatorRead(gopodBrobotName(esn), text, how) }) {
 		return nil
 	}
 	if gopodRunNativeCube(esn, text) {
@@ -162,7 +162,7 @@ func gopodOperatorLine(esn, text, how string) error {
 	}
 	go func() {
 		// 2026-10-06: the reporter voice reads the line out first (gopod_reporter_voices.go).
-		gopodReporterReadsOperator(text, how, gopodBrobotName(esn))
+		gopodOperatorRead(gopodBrobotName(esn), text, how)
 		// 2026-10-08: the topic's pictures after the question, before the reply.
 		// 2026-10-13 (operator: "live pop up started before \"granny\" voice file
 		// was generated"): once the question has been read out.
@@ -181,15 +181,15 @@ const gopodTypedAllGap = 100 * time.Millisecond
 func gopodTypedInputAll(text, how string) error {
 	logger.Println("Bot " + gopodBrobot1ESN + " " + how + " (all): " + text)
 	gopodShowChapter(gopodSpellNames(text))
-	gopodChatFeedAddOperator("Brobots", text, gopodOperatorVia(how))
+	gopodOperatorShow("Brobots", text, how)
 	if gopodTypedCommandMatch(text) {
 		go func() {
-			gopodReporterReadsOperator(text, how, "Brobots")
+			gopodOperatorRead("Brobots", text, how)
 			gopodRunTypedCommand(gopodBrobot1ESN, text)
 		}()
 		return nil
 	}
-	if gopodStartNotFound(text, func() { gopodReporterReadsOperator(text, how, "Brobots") }) {
+	if gopodStartNotFound(text, func() { gopodOperatorRead("Brobots", text, how) }) {
 		return nil
 	}
 	if gopodRunTypedCommand(gopodBrobot1ESN, text) {
@@ -204,7 +204,7 @@ func gopodTypedInputAll(text, how string) error {
 	// 2026-10-06: the reporter voice reads the line out once, before both answer.
 	read := make(chan struct{})
 	go func() {
-		gopodReporterReadsOperator(text, how, "Brobots")
+		gopodOperatorRead("Brobots", text, how)
 		// 2026-10-13: the pictures once the question has been read out;
 		// the Brobot answering first carries the pop-up.
 		gopodShowTopicPictures(gopodAllFirst(text), text)
@@ -361,8 +361,8 @@ func gopodShowCommandLine(esn, text, how string) {
 	if esn == gopodTypedAll {
 		to = "Brobots"
 	}
-	gopodChatFeedAddOperator(to, text, gopodOperatorVia(how))
-	gopodReporterReadsOperator(text, how, to) // made if new, then heard
+	gopodOperatorShow(to, text, how)
+	gopodOperatorRead(to, text, how) // made if new, then heard
 }
 
 // gopodStartNotFound (2026-10-10, operator: "start [anything else] = not

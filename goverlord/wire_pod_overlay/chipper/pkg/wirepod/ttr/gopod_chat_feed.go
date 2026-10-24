@@ -23,7 +23,13 @@ import (
 // rename), the same way gopod_speaking_now.json works. The UI log line itself
 // is unchanged.
 
-const gopodChatFeedMax = 300
+// gopodChatFeedMax: the feed keeps its newest page_sync.feed_max lines (300 when unset).
+func gopodChatFeedMax() int {
+	if n := gopodBrobotsSettings.PageSync.FeedMax; n > 0 {
+		return n
+	}
+	return 300
+}
 
 var gopodChatFeedPath = gopodPathWithEnvOverride("GOPOD_CHAT_FEED_PATH", "webroot/gopod_chat_feed.json")
 
@@ -256,8 +262,8 @@ func gopodChatFeedAddEventVia(who, to, by, via, text string) {
 	}
 	defer gopodChatFeed.Unlock()
 	gopodChatFeed.events = append(gopodChatFeed.events, event)
-	if len(gopodChatFeed.events) > gopodChatFeedMax {
-		gopodChatFeed.events = gopodChatFeed.events[len(gopodChatFeed.events)-gopodChatFeedMax:]
+	if max := gopodChatFeedMax(); len(gopodChatFeed.events) > max {
+		gopodChatFeed.events = gopodChatFeed.events[len(gopodChatFeed.events)-max:]
 	}
 	gopodWriteChatFeedLocked()
 }

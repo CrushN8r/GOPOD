@@ -523,6 +523,7 @@ type gopodBrobotsSettingsFile struct {
 		ReplyWaitSeconds float64 `json:"reply_wait_seconds"`
 		HeldLogSeconds   float64 `json:"held_log_seconds"`
 		MainLeaseSeconds float64 `json:"main_lease_seconds"`
+		FeedMax          int     `json:"feed_max"`
 	} `json:"page_sync"`
 	ChatAudio struct {
 		Volume       float64 `json:"volume"`

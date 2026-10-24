@@ -106,10 +106,10 @@ func gopodPersonaMessages(host, text string) []map[string]string {
 
 // gopodPersonaReply: the operator's line to a persona, and its answer.
 func gopodPersonaReply(host, text, how string) {
-	gopodChatFeedAddOperator(host, text, gopodOperatorVia(how))
+	gopodOperatorShow(host, text, how)
 	// 2026-10-18 (operator: "KP7 to CHALK ... ["Generating..." + hourglass]/
 	// [transcription]"): read in the Operator voice, like a line to the Brobots.
-	gopodReporterReadsOperator(text, how, host)
+	gopodOperatorRead(host, text, how)
 	// 2026-10-21: the gomad_persona answer chain (gopod_answer_chain.go) - the
 	// who line, a manager's take, the persona's answer, in its order.
 	gopodGomadAnswer(host, text)

@@ -8,7 +8,7 @@ import (
 )
 
 // Every chat-page line gets its own number, even the same words twice, and
-// the feed keeps only its newest gopodChatFeedMax lines.
+// the feed keeps only its newest gopodChatFeedMax() lines.
 func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 	savedPath := gopodChatFeedPath
 	defer func() { gopodChatFeedPath = savedPath }()
@@ -37,7 +37,7 @@ func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 	if len(bingo) != 2 || bingo[0] == bingo[1] {
 		t.Fatalf("the repeated line: ids %v", bingo)
 	}
-	for i := 0; i < gopodChatFeedMax; i++ {
+	for i := 0; i < gopodChatFeedMax(); i++ {
 		GopodChatFeedAdd("Brobot 2", "filler")
 	}
 	data, err := os.ReadFile(gopodChatFeedPath)
@@ -51,7 +51,7 @@ func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 	if err := json.Unmarshal(data, &feed); err != nil {
 		t.Fatal(err)
 	}
-	if feed.Boot == 0 || len(feed.Events) != gopodChatFeedMax {
+	if feed.Boot == 0 || len(feed.Events) != gopodChatFeedMax() {
 		t.Fatalf("boot=%d events=%d", feed.Boot, len(feed.Events))
 	}
 	for i := 1; i < len(feed.Events); i++ {
@@ -59,7 +59,7 @@ func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 			t.Fatalf("ids not rising: %d then %d", feed.Events[i-1].ID, feed.Events[i].ID)
 		}
 	}
-	if last := feed.Events[len(feed.Events)-1]; last.ID < gopodChatFeedMax+2 {
-		t.Fatalf("last id = %d, want at least %d", last.ID, gopodChatFeedMax+2)
+	if last := feed.Events[len(feed.Events)-1]; last.ID < gopodChatFeedMax()+2 {
+		t.Fatalf("last id = %d, want at least %d", last.ID, gopodChatFeedMax()+2)
 	}
 }

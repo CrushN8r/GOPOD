@@ -506,9 +506,9 @@ func GopodRecordSessionAnswer(text, how string) bool {
 		go gopodRecordDecide(kind == "keep", "answer")
 		return true
 	}
-	gopodChatFeedAddOperator(to, text, gopodOperatorVia(how))
+	gopodOperatorShow(to, text, how)
 	go func() {
-		gopodReporterReadsOperator(text, how, to) // read out (and lit) first
+		gopodOperatorRead(to, text, how) // read out (and lit) first
 		gopodRecordDecide(kind == "keep", "answer")
 	}()
 	return true
