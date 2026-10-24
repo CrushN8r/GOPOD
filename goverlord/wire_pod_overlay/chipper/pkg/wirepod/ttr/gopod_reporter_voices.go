@@ -849,7 +849,7 @@ func gopodSystemLines() []string {
 	}
 	// 2026-10-11: the session's run lines, each run by name, ready before a run starts.
 	rs := s.RecordSession
-	lines = append(lines, rs.KeptText, rs.DeletedText, rs.KeptText+" "+s.SignOff.WelcomeText, rs.DeletedText+" "+s.SignOff.WelcomeText)
+	lines = append(lines, rs.KeptText, rs.DeletedText, rs.KeptText+" "+s.SignOff.WelcomeText, rs.DeletedText+" "+s.SignOff.WelcomeText, strings.TrimSpace(s.SignOff.NothingRecordedText+" "+s.SignOff.WelcomeText))
 	// 2026-10-14: the numpad's spoken on/off lines (the page fills in {how}).
 	// 2026-10-19: Native? and Numpad? are system commands now (answered in the
 	// terminal bubble, not said); 3x NumLock / 000 still says the numpad's exit.

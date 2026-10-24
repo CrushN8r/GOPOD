@@ -244,9 +244,15 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 		gopodPhotoLast.Unlock()
 	}()
 	if page != "" {
-		// 2026-10-17 (operator: "no longer easter eggs: Weather, Get Photo"):
-		// the pictures show in their own picture bubble, no egg.
-		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, pictures)
+		// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
+		// make it an easter egg please"): the first photo of a session (live chat)
+		// is the "photo" Easter egg - Goverlord's congratulations, the photo the
+		// prize; after that, the pictures in their own picture bubble.
+		if name := strings.TrimSpace(p.EggName); name != "" && !gopodNotEgg("photo") && !gopodScriptPlaying.Load() && !gopodRunActive() && gopodPopupAllowed("photo") {
+			gopodShowEgg(gopodBrobotName(esn), name, pictures)
+		} else {
+			GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, pictures)
+		}
 	}
 	first := strings.TrimSpace(p.QuickNoneText)
 	if list := gopodQuickLookList(objects); list != "" {

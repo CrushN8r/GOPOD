@@ -2148,3 +2148,23 @@ func TestMicVoiceAndVisitorRowHold(t *testing.T) {
 		}
 	}
 }
+
+// TestGameSweep (2026-10-24, operator: "Test every: Topic, Value Point, Easter
+// Egg"): every topic found by its words, every value point picked by its own
+// question, every Easter egg reachable - on every deploy (system-test-game live).
+func TestGameSweep(t *testing.T) {
+	if os.Getenv("GOPOD_OVERLAY_CHIPPER") == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	defer gopodAllPointsForTest()()
+	t.Setenv("GOPOD_SESSION_DIR", t.TempDir()) // a fresh chat memory, as at a start
+	ok, line := gopodGameSweepLine(gopodGameSweep())
+	t.Log("GAME_SWEEP " + line)
+	if !ok {
+		t.Error(line)
+	}
+	src, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "pkg/wirepod/ttr/gopod_record_session.go"))
+	if !strings.Contains(string(src), "GopodChatFeedAddLive(esn, text)") || !strings.Contains(string(src), "gopodWaitReplyShown(esn)") {
+		t.Error("the ending's Brobot lines no longer wait for their bubble (not lit)")
+	}
+}

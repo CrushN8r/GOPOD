@@ -125,6 +125,11 @@ var gopodSystemTests = []gopodSystemTest{
 		}
 		return true, fmt.Sprintf("%d eggs on the list", len(list))
 	}},
+	// 2026-10-24 (operator: "Test every: Topic, Value Point, Easter Egg * fullest run
+	// without live brobots"): gopod_game_sweep.go.
+	{"game", "every topic, value point and Easter egg is found by its own words (no robots, no model)", func() (bool, string) {
+		return gopodGameSweepLine(gopodGameSweep())
+	}},
 	{"llm", "the language model answers (Ollama has the model)", func() (bool, string) {
 		k := vars.APIConfig.Knowledge
 		if k.Endpoint == "" || k.Model == "" {
@@ -207,7 +212,11 @@ var gopodSystemTests = []gopodSystemTest{
 		if !ready {
 			return false, "the worker isn't ready - system-tpu restart"
 		}
-		src := filepath.Join(gopodChipperRoot(), "webroot", "pictures", "doc_pip_workbook.jpg")
+		// 2026-10-24 (operator: "PASS tpu: 1 objects: laptop * laptop?" - the
+		// workbook photo, named a laptop): a known picture and what must be in it
+		// (system_tests.tpu) - PASS only when the TPU names it.
+		tt := gopodBrobotsSettings.SystemTests.Tpu
+		src := filepath.Join(gopodChipperRoot(), "webroot", "pictures", tt.Picture)
 		dst := filepath.Join(gopodVisualDir(), "tpu_test.jpg")
 		os.MkdirAll(gopodVisualDir(), 0o755)
 		data, err := os.ReadFile(src)
@@ -218,7 +227,13 @@ var gopodSystemTests = []gopodSystemTest{
 		if err != nil {
 			return false, err.Error()
 		}
-		return true, fmt.Sprintf("%d objects: %s", len(objects), strings.Join(objects, ", "))
+		saw := fmt.Sprintf("%d objects: %s", len(objects), strings.Join(objects, ", "))
+		for _, o := range objects {
+			if strings.EqualFold(strings.TrimSpace(o), tt.Expect) {
+				return true, saw + " (" + tt.Picture + ": " + tt.Expect + " expected)"
+			}
+		}
+		return false, saw + " - " + tt.Picture + " should show a " + tt.Expect
 	}},
 	{"robots", "both Brobots answered the battery watch in the last 10 minutes", func() (bool, string) {
 		gopodBatteryLast.Lock()

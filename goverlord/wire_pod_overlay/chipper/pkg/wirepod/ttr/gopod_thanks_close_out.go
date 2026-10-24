@@ -167,6 +167,10 @@ func gopodYoureWelcome() {
 	text := so.WelcomeText
 	if confirm, _ := gopodRecordConfirm.Swap("").(string); confirm != "" {
 		text = confirm + " " + text
+	} else if nothing := strings.TrimSpace(so.NothingRecordedText); nothing != "" {
+		// 2026-10-24 (operator: "Yes, a line like \"Nothing recorded. You're
+		// welcome.\""): nothing was recorded this session.
+		text = nothing + " " + text
 	}
 	// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
 	gopodReporterSay(so.SystemRole, text, true, true)

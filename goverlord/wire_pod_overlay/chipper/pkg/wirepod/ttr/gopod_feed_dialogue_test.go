@@ -177,6 +177,7 @@ func TestChapterEggs(t *testing.T) {
 	list := gopodEggList()
 	chapters := 0
 	roast := false
+	photo := false
 	for _, e := range list {
 		if strings.HasPrefix(e.Key, "chapter:") {
 			chapters++
@@ -184,9 +185,17 @@ func TestChapterEggs(t *testing.T) {
 		if e.Key == "roast_battle" {
 			roast = true // a surprise egg: never listed
 		}
-		if e.Key == "weather" || e.Key == "photo" || e.Key == "halloween" || gopodNotEgg(e.Key) {
+		// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
+		// make it an easter egg please"): the photo is an egg again.
+		if e.Key == "photo" {
+			photo = true
+		}
+		if e.Key == "weather" || e.Key == "halloween" || gopodNotEgg(e.Key) {
 			t.Errorf("%s is no longer an egg", e.Key)
 		}
+	}
+	if !photo {
+		t.Error("the photo is an Easter egg (Get Photo)")
 	}
 	// 2026-10-22 (operator: "fewer easter eggs"): with eggs_keep, its chapters only.
 	wantChapters := len(gopodBrobotsSettings.InterviewChapters.Chapters) - len(gopodBrobotsSettings.TopicPictures.NotEggs)

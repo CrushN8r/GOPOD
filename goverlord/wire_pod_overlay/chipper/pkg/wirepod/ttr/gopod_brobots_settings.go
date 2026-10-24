@@ -233,6 +233,10 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-18: system-test-all's order (gopod_system_tests.go).
 	SystemTests struct {
 		Audit []string `json:"audit"`
+		Tpu   struct {
+			Picture string `json:"picture"`
+			Expect  string `json:"expect"`
+		} `json:"tpu"`
 		Audio struct {
 			Sink      string `json:"sink"`
 			SourceHas string `json:"source_has"`
@@ -606,11 +610,12 @@ type gopodBrobotsSettingsFile struct {
 			Who  string `json:"who"`
 			Text string `json:"text"`
 		} `json:"lines"`
-		SystemRole      string  `json:"system_role"`
-		SystemText      string  `json:"system_text"`
-		StartedText     string  `json:"started_text"`
-		WelcomeText     string  `json:"welcome_text"`
-		SafeSpotSeconds float64 `json:"safe_spot_seconds"`
+		SystemRole          string  `json:"system_role"`
+		SystemText          string  `json:"system_text"`
+		StartedText         string  `json:"started_text"`
+		WelcomeText         string  `json:"welcome_text"`
+		NothingRecordedText string  `json:"nothing_recorded_text"`
+		SafeSpotSeconds     float64 `json:"safe_spot_seconds"`
 	} `json:"sign_off"`
 	SoundsOn       string   `json:"sounds_on"`
 	PageSoundFiles []string `json:"page_sound_files"`

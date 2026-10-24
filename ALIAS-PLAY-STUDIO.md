@@ -1911,6 +1911,22 @@ plays as its bubble shows. Listed expletives (`"strike": true` in the Brobots li
 struck through in every chat line (`gopodStrikeExpletives`, one place: the feed), said as their
 substitute. Locked by `TestStrikeAndPlacingHold`.
 
+**The game sweep** (2026-10-24, `gopod_game_sweep.go`; operator: "Test every: Topic, Value Point,
+Easter Egg * fullest run without live brobots"): `system-test-game` (system menu "9. Test one
+thing", and in system-test-all) - every topic found by its own words, every value point given by
+its own golden question through the real pipeline (each topic's questions in order, the live score
+put back after), every Easter egg reachable, the surprise ones counted the score's way. No robots,
+no model. Runs on every deploy (`TestGameSweep`: 46 topics, 56 points, 4 eggs). The thanks
+ending's Brobot lines (and Record Session's question) post like an answer's bubble and wait for
+it to show before he speaks, so they light as said. A live run without the operator:
+`gopod_probes/tools/gopod_dry_run_001.py` (types a session, checks order and the log, writes
+`gopod_notes/DRY_RUN_REPORT_*.md`). The photo is an Easter egg again (operator 2026-10-24: "make it an easter egg
+please"): the first photo of a live session pops "Get Photo" (Goverlord's congratulations, the
+photo the prize; value_points.reminder_eggs, topic_pictures.eggs_keep) - 5 eggs. The thanks ending
+with nothing recorded says "Nothing recorded. You're welcome." (sign_off.nothing_recorded_text).
+system-test-tpu shows the TPU a known picture and passes only when it names what's in it
+(system_tests.tpu: gangster_granny.jpg, person).
+
 **The mic's own voice** (2026-10-24, `gopod_mic_voice.go`; operator: "When audio is voice from mic,
 process raw mic voice same as raw kokoro voice file * do the volume level smoothing part * same
 vosk for highlight timings * play processed mic-voice instead of operator-voice"): a numpad line

@@ -684,8 +684,12 @@ func gopodBrobotESN(name string) string {
 
 // gopodRecordSay shows the line on the page and has the Brobot say it.
 func gopodRecordSay(brobot, text string) {
-	GopodChatFeedAdd(brobot, text)
 	esn := gopodBrobotESN(brobot)
+	// 2026-10-24 (operator: "This is where Pip asks for an email, right? / Bro! *
+	// not highlighted"): his bubble the way an answer's goes (GopodChatFeedAddLive),
+	// and he speaks once it's on the page (gopodWaitReplyShown), so it lights as
+	// he says it - "Bro!" was said before its bubble showed.
+	GopodChatFeedAddLive(esn, text)
 	var robot *vector.Vector
 	for _, bot := range vars.BotInfo.Robots {
 		if bot.Esn == esn {
@@ -704,6 +708,7 @@ func gopodRecordSay(brobot, text string) {
 	gopodLogBControl(robot, ctx, granted, release)
 	select {
 	case <-granted:
+		gopodWaitReplyShown(esn)
 		// 2026-10-17 (operator, on the photo's "I see urns on the shelf ...":
 		// "text still solid white, check for loose chaining"): said a sentence
 		// at a time with the highlight's start and end, like a reply, so its

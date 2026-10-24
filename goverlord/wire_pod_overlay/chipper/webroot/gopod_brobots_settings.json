@@ -1453,6 +1453,11 @@
             "run": true
           },
           {
+            "cmd": "system-test-game",
+            "about": "every topic, value point and Easter egg found by its own words - no robots, no model",
+            "run": true
+          },
+          {
             "cmd": "system-test-",
             "about": "one test - add its name (weather-live, qr, voices...)",
             "fill": "system-test-"
@@ -2136,7 +2141,9 @@
   },
   "system_tests": {
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
-    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "page", "robots"],
+    "tpu_about": "2026-10-24 (operator: \"PASS tpu: 1 objects: laptop * laptop?\" - the workbook photo was named a laptop): system-test-tpu shows the Edge TPU this picture (webroot/pictures) and passes only when it names expect in it.",
+    "tpu": {"picture": "gangster_granny.jpg", "expect": "person"},
+    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "page", "robots"],
     "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
   },
@@ -2178,7 +2185,7 @@
     "not_listed": ["roast_battle", "halloween", "camera_feeds"],
     "not_eggs_about": "2026-10-18 (operator: \"confusing overlap between system managed & easter egg * remove easter egg: 'Websites, themes and the channel'\"): eggs taken out (\"chapter:<title>\" or a topic) - never pop up, not on the egg list. The chapter stays in the interview.",
     "eggs_keep_about": "2026-10-22 (operator: \"fewer easter eggs would be nice * Do 1 and 2 together first\"): the only eggs - Chocolate Bingo (the Bingo and foodmath chapter), Gangster Granny (the Legacy and wrap-up chapter), Explain the Math (math), Roast Battle (18+ rooms). Every other topic's pictures don't pop up. Empty list = every egg, as before.",
-    "eggs_keep": ["chapter:Bingo and foodmath", "chapter:Legacy and wrap-up", "math", "roast_battle"],
+    "eggs_keep": ["chapter:Bingo and foodmath", "chapter:Legacy and wrap-up", "math", "roast_battle", "photo"],
     "not_eggs": ["chapter:Websites, themes and the channel"],
     "cards": {"roast_battle": "🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers", "halloween": "🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬"},
     "max_per_session_about": "2026-10-13 (operator: \"keep the allowed-number-of-displays-per-session variable * instead, allowed-number-of-displays-per-session variable now = 5\"): how many times a topic's pictures (a live pop-up) show per Wire-Pod start; was once.",
@@ -2387,7 +2394,8 @@
     "reminder_topic_count": 3,
     "reminder_eggs_about": "2026-10-17 (operator: \"'Hey that reminds me' thought bubbles need to be updated * updated to center around a list of easter eggs (chapter/topics/value-points) * during live chat, whatever easter eggs not discovered, are left on the list to mention * so brobots in their responses also finish with helping to keep the conversation flowing * like a fallback list of sellable features the brobots have, as GOPOD reps\"): the egg list (gopod_egg_list.go) is every topic with a prize (its pictures or card; named by topic_pictures.egg_names, else interview_chapters.topic_labels), in the chapters' order, then these eggs that aren't a topic's (key: their pop-up's name). An egg found since Wire-Pod's start is off the list. Each reminder names at least one egg still to find; a question on no topic still ends with reminder_egg_count of them (not a thank-you). Each egg in turn; once all have been named, round again. Labels are drafts for the operator to change.",
     "reminder_eggs": [
-      {"key": "math", "label": "Explain the Math"}
+      {"key": "math", "label": "Explain the Math"},
+      {"key": "photo", "label": "Get Photo"}
     ],
     "reminder_egg_count": 2,
     "reminders_about": "2026-10-07 (operator: \"A reminder can point to the next 2 chapters + summary for each, 3 best chained topics by relevance (the 3d-grid idea), do not reveal any value points\"): after a chapter's last topic, reminder_chapters_text names the next two chapters with topics left, each with its summary; otherwise reminder_topics_text names reminder_topic_count topics left, chained by how alike their packs are (interview_chapters.topic_labels). The reminders map below is no longer said - its lines were value points, and gave the next answer away.",
@@ -2444,6 +2452,8 @@
     "system_text": "",
     "started_text": "",
     "welcome_text": "You’re welcome.",
+    "nothing_recorded_text_about": "2026-10-24 (operator: \"Yes, a line like 'Nothing recorded. You're welcome.'\"): said before welcome_text when nothing was recorded this session (a recording says its kept/deleted line instead).",
+    "nothing_recorded_text": "Nothing recorded.",
     "safe_spot_seconds_about": "2026-10-16 (operator: \"thanks guys anywhere in a line ends the session, at the next best safe spot\"): the thanks ending waits this long, then until no Brobot is answering (to All: Brobot 2's sign-off first).",
     "safe_spot_seconds": 2
   },

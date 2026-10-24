@@ -228,6 +228,7 @@ func gopodSystemHelp() string {
 		"  system-check                      every file the settings, chapters and songs name - all there?",
 		"  system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again",
 		"  system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)",
+		"  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
 		"  system-help                       this list",
 	})
 }
