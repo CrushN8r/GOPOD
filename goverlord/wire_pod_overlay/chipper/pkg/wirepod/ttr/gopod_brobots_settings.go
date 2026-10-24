@@ -146,6 +146,8 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-09: speech after an animation, and the wait for its done.
 		SpeechAfterAnimationSeconds float64 `json:"speech_after_animation_seconds"`
 		AnimationDoneMostSeconds    float64 `json:"animation_done_most_seconds"`
+		// 2026-10-24: the golden "Got it" sequence, one copy per Brobot (gopodGotItFor).
+		GotIt map[string]gopodGotIt `json:"got_it"`
 	} `json:"chat_moves"`
 	LLM struct {
 		WarmupText string `json:"warmup_text"`

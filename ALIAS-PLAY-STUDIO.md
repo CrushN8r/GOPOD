@@ -1169,7 +1169,11 @@ placeholders"): a voiced line waits as Generating + hourglass, then lights word 
 still loading is an hourglass in its own place (`pictureWait`; one not made yet is asked for again
 every `chat_window.picture_retry_ms`, at most `picture_wait_max_ms`), so no bubble is held back by
 its pictures. A line that breaks is written to Wire-Pod's log ("GOPOD_PAGE error ...") and passed,
-so the chat never stops until F5. The exceptions keep their own rules: the chat window (scrolling, the baton),
+so the chat never stops until F5; a line that hasn't handed on after `page_sync.item_max_ms` (90 s)
+is logged with what holds it and passed, and after an F5 the page tells Wire-Pod how far it is.
+The hourglass drains once it's on the page (it's made before it's placed). A Brobot's answer
+under his header is 75% of the header's size, with a little air between characters (2026-10-24,
+operator: "brobot's answer-chains = 75% of header font size"). The exceptions keep their own rules: the chat window (scrolling, the baton),
 the Operator bubble (the one input type) and the system window (the menu). On the template so far:
 system / terminal answers, reporter and manager lines (their own bubbles), Goverlord's lines, Brobot replies.
 
@@ -1958,6 +1962,22 @@ photo egg, the wrap-up; the report ends with GOPOD's own score. The thanks endin
 with nothing recorded says "Nothing recorded. You're welcome." (sign_off.nothing_recorded_text).
 system-test-tpu shows the TPU a known picture and passes only when it names what's in it
 (system_tests.tpu: gangster_granny.jpg, person).
+
+**GOLDEN Easter egg template** (2026-10-24, `eggBubble`; operator: "Start the pop-up template
+please"; "please check that the highlighting mechanism is inherently part of this bubble"): every
+egg one way - the shell (a Brobot's marquee wrapper, or Goverlord's / a host's board), Goverlord's
+congratulations as one voiced line (Generating + hourglass, then lit word by word), the prize
+(`prizeItems`: pictures held by hourglasses, a card, the math, a weather face), "MouseOver to Zoom
+In" under it as the same voiced line's last part (dormant until its voice reaches it, lit in
+turn), and a Brobot's reply joining it. The bubble names its voiced line ahead
+(`voiceLineAhead`), so its voice comes to it, never found by a search of the chat. Which other
+bubble types still find their voice by search: `gopod_notes/HIGHLIGHT_CHECK_001.md`.
+
+**Got it 1 / Got it 2** (2026-10-24; operator: "Separate out the already established, locked,
+golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot
+2"): `chat_moves.got_it` - each Brobot's own copy of the golden sequence (moves, words,
+searching pace), both exact copies of the golden values to start; `gopodGotItFor(esn)`, locked
+by `TestGotItPerBrobot`.
 
 **The mic's own voice** (2026-10-24, `gopod_mic_voice.go`; operator: "When audio is voice from mic,
 process raw mic voice same as raw kokoro voice file * do the volume level smoothing part * same

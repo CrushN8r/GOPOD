@@ -25,6 +25,42 @@ func gopodThinkingLineSpoken() string {
 	return "Thinking, please wait."
 }
 
+// gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words,
+// his moves before them, and his searching pace after.
+type gopodGotIt struct {
+	Name                     string   `json:"name"`
+	Text                     string   `json:"text"`
+	Moves                    []string `json:"moves"`
+	SearchingMinSeconds      float64  `json:"searching_min_seconds"`
+	SearchingIntervalSeconds float64  `json:"searching_interval_seconds"`
+	SearchingResendSeconds   float64  `json:"searching_resend_seconds"`
+}
+
+// gopodGotItFor (2026-10-24, operator: "Separate out the already established,
+// locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 *
+// assign Got it 2 to brobot 2"): his own copy (chat_moves.got_it), each part not
+// set taken from the shared golden values.
+func gopodGotItFor(esn string) gopodGotIt {
+	cm := gopodBrobotsSettings.ChatMoves
+	g := cm.GotIt[gopodBrobotName(esn)]
+	if strings.TrimSpace(g.Text) == "" {
+		g.Text = gopodThinkingLineSpoken()
+	}
+	if g.Moves == nil {
+		g.Moves = cm.ThinkingMoves
+	}
+	if g.SearchingMinSeconds == 0 {
+		g.SearchingMinSeconds = cm.SearchingMinSeconds
+	}
+	if g.SearchingIntervalSeconds == 0 {
+		g.SearchingIntervalSeconds = cm.SearchingIntervalSeconds
+	}
+	if g.SearchingResendSeconds == 0 {
+		g.SearchingResendSeconds = cm.SearchingResendSeconds
+	}
+	return g
+}
+
 // gopodSayThinkingLine speaks the line and returns when the robot has said it.
 // The robot reports how each line went (SayTextResponse.State). Live 2026-09-29 the
 // line was sometimes not heard, so the robot's own report is logged, and the line
@@ -38,7 +74,7 @@ func gopodSayThinkingLine(robot *vector.Vector, esn string) {
 
 // gopodSayThinkingWords: the line said (once more if the robot says it didn't finish).
 func gopodSayThinkingWords(robot *vector.Vector, esn string) {
-	gopodSayWords(robot, esn, gopodThinkingLineSpoken())
+	gopodSayWords(robot, esn, gopodGotItFor(esn).Text)
 }
 
 // gopodSayWords: a short line of his, said the thinking line's way.
@@ -107,7 +143,7 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	// SEARCHING_ANIMATION_SONG_LOCK_001.md) - a clip that comes back at once
 	// (Brobot 2, ~80 ms, live 2026-10-08 12:02) no longer means another send
 	// every ~0.4 s.
-	cm := gopodBrobotsSettings.ChatMoves
+	cm := gopodGotItFor(esn) // his own copy of the sequence's pace
 	searchStart := time.Now()
 	minRun := gopodSecondsToDuration(cm.SearchingMinSeconds)
 	done := func() bool { return ready() && time.Since(searchStart) >= minRun }

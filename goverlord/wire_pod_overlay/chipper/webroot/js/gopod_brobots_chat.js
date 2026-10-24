@@ -1097,7 +1097,9 @@
           var b = el.closest(".brobot-bubble");
           return b && !b.classList.contains("narrator") && b.style.visibility !== "hidden" && !(el._litAt && Date.now() - el._litAt > SPEAKING_MAX_MS);
         })[0];
-        if (held) { return "lit line: " + String(held.textContent).slice(0, 60) + (held._litAt ? "" : " (no lit time)"); }
+        // 2026-10-24 (live: an emoji cut in half broke the note and stopped every
+        // bubble from showing): cut by whole characters.
+        if (held) { return "lit line: " + Array.from(String(held.textContent)).slice(0, 60).join("") + (held._litAt ? "" : " (no lit time)"); }
         if (narratorLines.some(function (n) { return n.shown; })) { return "narrator line"; }
         return "";
       }
@@ -1106,8 +1108,9 @@
         (function waitForBaton() {
           if (performance.now() - waitFrom > 10000 && Date.now() - batonNoted > 10000 && batonHeld()) {
             batonNoted = Date.now();
-            fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: "note=" + encodeURIComponent("GOPOD_CHECK baton held 10 s+ by " + batonHolder()) }).catch(function () {});
+            var held = new URLSearchParams();
+            held.set("note", "GOPOD_CHECK baton held 10 s+ by " + batonHolder());
+            fetch("/api-sdk/gopod_page_note", { method: "POST", body: held }).catch(function () {});
           }
           // 2026-10-11 (operator: "upon new operator bubble appearing, scrolling
           // gets messed up again"): the operator's own line waits its turn too,
@@ -1356,6 +1359,7 @@
               if (typeof cw.picture_retry_ms === "number") { pictureRetryMs = cw.picture_retry_ms; }
               if (typeof cw.picture_wait_max_ms === "number") { pictureWaitMaxMs = cw.picture_wait_max_ms; }
               if (settings.page_sync && typeof settings.page_sync.display_bubbles === "number") { DISPLAY_BUBBLES = settings.page_sync.display_bubbles; }
+              if (settings.page_sync && typeof settings.page_sync.item_max_ms === "number") { feedItemMaxMs = settings.page_sync.item_max_ms; }
               if (settings.page_sync && typeof settings.page_sync.display_ms === "number") { DISPLAY_MS = settings.page_sync.display_ms; }
               if (typeof cw.typed_text_min_px === "number") { TYPED_TEXT_MIN_PX = cw.typed_text_min_px; fitTypedRow(); }
             }
@@ -2184,7 +2188,7 @@
       // same voice (the egg's "MouseOver to Zoom In"), dormant until then.
       function saidWhole(say) {
         say.classList.add("spoken");
-        if (say._zoom) { say._zoom.classList.add("spoken"); }
+        (say._parts || []).forEach(function (p) { p.classList.add("spoken"); });
       }
       function voiceLitLine(bubble, line, text) {
         line.textContent = "";
@@ -2236,23 +2240,48 @@
         say.dataset.at = "0";
         say.dataset.end = String(seconds);
         say._spokenWords = words || null;
-        lightSpan(say);
-        // 2026-10-23: a line said last in the same voice, shown apart (the egg's
-        // "MouseOver to Zoom In") - lit word by word at its own words' times.
-        var tail = say._zoom;
-        if (tail && tail.isConnected) {
-          var n = sayWords(tail.textContent).length;
-          tail._spokenWords = words && words.length >= n ? words.slice(words.length - n) : null;
-          tail.dataset.at = "0";
-          tail.dataset.end = String(seconds);
-          lightSpan(tail);
+        // 2026-10-24 (operator: "please check that the highlighting mechanism is
+        // inherently part of this bubble"): a voiced line shown in parts (the egg's
+        // congratulations, then "MouseOver to Zoom In" under the prize) is one
+        // sentence - each part lit in turn, at its own words' times when the voice
+        // has them, else its share of the voice's length.
+        var parts = (say._parts || []).filter(function (p) { return p.isConnected && !p.classList.contains("spoken"); });
+        if (parts.length) {
+          var counts = [say].concat(parts).map(function (p) { return Math.max(1, sayWords(p.textContent).length); });
+          var total = counts.reduce(function (a, c) { return a + c; }, 0);
+          // The voice's words (its times list has the marks too): where each part's
+          // words start in it.
+          var real = [];
+          (words || []).forEach(function (w, k) { if (/[A-Za-z0-9]/.test(String(w.t || ""))) { real.push(k); } });
+          var cut = function (n) { return n < real.length ? real[n] : (words || []).length; };
+          var timed = real.length >= total;
+          if (timed) { say._spokenWords = words.slice(0, cut(counts[0])); }
+          else { say.dataset.end = String(seconds * counts[0] / total); }
+          var from = counts[0];
+          parts.forEach(function (p, i) {
+            var n = counts[i + 1], startAt = seconds * from / total;
+            p.dataset.at = "0";
+            if (timed) {
+              // Its own words' times, from its first word (it lights then).
+              // The last part runs to the voice's end (a word said as two, "mouse over").
+              var mine = words.slice(cut(from), i === parts.length - 1 ? words.length : cut(from + n));
+              startAt = +mine[0].s || startAt;
+              p._spokenWords = mine.map(function (w) { return { t: w.t, s: (+w.s || 0) - startAt, e: (+w.e || 0) - startAt }; });
+              p.dataset.end = String(Math.max(0.1, (+mine[mine.length - 1].e || 0) - startAt));
+            } else {
+              p.dataset.end = String(seconds * n / total);
+            }
+            setTimeout(function () { if (!p.classList.contains("spoken")) { lightSpan(p); } }, startAt * 1000);
+            from += n;
+          });
         }
+        lightSpan(say);
         return function () {
           say.classList.remove("speaking");
           say.classList.add("spoken");
           var saidIn = say.closest(".brobot-bubble");
           if (saidIn) { (saidIn._spoken = saidIn._spoken || {})[voiceLineWords(say.textContent)] = true; }
-          if (tail) { tail.classList.remove("speaking"); tail.classList.add("spoken"); }
+          parts.forEach(function (p) { p.classList.remove("speaking"); p.classList.add("spoken"); });
         };
       }
       // 2026-10-06 (operator: "Pictures in the chat"): a topic's pictures, one
@@ -2278,74 +2307,9 @@
         var next = function () { if (then) { then(); } };
         voiceLitNext = null; // the next voice is this egg's, not an earlier line's
         if (!restoringChat) { recordBubble(pictureRole, String(list), "picture"); }
-        var popup = String(list).indexOf("popup:") === 0;
-        if (popup) { list = String(list).slice("popup:".length); }
-        // 2026-10-14 (operator: "combine a brobot's response bubble with a pop-up
-        // wrapper ... like more of a surprise prize"): a pop-up that names its
-        // Brobot ("Brobot 2::<pictures>") is his next reply bubble - marquee,
-        // "Brobot 2:", Goverlord's congratulations with the prize, then his
-        // reply joins it below (appendBubble).
-        var popWho = "";
-        var whoMatch = popup ? /^(Brobot [12])::/.exec(String(list)) : null;
-        if (whoMatch) { popWho = whoMatch[1]; list = String(list).slice(whoMatch[0].length); }
-        // 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
-        // chalkboard color background"): a host's egg ("CHALK::") - its own board,
-        // not a Brobot's wrapper.
-        var hostEgg = "";
-        var hostMatch = popup && !whoMatch ? /^([A-Za-z][A-Za-z0-9 ]*)::/.exec(String(list)) : null;
-        if (hostMatch && hostMatch[1] !== "msg=" && hostNames[hostMatch[1]]) { hostEgg = hostMatch[1]; list = String(list).slice(hostMatch[0].length); }
-        // 2026-10-16 (operator: '"Congratulations, Master CrushN8r! You found the
-        // easter egg, [easter egg name/trigger]"'): the egg's own congratulations.
-        var eggText = popupText;
-        var msgMatch = popup ? /^msg=([^]*?)::/.exec(String(list)) : null;
-        if (msgMatch) { eggText = msgMatch[1]; list = String(list).slice(msgMatch[0].length); }
-        // 2026-10-17 (operator: "Congratulations! / Easter Egg '[Title-of-Easter]'
-        // found. / [images] / MouseOver to Zoom In * MouseOver to Zoom In goes
-        // below the images"): the zoom line goes under the pictures.
-        var zoomLine = "";
-        if (eggZoomText && eggText.trim().slice(-eggZoomText.length) === eggZoomText) {
-          zoomLine = eggZoomText;
-          eggText = eggText.trim().slice(0, -eggZoomText.length).trim();
-        }
+        if (String(list).indexOf("popup:") === 0) { eggBubble(eggSpec(String(list).slice("popup:".length)), then); return; }
         var bubble = document.createElement("div");
-        bubble.className = "brobot-bubble operator system-status pictures" + (popup ? " popup-winner" : "") + (hostEgg ? " host-" + hostEgg.toLowerCase() : "");
-        var holder = bubble;
-        if (popup && popWho) {
-          bubble.className = "brobot-bubble " + (popWho === "Brobot 1" ? "brobot-1" : "brobot-2") + " popup-winner popup-wrap";
-          // GOLDEN pop-up rule (2026-10-15, operator: 'Correct: "no more
-          // top-most header" only'): no "Brobot N:" above Goverlord's block.
-          popupExchange = true;
-          holder = document.createElement("div");
-          holder.className = "popup-system";
-          holder.appendChild(systemHead(systemLabel));
-          var prize = document.createElement("span");
-          prize.className = "popup-congrats";
-          // 2026-10-16: "MouseOver to Zoom View" on its own line.
-          prize.style.whiteSpace = "pre-line";
-          holder.appendChild(prize);
-          // 2026-10-18 (step 5, eggs on the bubble machine): Goverlord's
-          // congratulations revealed as it's said, like every voice (voiceLitLine).
-          // 2026-10-23 (operator: "no generating + hourglass while voice is
-          // generating * I prefer to see a single generating + hourglass for both
-          // lines"): the congratulations wait as one line (the Generating template).
-          lineWaits = true;
-          voiceLitLine(bubble, prize, eggText);
-          bubble.appendChild(holder);
-          // 2026-10-15 (operator: "Whichever Brobot triggers however many easter
-          // eggs in a single input * each is displayed like this newest granny
-          // bubble (brobot bubble + marquee containing congrats message) * make
-          // all easter eggs that way"): every egg is its own bubble; the reply
-          // comes after in his own marquee bubble (popupExchange).
-          if (!popupWraps[popWho]) { popupWraps[popWho] = bubble; }
-        } else if (popup) {
-          bubble.appendChild(systemHead(systemLabel));
-          var congrats = document.createElement("span");
-          congrats.className = "brobot-bubble-text";
-          congrats.style.whiteSpace = "pre-line";
-          bubble.appendChild(congrats);
-          lineWaits = true;
-          voiceLitLine(bubble, congrats, eggText);
-        }
+        bubble.className = "brobot-bubble operator system-status pictures";
         var row = document.createElement("div");
         row.className = "topic-pictures";
         // 2026-10-12 (operator: "move granny photo into reporter bubble, one line
@@ -2356,7 +2320,29 @@
         if (warmupBubble && question === warmupBubble) { question = question.previousElementSibling; }
         var inQuestion = files.length && files.every(function (src) {
           return picturesInQuestion.indexOf(src.trim().split("/").pop()) >= 0;
-        }) && !popup && question && question.classList.contains("operator") && question.dataset.own === "1";
+        }) && question && question.classList.contains("operator") && question.dataset.own === "1";
+        var weatherSound = prizeItems(list, bubble, row);
+        if (inQuestion) {
+          row.classList.add("in-question");
+          question.appendChild(row);
+          if (restoringChat) { next(); return; }
+          // 2026-10-12 (operator: "the bubble stopped at the end of text and the
+          // photo was cut off from view"): the question is placed again, whole,
+          // once its picture has loaded.
+          if (question.style.visibility === "hidden") { placeAgain = true; next(); return; }
+          whenBubblesReady([question], function () { scrollChatTo(bubbleTarget(question)); });
+          next();
+          return;
+        }
+        if (row.children.length) { bubble.appendChild(row); }
+        placeBubble(bubble, then, function (b) {
+          if (weatherSound) { weatherSoundOnShow(b, weatherSound); }
+        });
+      }
+      // A prize's items (pictures, a card, the math challenge, a weather face):
+      // cards and math into the holder, pictures and faces into the row. Returns
+      // the weather sound to play when it shows ("" for none).
+      function prizeItems(list, holder, row) {
         var weatherSound = "";
         String(list).split("|").forEach(function (src) {
           if (!src.trim()) { return; }
@@ -2406,44 +2392,99 @@
           magnify(row, img);
           row.appendChild(img);
         });
-        if (inQuestion) {
-          row.classList.add("in-question");
-          question.appendChild(row);
-          if (restoringChat) { next(); return; }
-          // 2026-10-12 (operator: "the bubble stopped at the end of text and the
-          // photo was cut off from view"): the question is placed again, whole,
-          // once its picture has loaded.
-          if (question.style.visibility === "hidden") { placeAgain = true; next(); return; }
-          whenBubblesReady([question], function () { scrollChatTo(bubbleTarget(question)); });
-          next();
-          return;
+        return weatherSound;
+      }
+      // An egg's line, read: "[Brobot N::|HOST::][msg=<congratulations>::]<prize>".
+      function eggSpec(list) {
+        var spec = { who: "", host: "", text: popupText, zoom: "", prize: list };
+        // 2026-10-14 (operator: "combine a brobot's response bubble with a pop-up
+        // wrapper ... like more of a surprise prize"): a pop-up that names its
+        // Brobot ("Brobot 2::<pictures>") is his next reply bubble.
+        var m = /^(Brobot [12])::/.exec(spec.prize);
+        if (m) { spec.who = m[1]; spec.prize = spec.prize.slice(m[0].length); }
+        // 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
+        // chalkboard color background"): a host's egg ("CHALK::") - its own board.
+        m = !spec.who ? /^([A-Za-z][A-Za-z0-9 ]*)::/.exec(spec.prize) : null;
+        if (m && m[1] !== "msg=" && hostNames[m[1]]) { spec.host = m[1]; spec.prize = spec.prize.slice(m[0].length); }
+        // 2026-10-16 (operator: '"Congratulations, Master CrushN8r! You found the
+        // easter egg, [easter egg name/trigger]"'): the egg's own congratulations.
+        m = /^msg=([^]*?)::/.exec(spec.prize);
+        if (m) { spec.text = m[1]; spec.prize = spec.prize.slice(m[0].length); }
+        // 2026-10-17 (operator: "MouseOver to Zoom In goes below the images"):
+        // the zoom line goes under the prize.
+        if (eggZoomText && spec.text.trim().slice(-eggZoomText.length) === eggZoomText) {
+          spec.zoom = eggZoomText;
+          spec.text = spec.text.trim().slice(0, -eggZoomText.length).trim();
         }
+        return spec;
+      }
+      // GOLDEN Easter egg template (2026-10-24, operator: "Easter eggs (including
+      // slow) * Aim to render and display shell easter egg bubble + placeholders";
+      // "please check that the highlighting mechanism is inherently part of this
+      // bubble"): one way for every egg - the shell (a Brobot's marquee wrapper,
+      // or Goverlord's / a host's board), Goverlord's congratulations as one
+      // voiced line (Generating + hourglass, then lit word by word), the prize
+      // (pictures held by hourglasses until they're there, a card, the math, a
+      // weather face), the zoom line under it - the same voiced line's last
+      // words, dormant until its voice reaches them - and, for a Brobot's egg,
+      // his reply joining it. The voiced line is the bubble's own: its words are
+      // named ahead (voiceLineAhead), so its voice comes to it, never found by a
+      // search of the chat.
+      function eggBubble(spec, then) {
+        var b, holder, line;
+        if (spec.who) {
+          b = rawBubble({ kind: "egg", classes: (spec.who === "Brobot 1" ? "brobot-1" : "brobot-2") + " popup-winner popup-wrap" });
+          // GOLDEN pop-up rule (2026-10-15, operator: 'Correct: "no more top-most
+          // header" only'): no "Brobot N:" above Goverlord's block.
+          holder = document.createElement("div");
+          holder.className = "popup-system";
+          holder.appendChild(systemHead(systemLabel));
+          line = document.createElement("span");
+          line.className = "popup-congrats";
+          b.appendChild(holder);
+          // 2026-10-15: every Brobot answering this question wears the marquee;
+          // his reply joins the first egg's wrapper.
+          popupExchange = true;
+          if (!popupWraps[spec.who]) { popupWraps[spec.who] = b; }
+        } else {
+          b = rawBubble({ kind: "egg", classes: "operator system-status pictures popup-winner" + (spec.host ? " host-" + spec.host.toLowerCase() : ""),
+            head: systemHead(systemLabel) });
+          holder = b;
+          line = document.createElement("span");
+          line.className = "brobot-bubble-text";
+        }
+        // 2026-10-16: "MouseOver to Zoom View" on its own line.
+        line.style.whiteSpace = "pre-line";
+        holder.appendChild(line);
+        // 2026-10-23 (operator: "I prefer to see a single generating + hourglass
+        // for both lines"): the congratulations wait as one line.
+        lineWaits = true;
+        voiceLitLine(b, line, spec.text);
+        var say = line.querySelector(".brobot-say");
+        var row = document.createElement("div");
+        row.className = "topic-pictures";
+        var weatherSound = prizeItems(spec.prize, holder, row);
         if (row.children.length) { holder.appendChild(row); }
-        if (zoomLine && row.children.length) {
+        var words = spec.text;
+        if (spec.zoom && row.children.length) {
           var zoomEl = document.createElement("span");
-          zoomEl.className = popup && popWho ? "popup-congrats popup-zoom-line" : "brobot-bubble-text popup-zoom-line";
-          // 2026-10-23 (operator: "same with highlighting on, mouseover to zoom in
-          // message, no highlighting?"): Goverlord says it last, in the same voice
-          // as the congratulations - so it lights with that voice too: lit when the
-          // congratulations' last word is said, shown said when the voice ends.
+          zoomEl.className = spec.who ? "popup-congrats popup-zoom-line" : "brobot-bubble-text popup-zoom-line";
           var zoomSay = document.createElement("span");
           zoomSay.className = "brobot-say";
-          zoomSay.textContent = zoomLine;
+          zoomSay.textContent = spec.zoom;
           zoomEl.appendChild(zoomSay);
           holder.appendChild(zoomEl);
-          // Lit word by word from the congratulations' own voice (its last words,
-          // voiceLitStart), like every voiced line.
-          var litHost = popup && popWho ? prize : (popup ? congrats : null);
-          var congratsSay = litHost ? litHost.querySelector(".brobot-say") : null;
-          if (!congratsSay || restoringChat || skippingReporters || congratsSay.classList.contains("spoken")) {
-            zoomSay.classList.add("spoken");
-          } else {
-            congratsSay._zoom = zoomSay;
-          }
+          // 2026-10-24 (operator: "The line, mouseover to zoom in, starts dormant as
+          // 0% solid white * upon voice file ready, highlighting kicks in to display
+          // consistently with other spoken lines"): the voiced line's last part.
+          if (!say || restoringChat || skippingReporters || say.classList.contains("spoken")) { zoomSay.classList.add("spoken"); }
+          else { say._parts = [zoomSay]; }
+          words += " " + spec.zoom;
         }
-        placeBubble(bubble, then, function (b) {
-          if (popup) { marqueeAttach(b); }
-          if (weatherSound) { weatherSoundOnShow(b, weatherSound); }
+        if (say && !restoringChat) { voiceLineAhead(words, say); }
+        placeBubble(b, then, function (placed) {
+          marqueeAttach(placed);
+          if (weatherSound) { weatherSoundOnShow(placed, weatherSound); }
         });
       }
       // 2026-10-13 (operator: "For marquee lights, please grab golden guts from
@@ -3493,6 +3534,10 @@
             if (pageRoleKnown && !isMainPage) { return; }
             feed.events.forEach(function (e) {
               var key = "feed|" + feed.boot + "|" + e.id;
+              // 2026-10-24 (live: after an F5 the dry run waited, the page never
+              // said it had caught up): a line this page already played counts as
+              // played again, so Wire-Pod knows how far it is.
+              if (isSeen(key) && e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; }
               if (isSeen(key) || feedQueued[key] || !e.who || !e.text) { return; }
               queueBubble(key, e);
             });
@@ -3557,8 +3602,18 @@
         // the bottom, then loop from top"): a smooth drain, a short hold full at
         // the bottom, then from the top again (hourglass.steps, step_ms, hold_ms).
         var steps = hourglassCfg.steps || 16, stepMs = hourglassCfg.step_ms || 150, holdMs = hourglassCfg.hold_ms || 400;
+        // 2026-10-24 (operator: "generating hourglass loop animation not emptying
+        // sand"): it's made before it's placed - the drain waits to be on the page
+        // (up to 10 s) and stops only once it's gone from it.
+        var placedOnce = false, madeAt = Date.now();
         (function drain(stage) {
-          if (!bubble.isConnected || bubble.classList.contains("ready") || !row.isConnected) { return; }
+          if (bubble.classList.contains("ready")) { return; }
+          if (!row.isConnected) {
+            if (placedOnce || Date.now() - madeAt > 10000) { return; }
+            setTimeout(function () { drain(stage); }, stepMs);
+            return;
+          }
+          placedOnce = true;
           glass.innerHTML = hourglassSprite(stage, steps);
           var last = stage >= steps - 1;
           setTimeout(function () { drain(last ? 0 : stage + 1); }, last ? holdMs : stepMs);
@@ -3623,7 +3678,16 @@
         el.appendChild(whole);
         return whole;
       }
+      // A template bubble names its voiced line's words ahead (eggBubble): the
+      // voice with those words is that line's, tied without searching the chat.
+      var voiceLinesAhead = {};
+      function voiceLineAhead(words, say) { voiceLinesAhead[voiceLineWords(words)] = say; }
       function voiceLineTie(file, t, waits) {
+        var ahead = voiceLinesAhead[t];
+        if (ahead) {
+          delete voiceLinesAhead[t];
+          if (ahead.isConnected && !ahead.classList.contains("spoken")) { return ahead; }
+        }
         var els = container.querySelectorAll(".brobot-bubble-text, .brobot-bubble-line");
         for (var i = els.length - 1; i >= 0 && i >= els.length - 40; i--) {
           var el = els[i], bubble = el.closest(".brobot-bubble");
@@ -3716,6 +3780,7 @@
       }
       window.addEventListener("error", function (ev) { pageError((ev.message || "error") + " at " + (ev.lineno || "?")); });
       window.addEventListener("unhandledrejection", function (ev) { pageError("promise: " + (ev.reason && ev.reason.message || ev.reason)); });
+      var feedItemMaxMs = 90000;
       function runFeedQueue() {
         // Only the main page runs the chat; every other page only shows what the
         // main page shows (the display mirror, below).
@@ -3727,13 +3792,24 @@
         // here (the bubble above, a countdown, the warm-up) - told to Wire-Pod.
         if (item.e && item.e.id && Date.now() - item.at > heldMost.ms) { heldMost = { id: item.e.id, ms: Date.now() - item.at }; }
         markSeen(item.key);
+        var went = false, guard = null;
         var next = function () {
+          if (went) { return; }
+          went = true;
+          clearTimeout(guard);
           // 2026-10-17 (operator: "the web page and terminal must have some sort
           // of coordinated dialogue"): how far this page has played the feed.
           if (item.e && item.e.id > playedId) { playedId = item.e.id; }
           feedRunning = false;
           runFeedQueue();
         };
+        // 2026-10-24 (live: the chat stopped after Brobot 2's reply until F5): a
+        // line that hasn't handed on after page_sync.item_max_ms is written to
+        // Wire-Pod's log with what it waits on, and passed.
+        guard = setTimeout(function () {
+          pageError("stuck " + Math.round(feedItemMaxMs / 1000) + " s on feed " + (item.e && item.e.id) + " " + (item.e && item.e.who) + " (" + (batonHolder() || "no lit line") + ") - passed");
+          next();
+        }, feedItemMaxMs);
         // 2026-10-12: the voice right behind this line loads with its bubble.
         nextBubbleVoice = !isVoiceEvent(item.e) && feedQueue.length && isVoiceEvent(feedQueue[0].e) ? voiceAudio(feedQueue[0].e.text) : null;
         // 2026-10-24 (operator: "GOPOD should be able to handle that/sort it

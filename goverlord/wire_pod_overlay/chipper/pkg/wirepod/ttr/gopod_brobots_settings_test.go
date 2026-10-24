@@ -2275,7 +2275,7 @@ func TestBubbleOneWay(t *testing.T) {
 		`showSearchResults(e.text, e.to, done); return;`,
 		// 3d: pictures, pop-ups, eggs.
 		`showPictures(String(e.text).replace(/^menu:/, ""), done);`,
-		`if (popup) { marqueeAttach(b); }`,
+		`marqueeAttach(placed);`,
 		// 3e: nested parts built and placed one way; the shell on the one way.
 		`function nestPart(kind, classes, head, line, lineClass) {`,
 		`shell = rawBubble({ kind: "shell"`,
@@ -2289,7 +2289,20 @@ func TestBubbleOneWay(t *testing.T) {
 		`if (!img.complete || !img.naturalWidth) { pictureWait(b, img); }`,
 		`spot.className = "picture-wait";`,
 		// The zoom line is dormant until its voice; said whole with its line.
-		`if (say._zoom) { say._zoom.classList.add("spoken"); }`,
+		`(say._parts || []).forEach(function (p) { p.classList.add("spoken"); });`,
+		// The Easter egg template: one way for every egg, its voiced line its own.
+		`if (String(list).indexOf("popup:") === 0) { eggBubble(eggSpec(String(list).slice("popup:".length)), then); return; }`,
+		`b = rawBubble({ kind: "egg"`,
+		`if (say && !restoringChat) { voiceLineAhead(words, say); }`,
+		`var ahead = voiceLinesAhead[t];`,
+		`var parts = (say._parts || []).filter(`,
+		// A note cut mid-emoji stopped every bubble (2026-10-24): whole characters.
+		`Array.from(String(held.textContent)).slice(0, 60).join("")`,
+		// A line that never hands on is logged and passed; an F5 says how far it is.
+		`pageError("stuck " + Math.round(feedItemMaxMs / 1000) + " s on feed "`,
+		`if (isSeen(key) && e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; }`,
+		// The hourglass drains once it's on the page (it's made before it's placed).
+		`if (placedOnce || Date.now() - madeAt > 10000) { return; }`,
 		`bubble = rawBubble({ kind: "narrator", classes: "operator system-status host narrator narrator-single" });`,
 	} {
 		if !strings.Contains(string(page), want) {
@@ -2323,5 +2336,45 @@ func TestSlowEggShellFirst(t *testing.T) {
 	}
 	if a, b := gopodPhotoPage("2026-10-24_153526_brobot2.jpg"), "/"+filepath.Base(gopodPhotoDir)+"/2026-10-24_153526_brobot2.jpg"; a != b {
 		t.Errorf("photo page %q, want %q", a, b)
+	}
+}
+
+// TestLivestreamsAllLingos (2026-10-24, operator: "all lingos: livestreams =
+// lyve-streams"): the Brobots, the reporters and the butler all say it so.
+func TestLivestreamsAllLingos(t *testing.T) {
+	if got := gopodApplyPronunciations("catch our livestreams!"); !strings.Contains(got, "lyve-streams") {
+		t.Errorf("Brobots say %q", got)
+	}
+	rv := gopodBrobotsSettings.ReporterVoices
+	if rv.SayWords["livestreams"] != "lyve-streams" || rv.SystemSayWords["livestreams"] != "lyve-streams" {
+		t.Errorf("reporters %q, butler %q", rv.SayWords["livestreams"], rv.SystemSayWords["livestreams"])
+	}
+}
+
+// TestGotItPerBrobot (2026-10-24, operator: "Separate out the already
+// established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to
+// brobot 1 * assign Got it 2 to brobot 2"): each Brobot has his own copy, the
+// golden values to start.
+func TestGotItPerBrobot(t *testing.T) {
+	cm := gopodBrobotsSettings.ChatMoves
+	for esn, name := range map[string]string{gopodBrobot1ESN: "Got it 1", gopodBrobot2ESN: "Got it 2"} {
+		g := gopodGotItFor(esn)
+		if g.Name != name {
+			t.Errorf("%s has %q, want %q", gopodBrobotName(esn), g.Name, name)
+		}
+		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") ||
+			g.SearchingMinSeconds != cm.SearchingMinSeconds || g.SearchingIntervalSeconds != cm.SearchingIntervalSeconds || g.SearchingResendSeconds != cm.SearchingResendSeconds {
+			t.Errorf("%s isn't a copy of the golden sequence: %+v", name, g)
+		}
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_thinking_line.go"))
+	for _, want := range []string{"gopodSayWords(robot, esn, gopodGotItFor(esn).Text)", "cm := gopodGotItFor(esn)"} {
+		if !strings.Contains(string(src), want) {
+			t.Errorf("the sequence doesn't use his own copy: %s", want)
+		}
 	}
 }

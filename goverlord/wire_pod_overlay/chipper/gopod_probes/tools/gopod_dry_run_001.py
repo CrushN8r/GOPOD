@@ -23,6 +23,7 @@ import json
 import subprocess
 import sys
 import time
+import unicodedata
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -35,23 +36,20 @@ ESN = {"1": "0dd1b9e9", "2": "0dd1d8bf", "all": "all"}
 # 2026-10-24 (operator: "Ask questions to finish the game, not tell a joke * ask
 # harder math questions, use fraction, decimal, repeating to test the fucker"):
 # the game's own value-point questions come in after the openers (game_steps).
-STEPS = [
-    ("all", "hey brobots", "a line to both: duo order, hand-over", []),
-    ("1", "good morning", "greeting golden line, robot clock", []),
-    ("2", "good evening", "greeting checked against the time", []),
-    ("1", "what's the weather", "weather take (PLAYHEAD), weather line", []),
-    ("2", "what time is it?", "time take, robot clock", []),
-    ("1", "convert 0.75 to a fraction, explain the math", "popup: the math Easter egg pop-up", ["3/4"]),
-    ("2", "convert 7/8 to a decimal, explain the math", "math: fraction to decimal", ["0.875"]),
-    ("1", "convert 0.375 to a fraction, explain the math", "math: decimal to fraction", ["3/8"]),
+STEPS = []  # the game's value points come first (game_steps)
+# Each Easter egg's own question (value_points.reminder_eggs), after the points.
+EGG_STEPS = [
+    ("1", "convert 0.272727 repeating to a fraction, explain the math", "popup: the math Easter egg pop-up", ["3/11"]),
     ("2", "what is 5/6 as a decimal? explain the math", "math: repeating decimal", ["0.83"]),
-    ("1", "convert 0.272727 repeating to a fraction, explain the math", "math: repeating back to a fraction", ["3/11"]),
-    ("2", "is 0.33 the same as 1/3? explain the math", "math: close is not equal", ["no"]),
+    ("1", "convert 7/8 to a decimal, explain the math", "math: fraction to decimal", ["0.875"]),
     ("2", "what do you see?", "popup: the photo Easter egg pop-up", []),
+    ("1", "roast battle!", "egg: Roast Battle", []),
+    ("2", "Brobot 2, what recipes do you have?", "egg: Bingo and foodmath", []),
+    ("1", "Brobot 1, what's your legacy?", "egg: Legacy and wrap-up", []),
 ]
 END_STEPS = [
-    ("1", "thank you. Interview over. What have we learned about GOPOD?", "the wrap-up", []),
-    ("1", "thanks bros", "the thanks answer (fell back twice before)", []),
+    ("1", "Brobot 1, thank you. Interview over. What have we learned about GOPOD?", "the wrap-up", []),
+    ("1", "thanks bros", "the thanks answer", []),
 ]
 CHIPPER = Path(__file__).resolve().parents[2]
 
@@ -114,42 +112,83 @@ def wait_answers(after_id, want, quiet=12, most=150):
     return [e for e in feed().get("events", []) if e["id"] > after_id]
 
 
+def wirepod_started():
+    """When this Wire-Pod start began (its feed ids count from there)."""
+    out = subprocess.run(["systemctl", "show", "-p", "ActiveEnterTimestamp", "--value", "wire-pod"], capture_output=True, text=True).stdout.strip()
+    try:
+        return datetime.datetime.strptime(" ".join(out.split()[1:3]), "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return "-3h"
+
+
+def page_caught_up(since, most=180):
+    """Waits until the page has played the feed's newest line (its "GOPOD_PAGE
+    played <id>" in Wire-Pod's log since this Wire-Pod start), so the next line
+    never piles up behind."""
+    import re
+    since = wirepod_started()
+    start = time.time()
+    while time.time() - start < most:
+        top = max([e["id"] for e in feed().get("events", [])], default=0)
+        log = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
+        played = [int(m) for m in re.findall(r"GOPOD_PAGE played (\d+) ", log)]
+        if played and max(played) >= top:
+            return True
+        time.sleep(2)
+    return False
+
+
 def main():
     started = datetime.datetime.now()
     since = started.strftime("%Y-%m-%d %H:%M:%S")
-    rows, problems = [], []
+    rows, problems, sent = [], [], []
     # python3 gopod_dry_run_001.py photo  - only the steps whose check names "photo".
     only = sys.argv[1].lower() if len(sys.argv) > 1 else ""
-    for to, text, what, must in STEPS + game_steps() + END_STEPS:
+    for to, text, what, must in STEPS + game_steps() + EGG_STEPS + END_STEPS:
         if only and only not in what.lower():
             continue
+        if not page_caught_up(since):
+            problems.append(f"the page was 3 min+ behind before \"{text}\"")
         before = max([e["id"] for e in feed().get("events", [])], default=0)
         send(to, text)
-        # A line to both, or the math pop-up (Brobot 2 follows up), has two answers.
-        events = wait_answers(before, 2 if to == "all" or what.startswith("popup: the math") else 1)
-        op = next((e for e in events if e.get("who") == "Operator" and text.lower() in e.get("text", "").lower()), None)
-        answers = [e for e in events if brobot_answer(e)]
+        # A line to both, or any math (Brobot 2 follows up), has two answers.
+        wait_answers(before, 2 if to == "all" or what.startswith(("popup: the math", "math:")) else 1)
+        sent.append((to, text, what, must, before))
+        print(f"... {text}", flush=True)
+    # 2026-10-24 (live: answers landed under the next line): each line's answers
+    # are what came after its own Operator line, up to the next one.
+    page_caught_up(since)
+    events = feed().get("events", [])
+    ops = []
+    for to, text, what, must, before in sent:
+        op = next((e for e in events if e["id"] > before and e.get("who") == "Operator" and text.lower() in e.get("text", "").lower()), None)
+        ops.append(op)
+    played = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
+    for i, (to, text, what, must, before) in enumerate(sent):
+        op = ops[i]
+        start = op["id"] if op else before
+        nxt = next((o["id"] for o in ops[i + 1:] if o), None)
+        window = [e for e in events if e["id"] > start and (nxt is None or e["id"] < nxt)]
+        answers = [e for e in window if brobot_answer(e)]
         note = []
         if op is None:
             note.append("no Operator bubble")
         if not answers:
             note.append("no answer")
-        elif op is not None and answers[0]["id"] < op["id"]:
-            note.append("answer came before the Operator line")
-        said = " ".join(e["text"] for e in answers).lower().replace(" ", "")
+        # Fractions show with the fraction slash, repeats with a bar over the digits.
+        said = unicodedata.normalize("NFKD", " ".join(e["text"] for e in answers)).replace("\u2044", "/")
+        said = "".join(c for c in said if not unicodedata.combining(c)).lower().replace(" ", "")
         for w in must:
             if w.lower().replace(" ", "") not in said:
                 note.append(f"answer lacks \"{w}\"")
         # A pop-up step: its pop-up came on the feed, and the page showed it.
         if what.startswith("popup:"):
-            pops = [e for e in events if e.get("who") == "Picture" and e.get("text", "").startswith("popup:")]
+            pops = [e for e in window if e.get("who") == "Picture" and e.get("text", "").startswith("popup:")]
             if not pops:
                 note.append("no pop-up")
-            else:
-                played = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
-                if f"GOPOD_PAGE played {pops[0]['id']} " not in played:
-                    note.append("pop-up not shown by the page")
-        first = answers[0]["text"].replace("⁣", "")[:90] if answers else ""
+            elif f"GOPOD_PAGE played {pops[0]['id']} " not in played:
+                note.append("pop-up not shown by the page")
+        first = answers[0]["text"].replace("\u2063", "")[:90] if answers else ""
         rows.append((text, what, "ok" if not note else "; ".join(note), first))
         if note:
             problems.append(f"\"{text}\": " + "; ".join(note))

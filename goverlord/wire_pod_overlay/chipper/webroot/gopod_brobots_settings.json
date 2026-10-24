@@ -275,6 +275,11 @@
     "thinking_text_about": "2026-10-18 (operator: \"\\\"thinking please wait\\\" process * replace with short & sweet: \\\"Got it!\\\"\").",
     "thinking_text": "Got it!",
     "thinking_moves": ["arm", "nod"],
+    "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod), his words, then his searching pace. Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
+    "got_it": {
+      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_interval_seconds": 0.333, "searching_resend_seconds": 3.9},
+      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_interval_seconds": 0.333, "searching_resend_seconds": 3.9}
+    },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
     "speech_after_animation_seconds": 0.9,
     "animation_done_most_seconds": 10
@@ -495,6 +500,8 @@
     "feed_max_about": "2026-10-24 (the root-to-leaf pass, link 2): the chat feed - the one line everything the page shows comes from, numbered - keeps its newest this many lines.",
     "feed_max": 300,
     "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
+    "item_max_ms_about": "2026-10-24 (live: the chat stopped after a reply until F5): a feed line that hasn't handed on after this long is logged (GOPOD_PAGE error stuck ...) and passed. F5.",
+    "item_max_ms": 90000,
     "display_bubbles": 12,
     "display_ms": 150
   },
@@ -2253,7 +2260,8 @@
       "please": "pleeze",
       "MouseOver": "mouse over",
       "LLM": "elle-ellem",
-      "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)"
+      "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
+      "livestreams": "lyve-streams"
     },
     "say_words": {
       "lifetime": "life-time",
@@ -2263,7 +2271,7 @@
       "brobots": "bro-bots",
       "GOPOD": "Go Pod",
       "Pinterest": "pin-trest",
-      "lol": "laugh out loud", "live": "lyve",
+      "lol": "laugh out loud", "live": "lyve", "livestreams": "lyve-streams",
       "Grabby": "grab-e",
       "DJ": "dee-jay",
       "MC": "emm-see"

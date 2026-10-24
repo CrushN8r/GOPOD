@@ -548,6 +548,7 @@ Two data blocks the code reads. Nothing else lives here.
     {"from": "Brotime", "to": "Bro-time"},
     {"from": "MAth", "to": "math"},
     {"from": "live stream", "to": "lyve stream"},
+    {"from": "livestreams", "to": "lyve-streams"},
     {"from": "livestream", "to": "lyve-stream"},
     {"from": "go live", "to": "go lyve"},
     {"from": "going live", "to": "going lyve"},

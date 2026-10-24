@@ -354,7 +354,7 @@ func gopodNoticePostLines(esn string, lines []string) {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 	for _, l := range lines {
 		if l == "\x00got_it" {
-			l = gopodNoticeFill(vp.GotIt, map[string]string{"thinking_text": gopodThinkingLineSpoken()})
+			l = gopodNoticeFill(vp.GotIt, map[string]string{"thinking_text": gopodGotItFor(esn).Text})
 		}
 		for _, one := range strings.Split(l, "\n") {
 			if one = strings.TrimSpace(one); one != "" {
@@ -397,7 +397,7 @@ func gopodNoticeGotItAgain(esn string, hadManager bool) string {
 	}
 	host, _ := gopodManagerLastHost.Load().(string)
 	helper := gopodNoticeHelper(host)
-	l := gopodNoticeFill(vp.GotItAgain, map[string]string{"thinking_text": gopodThinkingLineSpoken(), "helper": helper})
+	l := gopodNoticeFill(vp.GotItAgain, map[string]string{"thinking_text": gopodGotItFor(esn).Text, "helper": helper})
 	if l != "" {
 		// 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in
 		// highlighting pipeline"): he says it - lit as he does (noticesay:), shown

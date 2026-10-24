@@ -107,7 +107,7 @@ func gopodStartNod(robot *vector.Vector, esn string) chan struct{} {
 // live and scripted answers both - each waiting for the one before it to be back
 // at rest, so they never overlap.
 func gopodThinkingMoves(robot *vector.Vector, esn string) {
-	for _, m := range gopodBrobotsSettings.ChatMoves.ThinkingMoves {
+	for _, m := range gopodGotItFor(esn).Moves {
 		var done chan struct{}
 		switch m {
 		case "arm":
