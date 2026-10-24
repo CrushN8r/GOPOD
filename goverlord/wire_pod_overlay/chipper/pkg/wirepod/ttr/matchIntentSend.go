@@ -58,6 +58,10 @@ func IntentPass(req interface{}, intentThing string, speechText string, intentPa
 		}
 	}
 	logger.LogUI("Intent matched: " + intentThing + ", transcribed text: '" + speechText + "', device: " + esn)
+	// GOPOD 2026-10-24: a Brobot told to sleep answers "zzz" in the chat.
+	if intentThing == "intent_system_sleep" {
+		GopodChatFeedAdd(gopodBrobotName(esn), "zzz")
+	}
 	if isParam {
 		logger.LogUI("Parameters sent: " + fmt.Sprint(intentParams))
 	}
@@ -262,6 +266,9 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 	var matched int = 0
 	var intentNum int = 0
 	var successMatched bool = false
+	// GOPOD 2026-10-24: a line a Brobot heard himself goes in the chat at once,
+	// before anything answers it (gopodHeardLine, gopod_greetings.go).
+	gopodHeardLine(botSerial, voiceText)
 	voiceText = strings.ToLower(voiceText)
 	pluginMatched := pluginFunctionHandler(req, voiceText, botSerial)
 	customIntentMatched := customIntentHandler(req, voiceText, botSerial)

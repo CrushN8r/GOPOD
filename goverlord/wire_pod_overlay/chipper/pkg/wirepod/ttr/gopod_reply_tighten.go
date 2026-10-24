@@ -140,6 +140,12 @@ func gopodTightenReply(reply, question, esn string) string {
 	if c := gopodBrobotsSettings.ColourSlots.MaxSentences; c > 0 && !pointBubbles && (gopodSayLine(esn) != "" || gopodGivenHasNotes(esn)) && gopodChainHas(esn, "colour:value_point") && (budget == 0 || budget > c) {
 		budget = c
 	}
+	// 2026-10-24 (operator: "Brobot 1 response * is amazing, lol, but too long"):
+	// a free answer (no value point; a greeting too) keeps at most
+	// reply_tighten.free_max_sentences, budget_off or not.
+	if f := t.FreeMaxSentences; f > 0 && !pointBubbles && gopodSayLine(esn) == "" && !gopodGivenHasNotes(esn) && gopodAnswerType(esn, question) == "free" && (budget == 0 || budget > f) {
+		budget = f
+	}
 	if budget > 0 {
 		body = gopodFirstSentences(body, budget)
 	}

@@ -321,7 +321,19 @@ func buildGOPODStreamResultWithRepair(ctx context.Context, raw, model string, re
 		MarkedPacket:   rich.MarkedPacket,
 		FilteredPacket: flat.FilteredPacket,
 		AudibleChunks:  flat.AudibleChunks,
+		Fallback:       strings.TrimSpace(flat.Content) == strings.TrimSpace(gopodRobotSpeechFallbackLine),
 	}
+}
+
+// gopodDisplayForSpeech: the bubble's words for what's said - the reply as
+// written, or the fallback line when that's what's said (2026-10-24, live: the
+// fallback said while the bubble showed the reply). The live reply and the
+// highlight check both take it.
+func gopodDisplayForSpeech(display string, sr gopodStreamResult) string {
+	if sr.Fallback {
+		return gopodStripAnimationCueForDisplay(gopodRobotSpeechFallbackLine)
+	}
+	return display
 }
 
 func createGOPODRobotSpeechRepairRequest(model, raw string) openai.ChatCompletionRequest {

@@ -483,7 +483,11 @@ func gopodRecordAnswerKind(text string) string {
 // keep-or-delete question; true means the line is taken (no chat reply). Both
 // Brobots hear a spoken answer: the second hearing, within
 // addressing.first_heard_seconds, is taken quietly.
-func GopodRecordSessionAnswer(text string) bool {
+// how: the line's input ("Typed text", "Numpad text", a heard line) - a typed
+// answer is shown and read out like every Operator line (2026-10-24, operator:
+// "Operator to Goverlord * Keep the session recording * highlighting?"); a
+// heard one is already shown (gopodHeardLine).
+func GopodRecordSessionAnswer(text, how string) bool {
 	kind := gopodRecordAnswerKind(text)
 	if kind == "" {
 		return false
@@ -497,8 +501,16 @@ func GopodRecordSessionAnswer(text string) bool {
 	gopodRecord.answeredAt = time.Now()
 	gopodRecord.Unlock()
 	logger.Println("GOPOD_RECORD_SESSION answer=" + kind + " text=" + text)
-	GopodChatFeedAddTo("Operator", gopodBrobotsSettings.RecordSession.AnswerTo, text)
-	go gopodRecordDecide(kind == "keep", "answer")
+	to := gopodBrobotsSettings.RecordSession.AnswerTo
+	if how == gopodVoiceCommandHow {
+		go gopodRecordDecide(kind == "keep", "answer")
+		return true
+	}
+	gopodChatFeedAddOperator(to, text, gopodOperatorVia(how))
+	go func() {
+		gopodReporterReadsOperator(text, how, to) // read out (and lit) first
+		gopodRecordDecide(kind == "keep", "answer")
+	}()
 	return true
 }
 

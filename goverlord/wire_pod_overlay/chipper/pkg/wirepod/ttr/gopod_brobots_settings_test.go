@@ -4,6 +4,8 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1523,7 +1525,7 @@ func TestOnePageOwnsTheShow(t *testing.T) {
 		return
 	}
 	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
-	for _, want := range []string{`if (!isMainPage) { return 0; }`, `|| !pageRoleKnown) { return; }`, `heardBody.set("page", pageId)`, `openingBody.set("page", pageId)`, `body.set("page", pageId)`} {
+	for _, want := range []string{`if (!isMainPage) { return 0; }`, `!pageRoleKnown || !isMainPage) { return; }`, `heardBody.set("page", pageId)`, `openingBody.set("page", pageId)`, `body.set("page", pageId)`} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
 		}
@@ -1593,25 +1595,46 @@ func TestPhoneLayoutHolds(t *testing.T) {
 	}
 }
 
-// TestViewerFollowsTheMainPage (2026-10-23): a viewer more than
-// page_sync.viewer_catch_up_events lines behind the main page catches up.
-func TestViewerFollowsTheMainPage(t *testing.T) {
-	if gopodBrobotsSettings.PageSync.MainLeaseSeconds <= 0 {
-		t.Error("page_sync.main_lease_seconds is not set")
-	}
+// TestDisplayMirrorHolds (2026-10-24, operator: "the visitor page does no
+// thinking * visitor page zombie follows GOPOD admin feed"): only the main page
+// runs the chat and sends what it shows; every other page only paints it; only
+// the admin sends; a visitor fetches it.
+func TestDisplayMirrorHolds(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
 	}
 	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
-	for _, want := range []string{"mainPlayed > playedId + VIEWER_CATCH_UP_EVENTS", "if (reduce || viewerBehind())", "if (viewerBehind()) { return false; }", "var passed = voiceLitStart(0.1, null, src);", "if (!isMainPage && feedQueue[0].e && feedQueue[0].e.id > mainPlayed + 1) { return; }"} {
+	for _, want := range []string{"!pageRoleKnown || !isMainPage) { return; }", "function displaySend() {", "function displayPaint(d) {", `fetch("/api-sdk/gopod_display?since="`} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
 		}
 	}
-	h, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/sdkapp/gopod_typed_input.go"))
-	if !strings.Contains(string(h), "wirepod_ttr.GopodMainPlayed()") {
-		t.Error("Wire-Pod no longer tells a viewer how far the main page is")
+	// The admin's template never reaches a visitor (live: the system window showed on the phone).
+	for _, want := range []string{`!el.classList.contains("gopod-admin-only")`, `system-menu-host gopod-admin-only"`, `terminal gopod-admin-only"`} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	for _, gone := range []string{"viewerBehind", "mainPlayed", "gopod_heard_lines", `fetch("/api/get_logs")`} {
+		if strings.Contains(string(page), gone) {
+			t.Errorf("the old follow code is back: %s", gone)
+		}
+	}
+	post := func(addr string) int {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("POST", "/api-sdk/gopod_display", strings.NewReader(`{"html":"<div>hi</div>","anchor":0,"offset":0,"at_end":true}`))
+		req.RemoteAddr = addr
+		http.DefaultServeMux.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	if post("203.0.113.58:1") != http.StatusForbidden || post("127.0.0.1:1") != http.StatusOK {
+		t.Error("only the admin may send the display")
+	}
+	rec := httptest.NewRecorder()
+	http.DefaultServeMux.ServeHTTP(rec, httptest.NewRequest("GET", "/api-sdk/gopod_display?since=0", nil))
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "<div>hi</div>") {
+		t.Errorf("a visitor gets the display: %d %s", rec.Code, rec.Body.String())
 	}
 }
 
@@ -1826,7 +1849,7 @@ func TestVisitorSignUp(t *testing.T) {
 	}()
 	vs := &gopodBrobotsSettings.Visitors
 	vs.Participation, vs.ProfilesFile, vs.AdminAddressesFile = false, filepath.Join(dir, "visitors.json"), filepath.Join(dir, "admins")
-	vs.SeenSeconds, vs.NameMax, vs.WaitingText, vs.MutedText = 30, 20, "Waiting for approval", "Muted"
+	vs.SeenSeconds, vs.NameMax, vs.WaitingText, vs.MutedText, vs.ApprovedText = 30, 20, "Waiting for approval", "Muted", "Username Approved"
 	os.WriteFile(vs.AdminAddressesFile, []byte("# laptop\n203.0.113.7\n"), 0o600)
 	gopodVisitors.Lock()
 	gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
@@ -1855,8 +1878,11 @@ func TestVisitorSignUp(t *testing.T) {
 		t.Errorf("names first come, first served: %v", names)
 	}
 	gopodVisitorAct("approve", "id:idA", true)
-	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Muted" {
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Username Approved" {
 		t.Errorf("approved, participation OFF: pass %v note %q", pass, note)
+	}
+	if st := GopodVisitorStatus(phone, "idA", ""); st["state"] != "approved" {
+		t.Errorf("status after approval, OFF: %v", st["state"])
 	}
 	gopodVisitorAct("participation", "", true)
 	if pass, how, _ := line(phone, "idA", "hello Brobots"); !pass || how != "Visitor: Pip" {
@@ -1880,7 +1906,7 @@ func TestVisitorSignUp(t *testing.T) {
 	gopodVisitors.Lock()
 	gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
 	gopodVisitors.Unlock()
-	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Muted" {
+	if pass, _, note := line(phone, "idA", "hello"); pass || note != "Username Approved" {
 		t.Errorf("after a restart: approved Pip, participation OFF - pass %v note %q", pass, note)
 	}
 	back := map[string]gopodVisitor{}
@@ -1971,5 +1997,154 @@ func TestPhoneAppHolds(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, "webroot/gopod_sw.js")); err != nil {
 		t.Error("no gopod_sw.js")
+	}
+}
+
+// TestVisitorGateAndGreetings (2026-10-24): a visitor reaches the Brobots chat
+// and nothing of Wire-Pod's ("redo visitor page with no other wire-pod
+// access"); every "good <part of day>" is answered against the real time.
+func TestVisitorGateAndGreetings(t *testing.T) {
+	gate := func(addr, path string) int {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", path, nil)
+		req.RemoteAddr = addr
+		if gopodVisitorGate(rec, req) {
+			return 200
+		}
+		return rec.Code
+	}
+	visitor := "203.0.113.58:5000"
+	for path, want := range map[string]int{"/": 200, "/index.html": 200, "/js/gopod_brobots_chat.js": 200, "/gopod_chat_feed.json": 200,
+		"/api-sdk/gopod_typed_input": 200, "/api-sdk/gopod_display": 200, "/app/gopod_manifest.json": 200,
+		"/setup.html": 403, "/sdkapp/": 403, "/api/get_config": 403, "/api/get_logs": 403, "/api/set_kg_api": 403,
+		"/api-sdk/gopod_record_session": 403, "/api-sdk/gopod_visitors": 403, "/session-certs/x": 403, "/css/../setup.html": 403} {
+		if got := gate(visitor, path); got != want {
+			t.Errorf("visitor %s: %d, want %d", path, got, want)
+		}
+	}
+	if gate("127.0.0.1:5000", "/setup.html") != 200 || gate("127.0.0.1:5000", "/api/get_config") != 200 {
+		t.Error("the admin is refused")
+	}
+	old := gopodBrobotsSettings.Greetings
+	defer func() { gopodBrobotsSettings.Greetings = old }()
+	g := &gopodBrobotsSettings.Greetings
+	g.RightText, g.WrongText = "Good {part} to you too!", "Good {said}? It's {time} here - good {part}!"
+	g.Parts = nil
+	for _, p := range []struct {
+		n    string
+		f, t int
+	}{{"morning", 5, 12}, {"afternoon", 12, 17}, {"evening", 17, 22}, {"night", 22, 5}} {
+		g.Parts = append(g.Parts, struct {
+			Name string `json:"name"`
+			From int    `json:"from"`
+			To   int    `json:"to"`
+		}{p.n, p.f, p.t})
+	}
+	morning := time.Date(2026, 10, 24, 9, 25, 0, 0, time.Local)
+	if got := gopodGreetingLine("", "good morning Brobots", morning); got != "Good morning to you too!" {
+		t.Errorf("good morning at 9:25: %q", got)
+	}
+	if got := gopodGreetingLine("", "it's a good evening", morning); got != "Good evening? It's "+gopodClockFor("", morning)+" here - good morning!" {
+		t.Errorf("good evening at 9:25: %q", got)
+	}
+	if got := gopodGreetingLine("", "Good night bros", time.Date(2026, 10, 24, 23, 10, 0, 0, time.Local)); got != "Good night to you too!" {
+		t.Errorf("good night at 23:10: %q", got)
+	}
+	if gopodGreetingLine("", "good job", morning) != "" || gopodGreetingSaid("evening greeting") != "" {
+		t.Error("not a greeting, yet answered as one")
+	}
+}
+
+// TestHeardLineAndFreeCap (2026-10-24): a line a Brobot heard himself goes in the
+// chat at once, the Operator's "[Backpack]" bubble, to the Brobot it names first
+// (live: it showed under his answer); a free answer has its own cap.
+func TestHeardLineAndFreeCap(t *testing.T) {
+	gopodChatFeed.Lock()
+	before := len(gopodChatFeed.events)
+	gopodChatFeed.Unlock()
+	gopodHeardLine(gopodBrobot1ESN, "Brobot 2, good afternoon")
+	gopodChatFeed.Lock()
+	events := append([]gopodChatFeedEvent(nil), gopodChatFeed.events[before:]...)
+	gopodChatFeed.Unlock()
+	if len(events) != 1 || events[0].Who != "Operator" || events[0].To != "Brobot 2" || events[0].Via != "Backpack" {
+		t.Errorf("heard line: %+v", events)
+	}
+	if gopodBrobotsSettings.ReplyTighten.FreeMaxSentences <= 0 {
+		t.Error("reply_tighten.free_max_sentences is not set")
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/matchIntentSend.go"))
+	if !strings.Contains(string(src), "gopodHeardLine(botSerial, voiceText)") {
+		t.Error("heard lines no longer go in the chat at once")
+	}
+}
+
+// TestSpeakerAndSystemWindowHold (2026-10-24, operator: "speaker icon ... starts
+// OFF * When speaker icon is OFF, no volume bar * In system window, all slots
+// start as closed * resize system menu bubble to show all slots"): the speaker
+// starts as background_loop.starts_on says, never from the browser; no volume
+// bar while it's off; every slot closed; the menu as tall as its slots.
+func TestSpeakerAndSystemWindowHold(t *testing.T) {
+	raw, page := gopodRawSettingsForTest(t)
+	if on, ok := gopodBlockForTest(t, raw, "background_loop")["starts_on"].(bool); !ok || on {
+		t.Error("background_loop.starts_on must be false (the speaker starts off)")
+	}
+	for _, want := range []string{`speakerOn = cfg.starts_on === true;`, `if (!backgroundLoop.speaker()) { volumeWrap.classList.remove("open"); return; }`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("the page lost %q", want)
+		}
+	}
+	for _, gone := range []string{`localStorage.getItem("gopodLoopSpeaker")`, `if (gi === 0) { group.open = true; }`, `menu.style.flex = "0 0 70%"`} {
+		if strings.Contains(page, gone) {
+			t.Errorf("back again: %s", gone)
+		}
+	}
+	css, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "webroot/css/gopod_chat_bubbles.css"))
+	if !strings.Contains(string(css), "flex: 0 1 auto; /* 2026-10-24") {
+		t.Error("the system menu is no longer as tall as its slots")
+	}
+}
+
+// TestMicVoiceAndVisitorRowHold (2026-10-24): a numpad line plays its own mic
+// recording (evened, timed by the worker's Vosk "align" job) through the voice
+// template; the speech's fallback is what the bubble shows; a typed answer to
+// Goverlord is read out like every Operator line; a visitor's chat opens without
+// Wire-Pod's log; the marquee is each page's own; doin' is said dew-in.
+func TestMicVoiceAndVisitorRowHold(t *testing.T) {
+	file, page := gopodMicVoicePaths("/tmp/kp0_1.wav", "good morning")
+	if !strings.HasPrefix(filepath.Base(file), "op_mic_") || !regexp.MustCompile(`^/gopod_reporter_audio/[a-z]{2}_[a-z]+_[0-9a-f]{16}\.wav$`).MatchString(page) {
+		t.Errorf("mic voice name %q must look like a made voice (the page reads its word times)", page)
+	}
+	gopodMicVoiceRemember("Good morning", "/nonexistent/kp0.wav")
+	if _, ok := gopodMicVoiceFor.Load("good morning"); ok {
+		t.Error("a missing recording was remembered")
+	}
+	if got := gopodApplyPronunciations("doin' fine"); !strings.Contains(got, "dew") {
+		t.Errorf("doin': %q", got)
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	read := func(rel string) string { b, _ := os.ReadFile(filepath.Join(root, rel)); return string(b) }
+	checks := map[string][]string{
+		"pkg/wirepod/ttr/gopod_numpad_ptt.go":               {"gopodMicVoiceRemember(text, master)"},
+		"pkg/wirepod/ttr/gopod_reporter_voices.go":          {"if gopodMicVoiceSay(host, text) {", "func gopodVoicePlay("},
+		"gopod_probes/tools/gopod_reporter_voice_worker.py": {`if job.get("align"):`},
+		"pkg/wirepod/ttr/kgsim.go":                          {"if streamResult.Fallback {"},
+		"pkg/wirepod/ttr/gopod_record_session.go":           {"gopodReporterReadsOperator(text, how, to)"},
+		"webroot/js/gopod_brobots_chat.js":                  {"function visitorOpenChat() {", "function marqueeTrack(bubble, layer) {", `l.textContent = "";`, `typedSubmit.type = "submit";`},
+		"webroot/css/gopod_responsive.css":                  {"body.gopod-visitor .gopod-typed-input .gopod-typed-submit {", "body.gopod-visitor .brobot-bubble { font-size: 15px; }", ".narrator-single .narrator-stage { aspect-ratio: auto;"},
+	}
+	for rel, wants := range checks {
+		src := read(rel)
+		for _, w := range wants {
+			if !strings.Contains(src, w) {
+				t.Errorf("%s lost %q", rel, w)
+			}
+		}
 	}
 }

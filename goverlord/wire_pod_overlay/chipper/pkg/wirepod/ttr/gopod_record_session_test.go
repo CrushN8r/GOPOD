@@ -83,13 +83,13 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 	if !gopodRecordIs(func() bool { return gopodRecord.waiting })() {
 		t.Fatal("after thanks the keep-or-delete question should be open")
 	}
-	if GopodRecordSessionAnswer("tell me a joke") {
+	if GopodRecordSessionAnswer("tell me a joke", "Typed text") {
 		t.Fatal("a chat line is not an answer")
 	}
-	if !GopodRecordSessionAnswer("yes keep the session recording") {
+	if !GopodRecordSessionAnswer("yes keep the session recording", "Typed text") {
 		t.Fatal("the keep line should be taken")
 	}
-	if !GopodRecordSessionAnswer("yes keep the session recording") {
+	if !GopodRecordSessionAnswer("yes keep the session recording", "Typed text") {
 		t.Fatal("the brother's hearing of the same answer should be taken quietly")
 	}
 	gopodRecordWaitFor(t, "zip", func() bool { return len(gopodRecordFolders(t, root, "*.zip")) == 1 })
@@ -139,7 +139,7 @@ func TestGopodRecordSessionThanksDelete(t *testing.T) {
 	GopodRecordSessionSet(true)
 	gopodRecordWaitFor(t, "recording", gopodRecordIs(func() bool { return gopodRecord.active }))
 	GopodRecordSessionThanks()
-	if !GopodRecordSessionAnswer("no delete the session recording") {
+	if !GopodRecordSessionAnswer("no delete the session recording", "Typed text") {
 		t.Fatal("the delete line should be taken")
 	}
 	gopodRecordWaitFor(t, "delete", func() bool {

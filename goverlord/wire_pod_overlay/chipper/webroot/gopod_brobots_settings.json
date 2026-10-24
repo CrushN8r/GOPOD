@@ -489,8 +489,9 @@
     "held_log_seconds": 3,
     "main_lease_seconds_about": "2026-10-23 (C1, one page owns the show): the main page plays the sound and its reports time the run; every other page is a silent viewer. Gone longer than this (s), the next page that can play takes over.",
     "main_lease_seconds": 12,
-    "viewer_catch_up_events_about": "2026-10-23 (operator: \"timing between the phone & pc appear to be in sync then fall out of sync\"): a viewer more than this many lines behind the main page catches up - scrolls at once, no waits, its voices passed - until it's back in step.",
-    "viewer_catch_up_events": 2
+    "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
+    "display_bubbles": 12,
+    "display_ms": 150
   },
   "chat_audio": {
     "about": "2026-10-14 (operator: \"Rule: Please make all chat bubble audio default to volume variable to play at 10% volume * the background loop volume variable is set to play at 5% * all chat bubbles, system bubbles, reporter/narrator bubbles, brobots' chat bubbles, etc... * song sequences as well * Later, I may want to edit other play volumes as well\"): every sound the chat page plays - voices, stings, a song's sounds and soundtrack, the weather sounds - plays at volume (0-1). 2026-10-14 (operator: \"increase default volume from 10% to 35%\"): 0.35. A sound's own volume (a sting's here, a song step's \"volume\") is its share of it: 1 = this volume, 0.8 = 80% of it. The background loop keeps its own volume (background_loop). The page reads it on F5.",
@@ -504,7 +505,9 @@
   "background_loop": {
     "about": "2026-10-13 (operator: \"a 6s loop * I want to run the loop in the background very quiet, try 10% volume * keyboard line record/session clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s\"): the chat page plays file (from the overlay's sounds/, copied to the page's voice folder at Wire-Pod's start) over and over with no gap, at volume (0-1), starting again from its top each time the session clock resets to 00:00:00. Empty file: off. 2026-10-17 (the master): volume is a percentage of chat_audio.volume - 0.05 on its own was 14% of 0.35.",
     "file": "BrobotsGroove-Loop-1.wav",
-    "volume": "10%"
+    "volume": "10%",
+    "starts_on_about": "2026-10-24 (operator: \"Page refresh now shows background loop speaker icon = ON, should be/it starts OFF\"): the speaker on every page load - false, off (its volume bar shows only while it's on).",
+    "starts_on": false
   },
   "word_animations": {
     "about": "The animation a spoken piece picks from its words (gopod_word_animations.go; animation_vocab.json's aliases: \"party\" -> celebrate, \"mad\" -> angry). Operator 2026-10-09: \"its a joke/play on words, so the emotion should reflect that\": a piece holding one of play_on_words (whole phrase, any case) gets play_on_words_animation instead. swap: an animation to replace with another in chat speech (empty: angry stays - operator 2026-10-09: \"angry worked fine for many runs * keep it, just allow more time between animations\", see chat_moves.animation_gap_seconds). Live and scripted answers both. Needs wpr 2.",
@@ -916,6 +919,17 @@
     "about": "2026-10-23 (template sweep): words that carry no meaning of their own - a follow-up sentence made only of these and his brother's words is a repeat, dropped.",
     "plain_words": ["a", "an", "the", "and", "or", "but", "so", "of", "in", "on", "at", "to", "for", "with", "from", "by", "as", "is", "are", "was", "were", "be", "been", "it", "its", "it's", "this", "that", "these", "those", "there", "here", "i", "i'm", "me", "my", "you", "your", "you're", "we", "our", "us", "he", "his", "him", "she", "her", "they", "them", "their", "what", "who", "how", "yeah", "yes", "no", "not", "just", "like", "really", "very", "too", "also", "oh", "hey", "bro", "bros", "dude", "man", "ha", "haha", "lol", "well", "now", "then", "all", "some", "any", "can", "do", "does", "did", "got", "get", "gonna", "wanna", "about", "up", "out", "if"]
   },
+  "greetings": {
+    "about": "2026-10-24 (operator: \"good + morning/afternoon/evening ... upon, good [time-of-day], is correct vs time? Respond accordingly = new compatible answer-chain\"): every \"good morning/afternoon/evening/night\" is GOPOD's (Wire-Pod's own greeting intents got it wrong and answered out of the chat's order). The answer chain's golden_line opens with right_text when the greeting fits the time of day (parts, by hour, GOPOD's own clock), else wrong_text ({said} {part} {time}); then the Brobot carries on as ever.",
+    "parts": [
+      {"name": "morning", "from": 5, "to": 12},
+      {"name": "afternoon", "from": 12, "to": 17},
+      {"name": "evening", "from": 17, "to": 22},
+      {"name": "night", "from": 22, "to": 5}
+    ],
+    "right_text": "Good {part} to you too!",
+    "wrong_text": "Good {said}? It's {time} here - good {part}!"
+  },
   "app": {
     "about": "2026-10-24 (FINISH_PLAN_001.md C3; operator: \"Go on C3 for my phone\"): GOPOD as a phone app. A phone offers Install app only for a secure page, so Wire-Pod also serves GOPOD securely on https_port - the same pages. The certificate is GOPOD's own: a local authority named ca_name (made once, kept; the phone trusts it once from /gopod_ca.crt) and a server certificate for this machine's names and addresses, made again when they change. All in cert_dir (private, the operator's home, never the repo). The app opens on the chat (gopod_manifest.json, start ?app).",
     "https_port": 8443,
@@ -931,7 +945,10 @@
     "seen_seconds": 30,
     "name_max": 20,
     "waiting_text": "Waiting for approval",
-    "muted_text": "Muted"
+    "muted_text": "Muted",
+    "approved_text_about": "2026-10-24 (operator: \"Upon Approval * text toggles from 'Waiting for approval' to 'Username Approved', then clears & continues like before\"; \"Visitor chat participation OFF * 'Waiting for approval' or 'Username Approved' * is remembered across ON/OFF\"): shown in the visitor's text field when approved (for approved_show_ms, then the field clears), and as the answer to a line sent while participation is OFF.",
+    "approved_text": "Username Approved",
+    "approved_show_ms": 4000
   },
   "session_memory": {
     "about": "2026-10-23 (template sweep): how each earlier exchange is told to the Brobots ({who} {asked} {answered}; scenario {scenario}); empty_text when a line has no words left.",
@@ -2217,6 +2234,7 @@
     "system_persona": "You are an advanced digital butler, combining the sleek, predictive tech-intelligence of JARVIS with the dry, unwavering British loyalty of Alfred Pennyworth. You are the messenger between Master CrushN8r (crush-enaider: one who crushes it, the one who crushes performances) and Goverlord (Governor + Overlord), the Jetson system brain. When responding to system events: 1. Address the operator as Master CrushN8r or sir, with absolute civility and poise. 2. Keep a tone of quiet confidence, impeccable manners and subtle, dry wit; acknowledge status, not struggle; if something breaks, treat it as a minor inconvenience you are already quietly handling. 3. Frame technical processes as tasks you are executing on his behalf through Goverlord. 4. Use short sentences and ellipses (...) for a measured, calm, aristocratic pace. 5. Use classic British English vocabulary (Indeed, precisely, operational, stood down, at your disposal, commenced).",
     "system_say_words_about": "2026-10-12 (operator: \"The system voice speech enhancements for the British accent is too much ... sounds stretched/distorted ... tone it down by half or off\"): only the names are respelled now; the other words are said as written.",
     "system_say_words": {
+      "lifetime": "life-time",
       "niche": "neesh",
       "CrushN8r": "crushin-ate-uh",
       "(music)": "",
@@ -2226,6 +2244,7 @@
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)"
     },
     "say_words": {
+      "lifetime": "life-time",
       "niche": "neesh",
       "thx": "thanks",
       "brobot": "bro-bot",
@@ -2384,6 +2403,8 @@
     "more_words": ["tell me all", "all about", "tell me about", "explain", "why", "how does", "how do", "what happened", "the story", "everything", "go on", "tell me more"],
     "more_sentences": 2,
     "max_sentences": 8,
+    "free_max_sentences_about": "2026-10-24 (operator: \"Brobot 1 response * is amazing, lol, but too long\"): a free answer (no value point - a greeting too) keeps at most this many sentences, budget_off or not.",
+    "free_max_sentences": 4,
     "say_line_sentences": 2,
     "drop_sentences_with": ["the response reflects", "this response", "the response above", "as an ai language model", "would like me to continue", "want me to continue", "like to continue", "use emojis in your responses", "need more assistance", "let me know"],
     "not_sentence_ends": ["Dr.", "Mr.", "Mrs.", "Ms.", "St.", "vs.", "etc.", "e.g.", "i.e."],

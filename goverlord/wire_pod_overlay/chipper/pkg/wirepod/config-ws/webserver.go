@@ -410,7 +410,8 @@ func StartWebServer() {
 	}
 	http.Handle("/", DisableCachingAndSniffing(webRoot))
 	fmt.Printf("Starting webserver at port " + vars.WebPort + " (http://localhost:" + vars.WebPort + ")\n")
-	if err := http.ListenAndServe(":"+vars.WebPort, nil); err != nil {
+	// GOPOD 2026-10-24: a visitor reaches the Brobots chat only (vars.GopodGated).
+	if err := http.ListenAndServe(":"+vars.WebPort, vars.GopodGated(http.DefaultServeMux)); err != nil {
 		logger.Println("Error binding to " + vars.WebPort + ": " + err.Error())
 		if vars.Packaged {
 			logger.ErrMsg("FATAL: Wire-pod was unable to bind to port " + vars.WebPort + ". Another process is likely using it. Exiting.")

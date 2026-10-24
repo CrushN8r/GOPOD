@@ -129,6 +129,23 @@ def heard_times(wav, words):
     return out
 
 
+def heard_words(wav):
+    """2026-10-24 (the mic's own voice): every word Vosk hears in a recording,
+    with its times - the words the line was transcribed from."""
+    import subprocess
+    from vosk import KaldiRecognizer
+    rec = KaldiRecognizer(VOSK["model"], 16000)
+    rec.SetWords(True)
+    pcm = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(wav), "-ac", "1", "-ar", "16000",
+                          "-f", "s16le", "-"], capture_output=True, check=True).stdout
+    heard = []
+    for i in range(0, len(pcm), 8000):
+        if rec.AcceptWaveform(pcm[i:i + 8000]):
+            heard += json.loads(rec.Result()).get("result", [])
+    heard += json.loads(rec.FinalResult()).get("result", [])
+    return [{"t": h["word"], "s": round(float(h["start"]), 3), "e": round(float(h["end"]), 3)} for h in heard]
+
+
 def main() -> int:
     announcer = load_announcer()
     from kokoro import KPipeline
@@ -149,6 +166,13 @@ def main() -> int:
             continue
         try:
             job = json.loads(raw)
+            # 2026-10-24: "align" - time a recording's words (the mic's own voice).
+            if job.get("align"):
+                wav = Path(job["align"])
+                words = heard_words(wav) if VOSK.get("model") is not None else []
+                wav.with_suffix(".words.json").write_text(json.dumps({"aligner": "vosk", "words": words}))
+                print(json.dumps({"ok": True, "seconds": announcer.wav_duration_seconds(wav)}), flush=True)
+                continue
             out = Path(job["out"])
             synthesize(announcer, pipeline, job["text"], job["voice"], out, float(job.get("speed") or 1.03))
             seconds = announcer.wav_duration_seconds(out)

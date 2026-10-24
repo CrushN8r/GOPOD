@@ -225,6 +225,10 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	}
 	if status == "ok" && strings.TrimSpace(text) != "" {
 		gopodNumpadLastKey.Store(key) // the bubble reads "KP1 to Brobot 1"
+		// 2026-10-24: its own recording plays as its voice (gopod_mic_voice.go).
+		if master, _ := r["master"].(string); master != "" {
+			gopodMicVoiceRemember(text, master)
+		}
 		go func() {
 			if strings.HasPrefix(esn, gopodPersonaMark) {
 				gopodPersonaReply(strings.TrimPrefix(esn, gopodPersonaMark), text, "Numpad text")

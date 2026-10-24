@@ -1829,6 +1829,18 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**Good morning / afternoon / evening / night** (2026-10-24, `gopod_greetings.go`, settings
+`greetings`; operator: "upon, good [time-of-day], is correct vs time? Respond accordingly"): every
+"good <part of day>" is GOPOD's - Wire-Pod's own greeting intents (live: "good afternoon" as good
+morning, "good evening" as praise) go to the chat instead - and the answer chain's golden_line
+opens with the greeting checked against GOPOD's clock: "Good morning to you too!" or "Good evening?
+It's 0925 Hours Military Time here - good morning!" - the time as the Brobot's own 12/24-hour
+setting says it, like the weather line; then the Brobot carries on. A line a Brobot heard himself
+(backpack, Hey Vector) goes in the chat the moment it's heard (`gopodHeardLine` in
+`ProcessTextAll`), the Operator's "[Backpack]" bubble before his answer - the page never reads
+Wire-Pod's log (live: "good afternoon" showed under the answer). A free answer (no value point, a
+greeting too) keeps at most `reply_tighten.free_max_sentences` (4). `TestHeardLineAndFreeCap`.
+
 **GOPOD as a phone app** (2026-10-24, FINISH_PLAN_001.md C3, phone first; `gopod_https.go`, settings
 `app`): Wire-Pod also serves GOPOD securely on `app.https_port` (8443) - the same pages, nothing
 copied - with GOPOD's own certificate: a local authority made once (the phone trusts it once from
@@ -1836,7 +1848,8 @@ copied - with GOPOD's own certificate: a local authority made once (the phone tr
 they change; all private in `app.cert_dir` (operator's home). The app: `app/gopod_manifest.json`
 (name GOPOD, icon - his masked minifig picture, operator 2026-10-24: "Use this for my icon please" - start
 `/?app`, which opens the chat: a visitor's chat-only view), `gopod_sw.js` (keeps nothing; every
-page and voice live). Locked by `TestPhoneAppHolds`.
+page and voice live). Locked by `TestPhoneAppHolds`. Soft-locked 2026-10-24 (operator: "all seems to run fine with the phone app * soft
+lock"); trusting the certificate is followed by restarting the browser.
 
 **Visitors and the chat sign-up** (2026-10-24, `gopod_visitors.go`, settings `visitors`; operator:
 "set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat
@@ -1850,7 +1863,18 @@ With participation ON (starts OFF every start) an approved visitor with their bo
 the Brobots under their username; unticked = muted ("Muted"). A visitor never runs the show
 (commands dropped). Profiles (name, approval, box) are saved in `visitors.profiles_file` (private)
 and come back after a dropped connection or a restart ("like the brobot reboot recovery thing").
-A visitor's typing row is two lines - the Brobots, then the text field (Record, timer
+A visitor reaches the Brobots chat and nothing else (2026-10-24, operator: "YIKES!! redo
+visitor page with no other wire-pod access"): Wire-Pod's web servers (8080, 8443, 80) put
+`gopodVisitorGate` in front (`vars.GopodGated`) - the page, its scripts, styles, pictures and voices,
+GOPOD's state files, the chat's calls and the heard lines pass; Wire-Pod's settings, config, logs
+and every other call are refused (logged "refused"). The page reads only the lines a Brobot heard
+himself (`/api-sdk/gopod_heard_lines`), never the whole log. A visitor's page is always the chat
+alone (no way back) and only paints what the main page shows (the display mirror). Locked by `TestVisitorGateAndGreetings`. Every visitor event is logged (GOPOD_VISITOR): a new device, coming back, every line sent and what
+became of it (name asked, waiting, approved-OFF, muted, a GOPOD command, passed), approve / clear /
+mute, participation ON/OFF. On approval the visitor's text field turns from "Waiting for approval"
+to "Username Approved" (`visitors.approved_text`, `approved_show_ms`), then clears; with
+participation OFF an approved visitor's line answers "Username Approved" - kept across ON/OFF; ON,
+unticked answers "Muted". A visitor's typing row is two lines - the Brobots, then the text field (Record, timer
 and speaker are the admin's); Wire-Pod's own intents pass for a visitor, GOPOD's commands ("thx
 bros", start, stop, system-) never. Every scroll rule measures the chat above the typing row
 (`chatViewHeight`), and a chat at its end stays at its end when the row changes height.
@@ -1887,6 +1911,32 @@ plays as its bubble shows. Listed expletives (`"strike": true` in the Brobots li
 struck through in every chat line (`gopodStrikeExpletives`, one place: the feed), said as their
 substitute. Locked by `TestStrikeAndPlacingHold`.
 
+**The mic's own voice** (2026-10-24, `gopod_mic_voice.go`; operator: "When audio is voice from mic,
+process raw mic voice same as raw kokoro voice file * do the volume level smoothing part * same
+vosk for highlight timings * play processed mic-voice instead of operator-voice"): a numpad line
+keeps its 48 kHz recording; it's evened like every made voice (`gopodLoudnessFile`), timed by the
+voice worker's Vosk (an "align" job), and played through the voice template (`gopodVoicePlay`,
+shared with made voices) in place of the Operator's made voice - Generating + hourglass while it's
+processed, then lit word by word. Also: the bubble shows the speech's fallback line when that's
+what's said (`gopodDisplayForSpeech`, used live and by the highlight check); a typed answer to
+Goverlord ("Keep the session recording") is shown and read out like every Operator line; a
+visitor's chat opens without Wire-Pod's log polling (refused requests logged once a minute); the
+Easter egg marquee is each page's own (sent empty, laid out for the visitor's screen); a visitor's
+row has a smaller "All" menu with the text field's green and a Submit button. Lingo: doin' =
+dew-in. A visitor's bubble text is 75% of each screen's size (operator: "please make brobot answer
+chain text 75%"); on a phone the nap's narrator bubble grows with its words instead of cutting
+them. A fallback logs why (BROBOT_FALLBACK: the failing line, the rule, the reply as written).
+`TestMicVoiceAndVisitorRowHold`.
+
+**Speaker and system window** (2026-10-24, operator: "speaker icon ... it starts OFF * When speaker
+icon is OFF, no volume bar * In system window, all slots start as closed * resize system menu
+bubble to show all slots * results bubble is empty and can be resized down, easily"): the speaker
+starts as `background_loop.starts_on` says (off) on every page load - nothing kept in the browser;
+its volume bar shows only while it's on. The system window opens with every slot closed, the menu
+as tall as its slots, the results empty below and the bar between them dragging 5%-95%. The admin's
+own bubbles (system window, system command answers: `gopod-admin-only`) never reach a visitor.
+`TestSpeakerAndSystemWindowHold`.
+
 **One page owns the show: main page, viewer pages** (2026-10-23, FINISH_PLAN_001.md C1,
 `gopod_main_page.go`): Wire-Pod names one main page - it plays the sound and its shown, played
 and heard reports time the run. Every other open page is a viewer: the same bubbles, silent, its
@@ -1894,14 +1944,16 @@ reports ignored (a viewer's tab hidden pauses nothing). The first page that can 
 clicked) is main and keeps it while it reports in; gone past `page_sync.main_lease_seconds`
 (12 s), the next page that can play takes over. The page's id lives with its tab, so F5 keeps
 its role. `?view` in the address = a viewer by choice. Nothing plays until a page knows its
-role. Locked by `TestOnePageOwnsTheShow`. A viewer follows the main page (2026-10-23, operator: "timing
-between the phone & pc appear to be in sync then fall out of sync"): Wire-Pod tells each viewer how
-far the main page has played; more than `page_sync.viewer_catch_up_events` (2) lines behind, it
-catches up - scrolls at once, no waits, its voices passed - until it's back in step
-(`TestViewerFollowsTheMainPage`). A visitor mirrors the admin (2026-10-24, operator: "GOPOD phone page does
-nothing but zombie-follows GOPOD admin page display, wherever the fuck admin page display is at"):
-it never shows a line the main page hasn't reached - at most the one it's on (played + 1); the main
-page tells its place every quarter second, a visitor asks twice a second. Only a page on GOPOD's own machine (localhost or the machine's own network address,
+role. Locked by `TestOnePageOwnsTheShow`. Every other page is a display mirror (2026-10-24, operator: "the visitor page does no
+thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor
+page zombie follows GOPOD admin feed"): the main page sends what it shows - its newest
+`page_sync.display_bubbles` bubbles as drawn, highlights and all, each with its own key - through
+Wire-Pod (`/api-sdk/gopod_display`) at most every `page_sync.display_ms`; every other page runs none
+of the chat (no feed, voices or warm-up) and only paints that: a bubble it has is changed only
+where it changed (no picture reloads, no flicker), new ones added, gone ones removed. Scrolling is
+each device's own (operator: "Decouple admin scrolling from phone scrolling"): GOPOD's rules on its
+own screen - a new bubble bottom/bottom or top/top, the lit words followed. Its own typing row and
+sign-up notes stay its own (`TestDisplayMirrorHolds`). Only a page on GOPOD's own machine (localhost or the machine's own network address,
 checked by Wire-Pod from where the page connects) is the admin and can be the main page; any other
 device is always a silent visitor (live: the phone took the main page after a restart and the PC
 went silent; `TestOnlyGOPODsMachineIsMain`). The phone stays a visitor: no system window (operator: "Stay with

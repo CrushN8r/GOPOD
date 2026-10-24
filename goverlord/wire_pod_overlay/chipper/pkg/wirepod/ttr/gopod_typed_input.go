@@ -81,7 +81,7 @@ func gopodOperatorLine(esn, text, how string) error {
 	}
 	// The answer to Record Session's keep-or-delete question, whichever Brobot is
 	// chosen (gopod_record_session.go).
-	if GopodRecordSessionAnswer(text) {
+	if GopodRecordSessionAnswer(text, how) {
 		return nil
 	}
 	// interview_script.play_words ("start interview") (gopod_interview_script.go).

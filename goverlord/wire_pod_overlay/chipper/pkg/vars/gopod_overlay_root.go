@@ -2,6 +2,7 @@
 package vars
 
 import (
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,3 +32,21 @@ func init() {
 		CustomIntentsPath = filepath.Join(dir, "customIntents.json")
 	}
 }
+
+// GopodRequestGate (2026-10-24, operator: "YIKES!! redo visitor page with no
+// other wire-pod access ... from my phone I can nav into the main page and
+// see/edit wire-pod settings"): set by GOPOD (wirepod_ttr, gopod_visitors.go) -
+// false when a request is refused (a visitor reaching past the Brobots chat).
+// GopodGated puts it in front of a web server's handler.
+var GopodRequestGate func(w http.ResponseWriter, r *http.Request) bool
+
+func GopodGated(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if GopodRequestGate != nil && !GopodRequestGate(w, r) {
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
+// ## EOF

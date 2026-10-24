@@ -389,7 +389,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		// GOPOD 2026-10-04: the answer to Record Session's keep-or-delete question
 		// is taken here, by whichever Brobot hears it first; no chat reply
 		// (gopod_record_session.go).
-		if GopodRecordSessionAnswer(transcribedText) {
+		if GopodRecordSessionAnswer(transcribedText, gopodVoiceCommandHow) {
 			if !isKG && req != nil {
 				gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
 				IntentPass(req, "intent_greeting_hello", "", map[string]string{}, false)
@@ -719,6 +719,15 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				rawRespText = gopodAnimationMarkerToInternal(gopodLinkWords(rawRespText))
 				streamResult = buildGOPODStreamResultWithRepair(ctx, rawRespText, aireq.Model, openAIGOPODRobotSpeechRepairer(c))
 				fullRespSlice = append([]string(nil), streamResult.AudibleChunks...)
+				// GOPOD 2026-10-24: the bubble shows what's said - the fallback line
+				// when the reply couldn't be said (gopodStreamResult.Fallback).
+				if streamResult.Fallback {
+					// 2026-10-24: why, so the next one can be fixed at its cause - the
+					// line that failed, the rule it broke, and the reply as written.
+					v := validateGOPODRobotSpeech(strings.TrimSpace(rawRespText))
+					logger.Println("BROBOT_FALLBACK " + gopodBrobotName(esn) + ": the fallback line said and shown - failed " + v.FailureType + " at \"" + v.FirstFailingLine + "\" - reply: " + strings.ReplaceAll(rawRespText, "\n", " / "))
+				}
+				displayRespText = gopodDisplayForSpeech(displayRespText, streamResult)
 				if gopodBrobotName(esn) != "Brobot" {
 					displayRespText, displayPieces = gopodSegmentDisplay(displayRespText, gopodSpokenPieceTexts(fullRespSlice))
 					pieceOfSpoken = displayPieces

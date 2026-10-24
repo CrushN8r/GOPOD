@@ -72,15 +72,6 @@ func GopodIsMainPage(id string) bool {
 	return gopodMainPage.id == "" || gopodMainPage.id == id
 }
 
-// GopodMainPlayed: how far the main page has played the feed (this start's
-// boot, the last id) - a viewer behind it catches up (2026-10-23, operator: "timing
-// between the phone & pc appear to be in sync then fall out of sync").
-func GopodMainPlayed() (int64, int) {
-	gopodChatFeed.Lock()
-	defer gopodChatFeed.Unlock()
-	return gopodChatFeed.boot, gopodPagePlayedTo
-}
-
 // GopodIsLocalMachine (2026-10-23, live: the phone became the main page after a
 // restart - it was clicked first - and the PC went silent; operator: "Stay with
 // phone = visitor"): a page opened on GOPOD's own machine - by localhost or by

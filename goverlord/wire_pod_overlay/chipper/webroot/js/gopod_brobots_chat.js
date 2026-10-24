@@ -212,10 +212,18 @@
             allFirstSelect.addEventListener(ev, function () { radio.checked = true; });
           });
           label.appendChild(allFirstSelect);
+          // 2026-10-24 (operator: "In visitor brobots row ... after drop down menu add
+          // a submit button for typed text * make submit button the same smaller font
+          // size"): a visitor's Submit, after the menu (gopod_responsive.css).
+          var typedSubmit = document.createElement("button");
+          typedSubmit.type = "submit";
+          typedSubmit.className = "gopod-typed-submit";
+          typedSubmit.textContent = "Submit";
         } else {
           label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
         }
         typedRow.appendChild(label);
+        if (esn === "all") { typedRow.appendChild(typedSubmit); }
       });
       // A line to All, sent with Brobot 2 first: its Operator icons in that order.
       var allSecondFirst = {};
@@ -283,9 +291,12 @@
       // loop_pause line) and its end sets it back to the toggle (loop_resume).
       var backgroundLoop = (function () {
         var volumeCfg = 0.14;
-        var file = "", volume = 0.14, ctx = null, buffer = null, source = null, gain = null, wanted = false;
-        var speakerOn = true, runQuiet = false;
-        try { speakerOn = localStorage.getItem("gopodLoopSpeaker") !== "off"; } catch (e) {}
+        var file = "", volume = 0.14, ctx = null, buffer = null, source = null, gain = null, wanted = false, setupDone = false;
+        // 2026-10-24 (operator: "Page refresh now shows background loop speaker
+        // icon = ON, should be/it starts OFF"): every page load starts with the
+        // speaker as background_loop.starts_on says (off); a toggle holds for this
+        // page only - nothing kept in the browser.
+        var speakerOn = false, runQuiet = false;
         // 2026-10-17: volume is a share of the master (chat_audio.volume), evened
         // like every sound (audioLevel).
         function level() { return speakerOn && !runQuiet ? chatLevel(volume * audioLevel(file)) : 0; }
@@ -333,6 +344,7 @@
             file = String(cfg.file || "").trim();
             volume = volumeShare(cfg.volume);
             volumeCfg = volume;
+            if (!setupDone) { speakerOn = cfg.starts_on === true; setupDone = true; if (typeof showSpeaker === "function") { showSpeaker(); } }
             applyLevel();
             wanted = !!file;
             if (wanted && pageClicked) { load(); }
@@ -341,7 +353,6 @@
           speaker: function () { return speakerOn; },
           setSpeaker: function (on) {
             speakerOn = !!on;
-            try { localStorage.setItem("gopodLoopSpeaker", speakerOn ? "on" : "off"); } catch (e) {}
             applyLevel();
           },
           runQuiet: function (quiet) { runQuiet = !!quiet; applyLevel(); },
@@ -396,6 +407,7 @@
         // 🔇 + System Window for admin users only (me)"): a visitor's 🔇 is the
         // loop alone.
         if (!isAdminPage) { return; }
+        if (!backgroundLoop.speaker()) { volumeWrap.classList.remove("open"); }
         if (backgroundLoop.speaker()) { systemMenuOpen(); } else { systemMenuClose(); }
       });
       showSpeaker();
@@ -437,7 +449,9 @@
         }, 600);
       });
       var volumeHide = null;
-      function volumeOpen() { clearTimeout(volumeHide); showVolume(); volumeWrap.classList.add("open"); }
+      // The volume bar only while the speaker is on (2026-10-24, operator: "When
+      // speaker icon is OFF, no volume bar").
+      function volumeOpen() { clearTimeout(volumeHide); if (!backgroundLoop.speaker()) { volumeWrap.classList.remove("open"); return; } showVolume(); volumeWrap.classList.add("open"); }
       function volumeClose() { clearTimeout(volumeHide); volumeHide = setTimeout(function () { volumeWrap.classList.remove("open"); }, 400); }
       [speakerToggle, volumeWrap].forEach(function (el) {
         el.addEventListener("mouseenter", volumeOpen);
@@ -572,7 +586,7 @@
         if (!pageRoleKnown) { chatOnlyPending = true; return; }
         if (isAdminPage) { document.body.classList.remove("gopod-chat-only"); return; }
         var log = document.getElementById("section-log");
-        if (log && chatBack.parentNode !== log) { log.insertBefore(chatBack, log.firstChild); }
+        if (chatBack.parentNode) { chatBack.remove(); }
         document.body.classList.add("gopod-chat-only");
         if (!container.classList.contains("expanded")) { window.showBrobotChatBubbles(); }
       }
@@ -582,8 +596,18 @@
       if ("serviceWorker" in navigator && window.isSecureContext) {
         navigator.serviceWorker.register("/gopod_sw.js").catch(function () { /* no app - the page works as ever */ });
       }
-      if (/[?&]app(=|&|$)/.test(location.search)) {
-        window.addEventListener("load", function () { setTimeout(function () { if (typeof window.showLog === "function") { window.showLog(); } }, 0); });
+      var appStart = /[?&]app(=|&|$)/.test(location.search);
+      // A visitor's chat opens on its own, without Wire-Pod's Log (its log polling
+      // is the admin's - live: the phone asked for Wire-Pod's log four times a
+      // second, refused each time).
+      function visitorOpenChat() {
+        if (typeof window.toggleVisibility === "function") {
+          window.toggleVisibility(["section-intents", "section-log", "section-botauth", "section-version", "section-uicustomizer"], "section-log", "icon-Logs");
+        } else {
+          var log = document.getElementById("section-log");
+          if (log) { log.style.display = ""; }
+        }
+        chatOnlyOn();
       }
       window.addEventListener("load", function () {
         var wirePodShowLog = window.showLog;
@@ -1024,7 +1048,6 @@
       // stuck on for 2 minutes lets go.
       var CHAT_BATON_MAX_MS = 120000, SPEAKING_MAX_MS = 30000;
       function batonHeld() {
-        if (viewerBehind()) { return false; }
         if (narratorLines.some(function (n) { return n.shown; })) { return true; }
         return Array.prototype.some.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
           var b = el.closest(".brobot-bubble");
@@ -1159,7 +1182,7 @@
             });
             return;
           }
-          if (chatMove || performance.now() - started < (viewerBehind() ? 0 : CHAT_REPLY_DELAY_MS)) {
+          if (chatMove || performance.now() - started < CHAT_REPLY_DELAY_MS) {
             revealTimer = setTimeout(waitForPlace, 40);
             return;
           }
@@ -1226,7 +1249,7 @@
         var target = Math.max(0, Math.min(top, chatMaxScroll()));
         var reduce = false;
         try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
-        if (reduce || viewerBehind()) {
+        if (reduce) {
           if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
           container.scrollTop = target;
           return;
@@ -1359,7 +1382,8 @@
               if (typeof cw.reveal_rest_ms === "number") { REVEAL_REST_MS = cw.reveal_rest_ms; }
               if (typeof cw.speaking_max_ms === "number") { SPEAKING_MAX_MS = cw.speaking_max_ms; }
               if (typeof cw.voice_ready_max_ms === "number") { VOICE_READY_MAX_MS = cw.voice_ready_max_ms; }
-              if (settings.page_sync && typeof settings.page_sync.viewer_catch_up_events === "number") { VIEWER_CATCH_UP_EVENTS = settings.page_sync.viewer_catch_up_events; }
+              if (settings.page_sync && typeof settings.page_sync.display_bubbles === "number") { DISPLAY_BUBBLES = settings.page_sync.display_bubbles; }
+              if (settings.page_sync && typeof settings.page_sync.display_ms === "number") { DISPLAY_MS = settings.page_sync.display_ms; }
               if (typeof cw.typed_text_min_px === "number") { TYPED_TEXT_MIN_PX = cw.typed_text_min_px; fitTypedRow(); }
             }
             if (settings.highlight_scroll && settings.highlight_scroll.dead_zone >= 0) { FOCUS_DEAD_ZONE = Number(settings.highlight_scroll.dead_zone); }
@@ -1477,73 +1501,8 @@
         fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () { /* Wire-Pod gone */ });
       }
 
-      var bubblesPolling = false;
-      function pollBubbles() {
-        if (bubblesPolling) { return; }
-        bubblesPolling = true;
-        fetch("/api/get_logs")
-          .then(function (r) { return r.text(); })
-          .then(function (text) {
-            var lines = text.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
-            // 2026-09-28: a multi-line robot reply (the Brobot's rich display) is logged as one
-            // "Brobot N: ..." line followed by its remaining lines with no prefix. Fold
-            // those continuation lines into the robot line above them, so the whole
-            // reply is one bubble. A continuation ends at the next timestamped line,
-            // "Brobot N:" line, or "Intent matched" line.
-            var folded = [];
-            var inReply = false;
-            lines.forEach(function (line) {
-              var stamped = /^\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}: /.test(line);
-              var robotLine = /^(Brobot 1|Brobot 2):/.test(line) || KG_REPLY_RE.test(line);
-              if (robotLine) { folded.push(line); inReply = true; return; }
-              // Any other speaker or song-marker line (Brobot 3, GOPOD_SONG_START, ...)
-              // ends a reply too, so it never folds into the bubble above it.
-              // 2026-10-10 (live 22:18: Brobot 2's reply came out four times, each
-              // with the lines after it glued on): every chat-feed line Wire-Pod
-              // logs ("Goverlord Says:", "Countdown:", "Reporter Voice:", ...) ends it too.
-              var otherRole = /^(Brobot \d+|GOPOD_[A-Z_]+|Goverlord Says|Goverlord|Operator|Countdown|Reporter Voice|Bingo Ball|Narrator|Song Audio|Picture|Chapter):/.test(line);
-              if (stamped || otherRole) { inReply = false; folded.push(line); return; }
-              if (inReply) { folded[folded.length - 1] += "\n" + line; return; }
-              folded.push(line);
-            });
-            lines = folded;
-            lines.forEach(function (line) {
-              var said = line.match(/^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}): Intent matched: (.*?), transcribed text: '(.*)', device: (\S+)$/);
-              if (said) {
-                if (isSeen(line) || feedQueued[line] || !said[3].trim()) { return; }
-                // 2026-10-07: in the one line with every other bubble, in time order.
-                queueBubble(line, logTimeMs(said[1]), function () {
-                  // 2026-09-30: a robot told to sleep answers "zzz" (operator's ask);
-                  // both bubbles are placed like any other, not moved to the top.
-                  var sleep = said[2] === "intent_system_sleep";
-                  // 2026-10-08 (operator: "if I backpack brobot 1, defaults to
-                  // 'Operator to Brobots'"): a line the robot heard itself goes
-                  // to that Brobot, unless it opens with a Brobot's name.
-                  var heardBy = operatorTarget(said[3].trim());
-                  if (heardBy === "Brobots" && ESN_TO_BROBOT[said[4]]) { heardBy = ESN_TO_BROBOT[said[4]]; }
-                  appendBubble("Operator", said[3].trim(), sleep ? "plain" : undefined, heardBy, "Backpack");
-                  if (sleep && ESN_TO_BROBOT[said[4]]) {
-                    appendBubble(ESN_TO_BROBOT[said[4]], "zzz", "brobot");
-                  }
-                });
-                return;
-              }
-              // 2026-09-29: Wire-Pod's own chat replies (a plain "Hey Vector" question,
-              // not a GOPOD song or go search) are logged as "<time>: LLM response for
-              // <ESN>: <reply>". Shown as that robot's bubble, animation cue removed.
-              // 2026-10-17 (operator: "one event list, single source of truth"):
-              // Wire-Pod's own chat replies ("LLM response for <ESN>: ...") come on
-              // the numbered feed now (via "llm", showFeedEvent), not from this log.
-              // 2026-09-30: "Brobot N: ..." lines (songs, the interview, go search,
-              // the aliases) carry no time or number here, so they are no longer
-              // read from this log - they come from Wire-Pod's numbered chat feed
-              // instead (pollFeed below), where a repeated line or a second run of
-              // the same song still gets its own bubble.
-            });
-          })
-          .catch(function () { /* log endpoint not reachable yet */ })
-          .then(function () { bubblesPolling = false; });
-      }
+      // 2026-10-24: a line a Brobot heard himself comes on the feed now
+      // (gopodHeardLine), the moment it's heard - Wire-Pod's log is never read.
 
       // 2026-10-01 (operator: "after please wait, add a countdown timer in the
       // brobots window"): a small centred bubble counts the seconds of the
@@ -1956,6 +1915,7 @@
         return message.trim() !== llmWarm.waitText.trim();
       }
       function pollWarmup() {
+        if (!isMainPage) { return; } // the display mirror shows a viewer's chat
         if (warmupPolling) { return; }
         warmupPolling = true;
         fetch("/gopod_llm_warmup.json", { cache: "no-store" })
@@ -2094,7 +2054,7 @@
         // While the system menu is open, its answers go in its results (systemMenuResult).
         if (systemMenuResult(String(text), "answer")) { if (then) { then(); } return; }
         // 2026-10-21: a system answer is Goverlord's (the Captain's).
-        placeBubble(rawBubble({ kind: "terminal", classes: "operator system-status score terminal",
+        placeBubble(rawBubble({ kind: "terminal", classes: "operator system-status score terminal gopod-admin-only",
           head: systemHead(systemLabel), text: text, lineClass: "terminal-text" }), then);
       }
       // 2026-10-17 (operator: "Don't speak or highlight search results * put a
@@ -2498,6 +2458,13 @@
         layer.className = "marquee-lights";
         layer.setAttribute("aria-hidden", "true");
         bubble.appendChild(layer);
+        marqueeTrack(bubble, layer);
+      }
+      // A marquee's bulbs, laid out and lit by this page for its own screen - a
+      // visitor's too (2026-10-24, operator: "decouple easter egg marquee sizing
+      // so phone can do its own correct sizing"): the main page sends the layer
+      // empty, the visitor fills it.
+      function marqueeTrack(bubble, layer) {
         var m = { bubble: bubble, layer: layer, lights: [] };
         marquees.push(m);
         if (marqueeSizes) { marqueeSizes.observe(bubble); }
@@ -3704,6 +3671,7 @@
         var log = document.getElementById("section-log");
         // 2026-10-17 (operator: "Fix collapsed chat > \"here\""): a collapsed chat
         // (the Brobots Chat button) is away too - nothing plays into it.
+        // 2026-10-24: a visitor plays no sound, so it needs no click to follow.
         return pageClicked && document.visibilityState === "visible" &&
           (!log || log.style.display !== "none") && container.offsetParent !== null &&
           container.classList.contains("expanded");
@@ -3721,7 +3689,7 @@
         // 2026-10-23 (operator: "audio files don't appear to be pre-loading for
         // instant playability upon bubble display"): every voice starts loading
         // the moment it reaches the page, not when its turn comes.
-        if (item.e && isVoiceEvent(item.e) && !restoringChat && !stingFiles[String(item.e.text).replace(/#vol=[0-9.]+$/, "").split("/").pop()]) { voiceAudio(item.e.text); }
+        if (isMainPage && item.e && isVoiceEvent(item.e) && !restoringChat && !stingFiles[String(item.e.text).replace(/#vol=[0-9.]+$/, "").split("/").pop()]) { voiceAudio(item.e.text); }
         runFeedQueue();
       }
       // A log line's time ("2026.10.07 20:17:19"), at the end of its second, so
@@ -3732,13 +3700,9 @@
         return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() + 999;
       }
       function runFeedQueue() {
-        if (feedRunning || !feedQueue.length || !chatViewable() || !pageRoleKnown) { return; }
-        // GOLDEN, a visitor mirrors the admin (2026-10-24, operator: "GOPOD phone
-        // page does nothing but zombie-follows GOPOD admin page display, wherever
-        // the fuck admin page display is at"): a visitor never shows a line the
-        // main page hasn't reached - at most the one it's on now (played + 1).
-        // When the main page moves on, this queue moves on (reportShown).
-        if (!isMainPage && feedQueue[0].e && feedQueue[0].e.id > mainPlayed + 1) { return; }
+        // Only the main page runs the chat; every other page only shows what the
+        // main page shows (the display mirror, below).
+        if (feedRunning || !feedQueue.length || !chatViewable() || !pageRoleKnown || !isMainPage) { return; }
         feedRunning = true;
         var item = feedQueue.shift();
         delete feedQueued[item.key];
@@ -3774,15 +3738,6 @@
       // role is known.
       var pageId = "", pageViewOnly = /[?&]view(=|&|$)/.test(location.search);
       var isMainPage = false, pageRoleKnown = false;
-      // A viewer follows the main page (2026-10-23, operator: "timing between the
-      // phone & pc appear to be in sync then fall out of sync due to slower
-      // scrolling on the phone"): more than page_sync.viewer_catch_up_events
-      // lines behind it, the viewer catches up - scrolls at once, no waits, its
-      // voices passed (it's silent anyway) - until it's back in step.
-      var mainPlayed = 0, VIEWER_CATCH_UP_EVENTS = 2;
-      function viewerBehind() {
-        return pageRoleKnown && !isMainPage && mainPlayed > playedId + VIEWER_CATCH_UP_EVENTS;
-      }
       try { pageId = sessionStorage.getItem("gopod_page_id") || ""; } catch (err) { /* no storage */ }
       if (!pageId) {
         pageId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -3797,6 +3752,43 @@
         visitorId = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
         try { localStorage.setItem("gopod_visitor_id", visitorId); } catch (err) { /* no storage */ }
       }
+      // A visitor's standing in the text field (2026-10-24, operator: "Upon
+      // Approval * text toggles from \"Waiting for approval\" to \"Username
+      // Approved\", then clears & continues like before"): waiting - the waiting
+      // words; approved - "Username Approved" for a few seconds (once per name,
+      // remembered in this browser), then the field as ever. A line sent still
+      // answers with its own note (sendTypedLine).
+      var visitorLastState = "", visitorClearTimer = null;
+      function visitorStanding(v) {
+        var state = v.state || "";
+        if (state === visitorLastState) { return; }
+        var was = visitorLastState;
+        visitorLastState = state;
+        clearTimeout(visitorClearTimer);
+        if (state === "waiting") {
+          typedText.placeholder = v.waiting_text || typedPlaceholder;
+          typedText.classList.add("gopod-typed-note");
+          return;
+        }
+        var approved = state === "approved" || state === "on" || state === "muted";
+        var told = "";
+        try { told = localStorage.getItem("gopod_visitor_approved") || ""; } catch (err) { told = ""; }
+        if (approved && v.name && told !== v.name && (was === "waiting" || was === "")) {
+          try { localStorage.setItem("gopod_visitor_approved", v.name); } catch (err) { /* no storage */ }
+          typedText.placeholder = v.approved_text || typedPlaceholder;
+          typedText.classList.add("gopod-typed-note");
+          visitorClearTimer = setTimeout(function () {
+            typedText.placeholder = typedPlaceholder;
+            typedText.classList.remove("gopod-typed-note");
+          }, v.approved_show_ms || 4000);
+          return;
+        }
+        if (state === "nameless") {
+          try { localStorage.removeItem("gopod_visitor_approved"); } catch (err) { /* no storage */ }
+        }
+        typedText.placeholder = typedPlaceholder;
+        typedText.classList.remove("gopod-typed-note");
+      }
       function setPageRole(main) {
         var changed = !pageRoleKnown || main !== isMainPage;
         isMainPage = main;
@@ -3806,7 +3798,129 @@
         var body = new URLSearchParams();
         body.set("note", "page " + pageId + (main ? " is the main page (plays the sound)" : " is a viewer (silent)"));
         fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () { /* Wire-Pod gone */ });
+        displayMirror();
         runFeedQueue();
+      }
+      // GOLDEN display mirror (2026-10-24, operator: "the visitor page does no
+      // thinking * visitor page zombie follows regardless of a nuclear war going on
+      // next door * visitor page zombie follows GOPOD admin feed"): the main page
+      // sends what it shows - its newest bubbles as drawn (highlights, Generating,
+      // hourglass and all), each with its own key - through Wire-Pod
+      // (/api-sdk/gopod_display), whenever they change (at most every
+      // page_sync.display_ms). Every other page runs none of the chat - no feed, no
+      // voices, no warm-up - it only paints what the main page sent: a bubble it
+      // already has is changed only where it changed (pictures never reload, no
+      // flicker - live: "highlighting starts ok, then starts to flicker"), a new
+      // one is added, a gone one removed. Scrolling is each device's own (operator:
+      // "Decouple admin scrolling from phone scrolling * devices follow GOPOD's
+      // scrolling on their own devices"): GOPOD's rules - a new bubble placed
+      // bottom/bottom or top/top, the lit words followed - on its own screen. Its
+      // own typing row (sign-up, notes) stays its own.
+      var DISPLAY_BUBBLES = 12, DISPLAY_MS = 150;
+      var displaySendTimer = null, displaySent = "", displayObserver = null, displayPollTimer = null, displaySeen = 0;
+      var displayKeys = new WeakMap(), displayNextKey = 0;
+      function displayBubbles() {
+        return Array.prototype.filter.call(container.children, function (el) {
+          // The visitor's template only: the admin's own bubbles (the system window,
+          // system command answers - gopod-admin-only) never reach a visitor
+          // (2026-10-24, live: the system window showed on the phone).
+          return el !== typedRow && el.dataset.staged !== "1" && el.style.visibility !== "hidden" && !el.classList.contains("gopod-admin-only");
+        }).slice(-DISPLAY_BUBBLES);
+      }
+      function displaySend() {
+        displaySendTimer = null;
+        if (!isMainPage) { return; }
+        var items = displayBubbles().map(function (b) {
+          if (!displayKeys.has(b)) { displayKeys.set(b, ++displayNextKey); }
+          var h = b.outerHTML;
+          // The marquee's bulbs are each page's own (sized for its screen).
+          if (b.querySelector(".marquee-lights")) {
+            var copy = b.cloneNode(true);
+            Array.prototype.forEach.call(copy.querySelectorAll(".marquee-lights"), function (l) { l.textContent = ""; });
+            h = copy.outerHTML;
+          }
+          return { k: displayKeys.get(b), h: h };
+        });
+        var body = JSON.stringify({ items: items });
+        if (body === displaySent) { return; }
+        displaySent = body;
+        fetch("/api-sdk/gopod_display", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+          .catch(function () { displaySent = ""; });
+      }
+      function displayChanged() {
+        if (isMainPage && displaySendTimer === null) { displaySendTimer = setTimeout(displaySend, DISPLAY_MS); }
+      }
+      // Make a look like b, keeping a's own nodes wherever they match.
+      function displayMorph(a, b) {
+        if (a.nodeType !== b.nodeType || a.nodeName !== b.nodeName) { a.parentNode.replaceChild(b, a); return; }
+        if (a.nodeType === 3 || a.nodeType === 8) { if (a.nodeValue !== b.nodeValue) { a.nodeValue = b.nodeValue; } return; }
+        if (a.nodeType !== 1) { return; }
+        if (a.classList.contains("marquee-lights")) { return; } // this page's own bulbs
+        Array.prototype.slice.call(a.attributes).forEach(function (at) { if (!b.hasAttribute(at.name)) { a.removeAttribute(at.name); } });
+        Array.prototype.forEach.call(b.attributes, function (at) { if (a.getAttribute(at.name) !== at.value) { a.setAttribute(at.name, at.value); } });
+        var bk = Array.prototype.slice.call(b.childNodes);
+        bk.forEach(function (child, i) {
+          if (i < a.childNodes.length) { displayMorph(a.childNodes[i], child); } else { a.appendChild(child); }
+        });
+        while (a.childNodes.length > bk.length) { a.removeChild(a.lastChild); }
+      }
+      function displayPaint(d) {
+        var have = {};
+        Array.prototype.forEach.call(container.children, function (el) { if (el !== typedRow && el.dataset.mid) { have[el.dataset.mid] = el; } });
+        var keep = {}, order = [], firstNew = null;
+        (d.items || []).forEach(function (it) {
+          var t = document.createElement("template");
+          t.innerHTML = it.h;
+          var fresh = t.content.firstElementChild;
+          if (!fresh) { return; }
+          fresh.setAttribute("data-mid", String(it.k));
+          var el = have[it.k];
+          if (el) { displayMorph(el, fresh); } else { el = fresh; if (!firstNew) { firstNew = el; } }
+          keep[it.k] = true;
+          order.push(el);
+        });
+        Array.prototype.slice.call(container.children).forEach(function (el) { if (el !== typedRow && !keep[el.dataset.mid]) { el.remove(); } });
+        // Bubbles already in place stay put (never moved); new ones go after them.
+        var placed = order.filter(function (el) { return el.parentNode === container; });
+        var now = Array.prototype.filter.call(container.children, function (el) { return el !== typedRow; });
+        var lastPlaced = placed.length ? order.indexOf(placed[placed.length - 1]) : -1;
+        var inOrder = now.length === placed.length && now.every(function (el, i) { return el === placed[i]; }) &&
+          order.every(function (el, i) { return el.parentNode === container || i > lastPlaced; });
+        order.forEach(function (el) { if (!inOrder || el.parentNode !== container) { container.appendChild(el); } });
+        // Its marquees: bulbs laid out for this screen.
+        Array.prototype.forEach.call(container.querySelectorAll(".marquee-lights"), function (layer) {
+          if (!marquees.some(function (m) { return m.layer === layer; })) { marqueeTrack(layer.parentElement, layer); }
+        });
+        // GOPOD's scrolling rules, on this device's own screen.
+        var speaking = container.querySelector(".brobot-say.speaking");
+        if (firstNew) { scrollChatTo(bubbleTarget(firstNew)); } else if (speaking) { focusSpeaking(speaking); }
+      }
+      function displayPoll() {
+        if (isMainPage) { return; }
+        fetch("/api-sdk/gopod_display?since=" + displaySeen, { cache: "no-store" })
+          .then(function (r) { return r.status === 200 ? r.json() : null; })
+          .then(function (d) { if (d && !isMainPage && d.v > displaySeen) { displaySeen = d.v; displayPaint(d); } })
+          .catch(function () { /* Wire-Pod gone */ });
+      }
+      function displayMirror() {
+        clearInterval(displayPollTimer);
+        displayPollTimer = null;
+        if (displayObserver) { displayObserver.disconnect(); displayObserver = null; }
+        if (isMainPage) {
+          displayObserver = new MutationObserver(function (records) {
+            // A marquee's blinking is this page's own - not a change to send.
+            var real = records.some(function (r) {
+              var el = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+              return !(el && el.closest && el.closest(".marquee-lights"));
+            });
+            if (real) { displayChanged(); }
+          });
+          displayObserver.observe(container, { childList: true, subtree: true, attributes: true, characterData: true });
+          displayChanged();
+        } else {
+          displayPollTimer = setInterval(displayPoll, DISPLAY_MS);
+          displayPoll();
+        }
       }
       function reportShown(force) {
         var log = document.getElementById("section-log");
@@ -3830,15 +3944,19 @@
               fitTypedRow();
             }
             if (isAdminPage) { document.body.classList.remove("gopod-chat-only"); }
+            // A visitor's page is the chat alone, always - no way back to Wire-Pod
+            // (2026-10-24, operator: "redo visitor page with no other wire-pod access").
+            if (!isAdminPage && !document.body.classList.contains("gopod-chat-only")) { visitorOpenChat(); }
+            // The app's start (?app): the admin's Log, a visitor's chat.
+            if (appStart) { appStart = false; if (isAdminPage && typeof window.showLog === "function") { window.showLog(); } }
             if (chatOnlyPending) { chatOnlyPending = false; setTimeout(chatOnlyOn, 0); }
             setPageRole(d.main);
-            if (typeof d.played === "number" && d.boot === playedBoot) { mainPlayed = d.played; runFeedQueue(); }
+            if (d.visitor) { visitorStanding(d.visitor); }
           })
           .catch(function () { /* Wire-Pod not up yet */ });
       }
       document.addEventListener("visibilitychange", function () { reportShown(false); runFeedQueue(); });
-      // A viewer reports in twice a second, to hear how far the main page is.
-      setInterval(function () { reportShown(pageRoleKnown && !isMainPage); }, 500);
+      setInterval(function () { reportShown(false); }, 1000);
       // 2026-10-17: every 5 s, so Wire-Pod knows the page is here soon after a
       // restart (gopod_page_presence.go).
       setInterval(function () { reportShown(true); }, 5000);
@@ -3982,14 +4100,6 @@
       // Wire-Pod with that marker, so the journal says so.
       var voicesSkipped = 0;
       function playVoiceThen(src, done) {
-        // A viewer catching up passes the voice: its line shown said, at once.
-        if (viewerBehind()) {
-          delete voiceCache[String(src)];
-          var passed = voiceLitStart(0.1, null, src);
-          if (passed) { passed(); }
-          setTimeout(done, 0);
-          return;
-        }
         var finished = false, litDone = null;
         var finish = function () {
           if (finished) { return; }
@@ -4864,7 +4974,8 @@
       function systemMenuOpen() {
         if (systemMenu && systemMenu.isConnected) { return; }
         var outer = document.createElement("div");
-        outer.className = "brobot-bubble operator system-status system-menu-host";
+        // gopod-admin-only: the admin's template, never sent to a visitor (the display mirror).
+        outer.className = "brobot-bubble operator system-status system-menu-host gopod-admin-only";
         // Its look from system_menu.look (system-set system_menu.look.<name> <value>, F5).
         var look = { font_size: "--menu-font", background: "--menu-bg", code_background: "--menu-code-bg", code_color: "--menu-code-fg", results_background: "--menu-results-bg" };
         Object.keys(look).forEach(function (k) { if (systemMenuLook[k]) { outer.style.setProperty(look[k], systemMenuLook[k]); } });
@@ -4880,7 +4991,7 @@
         systemMenuData.forEach(function (g, gi) {
           var group = document.createElement("details");
           group.className = "system-menu-group";
-          if (gi === 0) { group.open = true; }
+          // 2026-10-24 (operator: "In system window, all slots start as closed").
           var title = document.createElement("summary");
           title.textContent = g.title || "";
           group.appendChild(title);
@@ -4941,13 +5052,16 @@
         // adjustments work like this: system menu/results, 50%/50% 10%/90%,
         // 90%/10%"): the menu's share of the height, 10% to 90%; the results
         // take the rest.
-        menu.style.flex = "0 0 70%"; // 2026-10-21 (operator: "system pane vs results pane to 70%/30%")
+        // 2026-10-24 (operator: "resize system menu bubble to show all slots * results
+        // bubble is empty and can be resized down, easily"): the menu is as tall as
+        // its slots (gopod_chat_bubbles.css), the results take the rest; the bar
+        // between them drags either way.
         split.addEventListener("pointerdown", function (ev) {
           ev.preventDefault();
           split.setPointerCapture(ev.pointerId);
           function move(e) {
             var box = outer.getBoundingClientRect();
-            var share = Math.max(0.1, Math.min(0.9, (e.clientY - box.top) / box.height));
+            var share = Math.max(0.05, Math.min(0.95, (e.clientY - box.top) / box.height));
             menu.style.flex = "0 0 " + (share * 100).toFixed(1) + "%";
           }
           function up() {
@@ -5404,11 +5518,9 @@
       // the misheard spelling or a cue marker.
       Promise.all([loadNameSpellings(), loadBrobotsSettings()]).then(function () {
         restoreChat();
-        setInterval(pollBubbles, 500);
         setInterval(pollFeed, 500);
         setInterval(pollRecordSession, 1000);
         setInterval(pollWarmup, 500);
-        pollBubbles();
         pollFeed();
         pollWarmup();
       });

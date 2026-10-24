@@ -51,6 +51,10 @@ type gopodStreamResult struct {
 	MarkedPacket   string
 	FilteredPacket string
 	AudibleChunks  []string
+	// Fallback (2026-10-24, live: Brobot 2 said "My robot brain tripped over the
+	// format wire..." while his bubble showed the reply he couldn't say): the
+	// speech is the fallback line - the bubble shows it too.
+	Fallback bool
 }
 
 type brobotPhraseUnit struct {

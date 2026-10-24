@@ -91,6 +91,12 @@ var gopodNativeTake sync.Map // Brobot name -> gopodNativeAsk
 type gopodNativeAsk struct{ kind, text string }
 
 func gopodNativeToManager(esn, intent, text string) bool {
+	// 2026-10-24: every "good <part of day>" is GOPOD's, whatever Wire-Pod made
+	// of it (good morning, praise...) - it goes to the chat (gopod_greetings.go).
+	if gopodGreetingSaid(text) != "" && !gopodScriptPlaying.Load() && !gopodRunActive() {
+		logger.Println("GOPOD_NATIVE " + intent + " to the chat: a greeting, GOPOD's (" + text + ")")
+		return true
+	}
 	kind, ok := gopodBrobotsSettings.Native.ToManager[intent]
 	// A run owns the Brobots (gopodManagerTakes is live only).
 	if !ok || kind == "" || gopodScriptPlaying.Load() || gopodRunActive() {

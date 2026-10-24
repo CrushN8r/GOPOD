@@ -525,7 +525,6 @@ func gopodSayForShownLine(host, text string) (string, float64, bool) {
 // gopodReporterSayTo: gopodReporterSay with its bubble's "to" - a manager's line
 // for a Brobot shows inside that Brobot's bubble (2026-10-18, gopod_managers.go).
 func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
-	rv := gopodBrobotsSettings.ReporterVoices
 	var page string
 	var seconds float64
 	var ok bool
@@ -542,6 +541,15 @@ func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
 		logger.Println("GOPOD_HEARD " + host + ": no voice file - not said: " + gopodHeardShort(text))
 		return false
 	}
+	return gopodVoicePlay(host, text, page, seconds, wait)
+}
+
+// gopodVoicePlay (2026-10-24: shared, so a made voice and a recorded one - the
+// mic's, gopod_mic_voice.go - play the one way): a voice file to the page, a
+// system line's sting around it, in the voice queue, and - wait - on until the
+// page has played it.
+func gopodVoicePlay(host, text, page string, seconds float64, wait bool) bool {
+	rv := gopodBrobotsSettings.ReporterVoices
 	// 2026-10-13: a system line's sting first, then the speech (gopodSystemSting).
 	// 2026-10-17 (operator: "new rule: if \"(music)\" is in the story.md *
 	// display \"(music)\" visual for the deaf * play djent"): a line that starts
@@ -694,6 +702,12 @@ func gopodReporterReadsOperator(text, how, to string) {
 	}
 	for _, from := range rv.ReadLinesFrom {
 		if from == how {
+			// 2026-10-24: a numpad line plays its own mic recording, evened and
+			// timed like a made voice (gopod_mic_voice.go) - the Operator's made
+			// voice only when there's none.
+			if gopodMicVoiceSay(host, text) {
+				return
+			}
 			// 2026-10-16 (operator: "Operator bubble (as voice file is being
 			// generated) * update message to \"Voice file generating.\" +
 			// hourglass * update message upon voice wav play"); 2026-10-23: the

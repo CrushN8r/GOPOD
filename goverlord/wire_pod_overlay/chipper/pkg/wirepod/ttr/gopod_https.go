@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
+	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
 // GOPOD as a phone app (2026-10-24, FINISH_PLAN_001.md C3; operator: "Go on C3 for
@@ -192,7 +193,7 @@ func GopodStartHTTPS() {
 		return
 	}
 	logger.Println("GOPOD_APP secure page on port " + strconv.Itoa(port) + " (the phone trusts /gopod_ca.crt once)")
-	if err := http.ListenAndServeTLS(":"+strconv.Itoa(port), crt, key, nil); err != nil {
+	if err := http.ListenAndServeTLS(":"+strconv.Itoa(port), crt, key, vars.GopodGated(http.DefaultServeMux)); err != nil {
 		logger.Println("GOPOD_APP secure page stopped: " + err.Error())
 	}
 }

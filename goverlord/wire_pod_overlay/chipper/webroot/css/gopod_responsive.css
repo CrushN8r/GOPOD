@@ -91,3 +91,41 @@ body.gopod-visitor .gopod-typed-input .gopod-record-session,
 body.gopod-visitor .gopod-typed-input .gopod-session-timer,
 body.gopod-visitor .gopod-typed-input .gopod-loop-speaker,
 body.gopod-visitor .gopod-typed-input .gopod-loop-volume { display: none !important; }
+
+/* A visitor's Brobots row (2026-10-24, operator: "'All' mechanism * make drop
+   down menu, like a font size smaller? * menu green border too intense, match to
+   text field green * after drop down menu add a submit button for typed text *
+   make submit button the same smaller font size"). */
+.gopod-typed-input .gopod-typed-submit { display: none; }
+body.gopod-visitor .gopod-typed-input .gopod-all-first,
+body.gopod-visitor .gopod-typed-input .gopod-typed-submit {
+  font-size: 0.8em;
+  border: 1px solid var(--fg-color);
+  outline: none !important; /* over the "All picked" outline (gopod_chat_bubbles.css) */
+  box-shadow: none;
+}
+body.gopod-visitor .gopod-typed-input .gopod-typed-submit {
+  display: inline-block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+
+/* A visitor's bubbles (2026-10-24, operator: "visitor bubble text is too big ...
+   please make brobot answer chain text 75%"): three quarters of each screen's
+   size (34px desktop, 26px tablet, 20px phone); a notice inside keeps its share. */
+body.gopod-visitor .brobot-bubble { font-size: 25.5px; }
+@media screen and (min-width: 769px) and (max-width: 1366px) and (pointer: coarse) {
+  body.gopod-visitor .brobot-bubble { font-size: 19.5px; }
+}
+@media screen and (max-width: 768px) {
+  body.gopod-visitor .brobot-bubble { font-size: 15px; }
+  /* The nap's narrator bubble (operator: "in baby brobots song, the text continued
+     past the bubble"): on a phone its stage grows with its words, the picture
+     still behind them, instead of holding the picture's shape and cutting them. */
+  .narrator-single .narrator-stage { aspect-ratio: auto; min-height: 0; overflow: visible; }
+  .narrator-stage .narrator-part.current { position: relative; inset: auto; }
+  .narrator-single .narrator-stage .narrator-part.current { aspect-ratio: 1168 / 784; height: auto; }
+}

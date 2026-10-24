@@ -49,8 +49,9 @@ func TestHighlightCorpus(t *testing.T) {
 // gopodHighlightProblem: what's wrong with this reply's highlight, or "".
 func gopodHighlightProblem(raw, marker string) string {
 	rawInternal := gopodAnimationMarkerToInternal(gopodFixSelfName(gopodBrobot1ESN, gopodCorrectNames(gopodStripLeadingAnimationWords(raw))))
-	display := gopodDisplayReply(raw)
-	pieces := gopodSpokenPieceTexts(buildGOPODStreamResult(rawInternal).AudibleChunks)
+	sr := buildGOPODStreamResult(rawInternal)
+	display := gopodDisplayForSpeech(gopodDisplayReply(raw), sr)
+	pieces := gopodSpokenPieceTexts(sr.AudibleChunks)
 	if len(pieces) == 0 {
 		return ""
 	}

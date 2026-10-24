@@ -407,6 +407,16 @@ type gopodBrobotsSettingsFile struct {
 	BrotherRepeat struct {
 		PlainWords []string `json:"plain_words"`
 	} `json:"brother_repeat"`
+	// 2026-10-24: good morning / afternoon / evening / night (gopod_greetings.go).
+	Greetings struct {
+		Parts []struct {
+			Name string `json:"name"`
+			From int    `json:"from"`
+			To   int    `json:"to"`
+		} `json:"parts"`
+		RightText string `json:"right_text"`
+		WrongText string `json:"wrong_text"`
+	} `json:"greetings"`
 	// 2026-10-24: GOPOD as a phone app - the secure page (gopod_https.go).
 	App struct {
 		HTTPSPort int    `json:"https_port"`
@@ -422,6 +432,8 @@ type gopodBrobotsSettingsFile struct {
 		NameMax            int     `json:"name_max"`
 		WaitingText        string  `json:"waiting_text"`
 		MutedText          string  `json:"muted_text"`
+		ApprovedText       string  `json:"approved_text"`
+		ApprovedShowMS     int     `json:"approved_show_ms"`
 	} `json:"visitors"`
 	// 2026-10-23 (template sweep): the session memory's lines (gopod_session_memory.go).
 	SessionMemory struct {
@@ -554,6 +566,7 @@ type gopodBrobotsSettingsFile struct {
 		MoreWords           []string       `json:"more_words"`
 		MoreSentences       int            `json:"more_sentences"`
 		MaxSentences        int            `json:"max_sentences"`
+		FreeMaxSentences    int            `json:"free_max_sentences"`
 		SayLineSentences    int            `json:"say_line_sentences"`
 		DropSentencesWith   []string       `json:"drop_sentences_with"`
 		NotSentenceEnds     []string       `json:"not_sentence_ends"`

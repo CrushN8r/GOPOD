@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -91,7 +92,12 @@ func gopodContains(list []string, v string) bool {
 // challenges humans input to the brobots * What is Explain the MAth? * the
 // hilarity that ensues afterwards"): the exact line for a golden question
 // (golden_answers), "" for none.
-func gopodGoldenAnswer(question string) string {
+func gopodGoldenAnswer(esn, question string) string {
+	// 2026-10-24: a "good <part of day>" opens with its greeting, checked
+	// against the real time (gopod_greetings.go).
+	if line := gopodGreetingLine(esn, question, time.Now()); line != "" {
+		return line
+	}
 	lower := strings.ToLower(strings.Join(strings.Fields(question), " "))
 	for _, g := range gopodBrobotsSettings.GoldenAnswers {
 		for _, q := range g.Queries {
@@ -238,7 +244,7 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		}
 	case "golden_line":
 		// 2026-10-23: a golden question's exact answer, word for word, first.
-		if line := gopodGoldenAnswer(question); line != "" {
+		if line := gopodGoldenAnswer(esn, question); line != "" {
 			logger.Println("BROBOT_GOLDEN_LINE " + gopodBrobotName(esn) + ": " + line)
 			return gopodStitchSnippet(line, raw)
 		}

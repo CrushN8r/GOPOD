@@ -3,7 +3,6 @@ package sdkapp
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -223,9 +222,12 @@ func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
 		wirepod_ttr.GopodPageShown(shown)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	// A viewer follows the main page: how far it has played.
-	boot, played := wirepod_ttr.GopodMainPlayed()
-	w.Write([]byte(fmt.Sprintf(`{"main":%t,"admin":%t,"boot":%d,"played":%d}`, main, admin, boot, played)))
+	reply := map[string]any{"main": main, "admin": admin}
+	// A visitor's page hears where it stands (waiting, approved, muted...).
+	if !admin {
+		reply["visitor"] = wirepod_ttr.GopodVisitorStatus(r.RemoteAddr, r.FormValue("visitor"), r.UserAgent())
+	}
+	json.NewEncoder(w).Encode(reply)
 }
 
 // gopodPageNoteHandler: POST note=... - a click on the chat page, written to
