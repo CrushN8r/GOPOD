@@ -2267,9 +2267,61 @@ func TestBubbleOneWay(t *testing.T) {
 		`placeBubble(rawBubble({ kind: "chapter"`,
 		`else if (e.who === chapterRole) { showChapter(e.text, done); return; }`,
 		`var bubble = rawBubble({ kind: "status"`,
+		// 3b: the Operator bubble takes its turn; a backpack line is placed like any.
+		`else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via, done); return; }`,
+		// 3c: countdown and search results.
+		`var bubble = rawBubble({ kind: "countdown"`,
+		`showCountdown(parseInt(e.text, 10), e.time_ms, done); return;`,
+		`showSearchResults(e.text, e.to, done); return;`,
+		// 3d: pictures, pop-ups, eggs.
+		`showPictures(String(e.text).replace(/^menu:/, ""), done);`,
+		`if (popup) { marqueeAttach(b); }`,
+		// 3e: nested parts built and placed one way; the shell on the one way.
+		`function nestPart(kind, classes, head, line, lineClass) {`,
+		`shell = rawBubble({ kind: "shell"`,
+		`var box = nestPart("notice"`,
+		// 3f: narrator bubbles on the raw template (their SRT-timed reveal kept).
+		`var bubble = rawBubble({ kind: "narrator"`,
+		// Any bubble can wait on a loading picture; a broken line never stops the chat.
+		`function bubbleTask(b, promise) { (b._tasks = b._tasks || []).push(promise); return promise; }`,
+		`try { showFeedEvent(item.e, next); } catch (err) {`,
+		// Shell + placeholders: a loading picture is an hourglass, the bubble isn't held.
+		`if (!img.complete || !img.naturalWidth) { pictureWait(b, img); }`,
+		`spot.className = "picture-wait";`,
+		// The zoom line is dormant until its voice; said whole with its line.
+		`if (say._zoom) { say._zoom.classList.add("spoken"); }`,
+		`bubble = rawBubble({ kind: "narrator", classes: "operator system-status host narrator narrator-single" });`,
 	} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
 		}
+	}
+	for _, gone := range []string{"askedWrap", "shellOperatorSeq", "dataset.asked"} {
+		if strings.Contains(string(page), gone) {
+			t.Errorf("the old backpack reorder is back: %s", gone)
+		}
+	}
+}
+
+// TestSlowEggShellFirst (2026-10-24, operator: "Easter eggs (including slow) *
+// Aim to render and display shell easter egg bubble + placeholders"): the photo
+// egg pops up before the photo is taken, its pictures named ahead.
+func TestSlowEggShellFirst(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_photo.go"))
+	text := string(src)
+	egg := strings.Index(text, "gopodShowEgg(name, strings.TrimSpace(p.EggName), planned)")
+	capture := strings.Index(text, "data, err := gopodPhotoCapture(robot, ctx)")
+	if egg < 0 || capture < 0 || egg > capture {
+		t.Errorf("the photo egg must pop up before the photo is taken (egg %d, capture %d)", egg, capture)
+	}
+	if !strings.Contains(text, "defer func() { <-eggSaid }()") {
+		t.Errorf("Goverlord's congratulations must be heard before the photo answer")
+	}
+	if a, b := gopodPhotoPage("2026-10-24_153526_brobot2.jpg"), "/"+filepath.Base(gopodPhotoDir)+"/2026-10-24_153526_brobot2.jpg"; a != b {
+		t.Errorf("photo page %q, want %q", a, b)
 	}
 }

@@ -363,6 +363,9 @@
     "speaking_max_ms": 30000,
     "voice_ready_max_ms_about": "2026-10-23: the longest a shown line's voice waits for its length and word times before it plays anyway.",
     "voice_ready_max_ms": 3000,
+    "picture_wait_about": "2026-10-24 (operator: \"All chat bubbles * aim to render and display a shell bubble + placeholders * [hourglass per image]/display image(s)\"): a picture still loading shows as an hourglass in its place; one not made yet (a slow Easter egg's photo) is asked for again every picture_retry_ms, at most picture_wait_max_ms. F5.",
+    "picture_retry_ms": 1000,
+    "picture_wait_max_ms": 30000,
     "typed_text_min_px_about": "2026-10-23 (operator: \"New responsive Brobots-Input-Row single line can adjust to 3 lines\"): the narrowest the text field may get on one line; narrower, the row takes three lines.",
     "typed_text_min_px": 200
   },

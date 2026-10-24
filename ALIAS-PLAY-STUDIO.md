@@ -1163,8 +1163,13 @@ GOPOD's own web search, no LLM in it: the `gopod-searxng` container (this machin
 template: `rawBubble(spec)` makes the bubble whole (kind, classes, header, lines);
 `bubbleTask(b, promise)` adds a job it must finish before it shows; `placeBubble(b, then)` builds it
 in a hidden staging area outside the chat (so it never moves the chat's scroll), waits for its tasks
-and its pictures to load (10 s at most), then puts it in the chat and shows it - and only then does
-the next event start. The exceptions keep their own rules: the chat window (scrolling, the baton),
+(10 s at most), then puts it in the chat and shows it - and only then does the next event start.
+Shell + placeholders (operator 2026-10-24: "aim to render and display a shell bubble +
+placeholders"): a voiced line waits as Generating + hourglass, then lights word by word; a picture
+still loading is an hourglass in its own place (`pictureWait`; one not made yet is asked for again
+every `chat_window.picture_retry_ms`, at most `picture_wait_max_ms`), so no bubble is held back by
+its pictures. A line that breaks is written to Wire-Pod's log ("GOPOD_PAGE error ...") and passed,
+so the chat never stops until F5. The exceptions keep their own rules: the chat window (scrolling, the baton),
 the Operator bubble (the one input type) and the system window (the menu). On the template so far:
 system / terminal answers, reporter and manager lines (their own bubbles), Goverlord's lines, Brobot replies.
 
@@ -1927,9 +1932,11 @@ viewer queues none of it (the display mirror). `TestFeedIsTheOneLine`.
 
 **Root-to-leaf pass, link 3: the bubble** (2026-10-24, in chunks; `gopod_notes/BUBBLE_LIBRARY_001.md`):
 the one way - built by `rawBubble`, placed by `placeBubble` (hidden, pictures loaded, then shown;
-the next feed line waits). 3a: the chapter and status bubbles moved onto it. Next: the Operator
-bubble's turn (3b), countdown / bingo ball / search results (3c), pictures and pop-ups (3d),
-nested parts (3e), narrator (3f). `TestBubbleOneWay`.
+the next feed line waits). Done 3a-3f: chapter, status, Operator, countdown, search results,
+pictures / pop-ups / eggs, the shell and every part inside a Brobot (`nestPart` / `nestPlace`) and
+the narrator's construction; kept on purpose: the warm-up bubble (stays at the bottom) and the
+narrator's SRT-timed reveal. The log-era "backpack line goes above its answer" moves are gone (a
+heard line comes first now). `TestBubbleOneWay`.
 
 **The game sweep** (2026-10-24, `gopod_game_sweep.go`; operator: "Test every: Topic, Value Point,
 Easter Egg * fullest run without live brobots"): `system-test-game` (system menu "9. Test one
@@ -1942,7 +1949,12 @@ it to show before he speaks, so they light as said. A live run without the opera
 `gopod_probes/tools/gopod_dry_run_001.py` (types a session, checks order and the log, writes
 `gopod_notes/DRY_RUN_REPORT_*.md`). The photo is an Easter egg again (operator 2026-10-24: "make it an easter egg
 please"): the first photo of a live session pops "Get Photo" (Goverlord's congratulations, the
-photo the prize; value_points.reminder_eggs, topic_pictures.eggs_keep) - 5 eggs. The thanks ending
+photo the prize; value_points.reminder_eggs, topic_pictures.eggs_keep) - 5 eggs. A slow egg
+shows its shell first (2026-10-24): the photo egg pops up the moment it's asked for, its three
+pictures named ahead and held by hourglasses until made; its "MouseOver to Zoom In" is dormant (0%)
+until the congratulations' voice reaches it. The dry run plays the game: openers, harder math
+(fraction, decimal, repeating, each answer checked), every core value point's golden question, the
+photo egg, the wrap-up; the report ends with GOPOD's own score. The thanks ending
 with nothing recorded says "Nothing recorded. You're welcome." (sign_off.nothing_recorded_text).
 system-test-tpu shows the TPU a known picture and passes only when it names what's in it
 (system_tests.tpu: gangster_granny.jpg, person).

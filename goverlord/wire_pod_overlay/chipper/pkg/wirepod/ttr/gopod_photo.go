@@ -104,15 +104,24 @@ func gopodPhotoCapture(robot *vector.Vector, ctx context.Context) ([]byte, error
 
 // gopodPhotoSave keeps the photo for the chat page (webroot/photos, private,
 // not in the repo) and returns its page path.
-func gopodPhotoSave(esn string, data []byte) (string, error) {
+func gopodPhotoSave(name string, data []byte) (string, error) {
 	if err := os.MkdirAll(gopodPhotoDir, 0o755); err != nil {
 		return "", err
 	}
-	name := time.Now().Format("2006-01-02_150405") + "_" + strings.ToLower(strings.ReplaceAll(gopodBrobotName(esn), " ", "")) + ".jpg"
 	if err := os.WriteFile(filepath.Join(gopodPhotoDir, name), data, 0o644); err != nil {
 		return "", err
 	}
-	return "/" + filepath.Base(gopodPhotoDir) + "/" + name, nil
+	return gopodPhotoPage(name), nil
+}
+
+// gopodPhotoName: the photo's file name, known before it's taken.
+func gopodPhotoName(esn string) string {
+	return time.Now().Format("2006-01-02_150405") + "_" + strings.ToLower(strings.ReplaceAll(gopodBrobotName(esn), " ", "")) + ".jpg"
+}
+
+// gopodPhotoPage: the page path of a photo (or a picture made beside it).
+func gopodPhotoPage(name string) string {
+	return "/" + filepath.Base(gopodPhotoDir) + "/" + filepath.Base(name)
 }
 
 // gopodPhotoDescribe asks the vision model what's in the photo, simply.
@@ -191,12 +200,34 @@ var gopodVisionAsk = func(data []byte, prompt string, most int) (string, error) 
 func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (string, func()) {
 	p := gopodBrobotsSettings.Photo
 	name := gopodBrobotName(esn)
+	file := gopodPhotoName(esn)
+	// 2026-10-24 (operator: "Easter eggs (including slow) * Aim to render and
+	// display shell easter egg bubble + placeholders"): the egg pops up the moment
+	// it's asked for, its pictures named before they're made - the page holds an
+	// hourglass in each one's place until it's there. Goverlord's congratulations
+	// is said meanwhile, heard before this returns.
+	egg := strings.TrimSpace(p.EggName) != "" && !gopodNotEgg("photo") && !gopodScriptPlaying.Load() && !gopodRunActive() && gopodPopupAllowed("photo")
+	eggSaid := make(chan struct{})
+	if egg {
+		planned := gopodPhotoPage(file)
+		if p.QuickLook.Pictures {
+			enhanced, boxes := gopodQuickLookPictures(file)
+			planned += "|" + gopodPhotoPage(enhanced) + "|" + gopodPhotoPage(boxes)
+		}
+		go func() {
+			defer close(eggSaid)
+			gopodShowEgg(name, strings.TrimSpace(p.EggName), planned)
+		}()
+	} else {
+		close(eggSaid)
+	}
+	defer func() { <-eggSaid }()
 	data, err := gopodPhotoCapture(robot, ctx)
 	if err != nil {
 		logger.Println("GOPOD_PHOTO " + name + " no photo: " + err.Error())
 		return p.FailText, nil
 	}
-	page, err := gopodPhotoSave(esn, data)
+	page, err := gopodPhotoSave(file, data)
 	if err != nil {
 		logger.Println("GOPOD_PHOTO save failed: " + err.Error())
 	}
@@ -243,16 +274,12 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 		gopodPhotoLast.saw[esn] = saw
 		gopodPhotoLast.Unlock()
 	}()
-	if page != "" {
-		// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
-		// make it an easter egg please"): the first photo of a session (live chat)
-		// is the "photo" Easter egg - Goverlord's congratulations, the photo the
-		// prize; after that, the pictures in their own picture bubble.
-		if name := strings.TrimSpace(p.EggName); name != "" && !gopodNotEgg("photo") && !gopodScriptPlaying.Load() && !gopodRunActive() && gopodPopupAllowed("photo") {
-			gopodShowEgg(gopodBrobotName(esn), name, pictures)
-		} else {
-			GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, pictures)
-		}
+	// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
+	// make it an easter egg please"): the first photo of a session (live chat) is
+	// the "photo" Easter egg (above); after that, the pictures in their own
+	// picture bubble.
+	if page != "" && !egg {
+		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, pictures)
 	}
 	first := strings.TrimSpace(p.QuickNoneText)
 	if list := gopodQuickLookList(objects); list != "" {

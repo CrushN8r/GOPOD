@@ -1141,3 +1141,19 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .gopod-all-pick { display: inline-flex; align-items: center; gap: 3px; }
 .gopod-all-first { font: inherit; padding: 0 2px; border-radius: 4px; }
 .gopod-all-pick:has(.gopod-all-radio:checked) .gopod-all-first { outline: 2px solid currentColor; }
+/* 2026-10-24 (operator: "new placeholder 2: [hourglass per image]/display
+   image(s)"): a picture still loading holds its place with an hourglass, the
+   picture hidden until it's there. */
+.topic-pictures .picture-wait {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.topic-pictures .picture-wait .warmup-timer.generating-timer { display: inline-flex; font-size: 48px; gap: 0; margin: 0; padding: 0; }
+.topic-pictures .picture-wait .countdown-hourglass .hg { width: 0.75em; height: 1em; }
+.topic-pictures img.picture-waiting { display: none; }
