@@ -407,6 +407,12 @@ type gopodBrobotsSettingsFile struct {
 	BrotherRepeat struct {
 		PlainWords []string `json:"plain_words"`
 	} `json:"brother_repeat"`
+	// 2026-10-24: GOPOD as a phone app - the secure page (gopod_https.go).
+	App struct {
+		HTTPSPort int    `json:"https_port"`
+		CertDir   string `json:"cert_dir"`
+		CAName    string `json:"ca_name"`
+	} `json:"app"`
 	// 2026-10-24: visitors and the chat sign-up (gopod_visitors.go).
 	Visitors struct {
 		Participation      bool    `json:"participation"`

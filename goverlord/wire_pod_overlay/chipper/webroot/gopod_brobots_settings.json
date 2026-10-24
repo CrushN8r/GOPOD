@@ -916,6 +916,12 @@
     "about": "2026-10-23 (template sweep): words that carry no meaning of their own - a follow-up sentence made only of these and his brother's words is a repeat, dropped.",
     "plain_words": ["a", "an", "the", "and", "or", "but", "so", "of", "in", "on", "at", "to", "for", "with", "from", "by", "as", "is", "are", "was", "were", "be", "been", "it", "its", "it's", "this", "that", "these", "those", "there", "here", "i", "i'm", "me", "my", "you", "your", "you're", "we", "our", "us", "he", "his", "him", "she", "her", "they", "them", "their", "what", "who", "how", "yeah", "yes", "no", "not", "just", "like", "really", "very", "too", "also", "oh", "hey", "bro", "bros", "dude", "man", "ha", "haha", "lol", "well", "now", "then", "all", "some", "any", "can", "do", "does", "did", "got", "get", "gonna", "wanna", "about", "up", "out", "if"]
   },
+  "app": {
+    "about": "2026-10-24 (FINISH_PLAN_001.md C3; operator: \"Go on C3 for my phone\"): GOPOD as a phone app. A phone offers Install app only for a secure page, so Wire-Pod also serves GOPOD securely on https_port - the same pages. The certificate is GOPOD's own: a local authority named ca_name (made once, kept; the phone trusts it once from /gopod_ca.crt) and a server certificate for this machine's names and addresses, made again when they change. All in cert_dir (private, the operator's home, never the repo). The app opens on the chat (gopod_manifest.json, start ?app).",
+    "https_port": 8443,
+    "cert_dir": "~/.gopod_https",
+    "ca_name": "GOPOD local"
+  },
   "visitors": {
     "about": "2026-10-24 (operator: \"set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat participant gathering * initially visitor chat participation is OFF\"): the admin is GOPOD's own machine or a device in admin_addresses_file (private, outside the repo: one address a line); everyone else is a visitor, one per device. A visitor's first line is their username request (first come, first served; taken: name1, name2); lines after it are dropped until the admin approves it in the system window (Local network visitors). participation (starts OFF) and each approved visitor's box (unticked = muted) let their lines through, under their username. A dropped line tells them waiting_text or muted_text. A visitor never runs the show (commands dropped). seen_seconds: a nameless visitor stays listed this long after their page last reported in. name_max: the longest username.",
     "participation": false,

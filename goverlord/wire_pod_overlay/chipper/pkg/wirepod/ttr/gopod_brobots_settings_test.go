@@ -1,6 +1,7 @@
 package wirepod_ttr
 
 import (
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -1834,7 +1835,9 @@ func TestVisitorSignUp(t *testing.T) {
 		t.Error("the admin list: the laptop is admin, another device a visitor")
 	}
 	phone := "203.0.113.5:5000"
-	line := func(addr, id, text string) (bool, string, string) { return GopodVisitorLine(addr, id, "Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130", text) }
+	line := func(addr, id, text string) (bool, string, string) {
+		return GopodVisitorLine(addr, id, "Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130", text)
+	}
 	if pass, _, note := line(phone, "idA", "Pip"); pass || note != "Waiting for approval" {
 		t.Errorf("name request: pass %v note %q", pass, note)
 	}
@@ -1904,5 +1907,69 @@ func TestVisitorSignUp(t *testing.T) {
 	}
 	if got := gopodDeviceKind("Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130"); got != "Android phone · Chrome" {
 		t.Errorf("device: %q", got)
+	}
+}
+
+// TestPhoneAppHolds (2026-10-24, C3): GOPOD's own certificates - an authority
+// made once, a server certificate for this machine's names that chains to it and
+// isn't made again while they stay the same - and the app's manifest, icon,
+// worker and chat start.
+func TestPhoneAppHolds(t *testing.T) {
+	old := gopodBrobotsSettings.App
+	defer func() { gopodBrobotsSettings.App = old }()
+	gopodBrobotsSettings.App.CertDir = t.TempDir()
+	gopodBrobotsSettings.App.CAName = "GOPOD test"
+	crt, _, err := gopodEnsureCerts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ca, err := x509.ParseCertificate(gopodReadPEM(filepath.Join(gopodBrobotsSettings.App.CertDir, "ca.crt")))
+	if err != nil || !ca.IsCA {
+		t.Fatalf("the authority: %v", err)
+	}
+	srv, err := x509.ParseCertificate(gopodReadPEM(crt))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pool := x509.NewCertPool()
+	pool.AddCert(ca)
+	if _, err := srv.Verify(x509.VerifyOptions{Roots: pool, DNSName: "localhost"}); err != nil {
+		t.Errorf("the server certificate doesn't chain to GOPOD's authority for localhost: %v", err)
+	}
+	if info, _ := os.Stat(filepath.Join(gopodBrobotsSettings.App.CertDir, "ca.key")); info == nil || info.Mode().Perm() != 0o600 {
+		t.Error("the authority's key isn't private (0600)")
+	}
+	crt2, _, _ := gopodEnsureCerts()
+	srv2, _ := x509.ParseCertificate(gopodReadPEM(crt2))
+	if srv2 == nil || srv2.SerialNumber.Cmp(srv.SerialNumber) != 0 {
+		t.Error("the server certificate was made again with the same names")
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	var m struct {
+		StartURL string `json:"start_url"`
+		Display  string `json:"display"`
+		Icons    []struct {
+			Src string `json:"src"`
+		} `json:"icons"`
+	}
+	data, _ := os.ReadFile(filepath.Join(root, "webroot/app/gopod_manifest.json"))
+	if err := json.Unmarshal(data, &m); err != nil || m.StartURL != "/?app" || m.Display != "standalone" || len(m.Icons) < 2 {
+		t.Errorf("the app manifest: %+v %v", m, err)
+	}
+	for _, ic := range m.Icons {
+		if _, err := os.Stat(filepath.Join(root, "webroot", ic.Src)); err != nil {
+			t.Errorf("no icon %s", ic.Src)
+		}
+	}
+	index, _ := os.ReadFile(filepath.Join(root, "webroot/index.html"))
+	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))
+	if !strings.Contains(string(index), `href="/app/gopod_manifest.json"`) || !strings.Contains(string(page), `navigator.serviceWorker.register("/gopod_sw.js")`) {
+		t.Error("the page lost its app manifest or its worker")
+	}
+	if _, err := os.Stat(filepath.Join(root, "webroot/gopod_sw.js")); err != nil {
+		t.Error("no gopod_sw.js")
 	}
 }

@@ -1829,6 +1829,15 @@ smoothly and loops (`hourglass`); a country alone is its capital, continents are
 said "lyve" in "live stream", "go live" and the like (the Brobots lingo); a point's title line
 must say its title; a scripted line may open or close any answer shape.
 
+**GOPOD as a phone app** (2026-10-24, FINISH_PLAN_001.md C3, phone first; `gopod_https.go`, settings
+`app`): Wire-Pod also serves GOPOD securely on `app.https_port` (8443) - the same pages, nothing
+copied - with GOPOD's own certificate: a local authority made once (the phone trusts it once from
+`/gopod_ca.crt`) and a server certificate for this machine's names and addresses, made again when
+they change; all private in `app.cert_dir` (operator's home). The app: `app/gopod_manifest.json`
+(name GOPOD, icon - his masked minifig picture, operator 2026-10-24: "Use this for my icon please" - start
+`/?app`, which opens the chat: a visitor's chat-only view), `gopod_sw.js` (keeps nothing; every
+page and voice live). Locked by `TestPhoneAppHolds`.
+
 **Visitors and the chat sign-up** (2026-10-24, `gopod_visitors.go`, settings `visitors`; operator:
 "set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat
 participant gathering * initially visitor chat participation is OFF"): the admin is GOPOD's own

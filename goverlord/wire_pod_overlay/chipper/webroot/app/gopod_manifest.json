@@ -1,0 +1,15 @@
+{
+  "name": "GOPOD",
+  "short_name": "GOPOD",
+  "description": "The Brobots' chat - AI Wordplay! Explain the MAth!",
+  "start_url": "/?app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "/app/gopod_icon_192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app/gopod_icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

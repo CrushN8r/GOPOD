@@ -576,6 +576,15 @@
         document.body.classList.add("gopod-chat-only");
         if (!container.classList.contains("expanded")) { window.showBrobotChatBubbles(); }
       }
+      // GOPOD as a phone app (2026-10-24, C3): on a secure page the app's small
+      // background script is set up (a phone offers "Install app" then), and the
+      // app opens on the chat (its start, "?app": the Log, a visitor's chat-only).
+      if ("serviceWorker" in navigator && window.isSecureContext) {
+        navigator.serviceWorker.register("/gopod_sw.js").catch(function () { /* no app - the page works as ever */ });
+      }
+      if (/[?&]app(=|&|$)/.test(location.search)) {
+        window.addEventListener("load", function () { setTimeout(function () { if (typeof window.showLog === "function") { window.showLog(); } }, 0); });
+      }
       window.addEventListener("load", function () {
         var wirePodShowLog = window.showLog;
         if (typeof wirePodShowLog !== "function") { return; }
