@@ -2546,6 +2546,14 @@ func TestEggVoiceInPieces(t *testing.T) {
 	if got := strings.Join(gopodEggVoiceParts("Roast Battle", ""), "|"); got != "Congratulations! Easter Eggs Revealed Thus Far!|Roast Battle" {
 		t.Errorf("no zoom line: %q", got)
 	}
+	// Quotes around a line are not said; an apostrophe inside a line is.
+	keep := gopodBrobotsSettings.TopicPictures.EggText
+	gopodBrobotsSettings.TopicPictures.EggText = "'Don't miss these!'\n\"{eggs}\""
+	got = strings.Join(gopodEggVoiceParts("Granny's Roast", ""), "|")
+	gopodBrobotsSettings.TopicPictures.EggText = keep
+	if want := "Don't miss these!|Granny's Roast"; got != want {
+		t.Errorf("apostrophes: %q, want %q", got, want)
+	}
 	dir := t.TempDir()
 	wav := func(name string, samples int, words string) string {
 		f := filepath.Join(dir, name+".wav")

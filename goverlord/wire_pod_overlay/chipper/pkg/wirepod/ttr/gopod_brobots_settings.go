@@ -547,8 +547,8 @@ type gopodBrobotsSettingsFile struct {
 		LoudnessLUFS float64 `json:"loudness_lufs"`
 	} `json:"chat_audio"`
 	ValuePoints struct {
-		ScoreRole            string            `json:"score_role"`
-		ScoreText            string            `json:"score_text"`
+		ScoreRole string `json:"score_role"`
+		ScoreText string `json:"score_text"`
 		// 2026-10-25: the score's bars ({topics_bar} ...): a mark per found, a mark per to go.
 		ScoreBar struct {
 			Done string `json:"done"`

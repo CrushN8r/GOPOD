@@ -38,11 +38,12 @@ func gopodEggVoiceParts(eggs, zoom string) []string {
 	if strings.TrimSpace(eggs) == "" {
 		return nil
 	}
-	unquote := strings.NewReplacer("'", "", "\"", "")
+	// Only the quotes around a line go; an apostrophe inside it stays ("Granny's").
+	unquote := func(s string) string { return strings.TrimSpace(strings.Trim(strings.TrimSpace(s), "'\"")) }
 	var parts []string
 	for _, line := range strings.Split(tmpl, "\n") {
 		line = strings.NewReplacer("{eggs}", eggs, "{name}", eggs).Replace(line)
-		if p := strings.TrimSpace(unquote.Replace(line)); p != "" {
+		if p := unquote(line); p != "" {
 			parts = append(parts, p)
 		}
 	}

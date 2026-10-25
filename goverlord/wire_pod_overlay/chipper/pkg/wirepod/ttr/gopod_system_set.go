@@ -45,12 +45,12 @@ type gopodSystemSetKnob struct {
 }
 
 var gopodSystemSetKnobs = map[string]gopodSystemSetKnob{
-	"master-volume":    {[]string{"chat_audio", "volume"}, "master", "F5", "every sound's master volume"},
-	"normalize":        {[]string{"chat_audio", "normalize_db"}, "db", "wpr 2", "the level every sound is evened to (-3db, off)"},
-	"loop-volume":      {[]string{"background_loop", "volume"}, "share", "F5", "the background loop"},
-	"weather-volume":   {[]string{"weather_card", "volume"}, "share", "F5", "the weather sound"},
-	"key-volume":       {[]string{"numpad_ptt", "key_sound", "volume"}, "share", "F5", "the numpad key sound"},
-	"sting-volume":     {[]string{"reporter_voices", "system_stings", "default", "volume"}, "share", "wpr 2", "the system sting"},
+	"master-volume":  {[]string{"chat_audio", "volume"}, "master", "F5", "every sound's master volume"},
+	"normalize":      {[]string{"chat_audio", "normalize_db"}, "db", "wpr 2", "the level every sound is evened to (-3db, off)"},
+	"loop-volume":    {[]string{"background_loop", "volume"}, "share", "F5", "the background loop"},
+	"weather-volume": {[]string{"weather_card", "volume"}, "share", "F5", "the weather sound"},
+	"key-volume":     {[]string{"numpad_ptt", "key_sound", "volume"}, "share", "F5", "the numpad key sound"},
+	"sting-volume":   {[]string{"reporter_voices", "system_stings", "default", "volume"}, "share", "wpr 2", "the system sting"},
 }
 
 // gopodSystemSetFields: the step fields system-set writes, and their kind.
