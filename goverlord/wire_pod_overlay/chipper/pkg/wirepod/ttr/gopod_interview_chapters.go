@@ -25,6 +25,7 @@ var gopodInterviewShown = struct {
 	sync.Mutex
 	chapter  string
 	pictures map[string]int
+	revealed []string // 2026-10-25: each egg's title, in the order found (gopodEggsRevealed)
 }{pictures: map[string]int{}}
 
 // gopodChapterOf returns the title of the chapter a topic is in, or "".
@@ -308,6 +309,7 @@ func gopodEggSummaryPost(who, key, title, card string) {
 // Goverlord's congratulations for it, heard before the next.
 func gopodShowEgg(who, word, prize string) {
 	tp := gopodBrobotsSettings.TopicPictures
+	gopodEggRevealed(gopodEggName(word))
 	text := gopodEggText(word)
 	// 2026-10-16 (operator: "Congratulations! Easter Egg [Title] found. /
 	// MouseOver to Zoom View"): a prize that zooms (a picture, a photo, a weather
@@ -324,7 +326,7 @@ func gopodShowEgg(who, word, prize string) {
 	}
 	GopodChatFeedAdd(tp.Role, gopodPopupMark+who+gopodPopupWhoMark+gopodEggMsgMark+text+gopodPopupWhoMark+prize)
 	// 2026-10-24: said from its kept pieces, only the title made live (gopod_egg_voice.go).
-	if !gopodEggSay(text, gopodEggName(word), zoomSaid) {
+	if !gopodEggSay(text, gopodEggsRevealed(", ", false), zoomSaid) {
 		gopodSystemSay(text, true)
 	}
 }
@@ -357,7 +359,39 @@ func gopodEggText(word string) string {
 	if strings.TrimSpace(tp.EggText) == "" {
 		return tp.PopupText
 	}
-	return strings.ReplaceAll(tp.EggText, "{name}", gopodEggName(word))
+	return strings.NewReplacer("{name}", gopodEggName(word), "{eggs}", gopodEggsRevealed(", ", true)).Replace(tp.EggText)
+}
+
+// gopodEggRevealed: an egg's title, added to the ones revealed this session.
+func gopodEggRevealed(title string) {
+	title = strings.TrimSpace(title)
+	if title == "" {
+		return
+	}
+	gopodInterviewShown.Lock()
+	defer gopodInterviewShown.Unlock()
+	for _, t := range gopodInterviewShown.revealed {
+		if t == title {
+			return
+		}
+	}
+	gopodInterviewShown.revealed = append(gopodInterviewShown.revealed, title)
+}
+
+// gopodEggsRevealed: the eggs revealed this session, in the order found, joined
+// by sep - each in quotes when quoted (shown: 'Bingo and foodmath', 'Roast
+// Battle'; said: Bingo and foodmath, Roast Battle).
+func gopodEggsRevealed(sep string, quoted bool) string {
+	gopodInterviewShown.Lock()
+	defer gopodInterviewShown.Unlock()
+	out := make([]string, 0, len(gopodInterviewShown.revealed))
+	for _, t := range gopodInterviewShown.revealed {
+		if quoted {
+			t = "'" + t + "'"
+		}
+		out = append(out, t)
+	}
+	return strings.Join(out, sep)
 }
 
 // gopodEggCardMark: a card prize in a pop-up line ("card:<words>").

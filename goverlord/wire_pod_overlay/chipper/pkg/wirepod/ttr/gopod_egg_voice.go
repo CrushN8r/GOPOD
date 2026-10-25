@@ -23,29 +23,26 @@ import (
 // one line; "Generating..." and the hourglass show until the joined voice is
 // ready.
 
-// gopodEggVoiceParts: what's said, piece by piece - topic_pictures.egg_text's
-// words around {name} (each line its own piece, the quotes not said), the
-// title, then the zoom line.
-func gopodEggVoiceParts(name, zoom string) []string {
-	tp := gopodBrobotsSettings.TopicPictures
-	tmpl := tp.EggText
-	if !strings.Contains(tmpl, "{name}") {
+// gopodEggVoiceParts: what's said, piece by piece - each line of
+// topic_pictures.egg_text its own piece (the quotes not said): the fixed lines made
+// once and kept, the line with {eggs} (or the older {name}) filled with eggs and
+// made live; then the zoom line.
+// 2026-10-25 (operator: "NEW Template * [Congratulations! Easter Eggs Revealed Thus
+// Far!] * '[easter eggs]' * Line 1 generated once/used many * Line 2 generated
+// many/used few").
+func gopodEggVoiceParts(eggs, zoom string) []string {
+	tmpl := gopodBrobotsSettings.TopicPictures.EggText
+	if !strings.Contains(tmpl, "{eggs}") && !strings.Contains(tmpl, "{name}") {
 		return nil
 	}
-	before, after, _ := strings.Cut(tmpl, "{name}")
-	clean := func(s string) string { return strings.TrimSpace(strings.Trim(strings.TrimSpace(s), "'\"")) }
+	if strings.TrimSpace(eggs) == "" {
+		return nil
+	}
+	unquote := strings.NewReplacer("'", "", "\"", "")
 	var parts []string
-	for _, line := range strings.Split(before, "\n") {
-		if p := clean(line); p != "" {
-			parts = append(parts, p)
-		}
-	}
-	if strings.TrimSpace(name) == "" {
-		return nil
-	}
-	parts = append(parts, strings.TrimSpace(name))
-	for _, line := range strings.Split(after, "\n") {
-		if p := clean(line); p != "" {
+	for _, line := range strings.Split(tmpl, "\n") {
+		line = strings.NewReplacer("{eggs}", eggs, "{name}", eggs).Replace(line)
+		if p := strings.TrimSpace(unquote.Replace(line)); p != "" {
 			parts = append(parts, p)
 		}
 	}

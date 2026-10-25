@@ -51,7 +51,6 @@ var gopodSystemSetKnobs = map[string]gopodSystemSetKnob{
 	"weather-volume":   {[]string{"weather_card", "volume"}, "share", "F5", "the weather sound"},
 	"key-volume":       {[]string{"numpad_ptt", "key_sound", "volume"}, "share", "F5", "the numpad key sound"},
 	"sting-volume":     {[]string{"reporter_voices", "system_stings", "default", "volume"}, "share", "wpr 2", "the system sting"},
-	"run-sting-volume": {[]string{"reporter_voices", "system_stings", "runs", "volume"}, "share", "wpr 2", "the run sting"},
 }
 
 // gopodSystemSetFields: the step fields system-set writes, and their kind.

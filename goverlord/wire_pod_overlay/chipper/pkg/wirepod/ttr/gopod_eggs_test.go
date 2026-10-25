@@ -17,9 +17,7 @@ func TestEggsInOrderMentioned(t *testing.T) {
 	if at, _ := gopodEggWord("bingos are fun", []string{"bingo"}); at != -1 {
 		t.Errorf("part of a word found an egg at %d", at)
 	}
-	if got := gopodEggText("granny"); got != "Congratulations!\nEaster Egg 'Granny' found." {
-		t.Errorf("egg text %q", got)
-	}
+	// 2026-10-25: the new template lists the eggs revealed so far (TestEggsRevealedThusFar).
 	if got := gopodWeatherPlace("is it granny weather for bingo?"); got != "" {
 		t.Errorf("weather place %q, want none", got)
 	}

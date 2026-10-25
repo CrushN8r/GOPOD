@@ -451,11 +451,22 @@ def load_golden_song(song_dir, control_mod, _seen=None):
     shape) is untouched."""
     song_dir = Path(song_dir)
     knobs_path, knobs = load_knobs_envelope(song_dir)
-    story = control_mod.parse_control_story_md((song_dir / "story.md").read_text(encoding="utf-8"))
+    # 2026-10-25 (operator's new story format): a step name can repeat (a Brobot's
+    # lines around a move, "brat_say_0203" twice) - the nth step of a name in
+    # knobs.json takes the nth one in story.md.
+    story_text = (song_dir / "story.md").read_text(encoding="utf-8")
+    in_order = control_mod.parse_control_story_list(story_text) if hasattr(control_mod, "parse_control_story_list") else list(control_mod.parse_control_story_md(story_text).items())
+    by_name = {}
+    for sid, content in in_order:
+        by_name.setdefault(sid, []).append(content)
+    taken = {}
     steps = []
     for raw_step in knobs.get("steps", []):
         step_id = raw_step.get("step_id")
-        content = story.get(step_id, {"text": "", "fail": ""})
+        n = taken.get(step_id, 0)
+        taken[step_id] = n + 1
+        found = by_name.get(step_id, [])
+        content = found[n] if n < len(found) else (found[-1] if found else {"text": "", "fail": ""})
         merged = dict(raw_step)
         merged["text"] = content["text"]
         merged["fail"] = content["fail"]
@@ -472,6 +483,10 @@ def load_golden_song(song_dir, control_mod, _seen=None):
             steps.extend(_sequence_steps(merged, song_dir, control_mod, _seen))
             continue
         steps.append(merged)
+    # Only a song in the new format asks for it ("compose_moves": true), so older
+    # songs - a move, then its line, as two steps - play as they always have.
+    if knobs.get("compose_moves"):
+        steps = compose_move_lines(steps)
     return {
         "song_id": knobs.get("song_id", ""),
         "global_tempo": knobs.get("global_tempo", 0.0),
@@ -506,6 +521,41 @@ def load_golden_song(song_dir, control_mod, _seen=None):
         "narrator_words": _narrator_words(song_dir),
         "steps": steps,
     }
+
+
+# 2026-10-25 (operator: "New format ... Easier for me to scan & fix * Translate/
+# compose for native wire-pod compatibility"): in story.md a move and its line are
+# steps of their own, in the order they happen. A move step with no line of its
+# own, followed straight away by the same Brobot's say line, plays that line the
+# native way, as one step - an arm cue or nod while it's said, kgSuccess (any
+# one-shot animation, an emotion beat) as "{{playAnimationWI||kgSuccess}} line",
+# searching first, then the line. The line's step gives the gap after it and any
+# show_ball. A line before a rattle stays its own step (said, then the rattle).
+COMPOSE_MOVE_NOTES = ("arm_cue", "nod", "animation", "emotion_beat")
+
+
+def compose_move_lines(steps):
+    out = []
+    i = 0
+    while i < len(steps):
+        step = steps[i]
+        nxt = steps[i + 1] if i + 1 < len(steps) else None
+        if (step.get("note") in COMPOSE_MOVE_NOTES and not (step.get("text") or "").strip()
+                and nxt is not None and nxt.get("note") == "say_turn" and (nxt.get("text") or "").strip()
+                and nxt.get("speaker") == step.get("speaker")):
+            joined = dict(step)
+            joined["text"] = nxt["text"]
+            joined["composed_from"] = [step.get("step_id"), nxt.get("step_id")]
+            if "buffer_after" in nxt:
+                joined["buffer_after"] = nxt["buffer_after"]
+            if nxt.get("show_ball"):
+                joined["show_ball"] = nxt["show_ball"]
+            out.append(joined)
+            i += 2
+            continue
+        out.append(step)
+        i += 1
+    return out
 
 
 def _narrator_words(song_dir):
@@ -1340,6 +1390,22 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
     bubble stays at least llm.song_warmup_min_seconds, or until the request is
     done if that's longer. Same page file Wire-Pod's own start warm-up uses."""
     llm = load_brobots_settings()["llm"]
+    # 2026-10-25 (operator: "the first sign of Goverlord intelligence is, ah! No
+    # llm required, so skip the bullshit * Look at the run make it make sense with
+    # some sense of human flow"): a song that needs no language model (the nap)
+    # has no warm-up - no warm-up bubble, no wait, no "Your move." Goverlord says
+    # "No Language Model Required" and the song's own ready line, then it goes on.
+    if not llm_required:
+        line = "\n".join(t for t in ((llm.get("no_llm_text") or "").strip(), (ready_text or "").strip()) if t)
+        if line:
+            try:
+                answer = mod.wirepod_web_send_form("/api-sdk/gopod_system_say", {"text": line, "wait_seconds": "30"}, timeout=40)
+                if isinstance(answer, dict) and str(answer.get("body", "")).strip() == "not_heard":
+                    print("LLM_WARMUP no-LLM line not heard on the page", flush=True)
+            except Exception as exc:  # noqa: BLE001 - the line never stops the song
+                print(f"LLM_WARMUP no-LLM line failed {type(exc).__name__}", flush=True)
+        print("LLM_WARMUP no language model required - skipped", flush=True)
+        return
     state = mod.GOPOD_CHIPPER_ROOT / "webroot" / "gopod_llm_warmup.json"
     # 2026-10-14 (operator: "part 1 standard * keep it in settings file once *
     # each song gives only part 2"): llm.run_ready_text, then the song's own

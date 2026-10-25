@@ -135,6 +135,7 @@ func gopodGameReset(why string) {
 	gopodChapterCleared.Unlock()
 	gopodInterviewShown.Lock()
 	gopodInterviewShown.pictures = map[string]int{}
+	gopodInterviewShown.revealed = nil
 	gopodInterviewShown.Unlock()
 	gopodGame.Lock()
 	gopodGame.won, gopodGame.masterWon = false, false

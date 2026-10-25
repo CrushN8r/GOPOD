@@ -61,12 +61,15 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 	for q, want := range map[string]string{
 		"are you on TikTok":         "No - I'm on GOPOD!",
 		"can I book you":            "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!",
-		"do you want to play bingo": "Sure, let's play! Say start Bingo test!",
+		"do you want to play bingo": "I guess so... Say start Bingo test!", // 2026-10-25: Brobot 1's own
 		"tell me all about GOPOD":   "",
 	} {
 		if got := gopodScriptedSnippet("0dd1b9e9", q, "start", ""); got != want {
 			t.Errorf("snippet for %q = %q, want %q", q, got, want)
 		}
+	}
+	if got := gopodScriptedSnippet("0dd1d8bf", "do you want to play bingo", "start", ""); got != "I can't wait! Say start Bingo test!" {
+		t.Errorf("Brobot 2's pre-bingo line = %q", got)
 	}
 	if got := gopodScriptedSnippet("0dd1d8bf", "what's your favourite food", "end", "happy___ Pizza and beer, bro!"); got != "Chocolate Bingo is fun for kids and adult kids too!" {
 		t.Errorf("end line for a pizza reply = %q", got)
@@ -756,6 +759,10 @@ func TestCueSlotLeaks(t *testing.T) {
 		"darlingeyes---- Is that you?":          "Is that you?",
 		"dar*ingEyes... You've got a good ear.": "You've got a good ear.",
 		"Well-- listen up, bro.":                "Well-- listen up, bro.",
+		// 2026-10-25 (live): "**" after the opening cue word.
+		"happy** BINGO EXPERIENCE!!":          "BINGO EXPERIENCE!!",
+		"veryHappy** Shmengy bala bing bang!": "Shmengy bala bing bang!",
+		"Wow** That was fun.":                 "Wow That was fun.",
 	}
 	for in, want := range cases {
 		if got := strings.TrimSpace(gopodDisplayReply(in)); got != want {
@@ -2512,12 +2519,31 @@ func TestAllPickStandsAndLeadsMath(t *testing.T) {
 // "\' found.", & "MouseOver to Zoom In", need to be generated once and reused *
 // only [easter egg title(s)] need live generation'): the pieces, and two voices
 // joined with their word times moved along.
+// 2026-10-25: the eggs revealed so far, in the order found, each once.
+func TestEggsRevealedThusFar(t *testing.T) {
+	gopodInterviewShown.Lock()
+	saved := gopodInterviewShown.revealed
+	gopodInterviewShown.revealed = nil
+	gopodInterviewShown.Unlock()
+	defer func() { gopodInterviewShown.Lock(); gopodInterviewShown.revealed = saved; gopodInterviewShown.Unlock() }()
+	gopodEggRevealed("Bingo and foodmath")
+	gopodEggRevealed("Roast Battle")
+	gopodEggRevealed("Bingo and foodmath")
+	if got := gopodEggText("Roast Battle"); got != "Congratulations! Easter Eggs Revealed Thus Far!\n'Bingo and foodmath', 'Roast Battle'" {
+		t.Errorf("egg text %q", got)
+	}
+	if got := gopodEggsRevealed(", ", false); got != "Bingo and foodmath, Roast Battle" {
+		t.Errorf("said %q", got)
+	}
+}
+
 func TestEggVoiceInPieces(t *testing.T) {
-	got := strings.Join(gopodEggVoiceParts("Get Photo", "MouseOver to Zoom In"), "|")
-	if want := "Congratulations!|Easter Egg|Get Photo|found.|MouseOver to Zoom In"; got != want {
+	// 2026-10-25 (the new template): line 1 kept, line 2 the eggs so far, made live.
+	got := strings.Join(gopodEggVoiceParts("Bingo and foodmath, Get Photo", "MouseOver to Zoom In"), "|")
+	if want := "Congratulations! Easter Eggs Revealed Thus Far!|Bingo and foodmath, Get Photo|MouseOver to Zoom In"; got != want {
 		t.Errorf("pieces %q, want %q", got, want)
 	}
-	if got := strings.Join(gopodEggVoiceParts("Roast Battle", ""), "|"); got != "Congratulations!|Easter Egg|Roast Battle|found." {
+	if got := strings.Join(gopodEggVoiceParts("Roast Battle", ""), "|"); got != "Congratulations! Easter Eggs Revealed Thus Far!|Roast Battle" {
 		t.Errorf("no zoom line: %q", got)
 	}
 	dir := t.TempDir()

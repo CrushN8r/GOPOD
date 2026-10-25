@@ -74,3 +74,45 @@ func TestOpenerAboveTheNotice(t *testing.T) {
 		}
 	}
 }
+
+// 2026-10-25 (operator: "post-bingo, brobot 1, \"I Won!\", brobot 2, \"Oh!
+// Zero!\""; "No, before the 'Hey' reminder"): after a Bingo run, a Bingo
+// question's answer has his closing remark just before the reminder.
+func TestBingoClosingBeforeReminder(t *testing.T) {
+	saved := gopodBingoPlayed.Load()
+	gopodBingoPlayed.Store(true)
+	defer gopodBingoPlayed.Store(saved)
+	q := "how was bingo?"
+	if !gopodIsBingoQuestion(q) {
+		t.Skip("not a bingo question here")
+	}
+	if got := gopodBingoClosing(gopodBrobot1ESN, q); got != "Anyway, we got a winner! 🏆 \"I Won!\"" {
+		t.Fatalf("Brobot 1 closing %q", got)
+	}
+	if got := gopodBingoClosing(gopodBrobot2ESN, q); got != "Oh! Zero!" {
+		t.Fatalf("Brobot 2 closing %q", got)
+	}
+	parts := gopodAnswerChain("brobots")
+	ci, ri := -1, -1
+	for i, p := range parts {
+		if p == "closing_remark" {
+			ci = i
+		}
+		if p == "reminder" {
+			ri = i
+		}
+	}
+	li := -1
+	for i, p := range parts {
+		if p == "llm" {
+			li = i
+		}
+	}
+	if ci != li+1 || ri < ci {
+		t.Fatalf("closing_remark isn't right after the answer: %v", parts)
+	}
+	// Joined to his answer, its closing sentence - not a thought of its own.
+	if got := gopodChainStitch("closing_remark", gopodBrobot2ESN, q, "Bingo was wild, bro!", false); got != "Bingo was wild, bro! Oh! Zero!" {
+		t.Fatalf("stitched %q", got)
+	}
+}

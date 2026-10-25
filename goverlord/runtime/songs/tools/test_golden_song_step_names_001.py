@@ -203,8 +203,45 @@ class NoneRequiredWarmupTests(unittest.TestCase):
                     mock.patch.object(golden, "_llm_loaded", side_effect=AssertionError("no model call")):
                 golden.song_llm_warmup(mod, "Nap Ready", [{"who": "Brobot 3", "text": ""}], False, False)
         llm = golden.load_brobots_settings()["llm"]
-        texts = [f.get("text") for f in calls if "warmup_text" in f]
-        ready = [f.get("text") for f in calls if "warmup_ready" in f]
-        self.assertTrue(texts and texts[0].startswith(llm["no_voices_text"] + ". " + llm["no_llm_text"]), texts)
-        self.assertEqual(ready, [llm["no_llm_text"] + "\nNap Ready\n" + llm["run_ready_end"]])
+        # 2026-10-25 (operator: "No llm required, so skip the bullshit"): no
+        # warm-up bubble, no wait - one Goverlord line, then the song.
+        self.assertFalse([f for f in calls if "warmup_text" in f or "warmup_ready" in f], calls)
+        self.assertEqual([f.get("text") for f in calls], [llm["no_llm_text"] + "\nNap Ready"])
         self.assertFalse([f for f in calls if f.get("who")], "an empty in-between line was said")
+
+
+class NewStoryFormatTests(unittest.TestCase):
+    """2026-10-25 (operator: "New format ... Translate/compose for native wire-pod
+    compatibility"): one move or one line per step, a line's name repeating; a
+    move followed by the same Brobot's line plays with it."""
+
+    def test_order_and_compose(self):
+        import json
+        import tempfile
+        story = ("## STEP brat_say_0203\n> TEXT: It's. Wait for it!\n"
+                 "## STEP brat_kg_success_0203\n"
+                 "## STEP brat_say_0203\n> TEXT: Lol!\n"
+                 "## STEP host_say_0301\n> TEXT: Round 1! Please wait.\n"
+                 "## STEP host_rattle_0301\n")
+        knobs = {"compose_moves": True, "steps": [
+            {"step_id": "brat_say_0203", "note": "say_turn", "speaker": "brobot_2", "buffer_after": 0.9},
+            {"step_id": "brat_kg_success_0203", "note": "animation", "speaker": "brobot_2", "animation_token": "kgSuccess", "hold_seconds": 2.5, "buffer_after": 0.9},
+            {"step_id": "brat_say_0203", "note": "say_turn", "speaker": "brobot_2", "buffer_after": 1.1},
+            {"step_id": "host_say_0301", "note": "say_turn", "speaker": "brobot_1", "buffer_after": 0.0},
+            {"step_id": "host_rattle_0301", "note": "rattle", "speaker": "brobot_1", "buffer_after": 0.0}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "story.md").write_text(story)
+            Path(tmp, "knobs.json").write_text(json.dumps(knobs))
+            control = golden._load_control_module() if hasattr(golden, "_load_control_module") else None
+            if control is None:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("ctl", Path(__file__).with_name("run_robot_control_song_001.py"))
+                control = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(control)
+            song = golden.load_golden_song(tmp, control)
+        got = [(s["step_id"], s.get("text", ""), s.get("buffer_after")) for s in song["steps"]]
+        self.assertEqual(got, [
+            ("brat_say_0203", "It's. Wait for it!", 0.9),
+            ("brat_kg_success_0203", "Lol!", 1.1),
+            ("host_say_0301", "Round 1! Please wait.", 0.0),
+            ("host_rattle_0301", "", 0.0)])

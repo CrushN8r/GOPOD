@@ -308,29 +308,48 @@ func gopodReporterSpeed() float64 {
 
 // gopodReporterPaths: the voice file for host's line, on disk and on the page
 // - named by its voice and words, so the same line is always the same file.
-// The system stings (2026-10-13, operator: "For system bubbles * rule: play
-// djentb3b at low 50% volume, then speech ... rule: play grunge for
-// start/stop/stopping/paused system bubbles, same rule, low 50% volume, then
-// speech"): the page line for the sting to play before a system line - the
-// "runs" sting for a run's started, stopped, complete, paused or continues line
-// (and the stop-run answer when nothing runs), the "default" one for every other
-// - and its length. "" when there's none.
-func gopodSystemSting(text string) (string, float64) {
-	rv := gopodBrobotsSettings.ReporterVoices
-	kind := "default"
-	if gopodIsRunLine(text) {
-		kind = "runs"
-	}
-	s, ok := rv.SystemStings[kind]
-	if !ok || strings.TrimSpace(s.File) == "" {
-		return "", 0
-	}
-	seconds, ok := gopodWavSeconds(filepath.Join(gopodReporterAudioDir(), s.File))
+// gopodMusicSting (2026-10-13, then 2026-10-25): the sting a "(music)" plays, and a
+// warm-up's end - reporter_voices.system_stings.default (djent), and its length.
+// "" when there's none.
+func gopodMusicSting() (string, float64) {
+	s, ok := gopodBrobotsSettings.ReporterVoices.SystemStings["default"]
 	if !ok {
 		return "", 0
 	}
-	page := "/" + rv.AudioFolder + "/" + s.File
-	if share, _ := gopodVolumePercent(s.Volume); share != 1 {
+	return gopodStingPage(s.File, s.Volume)
+}
+
+// gopodSystemSting (2026-10-25, operator: "[Fart joke started ...] & [Fart joke
+// complete ...] * there's a grunge audio play in there somewhere * no error label *
+// remove grunge audio * default should = djent, but muted"): a Goverlord bubble's
+// own sound, from the bubble sounds template (bubble_sounds.Goverlord: its file,
+// else default_file; none when muted) - before 2026-10-25 djent before every system
+// line and grunge before a run's line. "" when there's none.
+func gopodSystemSting(text string) (string, float64) {
+	bs := gopodBrobotsSettings.BubbleSounds
+	if bs.Goverlord.Mute {
+		return "", 0
+	}
+	file := strings.TrimSpace(bs.Goverlord.File)
+	if file == "" {
+		file = strings.TrimSpace(bs.DefaultFile)
+	}
+	return gopodStingPage(filepath.Base(file), bs.Goverlord.Volume)
+}
+
+// gopodStingPage: a sting file (in the voice folder) as a page line, with its
+// volume share, and its length; "" when it isn't there.
+func gopodStingPage(file string, volume json.RawMessage) (string, float64) {
+	rv := gopodBrobotsSettings.ReporterVoices
+	if strings.TrimSpace(file) == "" {
+		return "", 0
+	}
+	seconds, ok := gopodWavSeconds(filepath.Join(gopodReporterAudioDir(), file))
+	if !ok {
+		return "", 0
+	}
+	page := "/" + rv.AudioFolder + "/" + file
+	if share, _ := gopodVolumePercent(volume); share != 1 {
 		page += fmt.Sprintf("#vol=%g", share)
 	}
 	return page, seconds
@@ -560,7 +579,7 @@ func gopodVoicePlay(host, text, page string, seconds float64, wait bool) bool {
 	if system && (musicFirst || (!musicLast && !gopodNoSting.Load())) {
 		sting, stingSeconds := gopodSystemStingNow(text)
 		if musicFirst {
-			sting, stingSeconds = gopodSystemSting("")
+			sting, stingSeconds = gopodMusicSting()
 		}
 		if sting != "" {
 			GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(sting))
@@ -569,7 +588,7 @@ func gopodVoicePlay(host, text, page string, seconds float64, wait bool) bool {
 	}
 	GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(page))
 	if system && musicLast {
-		if sting, stingSeconds := gopodSystemSting(""); sting != "" {
+		if sting, stingSeconds := gopodMusicSting(); sting != "" {
 			GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(sting))
 			seconds += stingSeconds + rv.GapSeconds
 			gopodMusicPlayed.Store(true)

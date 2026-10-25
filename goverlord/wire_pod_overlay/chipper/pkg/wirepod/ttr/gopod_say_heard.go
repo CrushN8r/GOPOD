@@ -83,7 +83,7 @@ func GopodSystemSayHeard(text string, most time.Duration) bool {
 	musicFirst, musicLast := gopodMusicMarks(text)
 	sting, stingSeconds := gopodSystemStingNow(text)
 	if musicFirst {
-		sting, stingSeconds = gopodSystemSting("")
+		sting, stingSeconds = gopodMusicSting()
 	}
 	if sting != "" && !musicLast {
 		GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(sting))
@@ -91,7 +91,7 @@ func GopodSystemSayHeard(text string, most time.Duration) bool {
 	}
 	GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(page))
 	if musicLast {
-		if sting, stingSeconds := gopodSystemSting(""); sting != "" {
+		if sting, stingSeconds := gopodMusicSting(); sting != "" {
 			GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(sting))
 			seconds += stingSeconds + rv.GapSeconds
 		}

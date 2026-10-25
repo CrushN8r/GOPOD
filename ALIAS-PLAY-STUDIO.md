@@ -1391,7 +1391,10 @@ shows. A restored chat shows all. `.spoken` / `.speaking` in `gopod_chat_bubbles
   page replay's SPOKEN LINES (live feed of a full start: 0 of 19 not per word).
 - **A said line, replayed** (`replaySaidLine`, the template): a line he already said (his opener,
   said while thinking) shows when its bubble shows - from 0%, word by word, then said - and holds
-  the next line until done. His opener ("Got it!" / "Nice try, Mr/Mrs ...!") is the first.
+  the next line until done. It first waits `word_reveal.replay_settle_seconds` (1.8) at 0% so its bubble
+  settles into place (2026-10-25, operator: "allow time for the bubble settle into position, to then
+  run the highlighting from 0%"). His opener ("Got it!" / "Nice try, Mr/Mrs ...!") is the first.
+  LOCKED (operator: "Mechanism works. Thank you. Lock it in.") by `TestOpenerMechanismLocked`.
   It is not one of his reply's pieces (`ownSays` leaves it out): Wire-Pod names the piece it says
   by number, written just before each say goes to the robot (`gopodWriteSpeakingPiece`), and the
   page lights that number (2026-10-25, live: counted, the opener put every lit piece one behind his
@@ -2100,7 +2103,9 @@ page zombie follows GOPOD admin feed"): the main page sends what it shows - its 
 `page_sync.display_bubbles` bubbles as drawn, highlights and all, each with its own key - through
 Wire-Pod (`/api-sdk/gopod_display`) at most every `page_sync.display_ms` (50, 2026-10-25); every other page runs none
 of the chat (no feed, voices or warm-up) and only paints that: a bubble it has is changed only
-where it changed (no picture reloads, no flicker), new ones added, gone ones removed. One send at a
+where it changed (no picture reloads, no flicker), new ones added, gone ones removed. The visitor page
+fills the phone's screen (100dvh, no back-button room) and, after any load or refresh, starts at the
+end (2026-10-25, operator: "Visitor page, upon any refresh, auto-scroll to bottom"). One send at a
 time, the next after it lands (2026-10-25, the phone: "punctuation & ending emojis flicker" - two sends
 crossed and the phone stepped back; the replay, with a real network's delays: 4 flickers before, 0
 after; its VISITOR FLICKER check). Scrolling is
@@ -2273,6 +2278,116 @@ Open for tweaking: `answer_chains`, `response_chains`, `openers`, `nicknames`, `
 `answer_shapes`, `point_bubbles`, the reminder lines. A locked part changes on the operator's
 word only; then `GOPOD_RELOCK=1` with the test saves the new lock. The chat model itself is
 Wire-Pod's (apiConfig.json), outside the lock.
+
+**A song that needs no language model** (2026-10-25, operator: "the first sign of Goverlord
+intelligence is, ah! No llm required, so skip the bullshit * Look at the run make it make sense
+with some sense of human flow"): no warm-up - no warm-up bubble, no wait, no ready-end line.
+Goverlord says `llm.no_llm_text` and the song's `llm_ready_text` ("No Language Model Required /
+We here, are Baby Brobots Ready"), then the song goes on (`song_llm_warmup`,
+`run_golden_song_001.py`). A song that needs it ends its ready line with `llm.run_ready_end`, now
+"Let's Begin. (music)" (operator: "Your move. (music) * doesn't make sense * Let's Begin. (music)?").
+
+**"(music)" plays djent where it's written** (since 2026-10-17, `gopodMusicMarks`): at a line's start
+the sting plays before the words, at its end right after them; the page loads grunge and djent3b
+once and replays them at once (`preloadStings`). In the middle of a line: before the words, for now.
+
+**A song's new story format: one move or one line per step** (2026-10-25, operator: "New format ...
+Easier for me to scan & fix * Translate/compose for native wire-pod compatibility * adjust runner to
+read new format"; first song: `01a_brobots_bingo_test`). Each move (arm cue, nod, kgSuccess,
+searching, beat, rattle) and each line (`*_say_*`) is its own step, in the order they happen; a
+line's name can repeat. The engine reads the story in order (`parse_control_story_list`) - the nth
+step of a name in knobs.json takes the nth in story.md - and, with `"compose_moves": true` in
+knobs.json, plays a move followed straight away by the same Brobot's line together, the native way
+(`compose_move_lines`): the arm cue/nod while it's said, kgSuccess/a beat as
+"{{playAnimationWI||token}} line", searching first, then the line; the line's step gives the gap
+after it and any `show_ball`. Older songs (no `compose_moves`) play as before. Locked by
+`NewStoryFormatTests`.
+
+**Bingo's flow: pre, run, post** (2026-10-25, operator: "pre-bingo, brobot 1, I guess so..., brobot
+2, I can't wait! * bingo, brobot 1, host, brobot 2, brat * post-bingo, brobot 1, \"I Won!\", brobot 2,
+\"Oh! Zero!\" * session chat > no bingo yet > scripted run > post experiences + ending jokes as
+scripted closing remarks"). Before a run, a Bingo question opens with his own line
+(`scripted_snippets` `bingo_not_played`, per `brobot`): "I guess so... Say start Bingo test!" /
+"I can't wait! Say start Bingo test!". After it, his answer's closing sentence is his closing remark
+(`bingo.closing`, the `closing_remark` part right after `llm`, joined to his words, before the
+reminder; operator: "joke is closing remark of answer to how was bingo, not the response
+answer-chain"): Brobot 1 "Anyway, we got a winner! 🏆 \"I Won!\"" (the host won - the brat's
+punchline), Brobot 2 "Oh! Zero!" (his O-0, his cooperation score). The pre lines changed the
+soft-locked flavour lines, on the operator's word: re-locked. `TestBingoClosingBeforeReminder`.
+
+**CHALK's QRs, each once** (2026-10-25, operator: "duplicate qr display bug * 1st CHALK should be
+single crushn8r.ca/subscribe qr * 2nd CHALK should be single crushn8r.ca qr"): a QR the call to
+action's CHALK part already shows (`chalkCta`) is left off CHALK's QR board (`chalkQrs`). Checked by
+the page replay's CHALK QRs (the Bingo test's closing line).
+
+**Unexpected lines: wordplay back to GOPOD** (2026-10-25, operator: "Brobots as GOPOD reps, are hired
+to use their wordplay skills to gravitate back to GOPOD * complete the GOPOD game * ... same thing
+whether brobot N (single) or brobot A, then brobot B * recent session chat history for comedic
+context + wordplay * gravitate back using 'Hey' reminders list left to reveal"): a line with nothing
+of GOPOD in it gets `off_topic_note` - "This line is nonsense or far from GOPOD. Play with its words
+- wordplay, riffing on the chat so far - in one or two sentences, your own way. Then bridge back to
+GOPOD. You have a job to do." No fixed points listed: the earlier exchanges come with every prompt
+(`session_memory`), and the "Hey, that reminds me..." end line names what's left (the gravity block).
+
+**The notice's new lines** (2026-10-25, operator: "NEW TEMPLATE: ... No value point - a quick take,
+then back on track: * [topics] * Topics [score line] * Value Points [score line] * Easter Eggs [score
+line] * score lines vertically aligned"; "Topics 3 of 7: ===----"): `bubble_notices.value_points` -
+`none` ends "then back on track:", `recovery` is the topics alone on the next line, `score` is three
+lines, each "label\tbar" (`{topics_bar}` ..., `value_points.score_bar`: "=" per found, "-" per to go;
+`gopodCoverageScoreWith`). The page shows a tab line as a score row - label column, bar in even-width
+marks - so the three bars line up (`noticeLine`, `.notice-score-row`). The one-line
+`value_points.score_text` stays for the score bubble and the prompt.
+
+**A day of parties greets its part of the day** (2026-10-25, operator: "a day of parties #1 of 3:
+Morning * good Morning"): each part's notes open with its greeting ("good Morning", "good Afternoon",
+"good Evening"; `07_parties_and_rooms/01_bookings.txt`), so it's the first thought bubble of that point.
+
+**NEW egg template: the eggs revealed thus far** (2026-10-25, operator: "NEW Template *
+[Congratulations! Easter Eggs Revealed Thus Far!] * '[easter eggs]' * Line 1 generated once/used many
+* Line 2 generated many/used few"): `topic_pictures.egg_text` = "Congratulations! Easter Eggs Revealed
+Thus Far!\n{eggs}" - {eggs} every egg revealed this session, in the order found, each in quotes
+('Bingo and foodmath', 'Roast Battle'; `gopodEggsRevealed`, reset with the game). The voice: line 1 a
+kept piece, line 2 the piece made live, then the kept zoom line under a prize that zooms
+(`gopodEggVoiceParts`). "foodmath" is said "food math" by Goverlord (`system_say_words`; operator:
+"foodmath sounds incorrect"). Locked by `TestEggsRevealedThusFar`, `TestEggVoiceInPieces`.
+
+**NEW RULE: a revealed egg's marquee stays** (2026-10-25, operator: "The brobot bubble indicates
+revealed easter eggs upon 1st reveal * no more pop ups * however, the marquee lights stay, as an
+indicator of a revealed easter egg"): the pop-up shows once (first reveal); every Brobot reply whose
+line hits an egg - first time or later - wears the marquee lights. Go posts `eggmark:<title>` to
+him when the egg line goes in his notice (`gopodNoticeEgg`); the page's `eggMarked` dresses his reply.
+Checked by the page replay's EGG MARQUEE.
+
+**A cue word's "**" is a cue mark** (2026-10-25, live: "happy** BINGO EXPERIENCE!!", "veryHappy**
+Shmengy ..." shown): after the opening cue word, "**" is read like "___" - the cue plays, the bubble
+hides it; a word that's no cue keeps the word and loses the "**" (`TestCueSlotLeaks`).
+
+**GOLDEN bubble sounds: the Operator & Manager bubble template** (2026-10-25, operator: "Operator &
+Manager Bubbles TEMPLATE!! * add in an inherent play audio by default + mute option * default audio
+fallback = djent wav * if none found, skip/move on * then set all to mute * does not apply to
+(music)"; "Operator Bubbles TEMPLATE!! * add in an optional error label (stings?) = play grunge
+instead"): `bubble_sounds` - each kind's sound when its bubble shows (`file`, else `default_file`
+djent; `volume`; `mute`, all true now); the Operator's `error` label (grunge, 15%) plays even when
+muted - the numpad's error messages wear it (`numpad_ptt.error_texts`: too short, not live yet ...;
+its old `error_sound` moved here). A file not found is skipped. `bubbleSound` in the page.
+Goverlord's bubbles too (operator: "[Fart joke started ...] & [Fart joke complete ...] * remove
+grunge audio * default should = djent, but muted"): `bubble_sounds.Goverlord` (djent, muted) is a
+Goverlord line's own sound (`gopodSystemSting`); the grunge run sting is gone. A "(music)" and a
+warm-up's end still play djent (`reporter_voices.system_stings.default`, `gopodMusicSting`).
+Locked by `TestGoverlordSoundMutedMusicStays`. A sting never waits for word times (the log showed
+every one starting 3.0 s late).
+
+**Live Brobot highlight timing, fitted to the robots** (2026-10-25, operator: "highlighting appears
+to work amazing vs live brobots highlighting, please check"): the reporters light at their voices'
+own word times; a Brobot's piece is an estimate, now fitted from 184 pieces in the day's log -
+`word_reveal.seconds_per_word` 0.33 (was 0.38), and a piece said after an animation (it starts with
+`animation_lead_in`) lights its first word at `word_reveal.lead_in_start_seconds` (1.8; plain pieces
+keep `start_delay_words`). A voice that starts 0.8 s+ after its turn logs "voice late ... bubble X s,
+file Y s".
+
+**Goverlord's and the managers' lines are 75% of the header** (2026-10-25, operator: "Goverlord &
+Gomad level bubbles are not following template rules * spoken lines are 75% of header"), like a
+Brobot's answer; not the terminal's results (50%) or a notice's lines.
 
 **CSS and JS in their own files** (2026-10-25, operator: "move all css, js, etc... into files"):
 the Weather Kit page's look and script (`css/gopod_weather_kit.css`, `js/gopod_weather_kit.js`);

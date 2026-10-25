@@ -838,12 +838,13 @@
           if (!restoringChat) { voiceLineAhead(spoken, opText); }
           bubble.appendChild(operatorHead(to || operatorTarget(spoken), via, spoken));
           bubble.appendChild(opText);
+          bubbleSound("Operator");
           bubble.dataset.own = "1"; // the operator's own line
           // A new question: an unanswered pop-up keeps only its prize. 2026-10-24
           // (the root-to-leaf pass, link 3b): a backpack line comes on the feed the
           // moment it's heard, before its answer (gopodHeardLine) - placed like
           // every Operator line (the old "goes above its answer" moves are gone).
-          popupWraps = {}; popupExchange = false; nestShells = {};
+          popupWraps = {}; popupExchange = false; nestShells = {}; eggMarked = {};
           // GOLDEN operator bubble (2026-10-18, operator: "Operator bubble: (not
           // manager bubble) * KP7 to CHALK / keep holding… / Recording for CHALK /
           // Got it - transcribing… / ["Generating..." + hourglass]/[transcription]"):
@@ -893,7 +894,12 @@
         // marquee bubble, his "Brobot N:" header kept; the eggs are bubbles of
         // their own above (2026-10-15) - the pop-ups and the All sequence stay
         // separate processes; this only dresses the reply.
-        var inPopup = popupExchange && /^Brobot [12]$/.test(who);
+        // 2026-10-25 (operator: "NEW RULE: The brobot bubble indicates revealed
+        // easter eggs upon 1st reveal * no more pop ups * however, the marquee
+        // lights stay, as an indicator of a revealed easter egg"): a reply whose
+        // line hit an egg wears it too, pop-up or not (eggMarked).
+        var inPopup = (popupExchange || eggMarked[who]) && /^Brobot [12]$/.test(who);
+        delete eggMarked[who];
         // His reply fills the bubble a manager's part opened for him (nestShell).
         var shell = nestShells[who];
         if (shell && shell.isConnected && !shell.dataset.filled && !restoringChat) {
@@ -1402,6 +1408,8 @@
                 if (c) { flagCodes[c] = true; }
               });
             }
+            if (settings.bubble_sounds) { bubbleSounds = settings.bubble_sounds; }
+            if (typeof settings.animation_lead_in === "string") { leadInText = settings.animation_lead_in.trim(); }
             // 2026-10-17: the stings loaded once, ready to play again and again.
             if (settings.reporter_voices && settings.reporter_voices.system_stings) {
               var stings = settings.reporter_voices.system_stings;
@@ -2297,6 +2305,7 @@
       // A pop-up was found for the question being answered (reset by the next
       // operator line): every Brobot's answer to it wears the marquee.
       var popupExchange = false;
+      var eggMarked = {}; // Brobot -> his line hit an egg (eggmark:)
       // 2026-10-13 (operator: "Make these live Pop Ups appear like a winner's
       // chat bubble * system message from Goverlord, congratulations finding
       // this pop-up"; "use system chat bubbles"; "I still want the zoom
@@ -2635,6 +2644,11 @@
       function chalkQrs(bubble, found) {
         var codes = found.slice();
         chalkCta(bubble);
+        // 2026-10-25 (operator: "duplicate qr display bug * 1st CHALK should be single
+        // crushn8r.ca/subscribe qr * 2nd CHALK should be single crushn8r.ca qr"): a QR
+        // the call to action's part already shows isn't on the board again.
+        var cta = bubble.querySelector(".chalk-cta img.gopod-qr");
+        if (cta) { codes = codes.filter(function (code) { return code.image !== cta.getAttribute("src"); }); }
         if (!codes.length) { return; }
         // In a Brobot's bubble: CHALK's part at its bottom, after his answer.
         var inBrobot = (bubble.classList.contains("brobot-1") || bubble.classList.contains("brobot-2")) && !bubble.classList.contains("nested-host");
@@ -3166,6 +3180,7 @@
           var shell = nestShell(to);
           var boxes = shell.querySelectorAll(".nested-host.host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"));
           var box = boxes.length && String(text).indexOf("qr:") === 0 ? boxes[boxes.length - 1] : nestBox(shell, who, true);
+          if (String(text).indexOf("qr:") !== 0) { bubbleSound("Manager"); }
           if (String(text).indexOf("qr:") === 0) { hostQr(box, text); next(); return; }
           var nline = document.createElement("span");
           nline.className = "brobot-bubble-text";
@@ -3176,6 +3191,7 @@
           return;
         }
         // Its own bubble, on the raw bubble template (built and loaded hidden, then shown).
+        bubbleSound("Manager");
         var bubble = rawBubble({ kind: "host", classes: hostClass, head: reporterHead(hostHeader(who)) });
         bubble.dataset.host = who;
         if (String(text).indexOf("qr:") === 0) {
@@ -4009,6 +4025,9 @@
         while (a.childNodes.length > bk.length) { a.removeChild(a.lastChild); }
       }
       function displayPaint(d) {
+        // 2026-10-25 (operator: "Visitor page, upon any refresh, auto-scroll to
+        // bottom"): the first paint after a load or refresh starts at the end.
+        var firstPaint = !Array.prototype.some.call(container.children, function (el) { return el !== typedRow && el.dataset.mid; });
         var have = {};
         Array.prototype.forEach.call(container.children, function (el) { if (el !== typedRow && el.dataset.mid) { have[el.dataset.mid] = el; } });
         var keep = {}, order = [], firstNew = null;
@@ -4037,7 +4056,12 @@
         });
         // GOPOD's scrolling rules, on this device's own screen.
         var speaking = container.querySelector(".brobot-say.speaking");
-        if (firstNew) { scrollChatTo(bubbleTarget(firstNew)); } else if (speaking) { focusSpeaking(speaking); }
+        if (firstPaint && firstNew) {
+          var toEnd = function () { container.scrollTop = chatMaxScroll(); window.scrollTo(0, document.body.scrollHeight); };
+          toEnd();
+          setTimeout(toEnd, 600); setTimeout(toEnd, 1500); // pictures still loading
+        }
+        else if (firstNew) { scrollChatTo(bubbleTarget(firstNew)); } else if (speaking) { focusSpeaking(speaking); }
       }
       function displayPoll() {
         if (isMainPage) { return; }
@@ -4219,6 +4243,9 @@
           try { a.currentTime = 0; } catch (err) { /* not loaded yet */ }
         }
         a._share = vol ? parseFloat(vol[1]) : 1;
+        // 2026-10-25 (log: "voice late 3.0 s: ... file 3.0 s - dJent3b.wav"): a sting
+        // has no word times - never waited for (it waited VOICE_READY_MAX_MS each time).
+        a._wordsDone = true;
         return a;
       }
       function preloadStings(files) {
@@ -4290,7 +4317,7 @@
             }
             // 2026-10-22: GOLDEN voice start - shown, then its length and word
             // times in (up to VOICE_READY_MAX_MS), then it plays and lights.
-            if (!audio._readyFrom) { audio._readyFrom = Date.now(); }
+            if (!audio._readyFrom) { audio._readyFrom = Date.now(); audio._shownAt = Date.now(); }
             if ((!audio._wordsDone || !(audio.duration > 0)) && !audio._failed && Date.now() - audio._readyFrom < VOICE_READY_MAX_MS) {
               setTimeout(playWhenShown, 50);
               return;
@@ -4307,6 +4334,15 @@
             setTimeout(finish, capMs);
             // A reporter's or Goverlord's line lights with its voice (voiceLitStart).
             if (!pooled && (voiceLitNext || voiceWaitFor[String(src).replace(/#.*$/, "")])) { litDone = voiceLitStart(audio.duration, audio._words, src); }
+            // 2026-10-25 (operator: "audio played late. can you see any log details
+            // about this delay?"): a voice that starts 0.8 s+ after its turn came
+            // says why in Wire-Pod's log - waiting for its bubble, or for its file.
+            var startedAt = Date.now();
+            if (startedAt - from >= 800) {
+              var lateNote = new URLSearchParams();
+              lateNote.set("note", "voice late " + ((startedAt - from) / 1000).toFixed(1) + " s: bubble " + (((audio._shownAt || startedAt) - from) / 1000).toFixed(1) + " s, file " + ((startedAt - (audio._shownAt || startedAt)) / 1000).toFixed(1) + " s - " + String(src).split("/").pop().replace(/#.*$/, ""));
+              fetch("/api-sdk/gopod_page_note", { method: "POST", body: lateNote }).catch(function () {});
+            }
             audio.play().catch(skip);
           })();
         } catch (err) { skip(); }
@@ -4526,6 +4562,8 @@
         else if (e.who === pictureRole && String(e.text).indexOf("noticesay:") === 0) { bubbleNotice(e.to, String(e.text).slice(10), true); }
         else if (e.who === pictureRole && String(e.text).indexOf("noticesaid:") === 0) { bubbleNoticeSaid(e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("weathershow:") === 0) { weatherShowFor(e.to); }
+        // 2026-10-25 (the egg rule): his line hit an egg - his bubble wears the marquee.
+        else if (e.who === pictureRole && String(e.text).indexOf("eggmark:") === 0) { if (/^Brobot [12]$/.test(String(e.to || ""))) { eggMarked[e.to] = true; } }
         else if (e.who === pictureRole) {
           if (menuPictures(e.text)) { done(); return; }
           showPictures(String(e.text).replace(/^menu:/, ""), done);
@@ -4763,6 +4801,7 @@
         // speaks * add a short delay about the length of 2 timed words"):
         // word_reveal.start_delay_words.
         var at = (wordReveal.start_delay_words || 0) * (wordReveal.seconds_per_word || 0);
+        if (span.dataset.leadIn === "1" && wordReveal.lead_in_start_seconds > 0) { at = wordReveal.lead_in_start_seconds; }
         // 2026-10-16 (operator: "Baby brobots song is timed to an srt file * please
         // ensure the new per-word-reveal in highlighting, matches srt end to end *
         // scale per-word timed reveals to fit into that spoken segment"): a line
@@ -4911,7 +4950,8 @@
             // GOLDEN (gopod_highlight_pieces.go): Wire-Pod names the piece by its
             // number - light exactly that one, no guessing.
             if (typeof now.piece === "number" && now.piece >= 0) {
-              if (spans[now.piece]) { lightSpan(spans[now.piece]); focusSpeaking(spans[now.piece]); }
+              // 2026-10-25: a piece said after an animation starts later (word_reveal.lead_in_start_seconds).
+              if (spans[now.piece]) { spans[now.piece].dataset.leadIn = leadInText && String(now.text || "").trim().indexOf(leadInText) === 0 ? "1" : ""; lightSpan(spans[now.piece]); focusSpeaking(spans[now.piece]); }
               return;
             }
             var spokenList = sayWords(now.text);
@@ -4994,9 +5034,9 @@
       // 2026-10-18 (operator: "live KPN = no grunge audio as this is not an error *
       // \"Too short - hold KP1 for at least 1 s\" = error = grunge audio plays * not
       // live yet key press = error = grunge audio plays"): a numpad error message
-      // (numpad_ptt.error_texts) plays error_sound; a key that works plays nothing.
+      // (numpad_ptt.error_texts) wears the Operator error label (bubble_sounds); a key that works plays nothing.
       function numpadText(name, values) {
-        if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { playCue(numpad.cfg.error_sound); }
+        if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { bubbleSound("Operator", "error"); }
         var t = (numpad.cfg.texts || {})[name] || name;
         return String(t).replace(/\{(\w+)\}/g, function (m, k) { return values && values[k] != null ? values[k] : m; });
       }
@@ -5014,6 +5054,7 @@
         }
         // 2026-10-24 (link 3): the raw bubble template, placed the one way.
         var bubble = rawBubble({ kind: "status", classes: "operator system-status", head: numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel), text: text });
+        if (numpadTo) { bubbleSound("Operator"); }
         var textEl = bubble.querySelector(".brobot-bubble-text");
         placeBubble(bubble);
         // 2026-10-14 (operator: "When I key press I get the correct messages to
@@ -5310,6 +5351,22 @@
       function noticeLine(line, said) {
         var el = document.createElement("span");
         el.className = "brobot-bubble-text egg-summary-text";
+        // 2026-10-25 (operator: "3 single lines with dynamic scores aligned
+        // vertically"): a score line - its label, a tab, its bar - is a row whose
+        // bar starts where the other rows' bars do.
+        var tab = String(line).indexOf("\t");
+        if (tab >= 0 && !said) {
+          el.classList.add("notice-score-row");
+          var label = document.createElement("span");
+          label.className = "notice-score-label";
+          label.textContent = String(line).slice(0, tab).trim();
+          var bar = document.createElement("span");
+          bar.className = "notice-score-bar";
+          bar.textContent = String(line).slice(tab + 1).trim();
+          el.appendChild(label);
+          el.appendChild(bar);
+          return el;
+        }
         if (said && !restoringChat) {
           var say = document.createElement("span");
           say.className = "brobot-say speaking";
@@ -5357,12 +5414,17 @@
         if (bubble) { bubble.classList.add("voice-lit"); }
         say.dataset.at = "0";
         say.dataset.end = String(seconds);
-        lightSpan(say);
+        // 2026-10-25: the bubble settles into place first (word_reveal.replay_settle_seconds).
+        var settle = (wordReveal.replay_settle_seconds || 0) * 1000;
         setTimeout(function () {
-          say.classList.remove("speaking");
-          say.classList.add("spoken");
-          done();
-        }, seconds * 1000 + 100);
+          if (!say.isConnected) { done(); return; }
+          lightSpan(say);
+          setTimeout(function () {
+            say.classList.remove("speaking");
+            say.classList.add("spoken");
+            done();
+          }, seconds * 1000 + 100);
+        }, settle);
       }
       function bubbleNotice(to, text, said) {
         if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }
@@ -5376,7 +5438,8 @@
           same.appendChild(noticeLine(line, said));
           return;
         }
-        var box = nestPart("notice", "egg-summary bubble-notice", systemHead(title), line, "egg-summary-text");
+        var box = nestPart("notice", "egg-summary bubble-notice", systemHead(title), String(line).indexOf("\t") >= 0 ? null : line, "egg-summary-text");
+        if (String(line).indexOf("\t") >= 0) { box.appendChild(noticeLine(line, said)); }
         box.dataset.title = title;
         nestPlace(shell, box, true);
       }
@@ -5565,6 +5628,18 @@
       // chat_audio.volume.
       function numpadKeySound() { playCue(numpad.cfg.key_sound); }
       // One short sound cue ({file, volume}): loaded once, replayed each time.
+      // GOLDEN bubble sounds (2026-10-25, the Operator & Manager bubble template,
+      // bubble_sounds): a bubble kind's sound when it shows - its file, else
+      // default_file (djent); none when muted; label "error" plays its error sound
+      // (grunge) even when muted. A file not found is skipped (playCue).
+      var bubbleSounds = {}, leadInText = "";
+      function bubbleSound(kind, label) {
+        var cfg = bubbleSounds[kind];
+        if (!cfg || restoringChat) { return; }
+        if (label === "error") { if (cfg.error && cfg.error.file) { playCue(cfg.error); } return; }
+        if (cfg.mute) { return; }
+        playCue({ file: cfg.file || bubbleSounds.default_file, volume: cfg.volume });
+      }
       function playCue(ks) {
         if (!ks || !ks.file) { return; }
         try {

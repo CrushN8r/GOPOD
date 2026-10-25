@@ -199,6 +199,8 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_response_chains.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_response_chains.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_response_chains_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_response_chains_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_session_page_css_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_session_page_css_test.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_persona_soft_lock_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_persona_soft_lock_test.go"
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_persona_soft_lock_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_persona_soft_lock_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_opener_lock_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_opener_lock_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_bubble_sounds_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_bubble_sounds_test.go"
   }
 }

@@ -2,6 +2,8 @@
   "song_id": "brobots_bingo",
   "song_type": "bingo_capture",
   "story_ref": "story.md",
+  "compose_moves_about": "2026-10-25 (operator: \"New format ... Easier for me to scan & fix * Translate/compose for native wire-pod compatibility\"): story.md has one move or one line per step, in the order they happen; a move followed straight away by the same Brobot's say line plays with it the native way (compose_move_lines, run_golden_song_001.py). A step name can repeat; the nth in knobs.json takes the nth in story.md.",
+  "compose_moves": true,
   "global_tempo": 0.1,
   "chat_intro": "Bingo Test Live",
   "sentence_split": "scripted",
@@ -33,8 +35,7 @@
       "speaker": "brobot_1",
       "buffer_after": 0.0,
       "section": "OPENING SYNC",
-      "rattle_before": true,
-      "text": "Lane4 test 1"
+      "rattle_before": true
     },
     {
       "step_id": "reporter_gap_0102",
@@ -53,6 +54,13 @@
       "buffer_after": 0.0,
       "section": "OPENING SYNC",
       "speed": 2
+    },
+    {
+      "step_id": "host_say_0102",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.0,
+      "section": "OPENING SYNC"
     },
     {
       "step_id": "host_rattle_0102",
@@ -88,6 +96,13 @@
       "speed": 3
     },
     {
+      "step_id": "brat_say_0201",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 1.0,
+      "section": "INTERLEAVED BANTER"
+    },
+    {
       "step_id": "reporter_gap_0202",
       "note": "pause",
       "speaker": "brobot_1",
@@ -105,6 +120,13 @@
       "section": "INTERLEAVED BANTER"
     },
     {
+      "step_id": "host_say_0202",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 1.0,
+      "section": "INTERLEAVED BANTER"
+    },
+    {
       "step_id": "reporter_gap_0203",
       "note": "pause",
       "speaker": "brobot_2",
@@ -113,25 +135,27 @@
       "section": "INTERLEAVED BANTER"
     },
     {
-      "step_id": "brat_nod_kg_success_0203",
-      "note": "combo",
+      "step_id": "brat_say_0203",
+      "note": "say_turn",
       "speaker": "brobot_2",
-      "section": "INTERLEAVED BANTER",
-      "combo": [
-        {
-          "note": "nod",
-          "hold_seconds": 0.18,
-          "buffer_after": 1.5,
-          "speed": 4
-        },
-        {
-          "note": "animation",
-          "animation_token": "kgSuccess",
-          "hold_seconds": 2.5,
-          "buffer_after": 0.9,
-          "text": "Lol!"
-        }
-      ]
+      "buffer_after": 0.9,
+      "section": "INTERLEAVED BANTER"
+    },
+    {
+      "step_id": "brat_kg_success_0203",
+      "note": "animation",
+      "speaker": "brobot_2",
+      "animation_token": "kgSuccess",
+      "hold_seconds": 2.5,
+      "buffer_after": 0.9,
+      "section": "INTERLEAVED BANTER"
+    },
+    {
+      "step_id": "brat_say_0203",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 0.9,
+      "section": "INTERLEAVED BANTER"
     },
     {
       "step_id": "host_searching_animation_0203",
@@ -139,6 +163,13 @@
       "speaker": "brobot_1",
       "animation_token": "searching",
       "hold_seconds": 1.0,
+      "buffer_after": 1.3,
+      "section": "INTERLEAVED BANTER"
+    },
+    {
+      "step_id": "host_say_0203",
+      "note": "say_turn",
+      "speaker": "brobot_1",
       "buffer_after": 1.3,
       "section": "INTERLEAVED BANTER"
     },
@@ -159,6 +190,13 @@
       "section": "ROUND 1"
     },
     {
+      "step_id": "host_say_0301",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.0,
+      "section": "ROUND 1"
+    },
+    {
       "step_id": "host_rattle_0301",
       "note": "rattle",
       "speaker": "brobot_1",
@@ -175,13 +213,20 @@
     },
     {
       "step_id": "host_kg_success_0302",
-      "show_ball": "B-1",
       "note": "animation",
       "speaker": "brobot_1",
       "animation_token": "kgSuccess",
       "hold_seconds": 1.0,
       "buffer_after": 1.2,
       "section": "ROUND 1"
+    },
+    {
+      "step_id": "host_say_0302",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 1.2,
+      "section": "ROUND 1",
+      "show_ball": "B-1"
     },
     {
       "step_id": "reporter_gap_0303",
@@ -201,25 +246,27 @@
       "section": "ROUND 1"
     },
     {
-      "step_id": "brat_nod_kg_success_0303",
-      "note": "combo",
+      "step_id": "brat_say_0303",
+      "note": "say_turn",
       "speaker": "brobot_2",
-      "section": "ROUND 1",
-      "combo": [
-        {
-          "note": "nod",
-          "hold_seconds": 0.18,
-          "buffer_after": 1.5,
-          "speed": 4
-        },
-        {
-          "note": "animation",
-          "animation_token": "kgSuccess",
-          "hold_seconds": 2.5,
-          "buffer_after": 0.9,
-          "text": "Lol!"
-        }
-      ]
+      "buffer_after": 0.9,
+      "section": "ROUND 1"
+    },
+    {
+      "step_id": "brat_kg_success_0303",
+      "note": "animation",
+      "speaker": "brobot_2",
+      "animation_token": "kgSuccess",
+      "hold_seconds": 2.5,
+      "buffer_after": 0.9,
+      "section": "ROUND 1"
+    },
+    {
+      "step_id": "brat_say_0303",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 0.9,
+      "section": "ROUND 1"
     },
     {
       "step_id": "reporter_gap_0304",
@@ -243,6 +290,36 @@
       "speaker": "brobot_1",
       "animation_token": "searching",
       "hold_seconds": 1.0,
+      "buffer_after": 0.0,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "host_say_0401",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.0,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "host_kg_success_0401",
+      "note": "animation",
+      "speaker": "brobot_1",
+      "animation_token": "kgSuccess",
+      "hold_seconds": 1.0,
+      "buffer_after": 0.9,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "host_say_0401",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.9,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "host_say_0401",
+      "note": "say_turn",
+      "speaker": "brobot_1",
       "buffer_after": 0.0,
       "section": "ROUND 2"
     },
@@ -272,11 +349,11 @@
     },
     {
       "step_id": "host_say_0402",
-      "show_ball": "I-9",
       "note": "say_turn",
       "speaker": "brobot_1",
       "buffer_after": 1.2,
-      "section": "ROUND 2"
+      "section": "ROUND 2",
+      "show_ball": "I-9"
     },
     {
       "step_id": "reporter_gap_0403",
@@ -287,25 +364,43 @@
       "section": "ROUND 2"
     },
     {
-      "step_id": "brat_searching_animation_kg_success_0403",
-      "note": "combo",
+      "step_id": "brat_say_0403",
+      "note": "say_turn",
       "speaker": "brobot_2",
-      "section": "ROUND 2",
-      "combo": [
-        {
-          "note": "animation",
-          "animation_token": "searching",
-          "hold_seconds": 1.3,
-          "buffer_after": 1.5
-        },
-        {
-          "note": "animation",
-          "animation_token": "kgSuccess",
-          "hold_seconds": 2.5,
-          "buffer_after": 0.9,
-          "text": "Lol!"
-        }
-      ]
+      "buffer_after": 0.9,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "brat_searching_animation_0403",
+      "note": "animation",
+      "speaker": "brobot_2",
+      "animation_token": "searching",
+      "hold_seconds": 1.3,
+      "buffer_after": 1.5,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "brat_say_0403",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 1.5,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "brat_kg_success_0403",
+      "note": "animation",
+      "speaker": "brobot_2",
+      "animation_token": "kgSuccess",
+      "hold_seconds": 2.5,
+      "buffer_after": 0.9,
+      "section": "ROUND 2"
+    },
+    {
+      "step_id": "brat_say_0403",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 0.9,
+      "section": "ROUND 2"
     },
     {
       "step_id": "reporter_gap_0404",
@@ -333,23 +428,20 @@
       "section": "ROUND 3"
     },
     {
-      "step_id": "host_beat_angry_host_rattle_0501",
-      "note": "combo",
+      "step_id": "host_beat_angry_0501",
+      "note": "emotion_beat",
       "speaker": "brobot_1",
-      "section": "ROUND 3",
-      "combo": [
-        {
-          "note": "emotion_beat",
-          "animation_token": "angry",
-          "hold_seconds": 1.5,
-          "buffer_after": 0.9,
-          "text": "Excuse Me?"
-        },
-        {
-          "note": "rattle",
-          "buffer_after": 0.0
-        }
-      ]
+      "animation_token": "angry",
+      "hold_seconds": 1.5,
+      "buffer_after": 0.9,
+      "section": "ROUND 3"
+    },
+    {
+      "step_id": "host_say_0501",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.9,
+      "section": "ROUND 3"
     },
     {
       "step_id": "reporter_gap_0502",
@@ -357,6 +449,20 @@
       "speaker": "brobot_1",
       "pause_seconds": 0,
       "gap_label": "after_round_3_rattle",
+      "section": "ROUND 3"
+    },
+    {
+      "step_id": "host_say_0502",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.0,
+      "section": "ROUND 3"
+    },
+    {
+      "step_id": "host_rattle_0502",
+      "note": "rattle",
+      "speaker": "brobot_1",
+      "buffer_after": 0.0,
       "section": "ROUND 3"
     },
     {
@@ -370,11 +476,11 @@
     },
     {
       "step_id": "host_say_0502",
-      "show_ball": "O-0",
       "note": "say_turn",
       "speaker": "brobot_1",
       "buffer_after": 1.2,
-      "section": "ROUND 3"
+      "section": "ROUND 3",
+      "show_ball": "O-0"
     },
     {
       "step_id": "reporter_gap_0503",
@@ -401,11 +507,25 @@
       "section": "ROUND 3"
     },
     {
+      "step_id": "brat_say_0503",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 0.9,
+      "section": "ROUND 3"
+    },
+    {
       "step_id": "brat_beat_angry_0503",
       "note": "emotion_beat",
       "speaker": "brobot_2",
       "animation_token": "angry",
       "hold_seconds": 1.5,
+      "buffer_after": 0.9,
+      "section": "ROUND 3"
+    },
+    {
+      "step_id": "brat_say_0503",
+      "note": "say_turn",
+      "speaker": "brobot_2",
       "buffer_after": 0.9,
       "section": "ROUND 3"
     },
@@ -436,25 +556,36 @@
       "speed": 2
     },
     {
-      "step_id": "host_nod_kg_success_0601",
-      "note": "combo",
+      "step_id": "host_nod_0601",
+      "note": "nod",
       "speaker": "brobot_1",
-      "section": "CLOSING",
-      "combo": [
-        {
-          "note": "nod",
-          "hold_seconds": 0.18,
-          "buffer_after": 1.6,
-          "speed": 4
-        },
-        {
-          "note": "animation",
-          "animation_token": "kgSuccess",
-          "hold_seconds": 2.5,
-          "buffer_after": 0.9,
-          "text": "Lol!"
-        }
-      ]
+      "hold_seconds": 0.18,
+      "buffer_after": 1.6,
+      "speed": 4,
+      "section": "CLOSING"
+    },
+    {
+      "step_id": "host_say_0601",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 1.6,
+      "section": "CLOSING"
+    },
+    {
+      "step_id": "host_kg_success_0601",
+      "note": "animation",
+      "speaker": "brobot_1",
+      "animation_token": "kgSuccess",
+      "hold_seconds": 2.5,
+      "buffer_after": 0.9,
+      "section": "CLOSING"
+    },
+    {
+      "step_id": "host_say_0601",
+      "note": "say_turn",
+      "speaker": "brobot_1",
+      "buffer_after": 0.9,
+      "section": "CLOSING"
     },
     {
       "step_id": "brat_searching_animation_0602",
@@ -463,6 +594,30 @@
       "animation_token": "searching",
       "hold_seconds": 1.3,
       "buffer_after": 0.9,
+      "section": "CLOSING"
+    },
+    {
+      "step_id": "brat_say_0602",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 0.9,
+      "section": "CLOSING"
+    },
+    {
+      "step_id": "brat_arm_cue_0602",
+      "note": "arm_cue",
+      "speaker": "brobot_2",
+      "cycles": 2,
+      "hold_seconds": 0.5,
+      "buffer_after": 1.0,
+      "section": "CLOSING",
+      "speed": 3
+    },
+    {
+      "step_id": "brat_say_0602",
+      "note": "say_turn",
+      "speaker": "brobot_2",
+      "buffer_after": 1.0,
       "section": "CLOSING"
     },
     {

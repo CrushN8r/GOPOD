@@ -119,7 +119,9 @@ var gopodShortMarkerPattern = regexp.MustCompile(`(?m)^([ \t]*)([A-Za-z]+)_{1,2}
 // "celebrating" -> celebrate). Before the marker, a word that is none of them
 // is dropped - the marker is the cue's place. Mid-sentence ("party... time!!")
 // a word stays a word the Brobot says (gopod_word_animations.go).
-var gopodOpeningCueSlotPattern = regexp.MustCompile(`\A(\s*)([A-Za-z][A-Za-z*]*)([ \t]*)(\.\.\.|\x{2026}|-{2,}|_+)([ \t]*)`)
+// 2026-10-25 (live: "happy** BINGO EXPERIENCE!!", "veryHappy** Shmengy bala ..."
+// shown in the bubble): "**" after the opening cue word is a cue mark too.
+var gopodOpeningCueSlotPattern = regexp.MustCompile(`\A(\s*)([A-Za-z][A-Za-z*]*?)([ \t]*)(\.\.\.|\x{2026}|-{2,}|_+|\*{2,})([ \t]*)`)
 
 // Speech text rules (kgsim.go's speech cleanup, 2026-10-07).
 var (
@@ -174,10 +176,11 @@ func gopodFixOpeningCueSlot(text string) string {
 	word := strings.ReplaceAll(written, "*", "")
 	dots := mark == "..." || mark == "\u2026"
 	dashes := strings.HasPrefix(mark, "-")
+	stars := strings.HasPrefix(mark, "*")
 	if !dashes && (g[11] == g[10] || !gopodNewSentencePattern.MatchString(rest)) {
 		return text
 	}
-	if gopodIsAnimationTokenName(word) && word == written && !dashes {
+	if gopodIsAnimationTokenName(word) && word == written && !dashes && !stars {
 		return text
 	}
 	token := word
@@ -189,6 +192,9 @@ func gopodFixOpeningCueSlot(text string) string {
 		return text[:g[3]] + token + text[g[6]:g[1]] + rest
 	case token != "":
 		return text[:g[3]] + token + gopodAnimationMarker + " " + rest
+	case stars:
+		// Not an animation: the word stays, the stray "**" goes ("Wow** That").
+		return text[:g[3]] + word + " " + rest
 	case !dots && !dashes:
 		return text[:g[3]] + rest
 	}

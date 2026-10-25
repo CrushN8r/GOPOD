@@ -28,7 +28,7 @@ it's away, Goverlord's warm-up bubble says "Goverlord awaits your return..." wit
 
 ## STEP goverlord_warm_0102
 
-> TEXT: Voices ready.
+> TEXT: Voices ready for playback.
 Language Model Loading...
 
 ## STEP goverlord_warm_wait_0103

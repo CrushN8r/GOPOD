@@ -194,6 +194,8 @@ type gopodBrobotsSettingsFile struct {
 		PitchPack     string            `json:"pitch_pack"`
 		NoRunNote     string            `json:"no_run_note"`
 		Takes         map[string]string `json:"takes"`
+		// 2026-10-25: each Brobot's closing remark after a Bingo run (gopodBingoClosing).
+		Closing map[string]string `json:"closing"`
 	} `json:"bingo"`
 	InterviewChapters struct {
 		Role     string `json:"role"`
@@ -327,6 +329,15 @@ type gopodBrobotsSettingsFile struct {
 		Opening []gopodHostLine `json:"opening"`
 		Closing []gopodHostLine `json:"closing"`
 	} `json:"reporter_voices"`
+	// 2026-10-25: the bubble sounds template (gopodBubbleSting; the page's bubbleSound).
+	BubbleSounds struct {
+		DefaultFile string `json:"default_file"`
+		Goverlord   struct {
+			File   string          `json:"file"`
+			Volume json.RawMessage `json:"volume"`
+			Mute   bool            `json:"mute"`
+		} `json:"Goverlord"`
+	} `json:"bubble_sounds"`
 	// 2026-10-17 (operator: "One master default knobs setting all other knobs
 	// refers to"; "evaluate audio files to normalize all volumes to -3db"): the
 	// master volume (the page's), and the level every sound is evened to first.
@@ -538,6 +549,11 @@ type gopodBrobotsSettingsFile struct {
 	ValuePoints struct {
 		ScoreRole            string            `json:"score_role"`
 		ScoreText            string            `json:"score_text"`
+		// 2026-10-25: the score's bars ({topics_bar} ...): a mark per found, a mark per to go.
+		ScoreBar struct {
+			Done string `json:"done"`
+			Left string `json:"left"`
+		} `json:"score_bar"`
 		Reminders            map[string]string `json:"reminders"`
 		WhatElseTopic        string            `json:"what_else_topic"`
 		WhatElseCount        int               `json:"what_else_count"`

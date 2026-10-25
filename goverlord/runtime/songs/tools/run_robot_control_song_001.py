@@ -194,9 +194,17 @@ _STEP_HEADING = re.compile(r"^##\s+STEP\s+(\S+)\s*$")
 
 
 def parse_control_story_md(text):
+    """Each step's text/fail by its name (the last one wins when a name repeats)."""
+    return {step_id: content for step_id, content in parse_control_story_list(text)}
+
+
+def parse_control_story_list(text):
+    """2026-10-25 (operator's new story format: one move or one line per step, in
+    the order they happen, a line's step name repeating - "brat_say_0203" twice):
+    every step in story order, (step_id, {"text", "fail"})."""
     lines = text.splitlines()
     starts = [i for i, line in enumerate(lines) if _STEP_HEADING.match(line.strip())]
-    steps = {}
+    steps = []
     for position, start in enumerate(starts):
         step_id = _STEP_HEADING.match(lines[start].strip()).group(1)
         end = starts[position + 1] if position + 1 < len(starts) else len(lines)
@@ -220,7 +228,7 @@ def parse_control_story_md(text):
                 text_val = (text_val + "\n" + stripped) if text_val else stripped
             else:
                 in_text = False
-        steps[step_id] = {"text": text_val, "fail": fail_val}
+        steps.append((step_id, {"text": text_val, "fail": fail_val}))
     return steps
 
 

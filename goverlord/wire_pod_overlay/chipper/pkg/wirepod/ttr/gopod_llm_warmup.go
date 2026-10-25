@@ -325,7 +325,7 @@ func gopodWarmupEndSting() {
 		gopodWaitHeard(gopodHeardLimit(ends))
 		return
 	}
-	if sting, seconds := gopodSystemSting(""); sting != "" {
+	if sting, seconds := gopodMusicSting(); sting != "" {
 		GopodChatFeedAdd(rv.Role, gopodWithVolumeShare(sting))
 		ends = gopodVoiceQueueAdd(seconds + rv.GapSeconds)
 	}

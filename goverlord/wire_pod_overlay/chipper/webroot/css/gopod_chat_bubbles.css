@@ -1176,3 +1176,28 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   letter-spacing: 0.03em;
   margin: 0 0 0.35em;
 }
+
+/* 2026-10-25 (operator: "Goverlord & Gomad level bubbles are not following
+   template rules * spoken lines are 75% of header"): Goverlord's bubbles and the
+   managers' (CHALK, PLAYHEAD) - their lines three quarters of the header's size,
+   like a Brobot's answer. Not the terminal's results (50%) or a notice's lines. */
+.brobot-bubble.system-status:not(.nested-host) > .brobot-bubble-text:not(.terminal-text),
+.brobot-bubble.warmup > .brobot-bubble-text {
+  font-size: 75%;
+  letter-spacing: 0.03em;
+}
+
+/* 2026-10-25 (operator: "Topics 3 of 7: ===---- * Value Points 1 of 19:
+   =------------------ * Easter Eggs 4 of 5: ====- * 3 single lines with dynamic
+   scores aligned vertically"): the notice's score rows - same width, centred
+   together; each label in a column of its own, each bar in even-width marks. */
+.bubble-notice .notice-score-row {
+  display: block;
+  width: 24em;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: left;
+  white-space: nowrap;
+}
+.bubble-notice .notice-score-label { display: inline-block; width: 11.5em; }
+.bubble-notice .notice-score-bar { font-family: monospace; letter-spacing: 0.05em; }

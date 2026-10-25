@@ -33,7 +33,7 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_07
 
-> TEXT: And its our job to make it happen. I'm so excited. Do you feel that?
+> TEXT: And its our job to make it happen. I'm so excited. Feel that. Do you feel that?
 
 ## STEP line_08
 

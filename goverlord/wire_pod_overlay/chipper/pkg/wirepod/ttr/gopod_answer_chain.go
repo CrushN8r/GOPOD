@@ -303,6 +303,19 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return strings.TrimSpace(raw) + gopodThoughtGap() + line
 			}
 		}
+	case "closing_remark":
+		// 2026-10-25 (operator: "post-bingo, brobot 1, \"I Won!\", brobot 2, \"Oh!
+		// Zero!\" * session chat > no bingo yet > scripted run > post experiences +
+		// ending jokes as scripted closing remarks"; "No, before the 'Hey' reminder"):
+		// "joke is closing remark of answer to how was bingo, not the response
+		// answer-chain"): a Bingo question after a Bingo run - his answer's closing
+		// sentence is his closing remark (bingo.closing), joined to it, right after
+		// the model's words (before point bubbles and the reminder); his own copy of
+		// it dropped first.
+		if line := gopodBingoClosing(esn, question); line != "" {
+			logger.Println("BROBOT_CLOSING " + gopodBrobotName(esn) + ": " + line)
+			return strings.TrimSpace(gopodDropSnippetCopy(line, raw)) + " " + line
+		}
 	case "llm":
 	default:
 		logger.Println("GOPOD_CHECK answer_chains: no part named " + part)
@@ -415,3 +428,12 @@ func gopodExchangeWait(esn, text string) {
 }
 
 // ## EOF
+
+// gopodBingoClosing: his closing remark (bingo.closing) for a Bingo question once
+// a Bingo run has played; "" otherwise.
+func gopodBingoClosing(esn, question string) string {
+	if !(gopodBingoPlayed.Load() || gopodBingoRunInMemory()) || !gopodIsBingoQuestion(question) {
+		return ""
+	}
+	return strings.TrimSpace(gopodBrobotsSettings.Bingo.Closing[gopodBrobotName(esn)])
+}

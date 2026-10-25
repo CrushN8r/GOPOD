@@ -597,6 +597,16 @@ func gopodTopicLikeness(a, b string) float64 {
 
 // gopodCoverageScoreText is the session score and the list behind it.
 func gopodCoverageScoreText() (string, string) {
+	text, detail := gopodCoverageScoreWith(gopodBrobotsSettings.ValuePoints.ScoreText)
+	return text, detail
+}
+
+// gopodCoverageScoreWith: tmpl filled with the session score - {topics},
+// {topics_total}, {points}, {points_total}, {eggs}, {eggs_total}, and (2026-10-25,
+// operator: "Topics 3 of 7: ===---- * 3 single lines with dynamic scores aligned
+// vertically") {topics_bar}, {points_bar}, {eggs_bar}: one value_points.score_bar
+// "done" mark per one found, one "left" mark per one to go.
+func gopodCoverageScoreWith(tmpl string) (string, string) {
 	names, counts := gopodPackPointCounts()
 	gopodCoverage.Lock()
 	defer gopodCoverage.Unlock()
@@ -649,11 +659,22 @@ func gopodCoverageScoreText() (string, string) {
 			}
 		}
 	}
+	bar := func(n, of int) string {
+		sb := gopodBrobotsSettings.ValuePoints.ScoreBar
+		if n > of {
+			n = of
+		}
+		if n < 0 || of <= 0 {
+			return ""
+		}
+		return strings.Repeat(sb.Done, n) + strings.Repeat(sb.Left, of-n)
+	}
 	text := strings.NewReplacer(
+		"{points_bar}", bar(points, total), "{topics_bar}", bar(topics, topicsTotal), "{eggs_bar}", bar(eggs, eggsTotal),
 		"{points}", fmt.Sprint(points), "{points_total}", fmt.Sprint(total),
 		"{topics}", fmt.Sprint(topics), "{topics_total}", fmt.Sprint(topicsTotal),
 		"{eggs}", fmt.Sprint(eggs), "{eggs_total}", fmt.Sprint(eggsTotal),
-	).Replace(gopodBrobotsSettings.ValuePoints.ScoreText)
+	).Replace(tmpl)
 	return text, strings.Join(detail, " ")
 }
 

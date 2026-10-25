@@ -7,8 +7,17 @@
   "colour_max_sentences": 4,
   "flavour_lines": [
     {
+      "brobot": "Brobot 1",
       "lines": [
-        "Sure, let's play! Say start Bingo test!"
+        "I guess so... Say start Bingo test!"
+      ],
+      "when": "bingo_not_played",
+      "why": "2026-10-25 (operator: \"pre-bingo, brobot 1, I guess so..., brobot 2, I can't wait!\"; was \"Sure, let's play! Say start Bingo test!\" for both)."
+    },
+    {
+      "brobot": "Brobot 2",
+      "lines": [
+        "I can't wait! Say start Bingo test!"
       ],
       "when": "bingo_not_played"
     },

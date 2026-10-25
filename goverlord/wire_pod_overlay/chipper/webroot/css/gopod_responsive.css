@@ -129,3 +129,15 @@ body.gopod-visitor .brobot-bubble { font-size: 25.5px; }
   .narrator-stage .narrator-part.current { position: relative; inset: auto; }
   .narrator-single .narrator-stage .narrator-part.current { aspect-ratio: 1168 / 784; height: auto; }
 }
+
+/* 2026-10-25 (operator, the phone's visitor page: "Can the chat bubble window take
+   up more space below. There seems to be empty space at the bottom"): the visitor
+   page is the chat alone - it fills the screen as it is now (100dvh, the browser's
+   bars counted), no room kept for a back button (a visitor has none). */
+body.gopod-visitor-page { min-height: 100dvh; }
+body.gopod-visitor-page #outer { height: auto; }
+body.gopod-visitor-page .gopod-chat-back { display: none !important; }
+body.gopod-visitor-page #brobot-chat-bubbles-container.expanded {
+  height: calc(100dvh - env(safe-area-inset-top));
+  margin: 0;
+}

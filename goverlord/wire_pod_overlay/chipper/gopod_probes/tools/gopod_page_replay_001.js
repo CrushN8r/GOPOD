@@ -26,8 +26,11 @@ function scenario() {
     add("Reporter Voice", f);
     add("Reporter Voice", "heard:" + ev.length);
   };
+  // 2026-10-25: the egg template - line 1 fixed, line 2 every egg so far, in quotes.
+  const found = [];
   const egg = (who, name, prize, voice, zoom) => {
-    const msg = "Congratulations!\nEaster Egg '" + name + "' found." + (zoom ? "\nMouseOver to Zoom In" : "");
+    if (found.indexOf(name) < 0) { found.push(name); }
+    const msg = "Congratulations! Easter Eggs Revealed Thus Far!\n" + found.map(n => "'" + n + "'").join(", ") + (zoom ? "\nMouseOver to Zoom In" : "");
     add("Picture", "popup:" + who + "::msg=" + msg + "::" + prize);
     add("Reporter Voice", "generating:forlit:" + V + voice + "|" + msg);
     add("Reporter Voice", V + voice);
@@ -45,10 +48,16 @@ function scenario() {
   // His opener, said while thinking, replayed at the top of his bubble (replaySaidLine).
   add("Picture", "opener:Nice try, Mr missing some RAM!", { to: "Brobot 1" });
   add("Picture", "notice:Value Points|Response-chain: Brobot 2, then Brobot 1 - answer 2 of 2", { to: "Brobot 1" });
+  // 2026-10-25: the score as three rows, bars lined up.
+  ["Topics 3 of 7:\t===----", "Value Points 1 of 19:\t=------------------", "Easter Eggs 4 of 5:\t====-"].forEach(l => add("Picture", "notice:Value Points|" + l, { to: "Brobot 1" }));
   reply("Brobot 1", "You know what's even wilder? \u2063The party never stops!");
   op("Brobot 1", "Brobot 1, tell me about bingo for seniors.");
   egg("Brobot 1", "Bingo and foodmath", "/pictures/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo_card.jpg", "replay_egg_bingo.wav", true);
   reply("Brobot 1", "Sure, \u2063let's play! \u2063Say start Bingo test!");
+  // 2026-10-25 (the egg rule): the same egg again - no pop-up, his bubble keeps the marquee.
+  op("Brobot 2", "how was your bingo experience");
+  add("Picture", "eggmark:Bingo and foodmath", { to: "Brobot 2" });
+  reply("Brobot 2", "Bingo was a blast, \u2063bro!");
   op("Brobots", "convert 0.272727 repeating to a fraction, explain the math");
   egg("Brobot 2", "AI Wordplay Explain the Math", "math:convert 0.272727 repeating to a fraction", "replay_egg_math.wav", false);
   reply("Brobot 2", "Let's do it! \u2063\u2022 Let x = 0.27 repeating.");
@@ -61,6 +70,9 @@ function scenario() {
   reply("Brobot 1", "Alright, bro! \u2063Let's get this party started!");
   line("Grand prize! Every value point revealed. Now GOPOD Yourself!", "replay_grand.wav");
   line("Master Grand Prize! Every value point and every Easter egg found, hidden ones too. Now GOPOD Yourself!", "replay_master.wav");
+  // 2026-10-25: the Bingo test's closing line - CHALK 1 the subscribe QR, CHALK 2 crushn8r.ca, each once.
+  op("Brobot 1", "Brobot 1, wrap it up");
+  reply("Brobot 1", "Wait what?\u2063Now be a good Brobot and GOPOD Yourself!\u2063The rest of you can GOPOD yourselves by visiting crushn8r.ca and subscribing to the CRUSHN8R CREW'd newsletter");
   op("Brobot 2", "Brobot 2, how do I keep up with you guys?");
   reply("Brobot 2", "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca! \u2063the CREW'd newsletter! \u2063Get CREW'd.");
   return { boot: 1, events: ev };
@@ -144,7 +156,7 @@ function makePage(role) {
       if (!el.classList || !el.classList.contains("brobot-say")) { return; }
       const b = el.closest(".brobot-bubble"); if (!b || b.dataset.kind !== "egg") { return; }
       const state = el.classList.contains("speaking") ? "lit" : el.classList.contains("spoken") ? "said" : "";
-      if (state && el._last !== state) { el._last = state; log.push(stamp() + " egg '" + (b.textContent.match(/Easter Egg '([^']*)'/) || [, "?"])[1] + "' " + (el.closest(".popup-zoom-line") ? "zoom line" : "congratulations") + " " + state); }
+      if (state && el._last !== state) { el._last = state; log.push(stamp() + " egg '" + ((b.textContent.match(/'([^']*)'(?![^']*')/) || [, "?"])[1]) + "' " + (el.closest(".popup-zoom-line") ? "zoom line" : "congratulations") + " " + state); }
     })).observe(d, { subtree: true, attributes: true, attributeFilter: ["class"] });
   }
   w.addEventListener("error", e => notes.push("PAGE ERROR (" + role + ") " + e.message));
@@ -189,7 +201,7 @@ setInterval(() => {
   c.querySelectorAll('[data-kind="egg"]').forEach(b => {
     const congrats = b.querySelector(".popup-congrats .brobot-say, .brobot-bubble-text .brobot-say");
     const zoom = b.querySelector(".popup-zoom-line .brobot-say");
-    console.log("  " + (b.textContent.match(/Easter Egg '([^']*)'/) || [, "?"])[1] + ": " + b.className.replace("brobot-bubble ", "") +
+    console.log("  " + ((b.textContent.match(/'([^']*)'(?![^']*')/) || [, "?"])[1]) + ": " + b.className.replace("brobot-bubble ", "") +
       " | congratulations " + (congrats ? congrats.className.replace("brobot-say", "").trim() || "dormant" : "MISSING") +
       " | zoom " + (zoom ? zoom.className.replace("brobot-say", "").trim() || "dormant" : "-") +
       " | pictures " + b.querySelectorAll("img:not(.picture-waiting)").length + " shown, " + b.querySelectorAll(".picture-wait").length + " waiting" +
@@ -202,6 +214,12 @@ setInterval(() => {
   console.log("\nGOVERLORD LINES");
   Array.from(c.querySelectorAll(".brobot-bubble")).filter(b => /Grand Prize/i.test(b.textContent) && b.dataset.kind !== "egg").forEach(b => console.log("  " + b.textContent.replace(/\s+/g, " ").trim().slice(0, 90) + " | " + Array.from(b.querySelectorAll(".brobot-say")).map(s => s.className.replace("brobot-say", "").trim() || "dormant").join(",")));
   console.log("\nBUBBLES BY KIND"); const k = {}; c.querySelectorAll(".brobot-bubble").forEach(b => { k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] = (k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] || 0) + 1; }); console.log("  " + JSON.stringify(k));
+  console.log("\nCHALK QRs (each CHALK part: its QRs)");
+  Array.from(c.querySelectorAll(".brobot-bubble")).filter(b => /visiting crushn8r\.ca/.test(b.textContent) && /brobot-1/.test(b.className)).forEach(b => b.querySelectorAll(".chalk-qr").forEach(p => console.log("  " + (p.classList.contains("chalk-cta") ? "call to action" : "board") + ": " + Array.from(p.querySelectorAll("img.gopod-qr")).map(i => i.getAttribute("src")).join(", "))));
+  console.log("\nSCORE ROWS (label | bar)");
+  c.querySelectorAll(".notice-score-row").forEach(r => console.log("  " + r.querySelector(".notice-score-label").textContent + " | " + r.querySelector(".notice-score-bar").textContent));
+  console.log("\nEGG MARQUEE (a reply to an egg's line, pop-up or not)");
+  Array.from(c.querySelectorAll(".brobot-bubble.brobot-1, .brobot-bubble.brobot-2")).filter(b => /Bingo was a blast|let's play/.test(b.textContent)).forEach(b => console.log("  " + (b.querySelector(".marquee-lights") || b.classList.contains("popup-winner") ? "marquee  " : "NO MARQUEE ") + b.textContent.replace(/\s+/g, " ").trim().slice(0, 50)));
   console.log("\nSPOKEN LINES (lit word by word?)");
   spokenLines.forEach(l => console.log("  " + (l.perWord ? "per word " : "WHOLE    ") + l.kind + " | " + l.text));
   console.log("  " + spokenLines.filter(l => !l.perWord).length + " of " + spokenLines.length + " not per word");

@@ -137,6 +137,11 @@ func gopodNoticeEgg(brobot, title, summary string) bool {
 		return false
 	}
 	line := gopodNoticeFill(vp.Egg, map[string]string{"title": title, "summary": summary})
+	// 2026-10-25 (operator: "NEW RULE: The brobot bubble indicates revealed easter
+	// eggs upon 1st reveal * no more pop ups * however, the marquee lights stay, as
+	// an indicator of a revealed easter egg"): his bubble wears the marquee, every
+	// time a line of his hits an egg (the page's eggMarked).
+	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, brobot, gopodEggMark+title)
 	esn := gopodBrobotESN(brobot)
 	gopodNotice.Lock()
 	posted := gopodNotice.open[esn]
@@ -247,7 +252,10 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 	// value points and eggs, N of N.
 	if vp.Score != "" && total > 0 {
 		score, _ := gopodCoverageScoreText()
-		parts["score"] = []string{gopodNoticeFill(vp.Score, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total), "score": score})}
+		// 2026-10-25: the notice's own score lines (its bars) - the score's numbers
+		// filled straight into value_points.score here (gopodCoverageScoreWith).
+		filled, _ := gopodCoverageScoreWith(vp.Score)
+		parts["score"] = []string{gopodNoticeFill(filled, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total), "score": score})}
 	}
 }
 
@@ -321,6 +329,7 @@ func gopodNoticeFlushLocked(esn string) ([]string, string, bool) {
 }
 
 const gopodNoticeSayMark = "noticesay:"
+const gopodEggMark = "eggmark:"
 const gopodNoticeSaidMark = "noticesaid:"
 
 // gopodNoticeSaid: his spoken notice line has been said.
