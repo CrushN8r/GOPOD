@@ -2235,6 +2235,22 @@ So: A says "Got it!", answers, hands over "Brobot 1, what say you on this, Mr fu
 "Nice try, Mrs gear-head!". New banter = edit `openers`, `nicknames` or an answer's fields.
 Locked by `TestResponseChainTemplate`.
 
+**SOFT-LOCKED: persona, colour and flavour** (2026-10-25, operator: "soft lock this,
+specifically so I can further tweak guiding the llm for better thought bubble output, without
+affecting colouring and/or flavouring * some of the random stuff that comes out of the brobots is
+unexpected comedic gold, so that's why soft lock the persona, just tweak the answering-chains,
+etc..."). Locked (`TestPersonaSoftLock`, the lock in `gopod_probes/locks/persona_soft_lock.json`):
+- each Brobot's persona as the LLM gets it: `personas` + `host_personas` name/role/steps/signature
+  + `host_pairs` banter and dial + `host_persona_frames`
+- the colour room: `colour_slots.max_sentences`
+- the flavour lines: `scripted_snippets` (all but the reminder's)
+- the randomness: `llm.temperature`, `llm.say_line_temperature`
+
+Open for tweaking: `answer_chains`, `response_chains`, `openers`, `nicknames`, `chain_prompts`,
+`answer_shapes`, `point_bubbles`, the reminder lines. A locked part changes on the operator's
+word only; then `GOPOD_RELOCK=1` with the test saves the new lock. The chat model itself is
+Wire-Pod's (apiConfig.json), outside the lock.
+
 **CSS and JS in their own files** (2026-10-25, operator: "move all css, js, etc... into files"):
 the Weather Kit page's look and script (`css/gopod_weather_kit.css`, `js/gopod_weather_kit.js`);
 a saved session page's look (`css/gopod_session_page.css`, put inside the page so it stands
