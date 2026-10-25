@@ -160,20 +160,35 @@ func gopodMathFlavour(text string, max int) string {
 
 var gopodMathSentenceRe = regexp.MustCompile(`[^.!?]+[.!?]*`)
 
-// gopodMathFollowUp: Brobot 2's turn after Brobot 1's answer (kgsim.go).
+// gopodMathFollowUp: the follow-up Brobot's turn after the lead's answer (kgsim.go).
 var gopodMathFollowUp sync.Map
 
-// gopodMathFollowUpStart: once Brobot 1's answer is done, Brobot 2 follows up
-// on the same line - his share of the steps, with Brobot 1's answer in the
+// gopodMathLeadPick (2026-10-24, operator: "'All' brobot 1 or 2 menu selections *
+// keyboard & mic inputs, when 2 selected * brobot 2 then brobot 1 order, not being
+// honoured"): a line sent to All with Brobot 2 first - he leads its math, Brobot 1
+// follows up. Any other math line: Brobot 1 leads (2026-10-14).
+var gopodMathLeadPick sync.Map
+
+func gopodMathLead(text string) string {
+	if v, ok := gopodMathLeadPick.Load(strings.TrimSpace(text)); ok {
+		return v.(string)
+	}
+	return gopodBrobot1ESN
+}
+
+// gopodMathFollowUpStart: once the lead's answer is done, his brother follows up
+// on the same line - his share of the steps, with the lead's answer in the
 // shared chat.
 func gopodMathFollowUpStart(text string) {
-	logger.Println("GOPOD_MATH Brobot 2 follows up: " + text)
-	gopodMathFollowUp.Store(gopodBrobot2ESN, true)
-	gopodAnswerNext.Store(gopodBrobot2ESN, true)
-	gopodFollowingUp.Store(gopodBrobot2ESN, true)
-	if _, err := StreamingKGSim(nil, gopodBrobot2ESN, text, false); err != nil {
+	follower := gopodBrotherOf(gopodMathLead(text))
+	logger.Println("GOPOD_MATH " + gopodBrobotName(follower) + " follows up: " + text)
+	gopodMathFollowUp.Store(follower, true)
+	gopodAnswerNext.Store(follower, true)
+	gopodFollowingUp.Store(follower, true)
+	if _, err := StreamingKGSim(nil, follower, text, false); err != nil {
 		logger.Println("LLM error (math follow-up): " + err.Error())
 	}
+	gopodMathLeadPick.Delete(strings.TrimSpace(text))
 }
 
 // gopodMathPopupMark: a pop-up item that is an "Explain the Math" challenge.

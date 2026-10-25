@@ -619,7 +619,7 @@ var gopodMusicPlayed atomic.Bool
 func gopodHeardShort(text string) string {
 	text = strings.Join(strings.Fields(text), " ")
 	if len(text) > 60 {
-		text = text[:60] + "..."
+		text = gopodCut(text, 60)
 	}
 	return text
 }

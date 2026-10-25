@@ -215,9 +215,15 @@ func gopodTypedInputAll(text, how string) error {
 	// 0.1234 repeating into a fraction" ran the All sequence and the math
 	// follow-up both - each Brobot answered twice): a fraction-word line too.
 	if _, _, ok := gopodMathParts(text); ok {
+		// 2026-10-24: Brobot 2 first (the All menu, or named first) leads the math.
+		lead := gopodAllFirst(text)
+		if lead != gopodBrobot1ESN {
+			gopodMathLeadPick.Store(strings.TrimSpace(text), lead)
+			gopodAnswerNext.Store(lead, true)
+		}
 		go func() {
 			<-read
-			if _, err := StreamingKGSim(nil, gopodBrobot1ESN, text, false); err != nil {
+			if _, err := StreamingKGSim(nil, lead, text, false); err != nil {
 				logger.Println("LLM error (typed): " + err.Error())
 			}
 		}()
@@ -331,7 +337,7 @@ func gopodAllFirst(text string) string {
 // words, so only that line is turned round (typed_line.all_first).
 var gopodAllFirstPick = struct {
 	sync.Mutex
-	text, first string
+	text, first, standing string
 }{}
 
 // GopodAllFirstPick: the menu's choice for a typed line ("" = the default).
@@ -342,6 +348,10 @@ func GopodAllFirstPick(text, first string) {
 	}
 	gopodAllFirstPick.Lock()
 	gopodAllFirstPick.text, gopodAllFirstPick.first = strings.TrimSpace(text), first
+	// 2026-10-24 (live: a numpad line to All with "2" picked went Brobot 1 first -
+	// its words aren't known until it's heard): the page's pick stands for every
+	// line until it changes - typed or spoken.
+	gopodAllFirstPick.standing = first
 	gopodAllFirstPick.Unlock()
 }
 
@@ -351,7 +361,7 @@ func gopodAllFirstPicked(text string) string {
 	if gopodAllFirstPick.text != "" && gopodAllFirstPick.text == strings.TrimSpace(text) {
 		return gopodAllFirstPick.first
 	}
-	return ""
+	return gopodAllFirstPick.standing
 }
 
 // gopodShowCommandLine: a command line's Operator bubble ("Keyboard to Brobot

@@ -79,9 +79,15 @@ LOG_PROBLEMS = {
 }
 
 
+SEEN = {}  # every feed line seen this run, by id (the feed keeps only its newest)
+
+
 def feed():
     with urllib.request.urlopen(BASE + "/gopod_chat_feed.json", timeout=10) as r:
-        return json.loads(r.read())
+        d = json.loads(r.read())
+    for e in d.get("events", []):
+        SEEN[e["id"]] = e
+    return d
 
 
 def send(to, text):
@@ -95,7 +101,7 @@ def brobot_answer(e):
     return who in ("Brobot 1", "Brobot 2") and not e.get("text", "").startswith(("generating:", "notice:"))
 
 
-def wait_answers(after_id, want, quiet=12, most=150):
+def wait_answers(after_id, want, quiet=12, most=150, both=False):
     """Waits until `want` Brobot answers came after after_id and the feed has been
     quiet for `quiet` seconds (the answers said), at most `most` seconds."""
     start = time.time()
@@ -107,7 +113,11 @@ def wait_answers(after_id, want, quiet=12, most=150):
         if top != last_id:
             last_id, last_change = top, time.time()
         answers = [e for e in events if brobot_answer(e)]
-        if len(answers) >= want and time.time() - last_change >= quiet:
+        # 2026-10-24 (operator: "the 2nd brobot following up not being accounted
+        # for in the run * the runner gotta wait"): math waits for both Brobots.
+        who = {e["who"] for e in answers}
+        enough = {"Brobot 1", "Brobot 2"} <= who if both else len(answers) >= want
+        if enough and time.time() - last_change >= quiet:
             return events
     return [e for e in feed().get("events", []) if e["id"] > after_id]
 
@@ -121,7 +131,7 @@ def wirepod_started():
         return "-3h"
 
 
-def page_caught_up(since, most=180):
+def page_caught_up(since, most=45):
     """Waits until the page has played the feed's newest line (its "GOPOD_PAGE
     played <id>" in Wire-Pod's log since this Wire-Pod start), so the next line
     never piles up behind."""
@@ -130,7 +140,7 @@ def page_caught_up(since, most=180):
     start = time.time()
     while time.time() - start < most:
         top = max([e["id"] for e in feed().get("events", [])], default=0)
-        log = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
+        log = subprocess.run(["journalctl", "-a", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
         played = [int(m) for m in re.findall(r"GOPOD_PAGE played (\d+) ", log)]
         if played and max(played) >= top:
             return True
@@ -148,22 +158,24 @@ def main():
         if only and only not in what.lower():
             continue
         if not page_caught_up(since):
-            problems.append(f"the page was 3 min+ behind before \"{text}\"")
+            problems.append(f"the page didn't report caught up (45 s) before \"{text}\"")
         before = max([e["id"] for e in feed().get("events", [])], default=0)
         send(to, text)
         # A line to both, or any math (Brobot 2 follows up), has two answers.
-        wait_answers(before, 2 if to == "all" or what.startswith(("popup: the math", "math:")) else 1)
+        math = what.startswith(("popup: the math", "math:"))
+        wait_answers(before, 2 if to == "all" else 1, both=math)
         sent.append((to, text, what, must, before))
         print(f"... {text}", flush=True)
     # 2026-10-24 (live: answers landed under the next line): each line's answers
     # are what came after its own Operator line, up to the next one.
     page_caught_up(since)
-    events = feed().get("events", [])
+    feed()
+    events = [SEEN[k] for k in sorted(SEEN)]
     ops = []
     for to, text, what, must, before in sent:
         op = next((e for e in events if e["id"] > before and e.get("who") == "Operator" and text.lower() in e.get("text", "").lower()), None)
         ops.append(op)
-    played = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
+    played = subprocess.run(["journalctl", "-a", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
     for i, (to, text, what, must, before) in enumerate(sent):
         op = ops[i]
         start = op["id"] if op else before
@@ -193,7 +205,7 @@ def main():
         if note:
             problems.append(f"\"{text}\": " + "; ".join(note))
         print(f"{'ok ' if not note else 'BAD'} {text} -> {first[:60]}", flush=True)
-    log = subprocess.run(["journalctl", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
+    log = subprocess.run(["journalctl", "-a", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
     found = {}
     for line in log.splitlines():
         for key, why in LOG_PROBLEMS.items():

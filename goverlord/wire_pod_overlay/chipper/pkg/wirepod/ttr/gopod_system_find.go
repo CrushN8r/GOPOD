@@ -95,7 +95,7 @@ func gopodFindLogLine(line string) string {
 		line = line[7:15] + " " + line[i+3:]
 	}
 	if len(line) > 220 {
-		line = line[:220] + "..."
+		line = gopodCut(line, 220)
 	}
 	return line
 }

@@ -1973,6 +1973,19 @@ turn), and a Brobot's reply joining it. The bubble names its voiced line ahead
 (`voiceLineAhead`), so its voice comes to it, never found by a search of the chat. Which other
 bubble types still find their voice by search: `gopod_notes/HIGHLIGHT_CHECK_001.md`.
 
+**Two grand prizes, eggs once** (2026-10-24; operator: "Logic of NEW, 2 Grand Prizes"; "no
+repeating revealed eggs"): the Grand Prize (`game.win_text`) - every value point and every game
+egg (4: Bingo and foodmath, Legacy and wrap-up, Explain the Math, Get Photo); the Master Grand
+Prize (`game.master_text`) - those and every hidden egg (1: Roast Battle; Halloween and Camera
+Feeds aren't eggs). Each once a session, said only after every answer to the line is done (an
+All or math follow-up checks at its own end). An egg pops up once a session
+(`topic_pictures.max_per_session` 1). `TestTwoGrandPrizes`.
+
+**The All pick stands** (2026-10-24; operator: "when 2 selected * brobot 2 then brobot 1 order,
+not being honoured"): the page's All 1/2 choice goes with every typed line and every numpad press
+and stands until it changes, so a spoken line keeps it; an All math line with Brobot 2 first has
+him lead and Brobot 1 follow up (`gopodMathLead`). `TestAllPickStandsAndLeadsMath`.
+
 **Got it 1 / Got it 2** (2026-10-24; operator: "Separate out the already established, locked,
 golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot
 2"): `chat_moves.got_it` - each Brobot's own copy of the golden sequence (moves, words,

@@ -389,6 +389,8 @@ type gopodBrobotsSettingsFile struct {
 		Rules string `json:"rules"`
 		// 2026-10-23 (A4): the grand prize line, and when the game resets.
 		WinText string `json:"win_text"`
+		// 2026-10-24: the Master Grand Prize - hidden eggs too.
+		MasterText string `json:"master_text"`
 		ResetOn string `json:"reset_on"`
 	} `json:"game"`
 	// 2026-10-23: exact answers to golden questions (the golden_line part).

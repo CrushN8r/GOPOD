@@ -18,8 +18,28 @@ import (
 
 var gopodGame = struct {
 	sync.Mutex
-	won bool
+	won, masterWon bool
 }{}
+
+// gopodGameEggsFound (2026-10-24, operator: "Logic of NEW, 2 Grand Prizes"): the
+// game's own eggs all found (gopodEggList), and the hidden ones too
+// (topic_pictures.not_listed that are eggs).
+func gopodGameEggsFound() (game, hidden bool) {
+	game, hidden = true, true
+	listed := map[string]bool{}
+	for _, e := range gopodEggList() {
+		listed[e.Key] = true
+		if !gopodEggFound(e.Key) {
+			game = false
+		}
+	}
+	for _, k := range gopodBrobotsSettings.TopicPictures.NotListed {
+		if !listed[k] && !gopodNotEgg(k) && !gopodEggFound(k) {
+			hidden = false
+		}
+	}
+	return game, hidden
+}
 
 // gopodGameAllRevealed: every value point of the game has been revealed.
 func gopodGameAllRevealed() bool {
@@ -47,28 +67,59 @@ func gopodGameWinText() string {
 	return strings.ReplaceAll(text, "{score}", score)
 }
 
-// gopodGameWinCheck: after an answer has been said - the grand prize, once.
-// True when it was announced now.
+// gopodGameWinCheck: after every answer to a line has been said - the prizes,
+// each once a session (2026-10-24, operator: "Grand Prize: Revealed upon all
+// reached except hidden eggs, after all responses are properly completed *
+// Master Grand Prize: Revealed upon all reached, after all responses are properly
+// completed"): the Grand Prize for every value point and every game egg; the
+// Master Grand Prize for those and every hidden egg too. True when one was
+// announced now.
 func gopodGameWinCheck() bool {
 	if gopodScriptPlaying.Load() || gopodRunActive() || !gopodGameAllRevealed() {
 		return false
 	}
-	gopodGame.Lock()
-	if gopodGame.won {
-		gopodGame.Unlock()
+	gameEggs, hiddenEggs := gopodGameEggsFound()
+	if !gameEggs {
 		return false
 	}
+	gopodGame.Lock()
+	grand := !gopodGame.won
+	master := hiddenEggs && !gopodGame.masterWon
 	gopodGame.won = true
+	if master {
+		gopodGame.masterWon = true
+	}
 	gopodGame.Unlock()
-	text := gopodGameWinText()
+	said := false
+	if grand {
+		said = gopodGameAnnounce("grand prize", gopodGameWinText()) || said
+	}
+	if master {
+		said = gopodGameAnnounce("master grand prize", gopodGameFill(gopodBrobotsSettings.Game.MasterText)) || said
+	}
+	return said
+}
+
+// gopodGameAnnounce: Goverlord says a prize line.
+func gopodGameAnnounce(what, text string) bool {
 	if text == "" {
 		return false
 	}
-	logger.Println("GOPOD_GAME grand prize: " + text)
+	logger.Println("GOPOD_GAME " + what + ": " + text)
 	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" {
 		gopodReporterSay(role, text, true, false)
 	}
 	return true
+}
+
+// gopodGameFill: a prize line with the score filled in.
+func gopodGameFill(text string) string {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return ""
+	}
+	score, _ := gopodCoverageScoreText()
+	return strings.ReplaceAll(text, "{score}", score)
 }
 
 // gopodGameReset: a new session - the game starts at 0.
@@ -86,7 +137,7 @@ func gopodGameReset(why string) {
 	gopodInterviewShown.pictures = map[string]int{}
 	gopodInterviewShown.Unlock()
 	gopodGame.Lock()
-	gopodGame.won = false
+	gopodGame.won, gopodGame.masterWon = false, false
 	gopodGame.Unlock()
 	logger.Println("GOPOD_GAME reset (" + why + "): the next session starts at 0")
 }

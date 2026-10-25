@@ -406,7 +406,7 @@ func gopodSystemSetSteps(dir string) string {
 		line := "  " + s.StepID + " (" + s.Note + ")"
 		if t := texts[s.StepID]; t != "" {
 			if len(t) > 50 {
-				t = t[:50] + "..."
+				t = gopodCut(t, 50)
 			}
 			line += " " + t
 		}

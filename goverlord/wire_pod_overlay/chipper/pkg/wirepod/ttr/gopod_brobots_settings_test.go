@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 )
 
 // The settings file loads, and the values reach the code and the prompt from it.
@@ -2376,5 +2377,126 @@ func TestGotItPerBrobot(t *testing.T) {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("the sequence doesn't use his own copy: %s", want)
 		}
+	}
+}
+
+// TestCutKeepsWholeCharacters (2026-10-24, live: a log line cut inside a 3-byte
+// mark was kept as unreadable data): a cut never splits a character.
+func TestCutKeepsWholeCharacters(t *testing.T) {
+	text := "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca! ⁣the CREW'd newsletter! ⁣Oh yeah!"
+	for n := 1; n < len(text); n++ {
+		if got := gopodCut(text, n); !utf8.ValidString(got) {
+			t.Fatalf("cut at %d is not whole characters: %q", n, got)
+		}
+	}
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		return
+	}
+	for _, f := range []string{"gopod_chat_feed.go", "gopod_reporter_voices.go", "gopod_system_search.go", "gopod_system_find.go", "gopod_system_set.go"} {
+		src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr", f))
+		if regexp.MustCompile(`\[:\d+\] \+ "\.\.\."`).Match(src) {
+			t.Errorf("%s cuts text by bytes again - use gopodCut", f)
+		}
+	}
+}
+
+// TestTwoGrandPrizes (2026-10-24, operator: "Logic of NEW, 2 Grand Prizes"): every
+// value point alone wins nothing; with the game eggs, the Grand Prize; with the
+// hidden eggs too, the Master Grand Prize - each once.
+func TestTwoGrandPrizes(t *testing.T) {
+	gopodCoverage.Lock()
+	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
+	gopodCoverage.Unlock()
+	gopodInterviewShown.Lock()
+	savedShown := gopodInterviewShown.pictures
+	gopodInterviewShown.Unlock()
+	savedRole := gopodBrobotsSettings.SignOff.SystemRole
+	gopodBrobotsSettings.SignOff.SystemRole = "" // nothing said aloud in a test
+	defer func() {
+		gopodCoverage.Lock()
+		gopodCoverage.revealed, gopodCoverage.reminded = saved, savedRem
+		gopodCoverage.Unlock()
+		gopodInterviewShown.Lock()
+		gopodInterviewShown.pictures = savedShown
+		gopodInterviewShown.Unlock()
+		gopodBrobotsSettings.SignOff.SystemRole = savedRole
+		gopodGameReset("test")
+	}()
+	gopodGameReset("test")
+	names, counts := gopodPackPointCounts()
+	gopodCoverage.Lock()
+	for _, n := range names {
+		gopodCoverage.revealed[n] = counts[n]
+	}
+	gopodCoverage.Unlock()
+	if gopodGameWinCheck() {
+		t.Fatalf("a prize with no eggs found")
+	}
+	found := func(k string) {
+		gopodInterviewShown.Lock()
+		gopodInterviewShown.pictures[k] = 1
+		gopodInterviewShown.Unlock()
+	}
+	game := gopodEggList()
+	if len(game) != 4 {
+		t.Errorf("game eggs %d, want 4", len(game))
+	}
+	for _, e := range game {
+		found(e.Key)
+	}
+	gopodGameWinCheck()
+	gopodGame.Lock()
+	won, master := gopodGame.won, gopodGame.masterWon
+	gopodGame.Unlock()
+	if !won || master {
+		t.Fatalf("game eggs found: grand %v master %v, want true false", won, master)
+	}
+	hidden := 0
+	for _, k := range gopodBrobotsSettings.TopicPictures.NotListed {
+		if !gopodNotEgg(k) {
+			hidden++
+			found(k)
+		}
+	}
+	if hidden != 1 {
+		t.Errorf("hidden eggs %d, want 1", hidden)
+	}
+	gopodGameWinCheck()
+	gopodGame.Lock()
+	master = gopodGame.masterWon
+	gopodGame.Unlock()
+	if !master {
+		t.Fatalf("every egg found: no master grand prize")
+	}
+	if gopodGameWinCheck() {
+		t.Errorf("a prize twice")
+	}
+	if gopodBrobotsSettings.TopicPictures.MaxPerSession != 1 {
+		t.Errorf("an egg pops up %d times a session, want once", gopodBrobotsSettings.TopicPictures.MaxPerSession)
+	}
+}
+
+// TestAllPickStandsAndLeadsMath (2026-10-24, operator: "'All' brobot 1 or 2 menu
+// selections * keyboard & mic inputs, when 2 selected * brobot 2 then brobot 1
+// order, not being honoured"): the page's pick stands for a spoken line, and an
+// All math line with Brobot 2 first has him lead and Brobot 1 follow up.
+func TestAllPickStandsAndLeadsMath(t *testing.T) {
+	defer GopodAllFirstPick("", "1")
+	GopodAllFirstPick("", "2")
+	if got := gopodAllFirst("how are the both of you doing"); got != gopodBrobot2ESN {
+		t.Errorf("a spoken line with 2 picked starts with %s", gopodBrobotName(got))
+	}
+	if got := gopodAllFirst("Brobot 1, how are you"); got != gopodBrobot1ESN {
+		t.Errorf("a line naming Brobot 1 first starts with %s", gopodBrobotName(got))
+	}
+	line := "convert 7/8 to a decimal, explain the math"
+	gopodMathLeadPick.Store(line, gopodBrobot2ESN)
+	defer gopodMathLeadPick.Delete(line)
+	if gopodMathLead(line) != gopodBrobot2ESN || gopodBrotherOf(gopodMathLead(line)) != gopodBrobot1ESN {
+		t.Errorf("math lead %s", gopodBrobotName(gopodMathLead(line)))
+	}
+	if gopodMathLead("convert 3/8 to a decimal, explain the math") != gopodBrobot1ESN {
+		t.Errorf("a math line not sent Brobot 2 first isn't led by Brobot 1")
 	}
 }

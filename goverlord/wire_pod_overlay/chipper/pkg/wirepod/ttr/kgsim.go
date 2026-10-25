@@ -315,6 +315,9 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	// and whether he answers first (gopod_math.go).
 	var mathSteps []string
 	mathOn, mathLead := false, false
+	// 2026-10-24 (operator: "Revealed ... after all responses are properly
+	// completed"): an answer his brother follows up (All) - the prizes wait for it.
+	_, allLead := gopodAllFirstAnswer.Load(esn)
 	photoTaken := make(chan struct{})
 	var photoAnswer string
 	var photoRound2 func()
@@ -412,16 +415,18 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		// Brobot 1; Brobot 2's turn comes after him.
 		if first, second, ok := gopodMathParts(transcribedText); ok {
 			_, follow := gopodMathFollowUp.LoadAndDelete(esn)
-			if esn == gopodBrobot2ESN && !follow {
-				logger.Println("GOPOD_MATH Brobot 1 answers first: " + transcribedText)
-				gopodAnswerNext.Store(gopodBrobot1ESN, true)
-				go StreamingKGSim(nil, gopodBrobot1ESN, transcribedText, false)
+			// 2026-10-24: the lead is Brobot 1, or Brobot 2 when All was sent with him first.
+			lead := gopodMathLead(transcribedText)
+			if esn != lead && !follow {
+				logger.Println("GOPOD_MATH " + gopodBrobotName(lead) + " answers first: " + transcribedText)
+				gopodAnswerNext.Store(lead, true)
+				go StreamingKGSim(nil, lead, transcribedText, false)
 				gopodQuietBrother(req, robot, esn, transcribedText, isKG)
 				gopodChatHoldResume(esn)
 				return "", nil
 			}
 			mathOn = true
-			if esn == gopodBrobot1ESN {
+			if esn == lead {
 				mathSteps, mathLead = first, true
 			} else {
 				mathSteps = second
@@ -1042,8 +1047,12 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		} else {
 			gopodWriteSpeakingNow(robot.Cfg.SerialNo, "", false, false)
 		}
-		// GOPOD 2026-10-23 (A4): the grand prize, once its last point has been said.
-		gopodGameWinCheck()
+		// GOPOD 2026-10-23 (A4): the grand prize, once its last point has been said -
+		// 2026-10-24: and once every answer to the line is done (a follow-up's own
+		// end checks again).
+		if !mathLead && !allLead {
+			gopodGameWinCheck()
+		}
 		// A reply that never got to speak still shows its bubble.
 		showReply()
 		// GOPOD 2026-10-09: the battery after each Brobot reply (gopod_robot_cmd_log.go).

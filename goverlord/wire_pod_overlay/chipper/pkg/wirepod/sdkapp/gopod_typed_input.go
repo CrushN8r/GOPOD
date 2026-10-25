@@ -185,12 +185,13 @@ func gopodPagePlayedHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
 		return
 	}
+	boot, _ := strconv.ParseInt(r.FormValue("boot"), 10, 64)
+	id, _ := strconv.Atoi(r.FormValue("id"))
 	if !wirepod_ttr.GopodIsMainPage(r.FormValue("page")) {
+		logger.Println("GOPOD_PAGE played " + strconv.Itoa(id) + " not taken: page " + r.FormValue("page") + " isn't the main page")
 		w.Write([]byte("viewer"))
 		return
 	}
-	boot, _ := strconv.ParseInt(r.FormValue("boot"), 10, 64)
-	id, _ := strconv.Atoi(r.FormValue("id"))
 	wirepod_ttr.GopodPagePlayed(boot, id)
 	// 2026-10-18 (step 3): the longest the page held a line before showing it.
 	if heldID, _ := strconv.Atoi(r.FormValue("held_id")); heldID > 0 {
@@ -274,6 +275,11 @@ func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var out map[string]any
+	// 2026-10-24: the page's All 1/2 pick comes with every press - it stands for
+	// the spoken line too (its words aren't known yet).
+	if first := r.FormValue("first"); first != "" {
+		wirepod_ttr.GopodAllFirstPick("", first)
+	}
 	switch r.FormValue("action") {
 	case "start":
 		out = wirepod_ttr.GopodNumpadPTTStart(r.FormValue("key"))

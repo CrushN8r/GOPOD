@@ -202,7 +202,7 @@ func gopodSystemSearchList(text string) string {
 	for i, r := range got {
 		content := r.Content
 		if len(content) > 180 {
-			content = content[:180] + "..."
+			content = gopodCut(content, 180)
 		}
 		b.WriteString(fmt.Sprintf("\n%d. %s\n   %s\n   %s", i+1, r.Title, content, r.URL))
 	}

@@ -1571,7 +1571,7 @@
         var head = bubbleHead((via || "Operator") + " to " + to, true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
-        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || (allSecondFirst[String(text || "")] && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
+        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
         icons.forEach(function (cls) {
           var icon = document.createElement("div");
           icon.className = "brobot-bubble-avatar to-" + cls;
@@ -3571,7 +3571,11 @@
         // 2026-10-18 (step 3): the longest a line waited here before it showed.
         if (heldMost.id) { body.set("held_id", String(heldMost.id)); body.set("held_ms", String(heldMost.ms)); heldMost = { id: 0, ms: 0 }; }
         playedSent = playedId;
-        fetch("/api-sdk/gopod_page_played", { method: "POST", body: body }).catch(function () { playedSent = 0; });
+        // Not taken (Wire-Pod busy, or a viewer for a moment): said again next tick.
+        fetch("/api-sdk/gopod_page_played", { method: "POST", body: body })
+          .then(function (r) { return r.text(); })
+          .then(function (t) { if (t !== "ok") { playedSent = 0; } })
+          .catch(function () { playedSent = 0; });
       }, 250);
       var pageClicked = false, openingEndText = "opening_end", voiceGapMs = 300;
       var heardMarker = "";
@@ -5409,7 +5413,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key)
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect ? "&first=" + allFirstSelect.value : "")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -173,6 +174,11 @@ var gopodPagePlayedTo int
 func GopodPagePlayed(boot int64, id int) {
 	gopodChatFeed.Lock()
 	if boot != gopodChatFeed.boot || id <= gopodPagePlayedTo {
+		// 2026-10-24 (live: a reply shown, its "played" never logged): a report
+		// that's not taken says why.
+		if boot != gopodChatFeed.boot {
+			logger.Println("GOPOD_PAGE played " + strconv.Itoa(id) + " not taken: the page has an old feed (boot " + strconv.FormatInt(boot, 10) + ")")
+		}
 		gopodChatFeed.Unlock()
 		return
 	}
@@ -197,10 +203,23 @@ func GopodPagePlayed(boot int64, id int) {
 	for _, e := range played {
 		text := strings.Join(strings.Fields(e.Text), " ")
 		if len(text) > 80 {
-			text = text[:80] + "..."
+			text = gopodCut(text, 80)
 		}
 		logger.Println("GOPOD_PAGE played " + strconv.Itoa(e.ID) + " " + e.Who + ": " + text)
 	}
+}
+
+// gopodCut (2026-10-24, live: a "played" line cut inside a 3-byte mark was kept by
+// the system log as unreadable data, so the dry run never saw it): text cut to at
+// most n bytes, never inside a character, then "...".
+func gopodCut(text string, n int) string {
+	if len(text) <= n {
+		return text
+	}
+	for n > 0 && !utf8.RuneStart(text[n]) {
+		n--
+	}
+	return text[:n] + "..."
 }
 
 // gopodFeedJournal prints a feed line: "GOPOD_FEED 42 Brobot 1 (to Brobot 2): words".
@@ -214,7 +233,7 @@ func gopodFeedJournal(e gopodChatFeedEvent) {
 	}
 	text := strings.Join(strings.Fields(e.Text), " ")
 	if len(text) > 300 {
-		text = text[:300] + "..."
+		text = gopodCut(text, 300)
 	}
 	logger.Println("GOPOD_FEED " + strconv.FormatInt(int64(e.ID), 10) + " " + head + ": " + text)
 }
