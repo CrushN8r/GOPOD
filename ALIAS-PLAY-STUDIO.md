@@ -1311,9 +1311,12 @@ line:
   height, on its line (`.voice-wait`; `voiceWaitOn` and `slotWaiting`).
 - A skip's end (Esc, numpad *, `system-skip`) takes the chat to its bottom (`skipEndScroll`).
 - **The skip gate** (2026-10-22, `skip_gate`): every skip (Esc, numpad *, the menu, typed or
-  spoken "skip") is off until a warm-up line starting with `enable_on` ("Voices ready.") shows -
-  the opener's and every warm-up song's - and off again once used. A skip while off does nothing
-  (logged: skip ignored).
+  spoken "skip") is off until the gate opens, and off again once used. A skip while off does
+  nothing (logged: skip ignored). 2026-10-25 (operator: "enable happens at \"Voices ready for
+  playback.\" independent of edits"): no words matched - Wire-Pod opens it as the opener's message
+  step right after the voice files check (`wait_voices`) shows, whatever its words
+  (`gopod_opener_song.go`, feed line `skip_on`, just ahead of that message; locked in
+  `TestWarmupSequenceGolden`). The page replay presses Esc there (SKIP: "skipped (Esc)").
 - **GOLDEN voice start** (2026-10-22): every made voice plays the same way - its bubble shown,
   then its length and its word times (`.words.json`) loaded (up to `VOICE_READY_MAX_MS`, 3 s),
   then it plays and lights. A just-made voice no longer starts before its word times arrive
@@ -2043,7 +2046,9 @@ at (every point and egg found) a free answer without its reminder isn't drift
 trimmed to their own words (`egg_voice_edge_ms` of air) and joined (`egg_voice_gap_ms` between),
 word times moved along, so the page lights one line; Generating + hourglass until the joined
 voice is ready. `system-test-eggvoice` makes one for real (5 pieces, 8.0 s on 2026-10-24);
-`system-test-replay` (system menu, and the audit) runs the page replay.
+`system-test-replay` (system menu, and the audit) runs the page replay. 2026-10-25: only the quotes around a line go; an apostrophe inside it is said
+("Granny's", "Don't"). Known catch, noted: an egg name ending in an apostrophe ("Brobots'")
+loses it - none do today.
 
 **Two grand prizes, eggs once** (2026-10-24; operator: "Logic of NEW, 2 Grand Prizes"; "no
 repeating revealed eggs"): the Grand Prize (`game.win_text`) - every value point and every game
@@ -2293,7 +2298,7 @@ once and replays them at once (`preloadStings`). In the middle of a line: before
 
 **A song's new story format: one move or one line per step** (2026-10-25, operator: "New format ...
 Easier for me to scan & fix * Translate/compose for native wire-pod compatibility * adjust runner to
-read new format"; first song: `01a_brobots_bingo_test`). Each move (arm cue, nod, kgSuccess,
+read new format"; songs in it: `01a_brobots_bingo_test`, `03_fart_joke` (2026-10-25)). Each move (arm cue, nod, kgSuccess,
 searching, beat, rattle) and each line (`*_say_*`) is its own step, in the order they happen; a
 line's name can repeat. The engine reads the story in order (`parse_control_story_list`) - the nth
 step of a name in knobs.json takes the nth in story.md - and, with `"compose_moves": true` in

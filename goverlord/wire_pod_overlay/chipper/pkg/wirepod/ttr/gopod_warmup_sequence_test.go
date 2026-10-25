@@ -91,6 +91,7 @@ func TestWarmupSequenceGolden(t *testing.T) {
 	check("start, voices being made", feed(), []string{
 		role + ": warmup_text|" + gopodWarmupLine(llm.VoicesText) + "\n" + gopodBrobotsSettings.ReporterVoices.GeneratingText,
 		role + ": warmup_text|" + gopodWarmupLine(llm.VoicesText),
+		role + ": " + gopodSkipOnMark, // the skip gate opens just ahead of the next message
 		warming,
 		"Brobot 3: opening line",
 		role + ": warmup_ready|" + gopodWarmupReadyLine(llm.ReadyText, llm.WarmupDoneText),
@@ -102,6 +103,7 @@ func TestWarmupSequenceGolden(t *testing.T) {
 	gopodWarmupStartSequence(warmed)
 	check("start, voices made", feed(), []string{
 		role + ": warmup_text|" + gopodWarmupLine(llm.VoicesText),
+		role + ": " + gopodSkipOnMark, // the skip gate opens just ahead of the next message
 		warming,
 		"Brobot 3: opening line",
 		role + ": warmup_ready|" + gopodWarmupReadyLine(llm.ReadyText, llm.WarmupDoneText),

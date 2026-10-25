@@ -178,9 +178,16 @@ func gopodMakeLines(lines []string) {
 	}
 }
 
+// gopodSkipOnMark: the feed line that opens the page's skip gate.
+const gopodSkipOnMark = "skip_on"
+
 // gopodPlayOpener plays the opener's steps; warmed closes once the model is loaded.
 func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 	defer gopodSetVolumeShare(1)
+	// 2026-10-25 (operator: "enable happens at \"Voices ready for playback.\"
+	// independent of edits"): the message step right after the voice files
+	// check opens the skip gate once it shows, whatever its words.
+	voicesChecked := false
 	for _, s := range steps {
 		// 2026-10-17 (operator: "Goverlord awaits your return..."): each step
 		// waits for the chat page, so a message and its voice play together.
@@ -220,7 +227,14 @@ func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 			if !gopodLinesMade(lines) {
 				gopodMakeLines(lines)
 			}
+			skipOn := voicesChecked
+			voicesChecked = s.WaitVoices
 			for i, line := range lines {
+				// Just ahead of its message, so the message's voice stays right
+				// behind it (the page loads that voice before showing it).
+				if skipOn && i == 0 {
+					GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, gopodSkipOnMark)
+				}
 				gopodWarmupMessage(strings.Join(lines[:i+1], "\n"))
 				// 2026-10-16 (operator: "remove 1st \"(music)\" & remove its audio
 				// play"): no sting with a message; a sting step, or a line's own

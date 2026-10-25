@@ -452,7 +452,7 @@
   },
   "skip_gate": {
     "about": "2026-10-22 (operator: \"skip is set to disabled * only upon voices ready can skip be enabled * upon skipped, 'skip' skip is set to disabled * otherwise template this everywhere\"): every skip (Esc, numpad *, the menu's skip, typed or spoken \"skip\") goes through this gate - off until a warm-up line starting with one of enable_on shows (every warm-up song's \"Voices ready.\", the opener's too), off again once used. A skip while off does nothing (logged: skip ignored). Page only: F5.",
-    "enable_on": ["Voices ready."]
+    "about_2": "2026-10-25 (operator: \"enable happens at \\\"Voices ready for playback.\\\" independent of edits\"): no words matched any more - Wire-Pod opens the gate as the opener's message step right after the voice files check (wait_voices) shows (gopod_opener_song.go, feed line skip_on), whatever its words."
   },
   "display_names": {
     "about": "2026-10-22 (operator: \"base = robot by ESN * wired-pod = brobots (Brobot N) * GOPOD = persona-name and chat participant\"; \"Look at the numpad mapping as a temporary source of golden truth * brobots 3/4 should really be brobots 7/8, as per numpad\"; \"a bubble's header in a scripted run should have what values? default (CHALK), fallback (Brobot 7), remembered edits (CHALK BORED)? * editable\"): the header template for the reporters' and managers' bubbles in the chat - edits (a remembered edit, by its default name: system-add display_names.edits CHALK = CHALK BORED), else default (the GOPOD persona), else fallback ({n} = the numpad key whose persona it is: KP7 CHALK = Brobot 7), else reporter_voices.labels. Scripts keep their own names (Reporter 1/2); the chat shows these. Page only: F5.",

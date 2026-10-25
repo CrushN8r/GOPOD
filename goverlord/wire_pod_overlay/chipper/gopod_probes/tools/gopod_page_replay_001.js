@@ -41,7 +41,8 @@ function scenario() {
   // 2026-10-25: the opener song's warm-up lines and a reporter's line (each lit word by word).
   const warm = (text, say) => { const f = V + "replay_warm_" + ev.length + ".wav"; add("Reporter Voice", "warmup_text|1|" + text); add("Reporter Voice", "generating:forlit:" + f + "|" + say); add("Reporter Voice", f); add("Reporter Voice", "heard:" + ev.length); };
   warm("Voice files generation check.", "Voice files generation check.");
-  warm("Voices ready. Language Model Loading...", "Language Model Loading...");
+  add("Reporter Voice", "skip_on"); // Wire-Pod opens the skip gate just ahead of this step
+  warm("Voices ready for playback. Language Model Loading...", "Language Model Loading...");
   add("Brobot 3", "generating:lit:" + V + "replay_b3.wav|Okay. We're about to go live. Our News Crew is ready.");
   add("Reporter Voice", V + "replay_b3.wav"); add("Reporter Voice", "heard:" + ev.length);
   op("Brobots", "good evening bros!");
@@ -170,6 +171,14 @@ function makePage(role) {
 const spokenLines = [], flickers = [];
 const main = makePage("main"), visitor = makePage("visitor");
 const c = main.c, notes = main.notes;
+// 2026-10-25 (live: "Esc or skip no longer works in llm warming"): Esc once the
+// warm-up says "Voices ready" - the skip gate must be open by then.
+let escPressed = false;
+const escTimer = setInterval(() => {
+  if (escPressed || !/Voices ready/.test(c.textContent)) { return; }
+  escPressed = true; clearInterval(escTimer);
+  main.d.dispatchEvent(new main.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+}, 100);
 // The mirror, checked every quarter second: the visitor's bubbles against the
 // main page's (the ones it sends) - their words and what's lit. A difference
 // that lasts over mirror_lag_ms is noted once.
@@ -214,6 +223,8 @@ setInterval(() => {
   console.log("\nGOVERLORD LINES");
   Array.from(c.querySelectorAll(".brobot-bubble")).filter(b => /Grand Prize/i.test(b.textContent) && b.dataset.kind !== "egg").forEach(b => console.log("  " + b.textContent.replace(/\s+/g, " ").trim().slice(0, 90) + " | " + Array.from(b.querySelectorAll(".brobot-say")).map(s => s.className.replace("brobot-say", "").trim() || "dormant").join(",")));
   console.log("\nBUBBLES BY KIND"); const k = {}; c.querySelectorAll(".brobot-bubble").forEach(b => { k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] = (k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] || 0) + 1; }); console.log("  " + JSON.stringify(k));
+  console.log("\nSKIP (Esc after \"Voices ready\")");
+  console.log("  " + (notes.filter(n => /skipped \(|skip ignored/.test(n)).map(n => n.replace(/^note=/, "")).join(" | ") || (escPressed ? "no answer" : "Esc never pressed")));
   console.log("\nCHALK QRs (each CHALK part: its QRs)");
   Array.from(c.querySelectorAll(".brobot-bubble")).filter(b => /visiting crushn8r\.ca/.test(b.textContent) && /brobot-1/.test(b.className)).forEach(b => b.querySelectorAll(".chalk-qr").forEach(p => console.log("  " + (p.classList.contains("chalk-cta") ? "call to action" : "board") + ": " + Array.from(p.querySelectorAll("img.gopod-qr")).map(i => i.getAttribute("src")).join(", "))));
   console.log("\nSCORE ROWS (label | bar)");

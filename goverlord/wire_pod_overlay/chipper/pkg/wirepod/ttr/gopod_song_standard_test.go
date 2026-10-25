@@ -20,7 +20,7 @@ var (
 	gopodEngineNotes    = map[string]bool{"wake_both": true, "brobots_ready_together": true, "say_turn": true,
 		"say": true, "animation": true, "emotion_beat": true, "arm_cue": true, "nod": true,
 		"wheel_nudge": true, "rattle": true, "weather": true, "connect": true, "pause": true, "exit": true,
-		"sleep_both": true, "stir": true, "all_asleep": true, "system_line": true, "combo": true, "sound": true, "wake_sleepy": true, "picture": true}
+		"sleep_both": true, "stir": true, "all_asleep": true, "system_line": true, "combo": true, "sound": true, "wake_sleepy": true, "picture": true, "thinking": true}
 	gopodInterviewNotes = map[string]bool{"ask": true, "line": true, "closer": true}
 )
 

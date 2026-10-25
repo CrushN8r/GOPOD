@@ -1433,7 +1433,6 @@
               hostNames = settings.reporter_voices.hosts || hostNames;
               hostLabels = settings.reporter_voices.labels || hostLabels;
               displayNames = settings.display_names || displayNames;
-              if (settings.skip_gate) { skipGate.enable_on = settings.skip_gate.enable_on || []; }
               if (settings.hourglass) { hourglassCfg = settings.hourglass; }
               if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
@@ -1893,7 +1892,6 @@
         var cut = rest.indexOf("|");
         var ms = cut < 0 ? rest.trim() : rest.slice(0, cut).trim();
         var message = cut < 0 ? "" : rest.slice(cut + 1);
-        skipGateCheck(message);
         if (!ms || isSeen("warm|" + ms)) { return false; }
         if (warmupBubble && !warmupBubble.isConnected) { warmupBubble = null; }
         if (!warmupBubble || warmupBubble.dataset.started !== ms) { warmupBubble = buildWarmupBubble(ms); }
@@ -4358,16 +4356,9 @@
       var skippingReporters = false, voicePlaying = null;
       // 2026-10-22 (operator: "skip is set to disabled * only upon voices ready
       // can skip be enabled * upon skipped, 'skip' skip is set to disabled"):
-      // the skip gate (skip_gate) - off until a line starting with one of
-      // enable_on shows ("Voices ready."), off again once used.
-      var skipGate = { enable_on: [], on: false };
-      function skipGateCheck(message) {
-        if (restoringChat) { return; }
-        var m = String(message || "").trim();
-        (skipGate.enable_on || []).forEach(function (w) {
-          if (w && m.indexOf(w) === 0) { skipGate.on = true; }
-        });
-      }
+      // the skip gate - off until Wire-Pod's skip_on feed line (the opener's
+      // step after the voice files check), off again once used.
+      var skipGate = { on: false };
       function skipReporters(how) {
         if (!skipGate.on) {
           fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -4460,6 +4451,14 @@
           // the next line, so every step is seen.
           if (String(e.text).trim() === "loop_pause" || String(e.text).trim() === "loop_resume") {
             backgroundLoop.runQuiet(String(e.text).trim() === "loop_pause");
+            done();
+            return;
+          }
+          if (String(e.text).trim() === "skip_on") {
+            // 2026-10-25 (operator: "enable happens at \"Voices ready for
+            // playback.\" independent of edits"): Wire-Pod opens the gate as
+            // that step shows (gopod_opener_song.go), whatever its words.
+            if (!restoringChat) { skipGate.on = true; }
             done();
             return;
           }
