@@ -258,6 +258,9 @@ type gopodBrobotsSettingsFile struct {
 		PopupText string `json:"popup_text"`
 		// 2026-10-13: how many times a topic's pictures show per Wire-Pod start.
 		MaxPerSession int `json:"max_per_session"`
+		// 2026-10-24: the silence between the egg voice's pieces (gopod_egg_voice.go).
+		EggVoiceGapMS  int `json:"egg_voice_gap_ms"`
+		EggVoiceEdgeMS int `json:"egg_voice_edge_ms"`
 		// 2026-10-16: each egg's congratulations, {name}: the word that found it.
 		EggText string `json:"egg_text"`
 		// 2026-10-16: under a zoomable prize (gopodShowEgg).
@@ -391,7 +394,7 @@ type gopodBrobotsSettingsFile struct {
 		WinText string `json:"win_text"`
 		// 2026-10-24: the Master Grand Prize - hidden eggs too.
 		MasterText string `json:"master_text"`
-		ResetOn string `json:"reset_on"`
+		ResetOn    string `json:"reset_on"`
 	} `json:"game"`
 	// 2026-10-23: exact answers to golden questions (the golden_line part).
 	GoldenAnswers []struct {

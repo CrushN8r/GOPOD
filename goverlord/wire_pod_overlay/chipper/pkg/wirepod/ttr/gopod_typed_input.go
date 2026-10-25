@@ -240,6 +240,8 @@ func gopodTypedInputAll(text, how string) error {
 	first := gopodAllFirst(text)
 	if gopodAddressedTo(text) == "" || gopodAllStartsWith(text) != "" {
 		second := gopodBrotherOf(first)
+		// 2026-10-24 (link 5): the line's turn is held until the second answer is done.
+		gopodExchangeOpen(text, second)
 		go func() {
 			<-read
 			done := gopodReplyDone(first)

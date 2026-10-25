@@ -834,6 +834,8 @@
           opText.className = "brobot-bubble-text";
           opText.dataset.raw = who + ": " + spoken;
           opText.textContent = spoken;
+          // 2026-10-24 (link 4): the Operator's line names itself for its voice.
+          if (!restoringChat) { voiceLineAhead(spoken, opText); }
           bubble.appendChild(operatorHead(to || operatorTarget(spoken), via, spoken));
           bubble.appendChild(opText);
           bubble.dataset.own = "1"; // the operator's own line
@@ -1803,6 +1805,8 @@
         // 2026-10-23: the same words keep their voice's lit line (voiceForLine).
         if (voiceLineWords(labelEl.textContent) !== voiceLineWords(label)) {
           labelEl.textContent = label;
+          // 2026-10-24 (link 4): each of its lines names itself for its voice.
+          String(label).split("\n").forEach(function (one) { voiceLineAhead(one, labelEl); });
           // Its lines already said stay said; the next line is tied before it shows.
           Object.keys(bubble._spoken || {}).forEach(function (t) {
             var said = voiceLineSpan(labelEl, t);
@@ -3684,13 +3688,56 @@
       }
       // A template bubble names its voiced line's words ahead (eggBubble): the
       // voice with those words is that line's, tied without searching the chat.
+      // 2026-10-24 (link 4, the voice): every voiced line shown some other way -
+      // the Operator's own line, a warm-up line, an egg - is named by its bubble
+      // when it's drawn: its words (letters and digits only, so a respelled name
+      // still matches) and the element that holds them. The search of the chat
+      // below is only a fallback for a line no template named.
       var voiceLinesAhead = {};
-      function voiceLineAhead(words, say) { voiceLinesAhead[voiceLineWords(words)] = say; }
+      function voiceLineKey(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }
+      function voiceLineAhead(words, el) { if (voiceLineKey(words)) { voiceLinesAhead[voiceLineKey(words)] = el; } }
+      // A line in a bubble becomes its voice's line: Generating while it's made,
+      // its words dormant until the voice plays, shown anyway if it never does.
+      function voiceLineTieIn(el, bubble, file, t, waits, trust) {
+        var mine = Array.prototype.filter.call(el.querySelectorAll(".brobot-say"), function (x) {
+          return voiceLineWords(x.textContent) === t && !x.classList.contains("spoken");
+        })[0];
+        if (mine) { return mine; }
+        var say = voiceLineSpan(el, t);
+        // A named line whose words were respelled on the page: the whole line.
+        if (!say && trust && !el.querySelector(".brobot-say") && voiceLineKey(el.textContent) === voiceLineKey(t)) {
+          say = document.createElement("span");
+          say.className = "brobot-say";
+          while (el.firstChild) { say.appendChild(el.firstChild); }
+          el.appendChild(say);
+        }
+        if (!say) { return null; }
+        if (skippingReporters) { say.classList.add("spoken"); return say; }
+        bubble.classList.add("voice-lit");
+        if (waits) { voiceWaitOn(bubble, say, file); }
+        var shownAt = 0;
+        (function showAnyway() {
+          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
+          if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
+          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
+            if (!shownAt) { shownAt = Date.now(); }
+            if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
+          }
+          setTimeout(showAnyway, 500);
+        })();
+        return say;
+      }
       function voiceLineTie(file, t, waits) {
-        var ahead = voiceLinesAhead[t];
+        var key = voiceLineKey(t), ahead = voiceLinesAhead[key];
         if (ahead) {
-          delete voiceLinesAhead[t];
-          if (ahead.isConnected && !ahead.classList.contains("spoken")) { return ahead; }
+          delete voiceLinesAhead[key];
+          if (ahead.isConnected && !ahead.classList.contains("spoken")) {
+            // Already a voiced line (the egg's): that line. Else the line it named.
+            if (ahead.classList.contains("brobot-say")) { return ahead; }
+            var named = ahead.closest(".brobot-bubble");
+            var tied = named ? voiceLineTieIn(ahead, named, file, t, waits, true) : null;
+            if (tied) { return tied; }
+          }
         }
         var els = container.querySelectorAll(".brobot-bubble-text, .brobot-bubble-line");
         for (var i = els.length - 1; i >= 0 && i >= els.length - 40; i--) {
@@ -3698,26 +3745,8 @@
           if (!bubble || voiceLineWords(el.textContent).indexOf(t) < 0) { continue; }
           // Already in the template (its own bubble's line, or tied ahead): that line.
           if (el.closest(".brobot-say") && !el.closest(".brobot-say").classList.contains("spoken")) { return el.closest(".brobot-say"); }
-          var mine = Array.prototype.filter.call(el.querySelectorAll(".brobot-say"), function (x) {
-            return voiceLineWords(x.textContent) === t && !x.classList.contains("spoken");
-          })[0];
-          if (mine) { return mine; }
-          var say = voiceLineSpan(el, t);
-          if (!say) { continue; }
-          if (skippingReporters) { say.classList.add("spoken"); return say; }
-          bubble.classList.add("voice-lit");
-          if (waits) { voiceWaitOn(bubble, say, file); }
-          var shownAt = 0;
-          (function showAnyway() {
-            if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
-            if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
-            if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
-              if (!shownAt) { shownAt = Date.now(); }
-              if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
-            }
-            setTimeout(showAnyway, 500);
-          })();
-          return say;
+          var say = voiceLineTieIn(el, bubble, file, t, waits, false);
+          if (say) { return say; }
         }
         return null;
       }

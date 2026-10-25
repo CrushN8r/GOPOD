@@ -122,6 +122,15 @@ def wait_answers(after_id, want, quiet=12, most=150, both=False):
     return [e for e in feed().get("events", []) if e["id"] > after_id]
 
 
+def speaking():
+    """A Brobot is saying his answer right now (gopod_speaking_now.json)."""
+    try:
+        with urllib.request.urlopen(BASE + "/gopod_speaking_now.json", timeout=5) as r:
+            return bool(json.loads(r.read()).get("active"))
+    except Exception:
+        return False
+
+
 def wirepod_started():
     """When this Wire-Pod start began (its feed ids count from there)."""
     out = subprocess.run(["systemctl", "show", "-p", "ActiveEnterTimestamp", "--value", "wire-pod"], capture_output=True, text=True).stdout.strip()
@@ -131,7 +140,7 @@ def wirepod_started():
         return "-3h"
 
 
-def page_caught_up(since, most=45):
+def page_caught_up(since, most=120):
     """Waits until the page has played the feed's newest line (its "GOPOD_PAGE
     played <id>" in Wire-Pod's log since this Wire-Pod start), so the next line
     never piles up behind."""
@@ -142,8 +151,12 @@ def page_caught_up(since, most=45):
         top = max([e["id"] for e in feed().get("events", [])], default=0)
         log = subprocess.run(["journalctl", "-a", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
         played = [int(m) for m in re.findall(r"GOPOD_PAGE played (\d+) ", log)]
-        if played and max(played) >= top:
-            return True
+        # 2026-10-24 (link 4): and no Brobot still speaking - typed the way a
+        # person would, after the answer is heard.
+        if played and max(played) >= top and not speaking():
+            time.sleep(1)
+            if not speaking():
+                return True
         time.sleep(2)
     return False
 
@@ -158,7 +171,7 @@ def main():
         if only and only not in what.lower():
             continue
         if not page_caught_up(since):
-            problems.append(f"the page didn't report caught up (45 s) before \"{text}\"")
+            problems.append(f"the page or a Brobot was still busy after 2 min before \"{text}\"")
         before = max([e["id"] for e in feed().get("events", [])], default=0)
         send(to, text)
         # A line to both, or any math (Brobot 2 follows up), has two answers.

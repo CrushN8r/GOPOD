@@ -1973,6 +1973,36 @@ turn), and a Brobot's reply joining it. The bubble names its voiced line ahead
 (`voiceLineAhead`), so its voice comes to it, never found by a search of the chat. Which other
 bubble types still find their voice by search: `gopod_notes/HIGHLIGHT_CHECK_001.md`.
 
+**Root-to-leaf link 4, the voice** (2026-10-24): every voiced line shown some other way - the
+Operator's own line, each warm-up line, an egg's congratulations - names itself when it's drawn
+(`voiceLineAhead`: its words, letters and digits only, and the element that holds them), so its
+voice ties to it directly; the search of the chat is only a fallback. The dry run types the way a
+person would: the next line only once the page has caught up and no Brobot is speaking
+(`gopod_speaking_now.json`). **Page replay** (`gopod_probes/tools/gopod_page_replay.sh`): the
+real chat page code with no robots (jsdom, kept in `~/.cache/gopod_page_replay`) - every egg
+kind, both prizes, the Operator lines' voices; reports what was drawn and lit, and any error,
+stuck line or loop. A saved feed can be replayed too.
+
+**Speech after an animation: 0.4 s** (2026-10-24; operator: "fire the next spoken segment 0.5s
+early"): `chat_moves.speech_after_animation_seconds` 0.9 -> 0.4.
+
+**Root-to-leaf link 5, the answer chain** (2026-10-24): an answer with a follow-up coming (All's
+second Brobot, Explain the Math's follow-up) holds its line's turn - a new line's answer waits
+until the follow-up is done (`gopodExchangeWait`, `addressing.all_next_wait_seconds` at most; the
+Operator bubble still shows at once; a lead that stops early lets go). With nothing left to point
+at (every point and egg found) a free answer without its reminder isn't drift
+(`gopodReminderNone`). `TestExchangeHoldsTheNextLine`.
+
+**The egg's voice in pieces** (2026-10-24, `gopod_egg_voice.go`; operator: '"Congratulations!",
+"Easter Egg \'", "\' found.", & "MouseOver to Zoom In", need to be generated once and reused * only
+[easter egg title(s)] need live generation'): Goverlord's congratulations is said from its pieces -
+`topic_pictures.egg_text`'s words around {name} (each line a piece, quotes not said) and
+`egg_zoom_text` - each made once and kept like every voice; only the title is made live. They're
+trimmed to their own words (`egg_voice_edge_ms` of air) and joined (`egg_voice_gap_ms` between),
+word times moved along, so the page lights one line; Generating + hourglass until the joined
+voice is ready. `system-test-eggvoice` makes one for real (5 pieces, 8.0 s on 2026-10-24);
+`system-test-replay` (system menu, and the audit) runs the page replay.
+
 **Two grand prizes, eggs once** (2026-10-24; operator: "Logic of NEW, 2 Grand Prizes"; "no
 repeating revealed eggs"): the Grand Prize (`game.win_text`) - every value point and every game
 egg (4: Bingo and foodmath, Legacy and wrap-up, Explain the Math, Get Photo); the Master Grand

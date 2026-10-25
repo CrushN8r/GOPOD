@@ -2,6 +2,7 @@ package wirepod_ttr
 
 import (
 	"crypto/x509"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -2295,7 +2296,10 @@ func TestBubbleOneWay(t *testing.T) {
 		`if (String(list).indexOf("popup:") === 0) { eggBubble(eggSpec(String(list).slice("popup:".length)), then); return; }`,
 		`b = rawBubble({ kind: "egg"`,
 		`if (say && !restoringChat) { voiceLineAhead(words, say); }`,
-		`var ahead = voiceLinesAhead[t];`,
+		// Link 4: every shown voiced line names itself (Operator, warm-up, egg).
+		`var key = voiceLineKey(t), ahead = voiceLinesAhead[key];`,
+		`if (!restoringChat) { voiceLineAhead(spoken, opText); }`,
+		`String(label).split("\n").forEach(function (one) { voiceLineAhead(one, labelEl); });`,
 		`var parts = (say._parts || []).filter(`,
 		// A note cut mid-emoji stopped every bubble (2026-10-24): whole characters.
 		`Array.from(String(held.textContent)).slice(0, 60).join("")`,
@@ -2498,5 +2502,125 @@ func TestAllPickStandsAndLeadsMath(t *testing.T) {
 	}
 	if gopodMathLead("convert 3/8 to a decimal, explain the math") != gopodBrobot1ESN {
 		t.Errorf("a math line not sent Brobot 2 first isn't led by Brobot 1")
+	}
+}
+
+// TestEggVoiceInPieces (2026-10-24, operator: '"Congratulations!", "Easter Egg \'",
+// "\' found.", & "MouseOver to Zoom In", need to be generated once and reused *
+// only [easter egg title(s)] need live generation'): the pieces, and two voices
+// joined with their word times moved along.
+func TestEggVoiceInPieces(t *testing.T) {
+	got := strings.Join(gopodEggVoiceParts("Get Photo", "MouseOver to Zoom In"), "|")
+	if want := "Congratulations!|Easter Egg|Get Photo|found.|MouseOver to Zoom In"; got != want {
+		t.Errorf("pieces %q, want %q", got, want)
+	}
+	if got := strings.Join(gopodEggVoiceParts("Roast Battle", ""), "|"); got != "Congratulations!|Easter Egg|Roast Battle|found." {
+		t.Errorf("no zoom line: %q", got)
+	}
+	dir := t.TempDir()
+	wav := func(name string, samples int, words string) string {
+		f := filepath.Join(dir, name+".wav")
+		head := make([]byte, 44)
+		copy(head[0:4], "RIFF")
+		binary.LittleEndian.PutUint32(head[4:8], uint32(36+samples*2))
+		copy(head[8:16], "WAVEfmt ")
+		binary.LittleEndian.PutUint32(head[16:20], 16)
+		binary.LittleEndian.PutUint16(head[20:22], 1)
+		binary.LittleEndian.PutUint16(head[22:24], 1)
+		binary.LittleEndian.PutUint32(head[24:28], 24000)
+		binary.LittleEndian.PutUint32(head[28:32], 48000)
+		binary.LittleEndian.PutUint16(head[32:34], 2)
+		binary.LittleEndian.PutUint16(head[34:36], 16)
+		copy(head[36:40], "data")
+		binary.LittleEndian.PutUint32(head[40:44], uint32(samples*2))
+		os.WriteFile(f, append(head, make([]byte, samples*2)...), 0o644)
+		os.WriteFile(filepath.Join(dir, name+".words.json"), []byte(words), 0o644)
+		return f
+	}
+	a := wav("a", 24000, `{"aligner":"vosk","words":[{"t":"Congratulations","s":0.1,"e":0.9}]}`)
+	b := wav("b", 12000, `{"aligner":"vosk","words":[{"t":"Photo","s":0.1,"e":0.4}]}`)
+	out := filepath.Join(dir, "joined.wav")
+	edge := float64(gopodBrobotsSettings.TopicPictures.EggVoiceEdgeMS) / 1000
+	secs, err := gopodWavJoin(out, []string{a, b}, 100)
+	// a: start kept, cut after its last word (0.9 + edge); 0.1 gap; b: cut before
+	// its first word (0.1 - edge), end kept (0.5).
+	want := (0.9 + edge) + 0.1 + (0.5 - (0.1 - edge))
+	if err != nil || secs < want-0.01 || secs > want+0.01 {
+		t.Fatalf("joined %v seconds, err %v - want %v", secs, err, want)
+	}
+	if s, ok := gopodWavSeconds(out); !ok || s < want-0.01 || s > want+0.01 {
+		t.Errorf("joined file is %v seconds", s)
+	}
+	var times struct {
+		Words []struct {
+			T string  `json:"t"`
+			S float64 `json:"s"`
+		} `json:"words"`
+	}
+	data, _ := os.ReadFile(filepath.Join(dir, "joined.words.json"))
+	json.Unmarshal(data, &times)
+	if bAt := (0.9 + edge) + 0.1 + edge; len(times.Words) != 2 || times.Words[1].S < bAt-0.01 || times.Words[1].S > bAt+0.01 {
+		t.Errorf("word times not moved along: %+v", times.Words)
+	}
+}
+
+// TestPageReplayLine (2026-10-24, operator: "Add into GOPOD system menu * The
+// replay"): system-test-replay passes a clean report and fails a broken one.
+func TestPageReplayLine(t *testing.T) {
+	clean := "PLAYED 48 of 48\n\nEGGS\n  Get Photo: brobot-2 popup-winner | congratulations spoken | zoom spoken | pictures 2 shown, 0 waiting | Generating left 0\n\nOPERATOR LINES (their own voice)\n  what do you see? | spoken\n\nGOVERLORD LINES\n  Grand prize! | spoken\n\nPAGE NOTES (errors, stuck, baton)\n"
+	if ok, line := gopodPageReplayLine(clean, nil); !ok || !strings.Contains(line, "48 of 48") {
+		t.Errorf("clean report: %v %q", ok, line)
+	}
+	broken := "PLAYED 20 of 48  <-- STOPPED\n\nEGGS\n  Get Photo: x | congratulations MISSING | zoom - \n\nOPERATOR LINES (their own voice)\n  hi | NOT TIED to its voice\n\nPAGE NOTES (errors, stuck, baton)\n  error stuck 90 s on feed 20\n"
+	if ok, line := gopodPageReplayLine(broken, nil); ok || !strings.Contains(line, "stopped") || !strings.Contains(line, "Operator line") || !strings.Contains(line, "page:") {
+		t.Errorf("broken report: %v %q", ok, line)
+	}
+	raw, _ := os.ReadFile(gopodBrobotsSettingsPath)
+	var all map[string]json.RawMessage
+	json.Unmarshal(raw, &all)
+	if !strings.Contains(string(all["system_menu"]), `"cmd": "system-test-replay"`) {
+		t.Errorf("system-test-replay isn't in the system menu")
+	}
+}
+
+// TestExchangeHoldsTheNextLine (2026-10-24, link 5): while a line's follow-up is
+// coming, a new line's answer waits; the follow-up's own line doesn't; and the
+// wait ends when the follow-up is done. With nothing left to point at, a missing
+// reminder isn't drift.
+func TestExchangeHoldsTheNextLine(t *testing.T) {
+	gopodExchangeOpen("convert 7/8 to a decimal, explain the math", gopodBrobot2ESN)
+	started := time.Now()
+	gopodExchangeWait(gopodBrobot1ESN, "convert 7/8 to a decimal, explain the math")
+	if time.Since(started) > 100*time.Millisecond {
+		t.Errorf("the line's own answer waited on itself")
+	}
+	// His brother's end doesn't let it go; the follow-up Brobot's does.
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		gopodExchangeDone(gopodBrobot1ESN)
+		time.Sleep(200 * time.Millisecond)
+		gopodExchangeDone(gopodBrobot2ESN)
+	}()
+	started = time.Now()
+	gopodExchangeWait(gopodBrobot2ESN, "what do you see?")
+	if w := time.Since(started); w < 300*time.Millisecond || w > 2*time.Second {
+		t.Errorf("the next line waited %v, want until the follow-up was done (~0.4 s)", w)
+	}
+	gopodReminderNone.Store(gopodBrobot1ESN, true)
+	shape := []string{"golden?", "snippet?", "llm", "reminder", "snippet?"}
+	if !gopodShapeMatches(shape, []string{"llm"}) {
+		// the check itself makes the reminder optional when none was possible
+		if _, none := gopodReminderNone.Load(gopodBrobot1ESN); !none {
+			t.Fatalf("lost the no-reminder note")
+		}
+	}
+	gopodReminderNone.Delete(gopodBrobot1ESN)
+	src, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "pkg/wirepod/ttr/kgsim.go"))
+	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodExchangeWait(esn, transcribedText)") {
+		t.Errorf("a reply doesn't wait for the line before's follow-up")
+	}
+	// Let go when he has said it (his reply's code runs on while he's held).
+	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodReplyEnd(esn)\n\t\t\t// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.\n\t\t\tgopodExchangeDone(esn)") {
+		t.Errorf("the hold isn't let go when the follow-up is said")
 	}
 }

@@ -288,6 +288,9 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return gopodStitchEndSnippet(line, raw)
 			}
 		}
+		// 2026-10-24 (link 5, live: "free: llm - DRIFT" after every point and egg
+		// was found): nothing left to point at - no reminder is the right shape.
+		gopodReminderNone.Store(esn, true)
 	case "end_snippet":
 		// One end line: none after the reminder part's.
 		if _, said := gopodReminderSaid.LoadAndDelete(esn); said {
@@ -359,6 +362,70 @@ func gopodGomadAnswer(host, text string) bool {
 		}
 	}
 	return false
+}
+
+// The exchange (2026-10-24, root-to-leaf link 5; operator: "the 2nd brobot
+// following up not being accounted for in the run * so next question starts"):
+// an answer with a follow-up coming (All's second Brobot, Explain the Math's
+// follow-up) holds its line's turn until the follow-up is done - a new line's
+// answer waits for it (addressing.all_next_wait_seconds at most). The Operator's
+// own bubble still shows at once.
+// 2026-10-24 (live: the hold never let go - a Brobot stays held after his answer,
+// so his reply's code doesn't return until the next line): the line is let go the
+// moment the follow-up Brobot has said his answer (gopodExchangeDone, kgsim.go).
+var gopodExchange = struct {
+	sync.Mutex
+	text    string
+	pending int
+	waitFor map[string]int // esn -> answers still to come from him
+}{waitFor: map[string]int{}}
+
+// gopodExchangeOpen: the line's turn is held until follower has answered it.
+func gopodExchangeOpen(text, follower string) {
+	gopodExchange.Lock()
+	if gopodExchange.pending == 0 {
+		gopodExchange.text = strings.TrimSpace(text)
+	}
+	gopodExchange.pending++
+	gopodExchange.waitFor[follower]++
+	gopodExchange.Unlock()
+}
+
+// gopodExchangeDone: esn has said his answer - a held line waiting on him goes on.
+func gopodExchangeDone(esn string) {
+	gopodExchange.Lock()
+	if gopodExchange.waitFor[esn] > 0 {
+		gopodExchange.waitFor[esn]--
+		gopodExchange.pending--
+	}
+	gopodExchange.Unlock()
+}
+
+// gopodExchangeWait: a new line waits for the line before's follow-up.
+func gopodExchangeWait(esn, text string) {
+	busy := func() (bool, string) {
+		gopodExchange.Lock()
+		defer gopodExchange.Unlock()
+		return gopodExchange.pending > 0 && gopodExchange.text != strings.TrimSpace(text), gopodExchange.text
+	}
+	waiting, before := busy()
+	if !waiting {
+		return
+	}
+	logger.Println("GOPOD_EXCHANGE " + gopodBrobotName(esn) + " waits for the follow-up to \"" + gopodCut(before, 60) + "\"")
+	limit := gopodSecondsToDuration(gopodBrobotsSettings.Addressing.AllNextWaitSeconds)
+	started := time.Now()
+	for waiting && time.Since(started) < limit {
+		time.Sleep(200 * time.Millisecond)
+		waiting, _ = busy()
+	}
+	if waiting {
+		logger.Println("GOPOD_EXCHANGE gave up waiting after " + time.Since(started).Round(time.Second).String())
+		gopodExchange.Lock()
+		gopodExchange.pending = 0
+		gopodExchange.waitFor = map[string]int{}
+		gopodExchange.Unlock()
+	}
 }
 
 // ## EOF

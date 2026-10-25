@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -187,6 +188,15 @@ func gopodAnswerShapeCheck(esn, question, answer string, first bool) bool {
 		return true
 	}
 	labels := gopodShapeLabels(esn, answer)
+	// 2026-10-24 (link 5): with nothing left to point at, the reminder is optional.
+	if _, none := gopodReminderNone.LoadAndDelete(esn); none {
+		for i, s := range shape {
+			if s == "reminder" {
+				shape = append(append([]string{}, shape[:i]...), append([]string{"reminder?"}, shape[i+1:]...)...)
+				break
+			}
+		}
+	}
 	ok := gopodShapeMatches(shape, labels)
 	state := "ok"
 	if !ok {
@@ -195,5 +205,8 @@ func gopodAnswerShapeCheck(esn, question, answer string, first bool) bool {
 	logger.Println("BROBOT_SHAPE " + gopodBrobotName(esn) + " " + gopodAnswerType(esn, question) + ": " + strings.Join(labels, ",") + " - " + state)
 	return ok
 }
+
+// gopodReminderNone: his answer's reminder part found nothing left to point at.
+var gopodReminderNone sync.Map
 
 // ## EOF

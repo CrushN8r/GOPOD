@@ -130,6 +130,12 @@ var gopodSystemTests = []gopodSystemTest{
 	{"game", "every topic, value point and Easter egg is found by its own words (no robots, no model)", func() (bool, string) {
 		return gopodGameSweepLine(gopodGameSweep())
 	}},
+	// 2026-10-24 (operator: "Add into GOPOD system menu * The replay ... plays the
+	// real chat page code with no robots"): gopod_probes/tools/gopod_page_replay.sh.
+	{"eggvoice", "an Easter egg voice is made from its kept pieces and a live title, joined", gopodEggVoiceCheck},
+	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, with no robots", func() (bool, string) {
+		return gopodPageReplayLine(gopodPageReplayRun())
+	}},
 	{"llm", "the language model answers (Ollama has the model)", func() (bool, string) {
 		k := vars.APIConfig.Knowledge
 		if k.Endpoint == "" || k.Model == "" {
@@ -303,6 +309,59 @@ func gopodSystemTestRun(text string) string {
 	}
 	head := fmt.Sprintf("system-test: %d of %d pass", pass, len(names))
 	return gopodJoinLines(append([]string{head}, out...))
+}
+
+// gopodPageReplayRun: the page replay's report (its output), or why it didn't run.
+func gopodPageReplayRun() (string, error) {
+	script := filepath.Join(gopodChipperRoot(), "gopod_probes", "tools", "gopod_page_replay.sh")
+	out, err := gopodAsOperator(exec.Command("bash", script)).CombinedOutput()
+	return string(out), err
+}
+
+// gopodPageReplayLine: the replay in one line - pass only when every line played,
+// every egg drawn and lit, every Operator line tied to its voice, and no error,
+// stuck line or loop.
+func gopodPageReplayLine(out string, err error) (bool, string) {
+	if err != nil && !strings.Contains(out, "PLAYED ") {
+		return false, "didn't run: " + strings.TrimSpace(err.Error()+" "+gopodCut(strings.TrimSpace(out), 200))
+	}
+	var problems []string
+	played, eggs, ops, section := "", 0, 0, ""
+	for _, l := range strings.Split(out, "\n") {
+		t := strings.TrimSpace(l)
+		switch {
+		case strings.HasPrefix(t, "PLAYED "):
+			played = strings.TrimPrefix(t, "PLAYED ")
+			if strings.Contains(t, "STOPPED") {
+				problems = append(problems, "the page stopped at "+played)
+			}
+		case strings.HasPrefix(t, "LOOP"), strings.HasPrefix(t, "LOAD ERROR"):
+			problems = append(problems, t)
+		case t == "EGGS", t == "LIGHTING ORDER", t == "GOVERLORD LINES", t == "BUBBLES BY KIND", strings.HasPrefix(t, "OPERATOR LINES"), strings.HasPrefix(t, "PAGE NOTES"):
+			section = t
+		case t == "":
+		case section == "EGGS":
+			eggs++
+			if strings.Contains(t, "MISSING") || strings.Contains(t, "Generating left 1") || !strings.Contains(t, "congratulations spoken") {
+				problems = append(problems, "egg: "+gopodCut(t, 120))
+			}
+		case strings.HasPrefix(section, "OPERATOR LINES"):
+			ops++
+			if !strings.HasSuffix(t, "spoken") {
+				problems = append(problems, "Operator line: "+gopodCut(t, 100))
+			}
+		case strings.HasPrefix(section, "PAGE NOTES"):
+			problems = append(problems, "page: "+gopodCut(t, 120))
+		}
+	}
+	if played == "" {
+		return false, "no report: " + gopodCut(strings.TrimSpace(out), 200)
+	}
+	line := fmt.Sprintf("%s lines played, %d eggs drawn and lit, %d Operator lines tied to their voice", played, eggs, ops)
+	if len(problems) > 0 {
+		return false, line + " - " + strings.Join(problems, "; ")
+	}
+	return true, line + ", no errors"
 }
 
 // ## EOF

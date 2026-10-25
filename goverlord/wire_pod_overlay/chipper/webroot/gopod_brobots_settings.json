@@ -281,7 +281,8 @@
       "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_interval_seconds": 0.333, "searching_resend_seconds": 3.9}
     },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
-    "speech_after_animation_seconds": 0.9,
+    "speech_after_animation_seconds_about": "2026-10-24 (operator: \"between spoken segments there's a 0.9s delay * can the run timings be adjusted to fire the next spoken segment 0.5s early?\"): was 0.9 (2026-10-09, playAnimationWI + 0.9s + start speech), now 0.4. Needs wpr 2.",
+    "speech_after_animation_seconds": 0.4,
     "animation_done_most_seconds": 10
   },
   "llm": {
@@ -1472,6 +1473,11 @@
             "run": true
           },
           {
+            "cmd": "system-test-replay",
+            "about": "the chat page plays every egg kind, both prizes and the Operator voices - no robots (run it after any page change)",
+            "run": true
+          },
+          {
             "cmd": "system-test-",
             "about": "one test - add its name (weather-live, qr, voices...)",
             "fill": "system-test-"
@@ -2157,7 +2163,7 @@
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
     "tpu_about": "2026-10-24 (operator: \"PASS tpu: 1 objects: laptop * laptop?\" - the workbook photo was named a laptop): system-test-tpu shows the Edge TPU this picture (webroot/pictures) and passes only when it names expect in it.",
     "tpu": {"picture": "gangster_granny.jpg", "expect": "person"},
-    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "page", "robots"],
+    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "replay", "page", "robots"],
     "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
   },
@@ -2203,7 +2209,11 @@
     "not_eggs": ["chapter:Websites, themes and the channel"],
     "cards": {"roast_battle": "🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers", "halloween": "🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬"},
     "max_per_session_about": "2026-10-13 (operator: \"keep the allowed-number-of-displays-per-session variable * instead, allowed-number-of-displays-per-session variable now = 5\"): how many times a topic's pictures (a live pop-up) show per Wire-Pod start; was once. 2026-10-24 (operator: \"no repeating revealed eggs, gets annoying\"): 1 - an egg pops up once a session; found again, its answer comes without the pop-up.",
-    "max_per_session": 1
+    "max_per_session": 1,
+    "egg_voice_about": "2026-10-24 (operator: '\"Congratulations!\", \"Easter Egg '\", \"' found.\", & \"MouseOver to Zoom In\", need to be generated once and reused * only [easter egg title(s)] need live generation * generating + hourglass toggles upon file generated rule applies'): Goverlord's congratulations is said from its pieces - egg_text's words around {name}, each line its own piece, the quotes not said, and egg_zoom_text - each made once and kept; only the title is made live. They're joined into one voice (word times too), egg_voice_gap_ms of silence between, so the page lights it as one line. Needs wpr 2.",
+    "egg_voice_gap_ms": 120,
+    "egg_voice_edge_ms_about": "2026-10-24 (live: the joined voice was 9.8 s, each piece's quiet ends between the words): each piece is trimmed to its own words (their word times), this much air kept either side - not the first piece's start or the last one's end.",
+    "egg_voice_edge_ms": 60
   },
   "reporter_voices": {
     "about": "The reporter voices, heard through the chat page (operator 2026-10-06: \"have the female/male voices speak operator bubble\"; \"since 1 operator, use female reporter voice (brobot 3)\"; \"can you channel the audio to play through the wire-pod web page?\"). hosts: each reporter's Kokoro voice. A line typed on the page (read_lines_from: how Wire-Pod logs it) is read out first - a line to Brobot 1 by Reporter 1 (Brobot 3, female), to Brobot 2 by Reporter 2 (Brobot 4, male) (read_by; operator 2026-10-06), a line to both by operator_host, then the Brobot answers (waiting its length plus page_lag_seconds, at most max_wait_seconds). labels: each host bubble's header (operator 2026-10-06: \"Reporter 1, Brobot 3:\" / \"Reporter 2, Brobot 4:\"). opening: queued once the LLM is warm and the opening's voice files are made (at most start_wait_seconds), followed by an opening_end_text line. The page plays nothing until its Log section is open and has been clicked (operator 2026-10-06: \"pause the chat bubbles from running until its clicked to and viewable\"); it then plays what's queued, one voice line after another, and tells Wire-Pod when the opening is heard. Only then is it LLM Ready, and the warm-up gate opens: until then a typed, numpad or voice question to a Brobot is dropped (logged GOPOD_WARMUP_GATE). With no page, the gate opens after gate_max_seconds; closing: after \"Thanks Brobots\", in the ending's order (sign_off.about; ALIAS-PLAY-STUDIO.md \"The thanks ending\") - the interview vamp's own lines, word for word (02a_brobots_interview_vamp/story.md, m1_c-m1_g and m4_c-m4_e), shown as host bubbles. Every line is made once into a WAV in webroot/audio_folder by the worker (one Kokoro load at Wire-Pod start, about 25 s) and kept there: the bookends are pre-generated at start, and a line said before is never made again. The page can only play sound after it has been clicked or typed in once. Needs wpr 2. say_words: the reporter's word replacements, said instead of the word (whole words, any case; operator 2026-10-06: \"reporter word replacements - start a list ... thx = thanks\") - the bubble keeps what was typed. gap_seconds: the page's pause between two voice lines.",

@@ -309,12 +309,16 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 }
 
 func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bool) (string, error) {
+	// GOPOD 2026-10-24 (link 5): a new line's answer waits for the line before's follow-up.
+	if _, following := gopodFollowingUp.Load(esn); !following {
+		gopodExchangeWait(esn, transcribedText)
+	}
 	// GOPOD 2026-10-14: the photo egg - "ask", "recall" or "" (gopod_photo.go).
 	photoKind := ""
 	// GOPOD 2026-10-14: "Explain the Math" - this Brobot's share of the steps,
 	// and whether he answers first (gopod_math.go).
 	var mathSteps []string
-	mathOn, mathLead := false, false
+	mathOn, mathLead, mathFollowStarted := false, false, false
 	// 2026-10-24 (operator: "Revealed ... after all responses are properly
 	// completed"): an answer his brother follows up (All) - the prizes wait for it.
 	_, allLead := gopodAllFirstAnswer.Load(esn)
@@ -427,6 +431,14 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			}
 			mathOn = true
 			if esn == lead {
+				follower := gopodBrotherOf(lead)
+				gopodExchangeOpen(transcribedText, follower) // let go when he has said his follow-up
+				// An answer that stops before its follow-up starts lets the line go.
+				defer func() {
+					if !mathFollowStarted {
+						gopodExchangeDone(follower)
+					}
+				}()
 				mathSteps, mathLead = first, true
 			} else {
 				mathSteps = second
@@ -1110,9 +1122,12 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				gopodManagerQRShow()
 			}
 			gopodReplyEnd(esn)
+			// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.
+			gopodExchangeDone(esn)
 			gopodFollowingUp.Delete(esn)
 			// GOPOD 2026-10-14: "Explain the Math" - Brobot 2 follows up.
 			if mathLead {
+				mathFollowStarted = true
 				go gopodMathFollowUpStart(transcribedText)
 			}
 			if gopodIsThanks(transcribedText) {

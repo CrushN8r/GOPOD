@@ -312,8 +312,10 @@ func gopodShowEgg(who, word, prize string) {
 	// 2026-10-16 (operator: "Congratulations! Easter Egg [Title] found. /
 	// MouseOver to Zoom View"): a prize that zooms (a picture, a photo, a weather
 	// face) gets topic_pictures.egg_zoom_text on its own line.
+	zoomSaid := ""
 	if zoom := strings.TrimSpace(tp.EggZoomText); zoom != "" && gopodEggZooms(prize) {
 		text += "\n" + zoom
+		zoomSaid = zoom
 	}
 	// 2026-10-16 (operator: "Congratulations! Easter Egg 'Roast Battle' found: /
 	// 🔥 Roast Battle 🔥 / ..."): before a card, the line ends with a colon.
@@ -321,7 +323,20 @@ func gopodShowEgg(who, word, prize string) {
 		text = strings.TrimSuffix(text, ".") + ":"
 	}
 	GopodChatFeedAdd(tp.Role, gopodPopupMark+who+gopodPopupWhoMark+gopodEggMsgMark+text+gopodPopupWhoMark+prize)
-	gopodSystemSay(text, true)
+	// 2026-10-24: said from its kept pieces, only the title made live (gopod_egg_voice.go).
+	if !gopodEggSay(text, gopodEggName(word), zoomSaid) {
+		gopodSystemSay(text, true)
+	}
+}
+
+// gopodEggName: the title as egg_text shows it (its first letter capital).
+func gopodEggName(word string) string {
+	name := strings.TrimSpace(word)
+	if name != "" {
+		r := []rune(name)
+		name = strings.ToUpper(string(r[0])) + string(r[1:])
+	}
+	return name
 }
 
 // gopodEggZooms: the prize has something to zoom - a picture or photo path, or a
@@ -342,12 +357,7 @@ func gopodEggText(word string) string {
 	if strings.TrimSpace(tp.EggText) == "" {
 		return tp.PopupText
 	}
-	name := strings.TrimSpace(word)
-	if name != "" {
-		r := []rune(name)
-		name = strings.ToUpper(string(r[0])) + string(r[1:])
-	}
-	return strings.ReplaceAll(tp.EggText, "{name}", name)
+	return strings.ReplaceAll(tp.EggText, "{name}", gopodEggName(word))
 }
 
 // gopodEggCardMark: a card prize in a pop-up line ("card:<words>").
