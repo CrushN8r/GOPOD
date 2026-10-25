@@ -3976,11 +3976,23 @@
         var body = JSON.stringify({ items: items });
         if (body === displaySent) { return; }
         displaySent = body;
+        // 2026-10-25 (live, the phone: "punctuation & ending emojis flicker"): one
+        // send at a time - two at once could land out of order, and the phone
+        // stepped back to the older picture for a moment (the marks and emojis,
+        // lit right after their word, showed it). The next waits for this one.
+        displaySending = true;
         fetch("/api-sdk/gopod_display", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
-          .catch(function () { displaySent = ""; });
+          .catch(function () { displaySent = ""; })
+          .then(function () {
+            displaySending = false;
+            if (displayPending) { displayPending = false; displayChanged(); }
+          });
       }
+      var displaySending = false, displayPending = false;
       function displayChanged() {
-        if (isMainPage && displaySendTimer === null) { displaySendTimer = setTimeout(displaySend, DISPLAY_MS); }
+        if (!isMainPage) { return; }
+        if (displaySending) { displayPending = true; return; }
+        if (displaySendTimer === null) { displaySendTimer = setTimeout(displaySend, DISPLAY_MS); }
       }
       // Make a look like b, keeping a's own nodes wherever they match.
       function displayMorph(a, b) {
@@ -4507,6 +4519,8 @@
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to, done); return; }
         else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) { bubbleNotice(e.to, String(e.text).slice(7)); }
+        // 2026-10-25: his opener (Got it! / Nice try, ...!), the top of his bubble.
+        else if (e.who === pictureRole && String(e.text).indexOf("opener:") === 0) { brobotOpener(e.to, String(e.text).slice(7), done); return; }
         // 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in highlighting
         // pipeline"): a notice line he says - lit while he says it, said after.
         else if (e.who === pictureRole && String(e.text).indexOf("noticesay:") === 0) { bubbleNotice(e.to, String(e.text).slice(10), true); }
@@ -4823,7 +4837,10 @@
       // 2026-10-18: a Brobot bubble's own pieces - never a manager's part nested
       // in it (PLAYHEAD at its top, CHALK at its bottom), so piece numbers stay his.
       function ownSays(bubble) {
-        return Array.prototype.filter.call(bubble.querySelectorAll(".brobot-say"), function (x) { return !x.closest(".nested-host"); });
+        // 2026-10-25 (live: "highlighting appears late, after brobot speech is heard
+        // * weird segmentation passes"): his opener isn't one of his reply's pieces -
+        // counted, it put every lit piece one behind his voice.
+        return Array.prototype.filter.call(bubble.querySelectorAll(".brobot-say"), function (x) { return !x.closest(".nested-host, .brobot-opener"); });
       }
       function revealRest(bubble) {
         Array.prototype.forEach.call(ownSays(bubble).filter(function (x) { return !x.classList.contains("spoken"); }), function (s) {
@@ -5303,6 +5320,49 @@
           el.textContent = line;
         }
         return el;
+      }
+      // 2026-10-25 (operator: "'Got it!' & 'Nice try, Mr/Mrs [funny nickname]!' *
+      // move these brobots spoken parts, out of notice-bubble, into and as part of
+      // the brobot response * just add the nice try before the notice bubble"): the
+      // opener he just said, his bubble's first line, above his notice - in his
+      // answer's type, already said.
+      function brobotOpener(to, line, done) {
+        if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat || !line) { done(); return; }
+        var shell = nestShell(to);
+        var el = document.createElement("div");
+        el.className = "brobot-opener";
+        var say = document.createElement("span");
+        say.className = "brobot-say";
+        say.textContent = line;
+        el.appendChild(say);
+        var head = shell.querySelector(":scope > .brobot-bubble-head");
+        var first = Array.prototype.filter.call(shell.children, function (c) { return c !== head && !c.classList.contains("brobot-opener"); })[0];
+        if (first) { shell.insertBefore(el, first); } else { shell.appendChild(el); }
+        // 2026-10-25 (operator: "This is still a spoken brobot line. Let's
+        // accomodate ... upon bubble display, from 0% transparency, do the per-word
+        // highlight ... then continue ... template the process"): said already, so
+        // replayed - lit word by word as he would say it, then the next line.
+        replaySaidLine(say, done);
+      }
+      // GOLDEN replay of a said line (2026-10-25, the template): a Brobot line he
+      // has already said (his opener, said while thinking), shown when its bubble
+      // shows - from 0%, the word-at-a-time reveal (word_reveal.seconds_per_word,
+      // digitSequence's steps), then 85% said, then done (the next line). A restored
+      // chat shows it said at once.
+      function replaySaidLine(say, done) {
+        if (restoringChat || skippingReporters) { say.classList.add("spoken"); done(); return; }
+        var seconds = Math.max(0.5, sayWords(say.textContent).length * (wordReveal.seconds_per_word || 0.38));
+        // A voiced line's bubble, like every other (voiceLitLine): hidden until lit.
+        var bubble = say.closest(".brobot-bubble");
+        if (bubble) { bubble.classList.add("voice-lit"); }
+        say.dataset.at = "0";
+        say.dataset.end = String(seconds);
+        lightSpan(say);
+        setTimeout(function () {
+          say.classList.remove("speaking");
+          say.classList.add("spoken");
+          done();
+        }, seconds * 1000 + 100);
       }
       function bubbleNotice(to, text, said) {
         if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }

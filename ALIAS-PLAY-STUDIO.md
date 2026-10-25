@@ -1381,6 +1381,21 @@ shows. A restored chat shows all. `.spoken` / `.speaking` in `gopod_chat_bubbles
 - For the Brobots' replies (Vector's own voice, no audio here) it is a timed estimate, not tied
   to the audio; when the piece ends the rest shows. The page code: `digitUnits`/`digitSequence`.
 - The word reveal runs only in live, scripted and narrator bubbles (no flicker in plain ones).
+- **Every spoken line, inherently** (2026-10-25, operator: "template = any spoken lines are
+  highlighted by default, inherently, like bio evolution, its in there as part of the flow * reduce
+  bullshit bloat patching"): a line is lit through the one `lightSpan`; its bubble wears
+  `voice-lit` (every voiced line's way: `voiceLitLine`, `voiceLineTieIn`, `replaySaidLine`), so it
+  is hidden until lit and revealed word by word. No song, no list, no per-line switch asks for it:
+  the opener song (`00_llm_warming`, its `_llm_song` from `_new_song/_llm_song`), the reporters,
+  the warm-up, the eggs, Goverlord, the Operator and the Brobots all come through it. Checked by the
+  page replay's SPOKEN LINES (live feed of a full start: 0 of 19 not per word).
+- **A said line, replayed** (`replaySaidLine`, the template): a line he already said (his opener,
+  said while thinking) shows when its bubble shows - from 0%, word by word, then said - and holds
+  the next line until done. His opener ("Got it!" / "Nice try, Mr/Mrs ...!") is the first.
+  It is not one of his reply's pieces (`ownSays` leaves it out): Wire-Pod names the piece it says
+  by number, written just before each say goes to the robot (`gopodWriteSpeakingPiece`), and the
+  page lights that number (2026-10-25, live: counted, the opener put every lit piece one behind his
+  voice - "highlighting appears late ... weird segmentation passes").
 - While a link's words are revealed, only the shown words are underlined.
 
 **Forced alignment: word times from the voice.** The voice worker has Vosk listen to each voice
@@ -2085,7 +2100,10 @@ page zombie follows GOPOD admin feed"): the main page sends what it shows - its 
 `page_sync.display_bubbles` bubbles as drawn, highlights and all, each with its own key - through
 Wire-Pod (`/api-sdk/gopod_display`) at most every `page_sync.display_ms` (50, 2026-10-25); every other page runs none
 of the chat (no feed, voices or warm-up) and only paints that: a bubble it has is changed only
-where it changed (no picture reloads, no flicker), new ones added, gone ones removed. Scrolling is
+where it changed (no picture reloads, no flicker), new ones added, gone ones removed. One send at a
+time, the next after it lands (2026-10-25, the phone: "punctuation & ending emojis flicker" - two sends
+crossed and the phone stepped back; the replay, with a real network's delays: 4 flickers before, 0
+after; its VISITOR FLICKER check). Scrolling is
 each device's own (operator: "Decouple admin scrolling from phone scrolling"): GOPOD's rules on its
 own screen - a new bubble bottom/bottom or top/top, the lit words followed. Its own typing row and
 sign-up notes stay its own (`TestDisplayMirrorHolds`). Only a page on GOPOD's own machine (localhost or the machine's own network address,
@@ -2226,7 +2244,12 @@ me falls under, flexible data sets"). A response is its answers in turn: `single
   (Got it 1 / Got it 2); `comeback` = "Nice try, {title} {nickname}!" (duo B)
 - `ends_with`, `no_reminder`, `keep_reminder_types`, `weather_type`, `no_manager` - the duo rules
   (moved here from `duo`, unchanged)
-- `plan` (per response) - the notice bubble's plan line, after Got it: duo "Response-chain:
+- the opener is his bubble's first line, above his notice (2026-10-25, operator: "move these
+  brobots spoken parts, out of notice-bubble, into and as part of the brobot response * just add
+  the nice try before the notice bubble"): said early, while thinking, as before; posted as
+  `opener:` once said; the page's `brobotOpener`, his answer's type (`.brobot-opener`). No longer
+  a notice line (`value_points.parts` has no `got_it`; the notice still waits for it to be said).
+- `plan` (per response) - the notice bubble's first line: duo "Response-chain:
   Brobot 2, then Brobot 1 - answer 1 of 2"; single none
 
 One nickname list for every opener and hand-over (`nicknames`: `titles` Mr / Mrs at random,

@@ -1166,3 +1166,13 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   font-size: 75%;
   letter-spacing: 0.03em;
 }
+
+/* 2026-10-25 (operator: "just add the nice try before the notice bubble"): a
+   Brobot's opener (Got it! / Nice try, ...!) - his bubble's first line, above his
+   notice, in his answer's type. */
+.brobot-bubble.brobot-1 > .brobot-opener,
+.brobot-bubble.brobot-2 > .brobot-opener {
+  font-size: 75%;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.35em;
+}

@@ -1,6 +1,7 @@
 package wirepod_ttr
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -45,5 +46,31 @@ func TestResponseChainTemplate(t *testing.T) {
 	}
 	if r, ok := gopodDuoRule(b); !ok || !r.NoManager || r.WeatherType != "weather_next" {
 		t.Fatalf("duo B rules %+v", r)
+	}
+}
+
+// 2026-10-25 (operator: "just add the nice try before the notice bubble"): the
+// opener he said goes to the page for the top of his bubble; not a notice line.
+func TestOpenerAboveTheNotice(t *testing.T) {
+	esn := gopodBrobot1ESN
+	gopodChainOpenerSaid.Store(esn, "Nice try, Mr fuzzy logic!")
+	defer gopodChainOpenerSaid.Delete(esn)
+	oldFeed := gopodChatFeedPath
+	gopodChatFeedPath = filepath.Join(t.TempDir(), "gopod_chat_feed.json")
+	defer func() { gopodChatFeedPath = oldFeed }()
+	gopodChatFeed.Lock()
+	before := len(gopodChatFeed.events)
+	gopodChatFeed.Unlock()
+	gopodOpenerShow(esn)
+	gopodChatFeed.Lock()
+	feed := append([]gopodChatFeedEvent(nil), gopodChatFeed.events[before:]...)
+	gopodChatFeed.Unlock()
+	if len(feed) != 1 || feed[0].Text != "opener:Nice try, Mr fuzzy logic!" || feed[0].To != "Brobot 1" {
+		t.Fatalf("feed %+v", feed)
+	}
+	for _, p := range gopodBrobotsSettings.BubbleNotices.ValuePoints.Parts {
+		if p == "got_it" {
+			t.Fatal("the opener is still a notice line")
+		}
 	}
 }

@@ -35,6 +35,17 @@ function scenario() {
   };
   const reply = (who, text) => add(who, text, { via: "llm" });
   const line = (text, voice) => { add("Goverlord", "generating:lit:" + V + voice + "|" + text); add("Reporter Voice", V + voice); add("Reporter Voice", "heard:" + ev.length); };
+  // 2026-10-25: the opener song's warm-up lines and a reporter's line (each lit word by word).
+  const warm = (text, say) => { const f = V + "replay_warm_" + ev.length + ".wav"; add("Reporter Voice", "warmup_text|1|" + text); add("Reporter Voice", "generating:forlit:" + f + "|" + say); add("Reporter Voice", f); add("Reporter Voice", "heard:" + ev.length); };
+  warm("Voice files generation check.", "Voice files generation check.");
+  warm("Voices ready. Language Model Loading...", "Language Model Loading...");
+  add("Brobot 3", "generating:lit:" + V + "replay_b3.wav|Okay. We're about to go live. Our News Crew is ready.");
+  add("Reporter Voice", V + "replay_b3.wav"); add("Reporter Voice", "heard:" + ev.length);
+  op("Brobots", "good evening bros!");
+  // His opener, said while thinking, replayed at the top of his bubble (replaySaidLine).
+  add("Picture", "opener:Nice try, Mr missing some RAM!", { to: "Brobot 1" });
+  add("Picture", "notice:Value Points|Response-chain: Brobot 2, then Brobot 1 - answer 2 of 2", { to: "Brobot 1" });
+  reply("Brobot 1", "You know what's even wilder? \u2063The party never stops!");
   op("Brobot 1", "Brobot 1, tell me about bingo for seniors.");
   egg("Brobot 1", "Bingo and foodmath", "/pictures/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo_card.jpg", "replay_egg_bingo.wav", true);
   reply("Brobot 1", "Sure, \u2063let's play! \u2063Say start Bingo test!");
@@ -91,7 +102,11 @@ function makePage(role) {
     else if (p === "/api-sdk/gopod_page_note") { notes.push(decodeURIComponent(String(opt && opt.body)).replace(/\+/g, " ")); body = "ok"; }
     else if (p === "/api-sdk/gopod_page_played") { const m = /id=(\d+)/.exec(String(opt && opt.body)); if (m && role === "main") { played = Math.max(played, +m[1]); } body = "ok"; }
     else if (p === "/api-sdk/gopod_display") {
-      if (opt && opt.method === "POST") { if (role === "main") { const j = JSON.parse(opt.body); j.v = ++display.v; display.body = JSON.stringify(j); } body = "ok"; }
+      // A real network: each send lands 0-150 ms later, so sends can cross.
+      if (opt && opt.method === "POST") {
+        if (role === "main") { const j = JSON.parse(opt.body); const wait = Math.random() * 150; return new Promise(r => setTimeout(() => { j.v = ++display.v; display.body = JSON.stringify(j); r({ ok: true, status: 200, json: () => Promise.resolve({}), text: () => Promise.resolve("ok") }); }, wait)); }
+        body = "ok";
+      }
       else { const since = +((/since=(\d+)/.exec(full) || [, 0])[1]); if (!display.body || display.v === since) { status = 204; body = ""; } else { body = display.body; } }
     }
     else if (local(p)) { body = fs.readFileSync(local(p), "utf8"); }
@@ -104,6 +119,24 @@ function makePage(role) {
     const imgs = m.type === "attributes" ? [m.target] : Array.from(m.addedNodes).flatMap(n => n.querySelectorAll ? [n].concat(Array.from(n.querySelectorAll("img"))) : []);
     imgs.filter(i => i.tagName === "IMG").forEach(i => setTimeout(() => i.dispatchEvent(new w.Event(local(new URL(i.src, "http://x").pathname) ? "load" : "error")), 30));
   })).observe(d, { subtree: true, childList: true, attributes: true, attributeFilter: ["src"] });
+  // 2026-10-25 (operator: "any spoken lines are highlighted by default,
+  // inherently"): every line lit on the main page - did it light word by word?
+  // And on the visitor page: a word, mark or emoji that steps back (lit, then
+  // hidden again; said, then lit) is a flicker.
+  new w.MutationObserver(ch => ch.forEach(m => {
+    const el = m.target;
+    if (!el.classList) { return; }
+    if (role === "main" && el.classList.contains("brobot-say") && el.classList.contains("speaking") && !el._checked) {
+      el._checked = true;
+      setTimeout(() => { const b = el.closest(".brobot-bubble"); spokenLines.push({ text: el.textContent.trim().slice(0, 60), kind: b ? (b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")) : "?", perWord: !!el.querySelector(".seq-unit") }); }, 60);
+    }
+    if (role === "visitor" && el.classList.contains("seq-unit")) {
+      const rank = el.classList.contains("said") ? 2 : el.classList.contains("now") ? 1 : 0;
+      const say = el.closest(".brobot-say"), lit = say && (say.classList.contains("speaking") || say.classList.contains("spoken"));
+      if (lit && el._rank !== undefined && rank < el._rank) { flickers.push(stamp() + " \"" + el.textContent + "\" in \"" + (say ? say.textContent.trim().slice(0, 40) : "") + "\""); }
+      el._rank = rank;
+    }
+  })).observe(d, { subtree: true, attributes: true, attributeFilter: ["class"] });
   if (role === "main") {
     // Lighting: when each voiced part starts and ends.
     new w.MutationObserver(ch => ch.forEach(m => {
@@ -122,6 +155,7 @@ function makePage(role) {
   setTimeout(() => { d.dispatchEvent(new w.Event("pointerdown", { bubbles: true })); }, 300);
   return { w, d, c, notes };
 }
+const spokenLines = [], flickers = [];
 const main = makePage("main"), visitor = makePage("visitor");
 const c = main.c, notes = main.notes;
 // The mirror, checked every quarter second: the visitor's bubbles against the
@@ -168,6 +202,12 @@ setInterval(() => {
   console.log("\nGOVERLORD LINES");
   Array.from(c.querySelectorAll(".brobot-bubble")).filter(b => /Grand Prize/i.test(b.textContent) && b.dataset.kind !== "egg").forEach(b => console.log("  " + b.textContent.replace(/\s+/g, " ").trim().slice(0, 90) + " | " + Array.from(b.querySelectorAll(".brobot-say")).map(s => s.className.replace("brobot-say", "").trim() || "dormant").join(",")));
   console.log("\nBUBBLES BY KIND"); const k = {}; c.querySelectorAll(".brobot-bubble").forEach(b => { k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] = (k[b.dataset.kind || b.className.split(" ").slice(1, 3).join(".")] || 0) + 1; }); console.log("  " + JSON.stringify(k));
+  console.log("\nSPOKEN LINES (lit word by word?)");
+  spokenLines.forEach(l => console.log("  " + (l.perWord ? "per word " : "WHOLE    ") + l.kind + " | " + l.text));
+  console.log("  " + spokenLines.filter(l => !l.perWord).length + " of " + spokenLines.length + " not per word");
+  console.log("\nVISITOR FLICKER (a word, mark or emoji stepping back)");
+  console.log("  " + flickers.length + (flickers.length ? ":" : ""));
+  flickers.slice(0, 8).forEach(f => console.log("  " + f));
   console.log("\nVISITOR MIRROR"); console.log("  " + mirrorChecks + " checks, in step " + Math.round(100 * (mirrorChecks - mirrorOff) / Math.max(1, mirrorChecks)) + "%, longest catch-up " + (lagMost / 1000).toFixed(1) + " s" + (offSince ? ", OUT OF STEP at the end" : ""));
   mirrorProblems.slice(0, 8).forEach(m => console.log("  behind " + (MIRROR_LAG_MS / 1000) + " s+: " + m));
   console.log("\nPAGE NOTES (errors, stuck, baton)"); notes.concat(visitor.notes).filter(n => /error|stuck|baton|NOT shown/i.test(n)).forEach(n => console.log("  " + n.slice(0, 200)));

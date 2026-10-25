@@ -157,3 +157,20 @@ func gopodResponsePlan(esn string) string {
 		"total": strconv.Itoa(len(order)),
 	})
 }
+
+
+// gopodOpenerShow (2026-10-25, operator: "'Got it!' & 'Nice try, Mr/Mrs [funny
+// nickname]!' * move these brobots spoken parts, out of notice-bubble, into and as
+// part of the brobot response * just add the nice try before the notice bubble"):
+// the opener he just said, the top line of his bubble, above his notice
+// ("opener:" to him; the page's brobotOpener).
+func gopodOpenerShow(esn string) {
+	if gopodNoticeTitle(esn) == "" {
+		return
+	}
+	if t := strings.TrimSpace(gopodOpenerText(esn)); t != "" {
+		GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, gopodBrobotName(esn), gopodOpenerMark+t)
+	}
+}
+
+const gopodOpenerMark = "opener:"

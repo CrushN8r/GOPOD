@@ -67,6 +67,8 @@ func gopodGotItFor(esn string) gopodGotIt {
 // is said once more only if the robot reports it didn't finish.
 func gopodSayThinkingLine(robot *vector.Vector, esn string) {
 	gopodSayThinkingWords(robot, esn)
+	// 2026-10-25: his opener, the top line of his bubble, before his notice.
+	gopodOpenerShow(esn)
 	// 2026-10-22 (operator: "Got it isn't said in the chat"): the notice log's
 	// first line.
 	gopodValuePointsNoticeGotIt(esn)
