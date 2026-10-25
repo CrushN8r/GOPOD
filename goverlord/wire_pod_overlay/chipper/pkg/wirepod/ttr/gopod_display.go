@@ -52,7 +52,9 @@ func init() {
 		gopodDisplay.Lock()
 		v, body := gopodDisplay.v, gopodDisplay.body
 		gopodDisplay.Unlock()
-		if v <= since || body == nil {
+		// 2026-10-24 (link 6): a visitor still counting from before a Wire-Pod restart
+		// (since > v) gets the display at once, not after v has caught up.
+		if body == nil || v == since {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}

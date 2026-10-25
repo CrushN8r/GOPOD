@@ -2567,12 +2567,12 @@ func TestEggVoiceInPieces(t *testing.T) {
 // TestPageReplayLine (2026-10-24, operator: "Add into GOPOD system menu * The
 // replay"): system-test-replay passes a clean report and fails a broken one.
 func TestPageReplayLine(t *testing.T) {
-	clean := "PLAYED 48 of 48\n\nEGGS\n  Get Photo: brobot-2 popup-winner | congratulations spoken | zoom spoken | pictures 2 shown, 0 waiting | Generating left 0\n\nOPERATOR LINES (their own voice)\n  what do you see? | spoken\n\nGOVERLORD LINES\n  Grand prize! | spoken\n\nPAGE NOTES (errors, stuck, baton)\n"
-	if ok, line := gopodPageReplayLine(clean, nil); !ok || !strings.Contains(line, "48 of 48") {
+	clean := "PLAYED 48 of 48\n\nEGGS\n  Get Photo: brobot-2 popup-winner | congratulations spoken | zoom spoken | pictures 2 shown, 0 waiting | Generating left 0\n\nOPERATOR LINES (their own voice)\n  what do you see? | spoken\n\nGOVERLORD LINES\n  Grand prize! | spoken\n\nVISITOR MIRROR\n  146 checks, in step 87%, longest catch-up 0.5 s\n\nPAGE NOTES (errors, stuck, baton)\n"
+	if ok, line := gopodPageReplayLine(clean, nil); !ok || !strings.Contains(line, "48 of 48") || !strings.Contains(line, "in step 87%") {
 		t.Errorf("clean report: %v %q", ok, line)
 	}
-	broken := "PLAYED 20 of 48  <-- STOPPED\n\nEGGS\n  Get Photo: x | congratulations MISSING | zoom - \n\nOPERATOR LINES (their own voice)\n  hi | NOT TIED to its voice\n\nPAGE NOTES (errors, stuck, baton)\n  error stuck 90 s on feed 20\n"
-	if ok, line := gopodPageReplayLine(broken, nil); ok || !strings.Contains(line, "stopped") || !strings.Contains(line, "Operator line") || !strings.Contains(line, "page:") {
+	broken := "PLAYED 20 of 48  <-- STOPPED\n\nEGGS\n  Get Photo: x | congratulations MISSING | zoom - \n\nOPERATOR LINES (their own voice)\n  hi | NOT TIED to its voice\n\nVISITOR MIRROR\n  40 checks, in step 20%, longest catch-up 9.0 s, OUT OF STEP at the end\n\nPAGE NOTES (errors, stuck, baton)\n  error stuck 90 s on feed 20\n"
+	if ok, line := gopodPageReplayLine(broken, nil); ok || !strings.Contains(line, "stopped") || !strings.Contains(line, "Operator line") || !strings.Contains(line, "page:") || !strings.Contains(line, "mirror:") {
 		t.Errorf("broken report: %v %q", ok, line)
 	}
 	raw, _ := os.ReadFile(gopodBrobotsSettingsPath)

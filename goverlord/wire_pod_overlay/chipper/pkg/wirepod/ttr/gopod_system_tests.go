@@ -133,7 +133,7 @@ var gopodSystemTests = []gopodSystemTest{
 	// 2026-10-24 (operator: "Add into GOPOD system menu * The replay ... plays the
 	// real chat page code with no robots"): gopod_probes/tools/gopod_page_replay.sh.
 	{"eggvoice", "an Easter egg voice is made from its kept pieces and a live title, joined", gopodEggVoiceCheck},
-	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, with no robots", func() (bool, string) {
+	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots", func() (bool, string) {
 		return gopodPageReplayLine(gopodPageReplayRun())
 	}},
 	{"llm", "the language model answers (Ollama has the model)", func() (bool, string) {
@@ -326,7 +326,7 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 		return false, "didn't run: " + strings.TrimSpace(err.Error()+" "+gopodCut(strings.TrimSpace(out), 200))
 	}
 	var problems []string
-	played, eggs, ops, section := "", 0, 0, ""
+	played, eggs, ops, section, mirror := "", 0, 0, "", ""
 	for _, l := range strings.Split(out, "\n") {
 		t := strings.TrimSpace(l)
 		switch {
@@ -337,8 +337,16 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 			}
 		case strings.HasPrefix(t, "LOOP"), strings.HasPrefix(t, "LOAD ERROR"):
 			problems = append(problems, t)
-		case t == "EGGS", t == "LIGHTING ORDER", t == "GOVERLORD LINES", t == "BUBBLES BY KIND", strings.HasPrefix(t, "OPERATOR LINES"), strings.HasPrefix(t, "PAGE NOTES"):
+		case t == "EGGS", t == "LIGHTING ORDER", t == "GOVERLORD LINES", t == "BUBBLES BY KIND", t == "VISITOR MIRROR", strings.HasPrefix(t, "OPERATOR LINES"), strings.HasPrefix(t, "PAGE NOTES"):
 			section = t
+		// 2026-10-24 (link 6): the visitor's page against the main page.
+		case section == "VISITOR MIRROR":
+			if mirror == "" {
+				mirror = t
+			}
+			if strings.Contains(t, "OUT OF STEP") || strings.HasPrefix(t, "behind") {
+				problems = append(problems, "mirror: "+gopodCut(t, 140))
+			}
 		case t == "":
 		case section == "EGGS":
 			eggs++
@@ -358,6 +366,9 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 		return false, "no report: " + gopodCut(strings.TrimSpace(out), 200)
 	}
 	line := fmt.Sprintf("%s lines played, %d eggs drawn and lit, %d Operator lines tied to their voice", played, eggs, ops)
+	if mirror != "" {
+		line += ", visitor mirror " + strings.TrimPrefix(mirror, " ")
+	}
 	if len(problems) > 0 {
 		return false, line + " - " + strings.Join(problems, "; ")
 	}

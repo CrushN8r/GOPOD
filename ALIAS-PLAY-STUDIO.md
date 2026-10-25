@@ -1983,6 +1983,12 @@ real chat page code with no robots (jsdom, kept in `~/.cache/gopod_page_replay`)
 kind, both prizes, the Operator lines' voices; reports what was drawn and lit, and any error,
 stuck line or loop. A saved feed can be replayed too.
 
+**Root-to-leaf link 6, the visitor mirror** (2026-10-24): checked by the page replay, which now
+runs a visitor's page beside the main page and compares them every quarter second - words and
+what's lit, bubble by bubble; a difference lasting over 1.5 s fails `system-test-replay`
+(live: in step 85%, longest catch-up 0.8 s, never stuck). A visitor still counting from before a
+Wire-Pod restart gets the display at once (`gopod_display.go`: only "no change" is 204).
+
 **Speech after an animation: 0.4 s** (2026-10-24; operator: "fire the next spoken segment 0.5s
 early"): `chat_moves.speech_after_animation_seconds` 0.9 -> 0.4.
 
