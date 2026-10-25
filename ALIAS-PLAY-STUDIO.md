@@ -2312,7 +2312,7 @@ scripted closing remarks"). Before a run, a Bingo question opens with his own li
 (`bingo.closing`, the `closing_remark` part right after `llm`, joined to his words, before the
 reminder; operator: "joke is closing remark of answer to how was bingo, not the response
 answer-chain"): Brobot 1 "Anyway, we got a winner! 🏆 \"I Won!\"" (the host won - the brat's
-punchline), Brobot 2 "Oh! Zero!" (his O-0, his cooperation score). The pre lines changed the
+punchline), Brobot 2 "Oh! Zero!?! That's my cooperation score!?!" (his O-0). The pre lines changed the
 soft-locked flavour lines, on the operator's word: re-locked. `TestBingoClosingBeforeReminder`.
 
 **CHALK's QRs, each once** (2026-10-25, operator: "duplicate qr display bug * 1st CHALK should be
