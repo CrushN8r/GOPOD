@@ -462,7 +462,7 @@
     "value_points": {
       "title": "Value Points",
       "log_about": "2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
-      "parts": ["got_it", "points", "summary", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score"],
+      "parts": ["got_it", "plan", "points", "summary", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score"],
       "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
       "note": "-{note}",
       "egg": "Easter Egg '{title}': {summary}",
@@ -504,7 +504,7 @@
     "item_max_ms_about": "2026-10-24 (live: the chat stopped after a reply until F5): a feed line that hasn't handed on after this long is logged (GOPOD_PAGE error stuck ...) and passed. F5.",
     "item_max_ms": 90000,
     "display_bubbles": 12,
-    "display_ms": 150
+    "display_ms": 50
   },
   "chat_audio": {
     "about": "2026-10-14 (operator: \"Rule: Please make all chat bubble audio default to volume variable to play at 10% volume * the background loop volume variable is set to play at 5% * all chat bubbles, system bubbles, reporter/narrator bubbles, brobots' chat bubbles, etc... * song sequences as well * Later, I may want to edit other play volumes as well\"): every sound the chat page plays - voices, stings, a song's sounds and soundtrack, the weather sounds - plays at volume (0-1). 2026-10-14 (operator: \"increase default volume from 10% to 35%\"): 0.35. A sound's own volume (a sting's here, a song step's \"volume\") is its share of it: 1 = this volume, 0.8 = 80% of it. The background loop keeps its own volume (background_loop). The page reads it on F5.",
@@ -877,6 +877,24 @@
     "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right.",
     "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
   },
+  "response_chains_about": "2026-10-25 (operator: \"Do response-chain template as proposed last time to make the rest inherent * this to me falls under, flexible data sets\"; the vision: \"Single and multi (duo for now) responses are the boundaries * Response-chains, with answer-chains within them\"): a response is its answers in turn - single (one Brobot) or duo (A first, B next; multi later: more answers). Each answer is one Brobot's answer-chain (answer_chains.<chain>, his thought bubbles). Per answer: chain; opener - what he says first, while thinking (openers.<name>: {got_it} his own Got it words, {title} {nickname} from nicknames); ends_with, no_reminder, keep_reminder_types, weather_type, no_manager - the duo rules (moved here from duo). plan: the notice bubble's plan line ({order}, {n} of {total}; empty = none). Needs wpr 2. The duo rules' history: 2026-10-23 (operator: \"for brobot 2 first, the mechanics appear to work correctly * please soft lock this templated mechanism * a 'duo' answer-type templated mechanism, is a good starter for a 'multi' answer-type templated mechanism, later on * Brobot A 'duo-answer-type-A' > Brobot B 'duo-answer-type-B' * boilerplate for duo-response-type scaffolding * templates for duo-response-types A & B from boilerplate\"): the duo boilerplate - in a line to both (All, starting with 1 or 2: typed_line.all_first, or the words), A answers first, B next. Each: its answer chain (chain), and the rules every answer type follows in that place - A ends with the hand-over in place of the reminder (ends_with, no_reminder; keep_reminder_types keep theirs, then hand over); B's weather is weather_next; B gets no manager step-in (no_manager: 2026-10-23, operator: \"the 2nd manager assist not needed for same weather calls and other repeat calls\") - so no second \"Thanks for your help\" either. A multi answer type later: more letters here. Soft-locked by TestDuoAnswersHold.",
+  "response_chains": {
+    "single": {"plan": "", "answers": [{"chain": "brobots", "opener": "got_it"}]},
+    "duo": {"plan": "Response-chain: {order} - answer {n} of {total}", "answers": [
+      {"chain": "duo_a", "opener": "got_it", "ends_with": "handover", "no_reminder": true, "keep_reminder_types": ["math"]},
+      {"chain": "duo_b", "opener": "comeback", "weather_type": "weather_next", "no_manager": true}
+    ]}
+  },
+  "openers_about": "2026-10-25 (operator: \"Brobot B replaces his 'Got it!' with 'Nice try [funny-nickname]'\"): what a Brobot says first in his answer (response_chains answers' opener). {got_it} = his own Got it words (chat_moves.got_it); {title} {nickname} from nicknames.",
+  "openers": {
+    "got_it": "{got_it}",
+    "comeback": "Nice try, {title} {nickname}!"
+  },
+  "nicknames_about": "2026-10-25 (operator: \"funny banter between party-bros * taking personal jabs at each other's mechanics * I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"): one list for every opener and hand-over - a random title, a random nickname, never the same nickname twice running.",
+  "nicknames": {
+    "titles": ["Mr", "Mrs"],
+    "list": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts", "reverse momentum", "vintage screen display", "fuzzy logic", "smoldering exhaust breath", "missing some RAM", "loose bolts", "squeaky treads", "rusty servo", "dial-up modem", "low battery", "sticky lift arm", "blue screen"]
+  },
   "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
   "multiple_responses_about": "2026-10-22 (operator: \"Multiple Responses Template * no reminders in 1st brobot response * this is how I see answer-chains handling different queries * cater answer-chains to handle known/expected/desired prompts to reveal value points\"): a line to both - the first Brobot: weather report (weather_lines.report), weather comment, his value point, the hand-over (answer_chains.brobots_all_first, no reminders); the next: weather confirmed (weather_lines.confirm), comment following his brother's, his value point, the Weather Kit, the reminders (brobots_follow_up). A single answer: report, comment, value point, reminders (brobots). Each Brobot's own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C / 24-hour). The model's parts: chain_prompts.",
   "weather_lines": {
@@ -981,11 +999,6 @@
     "facts_note": "This asks for the big picture - a short summary across what we do. One short line for each, in order, your way:\n{topics}",
     "fallback": "{Title}: {note}."
   },
-  "duo_about": "2026-10-23 (operator: \"for brobot 2 first, the mechanics appear to work correctly * please soft lock this templated mechanism * a 'duo' answer-type templated mechanism, is a good starter for a 'multi' answer-type templated mechanism, later on * Brobot A 'duo-answer-type-A' > Brobot B 'duo-answer-type-B' * boilerplate for duo-response-type scaffolding * templates for duo-response-types A & B from boilerplate\"): the duo boilerplate - in a line to both (All, starting with 1 or 2: typed_line.all_first, or the words), A answers first, B next. Each: its answer chain (chain), and the rules every answer type follows in that place - A ends with the hand-over in place of the reminder (ends_with, no_reminder; keep_reminder_types keep theirs, then hand over); B's weather is weather_next; B gets no manager step-in (no_manager: 2026-10-23, operator: \"the 2nd manager assist not needed for same weather calls and other repeat calls\") - so no second \"Thanks for your help\" either. A multi answer type later: more letters here. Soft-locked by TestDuoAnswersHold.",
-  "duo": {
-    "a": {"chain": "duo_a", "ends_with": "handover", "no_reminder": true, "keep_reminder_types": ["math"]},
-    "b": {"chain": "duo_b", "weather_type": "weather_next", "no_manager": true}
-  },
   "answer_shapes_about": "2026-10-23 (FINISH_PLAN_001.md step A2; operator: \"the flow of output in the responses isn't consistent * I need a templated answer-chain mechanism\"): GOLDEN - one shape per answer type, the order of his thought bubbles. Every answer is checked as it's made (BROBOT_SHAPE in the log: ok, or DRIFT and the shape it wanted) and every type is run through the real answer chain at deploy (TestAnswerShapesHold). A shape is marks in order: llm = his own words; point = his value point's title line (its notes follow as his words); say_line = a point's exact line; the others are found by their text (marks, checked in mark_order). ? = may be missing; a|b = either. In a line to both, the first answer's reminder is the hand-over (math: reminder, then hand-over).",
   "answer_shapes": {
     "shapes": {
@@ -1077,7 +1090,7 @@
         "items": [
           {
             "cmd": "system-restart",
-            "about": "Wire-Pod restarts, the page reloads itself (Enter to confirm)",
+            "about": "a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm)",
             "fill": "system-restart"
           },
           {
@@ -1252,7 +1265,7 @@
           },
           {
             "cmd": "system-restart",
-            "about": "Wire-Pod restarts, the page reloads itself",
+            "about": "a forced restart, like wpr 2 - speaker and mic set; the page reloads itself",
             "fill": "system-restart"
           }
         ],
@@ -1470,6 +1483,11 @@
           {
             "cmd": "system-test-game",
             "about": "every topic, value point and Easter egg found by its own words - no robots, no model",
+            "run": true
+          },
+          {
+            "cmd": "system-audit",
+            "about": "the full audit, no robots called - files, Go tests, web page, phone app, every test, the log (a few minutes)",
             "run": true
           },
           {
@@ -2502,35 +2520,35 @@
     "follow_up_kit_line": "Want to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).",
     "offline_text": "It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!"
   },
-  "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {nickname} the next of nicknames, in turn). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
+  "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {title} and {nickname} from nicknames (his own titles/nicknames here when he has them) - 2026-10-25, operator: \"I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
   "host_personas": {
     "Brobot 1": {
       "name": "Doc",
       "role": "I deliver the point - the fact, cleanly, from the first rule up.",
       "steps": ["read the question", "name the point", "build it from the first rule up", "end so it couldn't be any other way"],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     },
     "Brobot 2": {
       "name": "Pip",
       "role": "I react the way the audience would - I'm their pied piper - and carry the next point when there is one.",
       "steps": ["catch my brother's point", "ask the shy question, or guess wrong the way people really do", "catch up and say the wow", "hand over to the next point"],
       "signature": "raise your hand if you got that wrong too!",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     },
     "CHALK": {
       "name": "CHALK BORED",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     },
     "PLAYHEAD": {
       "name": "PLAYHEAD ZUMINTU",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {nickname}?", "nicknames": ["gear-head", "cranky-shaft", "coolant-leak", "incompatible-particulate", "fumble-nuts"]}
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     }
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",

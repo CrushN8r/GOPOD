@@ -200,7 +200,9 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	if aligner == "" {
 		aligner = "joined"
 	}
+	// The voice worker's own format ("aligner": "vosk" - the checks read it so).
 	wj, _ := json.Marshal(map[string]any{"aligner": aligner, "words": words})
+	wj = []byte(strings.Replace(string(wj), `"aligner":"`, `"aligner": "`, 1))
 	_ = os.WriteFile(strings.TrimSuffix(out, ".wav")+".words.json", wj, 0o644)
 	if err := os.Rename(tmp, out); err != nil {
 		return 0, err

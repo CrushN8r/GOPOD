@@ -1185,12 +1185,12 @@ func TestDuoAnswersHold(t *testing.T) {
 	}
 	GopodAllFirstPick("", "")
 	gopodAllFirstAnswer.Store(gopodBrobot2ESN, true)
-	if r, ok := gopodDuoRule(gopodBrobot2ESN); !ok || r.Chain != gopodBrobotsSettings.Duo["a"].Chain || gopodBrobotChainGroup(gopodBrobot2ESN) != r.Chain {
+	if r, ok := gopodDuoRule(gopodBrobot2ESN); !ok || r.Chain != gopodBrobotsSettings.ResponseChains["duo"].Answers[0].Chain || gopodBrobotChainGroup(gopodBrobot2ESN) != r.Chain {
 		t.Errorf("Brobot 2 first isn't duo A")
 	}
 	gopodAllFirstAnswer.Delete(gopodBrobot2ESN)
 	gopodFollowingUp.Store(gopodBrobot1ESN, true)
-	if r, ok := gopodDuoRule(gopodBrobot1ESN); !ok || r.Chain != gopodBrobotsSettings.Duo["b"].Chain || gopodBrobotChainGroup(gopodBrobot1ESN) != r.Chain {
+	if r, ok := gopodDuoRule(gopodBrobot1ESN); !ok || r.Chain != gopodBrobotsSettings.ResponseChains["duo"].Answers[1].Chain || gopodBrobotChainGroup(gopodBrobot1ESN) != r.Chain {
 		t.Errorf("Brobot 1 next isn't duo B")
 	}
 	gopodFollowingUp.Delete(gopodBrobot1ESN)
@@ -1283,7 +1283,7 @@ func TestNoticeCountsValuePoints(t *testing.T) {
 // country alone with its continent is that country ("zimbabwe africa"), its
 // capital the place; "bro but to" is Brobot 2.
 func TestDuoRunBugsStayOut(t *testing.T) {
-	if b := gopodBrobotsSettings.Duo["b"]; !b.NoManager {
+	if b := gopodBrobotsSettings.ResponseChains["duo"].Answers[1]; !b.NoManager {
 		t.Errorf("duo B may call a manager again")
 	}
 	city, country := gopodWeatherCountry("zimbabwe africa")
@@ -2377,7 +2377,10 @@ func TestGotItPerBrobot(t *testing.T) {
 		return
 	}
 	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_thinking_line.go"))
-	for _, want := range []string{"gopodSayWords(robot, esn, gopodGotItFor(esn).Text)", "cm := gopodGotItFor(esn)"} {
+	// 2026-10-25: he says his opener (response-chain template), made from his own copy.
+	chains, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_response_chains.go"))
+	src = append(src, chains...)
+	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "cm := gopodGotItFor(esn)"} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("the sequence doesn't use his own copy: %s", want)
 		}
@@ -2622,5 +2625,36 @@ func TestExchangeHoldsTheNextLine(t *testing.T) {
 	// Let go when he has said it (his reply's code runs on while he's held).
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodReplyEnd(esn)\n\t\t\t// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.\n\t\t\tgopodExchangeDone(esn)") {
 		t.Errorf("the hold isn't let go when the follow-up is said")
+	}
+}
+
+// TestVisitorGetsTheChatPage (2026-10-25, operator: "prune out everything wire-pod
+// from visitor GOPOD app page"): a visitor's "/" is the chat-only page from the
+// first paint; Wire-Pod's settings stay refused; the admin keeps index.html.
+func TestVisitorGetsTheChatPage(t *testing.T) {
+	if os.Getenv("GOPOD_OVERLAY_CHIPPER") == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
+	}
+	visit := func(addr, path string) (*httptest.ResponseRecorder, bool) {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", path, nil)
+		r.RemoteAddr = addr
+		return w, gopodVisitorGate(w, r)
+	}
+	w, pass := visit("203.0.113.9:5000", "/")
+	if pass || !strings.Contains(w.Body.String(), "gopod-visitor-page") || strings.Contains(w.Body.String(), "js/main.js") {
+		t.Errorf("a visitor's / isn't the chat-only page (passed %v): %.120s", pass, w.Body.String())
+	}
+	if _, pass := visit("203.0.113.9:5000", "/api/get_config"); pass {
+		t.Errorf("a visitor reached Wire-Pod's settings")
+	}
+	if _, pass := visit("127.0.0.1:5000", "/"); !pass {
+		t.Errorf("the admin didn't get Wire-Pod's own page")
+	}
+	page, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "webroot/gopod_visitor.html"))
+	for _, want := range []string{`id="brobot-chat-bubbles-container"`, `src="js/gopod_brobots_chat.js"`, `href="/app/gopod_manifest.json"`} {
+		if !strings.Contains(string(page), want) {
+			t.Errorf("the visitor page lost %s", want)
+		}
 	}
 }

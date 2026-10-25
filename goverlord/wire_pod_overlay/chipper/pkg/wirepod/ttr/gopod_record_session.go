@@ -639,7 +639,15 @@ func gopodRecordWriteHTML(dir string) {
 		return
 	}
 	var b strings.Builder
-	b.WriteString("<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Brobots Session</title>\n<style>body{background:#1d1d1f;color:#eee;font:16px/1.4 sans-serif;margin:0;padding:16px}.l{margin:8px 0;padding:8px 12px;border-radius:8px;background:#2c2c2e;max-width:900px;white-space:pre-wrap}.t{color:#999;font-size:12px}.w{font-weight:bold}.Operator{background:#3a3a3a}.b1{background:#4a1018}.b2{background:#101a4a}</style></head><body>\n")
+	// 2026-10-25 (operator: "move all css, js, etc... into files"): its look is
+	// webroot/css/gopod_session_page.css, put inside the page so it stands alone.
+	css, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "css", "gopod_session_page.css"))
+	if err != nil {
+		logger.Println("GOPOD_RECORD the session page's css is missing: " + err.Error())
+	}
+	b.WriteString("<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Brobots Session</title>\n<style>\n")
+	b.Write(css)
+	b.WriteString("</style></head><body>\n")
 	b.WriteString("<h1>Brobots Session " + html.EscapeString(filepath.Base(dir)) + "</h1>\n")
 	for _, raw := range strings.Split(string(data), "\n") {
 		var l gopodRecordLine

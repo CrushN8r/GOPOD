@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- goverlord/wire_pod_overlay/chipper/webroot/gopod_visitor.html -->
+<!-- 2026-10-25 (operator: "Visitor GOPOD app page: briefly shows home page then
+     jumps to correct location: incorrect * prune out everything wire-pod from
+     visitor GOPOD app page, except what's required for GOPOD to run"): the page a
+     visitor (a phone, the app) gets for "/" - the Brobots chat alone, from the
+     first paint. No Wire-Pod menus, settings or scripts; the admin keeps
+     index.html. Served by gopodVisitorGate (gopod_visitors.go). -->
+<html>
+
+<head>
+  <title>GOPOD</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="manifest" href="/app/gopod_manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/app/gopod_icon_192.png">
+  <link rel="apple-touch-icon" href="/app/gopod_icon_192.png">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" type="text/css" href="css/gopod_chat_bubbles.css" />
+  <link rel="stylesheet" type="text/css" href="css/gopod_responsive.css" />
+  <link rel="stylesheet" type="text/css" href="lib/katex/katex.min.css" />
+  <script src="lib/katex/katex.min.js"></script>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+</head>
+
+<body class="gopod-chat-only gopod-visitor-page">
+  <div id="outer">
+    <div id="section-log">
+      <div id="chat-display-handler">
+        <div id="brobot-chat-bubbles-container">
+        </div>
+        <textarea id="botTranscriptedTextArea" rows="1" cols="1" hidden></textarea>
+      </div>
+    </div>
+  </div>
+<script src="js/gopod_brobots_chat.js"></script>
+</body>
+
+</html>

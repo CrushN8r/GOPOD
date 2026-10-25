@@ -270,6 +270,13 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 			keep = append(keep, "\x00got_it")
 			continue
 		}
+		// 2026-10-25: the response-chain's plan line (gopodResponsePlan).
+		if part == "plan" {
+			if l := gopodResponsePlan(esn); l != "" {
+				keep = append(keep, l)
+			}
+			continue
+		}
 		for _, l := range parts[part] {
 			if strings.TrimSpace(l) != "" {
 				keep = append(keep, l)
@@ -354,7 +361,7 @@ func gopodNoticePostLines(esn string, lines []string) {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 	for _, l := range lines {
 		if l == "\x00got_it" {
-			l = gopodNoticeFill(vp.GotIt, map[string]string{"thinking_text": gopodGotItFor(esn).Text})
+			l = gopodNoticeFill(vp.GotIt, map[string]string{"thinking_text": gopodOpenerText(esn)})
 		}
 		for _, one := range strings.Split(l, "\n") {
 			if one = strings.TrimSpace(one); one != "" {

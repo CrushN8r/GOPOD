@@ -461,15 +461,13 @@ type gopodBrobotsSettingsFile struct {
 		FactsNote  string   `json:"facts_note"`
 		Fallback   string   `json:"fallback"`
 	} `json:"summary"`
-	// 2026-10-23: the duo answer types - A answers first, B next (gopodDuoRule).
-	Duo map[string]struct {
-		Chain             string   `json:"chain"`
-		EndsWith          string   `json:"ends_with"`
-		NoReminder        bool     `json:"no_reminder"`
-		KeepReminderTypes []string `json:"keep_reminder_types"`
-		WeatherType       string   `json:"weather_type"`
-		NoManager         bool     `json:"no_manager"`
-	} `json:"duo"`
+	// 2026-10-25: the response-chain template (gopod_response_chains.go).
+	ResponseChains map[string]gopodResponseChain `json:"response_chains"`
+	Openers        map[string]string             `json:"openers"`
+	Nicknames      struct {
+		Titles []string `json:"titles"`
+		List   []string `json:"list"`
+	} `json:"nicknames"`
 	// 2026-10-23: the golden answer shapes (gopod_answer_shapes.go).
 	AnswerShapes struct {
 		Shapes    map[string][]string `json:"shapes"`
@@ -854,6 +852,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 		check(strings.TrimSpace(s.HostPersonas[name].Name) != "", "host_personas."+name+".name")
 		check(len(s.Addressing.Names[name]["brobot"]) > 0, "addressing.names."+name+".brobot")
 	}
+	check(len(s.ResponseChains["single"].Answers) == 1, "response_chains.single.answers")
+	check(len(s.ResponseChains["duo"].Answers) == 2, "response_chains.duo.answers")
 	if len(missing) > 0 {
 		panic(fmt.Sprintf("GOPOD Brobots settings at %s are missing: %s", gopodBrobotsSettingsPath, strings.Join(missing, ", ")))
 	}

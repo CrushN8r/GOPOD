@@ -925,8 +925,10 @@ after an edit. The face photo as a prize is not built yet. `system-faces` lists 
 **Handing over in a line to both.** When a line goes to both Brobots (All, KP0 held, or "starting
 with Brobot 2"), whoever answers first ends with one more thought, handing over to his brother:
 his own hand-over line (`host_personas.<host>.handover`: "{partner}, what say you on this,
-{nickname}?", the nicknames in turn - gear-head, cranky-shaft, coolant-leak,
-incompatible-particulate); without one, `addressing.redirect_text`. Empty = none.
+{title} {nickname}?" - {title} a random one of `titles` (Mr, Mrs), {nickname} a random one of
+`nicknames`, never twice running: gear-head, cranky-shaft, coolant-leak, incompatible-particulate,
+fumble-nuts, reverse momentum, vintage screen display, fuzzy logic, smoldering exhaust breath,
+missing some RAM, and more); without one, `addressing.redirect_text`. Empty = none.
 
 ## 8. A live reply
 
@@ -1829,7 +1831,7 @@ context ("Our score so far: ..."), and in "what else". The rules for the Brobots
 ("The game: ..."). Grand prize: every value point revealed (`target: points`). The point mechanics
 tests run over every point (`gopodAllPointsForTest`); the answer shapes run with the 20.
 
-**Fixes from the duo run** (2026-10-23): duo B gets no manager step-in (`duo.b.no_manager`), so no
+**Fixes from the duo run** (2026-10-23): duo B gets no manager step-in (`response_chains.duo` answer 2's `no_manager`), so no
 second "Thanks for your help"; "Thanks for your help, PLAYHEAD." is lit while he says it
 (`noticesay:` / `noticesaid:`); an egg's congratulations wait as one Generating line; its "MouseOver
 to Zoom In" is lit word by word at its own words' times in the same voice; the hourglass drains
@@ -1983,6 +1985,22 @@ real chat page code with no robots (jsdom, kept in `~/.cache/gopod_page_replay`)
 kind, both prizes, the Operator lines' voices; reports what was drawn and lit, and any error,
 stuck line or loop. A saved feed can be replayed too.
 
+**The full audit** (2026-10-25; operator: "a .sh file to run after a wpr 2/F5 * 100% everything
+audit * full web page run + phone app * just not with the actual robots being called"):
+`gopod_probes/tools/gopod_full_audit.sh`, and `system-audit` in the system menu (run as the
+operator, its result posted in the chat) - Wire-Pod and its voices, every settings file and
+script, every Go test, the web page and feed, the phone app (secure page, manifest, worker,
+icons, certificate and its dates), every system test (system-test-all + eggvoice), and a log
+scan (panics, page errors, stuck lines, unheard voices, fallbacks, refused reports). Report:
+`gopod_notes/AUDIT_REPORT_<date>_<time>.md`. **system-restart** is a forced wpr 2: speaker and
+USB mic set (`system_tests.audio`), the page's leftover run state cleared, then restarted.
+Topic words that Wire-Pod's own intents catch were taken out ("follow", "work for you").
+
+**The visitor's own page** (2026-10-25; operator: "briefly shows home page then jumps ... prune
+out everything wire-pod from visitor GOPOD app page"): a visitor's "/" is
+`webroot/gopod_visitor.html` - the chat alone, from the first paint, no Wire-Pod menus or scripts
+(`gopodVisitorGate`; "?visitor" shows it on GOPOD's machine). `TestVisitorGetsTheChatPage`.
+
 **Root-to-leaf link 6, the visitor mirror** (2026-10-24): checked by the page replay, which now
 runs a visitor's page beside the main page and compares them every quarter second - words and
 what's lit, bubble by bubble; a difference lasting over 1.5 s fails `system-test-replay`
@@ -2065,7 +2083,7 @@ role. Locked by `TestOnePageOwnsTheShow`. Every other page is a display mirror (
 thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor
 page zombie follows GOPOD admin feed"): the main page sends what it shows - its newest
 `page_sync.display_bubbles` bubbles as drawn, highlights and all, each with its own key - through
-Wire-Pod (`/api-sdk/gopod_display`) at most every `page_sync.display_ms`; every other page runs none
+Wire-Pod (`/api-sdk/gopod_display`) at most every `page_sync.display_ms` (50, 2026-10-25); every other page runs none
 of the chat (no feed, voices or warm-up) and only paints that: a bubble it has is changed only
 where it changed (no picture reloads, no flicker), new ones added, gone ones removed. Scrolling is
 each device's own (operator: "Decouple admin scrolling from phone scrolling"): GOPOD's rules on its
@@ -2092,7 +2110,7 @@ in the settings, its template runs them, a test locks it ("none yet" = no lock t
 | 4 | Voiced line shown some other way (warm-up, opener, egg, Operator) | `gopodSayForShownLine` -> `forwait:`/`forlit:` -> `voiceForLine` | `reporter_voices`, `hourglass` | `TestInterviewEndAndPauseHold` |
 | 5 | Brobot reply, live | `gopodAnswerChain` + answer shapes -> pieces -> highlight | `answer_chains`, `answer_shapes`, `colour_slots`, `live_split`, `highlight` | `TestAnswerShapesHold`, `TestHighlightPiecesGolden` |
 | 6 | Brobot reply, scripted (interview, draft) | scripted snippets -> pieces | `scripted_snippets`, `scripted_split`, `interview_script`, `interview_build` | `TestScriptedPiecesAreSaidAsSent`, `TestInterviewFromGame` |
-| 7 | Duo answers (a line to both) | `gopodDuoRule` -> `duo_a`/`duo_b` chains | `duo`, `typed_line` | `TestDuoAnswersHold` |
+| 7 | Duo answers (a line to both) | `gopodDuoRule` -> `duo_a`/`duo_b` chains | `response_chains.duo`, `typed_line` | `TestDuoAnswersHold` |
 | 8 | Value point bubbles | `gopodPointBubbles` | `point_bubbles`, `value_points` | `TestPointBubblesShapeAlwaysHolds` |
 | 9 | Summary bubbles | `gopodSummaryBubbles` | `summary` | `TestAnswerShapesHold` |
 | 10 | Math answers | `brobots_math` chain | `topic_groups`, `math` | `TestMathAnswers`, `TestMathExplainTheMath` |
@@ -2195,8 +2213,34 @@ B next, each its own chain (`duo_a`, `duo_b`) and the rules every answer type fo
 ends with the hand-over in place of the reminder (math keeps its reminder, then hands over); B's
 weather is "Confirmed...". Who's A, in this order: the words ("Starting with Brobot 2"), then the Brobot named first
 anywhere in the line ("for both of you bro but to, ..." -> Brobot 2; `gopodFirstNamed`, the page's
-icons alike), then the All menu (`typed_line.all_first`). A multi answer type later = more letters in `duo`. Soft-locked by
+icons alike), then the All menu (`typed_line.all_first`). A multi answer type later = more answers in `response_chains.duo`. Soft-locked by
 `TestDuoAnswersHold`.
+
+**GOLDEN response-chain template** (2026-10-25, `response_chains`, `gopod_response_chains.go`;
+operator: "Do response-chain template as proposed last time to make the rest inherent * this to
+me falls under, flexible data sets"). A response is its answers in turn: `single` (one Brobot) or
+`duo` (A, then B; multi later = more answers). Each answer is one Brobot's answer-chain
+(`answer_chains.<chain>`, his thought bubbles). Per answer, all in the settings:
+- `chain` - its answer-chain group (single: `brobots`; duo: `duo_a`, `duo_b`)
+- `opener` - what he says first, while thinking (`openers`): `got_it` = his own Got it words
+  (Got it 1 / Got it 2); `comeback` = "Nice try, {title} {nickname}!" (duo B)
+- `ends_with`, `no_reminder`, `keep_reminder_types`, `weather_type`, `no_manager` - the duo rules
+  (moved here from `duo`, unchanged)
+- `plan` (per response) - the notice bubble's plan line, after Got it: duo "Response-chain:
+  Brobot 2, then Brobot 1 - answer 1 of 2"; single none
+
+One nickname list for every opener and hand-over (`nicknames`: `titles` Mr / Mrs at random,
+`list` at random, never twice running; a host's own `handover.titles`/`nicknames` win when set).
+So: A says "Got it!", answers, hands over "Brobot 1, what say you on this, Mr fuzzy logic?"; B opens
+"Nice try, Mrs gear-head!". New banter = edit `openers`, `nicknames` or an answer's fields.
+Locked by `TestResponseChainTemplate`.
+
+**CSS and JS in their own files** (2026-10-25, operator: "move all css, js, etc... into files"):
+the Weather Kit page's look and script (`css/gopod_weather_kit.css`, `js/gopod_weather_kit.js`);
+a saved session page's look (`css/gopod_session_page.css`, put inside the page so it stands
+alone; `TestSessionPageCarriesItsCSS`). Left in code: the chat's styles set while it runs
+(positions, sizes, fades - computed each time). Wire-Pod's own pages' inline styles are native,
+untouched.
 
 **GOLDEN answer shapes** (2026-10-23, FINISH_PLAN_001.md step A2, `answer_shapes`,
 `gopod_answer_shapes.go`): one shape per answer type - the order of his thought bubbles:

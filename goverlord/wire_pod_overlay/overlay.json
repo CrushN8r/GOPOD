@@ -194,6 +194,10 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_mic_voice.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_mic_voice.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_game_sweep.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_game_sweep.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_operator_line.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_operator_line.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_egg_voice.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_egg_voice.go"
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_egg_voice.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_egg_voice.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_handover_title_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_handover_title_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_response_chains.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_response_chains.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_response_chains_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_response_chains_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_session_page_css_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_session_page_css_test.go"
   }
 }

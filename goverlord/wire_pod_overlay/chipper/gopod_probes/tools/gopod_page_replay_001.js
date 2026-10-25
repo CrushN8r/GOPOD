@@ -68,8 +68,10 @@ let played = 0;
 const display = { v: 0, body: null };
 const js = fs.readFileSync(W + "/js/gopod_brobots_chat.js", "utf8").replace(/\bwhile \(/g, "while (__g(), ");
 // One page: "main" (plays the feed, sends the display) or "visitor" (paints it).
+// A visitor gets its own page (webroot/gopod_visitor.html, 2026-10-25), the admin index.html.
+const visitorHtml = fs.existsSync(W + "/gopod_visitor.html") ? fs.readFileSync(W + "/gopod_visitor.html", "utf8").replace(/<script[\s\S]*?<\/script>/g, "") : html;
 function makePage(role) {
-  const dom = new JSDOM(html, { url: "http://localhost:8080/" + (role === "visitor" ? "?visitor" : ""), runScripts: "outside-only", pretendToBeVisual: true });
+  const dom = new JSDOM(role === "visitor" ? visitorHtml : html, { url: "http://localhost:8080/" + (role === "visitor" ? "?visitor" : ""), runScripts: "outside-only", pretendToBeVisual: true });
   const w = dom.window, d = w.document, notes = [];
   w.__g = function () { if (++ticks > 3e6) { console.log("LOOP (" + role + ")", new Error().stack.split("\n").slice(2, 8).join("\n")); process.exit(3); } };
   Object.defineProperty(w.HTMLElement.prototype, "offsetParent", { get() { return this.parentNode ? d.body : null; } });

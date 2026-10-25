@@ -74,7 +74,8 @@ func gopodSayThinkingLine(robot *vector.Vector, esn string) {
 
 // gopodSayThinkingWords: the line said (once more if the robot says it didn't finish).
 func gopodSayThinkingWords(robot *vector.Vector, esn string) {
-	gopodSayWords(robot, esn, gopodGotItFor(esn).Text)
+	// 2026-10-25: his opener from the response-chain template (gopodOpenerPick).
+	gopodSayWords(robot, esn, gopodOpenerPick(esn))
 }
 
 // gopodSayWords: a short line of his, said the thinking line's way.

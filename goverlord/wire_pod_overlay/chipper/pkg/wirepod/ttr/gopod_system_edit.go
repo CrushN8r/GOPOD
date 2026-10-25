@@ -471,22 +471,26 @@ func gopodSystemScore(text string) string {
 
 // gopodSystemRestart: Wire-Pod restarts itself a moment after the answer shows;
 // the page sees the new start and reloads itself (click Log once for sound).
+// 2026-10-25 (operator: "forced wpr 2 restart, from what I just gave you"): what
+// wpr 2 does - the speaker and USB mic set, the page's leftover run state
+// cleared, then a forced restart (a playing run too). Only settings Wire-Pod
+// couldn't start with stop it.
 func gopodSystemRestart(text string) string {
-	force := len(strings.Fields(text)) > 1 && strings.EqualFold(strings.Fields(text)[1], "go")
-	if (gopodScriptPlaying.Load() || gopodRunActive()) && !force {
-		return "A run is playing - system-restart go restarts anyway."
-	}
 	if lerr := gopodSettingsStillLoad(); lerr != nil {
 		return "Not restarted - Wire-Pod wouldn't start with the settings as they are: " + lerr.Error()
 	}
+	audio := gopodSetAudioRouting()
+	logger.Println("GOPOD_SYSTEM_RESTART audio: " + audio)
+	// wpr 2's own reset: the rich display dormant on the next page load.
+	_ = os.WriteFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_rich_display_ui_state.json"), []byte(`{"expanded":false,"run_active":false}`+"\n"), 0o644)
 	go func() {
 		time.Sleep(2 * time.Second)
-		logger.Println("GOPOD_SYSTEM_RESTART restarting wire-pod")
+		logger.Println("GOPOD_SYSTEM_RESTART restarting wire-pod (forced, like wpr 2)")
 		if out, err := exec.Command("systemctl", "restart", "--no-block", "wire-pod").CombinedOutput(); err != nil {
 			logger.Println("GOPOD_SYSTEM_RESTART failed: " + err.Error() + " " + strings.TrimSpace(string(out)))
 		}
 	}()
-	return "Restarting Wire-Pod - the page reloads itself when it's back; click Log once for sound."
+	return "Restarting Wire-Pod (forced, like wpr 2; " + audio + ") - the page reloads itself when it's back; click Log once for sound."
 }
 
 // --- 5. system-topic ---

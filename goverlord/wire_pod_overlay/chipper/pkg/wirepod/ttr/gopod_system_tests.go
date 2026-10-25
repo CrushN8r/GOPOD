@@ -9,8 +9,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"time"
 
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
@@ -90,14 +92,39 @@ var gopodSystemTests = []gopodSystemTest{
 		gopodReporter.Lock()
 		ready := gopodReporter.ready
 		gopodReporter.Unlock()
-		files, _ := filepath.Glob(filepath.Join(gopodReporterAudioDir(), "*.words.json"))
-		vosk := 0
+		// 2026-10-25 (audit: 12 untimed voices, all from 2026-10-18, before forced
+		// alignment, unused since): the voices this start uses must be timed by
+		// Vosk; an old one is made again, timed, the next time it's used.
+		gopodReporterInUse.Lock()
+		inUse := map[string]bool{}
+		for name := range gopodReporterInUse.files {
+			inUse[name] = true
+		}
+		gopodReporterInUse.Unlock()
+		files, _ := filepath.Glob(filepath.Join(gopodReporterAudioDir(), "*.wav"))
+		used, timed, old := 0, 0, 0
 		for _, f := range files {
-			if b, err := os.ReadFile(f); err == nil && strings.Contains(string(b), `"aligner": "vosk"`) {
-				vosk++
+			var times struct {
+				Aligner string `json:"aligner"`
+			}
+			b, err := os.ReadFile(strings.TrimSuffix(f, ".wav") + ".words.json")
+			vosk := err == nil && json.Unmarshal(b, &times) == nil && times.Aligner == "vosk"
+			if !inUse[filepath.Base(f)] {
+				if !vosk {
+					old++
+				}
+				continue
+			}
+			used++
+			if vosk {
+				timed++
 			}
 		}
-		return ready && vosk == len(files), fmt.Sprintf("worker ready %v, %d of %d voices timed by Vosk", ready, vosk, len(files))
+		line := fmt.Sprintf("worker ready %v, %d of %d voices in use timed by Vosk", ready, timed, used)
+		if old > 0 {
+			line += fmt.Sprintf(" (%d old ones not timed - made again when next used)", old)
+		}
+		return ready && timed == used, line
 	}},
 	{"personas", "CHALK and PLAYHEAD have their prompts and who lines", func() (bool, string) {
 		var bad []string
@@ -181,21 +208,12 @@ var gopodSystemTests = []gopodSystemTest{
 	// and mic (system_tests.audio) - robots can log "say=success" with nothing heard.
 	{"audio", "sound goes to GOPOD's speaker and comes from its mic", func() (bool, string) {
 		a := gopodBrobotsSettings.SystemTests.Audio
-		uid := os.Getenv("SUDO_UID")
-		if _, u, _ := gopodRecordRoot(); u > 0 {
-			uid = fmt.Sprint(u)
-		}
 		get := func(what string) string {
-			cmd := gopodAsOperator(exec.Command("pactl", "get-default-"+what))
-			if os.Geteuid() == 0 && uid != "" {
-				cmd = gopodAsOperator(exec.Command("setpriv", "--reuid="+uid, "--regid="+uid, "--init-groups", "pactl", "get-default-"+what))
-			}
-			cmd.Env = append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+uid)
-			out, err := cmd.Output()
+			out, err := gopodPactl("get-default-" + what)
 			if err != nil {
 				return "(" + err.Error() + ")"
 			}
-			return strings.TrimSpace(string(out))
+			return out
 		}
 		sink, source := get("sink"), get("source")
 		ok := sink == a.Sink && strings.Contains(source, a.SourceHas)
@@ -373,6 +391,99 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 		return false, line + " - " + strings.Join(problems, "; ")
 	}
 	return true, line + ", no errors"
+}
+
+// gopodPactl: the operator's sound system (pactl), run as the operator - Wire-Pod
+// runs as root, the sound belongs to the desktop user.
+func gopodPactl(args ...string) (string, error) {
+	uid := os.Getenv("SUDO_UID")
+	if _, u, _ := gopodRecordRoot(); u > 0 {
+		uid = fmt.Sprint(u)
+	}
+	cmd := gopodAsOperator(exec.Command("pactl", args...))
+	if os.Geteuid() == 0 && uid != "" {
+		cmd = gopodAsOperator(exec.Command("setpriv", append([]string{"--reuid=" + uid, "--regid=" + uid, "--init-groups", "pactl"}, args...)...))
+	}
+	cmd.Env = append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+uid)
+	out, err := cmd.Output()
+	return strings.TrimSpace(string(out)), err
+}
+
+// gopodSetAudioRouting (wpr's own first step, _gopod_set_audio_routing): the
+// speaker and the USB mic as the defaults (system_tests.audio's names).
+func gopodSetAudioRouting() string {
+	a := gopodBrobotsSettings.SystemTests.Audio
+	if a.Sink == "" {
+		return "no speaker named (system_tests.audio.sink)"
+	}
+	if _, err := gopodPactl("set-default-sink", a.Sink); err != nil {
+		return "speaker not set: " + err.Error()
+	}
+	list, _ := gopodPactl("list", "short", "sources")
+	for _, l := range strings.Split(list, "\n") {
+		f := strings.Fields(l)
+		if len(f) > 1 && strings.Contains(f[1], a.SourceHas) && !strings.Contains(f[1], ".monitor") {
+			if _, err := gopodPactl("set-default-source", f[1]); err != nil {
+				return "mic not set: " + err.Error()
+			}
+			return "speaker and mic set"
+		}
+	}
+	return "speaker set, no mic with " + a.SourceHas + " found"
+}
+
+// gopodAsOperatorUser: a program run as the operator himself (his user, not only
+// his home) when Wire-Pod runs as root - for anything that writes in his home
+// (the audit's Go test cache).
+func gopodAsOperatorUser(name string, args ...string) *exec.Cmd {
+	uid := os.Getenv("SUDO_UID")
+	if _, u, _ := gopodRecordRoot(); u > 0 {
+		uid = fmt.Sprint(u)
+	}
+	cmd := gopodAsOperator(exec.Command(name, args...))
+	if os.Geteuid() == 0 && uid != "" {
+		cmd = gopodAsOperator(exec.Command("setpriv", append([]string{"--reuid=" + uid, "--regid=" + uid, "--init-groups", name}, args...)...))
+	}
+	cmd.Env = append(cmd.Env, "XDG_RUNTIME_DIR=/run/user/"+uid, "PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin")
+	return cmd
+}
+
+// gopodSystemAudit (2026-10-25, operator: "In GOPOD system please add ... new
+// auditing upgrades"): system-audit runs the full audit
+// (gopod_probes/tools/gopod_full_audit.sh, no robots called) and posts its
+// bottom line and every failed check when it's done.
+var gopodAuditRunning atomic.Bool
+
+func gopodSystemAudit() string {
+	if !gopodAuditRunning.CompareAndSwap(false, true) {
+		return "system-audit is already running - its result comes here when it's done."
+	}
+	script := filepath.Join(gopodChipperRoot(), "gopod_probes", "tools", "gopod_full_audit.sh")
+	go func() {
+		defer gopodAuditRunning.Store(false)
+		out, _ := gopodAsOperatorUser("bash", script).CombinedOutput()
+		var fails []string
+		last := ""
+		for _, l := range strings.Split(string(out), "\n") {
+			t := strings.TrimSpace(l)
+			if strings.HasPrefix(t, "FAIL ") {
+				fails = append(fails, gopodCut(strings.Join(strings.Fields(strings.TrimPrefix(t, "FAIL ")), " "), 200))
+			}
+			if strings.HasPrefix(t, "PASS:") || strings.HasPrefix(t, "FAIL:") {
+				last = t
+			}
+		}
+		if last == "" {
+			last = "FAIL: the audit didn't finish - " + gopodCut(strings.TrimSpace(string(out)), 200)
+		}
+		answer := "system-audit: " + last
+		if len(fails) > 0 {
+			answer += "\n" + strings.Join(fails, "\n")
+		}
+		logger.Println("GOPOD_SYSTEM_AUDIT " + strings.ReplaceAll(answer, "\n", " | "))
+		GopodChatFeedAdd(gopodSystemSetRole(), answer)
+	}()
+	return "system-audit started - everything but the robots (a few minutes; keep this page open). Its result comes here."
 }
 
 // ## EOF

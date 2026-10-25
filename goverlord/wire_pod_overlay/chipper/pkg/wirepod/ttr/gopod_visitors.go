@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -461,10 +462,26 @@ var gopodVisitorExact = map[string]bool{"/": true, "/index.html": true, "/favico
 var gopodVisitorRefused sync.Map // "address path" -> when last logged
 
 func gopodVisitorGate(w http.ResponseWriter, r *http.Request) bool {
+	p := r.URL.Path
+	// 2026-10-25 (operator: "briefly shows home page then jumps ... prune out
+	// everything wire-pod from visitor GOPOD app page"): a visitor's "/" is the
+	// chat alone (webroot/gopod_visitor.html) from the first paint; "?visitor"
+	// shows it on GOPOD's own machine too.
+	visitorView := !GopodIsAdmin(r.RemoteAddr) || r.URL.Query().Has("visitor")
+	if visitorView && (p == "/" || p == "/index.html") {
+		page, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_visitor.html"))
+		if err != nil {
+			http.Error(w, "the visitor page is missing", http.StatusInternalServerError)
+			return false
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write(page)
+		return false
+	}
 	if GopodIsAdmin(r.RemoteAddr) {
 		return true
 	}
-	p := r.URL.Path
 	if gopodVisitorExact[p] {
 		return true
 	}

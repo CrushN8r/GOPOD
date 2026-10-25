@@ -109,26 +109,6 @@ func gopodGoldenAnswer(esn, question string) string {
 	return ""
 }
 
-// gopodDuoRule: this answer's duo rule - "a" (first in a line to both) or "b"
-// (next) - from duo in the settings; false for a single answer.
-func gopodDuoRule(esn string) (struct {
-	Chain             string   `json:"chain"`
-	EndsWith          string   `json:"ends_with"`
-	NoReminder        bool     `json:"no_reminder"`
-	KeepReminderTypes []string `json:"keep_reminder_types"`
-	WeatherType       string   `json:"weather_type"`
-	NoManager         bool     `json:"no_manager"`
-}, bool) {
-	key := ""
-	if gopodIsFollowingUp(esn) {
-		key = "b"
-	} else if _, first := gopodAllFirstAnswer.Load(esn); first {
-		key = "a"
-	}
-	r, ok := gopodBrobotsSettings.Duo[key]
-	return r, ok && key != ""
-}
-
 // gopodTopicGroupFor: the answer chain group a value point's topic asks for
 // (topic_groups: a group's topics), "" for none.
 func gopodTopicGroupFor(esn string) string {
@@ -183,6 +163,12 @@ func gopodBrobotChainGroup(esn string) string {
 	if len(gopodSummaryItemsFor(esn)) > 0 {
 		if _, ok := gopodBrobotsSettings.AnswerChains["brobots_summary"]; ok {
 			return "brobots_summary"
+		}
+	}
+	// 2026-10-25: a single answer's chain from the response-chain template.
+	if a, ok := gopodChainAnswerFor(esn); ok && a.Chain != "" {
+		if _, ok := gopodBrobotsSettings.AnswerChains[a.Chain]; ok {
+			return a.Chain
 		}
 	}
 	return "brobots"

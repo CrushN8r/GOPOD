@@ -51,7 +51,8 @@ func gopodAnswerShape(esn, question string, first bool) []string {
 	}
 	// Duo A (duo.a): its reminder is the hand-over (ends_with), or the hand-over
 	// comes after it for a type that keeps its reminder (keep_reminder_types).
-	if a, ok := gopodBrobotsSettings.Duo["a"]; first && ok && a.EndsWith != "" {
+	if rc := gopodBrobotsSettings.ResponseChains["duo"]; first && len(rc.Answers) > 0 && rc.Answers[0].EndsWith != "" {
+		a := rc.Answers[0]
 		if gopodContains(a.KeepReminderTypes, typ) || !a.NoReminder {
 			shape = append(shape, a.EndsWith)
 		} else {

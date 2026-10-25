@@ -2,10 +2,8 @@
 package wirepod_ttr
 
 import (
-	"math/rand"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 
 	"github.com/sashabaranov/go-openai"
@@ -41,6 +39,7 @@ type gopodHostPersona struct {
 	Handover  struct {
 		Line      string   `json:"line"`
 		Nicknames []string `json:"nicknames"`
+		Titles    []string `json:"titles"`
 	} `json:"handover"`
 }
 
@@ -184,38 +183,16 @@ func gopodReminderTopics(question string) string {
 	return strings.TrimSpace(line[len(before) : len(line)-len(after)])
 }
 
-// gopodHandoverAt: each host's next nickname (in turn, never twice running).
-var gopodHandoverAt = struct {
-	sync.Mutex
-	next map[string]int
-}{next: map[string]int{}}
-
 // gopodHandoverLine (2026-10-21, operator: "Each host's hand-over line * can we
-// use variations of gear-head? * gear-head/cranky-shaft/coolant-leak/
-// incompatible-particulate"): the host's hand-over line to partner, with his
-// next nickname; "" when he has none.
+// use variations of gear-head?"): the host's hand-over line to partner, {title}
+// and {nickname} filled (gopodNicknameFill, gopod_response_chains.go); "" when
+// he has none.
 func gopodHandoverLine(host, partner string) string {
-	h := gopodBrobotsSettings.HostPersonas[host].Handover
-	line := strings.TrimSpace(h.Line)
+	line := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[host].Handover.Line)
 	if line == "" {
 		return ""
 	}
-	nick := ""
-	if len(h.Nicknames) > 0 {
-		// 2026-10-23 (operator: "randomize 'gear-head' variations more"): a random
-		// one, never the same twice in a row (the end lines' rule, gopodPickSnippetLine).
-		gopodHandoverAt.Lock()
-		last := gopodHandoverAt.next[host] - 1
-		n := rand.Intn(len(h.Nicknames))
-		for len(h.Nicknames) > 1 && n == last {
-			n = rand.Intn(len(h.Nicknames))
-		}
-		gopodHandoverAt.next[host] = n + 1
-		gopodHandoverAt.Unlock()
-		nick = strings.TrimSpace(h.Nicknames[n])
-	}
-	line = strings.ReplaceAll(line, "{partner}", partner)
-	return strings.ReplaceAll(line, "{nickname}", nick)
+	return gopodNicknameFill(host, strings.ReplaceAll(line, "{partner}", partner))
 }
 
 // Each brother's own take on the Bingo test, added to the shared chat's Bingo

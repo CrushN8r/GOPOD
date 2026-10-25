@@ -1,5 +1,5 @@
 label: keeping up with us
-words: newsletter, follow, keep up, subscribe, email, crew, social, social media, tiktok, instagram, youtube, video, videos
+words: newsletter, keep up, subscribe, email, crew, social, social media, tiktok, instagram, youtube, video, videos
 start line: Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!
 notes 1: the CREW'd newsletter | get CREW'd | crushn8r.ca
 ---
