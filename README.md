@@ -66,7 +66,7 @@ Two crates on one dolly. Roll in, plug in, party.
 | XLR mic and an XLR-to-USB cable | The room mic: numpad push-to-talk and Record Session. |
 | USB numpad, USB 3.0 hub, power bar, fan | Push-to-talk keys, ports, power, cooling. |
 
-About $3,000 CDN all in. Prices vary too much to list part by part.
+About $1K to #3K CDN.
 
 ## Privacy and safety
 
