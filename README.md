@@ -1,5 +1,7 @@
 # GOPOD
 
+![Under construction](goverlord/wire_pod_overlay/chipper/webroot/pictures/under-construction.jpg)
+
 Now that you're here, you can GOPOD Yourself! Lol
 
 Two rescued Vector robots, Brobot 1 and Brobot 2, running on Wire-Pod and talking out loud
