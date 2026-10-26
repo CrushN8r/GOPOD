@@ -26,6 +26,10 @@ class StepNameTests(unittest.TestCase):
             ("host_grunge_say_0301", [("sound", "grunge.wav"), ("say_turn", "")]),
             ("brat_djent3b_0302", [("sound", "dJent3b.wav")]),
             ("soft_wake", [("wake_sleepy", "")]),  # no _SSNN: a free label
+            ("narrator_line_0201", [("pause", "")]),
+            ("goverlord_system_0103", [("system_line", "")]),
+            ("brobots_soft_wake_0506", [("wake_sleepy", "")]),
+            ("brobots_gap_0104", [("pause", "")]),
         ]:
             self.assertEqual(golden.step_name_problem(step_id, plays), "", step_id)
 

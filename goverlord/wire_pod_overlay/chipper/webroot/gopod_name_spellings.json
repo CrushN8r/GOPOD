@@ -25,7 +25,9 @@
     {"from": "bingo test live", "to": "Bingo Test Live"},
     {"from": "bingo tests live", "to": "Bingo Test Live"},
     {"from": "bingo test life", "to": "Bingo Test Live"},
-    {"from": "bingo test lives", "to": "Bingo Test Live"}
+    {"from": "bingo test lives", "to": "Bingo Test Live"},
+    {"from": "chock", "to": "CHALK"},
+    {"from": "play head", "to": "PLAYHEAD"}
   ],
   "held_for_operator": ["go mad"]
 }

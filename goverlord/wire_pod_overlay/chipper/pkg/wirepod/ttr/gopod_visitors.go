@@ -105,7 +105,7 @@ func gopodVisitorsSave() {
 	if data, err := json.MarshalIndent(keep, "", "  "); err == nil {
 		// Private: made readable by the operator only, owned by the operator.
 		if _, err := os.Stat(f); err != nil {
-			if os.WriteFile(f, nil, 0o600) == nil {
+			if gopodWriteFile(f, nil, 0o600) == nil {
 				if _, uid, gid := gopodRecordRoot(); uid > 0 {
 					os.Chown(f, uid, gid)
 				}

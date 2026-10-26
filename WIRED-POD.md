@@ -49,8 +49,22 @@ Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
   who says each line, cues and moves) that you edit and replay. Every run is the same, ready to
   record.
 - **Page voices.** Two Kokoro reporters read the questions and host the show. A third voice,
-  Goverlord, says the system lines (LLM Ready, chapters, "You're welcome."). Your own typed and
-  numpad lines are read out in an Operator voice.
+  Goverlord, says the system lines (LLM Ready, chapters, "You're welcome."). Your numpad lines
+  play your own mic recording; typed lines are read in Cameo's voice (KP9) until you give the
+  Operator one.
+- **Voice personas on the numpad.** Hold a key and talk to CHALK (KP7), PLAYHEAD (KP8), the
+  Cozmo students Git Repo and Cache PYC (KP3/KP4), the Moorebot Scout guards Intel 404 PNFH and
+  PNFT (KP5/KP6) or Cameo (KP9). Each answers from the local LLM in its own Kokoro voice; a
+  `voice_tweaks` pitch (sox) tells two of the same voice apart. Wire-Pod decides who a key talks
+  to in one place, and the system menu's `system-voices` sets each key's voice (keys with a robot
+  body need none).
+- **Before and after a song.** A question about a song before it's played gets each Brobot's
+  own tease; after it, his take on what happened and a closing joke; the second answer tells
+  viewers how to start it. One template for every song (`experiences`).
+- **Voice profiles.** Every voice file has a profile (made, played, last played, made again);
+  `system-voices-report [3d|week|month|year]` shows what's popular. Report only.
+- **Your home stays yours.** Wire-Pod runs as root, but every program GOPOD starts runs as you
+  and every file it writes is yours (`gopod_own_files.go`).
 - **Record a session.** Tick one box: the chat, Wire-Pod's log and the room mic are saved
   together. Say "Thanks Brobots" and a Brobot asks whether to keep it.
 - **One settings file.** Every value and text lives in
@@ -142,8 +156,9 @@ when).
 
 - **You need:** Part 2's Wire-Pod (the studio drives the robots through its `/api-sdk/*`
   endpoints), Python 3, bash.
-- **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/`. The songs folder stays in
-  the repo, where the aliases find it.
+- **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/` - the numpad's key map
+  (`numpad_persona_map_001.json`) too. The songs folder stays in the repo, where the aliases
+  find it.
 - **Load:** in `~/.bash_aliases`, source `brobots.sh` (pha0b, phcal, score, gobingo),
   `llm.sh` and `wirepod_logs.sh` from `~/.gopod_alias_lib/`.
 - **Change:** copy `phcal_config.example.json` to `phcal_config.json`,
@@ -159,7 +174,8 @@ Everything in [What's new for Wire-Pod owners](#1-whats-new-for-wire-pod-owners)
 - **You need:** Wire-Pod working with your robots (`chipper/v1.5.10`, commit `dc6ae0c`), Go,
   Part 3's LLM. For the reporter and Goverlord voices: Kokoro-82M in its own Python venv (set
   `reporter_voices.python` and `worker` in the settings file); without it the chat runs
-  without them. For numpad push-to-talk and Record Session: a USB mic.
+  without them. Any Kokoro voice (`.pt`) in its Hugging Face cache shows in `system-voices`; the
+  guards' pitch needs `sox`. For numpad push-to-talk and Record Session: a USB mic.
 - **Copy:** clone this repo. The overlay is `goverlord/wire_pod_overlay/`.
 - **Change:** your robots' serials (`gopodBrobot1ESN` / `gopodBrobot2ESN` in
   `gopod_session_memory.go`); the absolute paths in `overlay.json`, `customIntents.json`,
@@ -197,7 +213,7 @@ The Brobots think with a small local model: no cloud, no monthly bill, no intern
 
 **Live-tested:** the Brobots chat, shared memory, personas, the piece-by-piece highlight,
 the LLM warm-up, the scripted interview run, the Bingo test song, numpad push-to-talk with a
-spoken line, and Record Session's untick path.
+spoken line, the numpad's voice personas, and Record Session's untick path.
 
 **Not yet, honestly:**
 - Call-by-name is tested in code, not yet live.
@@ -208,6 +224,10 @@ spoken line, and Record Session's untick path.
   piece for speech.
 - "GOPOD Yourself" is the wake phrase for the GOPOD layer, which isn't built yet. Until then,
   each Brobot answers it with his own call to action.
+- The Cozmo and Moorebot Scout personas are voice-only scaffolds: no robot bodies wired yet,
+  and their persona lines are first drafts.
+- Voice plays are counted from 2026-10-26, so the voice report's month and year fill in over
+  time.
 - Known stubs, kept on purpose: the DAG anchor check (`verifyGOPODDAGAnchor`) is a no-op;
   `selectGOPODContactBeat` has no caller.
 

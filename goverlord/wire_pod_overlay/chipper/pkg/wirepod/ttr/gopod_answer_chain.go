@@ -312,7 +312,7 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		// sentence is his closing remark (bingo.closing), joined to it, right after
 		// the model's words (before point bubbles and the reminder); his own copy of
 		// it dropped first.
-		if line := gopodBingoClosing(esn, question); line != "" {
+		if line := gopodExperienceClosing(esn, question); line != "" {
 			logger.Println("BROBOT_CLOSING " + gopodBrobotName(esn) + ": " + line)
 			return strings.TrimSpace(gopodDropSnippetCopy(line, raw)) + " " + line
 		}
@@ -428,12 +428,3 @@ func gopodExchangeWait(esn, text string) {
 }
 
 // ## EOF
-
-// gopodBingoClosing: his closing remark (bingo.closing) for a Bingo question once
-// a Bingo run has played; "" otherwise.
-func gopodBingoClosing(esn, question string) string {
-	if !(gopodBingoPlayed.Load() || gopodBingoRunInMemory()) || !gopodIsBingoQuestion(question) {
-		return ""
-	}
-	return strings.TrimSpace(gopodBrobotsSettings.Bingo.Closing[gopodBrobotName(esn)])
-}

@@ -92,7 +92,7 @@ func gopodValuePointsLock() (int, error) {
 	if gopodFileExists(path) {
 		err = gopodWriteFileSafe(path, append(data, '\n'))
 	} else {
-		err = os.WriteFile(path, append(data, '\n'), 0o644)
+		err = gopodWriteFile(path, append(data, '\n'), 0o644)
 	}
 	if err == nil {
 		if _, uid, gid := gopodRecordRoot(); uid >= 0 {

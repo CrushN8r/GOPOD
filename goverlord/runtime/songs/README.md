@@ -19,6 +19,11 @@ and the interview with `start interview`.
   template `_new_song/_llm_warm/`.
 - `101_brobots_nap/` — "Do Baby Robots Dream?", a lyric video (made in Premiere Pro): the
   Brobots sleep through the narrated poem. `start baby brobots`.
+- `03_fart_joke/` — the fart joke: an elevator, three thinking pauses, three farts.
+  `start fart joke`.
+
+Before and after its run, a song can have a pre/post chat in the Brobots chat (the
+`experiences` template in the settings file): Bingo, the nap and the fart joke have one.
 - `tools/` — the engine and its helpers (see its README).
 
 Private working files stay out of the repo: `zKnobs.json` (a working copy the engine prefers

@@ -31,7 +31,7 @@ func gopodEyeColorsStart() {
 					data, _ := json.Marshal(colors)
 					if string(data) != last {
 						tmp := gopodEyeColorsPath + ".tmp"
-						if os.WriteFile(tmp, data, 0o644) == nil && os.Rename(tmp, gopodEyeColorsPath) == nil {
+						if gopodWriteFile(tmp, data, 0o644) == nil && os.Rename(tmp, gopodEyeColorsPath) == nil {
 							last = string(data)
 							logger.Println("GOPOD_EYE_COLORS " + last)
 						}

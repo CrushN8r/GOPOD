@@ -54,7 +54,7 @@ func gopodArchiveDir() string {
 }
 
 func appendGOPODSessionExchange(exchange gopodSessionExchange) error {
-	if err := os.MkdirAll(gopodArchiveDir(), 0o755); err != nil {
+	if err := gopodMkdirAll(gopodArchiveDir(), 0o755); err != nil {
 		return err
 	}
 	summary, err := loadGOPODSessionSummary()
@@ -103,7 +103,7 @@ func loadGOPODSessionSummary() (gopodSessionSummary, error) {
 }
 
 func writeGOPODSessionSummary(summary gopodSessionSummary) error {
-	if err := os.MkdirAll(gopodSessionDir(), 0o755); err != nil {
+	if err := gopodMkdirAll(gopodSessionDir(), 0o755); err != nil {
 		return err
 	}
 	data, err := json.MarshalIndent(summary, "", "  ")
@@ -111,7 +111,7 @@ func writeGOPODSessionSummary(summary gopodSessionSummary) error {
 		return err
 	}
 	data = append(data, '\n')
-	return os.WriteFile(gopodCurrentSummaryPath(), data, 0o644)
+	return gopodWriteFile(gopodCurrentSummaryPath(), data, 0o644)
 }
 
 func loadRecentGOPODSessionExchanges() ([]gopodSessionExchange, error) {
@@ -147,7 +147,7 @@ func loadRecentGOPODSessionExchanges() ([]gopodSessionExchange, error) {
 }
 
 func writeGOPODSessionExchanges(path string, exchanges []gopodSessionExchange) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := gopodMkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 	var builder strings.Builder
@@ -159,14 +159,14 @@ func writeGOPODSessionExchanges(path string, exchanges []gopodSessionExchange) e
 		builder.Write(line)
 		builder.WriteByte('\n')
 	}
-	return os.WriteFile(path, []byte(builder.String()), 0o644)
+	return gopodWriteFile(path, []byte(builder.String()), 0o644)
 }
 
 func archiveGOPODSessionChunk(exchanges []gopodSessionExchange, part int, timestamp time.Time) error {
 	if len(exchanges) > gopodSessionArchiveCadence {
 		exchanges = exchanges[len(exchanges)-gopodSessionArchiveCadence:]
 	}
-	if err := os.MkdirAll(gopodArchiveDir(), 0o755); err != nil {
+	if err := gopodMkdirAll(gopodArchiveDir(), 0o755); err != nil {
 		return err
 	}
 	name := fmt.Sprintf("session_%s_part%03d.jsonl", timestamp.UTC().Format("20060102_150405"), part)
@@ -356,13 +356,10 @@ func gopodTagForBrobot(esn, text string) string {
 // Wire-Pod start were left out (past the 13 newest, or older than 120 minutes).
 var gopodForgottenNote = gopodBrobotsSettings.SharedChat.ForgottenNote
 
-// gopodBingoRunMarker: a performed line holding this starts a Bingo test run
-// ("Bingo Test Live", "Bingo Test Begins. Round 1!"); the run is every performed
-// line from there until the next question, or until the feed goes quiet for
-// gopodBingoRunGap (other lines after it, such as go search, are kept).
-var gopodBingoRunMarker = gopodBrobotsSettings.Bingo.RunMarker
-
-var gopodBingoRunGap = gopodSecondsToDuration(gopodBrobotsSettings.Bingo.RunGapSeconds)
+// An experience's run_marker (gopod_experiences.go): a performed line holding it
+// starts its run ("Bingo Test Begins. Round 1!"); the run is every performed
+// line from there until the next question, or until the feed goes quiet for its
+// run_gap_seconds (other lines after it, such as go search, are kept).
 
 // gopodSharedBrobotChat returns the recent exchanges of both robots as one chat:
 // the tagged question, then the answer as the model wrote it (split markers
@@ -398,29 +395,34 @@ func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
 		forgotten = true
 	}
 
-	// Split the performed lines into Bingo runs and the rest.
-	sawBingo := false
-	var lastBingo time.Time
+	// Split the performed lines into experience runs (the Bingo test, the nap)
+	// and the rest.
+	exps := gopodExperienceList()
+	saw := make([]bool, len(exps))
+	last := make([]time.Time, len(exps))
 	var other []gopodChatFeedEvent
-	inRun := false
+	inRun := -1
 	ei := 0
 	var prev time.Time
 	for _, e := range gopodChatFeedSince(cutoff) {
 		at := time.UnixMilli(e.TimeMS)
 		for ei < len(fresh) && fresh[ei].Timestamp.Before(at) {
-			inRun = false
+			inRun = -1
 			ei++
 		}
-		if at.Sub(prev) >= gopodBingoRunGap {
-			inRun = false
+		if inRun >= 0 && at.Sub(prev) >= gopodSecondsToDuration(exps[inRun].RunGapSeconds) {
+			inRun = -1
 		}
 		prev = at
-		if !inRun && strings.Contains(e.Text, gopodBingoRunMarker) {
-			inRun = true
-			sawBingo = true
-			lastBingo = at
+		if inRun < 0 {
+			for x, exp := range exps {
+				if exp.RunMarker != "" && exp.SnapshotNote != "" && strings.Contains(e.Text, exp.RunMarker) {
+					inRun, saw[x], last[x] = x, true, at
+					break
+				}
+			}
 		}
-		if !inRun {
+		if inRun < 0 {
 			other = append(other, e)
 		}
 	}
@@ -448,15 +450,24 @@ func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
 	if forgotten {
 		chat = append(chat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodForgottenNote})
 	}
-	bingoPlaced := !sawBingo
-	placeBingo := func() {
-		if !bingoPlaced {
-			chat = append(chat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodBingoSnapshotNote})
-			bingoPlaced = true
+	placed := make([]bool, len(exps))
+	for x := range exps {
+		placed[x] = !saw[x]
+	}
+	// Each run's one snapshot note goes where its last run was, before the
+	// question that came after it (before: at the start; none after: at the end).
+	place := func(before func(time.Time) bool) {
+		for x, exp := range exps {
+			if !placed[x] && before(last[x]) {
+				chat = append(chat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: exp.SnapshotNote})
+				placed[x] = true
+			}
 		}
 	}
-	if len(recent) == 0 || lastBingo.Before(recent[0].Timestamp) {
-		placeBingo()
+	if len(recent) == 0 {
+		place(func(time.Time) bool { return true })
+	} else {
+		place(func(t time.Time) bool { return t.Before(recent[0].Timestamp) })
 	}
 	var block []gopodChatFeedEvent
 	flush := func() {
@@ -472,9 +483,7 @@ func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
 			fi++
 		}
 		flush()
-		if lastBingo.Before(ex.Timestamp) {
-			placeBingo()
-		}
+		place(func(t time.Time) bool { return t.Before(ex.Timestamp) })
 		// Lines labelled with a Brobot's name are skipped (gopodDropNameLabelLines),
 		// and the code's scripted lines are taken out (gopodDropScriptedLines,
 		// 2026-10-06) so the LLM never learns them to copy.
@@ -496,7 +505,7 @@ func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
 	}
 	block = append(block, feed[fi:]...)
 	flush()
-	placeBingo()
+	place(func(time.Time) bool { return true })
 	return chat
 }
 

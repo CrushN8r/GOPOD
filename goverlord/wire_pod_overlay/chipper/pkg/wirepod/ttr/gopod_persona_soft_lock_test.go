@@ -22,22 +22,30 @@ import (
 // GOPOD_RELOCK=1 saves the new lock (gopod_probes/locks/persona_soft_lock.json).
 
 type gopodPersonaLock struct {
-	Locked             string              `json:"locked"`
-	PersonaLines       map[string]string   `json:"persona_lines"`
-	ColourMaxSentences int                 `json:"colour_max_sentences"`
-	FlavourLines       []json.RawMessage   `json:"flavour_lines"`
-	Temperature        float32             `json:"temperature"`
-	SayLineTemperature float32             `json:"say_line_temperature"`
+	Locked             string            `json:"locked"`
+	PersonaLines       map[string]string `json:"persona_lines"`
+	ColourMaxSentences int               `json:"colour_max_sentences"`
+	FlavourLines       []json.RawMessage `json:"flavour_lines"`
+	Temperature        float32           `json:"temperature"`
+	SayLineTemperature float32           `json:"say_line_temperature"`
+	// 2026-10-26 (operator, on the Gomads' live test: "pretty good. soft lock
+	// this"): each Gomad persona as its answer is asked for - its prompt as the
+	// LLM gets it (gopodPersonaPrompt) and its who line.
+	GomadPersonas map[string]string `json:"gomad_personas"`
 }
 
 func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 	raw, _ := gopodRawSettingsForTest(t)
 	l := gopodPersonaLock{
-		Locked:             "2026-10-25",
+		Locked:             "2026-10-26",
 		PersonaLines:       gopodHostPersonaLines(),
 		ColourMaxSentences: gopodBrobotsSettings.ColourSlots.MaxSentences,
 		Temperature:        gopodBrobotsSettings.LLM.Temperature,
 		SayLineTemperature: gopodBrobotsSettings.LLM.SayLineTemperature,
+	}
+	l.GomadPersonas = map[string]string{}
+	for host, p := range gopodBrobotsSettings.Managers.Personas {
+		l.GomadPersonas[host] = gopodPersonaPrompt(host) + "\n" + p.WhoLine
 	}
 	ss, _ := raw["scripted_snippets"].(map[string]any)
 	lines, _ := ss["lines"].([]any)
@@ -87,6 +95,9 @@ func TestPersonaSoftLock(t *testing.T) {
 	gf, _ := json.Marshal(got.FlavourLines)
 	if string(wf) != string(gf) {
 		t.Errorf("SOFT-LOCKED: the flavour lines (scripted_snippets) changed")
+	}
+	if !reflect.DeepEqual(want.GomadPersonas, got.GomadPersonas) {
+		t.Errorf("SOFT-LOCKED: a Gomad's persona changed (managers.personas; operator's word only, then GOPOD_RELOCK=1)")
 	}
 	if want.Temperature != got.Temperature || want.SayLineTemperature != got.SayLineTemperature {
 		t.Errorf("SOFT-LOCKED: llm temperature changed")

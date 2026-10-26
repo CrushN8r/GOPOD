@@ -143,8 +143,10 @@ func gopodIsSnippetLine(b string) bool {
 			}
 		}
 	}
-	if note := strings.ToLower(strings.TrimSpace(gopodBrobotsSettings.Bingo.NoRunNote)); note != "" && strings.Contains(note, strings.TrimSpace(lower)) {
-		return true
+	for _, e := range gopodExperienceList() {
+		if note := strings.ToLower(strings.TrimSpace(e.NoRunNote)); note != "" && strings.Contains(note, strings.TrimSpace(lower)) {
+			return true
+		}
 	}
 	return false
 }

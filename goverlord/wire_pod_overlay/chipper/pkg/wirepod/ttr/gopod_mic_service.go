@@ -6,11 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -76,15 +73,9 @@ func gopodMicForget(id int) {
 
 func gopodMicStartLocked() error {
 	script := filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.MicService.Script)
-	args := []string{"python3", "-u", script}
-	_, uid, _ := gopodRecordRoot()
-	if os.Geteuid() == 0 && uid > 0 {
-		if u, err := user.LookupId(strconv.Itoa(uid)); err == nil {
-			args = append([]string{"runuser", "-u", u.Username, "--", "env",
-				"HOME=" + u.HomeDir, "XDG_RUNTIME_DIR=/run/user/" + strconv.Itoa(uid)}, args...)
-		}
-	}
-	cmd := gopodAsOperator(exec.Command(args[0], args[1:]...))
+	// As the operator, with his home and audio session (gopodAsOperator; was
+	// its own runuser wrapper before 2026-10-26's one place).
+	cmd := gopodAsOperator(exec.Command("python3", "-u", script))
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return err

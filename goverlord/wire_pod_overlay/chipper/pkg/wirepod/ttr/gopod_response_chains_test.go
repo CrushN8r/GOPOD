@@ -86,10 +86,10 @@ func TestBingoClosingBeforeReminder(t *testing.T) {
 	if !gopodIsBingoQuestion(q) {
 		t.Skip("not a bingo question here")
 	}
-	if got := gopodBingoClosing(gopodBrobot1ESN, q); got != "Anyway, we got a winner! 🏆 \"I Won!\"" {
+	if got := gopodExperienceClosing(gopodBrobot1ESN, q); got != "\"I Won!\" Lol!" {
 		t.Fatalf("Brobot 1 closing %q", got)
 	}
-	if got := gopodBingoClosing(gopodBrobot2ESN, q); got != "Oh! Zero!?! That's my cooperation score!?!" {
+	if got := gopodExperienceClosing(gopodBrobot2ESN, q); got != "That's ok tho. Brobot ZERO is my HERO! Lol!" {
 		t.Fatalf("Brobot 2 closing %q", got)
 	}
 	parts := gopodAnswerChain("brobots")
@@ -112,7 +112,7 @@ func TestBingoClosingBeforeReminder(t *testing.T) {
 		t.Fatalf("closing_remark isn't right after the answer: %v", parts)
 	}
 	// Joined to his answer, its closing sentence - not a thought of its own.
-	if got := gopodChainStitch("closing_remark", gopodBrobot2ESN, q, "Bingo was wild, bro!", false); got != "Bingo was wild, bro! Oh! Zero!?! That's my cooperation score!?!" {
+	if got := gopodChainStitch("closing_remark", gopodBrobot2ESN, q, "Bingo was wild, bro!", false); got != "Bingo was wild, bro! That's ok tho. Brobot ZERO is my HERO! Lol!" {
 		t.Fatalf("stitched %q", got)
 	}
 }

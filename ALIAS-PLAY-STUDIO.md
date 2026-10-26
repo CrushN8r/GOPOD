@@ -212,7 +212,8 @@ Examples: `host_arm_cue_0102` (Brobot 1), `brat_nod_kg_success_0203` (Brobot 2, 
 | `brat` | Brobot 2 (`brobot_2`) |
 | `brobots` | both (`wake`, `ready`, `sleep`, `exit`) |
 | `reporter` | an edit mark for the reporters (`reporter_gap`) |
-| `goverlord` | Goverlord, the system voice (the LLM warm notes) |
+| `goverlord` | Goverlord, the system voice (the LLM warm notes, `system`) |
+| `narrator` | the nap's Narrator, its captions (`line`) |
 
 **Parts (the master list):**
 
@@ -234,9 +235,9 @@ Examples: `host_arm_cue_0102` (Brobot 1), `brat_nod_kg_success_0203` (Brobot 2, 
 | `timer` | `timer` - a timed wait, `seconds` (a `pause`) | `host_timer_0201` |
 | `sequence` | `sequence` - another song's steps, in place, by its `song_id` (a song can't sequence itself; an LLM warm song is skipped, played by Wire-Pod) | `brobots_sequence_0301` |
 | `wake` / `ready` / `sleep` / `exit` | `wake_both` / `brobots_ready_together` / `sleep_both` / `exit` | `brobots_wake_0101` |
-| `system` / `sleep_message` | `system_line` - a Goverlord line | `sleep_message` |
-| `soft_wake` | `wake_sleepy` | `soft_wake` |
-| `line_NN` | a timed caption (`pause` with `start_seconds`) | `line_30` (nap) |
+| `soft_wake` | `wake_sleepy` | `brobots_soft_wake_0506` (nap) |
+| `line` (who `narrator`) | a timed caption (`pause` with `start_seconds`) | `narrator_line_0608` (nap) |
+| `system` (who `goverlord`) | `system_line` - a Goverlord line | `goverlord_system_0103` (nap) |
 | `warm` | `warm_message` - the System llm bubble's message, shown and said; `"wait_voices": true` waits for the voice files | `goverlord_warm_0101` |
 | `warm_wait` | `warm_wait` - waits until the language model is loaded | `goverlord_warm_wait_0103` |
 | `llm_song` | `llm_song` - the folder's `_llm_song` run, the lines between "Voices ready" and "LLM ready" | `llm_song_0104` |
@@ -254,8 +255,9 @@ then `emotion_beat` `frustrated` with the line - exactly what its knobs play.
 read as what its knobs play, or that has a word not on the master list (a typo, "sya"). Example:
 `host_say_danger_beat_frustrated_0205: the name reads say_turn + danger? + emotion_beat:frustrated,
 its knobs play sound:danger-will-robinson.wav + emotion_beat:frustrated - 'danger' isn't on the
-master list`. It only warns; the run plays its knobs as ever. Names without `_SSNN` (the nap's
-`line_30`, `soft_wake`) are free labels and aren't read. Locked by
+master list`. It only warns; the run plays its knobs as ever. Names without `_SSNN` are free
+labels and aren't read (the nap's `line_30`, `soft_wake` were, until 2026-10-25: renamed to the new
+format, `narrator_line_0608`, `brobots_soft_wake_0506`). Locked by
 `test_golden_song_step_names_001.py`.
 
 ### 2.3 `knobs.json`, the top keys
@@ -832,7 +834,76 @@ menu (🔊), and turns it off and closes it (🔇).
   always push-to-talk, even in the typing box; every other key types.
 - Holding 0 (`all_hold_seconds`, 0.5 s) is push-to-talk to All - Brobot 1 answers, then Brobot 2,
   like the keyboard's All button.
-- KP7 is CHALK, KP8 is PLAYHEAD ([12](#12-managers-chalk-and-playhead)). KP+ and KP- turn the
+- KP7 is CHALK, KP8 is PLAYHEAD ([12](#12-managers-chalk-and-playhead)); since 2026-10-26 KP3 Git
+  Repo, KP4 Cache PYC (Cozmo), KP5 Intel 404 PNFH, KP6 Intel 404 PNFT (Moorebot Scout), KP9 Cameo -
+  all live, voice personas (12.2). **One place decides a key** (2026-10-26, operator: "\"1 robust key
+  detection process\" = Template/unify so everything goes through 1 place"): Wire-Pod's
+  `gopodNumpadBrobot` - a Brobot, a voice persona, or not live - sent to the page as the map's
+  `targets`; the page reads only that (no lookups of its own). `TestGopodNumpadTargetsOnePlace`.
+- **Numpad voices** (2026-10-26, operator: "Numpad-to-Voices dynamic-mapping * TEMPLATE: KPN >
+  [Persona Name] [drop down menu] * duplicate voice selections allowed, and are minimally
+  highlighted (bolded?)"; "KP0 (All), KP1 and KP2: “no voice required” talks to Brobots * these
+  are 'robot-bodied' personas * KP3 to KP6: upon robot connectivity, “no voice required” * KP7 to
+  KP9, Operator: KPN-TEMPLATE"): system menu, Edit words and settings, `system-voices` (page
+  `voices`; typed, the list as text). One row per key from Wire-Pod (`gopod_voice_map.go`,
+  `/api-sdk/gopod_voice_map`), then the Operator: KP0 and a key whose body is in
+  `numpad_ptt.body_to_brobot` say "no voice required" (KP3-KP6 switch by themselves once their
+  robots are mapped); the rest pick from every Kokoro voice on disk (the `.pt` files). A voice used
+  twice is bold. A pick is saved (`reporter_voices.hosts` / `operator_voice`, undo-able) and used
+  from the next line - no restart. The Operator's "unassigned" = Cameo's voice. `TestVoiceMapRows`.
+- **A new line in the other reporter's voice too - only Reporter 1 and 2** (2026-10-26, live:
+  "Sticking At places like: Intel 404 PNFT Voice file generating. * process is taking way too
+  long"): the 2026-10-09 rule (a new reporter line also made in the other reporters' voices, in the
+  background) now covers only `read_by`'s readers (Brobot 3, Brobot 4). With the new personas in
+  `reporter_voices.hosts`, every answer was being made again in all eleven voices, and the one
+  voice worker fell further behind each turn (13 s, 56 s, 74 s, 2 min). Then removed altogether (operator: "Yes,
+  bad rule now * clean out all stale files, rules * generate a single voice file for only that
+  instance, no dups"): one line, one voice, made when it's said.
+- **Voice profiles** (2026-10-26, operator: "expand that tag into a per-audio-file-profile-tag ...
+  generation date, # of times used, time last used"; one place, `gopod_voice_profiles.go`):
+  `gopod_reporter_audio/voice_profiles.json` - one profile per voice file (made voices, pitched
+  ones, mic recordings): kind (system / scripted / live / mic), voice, who, words, the leveler's
+  LUFS and ceiling, made, uses (and per day), last used, regenerations. A play = the file going to
+  the page (`gopod_chat_feed.go`). Seeded once from `voice_kinds.json` and the files on disk;
+  plays counted from 2026-10-26. **The same words recorded again** (operator: "popular repeating
+  live questions, 'regenerate' ... takes over the per-audio-file-profile-tag, now with a # of
+  regenerations"): your newest mic recording plays and takes over the older one's profile (uses
+  carried, regenerations +1); the older one goes to `sessions/archives/voices`.
+- **`system-voices-report [3d | week | month | year]`** (operator: "add a report-run ... this will
+  help me determine how many uses makes a file “popular”"): report only, nothing moves - files and
+  MB on disk, made and played in the window, per kind, played 1x / 2-3x / 4-9x / 10x+, the 10 most
+  played live and mic lines, not played and older, and files in a voice no one speaks with now.
+  The archive's keep days stay as they were until the report gives the numbers.
+  `TestVoiceProfilesUseTakeOverReport`.
+- **CHALK BORED & PLAYHEAD ZUMINTU, heard and said** (2026-10-26, operator: "chock = “CHALK” *
+  play head = “PLAYHEAD” * spoken-per-character PLAYHEAD = “PLAYHEAD” * ZUMINTU = “ZUMINTU”,
+  spoken as zoom-into"): `gopod_name_spellings.json` "chock" -> CHALK, "play head" -> PLAYHEAD, now
+  applied to every numpad line (a Gomad's too, `GopodNumpadPTTStop`); the reporters' lingo
+  (`reporter_voices.say_words`) says PLAYHEAD as "playhead" and ZUMINTU as "zoom-into".
+- **A Gomad's answer has no animation cues** (live: "thinking___ Party's in full swing..."): the
+  Brobots' shared chat keeps their `word___` cues and a persona copied them; `gopodPersonaAsk`
+  drops them. **Soft-locked** on the operator's word ("pretty good. soft lock this"): each Gomad
+  persona (prompt as the LLM gets it + who line) in `persona_soft_lock.json` (`gomad_personas`).
+- **KPN to [Gomad] bubbles** (operator: "apply template settings * text = 75% header-size *
+  notive-bubbles = 50%"): a numpad line to a Gomad (`numpad-to-gomad`) - your words 75% of the
+  header, the key's status lines 50%.
+- **The loop volume** (operator: "Background loop volume adjustments not remembered across
+  restarts"): the save works (`/api-sdk/gopod_loop_volume`); the operator's 0% (00:27) was lost
+  when the settings file was rebuilt from the last commit at 03:22 (it had been emptied by an edit)
+  - put back to 0%.
+- **The All menu, one look** (operator: "please snapshot & apply settings to admin page: ()All[menu]
+  * then go back to visitor page and make it so that part now follows new updated admin page"): the
+  visitor's smaller font and thin text-colour border are `.gopod-all-first`'s own look now (admin and
+  visitor); the visitor rule keeps only its submit button.
+- **Embrace the glitch - noted, not built** (2026-10-26, operator: "I can't fester on chasing
+  perfection ... I'd rather embrace these glitches (typically tolerated with a smirk) as those
+  marketing jerks that keep the viewer engaged, like sharp video edits when a person speaks";
+  "embrace the glitch * please make a note on this concept, to tell the persona to mess shit up on
+  purpose, lol * clarity through confusion, lol"): the model's small slips ("Chock talkin'?",
+  "Chalk Boared", "chuck") stay - no fix chased. The idea for later: tell a persona, in its prompt,
+  to slip on purpose now and then - a wrong name, a mangled word - then land the point clearly.
+  Clarity through confusion. Waits for the operator's go.
+  KP+ and KP- turn the
   camera feeds ([14.6](#146-cameras-and-the-edge-tpu)). The \* key skips ([6.7](#67-skip)).
 - Three taps of 0 (or NumLock) leave numpad mode; Goverlord says "Goverlord has released the
   numpad."
@@ -1541,9 +1612,17 @@ dialogue.
 | Reporter 1 (Brobot 3) | `af_heart` | questions, banter, the opening and closing; CHALK's voice |
 | Reporter 2 (Brobot 4) | `am_michael` | questions, banter; PLAYHEAD's voice |
 | Goverlord (the digital butler) | `bm_george` | system lines |
-| Operator | `af_sky` (`reporter_voices.operator_voice`) | your live lines, read out |
+| Cameo (KP9) | `af_sky` | Cameo's answers; and, with no `operator_voice`, your typed lines read out (`unassigned_voice_host` "CAMEO") - 2026-10-26, operator: "reassign/remap Operator voice & role to Cameo * KP9 Cameo voice = anything spoken that's unassigned, outside of Gomad & Gominion level bubble". Numpad lines still play the mic's own recording. |
+| Git Repo (KP3, Cozmo) | `am_liam` | the ethical hacker student |
+| Cache PYC (KP4, Cozmo) | `af_nova` | the meme hustler student |
+| Intel 404 PNFH (KP5, Moorebot Scout) | `am_puck`, +150 cents (sox) | security guard 1, higher |
+| Intel 404 PNFT (KP6, Moorebot Scout) | `am_puck`, -150 cents (sox), speed 0.9 | security guard 2, lower, slower |
 
-- All at `reporter_voices.speed`.
+- All at `reporter_voices.speed`, unless `voice_tweaks` gives a host its own `speed` / `pitch_cents`
+  (2026-10-26, operator: "use sox for slight but noticable pitch shift"): the worker runs `sox ...
+  pitch` after Kokoro - the length stays, so the word times fit; a tweaked voice gets its own file
+  name (`_p+150`). `am_liam` and `af_nova` were downloaded from Kokoro's Hugging Face page
+  (2026-10-26, operator: "go ahead & download"); `am_michael` stayed PLAYHEAD's only.
 - Goverlord's lines are said by the digital butler (`system_persona`, from Master_CrushN8r.pdf)
   with its own phonetics (`system_say_words`). Run lines keep the run name first.
 - The page plays voices one after another; a line that must be heard before the run goes on is
@@ -1644,6 +1723,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 | Manager | Voice, look | Jobs |
 |---|---|---|
 | **PLAYHEAD ZUMINTU** (KP8) | Reporter 2's voice, tape-brown bubbles | Time and place: "weather" - "I'll help you with that.", the weather line; "what time / where are we / WAWN / what's the date" - the time and place line (`time_place_text`); search results; location QR codes. His job role is in his persona prompt (`managers.personas.PLAYHEAD.prompt`): "ph" for PLAYHEAD, a/0/b the working points to zoom in and out from, ZUMINTU = zoom into, like editing an audio file end to end. |
+| **Git Repo / Cache PYC** (KP3/KP4, Cozmo students), **Intel 404 PNFH / PNFT** (KP5/KP6, Moorebot Scout security guards), **Cameo** (KP9, the social media Gomad) | their own voices (above), the default host bubble look - Cameo's bubble is Goverlord level (`bubble_kinds`, `host-cameo`) | Scaffolding (2026-10-26, operator: "add scaffolding personas to start with * look how other personas are handled"): CHALK's shape - `managers.personas` prompt and who line, no scripted lines; `host_personas`, `host_pairs` ("Git Repo & Cache PYC", "Intel 404 PNFH & PNFT"). Answers from the language model, like KP7/KP8. |
 | **CHALK BORED** (KP7) | Reporter 1's voice, chalkboard bubbles | Display: QR codes, the surprise eggs (Roast Battle, Halloween, camera feeds) and the visual board, drawn on its board (`display_host`). |
 
 - **Talking to a manager:** KP7 or KP8 (voice only): your line, then the persona's answer from
@@ -2298,7 +2378,7 @@ once and replays them at once (`preloadStings`). In the middle of a line: before
 
 **A song's new story format: one move or one line per step** (2026-10-25, operator: "New format ...
 Easier for me to scan & fix * Translate/compose for native wire-pod compatibility * adjust runner to
-read new format"; songs in it: `01a_brobots_bingo_test`, `03_fart_joke` (2026-10-25)). Each move (arm cue, nod, kgSuccess,
+read new format"; songs in it: `01a_brobots_bingo_test`, `03_fart_joke`, `101_brobots_nap` (2026-10-25)). Each move (arm cue, nod, kgSuccess,
 searching, beat, rattle) and each line (`*_say_*`) is its own step, in the order they happen; a
 line's name can repeat. The engine reads the story in order (`parse_control_story_list`) - the nth
 step of a name in knobs.json takes the nth in story.md - and, with `"compose_moves": true` in
@@ -2308,7 +2388,7 @@ knobs.json, plays a move followed straight away by the same Brobot's line togeth
 after it and any `show_ball`. Older songs (no `compose_moves`) play as before. Locked by
 `NewStoryFormatTests`.
 
-**Bingo's flow: pre, run, post** (2026-10-25, operator: "pre-bingo, brobot 1, I guess so..., brobot
+**Bingo's flow: pre, run, post** (its lines superseded 2026-10-26: see "Bingo, the new flow" under the duo answer-chain template below) (2026-10-25, operator: "pre-bingo, brobot 1, I guess so..., brobot
 2, I can't wait! * bingo, brobot 1, host, brobot 2, brat * post-bingo, brobot 1, \"I Won!\", brobot 2,
 \"Oh! Zero!\" * session chat > no bingo yet > scripted run > post experiences + ending jokes as
 scripted closing remarks"). Before a run, a Bingo question opens with his own line
@@ -2319,6 +2399,68 @@ reminder; operator: "joke is closing remark of answer to how was bingo, not the 
 answer-chain"): Brobot 1 "Anyway, we got a winner! 🏆 \"I Won!\"" (the host won - the brat's
 punchline), Brobot 2 "Oh! Zero!?! That's my cooperation score!?!" (his O-0). The pre lines changed the
 soft-locked flavour lines, on the operator's word: re-locked. `TestBingoClosingBeforeReminder`.
+
+**The duo answer-chain template: experiences** (2026-10-25, operator: "Now, like pre-[bingo
+experience] > [bingo test] > post-[bingo experience] * duo answer-chain template * Make pre-[sleep
+experience] > [nap song] > post-[sleep experience] * pre-[sleep experience], tell me about your
+dreams... * [nap song] * post-[sleep experience], refer to being rescued * nearly cookie-cutter
+copy/paste, tweaks"). Bingo's flow is a template now (`gopod_experiences.go`): `bingo` is the first
+experience, `experiences[]` holds the rest, the same keys - `name`, `run_marker` (a performed line,
+not the operator's, holding it = played; its run is one snapshot note in the shared chat),
+`run_gap_seconds`, `snapshot_note`, `question_word`, `not_a_test_phrases`, `pitch_pack`,
+`no_run_note`, `takes` (per Brobot, with the snapshot), `closing` (per Brobot, the `closing_remark`
+part; none = none), `pre_closing` (before it has played, by the answer's place: `"1"`/`"2"`), `pack` (its own value points). Pre lines: `scripted_snippets` `<name>_not_played`, per `brobot`.
+- **The nap** (`name` "nap"): `run_marker` "Cupped in my hands" (its first caption, the Narrator's
+  bubble), `question_word` "dream". Pre (operator: "Brobot 1: “Ugh. Dreaming again?” with
+  attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: “A lot was lost”
+  attitude. Then his own take on dreaming, then ensure/script in a move towards start baby
+  brobots"): start lines "Ugh. Dreaming again?" / "A lot was lost.", his own take (`no_run_note`:
+  "one short take of your own on dreaming, with attitude"), Brobot 1 hands over; Brobot 2's move is
+  `pre_closing` - the `closing_remark` part, before the reminder, so the reminder can't take its
+  place (the end line it replaced could lose to the reminder: live 17:54). By the answer's place, not
+  the Brobot (operator: "The, ' + start baby brobots' stays in 2nd brobot response regardless";
+  live 18:2x it followed Brobot 2 into answer 1 of 2): `"2"` = the second answer, "If you're
+  watching, tell Goverlord to start Baby Brobots." `TestNapMoveInSecondAnswer`. Flavour lines re-locked.
+  Points (operator: "another scoped set of value points for the sleep song"): `pack` "nap" =
+  `chapters/_always/05_nap.txt` (words dream, nap, baby brobots...), outside the chapters, his three
+  lines as nap#1-3 - "They remember little before napping, cupped in a pair of hands after finally
+  being rescued by Ron." / "Everything went dark until Wire-Pod brought them back, where Ron found
+  them." / "They remember waking together, ready to party." Value points re-locked (94).
+  Post: each Brobot's take, the same three lines. No closing yet.
+  `TestNapExperienceChain`. Wire-Pod restart.
+- **The start move, every experience** (2026-10-26, operator: "scripted in: “If you're watching me
+  right now, tell Goverlord to start [run-name]!” * [Baby Brobots], [Bingo Test], [Fart Joke],
+  [Interview], [etc...]"; "'start Bingo test' in 2nd response regardless (A/B or B/A), before
+  reminders"): `experience_moves` with the experience's `run_name`, in the 2nd answer of a line to
+  both, before and after the run, whoever gives it (`gopodResponseSlot`), in the `closing_remark`
+  part - after his own `closing`. Replaced the nap's `pre_closing`. One of 5, at random (`experience_moves`;
+  operator: "recover & add a few more to a list of 5, to randomly choose from * no “Hey! ...”";
+  then "start fresh from: “If you're watching, tell Goverlord to start"): every line starts "If
+  you're watching, tell Goverlord to start {run}" - "!", ", and see for yourself!", " - we're ready
+  when you are!", ". Go on, we'll wait!", ". You won't regret it!". Fart Joke and Interview get it
+  once they're experiences.
+- **Bingo, the new flow** (2026-10-26, operator: "Pre-Bingo: Did you play bingo yet? ... b1 framing,
+  “Another test performance?” [Ugh... whatever...] ... b2 framing, “Another test performance?”
+  [Super Hyped!! Ready for whatever...] ... Post-bingo: How was bingo * we ran a test before the real
+  bingo game * b1 framing, [Ha! You see?] ... “I Won!”. Lol!” * b2 framing, “Oh! Zero!” [I
+  scored Zero?] ... “That's ok tho. Brobot ZERO is my HERO! Lol!”"). Quoted = scripted, brackets =
+  his attitude (`pre_attitude` / `post_attitude`, with the facts, `gopodExperienceFacts`). Pre: both
+  open "Another test performance?" (`bingo_not_played`). Post: Brobot 2 opens "Oh! Zero!"
+  (`bingo_played` - `<name>_played`, new); closings "\"I Won!\" Lol!" / "That's ok tho. Brobot ZERO is my
+  HERO! Lol!"; the snapshot note says it was a test, before the real Bingo game. `run_pack`
+  "bingo_test" (`chapters/_always/06_bingo_test.txt`, loaded only once it has played; the pitch
+  pack before): 1. We ran a test before the real Bingo game. 2. Brobot 1 hosted and called three
+  balls: B-1, I-9 and O-0. 3. O-0 doesn't exist on purpose - Brobot 1 won, and Brobot 2 scored zero.
+  Value points re-locked (97); flavour lines re-locked.
+- **Fart Joke, scaffolded** (2026-10-26, operator: "upgrade to new format template (bare minimum
+  scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know
+  what the jokes are yet)"): `experiences` "fart_joke" - `run_name` "Fart Joke", `run_marker` "pretend
+  you and I are stuck in an elevator" (Brobot 2's first line), `question_word` "fart", snapshot note,
+  `no_run_note`; the start move plays in the 2nd answer. Empty slots ("" = nothing said):
+  `closing`, `pre_attitude`, `post_attitude`, `takes`, `run_pack`; start lines (`fart_joke_not_played`
+  / `fart_joke_played`) not added while empty - an empty entry would block the others.
+  Skipped on his word: a nap closing ("jokes don't apply"), nap attitudes ("brobot game experience vs
+  brobot 'personal' experience"), the Interview ("last bigger song to polish").
 
 **CHALK's QRs, each once** (2026-10-25, operator: "duplicate qr display bug * 1st CHALK should be
 single crushn8r.ca/subscribe qr * 2nd CHALK should be single crushn8r.ca qr"): a QR the call to
@@ -2768,7 +2910,7 @@ data; the code only guides the flow. Wire-Pod checks every key at start.
 | `digit_highlight` | `seconds_per_number`. |
 | `highlight_scroll` | `dead_zone`. |
 | `live_split` | `thought_lines` (on), `join_up_to_words` (0). |
-| `reporter_voices` | `python`, `worker`, `speed`, `operator_voice` (`af_sky`), `say_words`, `generating_text`, `generating_marker`, `start_wait_seconds`, `heard_margin_seconds` (3), `finish_wait_seconds` (120), `max_wait_seconds`, `narrator_lead_seconds`, `operator_keep_days`, `scripted_keep_days`, `live_keep_days`. |
+| `reporter_voices` | `python`, `worker`, `speed`, `operator_voice` ("" since 2026-10-26), `unassigned_voice_host` (CAMEO), `voice_tweaks`, `say_words`, `generating_text`, `generating_marker`, `start_wait_seconds`, `heard_margin_seconds` (3), `finish_wait_seconds` (120), `max_wait_seconds`, `narrator_lead_seconds`, `operator_keep_days`, `scripted_keep_days`, `live_keep_days`. |
 | `reporter_voices.system_stings` | `default` (dJent3b), and each sting's volume share. |
 | `reporter_voices.system_persona`, `reporter_voices.system_say_words` | The butler's persona and phonetics (`system_persona`, `system_say_words`). |
 | `chat_audio` | `volume` (the master, 35%), `loudness_lufs` (-16), `normalize_db` (-3). |
@@ -2856,6 +2998,15 @@ data; the code only guides the flow. Wire-Pod checks every key at start.
 16. **Wire-Pod runs as root:** every Python start goes through `gopodAsOperator` (GOPOD_HOME and
     the operator's `~/.local` packages); a conda/venv Python keeps its own packages.
     `TestPythonRunsAsOperator` fails the deploy if one doesn't.
+    **And everything it makes is the operator's** (2026-10-26, operator: "Account for ANYTHING
+    OWNED GENERATED BY/FOR ROOT, to migrate to OWNED by HOME"; "build the wire-pod helper"; one
+    place, `gopod_own_files.go`): every program `gopodAsOperator` starts runs as the operator
+    himself (his uid, gid and groups - audio, video, plugdev, input - and his `XDG_RUNTIME_DIR` for
+    PulseAudio; the mic service's own runuser and the system tests' setpriv folded in), and every
+    overlay write goes through `gopodWriteFile` / `gopodMkdirAll` / `gopodOwn`. Migrated once by the
+    operator: `sudo find /home/goverlord -xdev -user root -exec chown goverlord:goverlord {} +`
+    (1,199 files; `gopod_notes/ROOT_OWNED_FILES_001.md`); live after: 0 root files, voice, TPU and mic
+    workers running as goverlord. Left: `~/wire-pod` (upstream) can still make root files.
 
 ---
 

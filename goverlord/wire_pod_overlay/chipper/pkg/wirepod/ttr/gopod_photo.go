@@ -105,10 +105,10 @@ func gopodPhotoCapture(robot *vector.Vector, ctx context.Context) ([]byte, error
 // gopodPhotoSave keeps the photo for the chat page (webroot/photos, private,
 // not in the repo) and returns its page path.
 func gopodPhotoSave(name string, data []byte) (string, error) {
-	if err := os.MkdirAll(gopodPhotoDir, 0o755); err != nil {
+	if err := gopodMkdirAll(gopodPhotoDir, 0o755); err != nil {
 		return "", err
 	}
-	if err := os.WriteFile(filepath.Join(gopodPhotoDir, name), data, 0o644); err != nil {
+	if err := gopodWriteFile(filepath.Join(gopodPhotoDir, name), data, 0o644); err != nil {
 		return "", err
 	}
 	return gopodPhotoPage(name), nil

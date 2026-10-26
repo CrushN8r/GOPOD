@@ -109,10 +109,10 @@ func gopodTakeSheetAdd(path, run string, takes []gopodHarvestTake) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := gopodMkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(path, append(data, '\n'), 0o644)
+	return gopodWriteFile(path, append(data, '\n'), 0o644)
 }
 
 // gopodTakeSheetRender redraws take_sheet.md next to the sheet.

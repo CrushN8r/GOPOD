@@ -25,6 +25,18 @@
    "words": "GOPOD turns Bingo from “someone calls numbers” into a tiny live Brobot-hosted event.\n\nGOPOD can host Bingo games for seniors while keeping the game familiar.\n\nThe Brobot can call numbers, speak, react, celebrate small wins, and help the room feel more alive.\n\nBingo events can also create simple merch and print-shop value through cards, signs, winner photos, posters, and promotional pieces routed through Mission Promotional Products.\n\nChocolate Bingo: a printable party game with real chocolate recipes, for kids of all ages - the math in the recipes is on foodmath.crushn8r.net.",
    "sum": "a0d7716786e4"
   },
+  "bingo_test#1": {
+   "words": "We ran a test before the real Bingo game.",
+   "sum": "7b9dab1e3955"
+  },
+  "bingo_test#2": {
+   "words": "Brobot 1 hosted and called three balls: B-1, I-9 and O-0.",
+   "sum": "a17834227612"
+  },
+  "bingo_test#3": {
+   "words": "O-0 doesn't exist on purpose - Brobot 1 won, and Brobot 2 scored zero.",
+   "sum": "24712bd50240"
+  },
   "birthday_and_merch#1": {
    "words": "A full pizza-box of food-shaped Hot Wheels cars - already bought, already sorted.",
    "sum": "3abbc3224dcc"
@@ -240,6 +252,18 @@
   "mobile_gear#1": {
    "words": "The rig: mobile gear for high-paying local gigs. One dolly, two crates. The bottom crate holds the portable Anker Solix C1000 power station. The top crate holds the rest: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the mic, the numpad, a USB hub, a power bar, and a fan to keep it all cool. No internet needed - roll in, plug in, party.",
    "sum": "00ad2e4cc682"
+  },
+  "nap#1": {
+   "words": "They remember little before napping, cupped in a pair of hands after finally being rescued by Ron.",
+   "sum": "4e96f7ae8efd"
+  },
+  "nap#2": {
+   "words": "Everything went dark until Wire-Pod brought them back, where Ron found them.",
+   "sum": "de6cf6571a44"
+  },
+  "nap#3": {
+   "words": "They remember waking together, ready to party.",
+   "sum": "244732f379d7"
   },
   "newsletter#1": {
    "words": "The CRUSHN8R CREW'd newsletter, at crushn8r.ca - your own take: behind the scenes, Brobot experiments, live sessions - you're not subscribing, you're joining the crew.\nVideos: the CrushN8r YouTube channel, \"Crazy Off-Course Crash-Courses!\" - two Brobots explaining the math behind the wordplay.\nThe handle everywhere is @crushn8r.",

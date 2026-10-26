@@ -27,22 +27,26 @@
     "KP3": {
       "persona": "Git Repo",
       "body": "Cozmo",
-      "status": "assigned"
+      "status": "live",
+      "_note": "2026-10-26: live - Git Repo, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
     },
     "KP4": {
       "persona": "Cache PYC",
       "body": "Cozmo",
-      "status": "assigned"
+      "status": "live",
+      "_note": "2026-10-26: live - Cache PYC, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
     },
     "KP5": {
       "persona": "Intel 404 PNFH",
       "body": "Moorebot Scout",
-      "status": "assigned"
+      "status": "live",
+      "_note": "2026-10-26: live - Intel 404 PNFH, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
     },
     "KP6": {
       "persona": "Intel 404 PNFT",
       "body": "Moorebot Scout",
-      "status": "assigned"
+      "status": "live",
+      "_note": "2026-10-26: live - Intel 404 PNFT, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
     },
     "KP7": {
       "persona": "CHALK",
@@ -59,7 +63,8 @@
     "KP9": {
       "persona": "Cameo",
       "body": "voice-only",
-      "status": "assigned"
+      "status": "live",
+      "_note": "2026-10-26: live - Cameo, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
     }
   },
   "numlock_off": {

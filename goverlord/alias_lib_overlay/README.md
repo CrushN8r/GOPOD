@@ -24,8 +24,9 @@ aliases. Everything else was retired. The old files are kept outside the repo, i
 - **`llm.sh`** — `llm-status`, `llm-models`, `llm-test-*`.
 - **`wirepod_logs.sh`** — `wirepodlogs`, `wirepoddebuglogs`, `wirepodlogsave`.
 - **Python tools** — `phcal_isolate_001.py`, `phcal_apply_001.py`, `robot_pick_001.py`,
-  `tempo_set_001.py`, plus `numpad_persona_map_001.json` (the chat page's numpad reads it) and
-  the example configs.
+  `tempo_set_001.py`, plus `numpad_persona_map_001.json` (the chat page's numpad reads it;
+  synced 2026-10-26 - KP1-KP9 live, KP3-KP6 and KP9 the new voice personas) and the example
+  configs.
 - **`wpr` / `wps` / `wpq`** (restart and check Wire-Pod) live in `~/.bash_aliases`, not here.
 
 **Retired:**

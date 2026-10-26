@@ -267,6 +267,23 @@ func gopodNumpadMapHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// gopodVoiceMapHandler (2026-10-26, the numpad-to-voices map,
+// gopod_voice_map.go): GET the rows and the voices; POST key=KP7&voice=af_bella
+// sets one.
+func gopodVoiceMapHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == http.MethodPost {
+		msg, err := wirepod_ttr.GopodVoiceMapSet(r.FormValue("key"), r.FormValue("voice"))
+		out := map[string]any{"ok": err == nil, "message": msg}
+		if err != nil {
+			out["error"] = err.Error()
+		}
+		json.NewEncoder(w).Encode(out)
+		return
+	}
+	json.NewEncoder(w).Encode(wirepod_ttr.GopodVoiceMap())
+}
+
 // gopodNumpadPTTHandler: POST action=start|stop key=KP1 from the chat page's
 // numpad push-to-talk; the reply is the mic service's JSON (status, text, ...).
 func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {

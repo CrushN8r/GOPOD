@@ -230,8 +230,8 @@ func TestBingoPlayedFlag(t *testing.T) {
 	if !gopodBingoPlayed.Load() {
 		t.Fatal("the song's line did not set the flag")
 	}
-	chat := gopodAddBingoTake(gopodBrobot2ESN, nil)
-	if len(chat) != 1 || !strings.Contains(chat[0].Content, gopodBingoSnapshotNote) || !strings.Contains(chat[0].Content, gopodBrobotBingoTakes["Brobot 2"]) {
+	chat := gopodAddExperienceTakes(gopodBrobot2ESN, nil)
+	if len(chat) != 1 || !strings.Contains(chat[0].Content, gopodBingoSnapshotNote) || !strings.Contains(chat[0].Content, gopodBrobotsSettings.Bingo.Takes["Brobot 2"]) {
 		t.Fatalf("played but forgotten: want the snapshot and Brobot 2's take, got %+v", chat)
 	}
 }

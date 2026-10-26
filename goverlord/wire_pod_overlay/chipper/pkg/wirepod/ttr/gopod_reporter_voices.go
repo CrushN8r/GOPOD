@@ -156,7 +156,10 @@ func gopodReporterVoice(host string) string {
 		return rv.SystemVoice
 	}
 	if host == gopodOperatorVoiceHost {
-		return rv.OperatorVoice
+		if rv.OperatorVoice != "" {
+			return rv.OperatorVoice
+		}
+		return rv.Hosts[rv.UnassignedVoiceHost]
 	}
 	return ""
 }
@@ -232,8 +235,8 @@ func gopodReporterFile(host, text string) (string, float64, bool) {
 	if !gopodReporter.ready {
 		return "", 0, false
 	}
-	_ = os.MkdirAll(gopodReporterAudioDir(), 0755)
-	job, _ := json.Marshal(map[string]any{"voice": voice, "text": text, "out": file, "speed": gopodReporterSpeed()})
+	_ = gopodMkdirAll(gopodReporterAudioDir(), 0755)
+	job, _ := json.Marshal(map[string]any{"voice": voice, "text": text, "out": file, "speed": gopodReporterSpeedFor(host), "pitch_cents": gopodReporterPitch(host)})
 	if _, err := gopodReporter.in.Write(append(job, '\n')); err != nil || gopodReporter.in.Flush() != nil {
 		gopodReporter.ready = false
 		gopodReporterStarting.Store(false)
@@ -261,21 +264,11 @@ func gopodReporterFile(host, text string) (string, float64, bool) {
 	if err := gopodLoudnessFile(file, file); err != nil {
 		logger.Println("GOPOD_AUDIO_LEVELS " + filepath.Base(file) + ": " + err.Error())
 	}
-	gopodVoiceMade(host, file)
-	// 2026-10-09 (operator: "once kokoro wavs are generated * store for reuse
-	// rather than regenerate again * including from live generated input *
-	// example: bro can you hear me? (generate for both reporter voices)"): a new
-	// reporter line is also made in the other reporters' voices, in the
-	// background, so it's ready whichever reporter reads it next time.
-	if _, reporter := gopodBrobotsSettings.ReporterVoices.Hosts[host]; reporter {
-		go func() {
-			for other := range gopodBrobotsSettings.ReporterVoices.Hosts {
-				if other != host {
-					gopodReporterFile(other, text)
-				}
-			}
-		}()
-	}
+	gopodVoiceMade(host, file, text)
+	// 2026-10-26 (operator: "Yes, bad rule now * clean out all stale files, rules *
+	// generate a single voice file for only that instance, no dups"): the
+	// 2026-10-09 rule that also made each new reporter line in the other
+	// reporters' voices is gone - one line, one voice, made when it's said.
 	return page, reply.Seconds, true
 }
 
@@ -304,6 +297,19 @@ func gopodReporterSpeed() float64 {
 		return sp
 	}
 	return 1.03
+}
+
+// gopodReporterSpeedFor: host's own speed (voice_tweaks), else the shared one.
+func gopodReporterSpeedFor(host string) float64 {
+	if sp := gopodBrobotsSettings.ReporterVoices.VoiceTweaks[host].Speed; sp > 0 {
+		return sp
+	}
+	return gopodReporterSpeed()
+}
+
+// gopodReporterPitch: host's pitch shift in cents (voice_tweaks), 0 for none.
+func gopodReporterPitch(host string) float64 {
+	return gopodBrobotsSettings.ReporterVoices.VoiceTweaks[host].PitchCents
 }
 
 // gopodReporterPaths: the voice file for host's line, on disk and on the page
@@ -431,11 +437,16 @@ func gopodReporterPaths(host, text string) (string, string) {
 	// writing"): the name carries the voice and the speed, so a new voice or
 	// speed makes new files and every earlier one stays. Speed 1.03 (the speed
 	// before speed was a setting) keeps the old names, so those files still count.
-	speed := gopodReporterSpeed()
+	speed := gopodReporterSpeedFor(host)
 	key, tag := voice+"\n"+text, voice
 	if speed != 1.03 {
 		key += fmt.Sprintf("\n%.2f", speed)
 		tag += fmt.Sprintf("_s%03.0f", speed*100)
+	}
+	// 2026-10-26: a pitch-shifted voice (voice_tweaks) is its own file too.
+	if pitch := gopodReporterPitch(host); pitch != 0 {
+		key += fmt.Sprintf("\np%.0f", pitch)
+		tag += fmt.Sprintf("_p%+.0f", pitch)
 	}
 	sum := sha1.Sum([]byte(key))
 	name := tag + "_" + hex.EncodeToString(sum[:8]) + ".wav"
@@ -716,7 +727,7 @@ func gopodReporterReadsOperator(text, how, to string) {
 	// "Let's try af_sky"): a live line (keyboard, numpad) is read in the
 	// Operator voice (reporter_voices.operator_voice). A playing draft's question
 	// keeps its reporter.
-	if !gopodScriptPlaying.Load() && rv.OperatorVoice != "" {
+	if !gopodScriptPlaying.Load() && gopodReporterVoice(gopodOperatorVoiceHost) != "" {
 		host = gopodOperatorVoiceHost
 	}
 	for _, from := range rv.ReadLinesFrom {

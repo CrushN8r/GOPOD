@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
 )
 
 // The reporters' live personas (2026-10-18, operator: "Shared reporters persona =
@@ -66,7 +65,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	body, _ := json.Marshal(map[string]any{
 		"model": model, "stream": false,
 		"messages": gopodPersonaMessages(host, text),
-		"options": map[string]any{"num_predict": 120},
+		"options":  map[string]any{"num_predict": 120},
 	})
 	client := &http.Client{Timeout: 60 * time.Second}
 	resp, err := client.Post(base+"/api/chat", "application/json", bytes.NewReader(body))
@@ -84,6 +83,10 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	}
 	reply := strings.TrimSpace(gopodPersonaEmojiRE.ReplaceAllString(out.Message.Content, ""))
 	reply = strings.Join(strings.Fields(strings.ReplaceAll(reply, "*", "")), " ")
+	// 2026-10-26 (live: "thinking___ Party's in full swing..." - CHALK, PNFT):
+	// the Brobots' shared chat keeps their animation cues (word___), and a
+	// persona copied them; a voice persona has no animations, so they're dropped.
+	reply = strings.TrimSpace(gopodAnimationMarkerPattern.ReplaceAllString(reply, ""))
 	if reply == "" {
 		return "", errors.New("the language model said nothing")
 	}

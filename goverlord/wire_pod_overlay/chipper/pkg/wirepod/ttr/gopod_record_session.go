@@ -224,12 +224,12 @@ func gopodRecordBegin() error {
 		day = session
 		dir = filepath.Join(session, now.Format("150405")+gopodBrobotsSettings.RecordSession.FolderSuffix)
 	}
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := gopodMkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 	gopodRecordChown(uid, gid, root, day, dir)
 	marker := filepath.Join(dir, gopodRecordMarkerRecording)
-	if err := os.WriteFile(marker, nil, 0o644); err != nil {
+	if err := gopodWriteFile(marker, nil, 0o644); err != nil {
 		return err
 	}
 	chat, err := os.OpenFile(filepath.Join(dir, "chat.jsonl"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
@@ -318,7 +318,7 @@ func gopodRecordEndAndAsk(reason string) {
 	}
 	_, uid, gid := gopodRecordRoot()
 	pending := filepath.Join(dir, gopodRecordMarkerPending)
-	os.WriteFile(pending, nil, 0o644)
+	gopodWriteFile(pending, nil, 0o644)
 	gopodRecordChown(uid, gid, pending)
 	gopodRecord.Lock()
 	gopodRecord.waiting, gopodRecord.dir = true, dir
@@ -412,6 +412,7 @@ func gopodRecordZip(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	gopodOwn(tmp)
 	zw := zip.NewWriter(f)
 	base := filepath.Base(dir)
 	walkErr := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -672,7 +673,7 @@ func gopodRecordWriteHTML(dir string) {
 	}
 	b.WriteString("</body></html>\n")
 	path := filepath.Join(dir, "chat.html")
-	if os.WriteFile(path, []byte(b.String()), 0o644) == nil {
+	if gopodWriteFile(path, []byte(b.String()), 0o644) == nil {
 		_, uid, gid := gopodRecordRoot()
 		gopodRecordChown(uid, gid, path)
 	}
@@ -773,7 +774,7 @@ func gopodWriteRecordState() {
 		return
 	}
 	tmp := gopodRecordStatePath + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err == nil {
+	if err := gopodWriteFile(tmp, data, 0o644); err == nil {
 		os.Rename(tmp, gopodRecordStatePath)
 	}
 }

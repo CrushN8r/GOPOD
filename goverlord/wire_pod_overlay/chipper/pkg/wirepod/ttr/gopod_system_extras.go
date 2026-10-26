@@ -182,7 +182,7 @@ func gopodSystemChatSave(text string) string {
 		n++
 	}
 	md := filepath.Join(filepath.Dir(file), "chat.md")
-	if err := os.WriteFile(md, []byte(strings.Join(out, "\n")+"\n"), 0o644); err != nil {
+	if err := gopodWriteFile(md, []byte(strings.Join(out, "\n")+"\n"), 0o644); err != nil {
 		return "system-chat-save: " + err.Error()
 	}
 	if _, uid, gid := gopodRecordRoot(); uid >= 0 {

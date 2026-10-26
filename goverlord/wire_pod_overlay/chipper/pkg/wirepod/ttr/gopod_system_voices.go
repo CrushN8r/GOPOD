@@ -2,13 +2,11 @@
 package wirepod_ttr
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -31,6 +29,10 @@ import (
 //    each voice's backup copy goes once its new voice is made (gopodVoiceMade).
 
 var gopodVoiceFileRE = regexp.MustCompile(`^[a-z]{2}_[a-z]+_(s\d+_)?[0-9a-f]{16}\.(wav|words\.json)$`)
+
+// gopodVoiceAnyFileRE: every voice file the profiles and the archive look after
+// - a made voice (pitched too, voice_tweaks) or a mic recording (op_mic_).
+var gopodVoiceAnyFileRE = regexp.MustCompile(`^([a-z]{2}_[a-z]+_(s\d+_)?(p[+-]\d+_)?|op_mic_)[0-9a-f]{16}\.(wav|words\.json)$`)
 
 func gopodVoicesBackupDir() string {
 	return filepath.Join(gopodChipperRoot(), "webroot", "gopod_reporter_audio_backup")
@@ -95,7 +97,7 @@ func gopodSystemVoicesRebuild(text string) string {
 		return "system-voices-rebuild: the voice folder can't be read - " + err.Error()
 	}
 	backup := filepath.Join(gopodVoicesBackupDir(), time.Now().Format("20060102_150405"))
-	if err := os.MkdirAll(backup, 0o755); err != nil {
+	if err := gopodMkdirAll(backup, 0o755); err != nil {
 		return "system-voices-rebuild: no backup folder - " + err.Error()
 	}
 	moved := 0
@@ -125,27 +127,15 @@ var gopodVoicesAtStart atomic.Bool
 // beside the voices. At each start, a voice not in use and not said for its
 // kind's keep days moves to the sessions' archives (gopodArchiveDir()/voices),
 // the same archive the session chats go to. Nothing is deleted.
-var gopodVoiceKinds = struct {
-	sync.Mutex
-	kinds map[string]string
-}{}
-
+// gopodVoiceKindsPath: the kinds-only list the profiles started from (read once,
+// when voice_profiles.json is first made).
 func gopodVoiceKindsPath() string {
 	return filepath.Join(gopodReporterAudioDir(), "voice_kinds.json")
 }
 
-func gopodVoiceKindsLoad() {
-	if gopodVoiceKinds.kinds != nil {
-		return
-	}
-	gopodVoiceKinds.kinds = map[string]string{}
-	if data, err := os.ReadFile(gopodVoiceKindsPath()); err == nil {
-		json.Unmarshal(data, &gopodVoiceKinds.kinds)
-	}
-}
-
-// gopodVoiceMade: a new playable voice - its kind noted, its backup copy gone.
-func gopodVoiceMade(host, file string) {
+// gopodVoiceMade: a new playable voice - its profile (gopod_voice_profiles.go,
+// its kind among the rest), its backup copy gone.
+func gopodVoiceMade(host, file, text string) {
 	name := filepath.Base(file)
 	kind := "live"
 	switch {
@@ -156,13 +146,7 @@ func gopodVoiceMade(host, file string) {
 	case gopodVoicesAtStart.Load() || gopodScriptPlaying.Load():
 		kind = "scripted"
 	}
-	gopodVoiceKinds.Lock()
-	gopodVoiceKindsLoad()
-	gopodVoiceKinds.kinds[name] = kind
-	if data, err := json.MarshalIndent(gopodVoiceKinds.kinds, "", " "); err == nil {
-		os.WriteFile(gopodVoiceKindsPath(), data, 0o644)
-	}
-	gopodVoiceKinds.Unlock()
+	gopodVoiceProfileMade(name, kind, host, gopodReporterVoice(host), text)
 	// The rebuild's backup of this voice (system-voices-rebuild): the new one plays.
 	backups, _ := filepath.Glob(filepath.Join(gopodVoicesBackupDir(), "*", name))
 	for _, b := range backups {
@@ -189,19 +173,13 @@ func gopodVoicesArchive() {
 		inUse[k] = true
 	}
 	gopodReporterInUse.Unlock()
-	gopodVoiceKinds.Lock()
-	gopodVoiceKindsLoad()
-	kinds := map[string]string{}
-	for k, v := range gopodVoiceKinds.kinds {
-		kinds[k] = v
-	}
-	gopodVoiceKinds.Unlock()
+	kinds := gopodVoiceProfileKinds()
 	keep := map[string]float64{"system": rv.OperatorKeepDays, "scripted": rv.ScriptedKeepDays, "live": rv.LiveKeepDays}
 	archive := filepath.Join(gopodArchiveDir(), "voices")
 	moved := 0
 	for _, e := range entries {
 		name := e.Name()
-		if e.IsDir() || !strings.HasSuffix(name, ".wav") || !gopodVoiceFileRE.MatchString(name) || inUse[name] {
+		if e.IsDir() || !strings.HasSuffix(name, ".wav") || !gopodVoiceAnyFileRE.MatchString(name) || inUse[name] {
 			continue
 		}
 		kind := kinds[name]
@@ -222,11 +200,12 @@ func gopodVoicesArchive() {
 		if days <= 0 || err != nil || time.Since(info.ModTime()) < gopodSecondsToDuration(days*86400) {
 			continue
 		}
-		if os.MkdirAll(archive, 0o755) != nil {
+		if gopodMkdirAll(archive, 0o755) != nil {
 			return
 		}
 		if os.Rename(filepath.Join(dir, name), filepath.Join(archive, name)) == nil {
 			moved++
+			gopodVoiceArchived(name)
 			words := strings.TrimSuffix(name, ".wav") + ".words.json"
 			os.Rename(filepath.Join(dir, words), filepath.Join(archive, words))
 		}

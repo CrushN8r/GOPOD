@@ -68,10 +68,13 @@ func gopodGameSweep() []gopodSweepItem {
 	if err != nil || json.Unmarshal(data, &qfile) != nil {
 		out = append(out, gopodSweepItem{"value point", "harvest_questions.json", false, "can't read it"})
 	}
-	// As at a session's start: the Bingo test not played yet (it changes bingo's pitch).
-	played := gopodBingoPlayed.Load()
-	gopodBingoPlayed.Store(false)
-	defer gopodBingoPlayed.Store(played)
+	// As at a session's start: no experience played yet (it changes its pitch).
+	for _, e := range gopodExperienceList() {
+		flag := gopodExperiencePlayed(e)
+		played := flag.Load()
+		flag.Store(false)
+		defer flag.Store(played)
+	}
 	gopodCoverage.Lock()
 	savedRevealed, savedReminded, savedScored, savedSaid := gopodCoverage.revealed, gopodCoverage.reminded, gopodCoverage.scored, gopodCoverageSaid
 	gopodCoverage.revealed, gopodCoverage.reminded, gopodCoverageSaid = map[string]int{}, map[string]bool{}, map[string]map[int]bool{}
@@ -95,7 +98,7 @@ func gopodGameSweep() []gopodSweepItem {
 			continue
 		}
 		// A Bingo run in the chat memory answers bingo from the run, not its pitch.
-		if q.Topic == gopodBrobotsSettings.Bingo.PitchPack && gopodBingoRunInMemory() {
+		if gopodExperiencePitchSkipped(q.Topic) {
 			continue
 		}
 		esn := esnOf[q.To]

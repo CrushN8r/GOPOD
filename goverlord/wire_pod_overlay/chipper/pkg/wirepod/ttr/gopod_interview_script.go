@@ -184,7 +184,7 @@ func gopodPageHiddenFlag(hidden bool) {
 	if ss.PageHiddenFile != "" {
 		flag := filepath.Join(gopodChipperRoot(), ss.PageHiddenFile)
 		if hidden {
-			os.WriteFile(flag, nil, 0o666)
+			gopodWriteFile(flag, nil, 0o666)
 		} else {
 			os.Remove(flag)
 		}

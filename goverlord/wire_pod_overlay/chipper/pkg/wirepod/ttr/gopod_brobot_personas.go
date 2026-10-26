@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
-
-	"github.com/sashabaranov/go-openai"
 )
 
 // Each brother's own persona line, added after "Current robot ESN: ..." in the
@@ -206,22 +204,8 @@ func gopodHandoverLine(host, partner string) string {
 // are the Bingo test song's own lines (01a_brobots_bingo_test/story.md), in
 // order - a change to those lines needs the same change in the settings file. The other brother
 // is "your brother", not named (see above).
-// The takes are bingo.takes in gopod_brobots_settings.json.
-var gopodBrobotBingoTakes = gopodBrobotsSettings.Bingo.Takes
-
-// gopodAddBingoTake adds this brother's Bingo take to the Bingo snapshot note in
-// the shared chat (gopodBingoSnapshotNote). Nothing changes when there is no
-// Bingo run in the chat memory.
-// gopodBingoRunInMemory: a Bingo test run is in the shared chat memory (its
-// snapshot note, gopod_session_memory.go).
-func gopodBingoRunInMemory() bool {
-	for _, msg := range gopodSharedBrobotChat() {
-		if strings.HasPrefix(msg.Content, gopodBingoSnapshotNote) {
-			return true
-		}
-	}
-	return false
-}
+// The takes are bingo.takes in gopod_brobots_settings.json (gopodAddExperienceTakes,
+// gopod_experiences.go - every experience's takes the same way).
 
 // gopodBingoPlayed: the Bingo test has been played since this Wire-Pod start
 // (operator 2026-10-05: "a 'bingo-test-played' flag? Not played yet = 0, played
@@ -231,24 +215,5 @@ func gopodBingoRunInMemory() bool {
 // Bingo question still gets the Brobot's own take on it. With 0, a Bingo
 // question gets bingo.no_run_note ("sure, let's play").
 var gopodBingoPlayed atomic.Bool
-
-func gopodAddBingoTake(esn string, chat []openai.ChatCompletionMessage) []openai.ChatCompletionMessage {
-	take, ok := gopodBrobotBingoTakes[gopodBrobotName(esn)]
-	if !ok {
-		return chat
-	}
-	for i := len(chat) - 1; i >= 0; i-- {
-		if strings.HasPrefix(chat[i].Content, gopodBingoSnapshotNote) {
-			chat[i].Content += "\n[" + take + "]"
-			return chat
-		}
-	}
-	// Played, but no longer in the chat memory: the snapshot and the take go first.
-	if gopodBingoPlayed.Load() {
-		note := openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodBingoSnapshotNote + "\n[" + take + "]"}
-		chat = append([]openai.ChatCompletionMessage{note}, chat...)
-	}
-	return chat
-}
 
 // ## EOF

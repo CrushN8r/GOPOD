@@ -192,7 +192,7 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	binary.LittleEndian.PutUint32(head[4:8], uint32(36+len(pcm)))
 	binary.LittleEndian.PutUint32(head[40:44], uint32(len(pcm)))
 	tmp := out + ".part"
-	if err := os.WriteFile(tmp, append(head, pcm...), 0o644); err != nil {
+	if err := gopodWriteFile(tmp, append(head, pcm...), 0o644); err != nil {
 		return 0, err
 	}
 	if aligner == "" {
@@ -201,7 +201,7 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	// The voice worker's own format ("aligner": "vosk" - the checks read it so).
 	wj, _ := json.Marshal(map[string]any{"aligner": aligner, "words": words})
 	wj = []byte(strings.Replace(string(wj), `"aligner":"`, `"aligner": "`, 1))
-	_ = os.WriteFile(strings.TrimSuffix(out, ".wav")+".words.json", wj, 0o644)
+	_ = gopodWriteFile(strings.TrimSuffix(out, ".wav")+".words.json", wj, 0o644)
 	if err := os.Rename(tmp, out); err != nil {
 		return 0, err
 	}

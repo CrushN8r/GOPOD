@@ -24,7 +24,7 @@ func TestBrobotsSettingsReachTheCode(t *testing.T) {
 	if gopodAnimationMarker != s.AnimationMarker || gopodSharedBrobotChatExchanges != s.SharedChat.MaxQuestions || gopodBingoSnapshotNote != s.Bingo.SnapshotNote {
 		t.Fatal("a setting did not reach the code")
 	}
-	if gopodBrobotPersonaLines["Brobot 1"] != s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"]) || !strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "I go by Pip") || gopodBrobotBingoTakes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
+	if gopodBrobotPersonaLines["Brobot 1"] != s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"]) || !strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "I go by Pip") || gopodBrobotsSettings.Bingo.Takes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
 		t.Fatal("personas or Bingo takes did not reach the code")
 	}
 	got := gopodFillPromptTokens("$PLACEHOLDER_WORD$ANIMATION_MARKER spoken thought, marker: $ANIMATION_MARKER")
@@ -61,14 +61,14 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 	for q, want := range map[string]string{
 		"are you on TikTok":         "No - I'm on GOPOD!",
 		"can I book you":            "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!",
-		"do you want to play bingo": "I guess so... Say start Bingo test!", // 2026-10-25: Brobot 1's own
+		"do you want to play bingo": "Another test performance?", // 2026-10-26: the pre-bingo line
 		"tell me all about GOPOD":   "",
 	} {
 		if got := gopodScriptedSnippet("0dd1b9e9", q, "start", ""); got != want {
 			t.Errorf("snippet for %q = %q, want %q", q, got, want)
 		}
 	}
-	if got := gopodScriptedSnippet("0dd1d8bf", "do you want to play bingo", "start", ""); got != "I can't wait! Say start Bingo test!" {
+	if got := gopodScriptedSnippet("0dd1d8bf", "do you want to play bingo", "start", ""); got != "Another test performance?" {
 		t.Errorf("Brobot 2's pre-bingo line = %q", got)
 	}
 	if got := gopodScriptedSnippet("0dd1d8bf", "what's your favourite food", "end", "happy___ Pizza and beer, bro!"); got != "Chocolate Bingo is fun for kids and adult kids too!" {
@@ -290,12 +290,18 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 		for _, n := range gopodBrobotsSettings.TopicPictures.NotListed {
 			eggOnly = eggOnly || n == name // 2026-10-20: a surprise egg (camera feeds)
 		}
+		for _, e := range gopodExperienceList() {
+			eggOnly = eggOnly || (e.Pack != "" && e.Pack == name) || (e.RunPack != "" && e.RunPack == name) // 2026-10-25: an experience's own points
+		}
 		if !inChapter[name] && name != gopodBrobotsSettings.ValuePoints.WhatElseTopic && !eggOnly {
 			t.Errorf("pack %q is in no chapter", name)
 		}
 	}
 	for _, s := range gopodBrobotsSettings.ScriptedSnippets.Lines {
-		special := map[string]bool{"any": true, "thanks": true, "bingo_not_played": true, "reply_mentions": true, "reminder": true}
+		special := map[string]bool{"any": true, "thanks": true, "reply_mentions": true, "reminder": true}
+		for _, e := range gopodExperienceList() {
+			special[e.Name+"_not_played"], special[e.Name+"_played"] = true, true // bingo_not_played, nap_played... (gopod_experiences.go)
+		}
 		if !special[s.When] && !packs[s.When] {
 			t.Errorf("scripted snippet for unknown pack %q", s.When)
 		}

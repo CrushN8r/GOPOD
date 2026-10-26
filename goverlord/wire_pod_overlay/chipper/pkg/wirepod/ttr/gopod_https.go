@@ -61,7 +61,7 @@ func gopodWritePEM(path, kind string, der []byte, private bool) error {
 	if private {
 		mode = 0o600
 	}
-	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: kind, Bytes: der}), mode); err != nil {
+	if err := gopodWriteFile(path, pem.EncodeToMemory(&pem.Block{Type: kind, Bytes: der}), mode); err != nil {
 		return err
 	}
 	if _, uid, gid := gopodRecordRoot(); uid > 0 {
@@ -88,7 +88,7 @@ func gopodEnsureCerts() (string, string, error) {
 	if dir == "" {
 		return "", "", errors.New("app.cert_dir is empty")
 	}
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := gopodMkdirAll(dir, 0o700); err != nil {
 		return "", "", err
 	}
 	if _, uid, gid := gopodRecordRoot(); uid > 0 {
@@ -174,7 +174,7 @@ func gopodEnsureCerts() (string, string, error) {
 	if err := gopodWritePEM(srvCrt, "CERTIFICATE", der, false); err != nil {
 		return "", "", err
 	}
-	os.WriteFile(namesFile, []byte(want), 0o600)
+	gopodWriteFile(namesFile, []byte(want), 0o600)
 	logger.Println("GOPOD_APP made the server certificate for " + strconv.Itoa(len(names)) + " names and addresses of this machine")
 	return srvCrt, srvKey, nil
 }

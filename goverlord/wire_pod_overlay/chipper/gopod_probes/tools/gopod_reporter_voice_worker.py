@@ -13,6 +13,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -175,6 +176,14 @@ def main() -> int:
                 continue
             out = Path(job["out"])
             synthesize(announcer, pipeline, job["text"], job["voice"], out, float(job.get("speed") or 1.03))
+            # 2026-10-26 (operator: "use sox for slight but noticable pitch
+            # shift"): a host's pitch_cents (voice_tweaks) - sox's pitch keeps
+            # the length, so the word times still fit.
+            pitch = float(job.get("pitch_cents") or 0)
+            if pitch:
+                shifted = out.with_name(out.stem + ".pitch.wav")
+                subprocess.run(["sox", str(out), str(shifted), "pitch", f"{pitch:.0f}"], check=True, capture_output=True)
+                shifted.replace(out)
             seconds = announcer.wav_duration_seconds(out)
             print(json.dumps({"ok": True, "seconds": seconds}), flush=True)
         except Exception as exc:  # noqa: BLE001 - never leave Wire-Pod waiting.

@@ -1828,7 +1828,47 @@ def _resolve_session_mode_once():
     else:
         os.environ["GOPOD_ALLOW_LIVE_ROBOT_SPEECH"] = "1"
         print(f"{_detect_clock.prefix()}PHCAL_SESSION_MODE mode=multi robots={[r['label'] for r in _PRESENT_ROBOTS]}")
+    if not _phcal_session_checkin(_detect_clock):
+        return False
     return True
+
+
+# 2026-10-10, GOLDEN (Wire-Pod's gopod_session.go, operator: "Goverlord is the
+# wpr-session orchestrator"; "pha0b/phcal ... register as runs: yes"): a live
+# phcal checks in with Goverlord as a run - one run at a time, so a song and a
+# bench session never hold the Brobots at once - and checks out when phcal
+# exits. Refused (another run going): phcal stops. Wire-Pod not reachable:
+# phcal goes on, as before.
+_PHCAL_CHECKED_IN = False
+
+
+def _phcal_session_checkin(clock):
+    global _PHCAL_CHECKED_IN
+    if _PHCAL_CHECKED_IN or os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") != "1":
+        return True
+    try:
+        mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
+        result = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": "start", "name": "phcal", "kind": "phcal", "pid": str(os.getpid())}, timeout=10)
+        reply = json.loads(result.get("body") or "{}")
+    except Exception as exc:  # noqa: BLE001 - no Wire-Pod: phcal goes on
+        print(f"{clock.prefix()}PHCAL_SESSION check-in not reached ({exc!r}) - going on")
+        return True
+    if not reply.get("ok"):
+        print(f"{clock.prefix()}PHCAL_SESSION refused: {reply.get('busy')!r} is going - say stop run first")
+        return False
+    _PHCAL_CHECKED_IN = True
+    import atexit
+    atexit.register(_phcal_session_checkout)
+    print(f"{clock.prefix()}PHCAL_SESSION checked in with Goverlord")
+    return True
+
+
+def _phcal_session_checkout():
+    try:
+        mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
+        mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": "end", "name": "phcal", "reason": "done"}, timeout=10)
+    except Exception:  # noqa: BLE001 - Wire-Pod clears a run whose process is gone anyway
+        pass
 
 
 def cmd_animation(mod, clock, serial, robot, live, animation_token, hold_seconds, pre_assumed=False):
@@ -2538,6 +2578,8 @@ def main():
     clock = _Clock()
 
     print(f"{clock.prefix()}PHCAL_ISOLATE primitive={primitive} robot={robot} serial={serial} live={live}")
+    if not _phcal_session_checkin(clock):
+        return 1
     if not live:
         print(f"{clock.prefix()}DRY: live robot gate is off (GOPOD_ALLOW_LIVE_ROBOT_SPEECH != 1)")
 

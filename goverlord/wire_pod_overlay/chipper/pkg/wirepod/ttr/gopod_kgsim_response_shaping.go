@@ -630,10 +630,10 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	// test run. With a run in memory the pitch pack is left out, so the answer
 	// comes from the run; with none (the Bingo-played flag at 0), a Bingo question
 	// gets the "sure, let's play" note (bingo.no_run_note), and the pitch pack loads.
-	bingoRun := gopodBingoPlayed.Load() || gopodBingoRunInMemory()
+	// 2026-10-25: every experience the same way (gopod_experiences.go).
 	for _, packet := range loadScenarioPacketsForMessage(userMessage) {
-		if bingoRun && packet.Name == gopodBrobotsSettings.Bingo.PitchPack {
-			logger.Println("BROBOT_SCENARIO_PACKET_SKIPPED=" + packet.Name + " reason=bingo_run_in_memory")
+		if gopodExperiencePitchSkipped(packet.Name) {
+			logger.Println("BROBOT_SCENARIO_PACKET_SKIPPED=" + packet.Name + " reason=run_in_memory")
 		} else {
 			// 2026-10-06: the next value point only (gopod_value_points.go).
 			// 2026-10-22: the point this question asks about first (gopodPickPoint).
@@ -670,9 +670,9 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 		facts = appendPromptSection(facts, []byte(note))
 		logger.Println("BROBOT_QR_NOTE=added")
 	}
-	if !bingoRun && gopodIsBingoQuestion(userMessage) {
-		facts = appendPromptSection(facts, []byte(gopodBrobotsSettings.Bingo.NoRunNote))
-		logger.Println("BROBOT_BINGO_NO_RUN_NOTE=added")
+	for _, note := range gopodExperienceFacts(esn, userMessage) {
+		facts = appendPromptSection(facts, []byte(note))
+		logger.Println("BROBOT_EXPERIENCE_NOTE=added " + note)
 	}
 	// No topic pack and no note: the question is far from GOPOD (operator
 	// 2026-10-05: "Tell me about the wilderness in the Amazon jungle ... If the
@@ -739,7 +739,6 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 	for _, packet := range loadScenarioPacketsForMessage(userMessage) {
 		loaded[packet.Name] = true
 	}
-	bingoQuestion := !(gopodBingoPlayed.Load() || gopodBingoRunInMemory()) && gopodIsBingoQuestion(userMessage)
 	lowerReply := strings.ToLower(reply)
 	for n, s := range gopodBrobotsSettings.ScriptedSnippets.Lines {
 		where := s.At
@@ -761,7 +760,7 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 			}
 			continue
 		}
-		match := loaded[s.When] || (s.When == "bingo_not_played" && bingoQuestion) ||
+		match := loaded[s.When] || gopodExperienceNotPlayed(s.When, userMessage) ||
 			(s.When == "thanks" && gopodIsThanks(userMessage)) || s.When == "any"
 		if s.When == "reply_mentions" {
 			for _, w := range s.Words {
@@ -851,19 +850,6 @@ func gopodThoughtBreaks(text string) string {
 		text = gopodThoughtEmojiRe.ReplaceAllString(text, "${1}\n${2}")
 	}
 	return text
-}
-
-// gopodIsBingoQuestion: the question is about the Bingo test (bingo.question_word),
-// not one of bingo.not_a_test_phrases (operator 2026-10-06: "Chocolate Bingo"
-// is the party game, not the test - it no longer gets "Say Bingo Test Live!").
-func gopodIsBingoQuestion(userMessage string) bool {
-	lower := strings.ToLower(userMessage)
-	for _, phrase := range gopodBrobotsSettings.Bingo.NotATest {
-		if gopodHasWholeWords(lower, strings.ToLower(phrase)) {
-			return false
-		}
-	}
-	return strings.Contains(lower, strings.ToLower(gopodBrobotsSettings.Bingo.QuestionWord))
 }
 
 // No web addresses or links in a reply (web_links in gopod_brobots_settings.json;

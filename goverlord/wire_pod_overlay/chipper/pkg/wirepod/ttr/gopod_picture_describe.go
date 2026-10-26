@@ -134,7 +134,7 @@ func gopodPictureDescribeAhead() {
 		f = gopodPictureLoad()
 		f.Pictures[file] = gopodPictureEntry{MD5: sum, Points: points}
 		if out, err := json.MarshalIndent(f, "", "  "); err == nil {
-			os.WriteFile(gopodPictureDescriptionsPath(), append(out, '\n'), 0o644)
+			gopodWriteFile(gopodPictureDescriptionsPath(), append(out, '\n'), 0o644)
 		}
 		gopodPictureCache(file, points)
 	}

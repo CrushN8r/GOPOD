@@ -68,22 +68,31 @@ func GopodNumpadMapJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	// 2026-10-18: the voice-only personas' hosts (KP7 CHALK, KP8 PLAYHEAD).
-	personas := map[string]string{}
 	// 2026-10-22 (operator: "numpad mapping sounds like a good template to form
 	// from"): each scripted voice's persona ("Brobot 3" -> CHALK), for the page's
 	// header template - the numpad map's names are the source.
 	reporters := map[string]string{}
 	for name, p := range gopodBrobotsSettings.Managers.Personas {
-		personas[name] = p.Host
 		if r := strings.TrimSpace(p.Reporter); r != "" {
 			reporters[r] = name
 		}
 	}
+	// 2026-10-26 (operator: "\"1 robust key detection process\" = Template/unify
+	// so everything goes through 1 place"): who each key talks to, from the one
+	// place that decides it (gopodNumpadBrobot); "" = not live. The page reads
+	// this and nothing else for a key's target.
+	targets := map[string]string{}
+	for n := 0; n <= 9; n++ {
+		key := "KP" + strconv.Itoa(n)
+		if label, _, err := gopodNumpadBrobot(key); err == nil {
+			targets[key] = label
+		} else {
+			targets[key] = ""
+		}
+	}
 	return json.Marshal(map[string]any{
 		"map":               json.RawMessage(raw),
-		"body_to_brobot":    gopodBrobotsSettings.NumpadPTT.BodyToBrobot,
-		"persona_hosts":     personas,
+		"targets":           targets,
 		"persona_reporters": reporters,
 	})
 }
@@ -218,6 +227,13 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	r["brobot"] = brobot
 	status, _ := r["status"].(string)
 	text, _ := r["text"].(string)
+	// 2026-10-26 (operator: "chock = \"CHALK\" * play head = \"PLAYHEAD\""): GOPOD's
+	// names spelled back (gopod_name_spellings.json) before the line goes
+	// anywhere - a persona's line too, not only the Brobots' (kgsim).
+	if status == "ok" {
+		text = gopodSpellNames(text)
+		r["text"] = text
+	}
 	logger.Println("GOPOD_NUMPAD_PTT stop key=" + key + " status=" + status + " text=" + text)
 	// 2026-10-21: "skip" said into the mic skips the reporters' lines.
 	if status == "ok" && gopodSkipLine(text, "mic") {

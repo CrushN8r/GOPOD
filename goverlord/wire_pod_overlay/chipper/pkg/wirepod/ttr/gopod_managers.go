@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -304,7 +303,7 @@ var gopodMakeQR = func(url string) (string, error) {
 	dir := filepath.Join(gopodChipperRoot(), "webroot", "qr", "made")
 	out := filepath.Join(dir, name)
 	if !gopodFileExists(out) {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := gopodMkdirAll(dir, 0o755); err != nil {
 			return "", err
 		}
 		cmd := gopodAsOperator(exec.Command("python3", "-c", "import qrcode,sys; qrcode.make(sys.argv[1], border=2).save(sys.argv[2])", url, out))

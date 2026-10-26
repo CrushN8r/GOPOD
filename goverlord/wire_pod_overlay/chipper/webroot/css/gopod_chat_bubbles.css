@@ -1035,6 +1035,11 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 }
 .system-menu-results:empty { display: none; }
 .system-menu-result { margin: 2px 0 6px; }
+/* 2026-10-26 (operator: "duplicate voice selections allowed, and are minimally
+   highlighted (bolded?)"): the numpad voices panel - a voice used twice is bold. */
+.voices-panel .voices-row { margin: 2px 0; }
+.voices-panel select { font: inherit; }
+.voices-panel select.voice-twice { font-weight: bold; }
 .system-menu-result.ask { color: var(--menu-code-fg, #9fd3ff); }
 .system-menu-results .search-results { max-width: 100%; margin: 4px 0; }
 /* The bar between the menu and its results: drag it up or down. */
@@ -1139,8 +1144,22 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 /* 2026-10-22 (operator: "please put back the 'All' radio button, I can't select
    'All'"): the All radio is back, its 1/2 menu beside it. */
 .gopod-all-pick { display: inline-flex; align-items: center; gap: 3px; }
-.gopod-all-first { font: inherit; padding: 0 2px; border-radius: 4px; }
-.gopod-all-pick:has(.gopod-all-radio:checked) .gopod-all-first { outline: 2px solid currentColor; }
+/* 2026-10-26 (operator: "Look at visitor page: ()All[menu] * I recently asked to
+   modify menu font & border colour * please snapshot & apply settings to admin
+   page * then go back to visitor page and make it so that part now follows new
+   updated admin page"): the visitor page's look (2026-10-24: "make drop down
+   menu, like a font size smaller? * menu green border too intense, match to
+   text field green") is now the one look, the admin's too - a smaller font and
+   a thin border in the text field's colour, no outline. */
+.gopod-all-first {
+  font: inherit;
+  font-size: 0.8em;
+  padding: 0 2px;
+  border: 1px solid var(--fg-color);
+  border-radius: 4px;
+  outline: none;
+  box-shadow: none;
+}
 /* 2026-10-24 (operator: "new placeholder 2: [hourglass per image]/display
    image(s)"): a picture still loading holds its place with an hourglass, the
    picture hidden until it's there. */
@@ -1186,6 +1205,16 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   font-size: 75%;
   letter-spacing: 0.03em;
 }
+
+/* 2026-10-26 (operator: "KPN to [Gomad] bubbles * apply template settings *
+   text = 75% header-size * notive-bubbles = 50%"): a numpad line to a Gomad
+   (KP7 to CHALK) - your words three quarters of the header, the key's status
+   lines (keep holding, recording, transcribing) half. */
+.brobot-bubble.numpad-to-gomad > .brobot-bubble-text {
+  font-size: 75%;
+  letter-spacing: 0.03em;
+}
+.brobot-bubble.numpad-to-gomad > .numpad-lines { font-size: 50%; }
 
 /* 2026-10-25 (operator: "Topics 3 of 7: ===---- * Value Points 1 of 19:
    =------------------ * Easter Eggs 4 of 5: ====- * 3 single lines with dynamic

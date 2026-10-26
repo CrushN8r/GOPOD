@@ -88,7 +88,7 @@ func gopodUndoLoad() []gopodUndoEdit {
 func gopodUndoSave(edits []gopodUndoEdit) {
 	data, _ := json.Marshal(edits)
 	tmp := gopodUndoPath + ".tmp"
-	if os.WriteFile(tmp, data, 0o600) == nil {
+	if gopodWriteFile(tmp, data, 0o600) == nil {
 		os.Rename(tmp, gopodUndoPath)
 	}
 }
@@ -127,7 +127,7 @@ func gopodWriteRaw(path string, data []byte) error {
 		return errors.New("is gone")
 	}
 	tmp := path + ".system-set.tmp"
-	if err := os.WriteFile(tmp, data, info.Mode().Perm()); err != nil {
+	if err := gopodWriteFile(tmp, data, info.Mode().Perm()); err != nil {
 		return err
 	}
 	return os.Rename(tmp, path)
@@ -207,6 +207,8 @@ func gopodSystemHelp() string {
 		"  system-interview-rebuild            the interview song, rebuilt from the game's topics and value points",
 		"  system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route",
 		"  system-usb                        the USB devices plugged in (live in the menu)",
+		"  system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)",
+		"  system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)",
 		"  system-tpu [restart]              the Edge TPU worker's state, or start it again",
 		"  system-photos [1|2]               a Brobot's photos",
 		"  system-cams [tpu]                 the Brobots' cameras and the webcam side by side; tpu = the Edge TPU on the selected one",

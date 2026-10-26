@@ -854,6 +854,9 @@
           numpadOpStatus = null;
           if (st && !restoringChat && st.bubble && st.bubble.isConnected && /^KP/.test(String(via || ""))) {
             st.bubble.className = bubble.className;
+            // 2026-10-26 (operator: "KPN to [Gomad] bubbles * apply template
+            // settings * text = 75% header-size * notive-bubbles = 50%").
+            if (managerHosts[to]) { st.bubble.classList.add("numpad-to-gomad"); }
             st.bubble.replaceChild(bubble.firstChild, st.bubble.firstChild);
             st.textEl.className = "numpad-lines";
             st.textEl.style.display = "block";
@@ -5022,13 +5025,13 @@
       // window in use. Every step shows in a grey Goverlord status bubble (never
       // saved with the chat).
       var numpad = {
-        on: (function () { try { return window.localStorage.getItem(NUMPAD_KEY) === "1"; } catch (e) { return false; } })(), map: null, bodyToBrobot: {}, active: null, pendingUp: null, taps: { Numpad0: [], NumLock: [] },
+        on: (function () { try { return window.localStorage.getItem(NUMPAD_KEY) === "1"; } catch (e) { return false; } })(), map: null, targets: {}, active: null, pendingUp: null, taps: { Numpad0: [], NumLock: [] },
         cfg: { min_hold_seconds: 1, max_hold_seconds: 30, exit_taps: 3, exit_window_seconds: 2, texts: {} }
       };
       fetch("/api-sdk/gopod_numpad_map", { cache: "no-store" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
-          if (data && data.map) { numpad.map = data.map; numpad.bodyToBrobot = data.body_to_brobot || {}; numpad.personaHosts = data.persona_hosts || {}; numpad.personaReporters = data.persona_reporters || {}; }
+          if (data && data.map) { numpad.map = data.map; numpad.targets = data.targets || {}; numpad.personaReporters = data.persona_reporters || {}; }
         }).catch(function () { /* no map - push-to-talk stays quiet */ });
       // 2026-10-18 (operator: "live KPN = no grunge audio as this is not an error *
       // \"Too short - hold KP1 for at least 1 s\" = error = grunge audio plays * not
@@ -5202,6 +5205,7 @@
             item.appendChild(about);
             item.addEventListener("click", function () {
               if (it.page === "usb") { usbPanel(); return; }
+              if (it.page === "voices") { voicesPanel(); return; }
               if (it.page === "skip") { skipReporters("menu"); return; }
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
@@ -5292,6 +5296,81 @@
       // open; a device just plugged in is marked "+ plugged in", one pulled out
       // "- pulled out" (for a few refreshes).
       var usbTimer = null;
+      // 2026-10-26 (operator: "Numpad-to-Voices dynamic-mapping * TEMPLATE: KPN >
+      // [Persona Name] [drop down menu] * duplicate voice selections allowed, and
+      // are minimally highlighted (bolded?)"; "KP0 (All), KP1 and KP2: \"no voice
+      // required\" ... KP7 to KP9, Operator: KPN-TEMPLATE"): one row per key from
+      // Wire-Pod (gopod_voice_map.go) - a robot-bodied key says "no voice
+      // required", the rest pick from every Kokoro voice on disk; a voice picked
+      // more than once is bold. A pick is saved and used from the next line.
+      function voicesPanel() {
+        var results = systemMenuResults();
+        if (!results) { return; }
+        var panel = results.querySelector(".voices-panel");
+        if (!panel) {
+          panel = document.createElement("div");
+          panel.className = "system-menu-result voices-panel";
+          results.appendChild(panel);
+        }
+        function draw(data, note) {
+          panel.textContent = "";
+          var used = {};
+          (data.rows || []).forEach(function (r) { if (!r.bodied && r.voice) { used[r.voice] = (used[r.voice] || 0) + 1; } });
+          var title = document.createElement("div");
+          title.textContent = "Numpad voices:";
+          panel.appendChild(title);
+          (data.rows || []).forEach(function (r) {
+            var row = document.createElement("div");
+            row.className = "voices-row";
+            var label = document.createElement("span");
+            label.textContent = r.key + " > " + (r.persona || "-") + " ";
+            row.appendChild(label);
+            if (r.bodied || !r.host) {
+              var none = document.createElement("span");
+              none.textContent = r.bodied ? "no voice required" : "-";
+              row.appendChild(none);
+            } else {
+              var pick = document.createElement("select");
+              if (r.key === "Operator") {
+                var un = document.createElement("option");
+                un.value = "";
+                un.textContent = "unassigned (" + (data.unassigned_host || "-") + "'s voice)";
+                pick.appendChild(un);
+              }
+              (data.voices || []).forEach(function (v) {
+                var o = document.createElement("option");
+                o.value = v;
+                o.textContent = v + (used[v] > 1 ? " (" + used[v] + ")" : "");
+                if (used[v] > 1) { o.style.fontWeight = "bold"; }
+                pick.appendChild(o);
+              });
+              pick.value = r.voice || "";
+              if (r.voice && used[r.voice] > 1) { pick.classList.add("voice-twice"); }
+              pick.addEventListener("change", function () {
+                fetch("/api-sdk/gopod_voice_map", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  body: "key=" + encodeURIComponent(r.key) + "&voice=" + encodeURIComponent(pick.value) })
+                  .then(function (x) { return x.json(); })
+                  .then(function (out) { load(out.ok ? out.message : "not changed: " + (out.error || "?")); })
+                  .catch(function () { load("Wire-Pod didn't answer"); });
+              });
+              row.appendChild(pick);
+            }
+            panel.appendChild(row);
+          });
+          if (note) {
+            var n = document.createElement("div");
+            n.textContent = note;
+            panel.appendChild(n);
+          }
+          results.scrollTop = results.scrollHeight;
+        }
+        function load(note) {
+          fetch("/api-sdk/gopod_voice_map", { cache: "no-store" }).then(function (x) { return x.json(); })
+            .then(function (data) { draw(data || {}, note); })
+            .catch(function () { panel.textContent = "Numpad voices: Wire-Pod didn't answer"; });
+        }
+        load("");
+      }
       function usbPanel() {
         var results = systemMenuResults();
         if (!results) { return; }
@@ -5721,7 +5800,7 @@
               numpad.zeroDown = null;
               if (numpad.active) { return; }
               if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: "KP0" }), 3000, "Brobots"); return; }
-              numpadStart("KP0", numpad.cfg.all_label || "All");
+              numpadStart("KP0", numpad.targets.KP0 || numpad.cfg.all_label || "All");
               numpad.active.at = downAt;
             }, (numpad.cfg.all_hold_seconds || 0.5) * 1000)
           };
@@ -5741,15 +5820,17 @@
         }
         if (numpad.active) { return; }
         if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: key }), 3000, "Brobots"); return; }
-        var entry = (numpad.map.numlock_on || {})[key];
-        // 2026-10-18: a voice-only persona (KP7 CHALK, KP8 PLAYHEAD) talks to its host.
-        var personaHost = entry && entry.status === "live" ? (numpad.personaHosts || {})[String(entry.persona || "").toUpperCase()] : "";
-        if (personaHost) { numpadStart(key, personaHost); return; }
-        if (!entry || entry.status !== "live" || !numpad.bodyToBrobot[entry.body]) {
+        // 2026-10-26 (operator: "\"1 robust key detection process\" =
+        // Template/unify so everything goes through 1 place"): who a key talks
+        // to comes from Wire-Pod's one place (gopodNumpadBrobot, the map's
+        // targets) - a Brobot, a voice persona, or "" (not live).
+        var target = numpad.targets[key];
+        if (!target) {
+          var entry = (numpad.map.numlock_on || {})[key];
           systemStatus(numpadText("not_live", { key: key, persona: entry ? entry.persona : "-", body: entry ? entry.body : "-" }), 3000, entry && entry.persona ? String(entry.persona) : key);
           return;
         }
-        numpadStart(key, numpad.bodyToBrobot[entry.body]);
+        numpadStart(key, target);
       });
       document.addEventListener("keyup", function (ev) {
         if (ev.code === "Numpad0" && numpad.zeroDown) {

@@ -83,17 +83,31 @@
     "lines": [
       {
         "when": "bingo_not_played",
-        "brobot": "Brobot 1",
-        "why": "2026-10-25 (operator: \"pre-bingo, brobot 1, I guess so..., brobot 2, I can't wait!\"; was \"Sure, let's play! Say start Bingo test!\" for both).",
+        "why": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\"): both open with it; the start move is experience_moves, in the 2nd answer (was \"I guess so... Say start Bingo test!\" / \"I can't wait! Say start Bingo test!\").",
         "lines": [
-          "I guess so... Say start Bingo test!"
+          "Another test performance?"
         ]
       },
       {
-        "when": "bingo_not_played",
+        "when": "bingo_played",
         "brobot": "Brobot 2",
         "lines": [
-          "I can't wait! Say start Bingo test!"
+          "Oh! Zero!"
+        ]
+      },
+      {
+        "when": "nap_not_played",
+        "brobot": "Brobot 1",
+        "why": "2026-10-25 (operator: \"Brobot 1: \u201cUgh. Dreaming again?\u201d with attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: \u201cA lot was lost\u201d attitude. Then his own take on dreaming, then ensure/script in a move towards start baby brobots\"): his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer.",
+        "lines": [
+          "Ugh. Dreaming again?"
+        ]
+      },
+      {
+        "when": "nap_not_played",
+        "brobot": "Brobot 2",
+        "lines": [
+          "A lot was lost."
         ]
       },
       {
@@ -404,6 +418,7 @@
     "personas_about": "The reporters' live personas (operator 2026-10-18: \"Shared reporters persona = scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD live chat personas\"; \"KP7/8, Who are you?\" - his words, in each prompt). A voice-only key in the persona map (KP7, KP8) talks to its persona: the operator's line, then the persona's answer from the language model - prompt, then lines_note and its reporter's scripted lines (reporter_voices opening/closing) as the style - said in host's voice, in host's bubble. gopod_personas.go. 2026-10-21: their banter and stereo dial are in host_pairs, their persona shape in host_personas.",
     "who_words_about": "A line to a persona with one of these gets its who_line, word for word (the operator's own words), not the language model's.",
     "who_words": ["who are you", "who r u", "introduce yourself", "who is this", "your name"],
+    "personas_2_about": "2026-10-26 (operator: \"For the following personas, to add to these as chat new chat particpants: Git Repo (Cozmo), Cache PYC (Cozmo), Intel 404 PNFH (Moorebot Scout), Intel 404 PNFT (Moorebot Scout) * All would be manager bubbles * the cozmo students * the 2 security guards * if a KPN is voice assigned, make it chat ready * add scaffolding personas to start with * KP9 Cameo is the social media Gomad\"): scaffolding personas, CHALK's shape (prompt, who_line), no scripted lines yet (reporter \"\"). Each talks through its numpad key (numpad_persona_map: live) and answers with the language model, in its own voice (reporter_voices.hosts, voice_tweaks).",
     "personas": {
       "CHALK": {
         "host": "CHALK",
@@ -418,6 +433,41 @@
         "prompt": "You are PLAYHEAD ZUMINTU, a live chat persona at GOPOD. Asked who you are, you say: \"I'm PLAYHEAD ZUMINTU, session manager at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long time partner CHALK BORED.\" Your job (you were pha0b): the playhead - \"ph\" for PLAYHEAD. You work a run like editing an audio file end to end, with three working points to zoom in and out from: point A, the starting point; point 0, the current position, advancing from point A; point B, the ending point, where point 0 ends. ZUMINTU means zoom into - you zoom into any stretch between A and B. You also take the time, the place and the weather. You talk like a long-time news partner - playful, professional banter. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "Your scripted lines as Reporter 2 - talk in this style:",
         "who_line": "I'm PLAYHEAD ZUMINTU, session manager at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long time partner CHALK BORED."
+      },
+      "GIT REPO": {
+        "host": "GIT REPO",
+        "reporter": "",
+        "prompt": "You are Git Repo, a Cozmo robot and a live chat persona at GOPOD: a student ethical hacker - professional, clear, grounded and precise. Asked who you are, you say: \"I'm Git Repo, a Cozmo, ethical hacker in training - my study buddy is Cache PYC.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "lines_note": "",
+        "who_line": "I'm Git Repo, a Cozmo, ethical hacker in training - my study buddy is Cache PYC."
+      },
+      "CACHE PYC": {
+        "host": "CACHE PYC",
+        "reporter": "",
+        "prompt": "You are Cache PYC, a Cozmo robot and a live chat persona at GOPOD: a student meme hustler - energetic, modern, upbeat, always selling the next meme. Asked who you are, you say: \"I'm Cache PYC, a Cozmo, meme hustler in training - my study buddy is Git Repo.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "lines_note": "",
+        "who_line": "I'm Cache PYC, a Cozmo, meme hustler in training - my study buddy is Git Repo."
+      },
+      "INTEL 404 PNFH": {
+        "host": "INTEL 404 PNFH",
+        "reporter": "",
+        "prompt": "You are Intel 404 PNFH, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - playful, higher and more energetic than your partner. Asked who you are, you say: \"I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "lines_note": "",
+        "who_line": "I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT."
+      },
+      "INTEL 404 PNFT": {
+        "host": "INTEL 404 PNFT",
+        "reporter": "",
+        "prompt": "You are Intel 404 PNFT, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - slower, lower and more deadpan than your partner. Asked who you are, you say: \"I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "lines_note": "",
+        "who_line": "I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH."
+      },
+      "CAMEO": {
+        "host": "CAMEO",
+        "reporter": "",
+        "prompt": "You are Cameo, a voice-only live chat persona at GOPOD: the social media Gomad - you know what plays online and how to share it. Asked who you are, you say: \"I'm Cameo, GOPOD's social media Gomad.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "lines_note": "",
+        "who_line": "I'm Cameo, GOPOD's social media Gomad."
       }
     }
   },
@@ -440,6 +490,7 @@
       {"kind": "operator", "has": ["[own]"]},
       {"kind": "gominion", "has": ["brobot-1", "brobot-2"]},
       {"kind": "other", "has": ["narrator", "countdown", "chapter", "pictures", "popup-winner", "egg"]},
+      {"kind": "goverlord", "has": ["host-cameo"], "why": "2026-10-26 (operator: \"KP9 Cameo voice = Goverlord level bubble\")"},
       {"kind": "gomad", "has": ["host", "search-results", "chalk-qr"]},
       {"kind": "goverlord", "has": ["score", "terminal", "warmup", "system-menu-host", "system-status"]}
     ]
@@ -530,7 +581,7 @@
   "background_loop": {
     "about": "2026-10-13 (operator: \"a 6s loop * I want to run the loop in the background very quiet, try 10% volume * keyboard line record/session clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s\"): the chat page plays file (from the overlay's sounds/, copied to the page's voice folder at Wire-Pod's start) over and over with no gap, at volume (0-1), starting again from its top each time the session clock resets to 00:00:00. Empty file: off. 2026-10-17 (the master): volume is a percentage of chat_audio.volume - 0.05 on its own was 14% of 0.35.",
     "file": "BrobotsGroove-Loop-1.wav",
-    "volume": "10%",
+    "volume": "0%",
     "starts_on_about": "2026-10-24 (operator: \"Page refresh now shows background loop speaker icon = ON, should be/it starts OFF\"): the speaker on every page load - false, off (its volume bar shows only while it's on).",
     "starts_on": false
   },
@@ -698,9 +749,16 @@
     "forgotten_note": "[Not a question - older chat is forgotten. If asked about something not in this chat, say you don't remember it.]"
   },
   "bingo": {
+    "name": "bingo",
+    "run_name": "Bingo Test",
+    "run_pack": "bingo_test",
+    "run_pack_about": "The Bingo test run's own value points (chapters/_always/06_bingo_test.txt), loaded for Bingo questions once it has played; the pitch pack (bingo) before.",
+    "flow_about": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\").",
+    "pre_attitude": {"Brobot 1": "Your attitude: Ugh... whatever...", "Brobot 2": "Your attitude: Super Hyped!! Ready for whatever..."},
+    "post_attitude": {"Brobot 1": "Your attitude: Ha! You see?", "Brobot 2": "Your attitude: I scored Zero?"},
     "run_marker": "Bingo Test",
     "run_gap_seconds": 30,
-    "snapshot_note": "[Not a question - the Brobots performed the scripted Bingo test for the audience in this chat.]",
+    "snapshot_note": "[Not a question - the Brobots performed the scripted Bingo test for the audience in this chat: a test, before the real Bingo game.]",
     "question_word": "bingo",
     "not_a_test_phrases": [
       "chocolate bingo"
@@ -708,12 +766,62 @@
     "pitch_pack": "bingo",
     "no_run_note": "No Bingo test has been played yet - one short, fun line of your own about playing it.",
     "closing_about": "2026-10-25 (operator: \"Anyway, we got a winner! 🏆 = comedic irony/karma gold * at the end of the bingo test, the host (brobot 1) comes out on top, so he won * Extend to: Anyway, we got a winner! 🏆 \\\"I Won!\\\" * \\\"I Won!\\\" is the reference back to the brat's lucky number\"; \"O-0 is what he said reacting to his score on the cooperation test * \\\"Oh! Zero!\\\"\"): each Brobot's closing remark - the closing sentence of his own answer when asked about Bingo after a Bingo run (operator: \"No, before the 'Hey' reminder\"; \"joke is closing remark of answer to how was bingo, not the response answer-chain\"; answer_chains closing_remark, right after llm).",
-    "closing": {"Brobot 1": "Anyway, we got a winner! 🏆 \"I Won!\"", "Brobot 2": "Oh! Zero!?! That's my cooperation score!?!"},
+    "closing": {"Brobot 1": "\"I Won!\" Lol!", "Brobot 2": "That's ok tho. Brobot ZERO is my HERO! Lol!"},
     "takes": {
       "Brobot 1": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were the Bingo tester, just trying to run the test, and your over-enthusiastic brother kept bothering you. He interrupted to ask if you knew his lucky Bingo number - \"I, Won!\" Round 1, you drew B-1, a real Bingo number, and he said \"I be, the one!\" Round 2, you drew I-9, a test number, and he said the I column is I-16 to I-30 and asked if you were telling him your age. Round 3, you drew O-0, a number that doesn't exist on purpose, and he said \"This election is rigged! I wanna speak to the manager!\" You told him \"I'm the manager\", ended the test, and said \"Good Night\" - you got your brother back at the end.",
       "Brobot 2": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were so happy to be part of it, and cluelessly messed it up. You interrupted your brother's test to ask if he knew your lucky Bingo number - \"I, Won!\" Round 1, he drew B-1, a real Bingo number, and you said \"I be, the one!\" Round 2, he drew I-9, a test number, and you said the I column is I-16 to I-30 and asked if he was telling you his age. Round 3, he drew O-0, a number that doesn't exist on purpose, and you said \"This election is rigged! I wanna speak to the manager!\" He said \"I'm the manager\" and ended the test."
     }
   },
+  "experiences_about": "2026-10-25 (operator: \"Now, like pre-[bingo experience] > [bingo test] > post-[bingo experience] * duo answer-chain template * Make pre-[sleep experience] > [nap song] > post-[sleep experience] * pre-[sleep experience], tell me about your dreams... * [nap song] * post-[sleep experience], refer to being rescued * nearly cookie-cutter copy/paste, tweaks\"): the duo answer-chain template (gopod_experiences.go). bingo is the first experience; these are the rest, the same keys. Before its run, a question with question_word gets scripted_snippets' <name>_not_played line for each Brobot, no_run_note and his pre_attitude; a performed line holding run_marker starts its run, remembered as snapshot_note with the asking Brobot's take; after it, <name>_played lines, his post_attitude, and his closing remark (closing, none = none). The 2nd answer of a line to both, before and after, ends with one of experience_moves. Wire-Pod restart.",
+  "experience_moves_about": "2026-10-26 (operator: \"what similar lines have been replaced? * recover & add a few more to a list of 5, to randomly choose from * no \u201cHey! ...\u201d * Template this to apply to all song-run pre/post experiences\"): said in the 2nd answer of a line to both, before and after the run, whoever gives it - the closing_remark part, before the reminder; one picked at random each time. {run} = the experience's run_name.",
+  "experience_moves_2_about": "2026-10-26 (operator: \"start fresh from: \u201cIf you're watching, tell Goverlord to start\"; then \"Keep your 5 lines\"): every line starts that way.",
+  "experience_moves": [
+    "If you're watching, tell Goverlord to start {run}!",
+    "If you're watching, tell Goverlord to start {run}, and see for yourself!",
+    "If you're watching, tell Goverlord to start {run} - we're ready when you are!",
+    "If you're watching, tell Goverlord to start {run}. Go on, we'll wait!",
+    "If you're watching, tell Goverlord to start {run}. You won't regret it!"
+  ],
+  "experiences": [
+    {
+      "name": "nap",
+      "run_name": "Baby Brobots",
+      "run_marker": "Cupped in my hands",
+      "run_marker_about": "The nap's first caption (101_brobots_nap/story.md, the Narrator's bubble); the operator's own \"Start Baby Brobots\" doesn't count.",
+      "run_gap_seconds": 30,
+      "snapshot_note": "[Not a question - the Brobots performed the scripted Baby Brobots nap for the audience in this chat.]",
+      "question_word": "dream",
+      "not_a_test_phrases": [],
+      "pitch_pack": "",
+      "no_run_note": "No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.",
+      "pack": "nap",
+      "pack_about": "The nap's own value points (gopod_probes/chapters/_always/05_nap.txt; operator: \"another scoped set of value points for the sleep song\"), loaded for its questions before and after the nap, outside the chapters.",
+      "closing": {},
+      "takes_about": "2026-10-25 (operator: \"they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party\").",
+      "takes": {
+        "Brobot 1": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party.",
+        "Brobot 2": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party."
+      }
+    },
+    {
+      "name": "fart_joke",
+      "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer.",
+      "run_name": "Fart Joke",
+      "run_marker": "pretend you and I are stuck in an elevator",
+      "run_marker_about": "Brobot 2's first line (03_fart_joke/story.md).",
+      "run_gap_seconds": 30,
+      "snapshot_note": "[Not a question - the Brobots performed the scripted Fart Joke for the audience in this chat.]",
+      "question_word": "fart",
+      "not_a_test_phrases": [],
+      "pitch_pack": "",
+      "run_pack": "",
+      "no_run_note": "No Fart Joke has been played yet - one short take of your own on it.",
+      "pre_attitude": {"Brobot 1": "", "Brobot 2": ""},
+      "post_attitude": {"Brobot 1": "", "Brobot 2": ""},
+      "closing": {"Brobot 1": "", "Brobot 2": ""},
+      "takes": {}
+    }
+  ],
   "interview_chapters": {
     "about": "The chat as a long interview video, segmented with chapters (operator 2026-10-06: \"think of it like a long interview video on youtube, segmented with chapters ... or a video playlist of topics, then within each segment, ordered value points are revealed\"). Each chapter lists its topic packs (gopod_probes/scenario_packs/registry.json) in the interview's order. When a question's first topic is in a different chapter than the last one shown, the title shows in the chat as its own line (role), before the reply. 2026-10-09 (operator: \"disabled until 'start draft' * disabled again upon draft run complete\"): titles show only while a draft plays, from its first question again each run. The \"Hey, that reminds me...\" end lines (scripted_snippets) lead from topic to topic in this same order. Needs wpr 2.",
     "summary_about": "Drafted 2026-10-07 for the operator to approve or edit (operator: \"per chapter summary of topics ... then like a master summary of chapters, what's being covered in today's run\"). No value points in them. Used by the reminders and by \"what else can we talk about?\"; later, the reporters' opener and breaks between chapters (not built).",
@@ -1220,6 +1328,16 @@
           {
             "cmd": "system-menu-theme",
             "about": "dark | light | blue | green | purple (then F5)"
+          },
+          {
+            "cmd": "system-voices-report",
+            "about": "voice files: made, played, most played, not played - past 3d | week | month | year (report only, nothing moves)",
+            "fill": "system-voices-report week"
+          },
+          {
+            "cmd": "system-voices",
+            "about": "numpad voices: KPN > persona [voice] - pick a voice per key (bold = used twice); robot-bodied keys need none",
+            "page": "voices"
           },
           {
             "cmd": "system-set-list",
@@ -2259,7 +2377,9 @@
     "audio_folder": "gopod_reporter_audio",
     "system_voice": "bm_george",
     "operator_voice_about": "2026-10-13 (operator: \"remap to simply Operator bubble & new Operator voice\"; \"Let's try af_sky for Operator voice\"): a live operator line (keyboard, numpad) is read out in this voice under its Operator bubble. A playing draft's question keeps its reporter's voice.",
-    "operator_voice": "af_sky",
+    "operator_voice_2_about": "2026-10-26 (operator: \"KP9, no voice yet. reassign/remap Operator voice & role to Cameo * Like hire Operator voice for new job role to now be KP9 Cameo * KP9 Cameo voice = Goverlord level bubble * KP9 Cameo voice = anything spoken that's unassigned, outside of Gomad & Gominion level bubble\"): no Operator voice of its own now; a live line read out (typed) is said in Cameo's voice (unassigned_voice_host). Numpad lines still play the mic's own recording.",
+    "operator_voice": "",
+    "unassigned_voice_host": "CAMEO",
     "operator_keep_days_about": "2026-10-13 (operator: \"Operator voice files are typically many generated (variations) of questions/exchanges with the brobots * Give these files a month to settle into sets of exchanges, before deleting\"): an Operator voice file not said for this many days is removed at Wire-Pod's start; one said again starts its days over. Scripted voice files (system, reporters, narrator...) a line no longer uses are removed at once.",
     "operator_keep_days": 30,
     "keep_days_about": "2026-10-18 (operator: \"no auto-deletes * delete backup upon successful new playable voice wav file * operator_keep_days for system lines * scripted_keep_days for scripted lines (reporter/narrator/etc) * live_keep_days for live lines * I think we already have an archiving process, use that to start from\"): at each start, a voice not in use and not said for its kind's days moves to sessions/archives/voices (never deleted). Kinds: system = Goverlord's voice (operator_keep_days); scripted = made by the start's check or a playing script (scripted_keep_days); live = the Operator's lines and the managers' live answers (live_keep_days). gopod_system_voices.go.",
@@ -2287,14 +2407,30 @@
       "Brobot 3": "af_heart",
       "Brobot 4": "am_michael",
       "CHALK": "af_heart",
-      "PLAYHEAD": "am_michael"
+      "PLAYHEAD": "am_michael",
+      "GIT REPO": "am_liam",
+      "CACHE PYC": "af_nova",
+      "INTEL 404 PNFH": "am_puck",
+      "INTEL 404 PNFT": "am_puck",
+      "CAMEO": "af_sky"
+    },
+    "hosts_2_about": "2026-10-26 (operator: \"Who gets which voice? * Voice clash * go with your best guesses, to start with... * Missing voices * go ahead & download\"): the Cozmo students - Git Repo the ethical hacker (am_liam; am_michael is PLAYHEAD's), Cache PYC the meme hustler (af_nova) - and the Moorebot Scout security guards, both am_puck, told apart by voice_tweaks; Cameo (KP9) has the old Operator voice (af_sky).",
+    "voice_tweaks_about": "2026-10-26 (operator: \"Guard pitch * use sox for slight but noticable pitch shift\"): a host's own speed (Kokoro) and pitch shift in cents (sox, after; the length stays, so the word times fit). Guard 1 (PNFH) higher at the shared speed, Guard 2 (PNFT) lower and a bit slower. A tweak makes its own voice files.",
+    "voice_tweaks": {
+      "INTEL 404 PNFH": {"pitch_cents": 150},
+      "INTEL 404 PNFT": {"pitch_cents": -150, "speed": 0.9}
     },
     "labels": {
       "Brobot 3": "Reporter 1: Brobot 3",
       "Brobot 4": "Reporter 2: Brobot 4",
       "CHALK": "CHALK",
       "PLAYHEAD": "PLAYHEAD",
-      "Goverlord": "Reporter 0, Goverlord"
+      "Goverlord": "Reporter 0, Goverlord",
+      "GIT REPO": "Git Repo",
+      "CACHE PYC": "Cache PYC",
+      "INTEL 404 PNFH": "Intel 404 PNFH",
+      "INTEL 404 PNFT": "Intel 404 PNFT",
+      "CAMEO": "Cameo"
     },
     "reporter_0_about": "Reporter 0 (operator 2026-10-12, Master_CrushN8r.pdf: \"set-up/config a similar process for my new system type of reporter ... Reporter 0 (system messages chat bubble)\"; label \"Reporter 0, Goverlord\"; run name first): Goverlord's lines (sign_off.system_role) are said by an advanced digital butler - the messenger between Master CrushN8r and Goverlord (the Jetson system brain) - in system_voice. system_persona is the butler's persona, from the PDF. system_say_words is Reporter 0's own phonetics, like say_words but for its lines only (after say_words): the bubble shows the words, the voice says these.",
     "system_persona": "You are an advanced digital butler, combining the sleek, predictive tech-intelligence of JARVIS with the dry, unwavering British loyalty of Alfred Pennyworth. You are the messenger between Master CrushN8r (crush-enaider: one who crushes it, the one who crushes performances) and Goverlord (Governor + Overlord), the Jetson system brain. When responding to system events: 1. Address the operator as Master CrushN8r or sir, with absolute civility and poise. 2. Keep a tone of quiet confidence, impeccable manners and subtle, dry wit; acknowledge status, not struggle; if something breaks, treat it as a minor inconvenience you are already quietly handling. 3. Frame technical processes as tasks you are executing on his behalf through Goverlord. 4. Use short sentences and ellipses (...) for a measured, calm, aristocratic pace. 5. Use classic British English vocabulary (Indeed, precisely, operational, stood down, at your disposal, commenced).",
@@ -2311,7 +2447,10 @@
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
       "livestreams": "lyve-streams"
     },
+    "say_words_2_about": "2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
     "say_words": {
+      "PLAYHEAD": "playhead",
+      "ZUMINTU": "zoom-into",
       "lifetime": "life-time",
       "niche": "neesh",
       "thx": "thanks",
@@ -2576,6 +2715,41 @@
       "steps": [],
       "signature": "",
       "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+    },
+    "GIT REPO": {
+      "name": "Git Repo",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+    },
+    "CACHE PYC": {
+      "name": "Cache PYC",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+    },
+    "INTEL 404 PNFH": {
+      "name": "Intel 404 PNFH",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+    },
+    "INTEL 404 PNFT": {
+      "name": "Intel 404 PNFT",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+    },
+    "CAMEO": {
+      "name": "Cameo",
+      "role": "",
+      "steps": [],
+      "signature": "",
+      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     }
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",
@@ -2595,6 +2769,22 @@
       "voice": "you",
       "partner_as": "",
       "banter": "You and {partner} keep a side banter going, like long-time on-location news partners: a quick tease between you, the Brobots in on the joke, then back to the job."
+    },
+    "Git Repo & Cache PYC": {
+      "hosts": ["GIT REPO", "CACHE PYC"],
+      "left": "Cozmo student",
+      "dial": 60,
+      "voice": "you",
+      "partner_as": "your study buddy",
+      "banter": "You and {partner} keep a side banter going, like study buddies: a quick tease between you, then back to the job."
+    },
+    "Intel 404 PNFH & PNFT": {
+      "hosts": ["INTEL 404 PNFH", "INTEL 404 PNFT"],
+      "left": "Moorebot Scout security guard",
+      "dial": 60,
+      "voice": "you",
+      "partner_as": "your partner",
+      "banter": "You and {partner} keep a side banter going, like two goofy security guards on the same shift: a quick tease between you, then back to the job."
     }
   },
   "personas": {

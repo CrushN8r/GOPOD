@@ -1901,7 +1901,7 @@ _WARN_ON_FAILURE_NOTES = {"rattle", "brobots_ready_together", "arm_cue", "nod", 
 # _SSNN is read as <who>_<part>_<part>..._SSNN and its parts are compared, in
 # order, to what its knobs.json entry plays; other names (the nap's line_30,
 # soft_wake...) are free labels and aren't read.
-STEP_NAME_WHO = {"host", "brat", "brobots", "reporter", "goverlord"}
+STEP_NAME_WHO = {"host", "brat", "brobots", "reporter", "goverlord", "narrator"}
 STEP_NAME_NOTES = {"say": "say_turn", "nod": "nod", "rattle": "rattle", "gap": "pause",
                    "wake": "wake_both", "ready": "brobots_ready_together",
                    "sleep": "sleep_both", "exit": "exit",
@@ -1912,7 +1912,10 @@ STEP_NAME_NOTES = {"say": "say_turn", "nod": "nod", "rattle": "rattle", "gap": "
                    # warm_ / warm_wait_ / warm_ready_ below) - the warm notes are
                    # played by Wire-Pod (gopod_opener_song.go).
                    "timer": "timer", "sequence": "sequence", "lines": "reporter_lines",
-                   "sting": "sting"}
+                   "sting": "sting",
+                   # 2026-10-25 (operator: "nap song & update to new format"):
+                   # the nap's captions (narrator_line_), Goverlord's line.
+                   "line": "pause", "system": "system_line"}
 STEP_NAME_THINKING = [("thinking", "")]
 # 2026-10-13 (operator: "Add \"danger\" + new wavs to the master list * grunge &
 # djent3b"): the shared sounds, by name (sounds/danger-will-robinson.wav,
@@ -1949,6 +1952,8 @@ def step_name_problem(step_id, plays):
             i += 1
         elif w == "arm" and nxt == "cue":
             want.append(("arm_cue", "")); i += 2
+        elif w == "soft" and nxt == "wake":
+            want.append(("wake_sleepy", "")); i += 2
         elif w == "llm" and nxt == "song":
             # 2026-10-20: llm_song_ - the folder's _llm_song run (gopod_llm_song.go).
             want.append(("llm_song", "")); i += 2

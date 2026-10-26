@@ -111,7 +111,7 @@ func gopodAudioLevelsUpdate() {
 					logger.Println("GOPOD_AUDIO_LEVELS " + page + ": " + err.Error())
 					continue
 				}
-				os.WriteFile(out+".settings", []byte(settings), 0o644)
+				gopodWriteFile(out+".settings", []byte(settings), 0o644)
 			}
 			gopodAudioMade.Lock()
 			gopodAudioMade.seen[page] = stamp
@@ -136,7 +136,7 @@ func gopodAudioLevelsUpdate() {
 	gopodAudioMade.Unlock()
 	data, _ := json.Marshal(out)
 	tmp := gopodAudioLevelsPath + ".tmp"
-	if os.WriteFile(tmp, data, 0o644) == nil {
+	if gopodWriteFile(tmp, data, 0o644) == nil {
 		os.Rename(tmp, gopodAudioLevelsPath)
 		logger.Println(fmt.Sprintf("GOPOD_AUDIO_LEVELS %d sounds evened to %s LUFS, held under %s dB", len(out.Made), jsonNumber(ca.LoudnessLUFS), jsonNumber(ca.NormalizeDB)))
 	}
@@ -176,7 +176,7 @@ var gopodLoudnessFile = func(in, out string) error {
 	if limit < 0.0625 {
 		limit = 0.0625
 	}
-	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
+	if err := gopodMkdirAll(filepath.Dir(out), 0o755); err != nil {
 		return err
 	}
 	tmp := out + ".tmp.wav"

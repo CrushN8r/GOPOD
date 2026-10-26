@@ -26,8 +26,8 @@ build.
   or hold a numpad key and talk.
 - **Named runs.** `start interview` plays a scripted ten-question interview, the same every
   time and ready to record. `start bingo test` plays the Bingo test song. `start baby
-  brobots` plays a lyric video in the chat while the Brobots act it out. `stop run` stops any of
-  them at a safe spot.
+  brobots` plays a lyric video in the chat while the Brobots act it out. `start fart joke`
+  plays the fart joke. `stop run` stops any of them at a safe spot.
 - **GOPOD Yourself.** Say the wake phrase: Brobot 1 points you to the newsletter, Brobot 2 to
   crushn8r.ca.
 - **Generate, then script.** The local LLM writes the interview, you keep the best takes,
@@ -41,6 +41,20 @@ build.
   test, grouped in order, answered in the same window. Edit GOPOD without a terminal.
 - **Camera feeds.** Each Brobot's camera in the chat, with the Edge TPU's object boxes.
   KP+ / KP- switch feeds.
+- **The app.** Visitors open the chat on their phone as an app: the Brobots chat alone, the
+  same bubbles and highlight, nothing of Wire-Pod's own pages.
+- **A cast on the numpad.** KP1/KP2 talk to the Brobots, KP0 to both. KP7 CHALK and KP8
+  PLAYHEAD (the news crew), KP3/KP4 the Cozmo students Git Repo and Cache PYC, KP5/KP6 the
+  Moorebot Scout security guards Intel 404 PNFH and PNFT, KP9 Cameo (social media): each a
+  voice persona with its own Kokoro voice (the guards one voice, pitched apart with sox),
+  answering from the local LLM. Pick each key's voice from a menu (`system-voices`).
+- **Before and after a song.** Ask about Bingo or dreams before the song has played and the
+  Brobots tease it; after, they remember it their own way, and one of them tells the viewers
+  how to start it. One template for every song (`experiences` in the settings file).
+- **Voice files that look after themselves.** Each voice file carries a profile: made when,
+  played how often, last played. `system-voices-report week` shows what's popular.
+- **Your files stay yours.** Wire-Pod runs as root; everything GOPOD makes in your home (voices,
+  photos, sessions) is still owned by you.
 
 ## Take it home
 
@@ -80,7 +94,7 @@ About $1K to #3K CDN.
 ## Where it stands
 
 Live-tested: the Brobots chat, the scripted interview, the Bingo test song, numpad
-push-to-talk. Not yet, and said plainly: see "Where this stands" in
+push-to-talk, the numpad's voice personas. Not yet, and said plainly: see "Where this stands" in
 [WIRED-POD.md](WIRED-POD.md#where-this-stands). The websites are under construction; some
 work well enough to demo.
 

@@ -185,18 +185,15 @@ type gopodBrobotsSettingsFile struct {
 		PerformedNote         string `json:"performed_note"`
 		ForgottenNote         string `json:"forgotten_note"`
 	} `json:"shared_chat"`
-	Bingo struct {
-		RunMarker     string            `json:"run_marker"`
-		RunGapSeconds float64           `json:"run_gap_seconds"`
-		SnapshotNote  string            `json:"snapshot_note"`
-		QuestionWord  string            `json:"question_word"`
-		NotATest      []string          `json:"not_a_test_phrases"`
-		PitchPack     string            `json:"pitch_pack"`
-		NoRunNote     string            `json:"no_run_note"`
-		Takes         map[string]string `json:"takes"`
-		// 2026-10-25: each Brobot's closing remark after a Bingo run (gopodBingoClosing).
-		Closing map[string]string `json:"closing"`
-	} `json:"bingo"`
+	// 2026-10-25 (operator: "pre-[bingo experience] > [bingo test] >
+	// post-[bingo experience] * duo answer-chain template * Make pre-[sleep
+	// experience] > [nap song] > post-[sleep experience]"): Bingo is the first
+	// experience; experiences holds the rest (the nap), the same keys.
+	Bingo       gopodExperience   `json:"bingo"`
+	Experiences []gopodExperience `json:"experiences"`
+	// 2026-10-26: the moves to start it, one picked at random, in the second
+	// answer (gopodExperienceClosing).
+	ExperienceMoves   []string `json:"experience_moves"`
 	InterviewChapters struct {
 		Role     string `json:"role"`
 		Label    string `json:"label"`
@@ -315,6 +312,16 @@ type gopodBrobotsSettingsFile struct {
 		SystemSayWords map[string]string `json:"system_say_words"`
 		// 2026-10-13: the voice that reads a live operator line.
 		OperatorVoice string `json:"operator_voice"`
+		// 2026-10-26 (operator: "reassign/remap Operator voice & role to Cameo
+		// * KP9 Cameo voice = anything spoken that's unassigned"): with no
+		// operator_voice, this host's voice reads it (CAMEO).
+		UnassignedVoiceHost string `json:"unassigned_voice_host"`
+		// 2026-10-26 (operator: "use sox for slight but noticable pitch shift"):
+		// a host's own speed and pitch (cents, sox), over the shared speed.
+		VoiceTweaks map[string]struct {
+			Speed      float64 `json:"speed"`
+			PitchCents float64 `json:"pitch_cents"`
+		} `json:"voice_tweaks"`
 		// 2026-10-13: days an unused Operator voice file is kept.
 		OperatorKeepDays  float64 `json:"operator_keep_days"`
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
@@ -879,6 +886,36 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 // gopodSecondsToDuration turns a settings value in seconds into a time.Duration.
 func gopodSecondsToDuration(seconds float64) time.Duration {
 	return time.Duration(seconds * float64(time.Second))
+}
+
+// gopodExperience: a scripted song's pre/post chat (the duo answer-chain
+// template, gopod_experiences.go): before its run, a question about it gets
+// its <name>_not_played lines and no_run_note; after, the snapshot note, each
+// Brobot's take and his closing remark.
+type gopodExperience struct {
+	Name          string            `json:"name"`
+	RunMarker     string            `json:"run_marker"`
+	RunGapSeconds float64           `json:"run_gap_seconds"`
+	SnapshotNote  string            `json:"snapshot_note"`
+	QuestionWord  string            `json:"question_word"`
+	NotATest      []string          `json:"not_a_test_phrases"`
+	PitchPack     string            `json:"pitch_pack"`
+	NoRunNote     string            `json:"no_run_note"`
+	Takes         map[string]string `json:"takes"`
+	// 2026-10-25: each Brobot's closing remark after a run (gopodExperienceClosing).
+	Closing map[string]string `json:"closing"`
+	// 2026-10-25 (operator: "another scoped set of value points for the sleep
+	// song"): its own topic (chapters/_always), outside the chapters, loaded for
+	// its questions; run_pack (the Bingo test's) only once it has played.
+	Pack    string `json:"pack"`
+	RunPack string `json:"run_pack"`
+	// 2026-10-26 (operator: "scripted in: \"If you're watching me right now, tell
+	// Goverlord to start [run-name]!\""): its name in experience_move.
+	RunName string `json:"run_name"`
+	// 2026-10-26 (operator: "b1 framing ... [Ugh... whatever...]"): each
+	// Brobot's attitude, before and after it has played, with the facts.
+	PreAttitude  map[string]string `json:"pre_attitude"`
+	PostAttitude map[string]string `json:"post_attitude"`
 }
 
 // ## EOF

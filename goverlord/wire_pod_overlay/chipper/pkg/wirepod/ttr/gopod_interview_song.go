@@ -129,7 +129,7 @@ func gopodInterviewSongDraft(dir string) (gopodDraft, error) {
 	knobsPath := filepath.Join(dir, "knobs.json")
 	if _, err := os.Stat(knobsPath); err != nil {
 		if data, rerr := os.ReadFile(filepath.Join(dir, "zKnobs.json")); rerr == nil {
-			_ = os.WriteFile(knobsPath, data, 0o644)
+			_ = gopodWriteFile(knobsPath, data, 0o644)
 		}
 	}
 	data, err := os.ReadFile(knobsPath)

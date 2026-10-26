@@ -482,7 +482,7 @@ func gopodSystemRestart(text string) string {
 	audio := gopodSetAudioRouting()
 	logger.Println("GOPOD_SYSTEM_RESTART audio: " + audio)
 	// wpr 2's own reset: the rich display dormant on the next page load.
-	_ = os.WriteFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_rich_display_ui_state.json"), []byte(`{"expanded":false,"run_active":false}`+"\n"), 0o644)
+	_ = gopodWriteFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_rich_display_ui_state.json"), []byte(`{"expanded":false,"run_active":false}`+"\n"), 0o644)
 	go func() {
 		time.Sleep(2 * time.Second)
 		logger.Println("GOPOD_SYSTEM_RESTART restarting wire-pod (forced, like wpr 2)")

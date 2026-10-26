@@ -575,7 +575,7 @@ func gopodWriteLLMWarmupState(active bool) {
 		return
 	}
 	tmp := gopodLLMWarmupStatePath + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
+	if err := gopodWriteFile(tmp, data, 0644); err != nil {
 		logger.Println("GOPOD_LLM_WARMUP unable to write " + tmp + ": " + err.Error())
 		return
 	}

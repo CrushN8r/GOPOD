@@ -264,7 +264,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	// brother continues the conversation in his own voice instead of copying.
 	// Replaces the per-robot remembered chat (GetChat) for the Brobots.
 	if vars.APIConfig.Knowledge.SaveChat {
-		shared := gopodAddBingoTake(esn, gopodSharedBrobotChat())
+		shared := gopodAddExperienceTakes(esn, gopodSharedBrobotChat())
 		logger.Println("Using shared Brobots chat, length of " + fmt.Sprint(len(shared)) + " messages")
 		nChat = append(nChat, shared...)
 	}

@@ -47,11 +47,11 @@ func gopodMicVoicePaths(master, text string) (string, string) {
 // gopodMicVoiceFile: the recording evened and timed; its page path and length.
 func gopodMicVoiceFile(master, text string) (string, float64, bool) {
 	file, page := gopodMicVoicePaths(master, text)
-	_ = os.MkdirAll(filepath.Dir(file), 0o755)
+	_ = gopodMkdirAll(filepath.Dir(file), 0o755)
 	if err := gopodLoudnessFile(master, file); err != nil || !gopodFileExists(file) {
 		// Evening off (or no ffmpeg): the recording as it is.
 		data, rerr := os.ReadFile(master)
-		if rerr != nil || os.WriteFile(file, data, 0o644) != nil {
+		if rerr != nil || gopodWriteFile(file, data, 0o644) != nil {
 			return "", 0, false
 		}
 	}
@@ -110,6 +110,10 @@ func gopodMicVoiceSay(host, text string) bool {
 		return false
 	}
 	logger.Println("GOPOD_MIC_VOICE the mic's own voice: " + filepath.Base(master) + " -> " + page)
+	// 2026-10-26: its profile; the same words recorded before - archived, their
+	// profile taken over (gopodVoiceProfileTakeOver).
+	gopodVoiceProfileMade(filepath.Base(page), "mic", host, "", text)
+	gopodVoiceProfileTakeOver(filepath.Base(page), text)
 	gopodVoicePlay(host, text, page, seconds, true)
 	return true
 }

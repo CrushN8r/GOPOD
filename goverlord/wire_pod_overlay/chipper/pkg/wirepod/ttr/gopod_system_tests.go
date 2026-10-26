@@ -242,9 +242,9 @@ var gopodSystemTests = []gopodSystemTest{
 		tt := gopodBrobotsSettings.SystemTests.Tpu
 		src := filepath.Join(gopodChipperRoot(), "webroot", "pictures", tt.Picture)
 		dst := filepath.Join(gopodVisualDir(), "tpu_test.jpg")
-		os.MkdirAll(gopodVisualDir(), 0o755)
+		gopodMkdirAll(gopodVisualDir(), 0o755)
 		data, err := os.ReadFile(src)
-		if err != nil || os.WriteFile(dst, data, 0o644) != nil {
+		if err != nil || gopodWriteFile(dst, data, 0o644) != nil {
 			return false, "no test picture"
 		}
 		objects, err := gopodQuickLookObjects(dst)
@@ -400,11 +400,9 @@ func gopodPactl(args ...string) (string, error) {
 	if _, u, _ := gopodRecordRoot(); u > 0 {
 		uid = fmt.Sprint(u)
 	}
+	// As the operator (gopodAsOperator, one place since 2026-10-26).
 	cmd := gopodAsOperator(exec.Command("pactl", args...))
-	if os.Geteuid() == 0 && uid != "" {
-		cmd = gopodAsOperator(exec.Command("setpriv", append([]string{"--reuid=" + uid, "--regid=" + uid, "--init-groups", "pactl"}, args...)...))
-	}
-	cmd.Env = append(os.Environ(), "XDG_RUNTIME_DIR=/run/user/"+uid)
+	cmd.Env = append(cmd.Env, "XDG_RUNTIME_DIR=/run/user/"+uid)
 	out, err := cmd.Output()
 	return strings.TrimSpace(string(out)), err
 }
@@ -440,10 +438,8 @@ func gopodAsOperatorUser(name string, args ...string) *exec.Cmd {
 	if _, u, _ := gopodRecordRoot(); u > 0 {
 		uid = fmt.Sprint(u)
 	}
+	// As the operator (gopodAsOperator, one place since 2026-10-26).
 	cmd := gopodAsOperator(exec.Command(name, args...))
-	if os.Geteuid() == 0 && uid != "" {
-		cmd = gopodAsOperator(exec.Command("setpriv", append([]string{"--reuid=" + uid, "--regid=" + uid, "--init-groups", name}, args...)...))
-	}
 	cmd.Env = append(cmd.Env, "XDG_RUNTIME_DIR=/run/user/"+uid, "PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin")
 	return cmd
 }

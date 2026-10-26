@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,6 +39,34 @@ func TestGopodNumpadRealMap(t *testing.T) {
 	}
 	if _, esn, err := gopodNumpadBrobot("KP1"); err != nil || esn != gopodBrobot1ESN {
 		t.Fatalf("KP1 -> %q, %v", esn, err)
+	}
+}
+
+// 2026-10-26 (operator: "\"1 robust key detection process\" = Template/unify so
+// everything goes through 1 place"; "if a KPN is voice assigned, make it chat
+// ready"): the page's targets come from gopodNumpadBrobot - every live key one.
+func TestGopodNumpadTargetsOnePlace(t *testing.T) {
+	if _, err := os.Stat(gopodNumpadMapPath()); err != nil {
+		t.Skip("no golden map on this machine")
+	}
+	data, err := GopodNumpadMapJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out struct {
+		Targets map[string]string `json:"targets"`
+	}
+	if json.Unmarshal(data, &out) != nil {
+		t.Fatal("no targets for the page")
+	}
+	for key, want := range map[string]string{"KP0": "All", "KP1": "Brobot 1", "KP2": "Brobot 2", "KP3": "GIT REPO", "KP4": "CACHE PYC",
+		"KP5": "INTEL 404 PNFH", "KP6": "INTEL 404 PNFT", "KP7": "CHALK", "KP8": "PLAYHEAD", "KP9": "CAMEO"} {
+		if got := out.Targets[key]; got != want {
+			t.Errorf("%s -> %q, want %q", key, got, want)
+		}
+		if gopodReporterVoice(want) == "" && key != "KP0" && key != "KP1" && key != "KP2" {
+			t.Errorf("%s (%s) has no voice", key, want)
+		}
 	}
 }
 

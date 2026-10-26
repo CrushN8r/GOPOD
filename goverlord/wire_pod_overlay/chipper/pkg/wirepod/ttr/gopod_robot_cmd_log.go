@@ -220,8 +220,8 @@ func gopodSoundsToPage() {
 	for _, f := range files {
 		data, err := os.ReadFile(f)
 		if err == nil {
-			_ = os.MkdirAll(folder, 0o755)
-			err = os.WriteFile(filepath.Join(folder, filepath.Base(f)), data, 0o644)
+			_ = gopodMkdirAll(folder, 0o755)
+			err = gopodWriteFile(filepath.Join(folder, filepath.Base(f)), data, 0o644)
 		}
 		if err != nil {
 			logger.Println("GOPOD_SOUND_PAGE copy failed: " + err.Error())

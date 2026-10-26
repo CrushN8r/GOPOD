@@ -71,7 +71,7 @@ func gopodWriteSpeakingPiece(esn, text string, piece int, active, interrupted bo
 	}
 	data, _ := json.Marshal(gopodSpeakingNow{ESN: esn, Text: text, Active: active, Interrupted: interrupted, Piece: piece, Seq: gopodSpeakingNowSeq, TimeMs: time.Now().UnixMilli(), Feed: feed})
 	tmp := gopodSpeakingNowPath + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
+	if err := gopodWriteFile(tmp, data, 0644); err != nil {
 		logger.Println("GOPOD speaking-now write failed: " + err.Error())
 		return
 	}

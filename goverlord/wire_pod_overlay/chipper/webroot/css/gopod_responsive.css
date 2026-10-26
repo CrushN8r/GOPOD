@@ -97,11 +97,13 @@ body.gopod-visitor .gopod-typed-input .gopod-loop-volume { display: none !import
    text field green * after drop down menu add a submit button for typed text *
    make submit button the same smaller font size"). */
 .gopod-typed-input .gopod-typed-submit { display: none; }
-body.gopod-visitor .gopod-typed-input .gopod-all-first,
+/* The All menu's own look is shared with the admin page since 2026-10-26
+   (.gopod-all-first, gopod_chat_bubbles.css); the visitor's submit button
+   matches it. */
 body.gopod-visitor .gopod-typed-input .gopod-typed-submit {
   font-size: 0.8em;
   border: 1px solid var(--fg-color);
-  outline: none !important; /* over the "All picked" outline (gopod_chat_bubbles.css) */
+  outline: none;
   box-shadow: none;
 }
 body.gopod-visitor .gopod-typed-input .gopod-typed-submit {

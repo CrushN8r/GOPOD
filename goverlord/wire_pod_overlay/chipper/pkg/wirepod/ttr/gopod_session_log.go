@@ -69,7 +69,7 @@ func GopodSessionLogStart() {
 	now := time.Now()
 	dir := filepath.Join(root, now.Format("2006-01-02"), now.Format("150405")+"_session")
 	for _, d := range []string{dir, filepath.Join(dir, "runs"), filepath.Join(dir, "notation")} {
-		if err := os.MkdirAll(d, 0o755); err != nil {
+		if err := gopodMkdirAll(d, 0o755); err != nil {
 			logger.Println("GOPOD_SESSION_LOG unable to make " + d + ": " + err.Error())
 			return
 		}
@@ -251,6 +251,7 @@ func gopodCopyFile(from, to string) error {
 	if err != nil {
 		return err
 	}
+	gopodOwn(to)
 	defer out.Close()
 	_, err = io.Copy(out, in)
 	return err
@@ -306,7 +307,7 @@ func gopodSessionLogWriteLocked() {
 
 func gopodSessionLogWriteFile(path string, data []byte) {
 	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	if err := gopodWriteFile(tmp, data, 0o644); err != nil {
 		return
 	}
 	_, uid, gid := gopodRecordRoot()

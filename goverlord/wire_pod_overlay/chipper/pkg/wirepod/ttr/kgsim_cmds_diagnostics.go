@@ -35,7 +35,7 @@ func saveRobotSayTextDiagnostic(esn, rawStr, cleanedText, finalText string, time
 	if dir == "" {
 		return "", nil
 	}
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := gopodMkdirAll(dir, 0755); err != nil {
 		return "", err
 	}
 	safeESN := safeDiagnosticESN(esn)
@@ -55,7 +55,7 @@ func saveRobotSayTextDiagnostic(esn, rawStr, cleanedText, finalText string, time
 		finalText,
 		"",
 	}, "\n")
-	if err := os.WriteFile(path, []byte(body), 0644); err != nil {
+	if err := gopodWriteFile(path, []byte(body), 0644); err != nil {
 		return "", err
 	}
 	return path, nil
@@ -66,7 +66,7 @@ func saveBrobotResponseDiagnostics(esn string, result gopodStreamResult, sentPac
 	if dir == "" {
 		return nil, nil
 	}
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := gopodMkdirAll(dir, 0755); err != nil {
 		return nil, err
 	}
 	safeESN := safeDiagnosticESN(esn)
@@ -107,10 +107,10 @@ func saveBrobotResponseDiagnostics(esn string, result gopodStreamResult, sentPac
 	}, "\n")
 	logPath := filepath.Join(dir, "logs_"+safeESN+"_"+stamp+".txt")
 	allPath := filepath.Join(dir, "all_logs_"+safeESN+"_"+stamp+".txt")
-	if err := os.WriteFile(logPath, []byte(logBody), 0644); err != nil {
+	if err := gopodWriteFile(logPath, []byte(logBody), 0644); err != nil {
 		return nil, err
 	}
-	if err := os.WriteFile(allPath, []byte(allBody), 0644); err != nil {
+	if err := gopodWriteFile(allPath, []byte(allBody), 0644); err != nil {
 		return nil, err
 	}
 	return []string{logPath, allPath}, nil

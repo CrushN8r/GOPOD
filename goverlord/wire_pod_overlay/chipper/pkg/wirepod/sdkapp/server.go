@@ -743,6 +743,8 @@ func BeginServer() {
 	// GOPOD 2026-10-04: the chat page's numpad push-to-talk (gopod_numpad_ptt.go).
 	http.HandleFunc("/api-sdk/gopod_numpad_map", gopodNumpadMapHandler)
 	http.HandleFunc("/api-sdk/gopod_numpad_ptt", gopodNumpadPTTHandler)
+	// GOPOD 2026-10-26: the system menu's numpad-to-voices map (gopod_voice_map.go).
+	http.HandleFunc("/api-sdk/gopod_voice_map", gopodVoiceMapHandler)
 	// GOPOD 2026-10-24 (C3): GOPOD, securely, for the phone app (gopod_https.go).
 	go wirepod_ttr.GopodStartHTTPS()
 	// GOPOD 2026-09-30: a fresh, empty chat feed with this start's own stamp, so the

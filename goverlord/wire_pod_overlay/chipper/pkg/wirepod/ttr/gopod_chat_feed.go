@@ -255,11 +255,13 @@ func gopodChatFeedAddEventVia(who, to, by, via, text string) {
 	}
 	// 2026-10-23: listed expletives shown struck through (gopodStrikeExpletives).
 	text = gopodStrikeExpletives(text)
-	// A Brobot saying a Bingo test line means the Bingo test has been played
-	// since this Wire-Pod start (gopodBingoPlayed, gopod_brobot_personas.go).
-	// The operator typing "Bingo Test Live" doesn't count; the song's own lines do.
-	if who != "Operator" && strings.Contains(text, gopodBingoRunMarker) {
-		gopodBingoPlayed.Store(true)
+	// A song's own line holding an experience's run marker ("Bingo Test") means
+	// it has been played since this Wire-Pod start (gopod_experiences.go). The
+	// operator typing "Bingo Test Live" doesn't count; the song's own lines do.
+	gopodExperienceMarkPlayed(who, text)
+	// 2026-10-26 (the voice profiles): a voice file going to the page is a play.
+	if strings.HasPrefix(text, "/gopod_reporter_audio/") && strings.HasSuffix(text, ".wav") {
+		go gopodVoiceUsed(strings.TrimPrefix(text, "/gopod_reporter_audio/"))
 	}
 	gopodChatFeed.Lock()
 	gopodChatFeed.next++
@@ -311,7 +313,7 @@ func gopodWriteChatFeedLocked() {
 		return
 	}
 	tmp := gopodChatFeedPath + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
+	if err := gopodWriteFile(tmp, data, 0644); err != nil {
 		logger.Println("GOPOD chat feed: unable to write " + tmp + ": " + err.Error())
 		return
 	}

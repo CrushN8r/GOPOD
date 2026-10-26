@@ -125,7 +125,7 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 		}
 	}
 	res := gopodVisualResult{Index: pos, Count: count, ID: src.ID, Label: src.Label}
-	os.MkdirAll(gopodVisualDir(), 0o755)
+	gopodMkdirAll(gopodVisualDir(), 0o755)
 	file := filepath.Join(gopodVisualDir(), src.ID+".jpg")
 	var err error
 	switch {
@@ -138,7 +138,7 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 		gopodRobotCall(esn, true, func(robot *vector.Vector, ctx context.Context) string {
 			resp, e := robot.Conn.CaptureSingleImage(ctx, &vectorpb.CaptureSingleImageRequest{EnableHighResolution: true})
 			if e == nil && resp != nil && len(resp.Data) > 0 {
-				e = os.WriteFile(file, resp.Data, 0o644)
+				e = gopodWriteFile(file, resp.Data, 0o644)
 			} else if e == nil {
 				e = fmt.Errorf("empty frame")
 			}
