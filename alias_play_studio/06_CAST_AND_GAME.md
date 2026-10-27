@@ -180,6 +180,11 @@ list. Each "Hey, that reminds me..." names at least one egg still to find; a que
 still ends with two (not a thank-you); each in turn, then round again. `gopod_egg_list.go`,
 `TestEggList`.
 
+**Reminder rounds.** The topics a reminder names are named once each; once every topic still to
+cover has been named, a new round starts - the list again, less what's already been talked about
+(covered topics and found eggs stay off). The Brobots never run out of things to sell.
+`TestRemindersStartAgain`.
+
 ---
 
 ### 13.6 Found eggs give a summary

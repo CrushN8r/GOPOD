@@ -59,6 +59,13 @@ func gopodReminded(name string) bool {
 	return gopodCoverage.reminded[name]
 }
 
+// gopodRemindAgain: a new round of reminders - nothing counts as reminded.
+func gopodRemindAgain() {
+	gopodCoverage.Lock()
+	defer gopodCoverage.Unlock()
+	gopodCoverage.reminded = map[string]bool{}
+}
+
 func gopodRemind(names ...string) {
 	gopodCoverage.Lock()
 	defer gopodCoverage.Unlock()
@@ -467,6 +474,20 @@ func gopodReminderLine(userMessage string) string {
 	skip := map[string]bool{}
 	for k := 1; k <= vp.ReminderSkip && last+k < len(order); k++ {
 		skip[order[last+k]] = true
+	}
+	// 2026-10-27 (operator: "once all reminders have been suggested, brobots go
+	// through the reminder's list again less what's already talked about * as
+	// GOPOD reps, that's their employment obligation, lol"): when every open
+	// topic has been reminded, a new round starts - covered topics stay off.
+	fresh := false
+	for _, t := range order {
+		if open(t) && !skip[t] && ic.TopicLabels[t] != "" && !gopodReminded(t) {
+			fresh = true
+			break
+		}
+	}
+	if !fresh {
+		gopodRemindAgain()
 	}
 	current := order[last]
 	if lastOfChapter[current] && vp.ReminderChaptersText != "" {
