@@ -1210,10 +1210,17 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    text = 75% header-size * notive-bubbles = 50%"): a numpad line to a Gomad
    (KP7 to CHALK) - your words three quarters of the header, the key's status
    lines (keep holding, recording, transcribing) half. */
+/* 2026-10-27 (operator: "KPN to [persona-name] * Header: 100% of header font
+   height * Numpad notices (like notice bubble) 50% * Answer-chain 75%"): every
+   numpad line (KP0-KP9, to a Brobot or a Gomad) the same way. */
+.brobot-bubble.numpad-line > .brobot-bubble-head,
+.brobot-bubble.numpad-to-gomad > .brobot-bubble-head { font-size: 100%; }
+.brobot-bubble.numpad-line > .brobot-bubble-text,
 .brobot-bubble.numpad-to-gomad > .brobot-bubble-text {
   font-size: 75%;
   letter-spacing: 0.03em;
 }
+.brobot-bubble.numpad-line > .numpad-lines,
 .brobot-bubble.numpad-to-gomad > .numpad-lines { font-size: 50%; }
 
 /* 2026-10-25 (operator: "Topics 3 of 7: ===---- * Value Points 1 of 19:

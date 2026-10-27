@@ -101,12 +101,27 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 // in the chat, so yes to context is required, so yes to chat history access"):
 // the persona's prompt, the Brobots' shared chat (the same recent exchanges the
 // Brobots answer from), then the line.
+// 2026-10-27 (live: every Gomad's "tell me all about yourself" came back as
+// the Brobots' own answer - "rescued Brobots! NGL, bro!", Cache PYC "I'm a
+// Brobot 2"): the Brobots' answers were handed over as the persona's own past
+// replies, so it repeated them. Now the chat is one note of other people's
+// lines (here_now.chat_note, each answer as here_now.chat_answer), then the line.
 func gopodPersonaMessages(host, text string) []map[string]string {
 	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPrompt(host)}}
+	hn := gopodBrobotsSettings.HereNow
+	var lines []string
 	for _, m := range gopodSharedBrobotChat() {
-		if c := strings.TrimSpace(m.Content); c != "" && (m.Role == "user" || m.Role == "assistant") {
-			msgs = append(msgs, map[string]string{"role": m.Role, "content": c})
+		c := strings.TrimSpace(m.Content)
+		switch {
+		case c == "":
+		case m.Role == "assistant":
+			lines = append(lines, strings.ReplaceAll(hn.ChatAnswer, "{line}", c))
+		case m.Role == "user":
+			lines = append(lines, c)
 		}
+	}
+	if len(lines) > 0 {
+		msgs = append(msgs, map[string]string{"role": "user", "content": hn.ChatNote + "\n" + strings.Join(lines, "\n")})
 	}
 	return append(msgs, map[string]string{"role": "user", "content": text})
 }

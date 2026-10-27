@@ -399,8 +399,7 @@ part; none = none), `pre_closing` (before it has played, by the answer's place: 
 - **Fart Joke**: `experiences` "fart_joke" - attitudes (Brobot 1 the party-bro victim: no
   experience, unprepared, like a lost burp; Brobot 2 the party-bro prankster: prepared, couldn't
   contain himself), his closing jokes, takes from the story's own lines, and its run's value points
-  (`run_pack` "fart_joke", `chapters/_always/07_fart_joke.txt`: the prank, the farts). No spoken
-  start lines yet.
+  (`run_pack` "fart_joke", `chapters/_always/07_fart_joke.txt`: the prank, the farts). Once it has played, Brobot 1 says "Ugh. I didn't know." and Brobot 2 "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!" (`fart_joke_played`).
   Skipped on his word: a nap closing ("jokes don't apply"), nap attitudes ("brobot game experience vs
   brobot 'personal' experience"), the Interview ("last bigger song to polish").
 

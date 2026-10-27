@@ -30,7 +30,9 @@ var gopodBrobotPersonaLines = gopodHostPersonaLines()
 // gopodHostPersona: one GOPOD host's persona - the same shape for Doc, Pip,
 // CHALK and PLAYHEAD (host_personas in gopod_brobots_settings.json).
 type gopodHostPersona struct {
-	Name      string   `json:"name"`
+	Name string `json:"name"`
+	// 2026-10-27: the name others call him by (gopodCallName).
+	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`
 	Steps     []string `json:"steps"`
 	Signature string   `json:"signature"`
@@ -150,6 +152,15 @@ func gopodPrebuildContext(esn, question string) string {
 	score, _ := gopodCoverageScoreText()
 	fill["score"] = score
 	fill["game"] = strings.TrimSpace(gopodBrobotsSettings.Game.Rules)
+	// 2026-10-27 (operator: "pre-generate all that for the llm, instead * Template
+	// the flow"): the here-and-now pieces (gopod_here_now.go - one source with the
+	// Gomads' note) and where this answer sits in the response chain (the notice's
+	// plan line).
+	fill["place"], fill["time"] = gopodHereNowPlaceTime()
+	fill["gender"] = gopodHereNowGender(brobot)
+	fill["cast"] = gopodHereNowCast(brobot)
+	fill["plan"] = gopodResponsePlan(esn)
+	fill["notice"] = gopodNoticeGuide(esn)
 	out := []string{strings.TrimSpace(pc.Header)}
 	for _, line := range pc.Lines {
 		empty := false
@@ -179,6 +190,19 @@ func gopodReminderTopics(question string) string {
 		return ""
 	}
 	return strings.TrimSpace(line[len(before) : len(line)-len(after)])
+}
+
+// gopodCallName (2026-10-27): the name others call a host by - in a thank-you
+// (helper_from call_name) and a hand-over ({intern}): host_personas.<host>.
+// call_name, else its name, else the host.
+func gopodCallName(host string) string {
+	p := gopodBrobotsSettings.HostPersonas[host]
+	for _, n := range []string{p.CallName, p.Name, host} {
+		if n = strings.TrimSpace(n); n != "" {
+			return n
+		}
+	}
+	return ""
 }
 
 // gopodHandoverLine (2026-10-21, operator: "Each host's hand-over line * can we

@@ -243,6 +243,19 @@ func gopodVoiceUsed(name string) {
 	gopodVoiceProfilesSaveSoon()
 }
 
+// gopodVoiceProfileUses: each file's plays, for the archive's popular rule.
+func gopodVoiceProfileUses() map[string]int {
+	p := &gopodVoiceProfiles
+	p.Lock()
+	defer p.Unlock()
+	gopodVoiceProfilesLoadLocked()
+	out := map[string]int{}
+	for name, prof := range p.files {
+		out[name] = prof.Uses
+	}
+	return out
+}
+
 // gopodVoiceProfileKinds: each file's kind, for the archive's keep days.
 func gopodVoiceProfileKinds() map[string]string {
 	p := &gopodVoiceProfiles

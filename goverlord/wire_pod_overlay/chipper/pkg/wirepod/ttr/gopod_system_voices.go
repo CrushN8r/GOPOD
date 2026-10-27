@@ -174,6 +174,7 @@ func gopodVoicesArchive() {
 	}
 	gopodReporterInUse.Unlock()
 	kinds := gopodVoiceProfileKinds()
+	uses := gopodVoiceProfileUses()
 	keep := map[string]float64{"system": rv.OperatorKeepDays, "scripted": rv.ScriptedKeepDays, "live": rv.LiveKeepDays}
 	archive := filepath.Join(gopodArchiveDir(), "voices")
 	moved := 0
@@ -196,6 +197,12 @@ func gopodVoicesArchive() {
 			}
 		}
 		days := keep[kind]
+		// 2026-10-27 (operator: "Finish the voice archiver limits"; the voice
+		// report: how many plays make a file "popular"): a popular file
+		// (popular_uses plays or more) keeps popular_keep_days, if longer.
+		if rv.PopularUses > 0 && uses[name] >= rv.PopularUses && rv.PopularKeepDays > days {
+			days = rv.PopularKeepDays
+		}
 		info, err := e.Info()
 		if days <= 0 || err != nil || time.Since(info.ModTime()) < gopodSecondsToDuration(days*86400) {
 			continue

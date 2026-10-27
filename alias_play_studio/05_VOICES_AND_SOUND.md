@@ -12,10 +12,10 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 | Reporter 2 (Brobot 4) | `am_michael` | questions, banter; PLAYHEAD's voice |
 | Goverlord (the digital butler) | `bm_george` | system lines |
 | Cameo (KP9) | `af_sky` | Cameo's answers; and, with no `operator_voice`, your typed lines read out (`unassigned_voice_host` "CAMEO") -, . Numpad lines still play the mic's own recording. |
-| Git Repo (KP3, Cozmo) | `am_liam` | the ethical hacker student |
-| Cache PYC (KP4, Cozmo) | `af_nova` | the meme hustler student |
-| Intel 404 PNFH (KP5, Moorebot Scout) | `am_puck`, +150 cents (sox) | security guard 1, higher |
-| Intel 404 PNFT (KP6, Moorebot Scout) | `am_puck`, -150 cents (sox), speed 0.9 | security guard 2, lower, slower |
+| Git Repo (KP3, Cozmo) | `am_liam`, +100 cents (sox) | the ethical hacker student |
+| Cache PYC (KP4, Cozmo) | `af_nova`, +160 cents (sox) | the meme hustler student |
+| Intel 404 PNFH (KP5, Moorebot Scout) | `am_puck`, -100 cents (sox) | security guard 1, deeper |
+| Intel 404 PNFT (KP6, Moorebot Scout) | `am_puck`, -180 cents (sox) | security guard 2, deeper still |
 
 - All at `reporter_voices.speed`, unless `voice_tweaks` gives a host its own `speed` / `pitch_cents`:
   the worker runs `sox ...

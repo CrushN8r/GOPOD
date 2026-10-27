@@ -300,6 +300,7 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	if !content {
 		keep = nil
 	}
+	gopodNoticeGuideSet(esn, parts)
 	gopodNotice.Lock()
 	gopodNotice.lines[esn] = keep
 	gopodNotice.asked[esn] = question
@@ -307,6 +308,44 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	delete(gopodNotice.gotIt, esn)
 	delete(gopodNotice.ready, esn)
 	gopodNotice.Unlock()
+}
+
+// The notice guide (2026-10-27, operator: "Pretend everytime a notice-bubble
+// appears in a brobot's response bubble, what would you tell my brobots to do
+// at each call in the chat? * Do as per example \"Next up\" -> \"don't reveal
+// these yet\""): each notice line this answer shows, with what he's to do about
+// it (bubble_notices.value_points.guide.<part>, {line} the notice's own line),
+// in value_points.parts order - his pre-build context's {notice} (one source:
+// what the room sees is what he's told). A part with no guide isn't told.
+var gopodNoticeGuides = struct {
+	sync.Mutex
+	lines map[string][]string
+}{lines: map[string][]string{}}
+
+func gopodNoticeGuideSet(esn string, parts map[string][]string) {
+	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
+	var out []string
+	for _, part := range vp.Parts {
+		g := strings.TrimSpace(vp.Guide[part])
+		if g == "" {
+			continue
+		}
+		for _, l := range parts[part] {
+			if l = strings.TrimSpace(strings.ReplaceAll(l, "\n", " ")); l != "" {
+				out = append(out, strings.ReplaceAll(g, "{line}", strings.TrimRight(l, ":")))
+			}
+		}
+	}
+	gopodNoticeGuides.Lock()
+	gopodNoticeGuides.lines[esn] = out
+	gopodNoticeGuides.Unlock()
+}
+
+// gopodNoticeGuide: this answer's notice guide lines, one per line.
+func gopodNoticeGuide(esn string) string {
+	gopodNoticeGuides.Lock()
+	defer gopodNoticeGuides.Unlock()
+	return strings.Join(gopodNoticeGuides.lines[esn], "\n")
 }
 
 // gopodNoticeTitle: the value points notice's title, "" when off or not a Brobot's.
@@ -436,6 +475,8 @@ func gopodNoticeHelper(host string) string {
 	for _, from := range gopodBrobotsSettings.BubbleNotices.ValuePoints.HelperFrom {
 		v := ""
 		switch from {
+		case "call_name":
+			v = gopodCallName(host)
 		case "name":
 			v = host
 		case "brobot":

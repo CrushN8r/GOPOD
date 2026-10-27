@@ -63,7 +63,7 @@ menu (🔊), and turns it off and closes it (🔇).
 - **`system-voices-report [3d | week | month | year]`**: report only, nothing moves - files and
   MB on disk, made and played in the window, per kind, played 1x / 2-3x / 4-9x / 10x+, the 10 most
   played live and mic lines, not played and older, and files in a voice no one speaks with now.
-  The archive's keep days stay as they were until the report gives the numbers.
+  Popular files (`popular_uses`, 4 plays or more) keep `popular_keep_days` (180) - from the report's jump at 4 plays; retune once a month of plays is in.
   `TestVoiceProfilesUseTakeOverReport`.
 - **CHALK BORED & PLAYHEAD ZUMINTU, heard and said**: `gopod_name_spellings.json` "chock" -> CHALK, "play head" -> PLAYHEAD, now
   applied to every numpad line (a Gomad's too, `GopodNumpadPTTStop`); the reporters' lingo
@@ -1080,10 +1080,27 @@ role)]. Check recent chat history for context." Place: the live one, else `here_
 (Windsor Ontario Canada). Gender: `here_now.genders` (the Brobots and Brobot 0), else the assigned
 voice (Kokoro `af_` female, `am_` male). To a Brobot his brother is "your brother", never named.
 The battery guards also get the Brobots' real battery readings.
+A Brobot gets the same pieces as tokens in his pre-built context ("BEFORE I ANSWER:",
+`prebuild_context.lines`: `{time}`, `{gender}`, `{place}`, `{cast}`, and `{plan}` - where this
+answer sits in the response chain), one block in the notice bubble's order, not a second message.
+A Gomad gets the recent chat as other people's lines (`here_now.chat_note`, `chat_answer`), never
+as its own replies, so it doesn't repeat the Brobots. Names others call a host by: `call_name`
+(`host_personas`) - the hand-over ("Cache PYC will help you with that.") and the thank-you
+(`helper_from` call_name: "Thanks for your help, Cache PYC."). Weather: PLAYHEAD hands it to
+Cache PYC (`via`), the Brobot thanks her and says it. Every numpad line (KP0-KP9): header 100%,
+its status lines 50%, the words 75% (`.numpad-line`).
 
 **Notes on one line**: a value point's notes show in its notice on one line under its title,
 `[good Afternoon|classroom|kids shout wordplay at us|we respond back]`
 (`bubble_notices.value_points.notes`, `notes_join`).
+
+**The notice guide** (`bubble_notices.value_points.guide`): each notice line an answer shows comes
+with what the Brobot is told about it, in his pre-built context (`{notice}`) - one source, so what
+the room sees is what he's told: "Next up: ... - don't reveal these yet.", "Back on track with: ...
+- pick one", a summary, web search, an egg, a combo, a cleared chapter, no value point.
+
+**Years shown as said** (`spoken_symbols.show_as_said`: years): a Brobot's bubble shows a date's
+year the way he says it ("October 27, 20 26"), so the words and the highlight follow what's heard.
 
 **Score bars**: the score's three rows (Topics, Value Points, Easter Eggs) are thin filled bars that
 stretch to the bubble's width - the text marks (`value_points.score_bar`) set the fill; each

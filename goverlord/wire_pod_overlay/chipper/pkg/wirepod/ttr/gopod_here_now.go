@@ -11,8 +11,9 @@ import (
 // 2026-10-27: "rather than the llm asses all that * pre-generate all that for
 // the llm, instead * Time is [time]. You are [name], located in [Windsor Ontario
 // Canada]. You're chatting with friends, [list chat participants]. Check recent
-// chat history for context"). All worked out in code, for every Gomad's prompt
-// and before every Brobot's question - here_now.text with {time}, {self},
+// chat history for context"; "Template the flow"). All worked out in code: a
+// Gomad's prompt gets here_now.text; a Brobot gets the same pieces as tokens in
+// his pre-build context (prebuild_context.lines, gopodPrebuildContext). here_now.text has {time}, {self},
 // {gender}, {place} (the live place, else here_now.place), {cast} (everyone but
 // him, each "name (gender, role)"; to a Brobot his brother is brother_line,
 // never named) and {batteries} (only for a battery guard, battery_watch.guards).

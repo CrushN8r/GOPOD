@@ -857,6 +857,9 @@
             // 2026-10-26 (operator: "KPN to [Gomad] bubbles * apply template
             // settings * text = 75% header-size * notive-bubbles = 50%").
             if (managerHosts[to]) { st.bubble.classList.add("numpad-to-gomad"); }
+            // 2026-10-27 (operator: "KPN to [persona-name] * Header 100% * Numpad
+            // notices 50% * Answer-chain 75%"): every numpad line, to anyone.
+            st.bubble.classList.add("numpad-line");
             st.bubble.replaceChild(bubble.firstChild, st.bubble.firstChild);
             st.textEl.className = "numpad-lines";
             st.textEl.style.display = "block";

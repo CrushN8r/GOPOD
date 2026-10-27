@@ -333,6 +333,16 @@ func gopodDisplayForSpeech(display string, sr gopodStreamResult) string {
 	if sr.Fallback {
 		return gopodStripAnimationCueForDisplay(gopodRobotSpeechFallbackLine)
 	}
+	// 2026-10-27 (operator: "2026 * should be observed as 20 26 * spoken & heard,
+	// highlights follow 20 26 spoken/heard pattern"): a spoken form in
+	// spoken_symbols.show_as_said is shown as it's said, so the bubble's words
+	// and the highlight follow what's heard.
+	for _, form := range gopodBrobotsSettings.SpokenSymbols.ShowAsSaid {
+		switch form {
+		case "years":
+			display = gopodSpeakYears(display)
+		}
+	}
 	return display
 }
 

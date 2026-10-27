@@ -63,9 +63,11 @@ type gopodBrobotsSettingsFile struct {
 	AnimationLeadIn      string   `json:"animation_lead_in"`
 	StageDirectionEmojis []string `json:"stage_direction_emojis"`
 	SpokenSymbols        struct {
-		RepeatingWord string            `json:"repeating_word"`
-		HmmSaid       string            `json:"hmm_said"`
-		Words         map[string]string `json:"words"`
+		RepeatingWord string `json:"repeating_word"`
+		HmmSaid       string `json:"hmm_said"`
+		// 2026-10-27: spoken forms the bubble shows too (gopodDisplayForSpeech).
+		ShowAsSaid []string          `json:"show_as_said"`
+		Words      map[string]string `json:"words"`
 		// 2026-10-14: "−3" is said "negative 3" (gopodSpeakSymbols).
 		NegativeWord string `json:"negative_word"`
 	} `json:"spoken_symbols"`
@@ -340,6 +342,8 @@ type gopodBrobotsSettingsFile struct {
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
 		ScriptedKeepDays  float64 `json:"scripted_keep_days"`
 		LiveKeepDays      float64 `json:"live_keep_days"`
+		PopularUses       int     `json:"popular_uses"`
+		PopularKeepDays   float64 `json:"popular_keep_days"`
 		// 2026-10-13: the sting before a system line (gopodSystemSting).
 		SystemStings map[string]struct {
 			File string `json:"file"`
@@ -537,6 +541,8 @@ type gopodBrobotsSettingsFile struct {
 			None    string   `json:"none"`
 			GotIt   string   `json:"got_it"`
 			Note    string   `json:"note"`
+			// 2026-10-27: what he's told for each notice line (gopodNoticeGuide).
+			Guide map[string]string `json:"guide"`
 			// 2026-10-26: a point's notes on one line.
 			Notes     string `json:"notes"`
 			NotesJoin string `json:"notes_join"`
@@ -784,6 +790,8 @@ type gopodBrobotsSettingsFile struct {
 		BatteryText  string            `json:"battery_text"`
 		ClockFormat  string            `json:"clock_format"`
 		Place        string            `json:"place"`
+		ChatNote     string            `json:"chat_note"`
+		ChatAnswer   string            `json:"chat_answer"`
 		BatteryNote  string            `json:"battery_note"`
 		Genders      map[string]string `json:"genders"`
 		VoiceGenders map[string]string `json:"voice_genders"`

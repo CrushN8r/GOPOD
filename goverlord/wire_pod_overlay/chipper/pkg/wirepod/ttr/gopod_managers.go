@@ -55,11 +55,7 @@ func gopodHandoff(via, intern, to string) {
 	if via == "" || text == "" {
 		return
 	}
-	name := gopodBrobotsSettings.HostPersonas[intern].Name
-	if name == "" {
-		name = intern
-	}
-	gopodReporterSayTo(via, to, strings.ReplaceAll(text, "{intern}", name), true, true)
+	gopodReporterSayTo(via, to, strings.ReplaceAll(text, "{intern}", gopodCallName(intern)), true, true)
 }
 
 // gopodManagerTakes: the take this line asks for (the first word in the line), live only.

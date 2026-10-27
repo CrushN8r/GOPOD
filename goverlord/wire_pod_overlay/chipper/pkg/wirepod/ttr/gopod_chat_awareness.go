@@ -34,16 +34,11 @@ func gopodBrotherAsleep(esn string) bool {
 // gopodAwarenessNote: the note for this question, or "" when there is nothing
 // to add.
 func gopodAwarenessNote(esn string) string {
-	// 2026-10-26: the here-and-now note first (gopod_here_now.go).
-	note := ""
-	if b := gopodBrobotName(esn); b == "Brobot 1" || b == "Brobot 2" {
-		note = gopodHereNow(b)
-	}
 	if gopodBrotherAsleep(esn) {
 		logger.Println("BROBOT_AWARENESS brother_asleep=yes")
-		note = strings.TrimSpace(note + "\n" + gopodBrobotsSettings.Brothers.AsleepNote)
+		return gopodBrobotsSettings.Brothers.AsleepNote
 	}
-	return note
+	return ""
 }
 
 // ## EOF
