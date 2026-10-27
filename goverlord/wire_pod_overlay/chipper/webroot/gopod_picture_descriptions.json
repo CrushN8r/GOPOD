@@ -1,20 +1,6 @@
 {
   "about": "The egg pictures, described for the Brobots (operator 2026-10-16: \"generate descriptions for brobots, like a list of value points, to use in their responses in live runs * not generate per live run\"). Made at Wire-Pod's start only for a picture with no points or one that changed (md5); edit points by hand freely - they stay until the picture itself changes. gopod_picture_describe.go. 2026-10-16: the first points from the vision model were mostly wrong (\"BROOOTS CHOCOLATE BRONBO\", a Sims 4 page, keychains, toy trains); each picture's points were then written by hand from the picture itself.",
   "pictures": {
-    "birthday/hot_wheels_birthday_1.jpg": {
-      "md5": "d1ca6b594e3034cf8249a4b1c1db8b7d",
-      "points": [
-        "A box of assorted donuts with a variety of colors and flavors."
-      ]
-    },
-    "birthday/hot_wheels_birthday_2.jpg": {
-      "md5": "8d01ee55e97368076021acf525f93dec",
-      "points": [
-        "More food-shaped Hot Wheels cars in the pizza box, in rows on orange track.",
-        "Teal donut cars, pink and blue cake-slice cars, chocolate cake slices, and rows of white whipped-cream cars with grape, cherry, lime and orange flavours.",
-        "Party food on wheels - the table dressing and the prize for a GOPOD birthday."
-      ]
-    },
     "chocolate_bingo/chocolate_bingo_card.jpg": {
       "md5": "fad4872d5a344fc5b4c45d2b0cebb831",
       "points": [
@@ -53,7 +39,7 @@
     "doc_pip_math/doc_pip_workbook.jpg": {
       "md5": "6c78d8b060988564deb6caea65b98bc9",
       "points": [
-        "The Doc \u0026 Pip Math Workbook concept pitch board, with Doc (orange) and Pip (teal) as cartoon robots.",
+        "The Doc & Pip Math Workbook concept pitch board, with Doc (orange) and Pip (teal) as cartoon robots.",
         "Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it.",
         "Pip's mistakes are the ones real learners actually make; error on the left, correction on the right.",
         "Its first section is Pip's Clueless Workbook."
@@ -134,6 +120,162 @@
       "md5": "38f86da0cc26b57076d2091f4bd2c884",
       "points": [
         "A black and white qr code image with a square in the center of it."
+      ]
+    },
+    "birthday/hw_birthday_box_01.jpg": {
+      "md5": "2e42e005b75ff9015b00d9e4c8b5f995",
+      "points": [
+        "A pizza box of food-shaped Hot Wheels cars on orange track: chocolate cupcake cars, chocolate cake-slice cars and pink cake-slice cars."
+      ]
+    },
+    "birthday/hw_birthday_box_02.jpg": {
+      "md5": "452b02d1089c7e2b5199c4483252aa6e",
+      "points": [
+        "A pizza box of donut Hot Wheels cars - teal, purple, green and pink donuts - with a pink donut truck and a big chocolate donut car."
+      ]
+    },
+    "birthday/hw_birthday_box_03.jpg": {
+      "md5": "6580e1eed36f017776fd7aa04ad2c733",
+      "points": [
+        "A pizza box packed with rows of pink cake-slice Hot Wheels cars."
+      ]
+    },
+    "birthday/hw_birthday_box_04.jpg": {
+      "md5": "9fb986e11d769a7fda350baaefff539e",
+      "points": [
+        "A pizza box packed with rows of blue-and-white frosted donut Hot Wheels cars."
+      ]
+    },
+    "birthday/hw_birthday_box_05.jpg": {
+      "md5": "d5afb6e260cd1be3e97b6ea90d488448",
+      "points": [
+        "A pizza box of white whipped-cream Hot Wheels cars in rows, on blue, green, red and yellow flavour bases."
+      ]
+    },
+    "birthday/hw_birthday_box_06.jpg": {
+      "md5": "7d8bc31d0f2bee1b13ab0cd456a152c2",
+      "points": [
+        "A pizza box of pink sprinkle-donut Hot Wheels cars, with blue and green racers alongside."
+      ]
+    },
+    "birthday/hw_birthday_box_07.jpg": {
+      "md5": "405f71537757241ab423a9515c07ad30",
+      "points": [
+        "A pizza box of party Hot Wheels cars: flame cars, a party bus, carnival cars and little green and orange racers."
+      ]
+    },
+    "birthday/hw_blue_donut.jpg": {
+      "md5": "85c85141763daeb1f3e2f77387a5881b",
+      "points": [
+        "A blue frosted donut Hot Wheels car with a white wing."
+      ]
+    },
+    "birthday/hw_candy_car.jpg": {
+      "md5": "b82e87d7c94e15b7c23693b0184344c9",
+      "points": [
+        "A red candy-stand Hot Wheels car: \"CANDY 5¢\" on the side, chrome engine, blue wheels."
+      ]
+    },
+    "birthday/hw_choc_cake_slice.jpg": {
+      "md5": "b75046c854df684bea243d86f07a370d",
+      "points": [
+        "A chocolate cake-slice Hot Wheels car with a cherry on top and a chrome engine."
+      ]
+    },
+    "birthday/hw_cupcakes_01.jpg": {
+      "md5": "1da1e4f675bd9ca16d01713273f8bb88",
+      "points": [
+        "Three cupcake Hot Wheels cars: a chocolate cupcake with a cherry, a blue pastry car and a pink sprinkle cupcake."
+      ]
+    },
+    "birthday/hw_donuts_01.jpg": {
+      "md5": "6bcdee7363513cfb34b28fd822b3199b",
+      "points": [
+        "Donut Hot Wheels cars - chocolate, teal and pink - with a pink donut-shop truck."
+      ]
+    },
+    "birthday/hw_earthday_car_01.jpg": {
+      "md5": "eafac759248a4d8bcb4d84224f359d8e",
+      "points": [
+        "A green see-through Earth Day 2024 Hot Wheels racer."
+      ]
+    },
+    "birthday/hw_earthday_drink_01.jpg": {
+      "md5": "d96ec82e8bc1d9f5635cc2d6d2812965",
+      "points": [
+        "A blue Earth Day Hot Wheels racer shaped like a water bottle."
+      ]
+    },
+    "birthday/hw_energy_boost.jpg": {
+      "md5": "5a7aeb64b2cdddea028d8781d38e14d9",
+      "points": [
+        "A see-through brown Hot Wheels racer, like an iced-coffee energy boost."
+      ]
+    },
+    "birthday/hw_party_cannons_01.jpg": {
+      "md5": "443cb78cd7a1265ce2e44412e1439c1b",
+      "points": [
+        "Party Hot Wheels cars: a circus-style train, a red party car and a little cannon car with flames."
+      ]
+    },
+    "birthday/hw_pink_cake_slice.jpg": {
+      "md5": "af101b5102a45cc5bc41be9a5084521a",
+      "points": [
+        "A pink cake-slice Hot Wheels car with purple icing and a blue engine."
+      ]
+    },
+    "birthday/hw_pink_donut.jpg": {
+      "md5": "15136b1135f370416a2e2935a6af5ec0",
+      "points": [
+        "A pink sprinkle-donut Hot Wheels car with a blue wing."
+      ]
+    },
+    "birthday/hw_traffic_cones.jpg": {
+      "md5": "ce91bdd6b041864d96145d15e15c5ff0",
+      "points": [
+        "Three traffic-cone Hot Wheels cars: two green, one orange."
+      ]
+    },
+    "birthday/lego_icecreams_01.jpg": {
+      "md5": "201b21dab4e184627f3988e855190c7a",
+      "points": [
+        "Three LEGO ice-cream-cone minifigures, soft-serve on their heads."
+      ]
+    },
+    "bbq/hw_bbq_01.jpg": {
+      "md5": "90b162979223625a87ab5c8f6a664798",
+      "points": [
+        "BBQ Hot Wheels cars: three burger-and-fries trucks, a hot-dog car and a red racer."
+      ]
+    },
+    "bbq/hw_bbq_box_01.jpg": {
+      "md5": "891c981da1427137fca51c1cb17dfc51",
+      "points": [
+        "A pizza box of BBQ-food Hot Wheels cars: hot-dog cars, burger cars and diner food trucks."
+      ]
+    },
+    "bbq/hw_burgers_01.jpg": {
+      "md5": "89d165364a2c2aa6b99cb377473c432e",
+      "points": [
+        "A burger monster truck and a red burger-and-fries truck."
+      ]
+    },
+    "bbq/hw_burgers_02.jpg": {
+      "md5": "21875b33c3b87b4fc0ceaeae7bf37b1a",
+      "points": [
+        "A blue burger-and-fries truck and a diner food truck - burgers, fries, shakes."
+      ]
+    },
+    "bbq/hw_wieners_01.jpg": {
+      "md5": "6341467895e3e167c973922724fbd68e",
+      "points": [
+        "A giant hot-dog car, three LEGO hot-dog minifigures and a red racer."
+      ]
+    },
+    "bbq/lego_pizzas.jpg": {
+      "md5": "3ec0febbe68f0697e79b196ca7830254",
+      "points": [
+        "Three LEGO pizza-slice minifigures, one holding a pizza box."
       ]
     }
   }

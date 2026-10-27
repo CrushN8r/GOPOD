@@ -209,6 +209,8 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-26: the moves to start it, one picked at random, in the second
 	// answer (gopodExperienceClosing).
 	ExperienceMoves   []string `json:"experience_moves"`
+	// 2026-10-27: the line that asks for a riff on a closing_riff, {line} filled.
+	ClosingRiffText string `json:"closing_riff_text"`
 	InterviewChapters struct {
 		Role     string `json:"role"`
 		Label    string `json:"label"`
@@ -262,6 +264,9 @@ type gopodBrobotsSettingsFile struct {
 		Role     string              `json:"role"`
 		Folder   string              `json:"folder"`
 		Pictures map[string][]string `json:"pictures"`
+		// 2026-10-27 (operator: birthday & bbq pictures, 20 and 6): at most this
+		// many of a topic's pictures show at once, picked at random (0: all).
+		MaxShown int `json:"max_shown"`
 		// 2026-10-18: eggs never on the egg list (halloween).
 		NotListed []string `json:"not_listed"`
 		// 2026-10-18: eggs taken out (their key, "chapter:<title>"): never pop up, not on the list.
@@ -434,6 +439,9 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-24: the Master Grand Prize - hidden eggs too.
 		MasterText string `json:"master_text"`
 		ResetOn    string `json:"reset_on"`
+		// 2026-10-27: the game engine's run cards; they fill bingo, experiences
+		// and the run names at load (gopod_game_engine.go).
+		Runs []gopodGameRun `json:"runs"`
 	} `json:"game"`
 	// 2026-10-23: exact answers to golden questions (the golden_line part).
 	GoldenAnswers []struct {
@@ -846,6 +854,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	}
 	// 2026-10-08: the topics' parts come from the chapters folder (gopod_chapters_folder.go).
 	gopodApplyChaptersFolder(&s)
+	// 2026-10-27: every run from its card (gopod_game_engine.go).
+	gopodApplyGameRuns(&s)
 	var missing []string
 	check := func(ok bool, name string) {
 		if !ok {
@@ -964,6 +974,11 @@ type gopodExperience struct {
 	// Brobot's attitude, before and after it has played, with the facts.
 	PreAttitude  map[string]string `json:"pre_attitude"`
 	PostAttitude map[string]string `json:"post_attitude"`
+	// 2026-10-27 (operator: "New closing lines * randomly take turns from run to
+	// run"; "Use these base lines, riff on them"): each Brobot's base line; per
+	// run, his closing is either the word-for-word closing or a riff on this
+	// (closing_riff_text), picked at random (gopodExperienceClosingTurn).
+	ClosingRiff map[string]string `json:"closing_riff"`
 }
 
 // ## EOF

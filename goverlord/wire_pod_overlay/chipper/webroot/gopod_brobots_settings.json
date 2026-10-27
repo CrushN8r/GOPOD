@@ -676,7 +676,7 @@
     "about": "Stopping a song run at the next safe spot (operator 2026-10-04: \"stop the current run at the next safe spot\"; 2026-10-09: \"add 'stop run' as an input command for songs/runs\"). A typed or numpad stop_words line, or a \"thanks Brobots\", runs safe_script when engine is running (a song): it creates request_file in GOPOD's overlay chipper folder, and the song engine checks it before each step and ends the run there the normal way (control handed back, touch interrupt on). If the run hasn't ended after wait_seconds, it force-stops it like the kill-bingo-test alias. stop_words stops a playing draft too (gopod_thanks_close_out.go). The KILL_BINGO_TEST voice command was cleared 2026-10-09.",
     "request_file": "gopod_song_stop_request",
     "wait_seconds": 45,
-    "stop_words": ["stop run", "stop bingo test", "stop baby brobots", "stop interview", "stop fart joke"],
+    "stop_words": ["stop run"],
     "safe_script": "gopod_probes/tools/stop-bingo-test-safe.sh"
   },
   "native": {
@@ -710,12 +710,7 @@
     "awaits_text": "Goverlord awaits your return...",
     "page_present_seconds": 20,
     "run_names_about": "Operator 2026-10-10: \"update static system run 'started' messages, to: [run-name] not-found/started/stopped\"; \"so far there is start [interview], [bingo test], [baby brobots] * so also, stop [run-name] and/or [run-name] stopped * start [anything else] = not found\". {run} in started_text and stopped_text is the run's name here (by its check-in name); a run not listed says \"Run\" and no started line. not_found_text: a typed or numpad \"start ...\" that is no run.",
-    "run_names": {
-      "Bingo Test Live": "Bingo test",
-      "Start Baby Brobots": "Baby Brobots",
-      "interview": "Interview",
-      "Fart Joke Live": "Fart joke"
-    }
+    "run_names": {}
   },
   "live_weather_note_about": "Operator 2026-10-10: \"At the start I asked live, about the weather * brobot did not check actual weather (Windsor ON, CA is default fallback location) like in scripted interview\". A live question with the word weather gets the real weather (the same line as the scripted interview's {weather}) after this note.",
   "live_weather_note": "The real weather right now, from the weather service. Say it as is:",
@@ -822,30 +817,6 @@
     "performed_note": "[Not a question - this is what the Brobots just performed for the audience (a scripted show, e.g. the Bingo test), shown on the chat screen:]",
     "forgotten_note": "[Not a question - older chat is forgotten. If asked about something not in this chat, say you don't remember it.]"
   },
-  "bingo": {
-    "name": "bingo",
-    "run_name": "Bingo Test",
-    "run_pack": "bingo_test",
-    "run_pack_about": "The Bingo test run's own value points (chapters/_always/06_bingo_test.txt), loaded for Bingo questions once it has played; the pitch pack (bingo) before.",
-    "flow_about": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\").",
-    "pre_attitude": {"Brobot 1": "Your attitude: Ugh... whatever...", "Brobot 2": "Your attitude: Super Hyped!! Ready for whatever..."},
-    "post_attitude": {"Brobot 1": "Your attitude: Ha! You see?", "Brobot 2": "Your attitude: I scored Zero?"},
-    "run_marker": "Bingo Test",
-    "run_gap_seconds": 30,
-    "snapshot_note": "[Not a question - the Brobots performed the scripted Bingo test for the audience in this chat: a test, before the real Bingo game.]",
-    "question_word": "bingo",
-    "not_a_test_phrases": [
-      "chocolate bingo"
-    ],
-    "pitch_pack": "bingo",
-    "no_run_note": "No Bingo test has been played yet - one short, fun line of your own about playing it.",
-    "closing_about": "2026-10-25 (operator: \"Anyway, we got a winner! 🏆 = comedic irony/karma gold * at the end of the bingo test, the host (brobot 1) comes out on top, so he won * Extend to: Anyway, we got a winner! 🏆 \\\"I Won!\\\" * \\\"I Won!\\\" is the reference back to the brat's lucky number\"; \"O-0 is what he said reacting to his score on the cooperation test * \\\"Oh! Zero!\\\"\"): each Brobot's closing remark - the closing sentence of his own answer when asked about Bingo after a Bingo run (operator: \"No, before the 'Hey' reminder\"; \"joke is closing remark of answer to how was bingo, not the response answer-chain\"; answer_chains closing_remark, right after llm).",
-    "closing": {"Brobot 1": "\"I Won!\" Lol!", "Brobot 2": "That's ok tho. Brobot ZERO is my HERO! Lol!"},
-    "takes": {
-      "Brobot 1": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were the Bingo tester, just trying to run the test, and your over-enthusiastic brother kept bothering you. He interrupted to ask if you knew his lucky Bingo number - \"I, Won!\" Round 1, you drew B-1, a real Bingo number, and he said \"I be, the one!\" Round 2, you drew I-9, a test number, and he said the I column is I-16 to I-30 and asked if you were telling him your age. Round 3, you drew O-0, a number that doesn't exist on purpose, and he said \"This election is rigged! I wanna speak to the manager!\" You told him \"I'm the manager\", ended the test, and said \"Good Night\" - you got your brother back at the end.",
-      "Brobot 2": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were so happy to be part of it, and cluelessly messed it up. You interrupted your brother's test to ask if he knew your lucky Bingo number - \"I, Won!\" Round 1, he drew B-1, a real Bingo number, and you said \"I be, the one!\" Round 2, he drew I-9, a test number, and you said the I column is I-16 to I-30 and asked if he was telling you his age. Round 3, he drew O-0, a number that doesn't exist on purpose, and you said \"This election is rigged! I wanna speak to the manager!\" He said \"I'm the manager\" and ended the test."
-    }
-  },
   "topic_asks": {
     "about": "2026-10-26 (operator: \"Tell me about yourself = a summary response * Tell me all about yourself = a detailed response * [topic]? = summary response * [more]? = detailed response * so always summarize first\"; \"go for \u201ctell me about\u201d vs \"tell me all about\" * aim for all topics * for notice-bubbles, update/reshape existing value points section into a summary for the summary ask, to ease the llm from summarizing. Summary is in the notice-bubble, just riff on it * as GOPOD evolves, topics will come and go * so as I update the repo, I want the game to match the repo\"; \"Template it out please\"): the topic ask template (gopod_topic_asks.go). A question that loads a topic is a summary ask: the topic file's summary: line shows in the notice bubble (summary_notice) and is the Brobot's only fact (summary_facts) - he riffs on it; no value point is given. A question with one of detail_words is a detail ask: the value points, as before; with no topic named (\"tell me more\") it's about the last topic asked. A topic with no summary: line yet is always a detail ask. A topic's source: line names the repo file it tells; system-check flags it when that file changed after the topic. Wire-Pod restart.",
     "detail_words": ["tell me all about", "all about", "tell me more", "more about", "more", "go on", "keep going", "in detail", "details", "everything about", "the whole story"],
@@ -863,87 +834,14 @@
   "experiences_about": "2026-10-25 (operator: \"Now, like pre-[bingo experience] > [bingo test] > post-[bingo experience] * duo answer-chain template * Make pre-[sleep experience] > [nap song] > post-[sleep experience] * pre-[sleep experience], tell me about your dreams... * [nap song] * post-[sleep experience], refer to being rescued * nearly cookie-cutter copy/paste, tweaks\"): the duo answer-chain template (gopod_experiences.go). bingo is the first experience; these are the rest, the same keys. Before its run, a question with question_word gets scripted_snippets' <name>_not_played line for each Brobot, no_run_note and his pre_attitude; a performed line holding run_marker starts its run, remembered as snapshot_note with the asking Brobot's take; after it, <name>_played lines, his post_attitude, and his closing remark (closing, none = none). The 2nd answer of a line to both, before and after, ends with one of experience_moves. Wire-Pod restart.",
   "experience_moves_about": "2026-10-26 (operator: \"what similar lines have been replaced? * recover & add a few more to a list of 5, to randomly choose from * no \u201cHey! ...\u201d * Template this to apply to all song-run pre/post experiences\"): said in the 2nd answer of a line to both, before and after the run, whoever gives it - the closing_remark part, before the reminder; one picked at random each time. {run} = the experience's run_name.",
   "experience_moves_2_about": "2026-10-26 (operator: \"start fresh from: \u201cIf you're watching, tell Goverlord to start\"; then \"Keep your 5 lines\"): every line starts that way.",
+  "closing_riff_text_about": "2026-10-27: asks for the riff on an experience's closing_riff (gopodExperienceClosingTurn); {line} = his base line.",
+  "closing_riff_text": "End your answer riffing on this base line, your own words, same joke: {line}",
   "experience_moves": [
     "If you're watching, tell Goverlord to start {run}!",
     "If you're watching, tell Goverlord to start {run}, and see for yourself!",
     "If you're watching, tell Goverlord to start {run} - we're ready when you are!",
     "If you're watching, tell Goverlord to start {run}. Go on, we'll wait!",
     "If you're watching, tell Goverlord to start {run}. You won't regret it!"
-  ],
-  "experiences": [
-    {
-      "name": "nap",
-      "run_name": "Baby Brobots",
-      "run_marker": "Cupped in my hands",
-      "run_marker_about": "The nap's first caption (101_brobots_nap/story.md, the Narrator's bubble); the operator's own \"Start Baby Brobots\" doesn't count.",
-      "run_gap_seconds": 30,
-      "snapshot_note": "[Not a question - the Brobots performed the scripted Baby Brobots nap for the audience in this chat.]",
-      "question_word": "dream",
-      "not_a_test_phrases": [],
-      "pitch_pack": "",
-      "no_run_note": "No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.",
-      "pack": "nap",
-      "pack_about": "The nap's own value points (gopod_probes/chapters/_always/05_nap.txt; operator: \"another scoped set of value points for the sleep song\"), loaded for its questions before and after the nap, outside the chapters.",
-      "closing": {},
-      "takes_about": "2026-10-25 (operator: \"they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party\").",
-      "takes": {
-        "Brobot 1": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party.",
-        "Brobot 2": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party."
-      }
-    },
-    {
-      "name": "interview",
-      "about": "2026-10-26 (operator: \"The rest? Apply pre/post template to all, even minimally to what's already there\"): the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).",
-      "run_name": "Interview",
-      "run_marker": "Interview started",
-      "run_marker_about": "Goverlord's run line when the interview starts (session.started_text).",
-      "run_gap_seconds": 30,
-      "snapshot_note": "[Not a question - the Brobots performed the scripted interview for the audience in this chat.]",
-      "question_word": "interview",
-      "not_a_test_phrases": ["interview over"],
-      "pitch_pack": "",
-      "run_pack": "",
-      "no_run_note": "No interview has been played yet - one short take of your own on it.",
-      "pre_attitude": {"Brobot 1": "", "Brobot 2": ""},
-      "post_attitude": {"Brobot 1": "", "Brobot 2": ""},
-      "closing": {"Brobot 1": "", "Brobot 2": ""},
-      "takes": {}
-    },
-    {
-      "name": "fart_joke",
-      "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. 2026-10-26: filled - attitudes, closings, takes and run_pack. 2026-10-27: his lines once it has played (scripted_snippets fart_joke_played).",
-      "run_name": "Fart Joke",
-      "run_marker": "pretend you and I are stuck in an elevator",
-      "run_marker_about": "Brobot 2's first line (03_fart_joke/story.md).",
-      "run_gap_seconds": 30,
-      "snapshot_note": "[Not a question - the Brobots performed the scripted Fart Joke for the audience in this chat.]",
-      "question_word": "fart",
-      "not_a_test_phrases": [],
-      "pitch_pack": "",
-      "run_pack_about": "2026-10-26 (operator: \"the run's value points? fart, prank\"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.txt), loaded for Fart Joke questions once it has played.",
-      "run_pack": "fart_joke",
-      "no_run_note": "No Fart Joke has been played yet - one short take of your own on it.",
-      "pre_attitude_about": "2026-10-26 (operator: \"preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself\").",
-      "pre_attitude": {
-        "Brobot 1": "Your attitude: party-bro victim - no experience, unprepared, like a lost burp.",
-        "Brobot 2": "Your attitude: party-bro prankster - prepared, couldn't contain myself."
-      },
-      "post_attitude_about": "2026-10-26 (operator: \"Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)\").",
-      "post_attitude": {
-        "Brobot 1": "Your attitude: party-bro victim - not happy about being fart-hotboxed.",
-        "Brobot 2": "Your attitude: party-bro prankster."
-      },
-      "closing_about": "2026-10-26: the operator's closing jokes, word for word.",
-      "closing": {
-        "Brobot 1": "In all my nano-seconds of Methane-Venting & Evacuation Sequence Pressure Testing, I never heard a containment failure before.",
-        "Brobot 2": "A stale air dump of yesterday’s ambitions, scheduled and unapologetic. Looks like I won too!"
-      },
-      "takes_about": "2026-10-26 (operator: \"draft the takes and the points from the story as written\"): from 03_fart_joke/story.md, its own lines.",
-      "takes": {
-        "Brobot 1": "If the Fart Joke comes up, tell it your way, sticking to what really happened: your brother said \"Hey bro, pretend you and I are stuck in an elevator.\" You said \"Ok. Done.\" He said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - you said \"Bro! Nasty particulates!\" He said \"Wait! Firing!\" and farted again - you got angry: \"Bro! Brobot 1 has left the elevator.\" He said \"Wait! One more!\" and farted a third time - all you had left was \"Bro!\"",
-        "Brobot 2": "If the Fart Joke comes up, tell it your way, sticking to what really happened: it was your prank. You said \"Hey bro, pretend you and I are stuck in an elevator.\" Your brother said \"Ok. Done.\" You said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - he said \"Bro! Nasty particulates!\" You said \"Wait! Firing!\" and farted again - he got angry: \"Bro! Brobot 1 has left the elevator.\" You said \"Wait! One more!\" and farted a third time - all he had left was \"Bro!\""
-      }
-    }
   ],
   "interview_chapters": {
     "about": "The chat as a long interview video, segmented with chapters (operator 2026-10-06: \"think of it like a long interview video on youtube, segmented with chapters ... or a video playlist of topics, then within each segment, ordered value points are revealed\"). Each chapter lists its topic packs (gopod_probes/scenario_packs/registry.json) in the interview's order. When a question's first topic is in a different chapter than the last one shown, the title shows in the chat as its own line (role), before the reply. 2026-10-09 (operator: \"disabled until 'start draft' * disabled again upon draft run complete\"): titles show only while a draft plays, from its first question again each run. The \"Hey, that reminds me...\" end lines (scripted_snippets) lead from topic to topic in this same order. Needs wpr 2.",
@@ -1181,6 +1079,107 @@
     "prizes_about": "2026-10-24 (operator: \"Logic of NEW, 2 Grand Prizes * Grand Prize: Revealed upon all reached except hidden eggs, after all responses are properly completed * Master Grand Prize: Revealed upon all reached, after all responses are properly completed\"): win_text is the Grand Prize - every value point (so every topic) and every game egg (4: Bingo and foodmath, Legacy and wrap-up, Explain the Math, Get Photo); master_text is the Master Grand Prize - all that and every hidden egg too (1: Roast Battle; Halloween and Camera Feeds aren't eggs). Each once a session, said after every answer to the line is done (a follow-up too). Both due at once: Grand, then Master. Needs wpr 2.",
     "master_text": "Master Grand Prize! Every value point and every Easter egg found, hidden ones too. {score}. Now GOPOD Yourself!",
     "reset_on": "thanks",
+    "runs_about": "The Unified Templated GOPOD Game Engine (operator 2026-10-27: \"Unified Templated GOPOD Game Engine!! * clear?\"; \"Then the Engine: one game template that every run plugs into\"; gopod_game_engine.go). Every run is one card: name (its experience's name; scripted_snippets <name>_played / _not_played), title (its name in the chat), song (its folder in goverlord/runtime/songs), draft (played as the scripted draft, not by the song engine), start and stop (its words - also Wire-Pod voice commands in customIntents.json, which system-check checks), menu_about (its line in the system menu's Play group), session and said (the name it checks in with Goverlord, and how Goverlord says it), experience (its pre/post chat - the experiences template). At load the cards fill session.run_names, song_stop.stop_words, bingo, experiences and interview_script.play_words; the page builds the Play menu from them. A new run is one new card.",
+    "runs": [
+      {"name": "interview", "title": "Interview", "song": "02_brobots_interview", "draft": true, "start": "start interview", "stop": "stop interview", "menu_about": "the scripted interview", "session": "interview", "said": "Interview",
+        "experience": {
+          "about": "2026-10-26 (operator: \"The rest? Apply pre/post template to all, even minimally to what's already there\"): the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).",
+          "run_marker": "Interview started",
+          "run_marker_about": "Goverlord's run line when the interview starts (session.started_text).",
+          "run_gap_seconds": 30,
+          "snapshot_note": "[Not a question - the Brobots performed the scripted interview for the audience in this chat.]",
+          "question_word": "interview",
+          "not_a_test_phrases": ["interview over"],
+          "pitch_pack": "",
+          "run_pack": "",
+          "no_run_note": "No interview has been played yet - one short take of your own on it.",
+          "pre_attitude": {"Brobot 1": "", "Brobot 2": ""},
+          "post_attitude": {"Brobot 1": "", "Brobot 2": ""},
+          "closing": {"Brobot 1": "", "Brobot 2": ""},
+          "takes": {}
+        }},
+      {"name": "bingo", "title": "Bingo Test", "song": "01a_brobots_bingo_test", "start": "start bingo test", "stop": "stop bingo test", "menu_about": "the Bingo test", "session": "Bingo Test Live", "said": "Bingo test",
+        "experience": {
+        "run_pack": "bingo_test",
+        "run_pack_about": "The Bingo test run's own value points (chapters/_always/06_bingo_test.txt), loaded for Bingo questions once it has played; the pitch pack (bingo) before.",
+        "flow_about": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\").",
+        "pre_attitude": {"Brobot 1": "Your attitude: Ugh... whatever...", "Brobot 2": "Your attitude: Super Hyped!! Ready for whatever..."},
+        "post_attitude": {"Brobot 1": "Your attitude: Ha! You see?", "Brobot 2": "Your attitude: I scored Zero?"},
+        "run_marker": "Bingo Test",
+        "run_gap_seconds": 30,
+        "snapshot_note": "[Not a question - the Brobots performed the scripted Bingo test for the audience in this chat: a test, before the real Bingo game.]",
+        "question_word": "bingo",
+        "not_a_test_phrases": [
+          "chocolate bingo"
+        ],
+        "pitch_pack": "bingo",
+        "no_run_note": "No Bingo test has been played yet - one short, fun line of your own about playing it.",
+        "closing_about": "2026-10-25 (operator: \"Anyway, we got a winner! 🏆 = comedic irony/karma gold * at the end of the bingo test, the host (brobot 1) comes out on top, so he won * Extend to: Anyway, we got a winner! 🏆 \\\"I Won!\\\" * \\\"I Won!\\\" is the reference back to the brat's lucky number\"; \"O-0 is what he said reacting to his score on the cooperation test * \\\"Oh! Zero!\\\"\"): each Brobot's closing remark - the closing sentence of his own answer when asked about Bingo after a Bingo run (operator: \"No, before the 'Hey' reminder\"; \"joke is closing remark of answer to how was bingo, not the response answer-chain\"; answer_chains closing_remark, right after llm).",
+        "closing": {"Brobot 1": "\"I Won!\" Lol!", "Brobot 2": "That's ok tho. Brobot ZERO is my HERO! Lol!"},
+        "takes": {
+          "Brobot 1": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were the Bingo tester, just trying to run the test, and your over-enthusiastic brother kept bothering you. He interrupted to ask if you knew his lucky Bingo number - \"I, Won!\" Round 1, you drew B-1, a real Bingo number, and he said \"I be, the one!\" Round 2, you drew I-9, a test number, and he said the I column is I-16 to I-30 and asked if you were telling him your age. Round 3, you drew O-0, a number that doesn't exist on purpose, and he said \"This election is rigged! I wanna speak to the manager!\" You told him \"I'm the manager\", ended the test, and said \"Good Night\" - you got your brother back at the end.",
+          "Brobot 2": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were so happy to be part of it, and cluelessly messed it up. You interrupted your brother's test to ask if he knew your lucky Bingo number - \"I, Won!\" Round 1, he drew B-1, a real Bingo number, and you said \"I be, the one!\" Round 2, he drew I-9, a test number, and you said the I column is I-16 to I-30 and asked if he was telling you his age. Round 3, he drew O-0, a number that doesn't exist on purpose, and you said \"This election is rigged! I wanna speak to the manager!\" He said \"I'm the manager\" and ended the test."
+        }
+      }},
+      {"name": "nap", "title": "Baby Brobots", "song": "101_brobots_nap", "start": "start baby brobots", "stop": "stop baby brobots", "menu_about": "the Baby Brobots nap song", "session": "Start Baby Brobots", "said": "Baby Brobots",
+        "experience": {
+          "run_marker": "Cupped in my hands",
+          "run_marker_about": "The nap's first caption (101_brobots_nap/story.md, the Narrator's bubble); the operator's own \"Start Baby Brobots\" doesn't count.",
+          "run_gap_seconds": 30,
+          "snapshot_note": "[Not a question - the Brobots performed the scripted Baby Brobots nap for the audience in this chat.]",
+          "question_word": "dream",
+          "not_a_test_phrases": [],
+          "pitch_pack": "",
+          "no_run_note": "No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.",
+          "pack": "nap",
+          "pack_about": "The nap's own value points (gopod_probes/chapters/_always/05_nap.txt; operator: \"another scoped set of value points for the sleep song\"), loaded for its questions before and after the nap, outside the chapters.",
+          "closing": {},
+          "takes_about": "2026-10-25 (operator: \"they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party\").",
+          "takes": {
+            "Brobot 1": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party.",
+            "Brobot 2": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party."
+          }
+        }},
+      {"name": "fart_joke", "title": "Fart Joke", "song": "03_fart_joke", "start": "start fart joke", "stop": "stop fart joke", "menu_about": "the Fart Joke", "session": "Fart Joke Live", "said": "Fart joke",
+        "experience": {
+          "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. 2026-10-26: filled - attitudes, closings, takes and run_pack. 2026-10-27: his lines once it has played (scripted_snippets fart_joke_played).",
+          "run_marker": "pretend you and I are stuck in an elevator",
+          "run_marker_about": "Brobot 2's first line (03_fart_joke/story.md).",
+          "run_gap_seconds": 30,
+          "snapshot_note": "[Not a question - the Brobots performed the scripted Fart Joke for the audience in this chat.]",
+          "question_word": "fart",
+          "not_a_test_phrases": [],
+          "pitch_pack": "",
+          "run_pack_about": "2026-10-26 (operator: \"the run's value points? fart, prank\"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.txt), loaded for Fart Joke questions once it has played.",
+          "run_pack": "fart_joke",
+          "no_run_note": "No Fart Joke has been played yet - one short take of your own on it.",
+          "pre_attitude_about": "2026-10-26 (operator: \"preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself\").",
+          "pre_attitude": {
+            "Brobot 1": "Your attitude: party-bro victim - no experience, unprepared, like a lost burp.",
+            "Brobot 2": "Your attitude: party-bro prankster - prepared, couldn't contain myself."
+          },
+          "post_attitude_about": "2026-10-26 (operator: \"Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)\").",
+          "post_attitude": {
+            "Brobot 1": "Your attitude: party-bro victim - not happy about being fart-hotboxed.",
+            "Brobot 2": "Your attitude: party-bro prankster."
+          },
+          "closing_about": "2026-10-26: the operator's closing jokes, word for word.",
+          "closing": {
+            "Brobot 1": "In all my nano-seconds of Methane-Venting & Evacuation Sequence Pressure Testing, I never heard a containment failure before.",
+            "Brobot 2": "A stale air dump of yesterday’s ambitions, scheduled and unapologetic. Looks like I won too!"
+          },
+          "closing_riff_about": "2026-10-27 (operator: \"New closing lines * randomly take turns from run to run\"; \"Use these base lines, riff on them\"; Brobot 1 the victim, Brobot 2 the prankster): his base line; each run, his closing is either the closing word for word or a riff on this, at random.",
+          "closing_riff": {
+            "Brobot 1": "Was not happy about being fart-hotboxed.",
+            "Brobot 2": "The intended event found as a repeating systems-level discharge, due to the accumulation of residual atmospheric distribution, within my brobotic brotastic party-bro, Bod! Further variations are narrowly constrained mechanical and software-diagnostic registers, that I can now compose and fire on call."
+          },
+          "takes_about": "2026-10-26 (operator: \"draft the takes and the points from the story as written\"): from 03_fart_joke/story.md, its own lines.",
+          "takes": {
+            "Brobot 1": "If the Fart Joke comes up, tell it your way, sticking to what really happened: your brother said \"Hey bro, pretend you and I are stuck in an elevator.\" You said \"Ok. Done.\" He said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - you said \"Bro! Nasty particulates!\" He said \"Wait! Firing!\" and farted again - you got angry: \"Bro! Brobot 1 has left the elevator.\" He said \"Wait! One more!\" and farted a third time - all you had left was \"Bro!\"",
+            "Brobot 2": "If the Fart Joke comes up, tell it your way, sticking to what really happened: it was your prank. You said \"Hey bro, pretend you and I are stuck in an elevator.\" Your brother said \"Ok. Done.\" You said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - he said \"Bro! Nasty particulates!\" You said \"Wait! Firing!\" and farted again - he got angry: \"Bro! Brobot 1 has left the elevator.\" You said \"Wait! One more!\" and farted a third time - all he had left was \"Bro!\""
+          }
+        }}
+    ],
     "rules": "AI Wordplay! Explain the MAth! is a game - the room asks anything, we reveal our value points our way; the score counts topics, value points and eggs; revealing every value point is the grand prize."
   },
   "golden_answers_about": "2026-10-23 (operator: \"What is AI wordplay? * the fun challenges humans input to the brobots (future live hosts, Doc & Pip) * What is Explain the MAth? * the hilarity that ensues afterwards\"; his answer: notes + golden answers): a question asking one of these gets its line word for word, first (the answer chain's golden_line part); the rest of the answer follows its type (the summary, for these).",
@@ -1372,27 +1371,8 @@
       {
         "title": "2. Play",
         "guide": "Run a song or a saved session. One at a time.",
+        "runs": true,
         "items": [
-          {
-            "cmd": "start interview",
-            "about": "the scripted interview",
-            "fill": "start interview"
-          },
-          {
-            "cmd": "start bingo test",
-            "about": "the Bingo test",
-            "fill": "start bingo test"
-          },
-          {
-            "cmd": "start baby brobots",
-            "about": "the Baby Brobots nap song",
-            "fill": "start baby brobots"
-          },
-          {
-            "cmd": "start fart joke",
-            "about": "the Fart Joke",
-            "fill": "start fart joke"
-          },
           {
             "cmd": "system-play",
             "about": "a song or part of it: <song> [from <step>] [to <step>] [robot 1|2] [dry] (steps: system-score)"
@@ -2480,7 +2460,7 @@
     "egg_names_about": "2026-10-16 (operator: '\"Congratulations, Master CrushN8r! You found the easter egg, Birthday\"'; '... Fractions'): an egg's name by its topic, said in egg_text; a topic not here is named by the word that found it.",
     "egg_names_2_about": "2026-10-16 (operator, on \"You found the easter egg, Ai.\": \"update this easter egg to Mobile, Gear\"): the GOPOD stack picture is the Mobile Gear egg - found by the rig's words (mobile, gear, ...); the local brain topic no longer pops it (\"ai\" in \"AI Wordplay\" found it).",
     "chapter_eggs_about": "2026-10-17 (operator: \"brobots are GOPOD reps * GOPOD = AI Wordplay! Explain the Math! * easter eggs are live run chapters * each easter egg should have a set title (chapter title) = [easter egg title] found * topics in chapters are the easter egg triggers * then the value points the brobots speak\"; \"Rule: If no image for easter egg, skip image & mouse over message\"; \"no longer easter eggs: Weather, Get Photo\"): one egg per chapter (interview_chapters.chapters), titled by the chapter, found by its topics' words, with those topics' pictures (none: no pictures, no zoom line). egg_names now names only eggs in no chapter (the roast battle).",
-    "egg_names": {"camera_feeds": "Camera Feeds", "birthday_and_merch": "Birthday", "websites": "Websites", "fractions_and_decimals": "Fractions", "roast_battle": "Roast Battle", "mobile_gear": "Mobile Gear", "halloween": "Halloween"},
+    "egg_names": {"camera_feeds": "Camera Feeds", "birthday_and_merch": "Birthday", "bbq": "BBQ", "websites": "Websites", "fractions_and_decimals": "Fractions", "roast_battle": "Roast Battle", "mobile_gear": "Mobile Gear", "halloween": "Halloween"},
     "cards_about": "2026-10-16 (operator: 'Roast Battle * All out comedic fuck you wars * Audience expected expletive laden personal attacks * Party Brobots are ready to roast each other, any and all takers'): eggs with no picture yet - their prize is this card in the egg bubble.",
     "cards_2_about": "2026-10-16 (operator: \"Update: Congratulations! Easter Egg 'Roast Battle' found: / 🔥 Roast Battle 🔥 / Party Brobots vs Any and All takers\"): a card's own lines; the egg line before a card ends with a colon.",
     "not_listed_about": "2026-10-18 (operator: \"add a short halloween easter egg, no image, use emojis * leave halloween easter egg, out of interview lists\"): eggs that pop up when found but are never on the egg list (the reminders, the interview's list). 2026-10-18 (operator: \"easter eggs hidden (roast battle, halloween) are surprise easter eggs\"): the surprise eggs.",
@@ -2492,6 +2472,8 @@
     "cards": {"roast_battle": "🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers", "halloween": "🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬"},
     "max_per_session_about": "2026-10-13 (operator: \"keep the allowed-number-of-displays-per-session variable * instead, allowed-number-of-displays-per-session variable now = 5\"): how many times a topic's pictures (a live pop-up) show per Wire-Pod start; was once. 2026-10-24 (operator: \"no repeating revealed eggs, gets annoying\"): 1 - an egg pops up once a session; found again, its answer comes without the pop-up.",
     "max_per_session": 1,
+    "max_shown_about": "2026-10-27 (operator: birthday & bbq pictures - \"integrate these in first & update\"; 20 birthday, 6 BBQ): at most this many of a topic's pictures show at once, picked at random each time (0: all).",
+    "max_shown": 6,
     "egg_voice_about": "2026-10-24 (operator: '\"Congratulations!\", \"Easter Egg '\", \"' found.\", & \"MouseOver to Zoom In\", need to be generated once and reused * only [easter egg title(s)] need live generation * generating + hourglass toggles upon file generated rule applies'): Goverlord's congratulations is said from its pieces - egg_text's words around {name}, each line its own piece, the quotes not said, and egg_zoom_text - each made once and kept; only the title is made live. They're joined into one voice (word times too), egg_voice_gap_ms of silence between, so the page lights it as one line. Needs wpr 2.",
     "egg_voice_gap_ms": 120,
     "egg_voice_edge_ms_about": "2026-10-24 (live: the joined voice was 9.8 s, each piece's quiet ends between the words): each piece is trimmed to its own words (their word times), this much air kept either side - not the first piece's start or the last one's end.",
@@ -2699,8 +2681,8 @@
     "target_about": "2026-10-23 (operator: \"Perhaps its the topics I'm after, to dig up value points the brobot is supposed to reveal? * value points, since they can overlap nearly everywhere, is too much to handle at this stage * Go\"): what the game counts - topics: one point said opens a topic; the score (\"Topics {said} / {total}\"), Next up, the reminders and Chapter cleared all count topics. points: every point, as before.",
     "target": "points",
     "core_points_about": "2026-10-26 (operator: \"yes to all 5 * booking, accessmath, social, livestream and websites\"): every point of those five topic clusters (chapters 08-12) is core too - their topics added to core_topics, new groups Social media and Accessmath, none left in background_topics. 2026-10-23 (FINISH_PLAN_001.md step A3; CORE_TOPICS_002.md; operator: \"aim to reveal all value points as the grand prize?\"): the value points themselves - his 16 (2026-10-23: \"Go with this to start\"; A3_CORE_POINTS_002.md). Only these are given, counted and pulled toward; every other point stays known to the Brobots, never a target. core_topics: the seven core topics and their topic files - a core topic is opened by any of its points. target points: the grand prize is all of them.",
-    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "bookings#2", "bookings#3", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1", "websites#2", "personalitymath_demo#1", "personalitymath_demo#2", "personalitymath_demo#3", "AIWP_livestream#3", "nine_pillars#1", "nine_pillars#2", "nine_pillars#3", "youtube_goal#1", "youtube_goal#2", "youtube_goal#3", "socials#1", "socials#2", "socials#3", "call_for_help#1", "call_for_help#2", "call_for_help#3", "accessmath#1", "accessmath#2", "accessmath#3", "healthy_distraction#1", "healthy_distraction#2", "healthy_distraction#3", "where_we_teach#1", "where_we_teach#2", "where_we_teach#3", "booking#1", "booking#2", "booking#3", "nightclub#2", "nightclub#3", "cameo#2", "birthday_and_merch#1", "birthday_and_merch#2", "birthday_and_merch#3", "birthday_and_merch#4", "printables_and_affiliates#1", "printables_and_affiliates#2", "printables_and_affiliates#3"],
-    "core_topics": {"Who we are": ["background", "doc_and_pip"], "What GOPOD is": ["gopod", "local_ai", "mobile_gear", "websites", "niche_pillars", "personalitymath_demo"], "How Doc & Pip teach": ["teaching_method", "bingo"], "Book us": ["bookings", "nightclub", "cameo", "booking", "birthday_and_merch", "printables_and_affiliates"], "The livestream": ["AIWP_livestream", "nine_pillars", "youtube_goal"], "Join the crew": ["newsletter"], "Due Credit": ["due_credit"], "Social media": ["socials", "call_for_help"], "Accessmath": ["accessmath", "healthy_distraction", "where_we_teach"]},
+    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "bookings#2", "bookings#3", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1", "websites#2", "personalitymath_demo#1", "personalitymath_demo#2", "personalitymath_demo#3", "AIWP_livestream#3", "nine_pillars#1", "nine_pillars#2", "nine_pillars#3", "youtube_goal#1", "youtube_goal#2", "youtube_goal#3", "socials#1", "socials#2", "socials#3", "call_for_help#1", "call_for_help#2", "call_for_help#3", "accessmath#1", "accessmath#2", "accessmath#3", "healthy_distraction#1", "healthy_distraction#2", "healthy_distraction#3", "where_we_teach#1", "where_we_teach#2", "where_we_teach#3", "booking#1", "booking#2", "booking#3", "nightclub#2", "nightclub#3", "cameo#2", "birthday_and_merch#1", "birthday_and_merch#2", "birthday_and_merch#3", "birthday_and_merch#4", "bbq#1", "bbq#2", "bbq#3", "printables_and_affiliates#1", "printables_and_affiliates#2", "printables_and_affiliates#3"],
+    "core_topics": {"Who we are": ["background", "doc_and_pip"], "What GOPOD is": ["gopod", "local_ai", "mobile_gear", "websites", "niche_pillars", "personalitymath_demo"], "How Doc & Pip teach": ["teaching_method", "bingo"], "Book us": ["bookings", "nightclub", "cameo", "booking", "birthday_and_merch", "bbq", "printables_and_affiliates"], "The livestream": ["AIWP_livestream", "nine_pillars", "youtube_goal"], "Join the crew": ["newsletter"], "Due Credit": ["due_credit"], "Social media": ["socials", "call_for_help"], "Accessmath": ["accessmath", "healthy_distraction", "where_we_teach"]},
     "background_about": "2026-10-22 (operator: \"Do 1 and 2 together first\"; CORE_TOPICS_002.md - the seven core topics: Who we are, What GOPOD is, How Doc & Pip teach, Book us, The contest, Join the crew, The comeback): these topics stay known to the Brobots (their facts still reach the prompt) but are never a value point target - no point given, not in the score, never in a reminder. Nothing deleted; take a topic off the list to make it a target again.",
     "background_topics": ["checks", "who_we_are", "brothers", "how_the_chat_works", "on_gopod", "gopod_yourself", "gomads", "gopod_words", "future_cast", "the_songs", "teacher_tells", "community_path", "foodmath_recipes", "halloween", "roast_battle", "camera_feeds"],
     "topic_links_about": "2026-10-23 (operator: \"Answer chain!! Start at what is GOPOD * GOPOD = live chats & scripted performances * GOPOD = 'AI Wordplay! Explain the MAth!' * = live stream * live stream > contest > ... * = content engine for websites * Social Media Websites: niche pillars for pinterest, recipes (popular on pinterest), recipes > chocolate bingo, chocolate bingo > foodmath website\"): the map the pull follows, from the repo's own lanes (gopod_notes/older_notes/GOPOD_NICHE_BUZZ_PLANNER_001.md: Lane 6 contest -> Lane 3 websites + Lane 4 social; Lane 3 websites -> Lane 5 newsletter + Lane 6; Lane 4 social -> Lane 5 + Lane 6; Lane 7 gear -> Lane 1 videos) and his recipes > Chocolate Bingo > foodmath - after a topic, its \"Next up\" and \"Hey, that reminds me\" name the first open topic it links to, in order; with none open, the most alike topic, as before. Add a topic's links here as the map grows.",

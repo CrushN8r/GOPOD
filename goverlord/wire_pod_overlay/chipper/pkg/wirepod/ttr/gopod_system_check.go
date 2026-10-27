@@ -95,6 +95,9 @@ func gopodSystemCheckProblems() ([]string, int) {
 		checked++
 		problems = append(problems, "topic "+p)
 	}
+	// 2026-10-27: the game engine's run cards (gopod_game_engine.go).
+	checked += len(gopodBrobotsSettings.Game.Runs)
+	problems = append(problems, gopodGameRunsCheck()...)
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
 	// 1. The settings: every file they name.

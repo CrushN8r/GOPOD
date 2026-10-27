@@ -23,7 +23,8 @@ and the interview with `start interview`.
   `start fart joke`.
 
 Before and after its run, a song can have a pre/post chat in the Brobots chat (the
-`experiences` template in the settings file): Bingo, the nap and the fart joke have one.
+`experience` in each run card, settings `game.runs` - the game engine): Bingo, the nap, the fart
+joke and the interview have one. A new run is one new card.
 - `tools/` — the engine and its helpers (see its README).
 
 Private working files stay out of the repo: `zKnobs.json` (a working copy the engine prefers

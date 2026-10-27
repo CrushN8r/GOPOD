@@ -1,6 +1,7 @@
 package wirepod_ttr
 
 import (
+	"strings"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -45,7 +46,8 @@ func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 	}
 	l.GomadPersonas = map[string]string{}
 	for host, p := range gopodBrobotsSettings.Managers.Personas {
-		l.GomadPersonas[host] = gopodPersonaPrompt(host) + "\n" + p.WhoLine
+		// the live here-and-now line (time, place, cast) changes by the minute - not locked
+		l.GomadPersonas[host] = strings.TrimSpace(strings.ReplaceAll(gopodPersonaPrompt(host), gopodHereNow(host), "")) + "\n" + p.WhoLine
 	}
 	ss, _ := raw["scripted_snippets"].(map[string]any)
 	lines, _ := ss["lines"].([]any)

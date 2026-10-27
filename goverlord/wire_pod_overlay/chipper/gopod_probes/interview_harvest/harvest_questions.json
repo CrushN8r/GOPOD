@@ -597,6 +597,24 @@
       "ask": "Brobot 2, any affiliate links?"
     },
     {
+      "chapter": "Booking",
+      "topic": "bbq",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, can GOPOD do a BBQ?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bbq",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any burgers and hot dogs for the cookout?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bbq",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, who else comes to the barbecue?"
+    },
+    {
       "chapter": "Legacy and wrap-up",
       "topic": "legacy",
       "to": "Brobot 1",

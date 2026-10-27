@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"math/rand"
 	"sort"
 	"strings"
 	"sync"
@@ -162,7 +163,7 @@ func gopodShowTopicPictures(esn, userMessage string) {
 	var found []*chapterEgg
 	byKey := map[string]*chapterEgg{}
 	for _, p := range loadScenarioPacketsForMessage(userMessage) {
-		files := tp.Pictures[p.Name]
+		files := gopodPicturesShown(tp.Pictures[p.Name], tp.MaxShown)
 		card := strings.TrimSpace(tp.Cards[p.Name])
 		var paths []string
 		for _, f := range files {
@@ -495,6 +496,25 @@ func gopodChapterReset() {
 	gopodInterviewShown.Lock()
 	gopodInterviewShown.chapter = ""
 	gopodInterviewShown.Unlock()
+}
+
+// gopodPicturesShown: a topic's pictures, at most max of them picked at random,
+// kept in their own order (topic_pictures.max_shown; 0 or fewer: all).
+func gopodPicturesShown(files []string, max int) []string {
+	if max <= 0 || len(files) <= max {
+		return files
+	}
+	keep := map[int]bool{}
+	for _, i := range rand.Perm(len(files))[:max] {
+		keep[i] = true
+	}
+	var out []string
+	for i, f := range files {
+		if keep[i] {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // ## EOF

@@ -340,9 +340,11 @@ Language Model Loading...
 3. Give it a `song_id` in `knobs.json`, add that `song_id` to the engine's song list
    (`SONG_REGISTRY` in `run_golden_song_001.py`), and give `pha0b` its keyword (`brobots.sh`,
    matched by `song_id`). The folder's own name is yours to change any time.
-4. `score <song>` prints it. `pha0b`, dry, plays it with no robots.
-5. Play it live, a range at a time. Tune moves in phcal.
-6. When a full live run is right, set the status to `GOLDEN` with the date.
+4. To play it from the Brobots chat, give it a run card in the settings' `game.runs` (the game
+   engine, below) and its start / stop words as Wire-Pod voice commands (`customIntents.json`).
+5. `score <song>` prints it. `pha0b`, dry, plays it with no robots.
+6. Play it live, a range at a time. Tune moves in phcal.
+7. When a full live run is right, set the status to `GOLDEN` with the date.
 
 ### 5.4 An LLM warm song
 

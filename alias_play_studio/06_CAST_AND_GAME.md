@@ -113,6 +113,10 @@ Explain the Math!" is GOPOD as a whole).
 - In the live chat only - never while a draft plays or any run is going (a song, the interview, a
   replay). Locked by `TestPopupsOnlyLive`.
 - Each egg shows up to `topic_pictures.max_per_session` (5) times per Wire-Pod start.
+- A topic shows at most `topic_pictures.max_shown` (6) of its pictures at once, picked at random
+  each time. Birthday has 20 (seven pizza-boxes of food-shaped Hot Wheels cars, single cars, LEGO
+  ice-cream minifigures); BBQ (`12_booking/07_bbq.txt`, "GOPOD can do BBQ's too!") has 6. Photos are
+  web-sized: 1600 px longest side, JPEG quality 85, no location data; full-size originals outside the repo.
 - A trigger inside another topic's longer trigger doesn't count (`gopodTriggerOwnMatch`). One egg
   per line, not two, from one phrase.
 
@@ -400,6 +404,13 @@ part; none = none), `pre_closing` (before it has played, by the answer's place: 
   experience, unprepared, like a lost burp; Brobot 2 the party-bro prankster: prepared, couldn't
   contain himself), his closing jokes, takes from the story's own lines, and its run's value points
   (`run_pack` "fart_joke", `chapters/_always/07_fart_joke.txt`: the prank, the farts). Once it has played, Brobot 1 says "Ugh. I didn't know." and Brobot 2 "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!" (`fart_joke_played`).
+  Closing riff (`closing_riff`, any experience): each Brobot's base line; each run, his closing is
+  either the closing word for word or a riff on his base line (`closing_riff_text`), at random.
+  Brobot 1 (victim): "Was not happy about being fart-hotboxed." Brobot 2 (prankster): "The intended
+  event found as a repeating systems-level discharge, due to the accumulation of residual
+  atmospheric distribution, within my brobotic brotastic party-bro, Bod! Further variations are
+  narrowly constrained mechanical and software-diagnostic registers, that I can now compose and
+  fire on call."
   Skipped on his word: a nap closing ("jokes don't apply"), nap attitudes ("brobot game experience vs
   brobot 'personal' experience"), the Interview ("last bigger song to polish").
 
@@ -475,6 +486,17 @@ channel identity, one platform one job, every post leads home to crushn8r.com), 
 contact@crushn8r.ca). **Overlap:** each topic keeps its own words - the newsletter no longer
 claims social words, YouTube's goals stay in the livestream's channel topic - and a question that
 opens several topics gets a point from each (longest word wins a clash).
+
+**The game engine: one card per run.** Every run - the Bingo test, the interview, the Baby
+Brobots nap, the Fart Joke - is one card in the settings' `game.runs` (`gopod_game_engine.go`):
+`name` (its experience's name, `<name>_played` / `_not_played`), `title` (its name in the chat),
+`song` (its folder), `draft` (the interview: played as the scripted draft), `start` / `stop` (its
+words, also Wire-Pod voice commands), `menu_about` (its line in the system menu's Play group),
+`session` / `said` (the name it checks in with Goverlord, and how Goverlord says it) and
+`experience` (its pre/post chat). At load the cards fill `session.run_names`,
+`song_stop.stop_words`, `bingo`, `experiences` and `interview_script.play_words`; the page builds
+the Play menu from them (a group with `"runs": true`); system-check checks each card (its song
+folder, its words in `customIntents.json`). A new run is one new card. `TestGameRunsFillTheSettings`.
 
 **Pre and post, for songs and topics.** A song's before and after is whether it has played (its
 `experiences` entry: Bingo, the nap, the fart joke, the interview - the interview's slots are

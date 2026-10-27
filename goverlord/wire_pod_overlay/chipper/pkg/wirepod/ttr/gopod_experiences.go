@@ -6,8 +6,9 @@ package wirepod_ttr
 // duo answer-chain template * Make pre-[sleep experience] > [nap song] >
 // post-[sleep experience]"; "nearly cookie-cutter copy/paste, tweaks").
 //
-// An experience is a scripted song the Brobots talk about (settings bingo, then
-// experiences[] - the same keys). Before it has played, a question about it
+// An experience is a scripted song the Brobots talk about (each run card's
+// experience in settings game.runs, filled into bingo and experiences at load -
+// gopod_game_engine.go). Before it has played, a question about it
 // (question_word) gets each Brobot's <name>_not_played line (scripted_snippets)
 // and no_run_note. Once a performed line holds its run_marker, the run is
 // remembered as one snapshot note (gopodSharedBrobotChat), the asking Brobot's
@@ -92,6 +93,12 @@ func gopodExperienceMarkPlayed(who, text string) {
 	for _, e := range gopodExperienceList() {
 		if e.RunMarker != "" && strings.Contains(text, e.RunMarker) {
 			gopodExperiencePlayed(e).Store(true)
+			gopodExperienceRiffTurns.Range(func(k, _ any) bool { // a new run, a new pick
+				if strings.HasPrefix(k.(string), e.Name+"|") {
+					gopodExperienceRiffTurns.Delete(k)
+				}
+				return true
+			})
 		}
 	}
 }
@@ -107,7 +114,7 @@ func gopodExperienceClosing(esn, question string) string {
 			continue
 		}
 		var parts []string
-		if gopodExperienceRan(e) {
+		if gopodExperienceRan(e) && !gopodExperienceClosingTurn(e, esn) {
 			parts = append(parts, strings.TrimSpace(e.Closing[gopodBrobotName(esn)]))
 		}
 		if kind, n := gopodResponseSlot(esn); kind == "duo" && n == 1 && e.RunName != "" {
@@ -119,6 +126,23 @@ func gopodExperienceClosing(esn, question string) string {
 	}
 	// 2026-10-26: no song for it - a covered topic's own closing remark (gopod_topic_asks.go).
 	return gopodTopicClosing(question)
+}
+
+var gopodExperienceRiffTurns sync.Map // name + "|" + Brobot -> bool
+
+// gopodExperienceClosingTurn: true when this run's closing is the riff on his
+// closing_riff, false for the word-for-word closing - picked at random once
+// per run (operator 2026-10-27: "randomly take turns from run to run").
+func gopodExperienceClosingTurn(e *gopodExperience, esn string) bool {
+	name := gopodBrobotName(esn)
+	if strings.TrimSpace(e.ClosingRiff[name]) == "" || strings.TrimSpace(gopodBrobotsSettings.ClosingRiffText) == "" {
+		return false
+	}
+	if strings.TrimSpace(e.Closing[name]) == "" {
+		return true
+	}
+	v, _ := gopodExperienceRiffTurns.LoadOrStore(e.Name+"|"+name, rand.Intn(2) == 0)
+	return v.(bool)
 }
 
 // gopodExperienceMove (2026-10-26, operator: "recover & add a few more to a
@@ -145,6 +169,10 @@ func gopodExperienceFacts(esn, question string) []string {
 			note = strings.TrimSpace(e.NoRunNote + " " + e.PreAttitude[name])
 		} else {
 			note = strings.TrimSpace(e.PostAttitude[name])
+			if gopodExperienceClosingTurn(e, esn) {
+				riff := strings.ReplaceAll(gopodBrobotsSettings.ClosingRiffText, "{line}", strings.TrimSpace(e.ClosingRiff[name]))
+				note = strings.TrimSpace(note + " " + riff)
+			}
 		}
 		if note != "" {
 			out = append(out, note)

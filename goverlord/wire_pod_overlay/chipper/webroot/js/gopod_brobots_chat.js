@@ -1342,6 +1342,15 @@
             if (settings.system_bubble && settings.system_bubble.label) { systemLabel = settings.system_bubble.label; }
             if (settings.numpad_ptt) { numpad.cfg = settings.numpad_ptt; }
             if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; }
+            // 2026-10-27 (the game engine, gopod_game_engine.go): a group with
+            // "runs": true starts with one line per run card (game.runs).
+            var runCards = (settings.game && settings.game.runs) || [];
+            systemMenuData = systemMenuData.map(function (g) {
+              if (!g.runs) { return g; }
+              var copy = Object.assign({}, g);
+              copy.items = runCards.map(function (r) { return { cmd: r.start, about: r.menu_about, fill: r.start }; }).concat(g.items || []);
+              return copy;
+            });
             if (settings.math && settings.math.popup_title) { mathPopupTitle = settings.math.popup_title; }
             if (settings.digit_highlight) { digitHighlight = settings.digit_highlight; }
             if (settings.word_reveal) { wordReveal = settings.word_reveal; }

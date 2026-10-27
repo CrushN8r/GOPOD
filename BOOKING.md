@@ -24,10 +24,12 @@ CRUSHN8R CREW'd newsletter hears first about live events. Every price comes by r
 
 Every video is a scripted robot performance, and it says so.
 
-## Birthdays, printables and affiliates
+## Birthdays, BBQs, printables and affiliates
 
-- **Birthdays** - a pizza-box of food-shaped Hot Wheels cars on the table; a live happy-birthday act
-  is coming.
+- **Birthdays** - seven pizza-boxes of food-shaped Hot Wheels cars on the table; a live
+  happy-birthday act is coming.
+- **BBQs** - GOPOD can do BBQ's too! A pizza-box of BBQ-food Hot Wheels cars, and LEGO hot-dog and
+  pizza-slice minifigures.
 - **Printables** - the Chocolate Bingo kit (print at home, plays in black and white), and the GOPOD
   word search and sudoku on crushn8r.ca.
 - **Print-shop merch from a gig** - bingo cards, signs, winner photos and posters, through Mission
