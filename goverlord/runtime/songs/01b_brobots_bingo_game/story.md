@@ -39,7 +39,7 @@ the other's code.
 
 ---
 
-## Golden rule — confirmed live, 2026-08-12
+## Golden rule — confirmed live
 
 **Wait for the first backpack rub to start; from there it runs cleanly on its own to the end
 (deck exhaustion) or until "bingo" is called via the backpack button.** Live-confirmed twice in
@@ -61,10 +61,8 @@ chocolate**. That's the actual joke, not "sore loser" in the abstract.
 **Fires once, at the very end — for both ways the game can end** (deck exhausted, or "bingo"
 called early via the backpack button both write the same `bingo_end` signal). Not a per-draw
 reaction anymore — Brobot 2 watches quietly through the whole game and gets mad exactly once,
-right at the end, for missing out on the chocolate prize. Built 2026-08-12
-(`goverlord/runtime/songs/01b_brobots_bingo_game/bingo_reactor/bingo_reactor_001.py`) — see
-`gopod_notes/BINGO_REACTOR_STALE_REPLAY_FIX_AND_DIVISION_QUESTION_001.md` for the per-draw
-version this replaced and why.
+right at the end, for missing out on the chocolate prize
+(`goverlord/runtime/songs/01b_brobots_bingo_game/bingo_reactor/bingo_reactor_001.py`).
 
 ## Brobot 2's screen display — blocked lane, not built
 

@@ -69,7 +69,7 @@
       "to": "brobot_2",
       "section": "The rig",
       "pictures": [
-        "gopod_stack.jpg"
+        "gear/crate_2_display.jpg"
       ]
     },
     {
@@ -86,7 +86,7 @@
       "to": "brobot_1",
       "section": "The websites",
       "pictures": [
-        "crushn8r_ca_qr.png"
+        "qr/crushn8r_ca_qr.png"
       ]
     },
     {
@@ -132,8 +132,8 @@
       "to": "brobot_1",
       "section": "Bingo nights",
       "pictures": [
-        "chocolate_bingo_kit.jpg",
-        "chocolate_bingo_card.jpg"
+        "chocolate_bingo/chocolate_bingo_kit.jpg",
+        "chocolate_bingo/chocolate_bingo_card.jpg"
       ]
     },
     {
@@ -280,7 +280,7 @@
       "section": "Due credit",
       "chapter": "Due Credit",
       "pictures": [
-        "gangster_granny.jpg"
+        "legacy/gangster_granny.jpg"
       ]
     },
     {

@@ -53,7 +53,7 @@ function scenario() {
   ["Topics 3 of 7:\t===----", "Value Points 1 of 19:\t=------------------", "Easter Eggs 4 of 5:\t====-"].forEach(l => add("Picture", "notice:Value Points|" + l, { to: "Brobot 1" }));
   reply("Brobot 1", "You know what's even wilder? \u2063The party never stops!");
   op("Brobot 1", "Brobot 1, tell me about bingo for seniors.");
-  egg("Brobot 1", "Bingo and foodmath", "/pictures/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo_card.jpg", "replay_egg_bingo.wav", true);
+  egg("Brobot 1", "Bingo and foodmath", "/pictures/chocolate_bingo/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo/chocolate_bingo_card.jpg", "replay_egg_bingo.wav", true);
   reply("Brobot 1", "Sure, \u2063let's play! \u2063Say start Bingo test!");
   // 2026-10-25 (the egg rule): the same egg again - no pop-up, his bubble keeps the marquee.
   op("Brobot 2", "how was your bingo experience");
@@ -64,7 +64,7 @@ function scenario() {
   reply("Brobot 2", "Let's do it! \u2063\u2022 Let x = 0.27 repeating.");
   reply("Brobot 1", "My bro! \u2063\u2022 So 0.27 repeating = 3\u204411.");
   op("Brobot 2", "what do you see?");
-  egg("Brobot 2", "Get Photo", "/pictures/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo_card.jpg|/photos/replay_not_made_yet_tpu.jpg", "replay_egg_photo.wav", true);
+  egg("Brobot 2", "Get Photo", "/pictures/chocolate_bingo/chocolate_bingo_kit.jpg|/pictures/chocolate_bingo/chocolate_bingo_card.jpg|/photos/replay_not_made_yet_tpu.jpg", "replay_egg_photo.wav", true);
   reply("Brobot 2", "I see a person and a chair.");
   op("Brobot 1", "roast battle!");
   egg("Brobot 1", "Roast Battle", "card:\ud83d\udd25 Roast Battle \ud83d\udd25\nParty Brobots vs Any and All takers", "replay_egg_roast.wav", false);

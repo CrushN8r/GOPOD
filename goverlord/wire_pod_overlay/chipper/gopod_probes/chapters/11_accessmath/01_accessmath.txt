@@ -1,0 +1,13 @@
+label: accessmath
+words: accessmath, accessibility, accessible, disability, disabilities, the app, gopod app, phone app, install the app, on my phone
+ask: Tell me about accessmath
+notes 1: accessmath.crushn8r.net | the GOPOD app's home | the Brobots chat on your phone
+notes 2: access built in | speak, type or press a key | every line lit word by word as it's said, read aloud
+notes 3: maths for anyone | told they were bad at it | no internet needed
+summary: accessmath.crushn8r.net: the GOPOD app's home, the Brobots chat on your phone | access built in: speak, type or press a key, every line lit word by word as it's said | maths for anyone: told they were bad at it, no internet needed
+source: ACCESSMATH.md
+---
+Accessmath - GOPOD for everyone. Reveal these, in order, in your own words:
+1. accessmath.crushn8r.net is the GOPOD app's home: the Brobots chat on your phone - add it to your home screen and talk to us from anywhere in the room.
+2. Access is built in: speak into the mic, type, or hold one big numpad key; every line lights up word by word as it's said, and the voices read lines out loud. Watch, listen, or both.
+3. Maths for anyone who was told they were bad at it - and it all runs locally, no internet needed.

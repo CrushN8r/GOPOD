@@ -129,6 +129,20 @@ func gopodBatterySay(name string, volts float64) {
 	}
 	line := lines[rand.Intn(len(lines))]
 	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s low (%.2f V): %s", name, volts, line))
+	// 2026-10-26 (operator: "at the next safe spot, Intel can interject * use
+	// the duo response-chain template, Intel 404 to brobot N * a warning
+	// message, then what say you? * Brobot N, Nice try ..., yeah, I feel
+	// dizzy"): his guard (battery_watch.guards) warns and hands over, then he
+	// answers - the comeback opener, then his line (battery_watch.reply).
+	if guard := gopodBrobotsSettings.BatteryWatch.Guards[name]; guard != "" {
+		bw := gopodBrobotsSettings.BatteryWatch
+		warn := strings.NewReplacer("{brobot}", name, "{volts}", fmt.Sprintf("%.1f", volts)).Replace(bw.GuardWarning)
+		hand := gopodNicknameFill(guard, strings.ReplaceAll(bw.GuardHandover, "{brobot}", name))
+		if gopodReporterSayTo(guard, "", strings.TrimSpace(warn+" "+hand), true, true) {
+			come := gopodNicknameFill(name, gopodBrobotsSettings.Openers["comeback"])
+			line = strings.Join(strings.Fields(strings.NewReplacer("{comeback}", come, "{line}", line).Replace(bw.Reply)), " ")
+		}
+	}
 	gopodRecordSay(name, line)
 }
 

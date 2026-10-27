@@ -6,6 +6,8 @@ GOPOD's content and tools for the Brobots chat. Wire-Pod reads them from here.
   trigger words, facts, pictures and value points). The format is at the top of
   `gopod_chapters_folder.go`. `chapters/_always/` holds topics outside the chapters: the
   surprise eggs, and a song's own value points (`05_nap.txt`, `06_bingo_test.txt`).
+- `_topic_cluster/` — the template for a new topic cluster (a chapter): copy it into
+  `chapters/`. Its README explains every line.
 - `foundation_packs/gopod_core.txt` — GOPOD's facts, in every Brobot prompt.
 - `interview_harvest/harvest_questions.json` — the questions a dry run asks.
 - `section_packets/` — Template 1 (the pronunciation list) and the Section 1 card the song

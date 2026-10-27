@@ -19,7 +19,7 @@ class StepNameTests(unittest.TestCase):
             ("host_beat_angry_host_rattle_0501", [("emotion_beat", "angry"), ("rattle", "")]),
             ("brat_say_fart2_0204", [("say_turn", ""), ("sound", "fart2.wav")]),
             ("host_wav-danger_beat_frustrated_0205", [("sound", "danger-will-robinson.wav"), ("emotion_beat", "frustrated")]),
-            ("host_say_img-granny_0301", [("say_turn", ""), ("picture", "gangster_granny.jpg")]),
+            ("host_say_img-granny_0301", [("say_turn", ""), ("picture", "legacy/gangster_granny.jpg")]),
             ("host_thinking_say_0201", [("thinking", ""), ("say_turn", "")]),
             ("reporter_gap_0101", [("pause", "")]),
             ("host_say_danger_beat_frustrated_0205", [("sound", "danger-will-robinson.wav"), ("emotion_beat", "frustrated")]),

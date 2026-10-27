@@ -7,26 +7,20 @@ is `~/.gopod_alias_lib/`, loaded from `~/.bash_aliases` (`brobots.sh`, `llm.sh`)
 `~/.bashrc` (`wirepod_logs.sh`). This folder mirrors it for backup and for anyone taking
 the alias play studio home (WIRED-POD.md, "Take Out", part 1).
 
-## Cleaned out 2026-10-08
-
-The operator kept three groups: the Bingo test plus phcal, the Wire-Pod basics, and the LLM
-aliases. Everything else was retired. The old files are kept outside the repo, in
-`gopod_notes/older_archives/alias_lib_retired_20261008/`, and the whole earlier studio is in
-`alias_studio.zip`.
+## What's here
 
 - **`brobots.sh`** — the cockpit:
   - `pha0b` (PLAYHEAD: pick a song, play a range of it, live or dry), with its menu and prompts;
   - `phcal` (tune one arm, nod, cube light or animation on one robot);
   - `score` / `score-save` (print a song's score), and `tempo-set`;
-  - `gobingo` (the live Bingo game, moved here from `demo.sh`);
+  - `gobingo` (the live Bingo game);
   - the audio-routing check.
-  - It went from 226 functions to 16. The songs it knows are `bingo` and `nap`.
+  - The songs it knows are `bingo` and `nap`.
 - **`llm.sh`** — `llm-status`, `llm-models`, `llm-test-*`.
 - **`wirepod_logs.sh`** — `wirepodlogs`, `wirepoddebuglogs`, `wirepodlogsave`.
 - **Python tools** — `phcal_isolate_001.py`, `phcal_apply_001.py`, `robot_pick_001.py`,
-  `tempo_set_001.py`, plus `numpad_persona_map_001.json` (the chat page's numpad reads it;
-  synced 2026-10-26 - KP1-KP9 live, KP3-KP6 and KP9 the new voice personas) and the example
-  configs.
+  `tempo_set_001.py`, plus `numpad_persona_map_001.json` (the chat page's numpad keys and
+  who each one talks to) and the example configs.
 - **`wpr` / `wps` / `wpq`** (restart and check Wire-Pod) live in `~/.bash_aliases`, not here.
 
 **Retired:**

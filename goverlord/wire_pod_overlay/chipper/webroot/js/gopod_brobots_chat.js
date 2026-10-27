@@ -1395,6 +1395,9 @@
             if (settings.value_points && settings.value_points.score_role) {
               scoreRole = settings.value_points.score_role;
             }
+            if (settings.value_points && settings.value_points.score_bar && settings.value_points.score_bar.done) {
+              scoreBarDone = settings.value_points.score_bar.done;
+            }
             if (settings.sign_off && settings.sign_off.system_role) { systemRole = settings.sign_off.system_role; }
             if (settings.system_set && settings.system_set.role) { terminalRole = settings.system_set.role; }
             if (settings.system_search) { searchSettings = settings.system_search; }
@@ -5038,7 +5041,8 @@
       // live yet key press = error = grunge audio plays"): a numpad error message
       // (numpad_ptt.error_texts) wears the Operator error label (bubble_sounds); a key that works plays nothing.
       function numpadText(name, values) {
-        if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { bubbleSound("Operator", "error"); }
+        // 2026-10-26: and its bubble wears the red error border (.is-error).
+        if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { bubbleSound("Operator", "error"); numpad.errorNext = true; }
         var t = (numpad.cfg.texts || {})[name] || name;
         return String(t).replace(/\{(\w+)\}/g, function (m, k) { return values && values[k] != null ? values[k] : m; });
       }
@@ -5058,6 +5062,7 @@
         var bubble = rawBubble({ kind: "status", classes: "operator system-status", head: numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel), text: text });
         if (numpadTo) { bubbleSound("Operator"); }
         var textEl = bubble.querySelector(".brobot-bubble-text");
+        if (numpad && numpad.errorNext) { bubble.classList.add("is-error"); numpad.errorNext = false; }
         placeBubble(bubble);
         // 2026-10-14 (operator: "When I key press I get the correct messages to
         // record & transcribe, etc.. * can you leave those in the chat window? (no
@@ -5067,6 +5072,7 @@
           bubble: bubble, textEl: textEl,
           set: function (t) {
             if (textEl.textContent === t) { return; }
+            if (numpad && numpad.errorNext) { bubble.classList.add("is-error"); numpad.errorNext = false; }
             textEl.appendChild(document.createElement("br"));
             textEl.appendChild(document.createTextNode(t));
             // 2026-10-22 (operator: "scrolling isn't handling these bubbles
@@ -5425,6 +5431,8 @@
           x.classList.add("spoken");
         });
       }
+      // The score bar's done mark (value_points.score_bar.done).
+      var scoreBarDone = "=";
       // A notice line's words, as plain text or (said) as a lit piece.
       function noticeLine(line, said) {
         var el = document.createElement("span");
@@ -5438,9 +5446,18 @@
           var label = document.createElement("span");
           label.className = "notice-score-label";
           label.textContent = String(line).slice(0, tab).trim();
+          // 2026-10-27 (operator: "use three 'stretch to fit any screen width'
+          // thin filled bars"): the text bar (done/left marks) drawn as a thin
+          // track, filled to its share of done marks.
+          var marks = String(line).slice(tab + 1).trim();
+          var done = marks.split(scoreBarDone).length - 1;
           var bar = document.createElement("span");
           bar.className = "notice-score-bar";
-          bar.textContent = String(line).slice(tab + 1).trim();
+          bar.title = marks;
+          var fill = document.createElement("span");
+          fill.className = "notice-score-fill";
+          fill.style.width = (marks.length ? Math.min(100, 100 * done / marks.length) : 0) + "%";
+          bar.appendChild(fill);
           el.appendChild(label);
           el.appendChild(bar);
           return el;

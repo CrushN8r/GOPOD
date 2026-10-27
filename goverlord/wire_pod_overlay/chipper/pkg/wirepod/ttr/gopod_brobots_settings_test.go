@@ -563,8 +563,9 @@ func TestValuePointsReachThePrompt(t *testing.T) {
 	gopodCoverage.reminded = map[string]bool{}
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
-	first := gopodQuestionFacts("Brobot 1, who's Brobot 0?")
-	second := gopodQuestionFacts("Brobot 1, who's Brobot 0?")
+	// 2026-10-26: a pointed question (a bare "who's Brobot 0?" is a summary ask now).
+	first := gopodQuestionFacts("Brobot 1, what did Brobot 0 do before you?")
+	second := gopodQuestionFacts("Brobot 1, what did Brobot 0 do before you?")
 	if !strings.Contains(first, "1. ") || strings.Contains(first, "2. ") {
 		t.Errorf("first: %q", first)
 	}

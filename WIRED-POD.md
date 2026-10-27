@@ -226,8 +226,8 @@ spoken line, the numpad's voice personas, and Record Session's untick path.
   each Brobot answers it with his own call to action.
 - The Cozmo and Moorebot Scout personas are voice-only scaffolds: no robot bodies wired yet,
   and their persona lines are first drafts.
-- Voice plays are counted from 2026-10-26, so the voice report's month and year fill in over
-  time.
+- The voice report's month and year fill in over time: plays are counted from when the report
+  was added.
 - Known stubs, kept on purpose: the DAG anchor check (`verifyGOPODDAGAnchor`) is a no-op;
   `selectGOPODContactBeat` has no caller.
 
@@ -240,4 +240,4 @@ spoken line, the numpad's voice personas, and Record Session's untick path.
 
 ---
 
-GOPOD — [README](README.md) · [channel](CHANNEL.md) · [ask](ASK.md)
+GOPOD — [README](README.md) · [asks](BROBOT_ASKS.md) · [mobile gear](MOBILE_GEAR.md) · [livestream](LIVESTREAM.md)

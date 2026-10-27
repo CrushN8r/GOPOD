@@ -95,7 +95,7 @@ func TestPhotoDescribeLive(t *testing.T) {
 	if os.Getenv("GOPOD_PHOTO_LIVE") != "1" {
 		t.Skip("set GOPOD_PHOTO_LIVE=1 to ask the vision model")
 	}
-	data, err := os.ReadFile(filepath.Join(filepath.Dir(gopodPhotoDir), "pictures", "rig_brobots_in_harness.jpg"))
+	data, err := os.ReadFile(filepath.Join(filepath.Dir(gopodPhotoDir), "pictures", "gear/rig_brobots_in_harness.jpg"))
 	if err != nil {
 		t.Skip("no test picture: " + err.Error())
 	}

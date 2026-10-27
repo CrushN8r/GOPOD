@@ -201,24 +201,6 @@
       "ask": "Brobot 2, are the teacher's tells a diagnosis?"
     },
     {
-      "chapter": "How Doc and Pip teach",
-      "topic": "healthy_distraction",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, how is GOPOD a healthy distraction?"
-    },
-    {
-      "chapter": "How Doc and Pip teach",
-      "topic": "healthy_distraction",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, I had a bad day - cheer me up?"
-    },
-    {
-      "chapter": "How Doc and Pip teach",
-      "topic": "healthy_distraction",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, what does borrowing a stage mean?"
-    },
-    {
       "chapter": "The brain and the rig",
       "topic": "on_gopod",
       "to": "Brobot 2",
@@ -276,91 +258,37 @@
       "chapter": "Show and tell",
       "topic": "the_songs",
       "to": "Brobot 1",
-      "ask": "Brobot 1, and the song where you draw numbers together?"
+      "ask": "Brobot 1, and the song where you two fall asleep?"
     },
     {
       "chapter": "Show and tell",
       "topic": "the_songs",
       "to": "Brobot 2",
-      "ask": "Brobot 2, what's the Is That You song?"
+      "ask": "Brobot 2, what's the song in the elevator?"
     },
     {
       "chapter": "Show and tell",
       "topic": "the_songs",
       "to": "Brobot 1",
-      "ask": "Brobot 1, and the Baby Robots song?"
+      "ask": "Brobot 1, and the interview song?"
     },
     {
       "chapter": "Show and tell",
       "topic": "future_cast",
       "to": "Brobot 2",
-      "ask": "Brobot 2, any more robots - like the reporters?"
+      "ask": "Brobot 2, who are CHALK and PLAYHEAD?"
     },
     {
       "chapter": "Show and tell",
       "topic": "future_cast",
       "to": "Brobot 1",
-      "ask": "Brobot 1, who's CHALK - more robots coming?"
+      "ask": "Brobot 1, who are Git Repo and Cache PYC?"
     },
     {
       "chapter": "Show and tell",
       "topic": "future_cast",
       "to": "Brobot 2",
-      "ask": "Brobot 2, tell me about the other robots in the cast."
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "bookings",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, how can I party with GOPOD?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "bookings",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, walk me through a normal day - morning first."
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "bookings",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, and your evening - rapid fire?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "nightclub",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, what about comedy clubs and bars in Windsor?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "birthday_and_merch",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, any Hot Wheels for my big day?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "birthday_and_merch",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, would you do a live cameo on my big day?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "birthday_and_merch",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, any merch?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "birthday_and_merch",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, a big cake to go with those Hot Wheels?"
-    },
-    {
-      "chapter": "Parties and rooms",
-      "topic": "cameo",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, could you two make a birthday video for my sister?"
+      "ask": "Brobot 2, and the Moorebot Scout guards, PNFH and PNFT?"
     },
     {
       "chapter": "Bingo and foodmath",
@@ -375,118 +303,298 @@
       "ask": "Brobot 2, what recipes do you have?"
     },
     {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Websites",
       "topic": "websites",
       "to": "Brobot 1",
       "ask": "Brobot 1, where can people see more - your websites?"
     },
     {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Websites",
+      "topic": "websites",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, and what are mathaftermath and foodmath for?"
+    },
+    {
+      "chapter": "Websites",
       "topic": "personalitymath_demo",
       "to": "Brobot 2",
       "ask": "Brobot 2, what's personality math?"
     },
     {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Websites",
       "topic": "personalitymath_demo",
       "to": "Brobot 1",
       "ask": "Brobot 1, what's on the personality math site?"
     },
     {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Websites",
       "topic": "personalitymath_demo",
       "to": "Brobot 2",
       "ask": "Brobot 2, how do you build a website by dinner?"
     },
     {
-      "chapter": "Websites, themes and the channel",
-      "topic": "nine_pillars",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, what are the nine themes?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "nine_pillars",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, what kinds of math are the themes?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "nine_pillars",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, what's access math in the themes?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "AIWP_livestream",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, what's the contest?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "AIWP_livestream",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, how do you win the contest - and where do winners show up?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "AIWP_livestream",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, how does the contest wheel work?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "youtube_goal",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, what's on the channel that stops a scroll?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "youtube_goal",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, how many subscribers are you going for on the channel?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
-      "topic": "youtube_goal",
-      "to": "Brobot 1",
-      "ask": "Brobot 1, what's the channel goal for 2027?"
-    },
-    {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Websites",
       "topic": "newsletter",
       "to": "Brobot 2",
       "ask": "Brobot 2, how do I keep up with you guys?"
     },
     {
-      "chapter": "Websites, themes and the channel",
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "AIWP_livestream",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the contest?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "AIWP_livestream",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how do you win the contest - and where do winners show up?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "AIWP_livestream",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how does the contest wheel work?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "nine_pillars",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are the nine themes?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "nine_pillars",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what kinds of math are the themes?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "nine_pillars",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's access math in the themes?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "youtube_goal",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's on the channel that stops a scroll?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "youtube_goal",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how many subscribers are you going for on the channel?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "youtube_goal",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the channel goal for 2027?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "socials",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what are your socials - what's the channel called?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "socials",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, which social media platform does what?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "socials",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, where does every post on your socials lead?"
+    },
+    {
+      "chapter": "Social media",
       "topic": "niche_pillars",
       "to": "Brobot 1",
       "ask": "Brobot 1, what are the niche pillars?"
     },
     {
-      "chapter": "Booking and help",
+      "chapter": "Social media",
+      "topic": "call_for_help",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, Is Brobot 0 looking for help?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "call_for_help",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the job - is livestream help part of it?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "call_for_help",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, where is he looking for help, and how do I reach him?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "accessmath",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's on accessmath - the app?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "accessmath",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how is accessibility built into the app?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "accessmath",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, is accessmath for people who were told they were bad at it?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "healthy_distraction",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how is GOPOD a healthy distraction?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "healthy_distraction",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, I had a bad day - cheer me up?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "healthy_distraction",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what does borrowing a stage mean?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "where_we_teach",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, where else would you teach - libraries, community centres?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "where_we_teach",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what about rural schools with bad wifi?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "where_we_teach",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, who benefits the most?"
+    },
+    {
+      "chapter": "Booking",
       "topic": "booking",
       "to": "Brobot 1",
       "ask": "Brobot 1, can I book you?"
     },
     {
-      "chapter": "Booking and help",
+      "chapter": "Booking",
       "topic": "booking",
       "to": "Brobot 2",
       "ask": "Brobot 2, some days there's nothing booked?"
     },
     {
-      "chapter": "Booking and help",
+      "chapter": "Booking",
       "topic": "booking",
       "to": "Brobot 1",
       "ask": "Brobot 1, so on the quiet days with nothing booked?"
     },
     {
-      "chapter": "Booking and help",
-      "topic": "call_for_help",
+      "chapter": "Booking",
+      "topic": "bookings",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how can I party with GOPOD?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bookings",
       "to": "Brobot 2",
-      "ask": "Brobot 2, Is Brobot 0 looking for help?"
+      "ask": "Brobot 2, walk me through a normal day - morning first."
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bookings",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and your evening - rapid fire?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "nightclub",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what about comedy clubs and bars in Windsor?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "nightclub",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, do you play bingo halls and casinos too?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "nightclub",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, and hospitals or school visits?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "cameo",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, could you two make a birthday video for my sister?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "cameo",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, could you make a video ad for my bar?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any Hot Wheels for my big day?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, would you do a live cameo on my big day?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any merch?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, a big cake to go with those Hot Wheels?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "printables_and_affiliates",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, anything printable, like a word search?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "printables_and_affiliates",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, do you do print shop merch, like signs and posters?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "printables_and_affiliates",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, any affiliate links?"
     },
     {
       "chapter": "Legacy and wrap-up",

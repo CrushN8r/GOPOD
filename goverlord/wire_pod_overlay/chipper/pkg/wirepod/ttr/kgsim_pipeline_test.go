@@ -78,9 +78,12 @@ func TestLoadCanonicalBrobotPromptUsesSplitPromptFilesInOrder(t *testing.T) {
 
 func TestCreateAIReqLoadsOnlyCurrentMatchingScenarioPacket(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
+	// 2026-10-26: each packet's opening line - a topic with numbered points sends
+	// its opening and one point, not its whole text.
+	opening := func(s string) string { return strings.SplitN(strings.TrimSpace(s), "\n", 2)[0] }
 	packets := map[string]string{
-		"bingo":     mustReadScenarioPacket(t, "bingo.txt"),
-		"nightclub": mustReadScenarioPacket(t, "nightclub.txt"),
+		"bingo":     opening(mustReadScenarioPacket(t, "bingo.txt")),
+		"nightclub": opening(mustReadScenarioPacket(t, "nightclub.txt")),
 	}
 
 	tests := []struct {
@@ -90,12 +93,12 @@ func TestCreateAIReqLoadsOnlyCurrentMatchingScenarioPacket(t *testing.T) {
 	}{
 		{
 			name:       "bingo trigger",
-			userText:   "Tell me about bingo",
+			userText:   "Tell me all about bingo",
 			wantPacket: "bingo",
 		},
 		{
 			name:       "nightclub trigger",
-			userText:   "What about comedy clubs?",
+			userText:   "Tell me all about comedy clubs",
 			wantPacket: "nightclub",
 		},
 		{
@@ -144,7 +147,7 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 	bingoPacket := mustReadScenarioPacket(t, "bingo.txt")
 	shape := gopodReplyShapeSection("Brobot 1")
 
-	req := CreateAIReq("Tell me about bingo", gopodBrobot1ESN, false, true)
+	req := CreateAIReq("Tell me all about bingo", gopodBrobot1ESN, false, true)
 	systemPrompt := req.Messages[0].Content
 	brobotIndex := strings.Index(systemPrompt, string(brobotBytes))
 	coreIndex := strings.Index(systemPrompt, string(coreBytes))
@@ -168,8 +171,11 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 
 func TestCreateAIReqScenarioPacketDoesNotStickAcrossTurns(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
-	bingoPacket := mustReadScenarioPacket(t, "bingo.txt")
-	nightclubPacket := mustReadScenarioPacket(t, "nightclub.txt")
+	// 2026-10-26: each packet's opening line - a topic with numbered points sends
+	// its opening and one point, not its whole text (nightclub has three core points).
+	opening := func(s string) string { return strings.SplitN(strings.TrimSpace(s), "\n", 2)[0] }
+	bingoPacket := opening(mustReadScenarioPacket(t, "bingo.txt"))
+	nightclubPacket := opening(mustReadScenarioPacket(t, "nightclub.txt"))
 
 	turns := []struct {
 		name      string
@@ -179,13 +185,13 @@ func TestCreateAIReqScenarioPacketDoesNotStickAcrossTurns(t *testing.T) {
 	}{
 		{
 			name:      "bingo only",
-			userText:  "Tell me about bingo",
+			userText:  "Tell me all about bingo",
 			want:      bingoPacket,
 			forbidden: []string{nightclubPacket},
 		},
 		{
 			name:      "nightclub only after bingo",
-			userText:  "What about comedy clubs?",
+			userText:  "Tell me all about comedy clubs",
 			want:      nightclubPacket,
 			forbidden: []string{bingoPacket},
 		},

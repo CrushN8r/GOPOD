@@ -1,0 +1,16 @@
+label: booking us
+source: BOOKING.md
+words: book, booking, hire, cost, price, event, events, gig, gigs, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings
+say 1: Some weeks it's three rooms a day. Some weeks it's quiet - bookings are feast or famine, that's just live entertainment.
+start line: Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!
+notes 1: bookings | busy weeks, quiet weeks | that is live entertainment
+notes 2: quiet days | on set making ads | for the rooms and the channel
+notes 3: never idle | performing, or building the next show
+ask: Tell me about booking you
+summary: gigs to book: live or scripted, catered to the room's game | seniors' bingo, comedy clubs, bingo halls and casinos, hospitals, school visits | birthdays, video ads, printable merch | the way in: contact@crushn8r.ca
+---
+Book the Brobots: every gig is live or scripted, catered to that room's GOPOD game session - seniors' bingo, comedy clubs, bingo halls and casinos, hospitals, school visits, birthdays, videos for ads or personal use, and printable merch. The way in: contact@crushn8r.ca, or the birthday-video request page on crushn8r.ca; the CRUSHN8R CREW'd newsletter hears first about live events. Never make up a price.
+If you're asked about the days with nothing booked, reveal these, in order, in your own words:
+1. Some weeks it's three rooms a day. Some weeks it's quiet - bookings are feast or famine, that's just live entertainment.
+2. So on the quiet days, we don't sit in a closet. We're on set, making the ad for the bar that booked us last week, or the ad for GOPOD's own channel that books the next room.
+3. The machine's never idle. If we're not performing, we're building the next performance.

@@ -6,6 +6,7 @@ say 3: A name you remember is a door you can find again - nobody else made up "B
 notes 1: Golden | tested and proven
 notes 2: dinner before dessert | prove the real thing first | a demo of a demo of a demo
 notes 3: names you remember | Brobots, GOPOD Yourself | they lead back here
+summary: Golden: tested and proven | dinner before dessert: prove the real thing first, a demo of a demo of a demo | names you remember: Brobots, GOPOD Yourself, they lead back here
 ---
 GOPOD words. Reveal these, in order, in your own words:
 1. "Golden" - tested and proven to work.

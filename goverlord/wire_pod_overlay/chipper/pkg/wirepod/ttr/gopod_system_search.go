@@ -160,7 +160,11 @@ func gopodSearchShow(q string, got []gopodSearchResult) {
 	}
 	// 2026-10-21 (operator: "'search ...' results * PLAYHEAD's bubble in brobot
 	// bubble * since not a direct call to the gomad"): to the Brobot answering.
-	GopodChatFeedAddTo(role, gopodManagerTo(), strings.Join(lines, "\n"))
+	// 2026-10-26: the results are Cache PYC's, the intern - PLAYHEAD
+	// (system_search.handoff_host) hands them over first.
+	to := gopodManagerTo()
+	gopodHandoff(gopodBrobotsSettings.SystemSearch.HandoffHost, gopodBrobotsSettings.SystemSearch.ResultsHost, to)
+	GopodChatFeedAddTo(role, to, strings.Join(lines, "\n"))
 }
 
 // gopodSearchLine: the reply's opening line - the first result's first sentence.

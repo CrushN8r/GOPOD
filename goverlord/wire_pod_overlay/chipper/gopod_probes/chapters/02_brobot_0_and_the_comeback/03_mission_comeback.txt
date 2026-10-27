@@ -3,5 +3,6 @@ words: mission, downtown mission, enterprise program, community program, come ba
 reminder: Hey, that reminds me... Brobot 0 came up through the Windsor Downtown Mission's Enterprise program.
 say 1: Brobot 0 came up through the Windsor Downtown Mission's Enterprise program.
 notes 1: the comeback | the Windsor Downtown Mission's Enterprise program | back with something built
+summary: the comeback: the Windsor Downtown Mission's Enterprise program, back with something built
 ---
 The comeback: Brobot 0 came up through the Windsor Downtown Mission's Enterprise program. GOPOD is him coming back with something built - a maker who came back through a community program and turned two "trashed" Brobots into a working show.

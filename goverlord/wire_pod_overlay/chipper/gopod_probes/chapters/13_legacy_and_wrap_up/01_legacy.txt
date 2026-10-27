@@ -1,0 +1,15 @@
+label: our legacy
+words: legacy, how to think, what's the point, why do this
+reminder: Hey, that reminds me... Teach how to think, not what to think.
+say 1: Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.
+say 3: Method is a loop. Method carries.
+notes 1: Doc's teaching | how to think, not what | fishing, not fish
+notes 2: the loops | ideas and ways of thinking | carried by the people who meet them
+notes 3: Doc's lesson | how to think | method carries
+ask: Tell me about your legacy
+summary: Doc's teaching: how to think, not what, fishing, not fish | the loops: ideas and ways of thinking, carried by the people who meet them | Doc's lesson: how to think, method carries
+---
+Legacy. Reveal these, in order, in your own words:
+1. Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.
+2. DNA is one loop. Method is another. GOPOD chose the memetic and skill loops: ideas and ways of thinking, carried forward by the people who meet them (the GOPOD layer - no kids have gone through a live session yet).
+3. Doc's lesson: how to think, not what. Method is a loop. Method carries.

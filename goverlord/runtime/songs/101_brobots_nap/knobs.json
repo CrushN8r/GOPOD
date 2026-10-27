@@ -6,7 +6,7 @@
   "robots_speak": false,
   "sleepy": true,
   "wake_clip": "anim_gotosleep_wakeup_01",
-  "section_pictures": {"SLEEPY ROBOTS": "baby_brobots1.jpg", "SNUGGLE": "baby_brobots2.jpg", "DREAMS": "baby_brobots3.jpg", "GUARDIAN": "baby_brobots4.jpg", "TOGETHER": "baby_brobots5.jpg"},
+  "section_pictures": {"SLEEPY ROBOTS": "baby_brobots/baby_brobots1.jpg", "SNUGGLE": "baby_brobots/baby_brobots2.jpg", "DREAMS": "baby_brobots/baby_brobots3.jpg", "GUARDIAN": "baby_brobots/baby_brobots4.jpg", "TOGETHER": "baby_brobots/baby_brobots5.jpg"},
   "narrator_single": true,
   "media": "baby_brobots/Baby Robots SRT.mp4",
   "audio": "baby_brobots_audio.wav",

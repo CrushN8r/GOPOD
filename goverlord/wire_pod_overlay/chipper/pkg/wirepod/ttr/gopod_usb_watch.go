@@ -39,10 +39,15 @@ func gopodUSBAnyOf(ids []string) (bool, error) {
 // message is being made or said - a numpad key waits for it (wait_message).
 var gopodUSBSaying atomic.Bool
 
-// gopodSystemShowSay: Goverlord's line, said and shown as his bubble; returns
-// once it's been heard (its voice made first, if need be).
+// gopodSystemShowSay: the USB line, said and shown as its host's bubble -
+// numpad_ptt.usb_host (Git Repo, the ethical hacker intern, 2026-10-26), else
+// Goverlord; returns once it's been heard (its voice made first, if need be).
 func gopodSystemShowSay(text string) {
-	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" && strings.TrimSpace(text) != "" {
+	role := gopodBrobotsSettings.NumpadPTT.USBHost
+	if role == "" {
+		role = gopodBrobotsSettings.SignOff.SystemRole
+	}
+	if role != "" && strings.TrimSpace(text) != "" {
 		gopodUSBSaying.Store(true)
 		defer gopodUSBSaying.Store(false)
 		gopodReporterSay(role, strings.TrimSpace(text), true, true)

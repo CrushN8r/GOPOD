@@ -18,9 +18,9 @@ Downloaded model binaries. Gitignored in full except this file — see
   - `face_optional/` — a single face-detection SSD MobileNet v2 model.
 
   These back the cockpit's optional Edge TPU inference pane (`OPTIONAL_OFFLINE`
-  by default — see root `README.md`'s "Current state").
+  by default — see the root `README.md`'s "Where it stands").
 
-## Edge TPU: turn it on (golden, 2026-10-14)
+## Edge TPU: turn it on
 
 For photo face and object recognition. The Coral USB stick shows as
 `1a6e:089a Global Unichip Corp.` until a model runs on it; after that it shows
@@ -39,7 +39,7 @@ Turn it on (after a replug or a restart):
 
 Check: `lsusb | grep 18d1` shows `Google Inc.`
 
-Since 2026-10-16 Wire-Pod turns it on itself: the photo egg's quick look
+Wire-Pod turns it on itself: the photo egg's quick look
 (`gopod_edge_tpu_quick_look_001.py`, `photo.quick_look` in the Brobots
 settings) loads `ssdlite_mobiledet` at Wire-Pod start and holds the stick
 while Wire-Pod runs - the stick runs one program at a time, so the command

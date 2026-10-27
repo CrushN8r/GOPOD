@@ -307,6 +307,10 @@ func gopodGivenPoints(esn string) []string {
 // the reply, after the cue; the LLM adds the rest. "" when none.
 func gopodSayLine(esn string) string {
 	for _, given := range gopodGivenPoints(esn) {
+		// 2026-10-26: a summary ask's point is scored, not said (gopod_topic_asks.go).
+		if gopodSummaryGivenHas(esn, given) {
+			continue
+		}
 		key := given
 		if i := strings.LastIndex(key, "/"); i >= 0 {
 			key = key[:i]

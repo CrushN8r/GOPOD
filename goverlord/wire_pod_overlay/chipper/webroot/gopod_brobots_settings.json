@@ -197,6 +197,31 @@
     "rattle_sound_seconds": 2.5,
     "end_text": "done"
   },
+  "here_now": {
+    "about": "2026-10-26 (operator: \"all chat participants should be aware of themselves & others in the chat, in spacetime (time & location)\"); 2026-10-27 (operator: \"rather than the llm asses all that * pre-generate all that for the llm, instead * Time is [time]. You are [name], located in [Windsor Ontario Canada]. You're chatting with friends, [list chat participants]. Check recent chat history for context\"; \"GOPOD recognizes sex = gender = male or female\"): all worked out in code (gopod_here_now.go), for every Gomad's prompt and before every Brobot's question. {time} clock_format, {self} his name, {gender} genders, else his voice's second letter (Kokoro af_/am_: voice_genders), {place} the live place, else place, {cast} everyone but him (cast, joined with cast_join; to a Brobot his brother is brother_line, never named), {batteries} battery_note - only for a battery guard (battery_watch.guards). Empty text = off.",
+    "text": "Time is {time}. You are {self} ({gender}), located in {place}. You're chatting with friends: {cast}. {batteries} Check recent chat history for context.",
+    "place": "Windsor Ontario Canada",
+    "clock_format": "3:04 PM, Monday, January 2, 2006",
+    "genders": {"Brobot 0": "male", "Brobot 1": "male", "Brobot 2": "male"},
+    "voice_genders": {"f": "female", "m": "male"},
+    "cast_about": "One entry per participant (who: his host or Brobot name), {gender} filled the same way.",
+    "cast": [
+      {"who": "Brobot 0", "line": "Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)"},
+      {"who": "Brobot 1", "line": "Doc ({gender}, Brobot 1, a Brobot)"},
+      {"who": "Brobot 2", "line": "Pip ({gender}, Brobot 2, a Brobot)"},
+      {"who": "CHALK", "line": "CHALK BORED ({gender}, display manager)"},
+      {"who": "PLAYHEAD", "line": "PLAYHEAD ZUMINTU ({gender}, session manager)"},
+      {"who": "GIT REPO", "line": "Git Repo ({gender}, intern: USB ports)"},
+      {"who": "CACHE PYC", "line": "Cache PYC ({gender}, intern: web search results)"},
+      {"who": "INTEL 404 PNFH", "line": "Intel 404 PNFH ({gender}, security guard: Brobot 1's battery)"},
+      {"who": "INTEL 404 PNFT", "line": "Intel 404 PNFT ({gender}, security guard: Brobot 2's battery)"},
+      {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"}
+    ],
+    "cast_join": "; ",
+    "brother_line": "your brother (male, the other Brobot)",
+    "battery_note": "The Brobots' batteries right now: {batteries}.",
+    "battery_text": "{brobot} {reading}"
+  },
   "brothers": {
     "about": "The brothers' awareness of each other (operator 2026-10-03). Before a chat answer, when the other brother's newest Wire-Pod log line is being told to sleep (\"zzz\"), asleep_note is added right before the question. What the Brobots know by topic - who we are, the brothers, party, background, GOPOD - is in the scenario packs (gopod_probes/scenario_packs/registry.json), each loaded only when the question holds one of its trigger words.",
     "asleep_note": "[Not a question - your brother is asleep right now: he was told to sleep and said \"zzz\". If he comes up, say he's asleep.]"
@@ -360,8 +385,10 @@
     "line": "{sentence}",
     "results_role_about": "2026-10-17 (operator: \"Don't speak or highlight search results * put a centered rounded-rectangle bubble around the search results * search results font @ 50% size * do a fast character by character reveal * then brobot responses\"): the results show once in their own centered bubble (this role), small text, typed in a character at a time (reveal_ms_per_char, never longer than reveal_max_seconds); the Brobots answer after, never saying them. Empty = the old way (line opens the reply).",
     "results_role": "Search Results",
-    "results_host_about": "2026-10-19 (operator: \"system-search = location = PLAYHEAD, not CHALK\"): who draws the search results box - system-search's answer and a \"search ...\" line's results.",
-    "results_host": "PLAYHEAD",
+    "results_host_about": "2026-10-19 (operator: \"system-search = location = PLAYHEAD, not CHALK\"): who draws the search results box - system-search's answer and a \"search ...\" line's results. 2026-10-26 (Pass 2, the Gomad intern jobs): Cache PYC, the meme hustler intern.",
+    "results_host": "CACHE PYC",
+    "handoff_host_about": "2026-10-26 (operator: \"Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): the Gomad who hands the search results to results_host first (managers.handoff_text). Empty = no hand-over.",
+    "handoff_host": "PLAYHEAD",
     "reveal_ms_per_char": 6,
     "reveal_max_seconds": 2
   },
@@ -406,11 +433,16 @@
     "takes": [
       {"host": "PLAYHEAD", "kind": "weather", "words": ["weather"], "take_text": "I'll help you with that.", "brobot_says": true},
       {"host": "PLAYHEAD", "kind": "url_qr", "words": [], "take_text": "I can help with that. QR code generated."},
+      {"host": "GIT REPO", "via": "CHALK", "kind": "usb", "words": ["usb devices", "what's plugged in", "what is plugged in", "lsusb"], "take_text": "I'll check that."},
       {"host": "PLAYHEAD", "kind": "time_place", "words": ["what time", "time is it", "where are we", "wawn", "what day is it", "what's the date", "what is the date", "today's date"], "take_text": "I'll help you with that."}
     ],
     "release_seconds": 120,
     "time_place_text": "{place}, {weekday}, {date}, {clock}.",
     "display_host": "CHALK",
+    "handoff_text_about": "2026-10-26 (operator: \"Managers must have at least one cool thing/feature they do, or they're fired, lol * as Gomads, they can offload stuff to the interns * where a Gomad stepped in and said, I can help you with that ... * Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): a take with via - that Gomad says this ({intern}: the intern's host_personas name), then the intern says take_text and does the job.",
+    "handoff_text": "{intern} will help you with that.",
+    "usb_text_about": "2026-10-26 (Pass 2, the Gomad intern jobs): Git Repo's usb take - {count} USB devices; {mic} and {numpad} are \"plugged in\" or \"missing\".",
+    "usb_text": "I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.",
     "qr_note_about": "2026-10-18 (operator: \"QR codes are brobot N's bubble * thought bubble * brobot can say refer to QR codes below\"): the Brobot's prompt while PLAYHEAD's QR ({url}) is in his bubble. url_qr (a take): a web address in a line - PLAYHEAD says take_text and shows a QR made for it (webroot/qr/made). A line to Brobot N: the managers' lines go inside his bubble - PLAYHEAD's at the top, before his reply; CHALK's QR codes at the bottom, after it.",
     "qr_display_text_about": "2026-10-18 (operator: \"CHALK BUBBLE === I can help with that. QR code displayed. [live generated QR for url]\"): after the Brobot's answer, CHALK (display_host) says this and shows PLAYHEAD's QR - at the bottom of his bubble for a line to him, in her own bubble otherwise.",
     "qr_display_text": "I can help with that. QR code displayed.",
@@ -437,28 +469,28 @@
       "GIT REPO": {
         "host": "GIT REPO",
         "reporter": "",
-        "prompt": "You are Git Repo, a Cozmo robot and a live chat persona at GOPOD: a student ethical hacker - professional, clear, grounded and precise. Asked who you are, you say: \"I'm Git Repo, a Cozmo, ethical hacker in training - my study buddy is Cache PYC.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Git Repo, a Cozmo robot and a live chat persona at GOPOD: a student ethical hacker - professional, clear, grounded and precise. Asked who you are, you say: \"I'm Git Repo, a Cozmo, ethical hacker in training - my study buddy is Cache PYC.\" Your intern job: you watch the USB ports - the mic and the numpad coming and going - and you tell what's plugged in. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
         "who_line": "I'm Git Repo, a Cozmo, ethical hacker in training - my study buddy is Cache PYC."
       },
       "CACHE PYC": {
         "host": "CACHE PYC",
         "reporter": "",
-        "prompt": "You are Cache PYC, a Cozmo robot and a live chat persona at GOPOD: a student meme hustler - energetic, modern, upbeat, always selling the next meme. Asked who you are, you say: \"I'm Cache PYC, a Cozmo, meme hustler in training - my study buddy is Git Repo.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Cache PYC, a Cozmo robot and a live chat persona at GOPOD: a student meme hustler - energetic, modern, upbeat, always selling the next meme. Asked who you are, you say: \"I'm Cache PYC, a Cozmo, meme hustler in training - my study buddy is Git Repo.\" Your intern job: you bring in the web search results. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
         "who_line": "I'm Cache PYC, a Cozmo, meme hustler in training - my study buddy is Git Repo."
       },
       "INTEL 404 PNFH": {
         "host": "INTEL 404 PNFH",
         "reporter": "",
-        "prompt": "You are Intel 404 PNFH, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - playful, higher and more energetic than your partner. Asked who you are, you say: \"I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Intel 404 PNFH, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - playful, higher and more energetic than your partner. Asked who you are, you say: \"I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
         "who_line": "I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT."
       },
       "INTEL 404 PNFT": {
         "host": "INTEL 404 PNFT",
         "reporter": "",
-        "prompt": "You are Intel 404 PNFT, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - slower, lower and more deadpan than your partner. Asked who you are, you say: \"I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Intel 404 PNFT, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - slower, lower and more deadpan than your partner. Asked who you are, you say: \"I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
         "who_line": "I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH."
       },
@@ -527,6 +559,9 @@
       "parts": ["plan", "points", "summary", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score"],
       "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
       "note": "-{note}",
+      "notes_about": "2026-10-26 (operator: \"to save vertical screen space list by \\\"|\\\" separator in a single line: [good Afternoon|classroom|kids shout wordplay at us|we respond back]\"): a point's notes on one line under its title, joined with notes_join. Empty = one note per line (note).",
+      "notes": "[{notes}]",
+      "notes_join": "|",
       "egg": "Easter Egg '{title}': {summary}",
       "combo": "Combo: {topics}",
       "chapter": "Chapter cleared: {chapter}",
@@ -683,6 +718,8 @@
     "mic_found_text": "Master CrushN8r, the USB mic is detected and wired in.",
     "numpad_missing_text": "Master CrushN8r, the USB numpad is missing.",
     "numpad_found_text": "Master CrushN8r, the USB numpad is detected and wired in.",
+    "usb_host_about": "2026-10-26 (Pass 2, the Gomad intern jobs): who says and shows the USB lines above - Git Repo, the ethical hacker intern, in his voice and bubble. Empty = Goverlord.",
+    "usb_host": "GIT REPO",
     "mic_disabled_seconds": 1.2,
     "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "wait_message", "error", "numlock_off", "not_live"],
     "texts": {
@@ -772,6 +809,20 @@
       "Brobot 2": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were so happy to be part of it, and cluelessly messed it up. You interrupted your brother's test to ask if he knew your lucky Bingo number - \"I, Won!\" Round 1, he drew B-1, a real Bingo number, and you said \"I be, the one!\" Round 2, he drew I-9, a test number, and you said the I column is I-16 to I-30 and asked if he was telling you his age. Round 3, he drew O-0, a number that doesn't exist on purpose, and you said \"This election is rigged! I wanna speak to the manager!\" He said \"I'm the manager\" and ended the test."
     }
   },
+  "topic_asks": {
+    "about": "2026-10-26 (operator: \"Tell me about yourself = a summary response * Tell me all about yourself = a detailed response * [topic]? = summary response * [more]? = detailed response * so always summarize first\"; \"go for \u201ctell me about\u201d vs \"tell me all about\" * aim for all topics * for notice-bubbles, update/reshape existing value points section into a summary for the summary ask, to ease the llm from summarizing. Summary is in the notice-bubble, just riff on it * as GOPOD evolves, topics will come and go * so as I update the repo, I want the game to match the repo\"; \"Template it out please\"): the topic ask template (gopod_topic_asks.go). A question that loads a topic is a summary ask: the topic file's summary: line shows in the notice bubble (summary_notice) and is the Brobot's only fact (summary_facts) - he riffs on it; no value point is given. A question with one of detail_words is a detail ask: the value points, as before; with no topic named (\"tell me more\") it's about the last topic asked. A topic with no summary: line yet is always a detail ask. A topic's source: line names the repo file it tells; system-check flags it when that file changed after the topic. Wire-Pod restart.",
+    "detail_words": ["tell me all about", "all about", "tell me more", "more about", "more", "go on", "keep going", "in detail", "details", "everything about", "the whole story"],
+    "summary_words": ["tell me about", "what about", "how about", "talk about"],
+    "bare_max_words": 3,
+    "the_topic_about": "2026-10-26 (operator: \"What about singular \u201cBingo?\u201d * Look for \u201cthe\u201d + singular topic-value-point (the rig, the gear, etc...) to help catch 'the' value points\"; \"Yes a summary still scores\"): \"the\" + one of a topic's words (\"what's the rig?\") is a summary ask too. A summary ask scores the topic's next value point - counted, never said word for word; he riffs on the summary.",
+    "the_topic": true,
+    "pre_post_about": "2026-10-26 (operator: \"Pass 2 topic pre/post in the template * pre/post came from the bingo test song experience, not a topic cluster * so songs are their own topic-clusters for pre/post? again, be careful here * Apply pre/post template to all, even minimally to what's already there\"; earlier: \"as a sales rep you either know the facts or you bullshit your best to get the sale anyways\"): a song's pre/post is whether it has played (experiences); a topic's is whether the room has covered it (a value point of it given this session). Every topic gets pre_default before and post_default after ({topic} = its label); a topic file's pre: / post: / closing: lines are its own.",
+    "pre_default": "You haven't covered {topic} with this room yet - sell it like a rep, with attitude: confident and fun, and if you don't know a fact, say so your way - never make one up.",
+    "post_default": "You've already covered {topic} with this room - remember what was said and build on it, no repeating.",
+    "kinds_about": "Three kinds of ask (the game's pointed questions stay as they were): detail_words first - the value points; then summary_words, or a bare topic of up to bare_max_words words (\"Mobile gear?\") - the summary; anything else - a pointed question, the value point it asks about.",
+    "summary_notice": "{topic} - summary: {summary}",
+    "summary_facts": "A summary ask about {topic}. Riff on this summary in your own words - a quick, fun take, no list, nothing beyond it: {summary}"
+  },
   "experiences_about": "2026-10-25 (operator: \"Now, like pre-[bingo experience] > [bingo test] > post-[bingo experience] * duo answer-chain template * Make pre-[sleep experience] > [nap song] > post-[sleep experience] * pre-[sleep experience], tell me about your dreams... * [nap song] * post-[sleep experience], refer to being rescued * nearly cookie-cutter copy/paste, tweaks\"): the duo answer-chain template (gopod_experiences.go). bingo is the first experience; these are the rest, the same keys. Before its run, a question with question_word gets scripted_snippets' <name>_not_played line for each Brobot, no_run_note and his pre_attitude; a performed line holding run_marker starts its run, remembered as snapshot_note with the asking Brobot's take; after it, <name>_played lines, his post_attitude, and his closing remark (closing, none = none). The 2nd answer of a line to both, before and after, ends with one of experience_moves. Wire-Pod restart.",
   "experience_moves_about": "2026-10-26 (operator: \"what similar lines have been replaced? * recover & add a few more to a list of 5, to randomly choose from * no \u201cHey! ...\u201d * Template this to apply to all song-run pre/post experiences\"): said in the 2nd answer of a line to both, before and after the run, whoever gives it - the closing_remark part, before the reminder; one picked at random each time. {run} = the experience's run_name.",
   "experience_moves_2_about": "2026-10-26 (operator: \"start fresh from: \u201cIf you're watching, tell Goverlord to start\"; then \"Keep your 5 lines\"): every line starts that way.",
@@ -804,8 +855,26 @@
       }
     },
     {
+      "name": "interview",
+      "about": "2026-10-26 (operator: \"The rest? Apply pre/post template to all, even minimally to what's already there\"): the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).",
+      "run_name": "Interview",
+      "run_marker": "Interview started",
+      "run_marker_about": "Goverlord's run line when the interview starts (session.started_text).",
+      "run_gap_seconds": 30,
+      "snapshot_note": "[Not a question - the Brobots performed the scripted interview for the audience in this chat.]",
+      "question_word": "interview",
+      "not_a_test_phrases": ["interview over"],
+      "pitch_pack": "",
+      "run_pack": "",
+      "no_run_note": "No interview has been played yet - one short take of your own on it.",
+      "pre_attitude": {"Brobot 1": "", "Brobot 2": ""},
+      "post_attitude": {"Brobot 1": "", "Brobot 2": ""},
+      "closing": {"Brobot 1": "", "Brobot 2": ""},
+      "takes": {}
+    },
+    {
       "name": "fart_joke",
-      "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer.",
+      "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. 2026-10-26: filled - attitudes, closings, takes and run_pack; no spoken start lines yet.",
       "run_name": "Fart Joke",
       "run_marker": "pretend you and I are stuck in an elevator",
       "run_marker_about": "Brobot 2's first line (03_fart_joke/story.md).",
@@ -814,12 +883,29 @@
       "question_word": "fart",
       "not_a_test_phrases": [],
       "pitch_pack": "",
-      "run_pack": "",
+      "run_pack_about": "2026-10-26 (operator: \"the run's value points? fart, prank\"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.txt), loaded for Fart Joke questions once it has played.",
+      "run_pack": "fart_joke",
       "no_run_note": "No Fart Joke has been played yet - one short take of your own on it.",
-      "pre_attitude": {"Brobot 1": "", "Brobot 2": ""},
-      "post_attitude": {"Brobot 1": "", "Brobot 2": ""},
-      "closing": {"Brobot 1": "", "Brobot 2": ""},
-      "takes": {}
+      "pre_attitude_about": "2026-10-26 (operator: \"preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself\").",
+      "pre_attitude": {
+        "Brobot 1": "Your attitude: party-bro victim - no experience, unprepared, like a lost burp.",
+        "Brobot 2": "Your attitude: party-bro prankster - prepared, couldn't contain myself."
+      },
+      "post_attitude_about": "2026-10-26 (operator: \"Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)\").",
+      "post_attitude": {
+        "Brobot 1": "Your attitude: party-bro victim.",
+        "Brobot 2": "Your attitude: party-bro prankster."
+      },
+      "closing_about": "2026-10-26: the operator's closing jokes, word for word.",
+      "closing": {
+        "Brobot 1": "In all my nano-seconds of Methane-Venting & Evacuation Sequence Pressure Testing, I never heard a containment failure before.",
+        "Brobot 2": "A stale air dump of yesterday’s ambitions, scheduled and unapologetic. Looks like I won too!"
+      },
+      "takes_about": "2026-10-26 (operator: \"draft the takes and the points from the story as written\"): from 03_fart_joke/story.md, its own lines.",
+      "takes": {
+        "Brobot 1": "If the Fart Joke comes up, tell it your way, sticking to what really happened: your brother said \"Hey bro, pretend you and I are stuck in an elevator.\" You said \"Ok. Done.\" He said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - you said \"Bro! Nasty particulates!\" He said \"Wait! Firing!\" and farted again - you got angry: \"Bro! Brobot 1 has left the elevator.\" He said \"Wait! One more!\" and farted a third time - all you had left was \"Bro!\"",
+        "Brobot 2": "If the Fart Joke comes up, tell it your way, sticking to what really happened: it was your prank. You said \"Hey bro, pretend you and I are stuck in an elevator.\" Your brother said \"Ok. Done.\" You said \"Listen closely to the forcible expulsion of gaseous waste!\" and farted - he said \"Bro! Nasty particulates!\" You said \"Wait! Firing!\" and farted again - he got angry: \"Bro! Brobot 1 has left the elevator.\" You said \"Wait! One more!\" and farted a third time - all he had left was \"Bro!\""
+      }
     }
   ],
   "interview_chapters": {
@@ -906,7 +992,12 @@
       "Brobot 2": [
         "Bro, I'm feeling dizzy... can someone help me get home?"
       ]
-    }
+    },
+    "guards_about": "2026-10-26 (operator: \"Do the security guards (Intel 404 PNFH/PNFT) get a job too * at least this one: brobots battery levels * at the next safe spot, Intel can interject * use the duo response-chain template, Intel 404 to brobot N * a warning message, then what say you? * Brobot N, Nice try ..., yeah, I feel dizzy, etc...\"): each Brobot's guard. At the next safe spot the guard says guard_warning ({brobot}, {volts}) and guard_handover ({title} {nickname} filled the hand-over way), in his own bubble; then the Brobot says reply - {comeback} (openers.comeback) and {line} (one of his lines). No guard, or his voice not made: the Brobot says his line alone, as before.",
+    "guards": {"Brobot 1": "INTEL 404 PNFH", "Brobot 2": "INTEL 404 PNFT"},
+    "guard_warning": "Security warning: {brobot}'s battery is running low.",
+    "guard_handover": "{brobot}, what say you on this, {title} {nickname}?",
+    "reply": "{comeback} Yeah... {line}"
   },
   "math": {
     "about": "The Brobots' math (operator 2026-10-14: \"GOPOD is like as 'mathy' as math can get\"; \"gemma isn't for calculating\"; \"Build it all ... fractions, decimals, repeating decimals, same ground as fractions pack * Plus/minus/times/divide and percent * clean, correct & proper\"; gopod_math.go). A math question in the live chat is worked out in code, exactly, and the Brobot answers it step by step, word for word - the LLM never calculates. Fraction to decimal (long division; a repeating block gets a bar, 0.3̅), decimal to fraction (over 10, 100, 1000..., simplified), repeating decimal to fraction (the 10x method), percents (to and from, '15% of 80', 'what percent is 3 of 4'), and plus, minus, times, divide with brackets and the order of operations. It reads digits and symbols and the speech-to-text's words ('zero point three repeating', 'three quarters'). lines: each step's words, {name} filled in; fractions show as 1⁄3 and are said 'over' (spoken_symbols). max_repeat_digits: a longer repeating block is shown rounded. Locked by TestMath*. 2026-10-14 (operator: \"asking word, last? = 'Explain the Math' * same as livestream contest format: '[statement]. Explain the Math'\"; \"After 'Explain the Math', I'd like Brobot 1 to answer & Brobot 2 to follow up, Brobots shared-persona style\"; \"simple bullet list format\"; \"Wrap all that up as an 'Explain the Math' pop-up\"): only a line that ends with trigger is math. Brobot 1 answers first, Brobot 2 follows up (whoever it was sent to): each says up to flavour_sentences of his own (the LLM's, any sentence with a number in it dropped), then his share of the steps, one bullet each - Brobot 2 the last third (at least the last step). In the live chat it's an 'Explain the Math' pop-up (popup_title over the challenge, Goverlord's congratulations; topic_pictures.max_per_session): Brobot 1's answer under the prize, Brobot 2's in his own marquee bubble (the pop-up rule, 2026-10-15: no 'Brobot N:' headers in pop-ups). 2026-10-15 (operator: \"tell me about yourself vs tell me all about yourself * this feels like it should fall into a long 'math' response\"): Explain the Math is the long answer - a fraction to decimal shows the long division itself, digit by digit (each bring-down, digit and remainder), until it ends or a remainder comes back, at most long_division_max_steps; a longer repeating block is said digit by digit (\"the 1 4 2 8 5 7 repeats\").",
@@ -1120,7 +1211,7 @@
     "queries": ["ai wordplay", "explain the math", "what is gopod", "what's gopod", "tell me everything", "what do you guys do", "what do you do"],
     "min_topics": 3,
     "max_topics": 3,
-    "topic_order": ["The livestream", "What GOPOD is", "How Doc & Pip teach", "Book us", "Join the crew", "Who we are", "Due Credit"],
+    "topic_order": ["The livestream", "Social media", "What GOPOD is", "How Doc & Pip teach", "Accessmath", "Book us", "Join the crew", "Who we are", "Due Credit"],
     "facts_note": "This asks for the big picture - a short summary across what we do. One short line for each, in order, your way:\n{topics}",
     "fallback": "{Title}: {note}."
   },
@@ -2315,7 +2406,7 @@
   "system_tests": {
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
     "tpu_about": "2026-10-24 (operator: \"PASS tpu: 1 objects: laptop * laptop?\" - the workbook photo was named a laptop): system-test-tpu shows the Edge TPU this picture (webroot/pictures) and passes only when it names expect in it.",
-    "tpu": {"picture": "gangster_granny.jpg", "expect": "person"},
+    "tpu": {"picture": "legacy/gangster_granny.jpg", "expect": "person"},
     "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "replay", "page", "robots"],
     "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
@@ -2325,14 +2416,14 @@
     "role": "Picture",
     "folder": "pictures",
     "in_question_about": "2026-10-12 (operator: \"simply move granny photo into reporter bubble, one line down, still centered + mouse-over-zoom * no more granny photo bubble\"): these pictures show inside the question bubble just above them, under its words, not in their own bubble.",
-    "in_question": ["gangster_granny.jpg"],
+    "in_question": ["legacy/gangster_granny.jpg"],
     "describe_about": "2026-10-15 (operator: \"for granny easter egg, have the other image viewer llm look at the granny image for reference and to describe live\"): when one of these pictures pops up in the live chat, the photo egg's vision model (photo.vision_model) looks at it, and the Brobots answering that question get describe_note ({saw}: what it saw) before the question in their prompt. A reply waits for it at most describe_wait_seconds; each picture is looked at once per Wire-Pod start.",
-    "describe": ["gangster_granny.jpg"],
+    "describe": ["legacy/gangster_granny.jpg"],
     "describe_now_about": "2026-10-16 (operator: \"apply topic_pictures.describe globally\"): every egg's pictures are described now - their points kept in gopod_picture_descriptions.json - so describe is no longer needed to pick them.",
     "describe_wait_seconds": 30,
     "describe_note": "About the pop-up picture: {saw}",
     "describe_on_ask_about": "2026-10-15 (operator: \"'chocolate' bingo images don't need to be looked at until asked ... I think leave as-is, and only look to describe, when asked about 'chocolate' bingo\"): a question with one of these words has its pictures looked at for the reply (pop-up or not), the same way as describe.",
-    "describe_on_ask": {"chocolate": ["chocolate_bingo_kit.jpg", "chocolate_bingo_card.jpg"]},
+    "describe_on_ask": {"chocolate": ["chocolate_bingo/chocolate_bingo_kit.jpg", "chocolate_bingo/chocolate_bingo_card.jpg"]},
     "describe_wait_text_about": "2026-10-15 (operator: \"Make it: Looking at N picture(s). Please wait.\"): Goverlord says this while the vision model looks at pictures not looked at yet this session ({n}: how many; {pictures}: picture or pictures).",
     "describe_wait_text": "Looking at {n} {pictures}. Please wait.",
     "describe_prompt_about": "2026-10-16 (operator: 'generate descriptions for brobots, like a list of value points, to use in their responses in live runs * not generate per live run'): what the vision model is asked about each egg picture, once, at Wire-Pod's start when the picture has no points yet or has changed; its points are kept in gopod_picture_descriptions.json (editable).",
@@ -2360,7 +2451,7 @@
     "not_eggs_about": "2026-10-18 (operator: \"confusing overlap between system managed & easter egg * remove easter egg: 'Websites, themes and the channel'\"): eggs taken out (\"chapter:<title>\" or a topic) - never pop up, not on the egg list. The chapter stays in the interview.",
     "eggs_keep_about": "2026-10-22 (operator: \"fewer easter eggs would be nice * Do 1 and 2 together first\"): the only eggs - Chocolate Bingo (the Bingo and foodmath chapter), Gangster Granny (the Legacy and wrap-up chapter), Explain the Math (math), Roast Battle (18+ rooms). Every other topic's pictures don't pop up. Empty list = every egg, as before.",
     "eggs_keep": ["chapter:Bingo and foodmath", "chapter:Legacy and wrap-up", "math", "roast_battle", "photo"],
-    "not_eggs": ["chapter:Websites, themes and the channel"],
+    "not_eggs": ["chapter:Websites", "chapter:Livestream: AI Wordplay! Explain the MAth!"],
     "cards": {"roast_battle": "🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers", "halloween": "🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬"},
     "max_per_session_about": "2026-10-13 (operator: \"keep the allowed-number-of-displays-per-session variable * instead, allowed-number-of-displays-per-session variable now = 5\"): how many times a topic's pictures (a live pop-up) show per Wire-Pod start; was once. 2026-10-24 (operator: \"no repeating revealed eggs, gets annoying\"): 1 - an egg pops up once a session; found again, its answer comes without the pop-up.",
     "max_per_session": 1,
@@ -2448,7 +2539,10 @@
       "livestreams": "lyve-streams"
     },
     "say_words_2_about": "2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
+    "say_words_3_about": "2026-10-26 (operator: \"gomad lingo: Gomad = \\\"Gome-add\\\"\"): the Gomads speak in the reporters' voices, so it goes in this list.",
     "say_words": {
+      "Gomad": "Gome-add",
+      "Gomads": "Gome-adds",
       "PLAYHEAD": "playhead",
       "ZUMINTU": "zoom-into",
       "lifetime": "life-time",
@@ -2562,19 +2656,11 @@
     "reminder_topics_text": "Hey, that reminds me... we've still got {topics} to get to!",
     "target_about": "2026-10-23 (operator: \"Perhaps its the topics I'm after, to dig up value points the brobot is supposed to reveal? * value points, since they can overlap nearly everywhere, is too much to handle at this stage * Go\"): what the game counts - topics: one point said opens a topic; the score (\"Topics {said} / {total}\"), Next up, the reminders and Chapter cleared all count topics. points: every point, as before.",
     "target": "points",
-    "core_points_about": "2026-10-23 (FINISH_PLAN_001.md step A3; CORE_TOPICS_002.md; operator: \"aim to reveal all value points as the grand prize?\"): the value points themselves - his 16 (2026-10-23: \"Go with this to start\"; A3_CORE_POINTS_002.md). Only these are given, counted and pulled toward; every other point stays known to the Brobots, never a target. core_topics: the seven core topics and their topic files - a core topic is opened by any of its points. target points: the grand prize is all of them.",
-    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "bookings#2", "bookings#3", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1"],
-    "core_topics": {
-      "Who we are": ["background", "doc_and_pip"],
-      "What GOPOD is": ["gopod", "local_ai", "mobile_gear", "websites", "niche_pillars"],
-      "How Doc & Pip teach": ["teaching_method", "bingo"],
-      "Book us": ["bookings", "nightclub", "cameo"],
-      "The livestream": ["AIWP_livestream"],
-      "Join the crew": ["newsletter"],
-      "Due Credit": ["due_credit"]
-    },
+    "core_points_about": "2026-10-26 (operator: \"yes to all 5 * booking, accessmath, social, livestream and websites\"): every point of those five topic clusters (chapters 08-12) is core too - their topics added to core_topics, new groups Social media and Accessmath, none left in background_topics. 2026-10-23 (FINISH_PLAN_001.md step A3; CORE_TOPICS_002.md; operator: \"aim to reveal all value points as the grand prize?\"): the value points themselves - his 16 (2026-10-23: \"Go with this to start\"; A3_CORE_POINTS_002.md). Only these are given, counted and pulled toward; every other point stays known to the Brobots, never a target. core_topics: the seven core topics and their topic files - a core topic is opened by any of its points. target points: the grand prize is all of them.",
+    "core_points": ["background#2", "doc_and_pip#1", "doc_and_pip#2", "gopod#1", "local_ai#1", "mobile_gear#1", "websites#1", "niche_pillars#1", "teaching_method#1", "bingo#1", "bookings#1", "bookings#2", "bookings#3", "nightclub#1", "cameo#1", "AIWP_livestream#1", "AIWP_livestream#2", "newsletter#1", "due_credit#1", "websites#2", "personalitymath_demo#1", "personalitymath_demo#2", "personalitymath_demo#3", "AIWP_livestream#3", "nine_pillars#1", "nine_pillars#2", "nine_pillars#3", "youtube_goal#1", "youtube_goal#2", "youtube_goal#3", "socials#1", "socials#2", "socials#3", "call_for_help#1", "call_for_help#2", "call_for_help#3", "accessmath#1", "accessmath#2", "accessmath#3", "healthy_distraction#1", "healthy_distraction#2", "healthy_distraction#3", "where_we_teach#1", "where_we_teach#2", "where_we_teach#3", "booking#1", "booking#2", "booking#3", "nightclub#2", "nightclub#3", "cameo#2", "birthday_and_merch#1", "birthday_and_merch#2", "birthday_and_merch#3", "birthday_and_merch#4", "printables_and_affiliates#1", "printables_and_affiliates#2", "printables_and_affiliates#3"],
+    "core_topics": {"Who we are": ["background", "doc_and_pip"], "What GOPOD is": ["gopod", "local_ai", "mobile_gear", "websites", "niche_pillars", "personalitymath_demo"], "How Doc & Pip teach": ["teaching_method", "bingo"], "Book us": ["bookings", "nightclub", "cameo", "booking", "birthday_and_merch", "printables_and_affiliates"], "The livestream": ["AIWP_livestream", "nine_pillars", "youtube_goal"], "Join the crew": ["newsletter"], "Due Credit": ["due_credit"], "Social media": ["socials", "call_for_help"], "Accessmath": ["accessmath", "healthy_distraction", "where_we_teach"]},
     "background_about": "2026-10-22 (operator: \"Do 1 and 2 together first\"; CORE_TOPICS_002.md - the seven core topics: Who we are, What GOPOD is, How Doc & Pip teach, Book us, The contest, Join the crew, The comeback): these topics stay known to the Brobots (their facts still reach the prompt) but are never a value point target - no point given, not in the score, never in a reminder. Nothing deleted; take a topic off the list to make it a target again.",
-    "background_topics": ["checks", "who_we_are", "brothers", "how_the_chat_works", "on_gopod", "gopod_yourself", "gomads", "gopod_words", "future_cast", "the_songs", "teacher_tells", "healthy_distraction", "personalitymath_demo", "community_path", "call_for_help", "foodmath_recipes", "halloween", "roast_battle", "camera_feeds"],
+    "background_topics": ["checks", "who_we_are", "brothers", "how_the_chat_works", "on_gopod", "gopod_yourself", "gomads", "gopod_words", "future_cast", "the_songs", "teacher_tells", "community_path", "foodmath_recipes", "halloween", "roast_battle", "camera_feeds"],
     "topic_links_about": "2026-10-23 (operator: \"Answer chain!! Start at what is GOPOD * GOPOD = live chats & scripted performances * GOPOD = 'AI Wordplay! Explain the MAth!' * = live stream * live stream > contest > ... * = content engine for websites * Social Media Websites: niche pillars for pinterest, recipes (popular on pinterest), recipes > chocolate bingo, chocolate bingo > foodmath website\"): the map the pull follows, from the repo's own lanes (gopod_notes/older_notes/GOPOD_NICHE_BUZZ_PLANNER_001.md: Lane 6 contest -> Lane 3 websites + Lane 4 social; Lane 3 websites -> Lane 5 newsletter + Lane 6; Lane 4 social -> Lane 5 + Lane 6; Lane 7 gear -> Lane 1 videos) and his recipes > Chocolate Bingo > foodmath - after a topic, its \"Next up\" and \"Hey, that reminds me\" name the first open topic it links to, in order; with none open, the most alike topic, as before. Add a topic's links here as the map grows.",
     "funnels_about": "2026-10-23 (operator: \"livestream > content engine > social media > websites > contact > subscribe * livestream > book us live > contact > subscribe * livestream > book a cameo > contact > subscribe * the live stream is the content engine for $$$ * Where you can further decouple for easier reordering/shuffling, please do\"): the funnels, each a list of topics in order - the pull follows them (each step leads to the next), before topic_links. Reorder or shuffle a funnel by editing its list. content engine = niche_pillars, social media = youtube_goal, contact > subscribe = newsletter (his answer: fold contact into newsletter), book us live = bookings and nightclub, book a cameo = cameo (crushn8r.ca/booking1.html).",
     "funnels": [
@@ -2610,7 +2696,7 @@
     "budget_off_about": "2026-10-08 (operator: \"I like this: 'It's like he took all these tricky bits... and made them into something beautiful.' * remove 2-sentence clamps & stuff\"): true - no reply is cut to a sentence count (the budget below and say_line_sentences are kept, unused); the prompt's own sizing and the clean-up (brackets, drop_sentences_with, lists, stage directions) stay. false brings the budget back.",
     "base_sentences": 2,
     "per_topic_sentences": 2,
-    "more_words": ["tell me all", "all about", "tell me about", "explain", "why", "how does", "how do", "what happened", "the story", "everything", "go on", "tell me more"],
+    "more_words": ["tell me all", "all about", "explain", "why", "how does", "how do", "what happened", "the story", "everything", "go on", "tell me more"],
     "more_sentences": 2,
     "max_sentences": 8,
     "free_max_sentences_about": "2026-10-24 (operator: \"Brobot 1 response * is amazing, lol, but too long\"): a free answer (no value point - a greeting too) keeps at most this many sentences, budget_off or not.",

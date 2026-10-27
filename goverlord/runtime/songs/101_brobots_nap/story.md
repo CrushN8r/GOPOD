@@ -2,22 +2,18 @@
 
 **Status:** WIP (2026-10-09)
 
-**One narrator bubble (2026-10-15, operator: "use only a single narrator chat bubble for all 5
-narrations"; "A single narration bubble stays the size of the image * 5 narrations are run in
-sequence"; "narration take replaces previous take"; "remove narrator header * leave last image
-(5) at 50% solid (no fade out)"):** the bubble is its picture, at the magnifier's full-width size,
+**One narrator bubble:** the bubble is its picture, at the magnifier's full-width size,
 with no header. Each section's picture is behind its words: it fades in to 50% as the section
 starts, stays through its narration, and fades out after its last words; the next section's
 words and picture replace the last. The last picture (Together) stays at 50%.
-`"narrator_single": true` in `knobs.json`. The one-bubble-per-section version is backed up in
-`gopod_notes/older_archives/101_brobots_nap_backup_2026-10-15.zip`.
+`"narrator_single": true` in `knobs.json`.
 
 A lyric video: background music and a female narrator reading the poem, timed by
 `baby_brobots/Baby Robots SRT.srt`, and the Brobots act to it. They don't speak. The video
 (`baby_brobots/Baby Robots SRT.mp4`, made in Premiere Pro) is the truth for every line and time.
 
 - **The lines** are the poem's 32 captions (`## STEP` / `> TEXT:`), as the video shows them.
-- **Step names** (2026-10-25, the new format): `<who>_<part>_SSNN` like every song -
+- **Step names:** `<who>_<part>_SSNN` like every song -
   `narrator_line_0201` (a caption, section 02, line 01), `goverlord_system_0103` (Goverlord's
   line), `brobots_soft_wake_0506`, `reporter_gap_0701`. A step with no words has no `> TEXT:`.
 - **The times** live in [knobs.json](knobs.json): each line's `start_seconds` and
@@ -28,10 +24,9 @@ A lyric video: background music and a female narrator reading the poem, timed by
   once it's heard), 1 s later the Brobots are put to sleep, and 4 s after that the soundtrack
   starts. While it plays the Brobots do nothing; every `look_seconds` a Brobot found awake is
   put back to sleep. At "can turn into the good aspirations they deserve to have." (`brobots_soft_wake_0506`,
-  57 s) they wake together, softly (`wake_clip`: the slower `anim_gotosleep_wakeup_01`, bench
-  2026-10-14). Counted back from the music's end (86 s; the fade starts at 81 s): the wake takes
-  about 5.5 s, the cube can't connect until about 8 s after it (`cube_ready_after_seconds`; live
-  2026-10-15: a connect 1 s after a wake failed 2 of 2, 8 s after worked 13 of 13), and the
+  57 s) they wake together, softly (`wake_clip`: the slower `anim_gotosleep_wakeup_01`). Counted back from the music's end (86 s; the fade starts at 81 s): the wake takes
+  about 5.5 s, the cube can't connect until about 8 s after it (`cube_ready_after_seconds`; live:
+  a connect 1 s after a wake failed 2 of 2, 8 s after worked 13 of 13), and the
   connect takes 4-23 s (`cube_ready`: in the background, then held). After the last words
   ("robotic way.", `reporter_gap_0701`), as the music fades, the cube lights (`cube_after_wake` on
   `brobots_ready_0703`) - at once if it's connected, else as soon as it is - then "Brobots Ready!",

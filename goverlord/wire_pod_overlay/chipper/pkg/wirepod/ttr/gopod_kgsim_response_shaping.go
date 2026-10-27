@@ -615,7 +615,12 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	var facts []byte
 	var given []string
 	notice := map[string][]string{} // 2026-10-22: the value points notice's parts (gopodNoticeSet)
-	defer func() { gopodGivenSet(esn, given); gopodNoticeSet(esn, userMessage, notice) }()
+	var summaryGiven []string       // 2026-10-26: points a summary ask scored (never said word for word)
+	defer func() {
+		gopodGivenSet(esn, given)
+		gopodSummaryGivenSet(esn, summaryGiven)
+		gopodNoticeSet(esn, userMessage, notice)
+	}()
 	// 2026-10-23: a golden query gets the summary across the core topics, in
 	// place of one value point (gopod_summary_answer.go).
 	if sf := gopodSummaryFacts(esn, userMessage); sf != "" {
@@ -631,9 +636,26 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	// comes from the run; with none (the Bingo-played flag at 0), a Bingo question
 	// gets the "sure, let's play" note (bingo.no_run_note), and the pitch pack loads.
 	// 2026-10-25: every experience the same way (gopod_experiences.go).
-	for _, packet := range loadScenarioPacketsForMessage(userMessage) {
+	// 2026-10-26: a summary ask riffs on the topic's summary (in the notice);
+	// a detail ask, or "tell me more" about the last topic, gets its value points
+	// (gopod_topic_asks.go).
+	for _, packet := range gopodTopicPackets(userMessage) {
+		// 2026-10-26: the topic's pre or post note, by whether the room has covered it.
+		if note := gopodTopicPrePost(packet.Name, gopodTopicTouched(packet.Name)); note != "" && !gopodExperiencePitchSkipped(packet.Name) {
+			facts = appendPromptSection(facts, []byte(note))
+		}
 		if gopodExperiencePitchSkipped(packet.Name) {
 			logger.Println("BROBOT_SCENARIO_PACKET_SKIPPED=" + packet.Name + " reason=run_in_memory")
+		} else if line, sf, ok := gopodTopicSummary(packet.Name, userMessage); ok {
+			// 2026-10-26 (operator: "Yes a summary still scores"): its next value
+			// point counts, but he riffs on the summary, not the point's words.
+			if _, point := gopodCoverageRevealFor(packet.Name, packet.Content, userMessage); point != "" {
+				given = append(given, point)
+				summaryGiven = append(summaryGiven, point)
+			}
+			facts = appendPromptSection(facts, []byte(sf))
+			notice["points"] = append(notice["points"], line)
+			logger.Println("BROBOT_TOPIC_SUMMARY=" + packet.Name)
 		} else {
 			// 2026-10-06: the next value point only (gopod_value_points.go).
 			// 2026-10-22: the point this question asks about first (gopodPickPoint).

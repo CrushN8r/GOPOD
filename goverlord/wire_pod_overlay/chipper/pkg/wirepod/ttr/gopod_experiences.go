@@ -117,7 +117,8 @@ func gopodExperienceClosing(esn, question string) string {
 			return line
 		}
 	}
-	return ""
+	// 2026-10-26: no song for it - a covered topic's own closing remark (gopod_topic_asks.go).
+	return gopodTopicClosing(question)
 }
 
 // gopodExperienceMove (2026-10-26, operator: "recover & add a few more to a

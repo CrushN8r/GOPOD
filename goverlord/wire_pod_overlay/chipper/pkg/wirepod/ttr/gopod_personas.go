@@ -42,6 +42,10 @@ func gopodPersonaPrompt(host string) string {
 	if t := gopodHostPersonaText(host, p.Prompt); t != "" {
 		b.WriteString(" " + t)
 	}
+	// 2026-10-26: who, where, when, who else, what's happening (gopod_here_now.go).
+	if n := gopodHereNow(host); n != "" {
+		b.WriteString(" " + n)
+	}
 	var lines []string
 	for _, l := range gopodReporterAllLines() {
 		if l.Host == p.Reporter && len(lines) < 14 {

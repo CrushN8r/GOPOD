@@ -1,0 +1,13 @@
+label: where we teach
+words: who benefits, where do you teach, library, libraries, community centre, community centres, esl, adult literacy, rural schools, low connectivity, homeschool, after-school, after school
+ask: Tell me where you teach
+notes 1: the rooms | classrooms, libraries, community centres | seniors' programs, adult literacy and ESL
+notes 2: low connectivity | rural schools, no IT budget | the offline stack runs anyway
+notes 3: who benefits | kids who don't like being called on | anyone told they were bad at math
+summary: the rooms: classrooms, libraries, community centres, seniors' programs, adult literacy and ESL | low connectivity: rural schools, the offline stack runs anyway | who benefits: kids who don't like being called on, anyone told they were bad at math
+source: ACCESSMATH.md
+---
+Where GOPOD teaches (live classroom sessions are coming - not built or run yet). Reveal these, in order, in your own words:
+1. Classrooms, public libraries, after-school programs, community centres, seniors' residences and day programs, adult literacy and ESL classes.
+2. Rural and low-connectivity schools, a community centre with no IT budget - the stack runs offline, so a room with terrible Wi-Fi can still host a full session.
+3. Who benefits: kids who don't like being called on, kids who love it, seniors who want the fun without the condescension, ESL learners who need low-stakes practice - anyone who was told they were "bad at math" and believed it.

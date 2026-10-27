@@ -6,6 +6,7 @@ say 3: The audience does not identify with Doc. The audience identifies with Pip
 notes 2: Pip asks wrong on purpose | Doc corrects late, sharp, funny
 notes 3: the trick | the audience sees itself in Pip
 notes 1: Doc is a strict funny teacher | Pip is clueless and motivated
+summary: Doc is a strict funny teacher: Pip is clueless and motivated | Pip asks wrong on purpose: Doc corrects late, sharp, funny | the trick: the audience sees itself in Pip
 ---
 How Doc and Pip teach (the GOPOD layer - classroom sessions are not built yet). Reveal these, in order, in your own words:
 1. Doc's teaching method has a name: desirable difficulties. The struggle is not a bug. The struggle is the mechanism.

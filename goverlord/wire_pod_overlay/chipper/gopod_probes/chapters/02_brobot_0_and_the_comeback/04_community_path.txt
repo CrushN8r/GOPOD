@@ -4,6 +4,7 @@ reminder: Hey, that reminds me... Start at the Mission, return to the Mission re
 say 1: Start at the Windsor Downtown Mission and return to the Mission ready - not as a stage, but as a launch pad.
 notes 1: the Mission | where it started | a launch pad, not a stage
 notes 2: two lanes | community and paid rooms | adult rooms, clean material
+summary: the Mission: where it started, a launch pad, not a stage | two lanes: community and paid rooms, adult rooms, clean material
 ---
 The community path (a plan). Reveal these, in order, in your own words:
 1. Start at the Windsor Downtown Mission and return to the Mission ready - not as a stage, but as a launch pad.

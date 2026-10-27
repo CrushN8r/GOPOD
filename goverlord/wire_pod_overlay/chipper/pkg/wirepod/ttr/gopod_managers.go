@@ -42,6 +42,24 @@ type gopodManagerTake struct {
 	TakeText string   `json:"take_text"`
 	// 2026-10-22: the Brobot says the result, the manager only take_text.
 	BrobotSays bool `json:"brobot_says"`
+	// 2026-10-26: an intern's take - this Gomad hands it over first
+	// (managers.handoff_text), then the intern takes over.
+	Via string `json:"via"`
+}
+
+// gopodHandoff (2026-10-26, operator: "Gomad can now 'also' say [intern] will
+// help you with that ... & intern takes over"): via says managers.handoff_text
+// with the intern's name, in to's bubble.
+func gopodHandoff(via, intern, to string) {
+	text := strings.TrimSpace(gopodBrobotsSettings.Managers.HandoffText)
+	if via == "" || text == "" {
+		return
+	}
+	name := gopodBrobotsSettings.HostPersonas[intern].Name
+	if name == "" {
+		name = intern
+	}
+	gopodReporterSayTo(via, to, strings.ReplaceAll(text, "{intern}", name), true, true)
 }
 
 // gopodManagerTakes: the take this line asks for (the first word in the line), live only.
@@ -182,6 +200,7 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 	if t.Kind == "weather" && !t.BrobotSays {
 		gopodManagerWeatherAt.Store(time.Now().UnixMilli())
 	}
+	gopodHandoff(t.Via, t.Host, to)
 	if s := strings.TrimSpace(t.TakeText); s != "" {
 		gopodReporterSayTo(t.Host, to, s, true, true)
 	}
@@ -199,6 +218,11 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 			gopodReporterSayTo(t.Host, to, line, true, true)
 		}
 		gopodManagerWeatherAt.Store(time.Now().UnixMilli())
+	case "usb":
+		// 2026-10-26: Git Repo, the ethical hacker intern - what's plugged in.
+		if line := gopodManagerUSBLine(); line != "" {
+			gopodReporterSayTo(t.Host, to, line, true, true)
+		}
 	case "time_place":
 		if line := gopodTimePlaceLine(place); line != "" {
 			gopodReporterSayTo(t.Host, to, line, true, true)
@@ -217,6 +241,24 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 			}
 		}
 	}
+}
+
+// gopodManagerUSBLine: managers.usb_text - {count} USB devices, the {mic}
+// and the {numpad} ("plugged in" or "missing").
+func gopodManagerUSBLine() string {
+	text := gopodBrobotsSettings.Managers.USBText
+	list, err := gopodUSBDevicesErr()
+	if text == "" || err != nil {
+		return ""
+	}
+	np := gopodBrobotsSettings.NumpadPTT
+	in := func(ids []string) string {
+		if found, err := gopodUSBAnyOf(ids); err == nil && found {
+			return "plugged in"
+		}
+		return "missing"
+	}
+	return strings.NewReplacer("{count}", fmt.Sprint(len(list)), "{mic}", in(np.MicUSBIDs), "{numpad}", in(np.NumpadUSBIDs)).Replace(text)
 }
 
 // gopodManagerQRShown: the QR CHALK still has to display after the Brobot's answer.

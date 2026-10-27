@@ -1220,13 +1220,67 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    =------------------ * Easter Eggs 4 of 5: ====- * 3 single lines with dynamic
    scores aligned vertically"): the notice's score rows - same width, centred
    together; each label in a column of its own, each bar in even-width marks. */
+/* 2026-10-27 (operator: "dashes run off the side of the page * use three
+   'stretch to fit any screen width' thin filled bars"): each row is its label,
+   then a thin track to the bubble's edge, filled to the score. */
 .bubble-notice .notice-score-row {
-  display: block;
-  width: 24em;
-  max-width: 100%;
-  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  width: 100%;
   text-align: left;
   white-space: nowrap;
 }
-.bubble-notice .notice-score-label { display: inline-block; width: 11.5em; }
-.bubble-notice .notice-score-bar { font-family: monospace; letter-spacing: 0.05em; }
+.bubble-notice .notice-score-label { flex: 0 0 11.5em; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+:root { --score-bar-height: 6px; --score-bar-track: rgba(255, 255, 255, 0.2); --score-bar-fill: var(--chat-text-white); }
+.bubble-notice .notice-score-bar {
+  flex: 1 1 auto;
+  min-width: 2em;
+  height: var(--score-bar-height);
+  border-radius: calc(var(--score-bar-height) / 2);
+  background: var(--score-bar-track);
+  overflow: hidden;
+}
+.bubble-notice .notice-score-fill { display: block; height: 100%; background: var(--score-bar-fill); }
+
+/* 2026-10-26 (operator: "Extend Gomad bubble template to * 1st colour: bubble bg
+   * NEW: 2nd colour: thin complimentary/contrast coloured bubble border *
+   Goverlord grey bubbles 2nd colour: traffic light green, traffic light red for
+   error bubbles * Brobots bubbles 2nd colour: have same as native wire-pod green";
+   Gomad backgrounds: "Git Repo = github default dark mode * Cache PYC = deep neon
+   gold * Cameo = deep neon pink * Both Intel 404's = police blue"; "Apply Bubble
+   borders as shown"). The bubble template: each kind's two colours, here only -
+   bg and border. The border is a thin ring (box-shadow), so no bubble moves. */
+:root {
+  --bubble-border-width: 2px;
+  --brobot-border: #33ED6D;            /* Wire-Pod's own green */
+  --goverlord-border: #00C853;         /* traffic light green */
+  --error-border: #FF1744;             /* traffic light red */
+  --chalk-border: #F5F5F0;
+  --playhead-border: #C0C0C0;
+  --git-repo-bg: #0D1117;   --git-repo-border: #2F81F7;
+  --cache-pyc-bg: #E0A800;  --cache-pyc-border: #6A0DAD;
+  --cameo-bg: #D6006F;      --cameo-border: #00E5FF;
+  --intel-404-bg: #1C3F94;  --intel-404-border: #FF2D2D;
+}
+.brobot-bubble[data-tier="gominion"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--brobot-border); }
+.brobot-bubble[data-tier="goverlord"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--goverlord-border); }
+.brobot-bubble.host-chalk { box-shadow: 0 0 0 var(--bubble-border-width) var(--chalk-border); }
+.brobot-bubble.host-playhead { box-shadow: 0 0 0 var(--bubble-border-width) var(--playhead-border); }
+.brobot-bubble.host-git-repo { background: var(--git-repo-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--git-repo-border); }
+/* 2026-10-27 (operator: "Cache PYC Gomad bubble, text is black * messes with
+   highlighting * make it back to white"): white text, like every bubble. */
+.brobot-bubble.host-cache-pyc { background: var(--cache-pyc-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cache-pyc-border); }
+.brobot-bubble.host-cameo { background: var(--cameo-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cameo-border); }
+.brobot-bubble.host-intel-404-pnfh,
+.brobot-bubble.host-intel-404-pnft { background: var(--intel-404-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--intel-404-border); }
+.brobot-bubble.is-error { box-shadow: 0 0 0 var(--bubble-border-width) var(--error-border); }
+
+/* 2026-10-27 (operator: "Make Gomad EYE Colour same as border"): each Gomad's
+   icon eyes in its border colour - its own bubble, or its part inside a Brobot's. */
+.host-chalk .brobot-bubble-avatar, .brobot-bubble .host-chalk .brobot-bubble-avatar { --eye-fill: var(--chalk-border); }
+.host-playhead .brobot-bubble-avatar, .brobot-bubble .host-playhead .brobot-bubble-avatar { --eye-fill: var(--playhead-border); }
+.host-git-repo .brobot-bubble-avatar, .brobot-bubble .host-git-repo .brobot-bubble-avatar { --eye-fill: var(--git-repo-border); }
+.host-cache-pyc .brobot-bubble-avatar, .brobot-bubble .host-cache-pyc .brobot-bubble-avatar { --eye-fill: var(--cache-pyc-border); }
+.host-cameo .brobot-bubble-avatar, .brobot-bubble .host-cameo .brobot-bubble-avatar { --eye-fill: var(--cameo-border); }
+.host-intel-404-pnfh .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnfh .brobot-bubble-avatar,
+.host-intel-404-pnft .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnft .brobot-bubble-avatar { --eye-fill: var(--intel-404-border); }

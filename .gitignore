@@ -142,3 +142,6 @@ AGENTS.md
 # The nap's video source (Premiere project, autosaves, video, SRT): private media,
 # never public (2026-10-09; the project names a Windows user folder).
 goverlord/runtime/songs/101_brobots_nap/baby_brobots/
+
+# The private master play file (full history), beside the public ALIAS-PLAY-STUDIO.md.
+ALIAS-PLAY-STUDIO.local.md

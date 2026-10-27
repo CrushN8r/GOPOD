@@ -25,7 +25,7 @@ func TestEggsInOrderMentioned(t *testing.T) {
 
 // TestEggZooms (2026-10-16): "MouseOver to Zoom View" only under a prize that zooms.
 func TestEggZooms(t *testing.T) {
-	if !gopodEggZooms("/pictures/gangster_granny.jpg") || !gopodEggZooms(gopodWeatherPopupMark+"clear sky@20") {
+	if !gopodEggZooms("/pictures/legacy/gangster_granny.jpg") || !gopodEggZooms(gopodWeatherPopupMark+"clear sky@20") {
 		t.Error("a picture or a weather face should zoom")
 	}
 	if gopodEggZooms(gopodEggCardMark+"Roast Battle") || gopodEggZooms(gopodMathPopupMark+"1/3") {

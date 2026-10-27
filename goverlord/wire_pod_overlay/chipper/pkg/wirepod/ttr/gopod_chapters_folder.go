@@ -27,12 +27,17 @@ import (
 //
 //	label: the rig                    how a reminder names it
 //	words: rig, gear, dolly           the words in a question that load it
-//	pictures: gopod_stack.jpg         shown in the chat with it
+//	pictures: gear/crate_2_display.jpg         shown in the chat with it
 //	reminder: Hey, that reminds me... its reminder line
 //	sentences: 0                      its own sentence budget (left out = the usual)
 //	say 1: One dolly, two crates.     point 1's exact line, said first
 //	start line: ...                   a scripted line at the start (one per line)
 //	end line: ...                     a scripted line at the end (one per line)
+//	summary: Lower crate 1 ... | ...  what a summary ask riffs on (gopod_topic_asks.go)
+//	source: MOBILE_GEAR.md            the repo file it tells - the game matches the repo
+//	ask: Tell me about yourself       its ask on BROBOT_ASKS.md (left out = "Tell me about <label>")
+//	pre: ... / post: ...              its note before / after the room has covered it (topic_asks defaults)
+//	closing: ...                      a closing remark once it's covered (none = none)
 //	---
 //	The rig: ... Reveal these, in order: 1. ... 2. ...
 //
@@ -53,6 +58,15 @@ type gopodTopicFile struct {
 	Notes      map[int]string
 	StartLines []string
 	EndLines   []string
+	// 2026-10-26 (the topic ask template, gopod_topic_asks.go): the summary a
+	// summary ask riffs on, and the repo file(s) the topic tells.
+	Summary string
+	Sources []string
+	// 2026-10-26: its ask on the BROBOT_ASKS.md page (left out = "Tell me about <label>").
+	Ask string
+	// 2026-10-26 (the topic pre/post template): a note before the room has
+	// covered it, one after, and a closing remark after (topic_asks defaults).
+	Pre, Post, Closing string
 }
 
 type gopodChapterFolder struct {
@@ -133,6 +147,18 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 				if n, err := strconv.Atoi(value); err == nil {
 					t.Sentences = &n
 				}
+			case key == "summary":
+				t.Summary = value
+			case key == "source":
+				t.Sources = gopodCommaList(value)
+			case key == "ask":
+				t.Ask = value
+			case key == "pre":
+				t.Pre = value
+			case key == "post":
+				t.Post = value
+			case key == "closing":
+				t.Closing = value
 			case key == "start line":
 				t.StartLines = append(t.StartLines, value)
 			case key == "end line":

@@ -24,7 +24,7 @@ build.
   cloud, no monthly bill.
 - **A chat window on Wire-Pod's own page.** Each line lights up as it's spoken. Type a line,
   or hold a numpad key and talk.
-- **Named runs.** `start interview` plays a scripted ten-question interview, the same every
+- **Named runs.** `start interview` plays a scripted interview, the same every
   time and ready to record. `start bingo test` plays the Bingo test song. `start baby
   brobots` plays a lyric video in the chat while the Brobots act it out. `start fart joke`
   plays the fart joke. `stop run` stops any of them at a safe spot.
@@ -67,9 +67,11 @@ note, is in [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md).
 
 ## The rig
 
-![Inside the top crate](goverlord/wire_pod_overlay/chipper/webroot/pictures/rig_crate_inside.jpg)
+![Both crates on the dolly](goverlord/wire_pod_overlay/chipper/webroot/pictures/gear/rig_dolly_side.jpg)
 
 Two crates on one dolly. Roll in, plug in, party.
+
+![The top crate from above: USB hub, hotspot, Jetson, Edge TPU, numpad, mic](goverlord/wire_pod_overlay/chipper/webroot/pictures/gear/rig_dolly_crate_2.jpg)
 
 | Part | What it does |
 |---|---|
@@ -79,8 +81,11 @@ Two crates on one dolly. Roll in, plug in, party.
 | Inseego MiFi M3000 hotspot | Local Wi-Fi linking the two robots and the Jetson. |
 | XLR mic and an XLR-to-USB cable | The room mic: numpad push-to-talk and Record Session. |
 | USB numpad, USB 3.0 hub, power bar, fan | Push-to-talk keys, ports, power, cooling. |
+| Coral USB Edge TPU | The object boxes on the Brobots' camera feeds. |
 
-About $1K to #3K CDN.
+The crates, power and networking modes, with more photos: [MOBILE_GEAR.md](MOBILE_GEAR.md).
+
+About $1K to $3K CDN.
 
 ## Privacy and safety
 
@@ -100,8 +105,17 @@ work well enough to demo.
 
 ## More
 
-- [CHANNEL.md](CHANNEL.md): the channel plan, cadence and first titles.
-- [ASK.md](ASK.md): help wanted on the social media side.
+- [BROBOT_ASKS.md](BROBOT_ASKS.md): what to ask the Brobots - each topic's ask, what you get,
+  and where to read more.
+- [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
+  networking and power modes, and the photos.
+- [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, videos, printables and
+  affiliates, live or scripted.
+- [ACCESSMATH.md](ACCESSMATH.md): GOPOD for everyone - the app, access built in, a healthy
+  distraction, and where GOPOD teaches.
+- [SOCIAL_MEDIA.md](SOCIAL_MEDIA.md): the socials, the niche pillars, and help wanted.
+- [LIVESTREAM.md](LIVESTREAM.md): the livestream - AI Wordplay! Explain the MAth!, the contest
+  and its nine themes, where it lands, and the channel.
 - **Contact:** [crushn8r.ca](https://crushn8r.ca), and the CRUSHN8R CREW'd newsletter.
 
 ## Credits

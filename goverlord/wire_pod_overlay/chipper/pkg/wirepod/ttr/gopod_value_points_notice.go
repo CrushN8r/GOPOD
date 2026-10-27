@@ -111,6 +111,11 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 		if title, notes := gopodPointNotes(topic, k); title != "" {
 			vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 			line := gopodNoticeFill(vp.Points, map[string]string{"id": id, "topic": label, "n": n, "total": total, "words": title})
+			// 2026-10-26 (operator: "to save vertical screen space list by \"|\"
+			// separator in a single line"): notes, all on one line (notes_join).
+			if vp.Notes != "" {
+				return line + "\n" + gopodNoticeFill(vp.Notes, map[string]string{"notes": strings.Join(notes, vp.NotesJoin)})
+			}
 			for _, note := range notes {
 				line += "\n" + gopodNoticeFill(vp.Note, map[string]string{"note": note})
 			}

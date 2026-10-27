@@ -24,7 +24,19 @@ type gopodBrobotsSettingsFile struct {
 	FinalOutputCheck    string            `json:"final_output_check"`
 	QuestionFactsHeader string            `json:"question_facts_header"`
 	OffTopicNote        string            `json:"off_topic_note"`
-	WebLinks            struct {
+	// 2026-10-26: the topic ask template (gopod_topic_asks.go).
+	TopicAsks struct {
+		DetailWords  []string `json:"detail_words"`
+		SummaryWords []string `json:"summary_words"`
+		BareMaxWords int      `json:"bare_max_words"`
+		TheTopic     bool     `json:"the_topic"`
+		// 2026-10-26: the topic pre/post template's defaults ({topic} = its label).
+		PreDefault    string `json:"pre_default"`
+		PostDefault   string `json:"post_default"`
+		SummaryNotice string `json:"summary_notice"`
+		SummaryFacts  string `json:"summary_facts"`
+	} `json:"topic_asks"`
+	WebLinks struct {
 		KeepWith string `json:"keep_with"`
 	} `json:"web_links"`
 	StretchedWords struct {
@@ -108,6 +120,7 @@ type gopodBrobotsSettingsFile struct {
 		MicFoundText       string            `json:"mic_found_text"`
 		NumpadMissingText  string            `json:"numpad_missing_text"`
 		NumpadFoundText    string            `json:"numpad_found_text"`
+		USBHost            string            `json:"usb_host"`
 		MicDisabledSeconds float64           `json:"mic_disabled_seconds"`
 		BodyToBrobot       map[string]string `json:"body_to_brobot"`
 		// 2026-10-14: Goverlord says texts.on / texts.exit; made at start (gopodSystemLines).
@@ -357,6 +370,8 @@ type gopodBrobotsSettingsFile struct {
 		NoneNote       string  `json:"none_note"`
 		Line           string  `json:"line"`
 		ResultsRole    string  `json:"results_role"`
+		HandoffHost    string  `json:"handoff_host"`
+		ResultsHost    string  `json:"results_host"`
 	} `json:"system_search"`
 	// 2026-10-17: system-set's terminal bubble (gopod_system_set.go).
 	SystemSet struct {
@@ -368,6 +383,8 @@ type gopodBrobotsSettingsFile struct {
 		ReleaseSeconds float64            `json:"release_seconds"`
 		TimePlaceText  string             `json:"time_place_text"`
 		DisplayHost    string             `json:"display_host"`
+		USBText        string             `json:"usb_text"`
+		HandoffText    string             `json:"handoff_text"`
 		QRNote         string             `json:"qr_note"`
 		QRDisplayText  string             `json:"qr_display_text"`
 		// 2026-10-18: the reporters' live personas (gopod_personas.go).
@@ -520,6 +537,9 @@ type gopodBrobotsSettingsFile struct {
 			None    string   `json:"none"`
 			GotIt   string   `json:"got_it"`
 			Note    string   `json:"note"`
+			// 2026-10-26: a point's notes on one line.
+			Notes     string `json:"notes"`
+			NotesJoin string `json:"notes_join"`
 			// 2026-10-22: one notice per bubble - the egg's line; the game lines.
 			Egg      string `json:"egg"`
 			Combo    string `json:"combo"`
@@ -752,12 +772,32 @@ type gopodBrobotsSettingsFile struct {
 		Continents []string          `json:"continents"`
 	} `json:"clean_politics"`
 	// 2026-10-15: the battery watchdog (gopod_battery_watch.go).
+	// 2026-10-26: the here-and-now note (gopod_here_now.go).
+	HereNow struct {
+		Text string `json:"text"`
+		Cast []struct {
+			Who  string `json:"who"`
+			Line string `json:"line"`
+		} `json:"cast"`
+		CastJoin     string            `json:"cast_join"`
+		BrotherLine  string            `json:"brother_line"`
+		BatteryText  string            `json:"battery_text"`
+		ClockFormat  string            `json:"clock_format"`
+		Place        string            `json:"place"`
+		BatteryNote  string            `json:"battery_note"`
+		Genders      map[string]string `json:"genders"`
+		VoiceGenders map[string]string `json:"voice_genders"`
+	} `json:"here_now"`
 	BatteryWatch struct {
 		Enabled         bool                `json:"enabled"`
 		IntervalSeconds float64             `json:"interval_seconds"`
 		LowVolts        float64             `json:"low_volts"`
 		RecoverVolts    float64             `json:"recover_volts"`
 		Lines           map[string][]string `json:"lines"`
+		Guards          map[string]string   `json:"guards"`
+		GuardWarning    string              `json:"guard_warning"`
+		GuardHandover   string              `json:"guard_handover"`
+		Reply           string              `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {

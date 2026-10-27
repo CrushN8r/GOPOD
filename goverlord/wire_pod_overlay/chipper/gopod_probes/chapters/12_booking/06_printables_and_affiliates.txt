@@ -1,0 +1,12 @@
+label: printables and affiliates
+words: printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print
+notes 1: printables | the Chocolate Bingo kit | the GOPOD word search and sudoku on crushn8r.ca
+notes 2: print-shop merch | bingo cards, signs, winner photos, posters | through Mission Promotional Products
+notes 3: affiliates | foodmath recipe links | planned
+summary: printables: the Chocolate Bingo kit, the GOPOD word search and sudoku | print-shop merch: bingo cards, signs, winner photos, posters | affiliates: foodmath recipe links, planned
+source: BOOKING.md
+---
+Printables and affiliates. Reveal these, in order, in your own words:
+1. Printables: the Chocolate Bingo kit - print at home, plays in black and white - and the GOPOD word search and sudoku on crushn8r.ca.
+2. Print-shop merch from a gig: bingo cards, signs, winner photos and posters, through Mission Promotional Products.
+3. Affiliates: recipe links on foodmath - planned, not live yet.

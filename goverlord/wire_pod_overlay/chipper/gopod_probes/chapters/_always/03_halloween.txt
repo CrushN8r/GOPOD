@@ -2,7 +2,8 @@ label: halloween
 words: halloween, happy halloween, trick or treat, trick-or-treat, spooky, pumpkin, pumpkins, jack-o-lantern, costume, costumes
 say 1: Happy Halloween from the Party Brobots! 🎃
 say 2: Two rescued robots, back from the scrap heap - the spookiest comeback story there is. 👻
+summary: Happy Halloween from the Party Brobots | two rescued robots, back from the scrap heap | the spookiest comeback story there is
 ---
-Halloween (operator 2026-10-18: "add a short \"halloween\" easter egg, no image, use emojis"; drafts for the operator to change): a surprise egg - the Party Brobots go spooky and fun, short, emojis welcome 🎃👻🦇🍬. Reveal these, in order, in your own words:
+Halloween: a surprise egg - the Party Brobots go spooky and fun, short, emojis welcome 🎃👻🦇🍬. Reveal these, in order, in your own words:
 1. Happy Halloween from the Party Brobots! 🎃
 2. Two rescued robots, back from the scrap heap - the spookiest comeback story there is. 👻

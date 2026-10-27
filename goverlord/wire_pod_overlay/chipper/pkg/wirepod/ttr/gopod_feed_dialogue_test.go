@@ -210,7 +210,7 @@ func TestChapterEggs(t *testing.T) {
 	if chapters != wantChapters || roast {
 		t.Fatalf("chapters %d of %d, roast %v: %+v", chapters, len(gopodBrobotsSettings.InterviewChapters.Chapters), roast, list)
 	}
-	if key, title := gopodTopicChapter("birthday_and_merch"); key != "chapter:Parties and rooms" || title != "Parties and rooms" {
+	if key, title := gopodTopicChapter("birthday_and_merch"); key != "chapter:Booking" || title != "Booking" {
 		t.Errorf("birthday chapter: %q %q", key, title)
 	}
 	t.Logf("EGGS %+v", list)

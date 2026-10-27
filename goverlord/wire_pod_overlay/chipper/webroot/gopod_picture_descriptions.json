@@ -1,142 +1,140 @@
 {
- "about": "The egg pictures, described for the Brobots (operator 2026-10-16: \"generate descriptions for brobots, like a list of value points, to use in their responses in live runs * not generate per live run\"). Made at Wire-Pod's start only for a picture with no points or one that changed (md5); edit points by hand freely - they stay until the picture itself changes. gopod_picture_describe.go. 2026-10-16: the first points from the vision model were mostly wrong (\"BROOOTS CHOCOLATE BRONBO\", a Sims 4 page, keychains, toy trains); each picture's points were then written by hand from the picture itself.",
- "pictures": {
-  "chocolate_bingo_card.jpg": {
-   "md5": "fad4872d5a344fc5b4c45d2b0cebb831",
-   "points": [
-    "Brobots Chocolate Bingo, Card No. 01: a 4 x 4 quick game.",
-    "Cover any full line of 4, then shout \"BROBOTS!\"",
-    "Its squares are robot-chocolate names like Choco Servo, Mousse Motor, Brownie Byte, Cookie Circuit and Nougat Nugget, with a FREE Brobots square.",
-    "Every card in the kit is unique; print one per player, and it reads clean in black and white."
-   ]
-  },
-  "chocolate_bingo_kit.jpg": {
-   "md5": "7c8d02ca23d001c84197c0f9a502b6e0",
-   "points": [
-    "The cover of Chocolate Bingo, a Brobots CRUSHN8R CREW'D kit: the all-ages game kit and recipe pack.",
-    "It shows a 5 x 5 card of robot-chocolate names like Bonbon Beacon, Wafer Widget and Fudge Fuse, with a FREE Brobots square in the middle.",
-    "Two lanes: Kids' Lane and Adults' Lane.",
-    "Print at home, plays in black and white, and zero real brands - all Brobots."
-   ]
-  },
-  "chocolate_bingo_recipes.jpg": {
-   "md5": "6c883d9cedd7f7668c57f358b0404439",
-   "points": [
-    "The Recipe Pack: make the treats on the cards for real - two lanes, one chocolate family (Kids' Lane).",
-    "Brobots Chocolate Cookies with Nuts!!: makes 24 cookies in 25 minutes, easy.",
-    "Brobots Fudge Bolt Squares: makes 16 squares in 15 minutes plus chilling, no-bake.",
-    "A grown-up handles the oven and anything hot."
-   ]
-  },
-  "crushn8r_ca_qr.png": {
-   "md5": "38f86da0cc26b57076d2091f4bd2c884",
-   "points": [
-    "A black and white qr code image with a square in the center of it."
-   ]
-  },
-  "doc_answer_key.jpg": {
-   "md5": "0a70ef74ac7e65db2848a5c90585ad48",
-   "points": [
-    "Doc's Answer Key, \"The Answers. Obviously.\": the same problems, over-the-top correct.",
-    "One Doc line per problem names Pip's exact error - a miss is a miss, no credit for near.",
-    "The problems are factors: 12 = 2 x 6 or 3 x 4, the factors of 18 are 1, 2, 3, 6, 9 and 18, and 24 = 6 x 4."
-   ]
-  },
-  "doc_pip_workbook.jpg": {
-   "md5": "6c78d8b060988564deb6caea65b98bc9",
-   "points": [
-    "The Doc & Pip Math Workbook concept pitch board, with Doc (orange) and Pip (teal) as cartoon robots.",
-    "Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it.",
-    "Pip's mistakes are the ones real learners actually make; error on the left, correction on the right.",
-    "Its first section is Pip's Clueless Workbook."
-   ]
-  },
-  "gangster_granny.jpg": {
-   "md5": "a217210cb4c81ee89779b49305cae24d",
-   "points": [
-    "Gangster Granny",
-    "Big blue eyes",
-    "white curls and rosy cheeks",
-    "cute as a cartoon",
-    "The drip is a rhinestone hat with a dollar sign",
-    "pink fur coat",
-    "sparkly silver bow tie",
-    "bling on every finger",
-    "and a lit cigarette in her hand",
-    "Sweet granny",
-    "Full gangster"
-   ]
-  },
-  "gopod_stack.jpg": {
-   "md5": "69fcfe6c43c3d7d740ff44713ffd31ec",
-   "points": [
-    "The GOPOD rig laid out on a couch: two Vector robots on their chargers - the Brobots.",
-    "Two Cozmo robots, a microphone, a numpad, a mobile hotspot and a Coral Edge TPU stick.",
-    "The brain: a Seeed Studio box with two antennas - the Jetson that runs GOPOD locally."
-   ]
-  },
-  "hot_wheels_birthday_1.jpg": {
-   "md5": "28f9268130a21f1583c3a3c356815401",
-   "points": [
-    "A full pizza box of food-shaped Hot Wheels cars, lined up in rows on orange track.",
-    "Donut cars, blue frosted cars, chocolate cupcake cars, chocolate cake-slice cars and rows of pink cake-slice cars.",
-    "A pink donut truck and donut shop cars at the top - already bought, already sorted, for a GOPOD birthday."
-   ]
-  },
-  "hot_wheels_birthday_2.jpg": {
-   "md5": "8d01ee55e97368076021acf525f93dec",
-   "points": [
-    "More food-shaped Hot Wheels cars in the pizza box, in rows on orange track.",
-    "Teal donut cars, pink and blue cake-slice cars, chocolate cake slices, and rows of white whipped-cream cars with grape, cherry, lime and orange flavours.",
-    "Party food on wheels - the table dressing and the prize for a GOPOD birthday."
-   ]
-  },
-  "docpip_1a_factoring_warmup.jpg": {
-   "md5": "25fb5fe51881a7f485479df36cbb43ec",
-   "points": [
-    "Pip's Practice, Factoring Warm-Up: Pip writes 12 = 5 + 7 and 12 = 3 + 9 - he added instead of multiplied.",
-    "He says 4 is not a factor of 20 because it's 'too big', lists 1, 2, 8, 9, 18 as the factors of 18, and writes 24 = 6 x 5.",
-    "Pip's note: 'pretty sure factoring means adding. i'll ask Doc.'"
-   ]
-  },
-  "docpip_1b_one_big_slot.jpg": {
-   "md5": "e8afa256112eb66119ae7fc4fa944b5e",
-   "points": [
-    "One Problem, One Big Slot: Pip breaks 15 into 3 x 4 ('close enough??').",
-    "He factors 16 as 8 x 8, and for 'Is 7 a factor of 35?' writes 'no clue. circling YES, fingers crossed'.",
-    "Signed: Pip, breathing heavily."
-   ]
-  },
-  "docpip_1c_speed_round.jpg": {
-   "md5": "5b81d26ace880afbfcf7bc49413f5016",
-   "points": [
-    "Speed Round: Pip answers 6 x ? = 24 with 5, the factors of 9 as 1 and 9, 8 = 2 + 6, 'nope' for 3 being a factor of 21, and 10 = 5 + 5.",
-    "His score line: 'uh. don't look, Doc'."
-   ]
-  },
-  "docpip_2a_answer_key.jpg": {
-   "md5": "f2b633ec23c8f80b8c7f508a08a35879",
-   "points": [
-    "Doc's Official Key, The Answers. Obviously: 12 = 2 x 6 or 3 x 4 - 'You ADDED. Factoring MULTIPLIES.'",
-    "4 is a factor of 20, 4 x 5 - 'Too big isn't a reason.' Factors of 18: 1, 2, 3, 6, 9, 18 - 'Factors come in PAIRS.'",
-    "24 = 6 x 4 - '6 x 5 is 30, not 24. Not close - just wrong.'"
-   ]
-  },
-  "docpip_2b_flip_to_the_back.jpg": {
-   "md5": "00d1ad0c1d1e141938112ea75a607f07",
-   "points": [
-    "Flip to the back, Doc explains: Pip's page and Doc's key side by side, same problem numbers.",
-    "Pip: 24 = 6 x 5, 18: 1, 2, 8, 9, 12 = 5 + 7. Doc: 24 = 6 x 4, 18: 1, 2, 3, 6, 9, 18, 12 = 3 x 4.",
-    "Design note: teachers lay the two side by side and read the error against the fix."
-   ]
-  },
-  "docpip_2c_no_credit_for_close.jpg": {
-   "md5": "671de7b10a3ac5b4520c2d989ef3a6be",
-   "points": [
-    "Doc's Rule, No credit for close: Doc never softens - a wrong answer is wrong, full stop.",
-    "Effort is noted and dismissed; he roasts the confusion, never the pupil, then hands over the real answer.",
-    "'E for Effort. Which is an F. Here's how you actually do it.' - Doc, unmovable."
-   ]
+  "about": "The egg pictures, described for the Brobots (operator 2026-10-16: \"generate descriptions for brobots, like a list of value points, to use in their responses in live runs * not generate per live run\"). Made at Wire-Pod's start only for a picture with no points or one that changed (md5); edit points by hand freely - they stay until the picture itself changes. gopod_picture_describe.go. 2026-10-16: the first points from the vision model were mostly wrong (\"BROOOTS CHOCOLATE BRONBO\", a Sims 4 page, keychains, toy trains); each picture's points were then written by hand from the picture itself.",
+  "pictures": {
+    "birthday/hot_wheels_birthday_1.jpg": {
+      "md5": "d1ca6b594e3034cf8249a4b1c1db8b7d",
+      "points": [
+        "A box of assorted donuts with a variety of colors and flavors."
+      ]
+    },
+    "birthday/hot_wheels_birthday_2.jpg": {
+      "md5": "8d01ee55e97368076021acf525f93dec",
+      "points": [
+        "More food-shaped Hot Wheels cars in the pizza box, in rows on orange track.",
+        "Teal donut cars, pink and blue cake-slice cars, chocolate cake slices, and rows of white whipped-cream cars with grape, cherry, lime and orange flavours.",
+        "Party food on wheels - the table dressing and the prize for a GOPOD birthday."
+      ]
+    },
+    "chocolate_bingo/chocolate_bingo_card.jpg": {
+      "md5": "fad4872d5a344fc5b4c45d2b0cebb831",
+      "points": [
+        "Brobots Chocolate Bingo, Card No. 01: a 4 x 4 quick game.",
+        "Cover any full line of 4, then shout \"BROBOTS!\"",
+        "Its squares are robot-chocolate names like Choco Servo, Mousse Motor, Brownie Byte, Cookie Circuit and Nougat Nugget, with a FREE Brobots square.",
+        "Every card in the kit is unique; print one per player, and it reads clean in black and white."
+      ]
+    },
+    "chocolate_bingo/chocolate_bingo_kit.jpg": {
+      "md5": "7c8d02ca23d001c84197c0f9a502b6e0",
+      "points": [
+        "The cover of Chocolate Bingo, a Brobots CRUSHN8R CREW'D kit: the all-ages game kit and recipe pack.",
+        "It shows a 5 x 5 card of robot-chocolate names like Bonbon Beacon, Wafer Widget and Fudge Fuse, with a FREE Brobots square in the middle.",
+        "Two lanes: Kids' Lane and Adults' Lane.",
+        "Print at home, plays in black and white, and zero real brands - all Brobots."
+      ]
+    },
+    "chocolate_bingo/chocolate_bingo_recipes.jpg": {
+      "md5": "6c883d9cedd7f7668c57f358b0404439",
+      "points": [
+        "The Recipe Pack: make the treats on the cards for real - two lanes, one chocolate family (Kids' Lane).",
+        "Brobots Chocolate Cookies with Nuts!!: makes 24 cookies in 25 minutes, easy.",
+        "Brobots Fudge Bolt Squares: makes 16 squares in 15 minutes plus chilling, no-bake.",
+        "A grown-up handles the oven and anything hot."
+      ]
+    },
+    "doc_pip_math/doc_answer_key.jpg": {
+      "md5": "0a70ef74ac7e65db2848a5c90585ad48",
+      "points": [
+        "Doc's Answer Key, \"The Answers. Obviously.\": the same problems, over-the-top correct.",
+        "One Doc line per problem names Pip's exact error - a miss is a miss, no credit for near.",
+        "The problems are factors: 12 = 2 x 6 or 3 x 4, the factors of 18 are 1, 2, 3, 6, 9 and 18, and 24 = 6 x 4."
+      ]
+    },
+    "doc_pip_math/doc_pip_workbook.jpg": {
+      "md5": "6c78d8b060988564deb6caea65b98bc9",
+      "points": [
+        "The Doc \u0026 Pip Math Workbook concept pitch board, with Doc (orange) and Pip (teal) as cartoon robots.",
+        "Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it.",
+        "Pip's mistakes are the ones real learners actually make; error on the left, correction on the right.",
+        "Its first section is Pip's Clueless Workbook."
+      ]
+    },
+    "doc_pip_math/docpip_1a_factoring_warmup.jpg": {
+      "md5": "25fb5fe51881a7f485479df36cbb43ec",
+      "points": [
+        "Pip's Practice, Factoring Warm-Up: Pip writes 12 = 5 + 7 and 12 = 3 + 9 - he added instead of multiplied.",
+        "He says 4 is not a factor of 20 because it's 'too big', lists 1, 2, 8, 9, 18 as the factors of 18, and writes 24 = 6 x 5.",
+        "Pip's note: 'pretty sure factoring means adding. i'll ask Doc.'"
+      ]
+    },
+    "doc_pip_math/docpip_1b_one_big_slot.jpg": {
+      "md5": "e8afa256112eb66119ae7fc4fa944b5e",
+      "points": [
+        "One Problem, One Big Slot: Pip breaks 15 into 3 x 4 ('close enough??').",
+        "He factors 16 as 8 x 8, and for 'Is 7 a factor of 35?' writes 'no clue. circling YES, fingers crossed'.",
+        "Signed: Pip, breathing heavily."
+      ]
+    },
+    "doc_pip_math/docpip_1c_speed_round.jpg": {
+      "md5": "5b81d26ace880afbfcf7bc49413f5016",
+      "points": [
+        "Speed Round: Pip answers 6 x ? = 24 with 5, the factors of 9 as 1 and 9, 8 = 2 + 6, 'nope' for 3 being a factor of 21, and 10 = 5 + 5.",
+        "His score line: 'uh. don't look, Doc'."
+      ]
+    },
+    "doc_pip_math/docpip_2a_answer_key.jpg": {
+      "md5": "f2b633ec23c8f80b8c7f508a08a35879",
+      "points": [
+        "Doc's Official Key, The Answers. Obviously: 12 = 2 x 6 or 3 x 4 - 'You ADDED. Factoring MULTIPLIES.'",
+        "4 is a factor of 20, 4 x 5 - 'Too big isn't a reason.' Factors of 18: 1, 2, 3, 6, 9, 18 - 'Factors come in PAIRS.'",
+        "24 = 6 x 4 - '6 x 5 is 30, not 24. Not close - just wrong.'"
+      ]
+    },
+    "doc_pip_math/docpip_2b_flip_to_the_back.jpg": {
+      "md5": "00d1ad0c1d1e141938112ea75a607f07",
+      "points": [
+        "Flip to the back, Doc explains: Pip's page and Doc's key side by side, same problem numbers.",
+        "Pip: 24 = 6 x 5, 18: 1, 2, 8, 9, 12 = 5 + 7. Doc: 24 = 6 x 4, 18: 1, 2, 3, 6, 9, 18, 12 = 3 x 4.",
+        "Design note: teachers lay the two side by side and read the error against the fix."
+      ]
+    },
+    "doc_pip_math/docpip_2c_no_credit_for_close.jpg": {
+      "md5": "671de7b10a3ac5b4520c2d989ef3a6be",
+      "points": [
+        "Doc's Rule, No credit for close: Doc never softens - a wrong answer is wrong, full stop.",
+        "Effort is noted and dismissed; he roasts the confusion, never the pupil, then hands over the real answer.",
+        "'E for Effort. Which is an F. Here's how you actually do it.' - Doc, unmovable."
+      ]
+    },
+    "gear/crate_2_display.jpg": {
+      "md5": "69fcfe6c43c3d7d740ff44713ffd31ec",
+      "points": [
+        "The GOPOD rig laid out on a couch: two Vector robots on their chargers - the Brobots.",
+        "Two Cozmo robots, a microphone, a numpad, a mobile hotspot and a Coral Edge TPU stick.",
+        "The brain: a Seeed Studio box with two antennas - the Jetson that runs GOPOD locally."
+      ]
+    },
+    "legacy/gangster_granny.jpg": {
+      "md5": "a217210cb4c81ee89779b49305cae24d",
+      "points": [
+        "Gangster Granny",
+        "Big blue eyes",
+        "white curls and rosy cheeks",
+        "cute as a cartoon",
+        "The drip is a rhinestone hat with a dollar sign",
+        "pink fur coat",
+        "sparkly silver bow tie",
+        "bling on every finger",
+        "and a lit cigarette in her hand",
+        "Sweet granny",
+        "Full gangster"
+      ]
+    },
+    "qr/crushn8r_ca_qr.png": {
+      "md5": "38f86da0cc26b57076d2091f4bd2c884",
+      "points": [
+        "A black and white qr code image with a square in the center of it."
+      ]
+    }
   }
- }
 }

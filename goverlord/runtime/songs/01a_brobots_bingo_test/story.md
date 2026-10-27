@@ -2,8 +2,8 @@
 
 **Status:** GOLDEN (2026-10-01)
 
-The Bingo test song: two Brobots trade banter, then call three Bingo balls. Ready to record
-(live-confirmed 2026-10-01). Play it with `start bingo test` in the Brobots chat, or with
+The Bingo test song: two Brobots trade banter, then call three Bingo balls. Ready to record.
+Play it with `start bingo test` in the Brobots chat, or with
 `pha0b`. `stop run` stops it before its next step.
 
 - **The lines** live in this file (`## STEP` / `> TEXT:`). **The steps, their order and
@@ -57,15 +57,15 @@ The Bingo test song: two Brobots trade banter, then call three Bingo balls. Read
   - **Moves** — the scored animations and gestures, in order (every say line also gets
     Wire-Pod's default `thinking`).
   - Not used here: value points, thinking window (those are for LLM-generated lines).
-- **One move or one line per step, in the order they happen** (2026-10-25): a move step
+- **One move or one line per step, in the order they happen:** a move step
   (arm cue, nod, `kgSuccess`, `searching`, angry beat, rattle) has no `> TEXT:`; each line is
   its own `*_say_*` step, and a line's name can repeat (`brat_say_0203` twice). A move
   followed straight away by the same Brobot's line plays with it, the native Wire-Pod way:
   the arm cue or nod while it's said, `kgSuccess` or the beat as the line starts, `searching`
   first, then the line. A line before a rattle is said, then the rattle plays under a big
   ⏳ countdown in the Brobots window (`"compose_moves": true` in `knobs.json`).
-- 🔊 **Where the rattle plays** — `"rattle_on"` in `knobs.json`: `"speaker"` (this song,
-  since 2026-10-03) plays `rattle.wav` on the computer's speaker while the Brobots stay
+- 🔊 **Where the rattle plays** — `"rattle_on"` in `knobs.json`: `"speaker"` (this song)
+  plays `rattle.wav` on the computer's speaker while the Brobots stay
   put, and the countdown is just the sound's length; `"robot"` plays it on Brobot 1 (the
   hand-off, 3 s settle, then the sound). Change it there, no code change.
 - 🧠 **LLM warm-up** — `"llm_warmup": true` in `knobs.json`: a live run opens with the

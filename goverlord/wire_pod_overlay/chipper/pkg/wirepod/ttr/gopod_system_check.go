@@ -89,6 +89,12 @@ func gopodCheckWalk(v any, path []string, found func(path, value string)) {
 func gopodSystemCheckProblems() ([]string, int) {
 	var problems []string
 	checked := 0
+	// 2026-10-26 (operator: "as I update the repo, I want the game to match the
+	// repo"): a topic whose source: repo file is gone or changed after it.
+	for _, p := range gopodTopicSourceProblems() {
+		checked++
+		problems = append(problems, "topic "+p)
+	}
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
 	// 1. The settings: every file they name.
