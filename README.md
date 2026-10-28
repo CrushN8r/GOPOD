@@ -109,7 +109,7 @@ work well enough to demo.
   and where to read more.
 - [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
   networking and power modes, and the photos.
-- [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, videos, printables and
+- [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, BBQs, videos, printables and
   affiliates, live or scripted.
 - [ACCESSMATH.md](ACCESSMATH.md): GOPOD for everyone - the app, access built in, a healthy
   distraction, and where GOPOD teaches.

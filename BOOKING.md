@@ -30,6 +30,14 @@ Every video is a scripted robot performance, and it says so.
   happy-birthday act is coming.
 - **BBQs** - GOPOD can do BBQ's too! A pizza-box of BBQ-food Hot Wheels cars, and LEGO hot-dog and
   pizza-slice minifigures.
+
+| | |
+|---|---|
+| <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/hw_birthday_box_02.jpg" width="260" alt="A pizza box of donut Hot Wheels cars"> | <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/hw_birthday_box_01.jpg" width="260" alt="A pizza box of cupcake and cake-slice Hot Wheels cars"> |
+| <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/hw_cupcakes_01.jpg" width="260" alt="Three cupcake Hot Wheels cars"> | <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/lego_icecreams_01.jpg" width="260" alt="Three LEGO ice-cream-cone minifigures"> |
+| <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/bbq/hw_bbq_box_01.jpg" width="260" alt="A pizza box of BBQ-food Hot Wheels cars"> | <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/bbq/hw_burgers_02.jpg" width="260" alt="A burger-and-fries truck and a diner food truck"> |
+
+*Party food on wheels: donut, cupcake and cake-slice cars, LEGO ice-cream crew, and the BBQ box.*
 - **Printables** - the Chocolate Bingo kit (print at home, plays in black and white), and the GOPOD
   word search and sudoku on crushn8r.ca.
 - **Print-shop merch from a gig** - bingo cards, signs, winner photos and posters, through Mission
