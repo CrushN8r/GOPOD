@@ -180,6 +180,18 @@ list. Each "Hey, that reminds me..." names at least one egg still to find; a que
 still ends with two (not a thank-you); each in turn, then round again. `gopod_egg_list.go`,
 `TestEggList`.
 
+**Roast dial, spice and WIP bits.** `roast_dial`: the Brobots' roast level - clean (never punches
+down, Doc's default), roast, public 18+, paid 18+ afterburner (a roast is a roast: every personal
+pressure point; the room's rules are the only rules). For 18+ rooms, the establishment sets the rules; the
+customer decides, then Brobot 0. His pre-build context gets the level's text (`{roast}`). A sensitive
+topic (`sensitive_words`) goes neutral with no spice - unless the Jekyll/Hyde override
+(`jekyll_hyde`) is on. `spice`: each answer a fresh pick of swears (robot ones; human ones from a
+level that allows them - the private, uncensored z-copy `zgopod_human_swears.json` (gitignored, never served - the zKnobs.json pattern) when it's there, else the public one, vowels starred) and exclamations (`{spice}`) - no limit per reply, never repeat, or vary a
+repeat. `system-set roast_dial.level <n>`, then `system-restart`. A persona's WIP bits
+(`managers.personas.<host>.wip`, told as `wip_text`): bits still in the works, tried only when the
+moment fits, never in place of the job - PLAYHEAD's first is the Chalkboard of Doom, his banter with
+CHALK. `TestRoastDial`.
+
 **Reminder rounds.** The topics a reminder names are named once each; once every topic still to
 cover has been named, a new round starts - the list again, less what's already been talked about
 (covered topics and found eggs stay off). The Brobots never run out of things to sell.

@@ -46,6 +46,10 @@ func gopodPersonaPrompt(host string) string {
 	if n := gopodHereNow(host); n != "" {
 		b.WriteString(" " + n)
 	}
+	// 2026-10-28: its bits in the works, to try when the moment fits.
+	if w := gopodPersonaWIP(host); w != "" {
+		b.WriteString(" " + w)
+	}
 	var lines []string
 	for _, l := range gopodReporterAllLines() {
 		if l.Host == p.Reporter && len(lines) < 14 {

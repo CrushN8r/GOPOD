@@ -403,7 +403,10 @@ type gopodBrobotsSettingsFile struct {
 			Prompt    string `json:"prompt"`
 			LinesNote string `json:"lines_note"`
 			WhoLine   string `json:"who_line"`
+			// 2026-10-28: its bits still in the works (gopodPersonaWIP).
+			WIP []string `json:"wip"`
 		} `json:"personas"`
+		WIPText  string   `json:"wip_text"`
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
@@ -530,6 +533,28 @@ type gopodBrobotsSettingsFile struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
+	RoastDial struct {
+		Level  int `json:"level"`
+		Levels []struct {
+			Name        string `json:"name"`
+			Text        string `json:"text"`
+			HumanSwears bool   `json:"human_swears"`
+		} `json:"levels"`
+		SensitiveWords []string `json:"sensitive_words"`
+		SensitiveText  string   `json:"sensitive_text"`
+		JekyllHyde     bool     `json:"jekyll_hyde"`
+	} `json:"roast_dial"`
+	Spice struct {
+		Text             string   `json:"text"`
+		Pick             int      `json:"pick"`
+		PickExclamations int      `json:"pick_exclamations"`
+		RobotSwears      []string `json:"robot_swears"`
+		HumanSwears      []string `json:"human_swears"`
+		// 2026-10-28: the uncensored list, private, in his home (gopodHumanSwears).
+		HumanSwearsPrivate string `json:"human_swears_private"`
+		Exclamations     []string `json:"exclamations"`
+	} `json:"spice"`
 	PrebuildContext struct {
 		Header string   `json:"header"`
 		Lines  []string `json:"lines"`

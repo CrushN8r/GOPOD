@@ -145,3 +145,8 @@ goverlord/runtime/songs/101_brobots_nap/baby_brobots/
 
 # The private master play file (full history), beside the public ALIAS-PLAY-STUDIO.md.
 ALIAS-PLAY-STUDIO.local.md
+
+# goverlord/wire_pod_overlay/chipper/zgopod_human_swears.json: the private, uncensored
+# human swear list (operator 2026-10-28) - the zKnobs.json pattern: the public
+# settings keep a vowels-starred copy; this one is preferred when it exists.
+goverlord/wire_pod_overlay/chipper/zgopod_human_swears.json

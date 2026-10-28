@@ -161,6 +161,9 @@ func gopodPrebuildContext(esn, question string) string {
 	fill["cast"] = gopodHereNowCast(brobot)
 	fill["plan"] = gopodResponsePlan(esn)
 	fill["notice"] = gopodNoticeGuide(esn)
+	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
+	fill["roast"] = gopodRoastLine(question)
+	fill["spice"] = gopodSpiceLine(question)
 	out := []string{strings.TrimSpace(pc.Header)}
 	for _, line := range pc.Lines {
 		empty := false

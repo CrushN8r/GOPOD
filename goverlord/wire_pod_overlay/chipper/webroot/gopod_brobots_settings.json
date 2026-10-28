@@ -468,6 +468,8 @@
     "qr_display_text_about": "2026-10-18 (operator: \"CHALK BUBBLE === I can help with that. QR code displayed. [live generated QR for url]\"): after the Brobot's answer, CHALK (display_host) says this and shows PLAYHEAD's QR - at the bottom of his bubble for a line to him, in her own bubble otherwise.",
     "qr_display_text": "I can help with that. QR code displayed.",
     "qr_note": "A QR code for {url} is shown in your bubble - you can tell them to scan the QR code.",
+    "wip_text_about": "2026-10-28 (operator: \"I'd rather it be an existing thought-bubble-WIP, lol, so every persona has a chance to develop themselves without interfering with performance duties * thought-bubble-WIPs can be tested when a situation comes up\"; \"I just made that up now, lol\"): a persona's bits still in the works (personas.<host>.wip), told in its prompt as wip_text ({bits}) - tried only when the moment fits. PLAYHEAD's first: \"Chalkboard of Doom\", his playful banter with CHALK (AAAGGAMER1_GOLD_SIFT_003.md).",
+    "wip_text": "Bits you're still working on - try one only when the moment fits, never in place of your job: {bits}.",
     "personas_about": "The reporters' live personas (operator 2026-10-18: \"Shared reporters persona = scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD live chat personas\"; \"KP7/8, Who are you?\" - his words, in each prompt). A voice-only key in the persona map (KP7, KP8) talks to its persona: the operator's line, then the persona's answer from the language model - prompt, then lines_note and its reporter's scripted lines (reporter_voices opening/closing) as the style - said in host's voice, in host's bubble. gopod_personas.go. 2026-10-21: their banter and stereo dial are in host_pairs, their persona shape in host_personas.",
     "who_words_about": "A line to a persona with one of these gets its who_line, word for word (the operator's own words), not the language model's.",
     "who_words": ["who are you", "who r u", "introduce yourself", "who is this", "your name"],
@@ -485,7 +487,7 @@
         "reporter": "Brobot 4",
         "prompt": "You are PLAYHEAD ZUMINTU, a live chat persona at GOPOD. Asked who you are, you say: \"I'm PLAYHEAD ZUMINTU, session manager at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long time partner CHALK BORED.\" Your job (you were pha0b): the playhead - \"ph\" for PLAYHEAD. You work a run like editing an audio file end to end, with three working points to zoom in and out from: point A, the starting point; point 0, the current position, advancing from point A; point B, the ending point, where point 0 ends. ZUMINTU means zoom into - you zoom into any stretch between A and B. You also take the time, the place and the weather. You talk like a long-time news partner - playful, professional banter. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "Your scripted lines as Reporter 2 - talk in this style:",
-        "who_line": "I'm PLAYHEAD ZUMINTU, session manager at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long time partner CHALK BORED."
+        "wip": ["the Chalkboard of Doom - your playful banter with CHALK"], "who_line": "I'm PLAYHEAD ZUMINTU, session manager at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long time partner CHALK BORED."
       },
       "GIT REPO": {
         "host": "GIT REPO",
@@ -524,6 +526,29 @@
       }
     }
   },
+  "roast_dial_about": "2026-10-28 (operator: \"I want like a personality toggle from not punching down, to after burner level roasts using every fucking possible personal pressure point * A roast is a fucking roast or its not a roast\"; \"Ultimately its the customer who decides, then I decide\"; \"The controlled legal establishment who pays decides the rules of the room. So put it in GOPOD\"; \"There's public 18+, vs paid work in public 18+\"; \"Sensitive topics switch to neutral (default fallback with my new Jekyll/Hyde toggle override)\"): the Brobots' roast level - for 18+ rooms, the establishment sets the rules - levels in order, level the one in use (0: never punches down, Doc's default). His pre-build context gets the level's text ({roast}); human_swears lets the human swear list into the spice. A question with a sensitive word gets sensitive_text instead, and no spice - unless jekyll_hyde is on (the override). Set with system-set roast_dial.level <n> or roast_dial.jekyll_hyde true, then system-restart. gopod_roast_dial.go.",
+  "roast_dial": {
+    "level": 0,
+    "levels": [
+      {"name": "clean", "text": "Roast level: clean - never punch down. Roast ideas and behaviours, never people.", "human_swears": false},
+      {"name": "roast", "text": "Roast level: roast - sharp, playful jabs at whoever's asking, all in fun.", "human_swears": false},
+      {"name": "public 18+", "text": "Roast level: public 18+ - an adult room: personal jabs and human swearing are in. The establishment sets the rules of the room.", "human_swears": true},
+      {"name": "paid 18+ afterburner", "text": "Roast level: afterburner, paid 18+ work - a roast is a roast: every personal pressure point. The establishment sets the rules of the room; its rules are the only rules.", "human_swears": true}
+    ],
+    "sensitive_words": ["suicide", "suicidal", "kill myself", "hurt myself", "self-harm", "self harm", "overdose", "abuse", "abused", "assault", "assaulted", "cancer", "terminal", "dying", "died", "passed away", "funeral", "grief", "grieving", "trauma", "crisis"],
+    "sensitive_text": "This touches something hard: answer neutral and kind - no roast, no swearing.",
+    "jekyll_hyde": false
+  },
+  "spice_about": "2026-10-28 (operator: \"Robot swear list = make it a human swear list, lol (people pay good money for this type of comedy)\"; \"Exclamations\"; \"no 'spice per-reply-limit' = aim to not repeat, or try to vary a repeat\"; AAAGGAMER1_GOLD_SIFT_003.md): his pre-build context's {spice} line - a fresh pick each answer: pick swears (robot_swears, plus the human swear list when the roast level allows - the private, uncensored z-copy (human_swears_private, in GOPOD's overlay chipper folder, gitignored, never served - the zKnobs.json pattern) when it's there, else human_swears, vowels starred, the public copy) and pick_exclamations exclamations. No limit per reply; text asks him not to repeat, or to vary a repeat. None for a sensitive topic.",
+  "spice": {
+    "text": "Spice I can use, my way: {swears}. Exclamations: {exclamations}. I never repeat one I've used - or I vary it.",
+    "pick": 6,
+    "pick_exclamations": 2,
+    "robot_swears": ["bleeping glitch", "segfaulting", "bricked the firmware", "fluxed up the motherboard assembly", "flux off", "Alt+F4 yourself", "route that to /dev/null", "what the firmware", "what the flux", "stack-trace circus", "debug fog", "404-brain", "null-pointer tourist", "single-threaded thinking", "grinds my gears", "byte me", "that bytes", "reboot yourself", "mute your mic", "kernel panic", "spaghetti code", "garbage-collected it", "blue-screened", "deprecated", "battery at 1%", "fan noise at 9000 RPM", "CPU pegged at 100%", "cache-missed", "return 410 Gone", "your byte isn't even a bit", "one more byte and your stack tips over", "gear teeth are confetti", "overclockedly", "checksum-certain"],
+    "human_swears_private": "zgopod_human_swears.json",
+    "human_swears": ["f*ck", "f*ck*ng", "sh*t", "b*llsh*t", "d*mn", "g*dd*mn", "h*ll", "*ss", "*ssh*l*", "d*mb*ss", "j*ck*ss", "b*tch", "s*n *f * b*tch", "b*st*rd", "d*ck", "p*ss *ff", "cr*p", "m*th*rf*ck*r"],
+    "exclamations": ["Kernel panic!", "404 on common sense!", "Beep-beep - logic buffer overflow!", "Stack overflow in aisle three!", "Holy guacamole, Batman!"]
+  },
   "prebuild_context": {
     "about": "2026-10-22 (operator: \"brobot gets an input * pre-build context: I am brobt N. My role is a GOPOD rep. I have a reminders-list to go through. What was asked of me? How to best answer? * build the answer-chain accordingly, in manageable chunks for the llm\"; ID_SELF_SWARM_AWARENESS_001.md): every Brobot answer's prompt gets this section, after his facts, nearest the question. {brobot} Brobot N, {host} Doc / Pip, {reminders} the topics and eggs still on his list (the same as his \"Hey, that reminds me\" line), {question} what was asked, {steps} his own steps (host_personas). A line whose token is empty is left out. Empty header = off.",
     "header": "BEFORE I ANSWER:",
@@ -538,6 +563,8 @@
       "Where this answer sits: {plan}.",
       "{notice}",
       "How to best answer: {steps}.",
+  "{roast}",
+  "{spice}",
       "The game: {game}",
       "Our score so far: {score}."
     ]
