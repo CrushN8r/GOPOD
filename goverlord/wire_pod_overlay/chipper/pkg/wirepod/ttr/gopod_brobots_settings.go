@@ -208,9 +208,9 @@ type gopodBrobotsSettingsFile struct {
 	Experiences []gopodExperience `json:"experiences"`
 	// 2026-10-26: the moves to start it, one picked at random, in the second
 	// answer (gopodExperienceClosing).
-	ExperienceMoves   []string `json:"experience_moves"`
+	ExperienceMoves []string `json:"experience_moves"`
 	// 2026-10-27: the line that asks for a riff on a closing_riff, {line} filled.
-	ClosingRiffText string `json:"closing_riff_text"`
+	ClosingRiffText   string `json:"closing_riff_text"`
 	InterviewChapters struct {
 		Role     string `json:"role"`
 		Label    string `json:"label"`
@@ -328,6 +328,7 @@ type gopodBrobotsSettingsFile struct {
 		GateMaxSeconds float64           `json:"gate_max_seconds"`
 		GapSeconds     float64           `json:"gap_seconds"`
 		Labels         map[string]string `json:"labels"`
+		NicknameLabel  string            `json:"nickname_label"`
 		SystemPersona  string            `json:"system_persona"`
 		SystemSayWords map[string]string `json:"system_say_words"`
 		// 2026-10-13: the voice that reads a live operator line.
@@ -341,7 +342,20 @@ type gopodBrobotsSettingsFile struct {
 		VoiceTweaks map[string]struct {
 			Speed      float64 `json:"speed"`
 			PitchCents float64 `json:"pitch_cents"`
+			// 2026-10-28: a robot_fx preset and its carrier (Hz), on top of the pitch.
+			RobotFX string  `json:"robot_fx"`
+			Carrier float64 `json:"carrier"`
 		} `json:"voice_tweaks"`
+		// 2026-10-28 (operator: "give my 2 Intel 404 security guards a robotic
+		// voice flavouring, slightly offset * Do the same for the 'intern' voices *
+		// brobots say in the app demos, use PLAYHEAD's voice"): the sox chains
+		// ({carrier} filled per host), mixed wet over the clean voice
+		// (gopodReporterFX); demo_voices - a demo host speaks with that host's voice.
+		RobotFXPresets map[string]struct {
+			Chain string  `json:"chain"`
+			Wet   float64 `json:"wet"`
+		} `json:"robot_fx_presets"`
+		DemoVoices map[string]string `json:"demo_voices"`
 		// 2026-10-13: days an unused Operator voice file is kept.
 		OperatorKeepDays  float64 `json:"operator_keep_days"`
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
@@ -552,8 +566,8 @@ type gopodBrobotsSettingsFile struct {
 		RobotSwears      []string `json:"robot_swears"`
 		HumanSwears      []string `json:"human_swears"`
 		// 2026-10-28: the uncensored list, private, in his home (gopodHumanSwears).
-		HumanSwearsPrivate string `json:"human_swears_private"`
-		Exclamations     []string `json:"exclamations"`
+		HumanSwearsPrivate string   `json:"human_swears_private"`
+		Exclamations       []string `json:"exclamations"`
 	} `json:"spice"`
 	PrebuildContext struct {
 		Header string   `json:"header"`
@@ -881,6 +895,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	gopodApplyChaptersFolder(&s)
 	// 2026-10-27: every run from its card (gopod_game_engine.go).
 	gopodApplyGameRuns(&s)
+	// 2026-10-28: nickname headers (gopodApplyNicknames).
+	gopodApplyNicknames(&s)
 	var missing []string
 	check := func(ok bool, name string) {
 		if !ok {

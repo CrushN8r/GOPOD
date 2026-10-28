@@ -17,6 +17,16 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 | Intel 404 PNFH (KP5, Moorebot Scout) | `am_puck`, -100 cents (sox) | security guard 1, deeper |
 | Intel 404 PNFT (KP6, Moorebot Scout) | `am_puck`, -180 cents (sox) | security guard 2, deeper still |
 
+**Robot voice effects.** A host's `robot_fx` (`reporter_voices.voice_tweaks`), on top of its pitch:
+after Kokoro and the pitch shift, the preset's sox chain (`robot_fx_presets`: a ring-mod buzz at the
+host's own `carrier` Hz, band-limited, short metallic echoes) runs on a copy, mixed `wet` over the
+clean voice and evened out; the length stays within ~20 ms, so the word times fit. Each host is
+slightly offset: guards heaviest (PNFH 38 Hz, PNFT 33 Hz), interns lightest (Git Repo 55, Cache PYC
+62), the Brobots between. The Brobots' demo voices (`demo_voices`, for the app demos where their
+robots aren't there) speak with PLAYHEAD's voice - "Brobot 1 demo" 45 Hz, pitch -60; "Brobot 2 demo"
+50 Hz, pitch +60 - under their own names, so the live robots' lines never take them. An effect makes
+its own voice files. `TestRobotFX`.
+
 - All at `reporter_voices.speed`, unless `voice_tweaks` gives a host its own `speed` / `pitch_cents`:
   the worker runs `sox ...
   pitch` after Kokoro - the length stays, so the word times fit; a tweaked voice gets its own file

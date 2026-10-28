@@ -31,6 +31,9 @@ var gopodBrobotPersonaLines = gopodHostPersonaLines()
 // CHALK and PLAYHEAD (host_personas in gopod_brobots_settings.json).
 type gopodHostPersona struct {
 	Name string `json:"name"`
+	// 2026-10-28: a nickname (Buzzer, Switch) - his bubble header is
+	// reporter_voices.nickname_label (gopodApplyNicknames).
+	Nickname string `json:"nickname"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`
@@ -242,5 +245,24 @@ func gopodHandoverLine(host, partner string) string {
 // Bingo question still gets the Brobot's own take on it. With 0, a Bingo
 // question gets bingo.no_run_note ("sure, let's play").
 var gopodBingoPlayed atomic.Bool
+
+// gopodApplyNicknames (2026-10-28, operator: "use a bubble header template:
+// \"[nickname] (Intel 404 PNF*)\""): a host with a nickname is headed with
+// reporter_voices.nickname_label - "Buzzer (Intel 404 PNFH)".
+func gopodApplyNicknames(s *gopodBrobotsSettingsFile) {
+	tpl := strings.TrimSpace(s.ReporterVoices.NicknameLabel)
+	if tpl == "" {
+		return
+	}
+	for host, hp := range s.HostPersonas {
+		if strings.TrimSpace(hp.Nickname) == "" {
+			continue
+		}
+		if s.ReporterVoices.Labels == nil {
+			s.ReporterVoices.Labels = map[string]string{}
+		}
+		s.ReporterVoices.Labels[host] = strings.NewReplacer("{nickname}", hp.Nickname, "{name}", hp.Name).Replace(tpl)
+	}
+}
 
 // ## EOF

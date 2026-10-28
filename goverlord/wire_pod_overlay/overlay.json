@@ -216,6 +216,8 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_game_engine_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_game_engine_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_reminder_rounds_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_reminder_rounds_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_roast_dial.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_roast_dial.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_roast_dial_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_roast_dial_test.go"
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_roast_dial_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_roast_dial_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_robot_fx_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_robot_fx_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_nicknames_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_nicknames_test.go"
   }
 }

@@ -152,6 +152,10 @@ func gopodReporterVoice(host string) string {
 	if voice := rv.Hosts[host]; voice != "" {
 		return voice
 	}
+	// 2026-10-28: a demo host ("Brobot 1 demo") speaks with its host's voice.
+	if of := rv.DemoVoices[host]; of != "" && rv.Hosts[of] != "" {
+		return rv.Hosts[of]
+	}
 	if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
 		return rv.SystemVoice
 	}
@@ -236,7 +240,8 @@ func gopodReporterFile(host, text string) (string, float64, bool) {
 		return "", 0, false
 	}
 	_ = gopodMkdirAll(gopodReporterAudioDir(), 0755)
-	job, _ := json.Marshal(map[string]any{"voice": voice, "text": text, "out": file, "speed": gopodReporterSpeedFor(host), "pitch_cents": gopodReporterPitch(host)})
+	fxChain, fxWet, _ := gopodReporterFX(host)
+	job, _ := json.Marshal(map[string]any{"voice": voice, "text": text, "out": file, "speed": gopodReporterSpeedFor(host), "pitch_cents": gopodReporterPitch(host), "fx_chain": fxChain, "fx_wet": fxWet})
 	if _, err := gopodReporter.in.Write(append(job, '\n')); err != nil || gopodReporter.in.Flush() != nil {
 		gopodReporter.ready = false
 		gopodReporterStarting.Store(false)
@@ -310,6 +315,19 @@ func gopodReporterSpeedFor(host string) float64 {
 // gopodReporterPitch: host's pitch shift in cents (voice_tweaks), 0 for none.
 func gopodReporterPitch(host string) float64 {
 	return gopodBrobotsSettings.ReporterVoices.VoiceTweaks[host].PitchCents
+}
+
+// gopodReporterFX: host's robot effect (voice_tweaks robot_fx, its preset's
+// chain with {carrier} filled), its wet mix, and the file-name tag; "" for none.
+func gopodReporterFX(host string) (string, float64, string) {
+	rv := gopodBrobotsSettings.ReporterVoices
+	t := rv.VoiceTweaks[host]
+	p, ok := rv.RobotFXPresets[t.RobotFX]
+	if t.RobotFX == "" || !ok || strings.TrimSpace(p.Chain) == "" || p.Wet <= 0 {
+		return "", 0, ""
+	}
+	carrier := fmt.Sprintf("%.0f", t.Carrier)
+	return strings.ReplaceAll(p.Chain, "{carrier}", carrier), p.Wet, fmt.Sprintf("_fx%s%s_w%.0f", t.RobotFX, carrier, p.Wet*100)
 }
 
 // gopodReporterPaths: the voice file for host's line, on disk and on the page
@@ -447,6 +465,11 @@ func gopodReporterPaths(host, text string) (string, string) {
 	if pitch := gopodReporterPitch(host); pitch != 0 {
 		key += fmt.Sprintf("\np%.0f", pitch)
 		tag += fmt.Sprintf("_p%+.0f", pitch)
+	}
+	// 2026-10-28: a robot-effect voice is its own file too.
+	if chain, _, fxTag := gopodReporterFX(host); chain != "" {
+		key += "\n" + fxTag + "\n" + chain
+		tag += fxTag
 	}
 	sum := sha1.Sum([]byte(key))
 	name := tag + "_" + hex.EncodeToString(sum[:8]) + ".wav"

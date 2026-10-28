@@ -180,6 +180,15 @@ list. Each "Hey, that reminds me..." names at least one egg still to find; a que
 still ends with two (not a thank-you); each in turn, then round again. `gopod_egg_list.go`,
 `TestEggList`.
 
+**The 1-9 menu and the guards' nicknames.** The typed line's All menu runs 1 to 9: 1 and 2 stay All,
+starting with that Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9), as holding
+the key does - for the admin and the app's visitors alike (`gopodTypedToKey`). A system- command
+still runs as one. The security guards' security IDs are Intel 404 PNFH and Intel 404 PNFT; their
+nicknames are Buzzer and Switch (`host_personas.<host>.nickname`). A host with a nickname is headed
+`reporter_voices.nickname_label`, "{nickname} ({name})" - "Buzzer (Intel 404 PNFH)", "Switch
+(Intel 404 PNFT)"; they're called by their nicknames and say so when asked who they are.
+`TestNicknamesAndKeys`.
+
 **Roast dial, spice and WIP bits.** `roast_dial`: the Brobots' roast level - clean (never punches
 down, Doc's default), roast, public 18+, paid 18+ afterburner (a roast is a roast: every personal
 pressure point; the room's rules are the only rules). For 18+ rooms, the establishment sets the rules; the

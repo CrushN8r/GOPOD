@@ -201,7 +201,12 @@
           allFirstSelect = document.createElement("select");
           allFirstSelect.className = "gopod-all-first";
           allFirstSelect.title = "All: who answers first";
-          ["1", "2"].forEach(function (n) {
+          // 2026-10-28 (operator: "Extend brobots selection drop down menu from 1
+          // to 9 * so I can communicate via keyboard to all * so app users can
+          // communicate to all as well"): 1 and 2 stay All, starting with that
+          // Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9),
+          // as holding the key does (gopodTypedToKey).
+          ["1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
             var o = document.createElement("option");
             o.value = n;
             o.textContent = n;
@@ -482,6 +487,7 @@
       });
       function sendTypedLine(serial, text) {
         var first = serial === "all" && allFirstSelect ? allFirstSelect.value : "";
+        if (Number(first) >= 3) { serial = "kp:" + first; first = ""; }
         if (first === "2") { allSecondFirst[text] = true; }
         fetch("/api-sdk/gopod_typed_input", {
           method: "POST",
@@ -1450,6 +1456,13 @@
               reporterRole = settings.reporter_voices.role || reporterRole;
               hostNames = settings.reporter_voices.hosts || hostNames;
               hostLabels = settings.reporter_voices.labels || hostLabels;
+              // 2026-10-28: a nickname header - reporter_voices.nickname_label,
+              // "Buzzer (Intel 404 PNFH)" (gopodApplyNicknames, the same rule).
+              var nickTpl = settings.reporter_voices.nickname_label || "";
+              Object.keys(settings.host_personas || {}).forEach(function (h) {
+                var hp = settings.host_personas[h] || {};
+                if (nickTpl && hp.nickname) { hostLabels[h] = nickTpl.replace("{nickname}", hp.nickname).replace("{name}", hp.name || h); }
+              });
               displayNames = settings.display_names || displayNames;
               if (settings.hourglass) { hourglassCfg = settings.hourglass; }
               if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
@@ -5672,7 +5685,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect ? "&first=" + allFirstSelect.value : "")
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }

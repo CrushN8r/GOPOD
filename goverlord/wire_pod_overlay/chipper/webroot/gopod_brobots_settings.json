@@ -231,8 +231,8 @@
       {"who": "PLAYHEAD", "line": "PLAYHEAD ZUMINTU ({gender}, session manager)"},
       {"who": "GIT REPO", "line": "Git Repo ({gender}, intern: USB ports)"},
       {"who": "CACHE PYC", "line": "Cache PYC ({gender}, intern: web search results)"},
-      {"who": "INTEL 404 PNFH", "line": "Intel 404 PNFH ({gender}, security guard: Brobot 1's battery)"},
-      {"who": "INTEL 404 PNFT", "line": "Intel 404 PNFT ({gender}, security guard: Brobot 2's battery)"},
+      {"who": "INTEL 404 PNFH", "line": "Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)"},
+      {"who": "INTEL 404 PNFT", "line": "Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)"},
       {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"}
     ],
     "cast_join": "; ",
@@ -506,16 +506,16 @@
       "INTEL 404 PNFH": {
         "host": "INTEL 404 PNFH",
         "reporter": "",
-        "prompt": "You are Intel 404 PNFH, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - playful, higher and more energetic than your partner. Asked who you are, you say: \"I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Buzzer - security ID Intel 404 PNFH - a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - playful, higher and more energetic than your partner, Switch. Asked who you are, you say: \"I'm Buzzer, security ID Intel 404 PNFH, a Moorebot Scout, on security with my partner Switch.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
-        "who_line": "I'm Intel 404 PNFH, a Moorebot Scout, on security with my partner Intel 404 PNFT."
+        "who_line": "I'm Buzzer, security ID Intel 404 PNFH, a Moorebot Scout, on security with my partner Switch."
       },
       "INTEL 404 PNFT": {
         "host": "INTEL 404 PNFT",
         "reporter": "",
-        "prompt": "You are Intel 404 PNFT, a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - slower, lower and more deadpan than your partner. Asked who you are, you say: \"I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are Switch - security ID Intel 404 PNFT - a Moorebot Scout and a live chat persona at GOPOD: a goofy robotic security guard - slower, lower and more deadpan than your partner, Buzzer. Asked who you are, you say: \"I'm Switch, security ID Intel 404 PNFT, a Moorebot Scout, on security with my partner Buzzer.\" Your job: you watch the Brobots' batteries, and warn them when one runs low. Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
-        "who_line": "I'm Intel 404 PNFT, a Moorebot Scout, on security with my partner Intel 404 PNFH."
+        "who_line": "I'm Switch, security ID Intel 404 PNFT, a Moorebot Scout, on security with my partner Buzzer."
       },
       "CAMEO": {
         "host": "CAMEO",
@@ -2556,12 +2556,23 @@
     },
     "hosts_2_about": "2026-10-26 (operator: \"Who gets which voice? * Voice clash * go with your best guesses, to start with... * Missing voices * go ahead & download\"): the Cozmo students - Git Repo the ethical hacker (am_liam; am_michael is PLAYHEAD's), Cache PYC the meme hustler (af_nova) - and the Moorebot Scout security guards, both am_puck, told apart by voice_tweaks; Cameo (KP9) has the old Operator voice (af_sky).",
     "voice_tweaks_about": "2026-10-27 (operator: \"using sox reset to default, all security guard and intern voices * for deeper mature voices, lower slightly differing pitches, on both security guard voices * for higher youthful voices, raise slightly differing pitches, on both intern voices\"): reset (no speed changes), then guards lower - PNFH -100, PNFT -180 cents; interns higher - Git Repo +100, Cache PYC +160. Before: 2026-10-26 (operator: \"Guard pitch * use sox for slight but noticable pitch shift\"): a host's own speed (Kokoro) and pitch shift in cents (sox, after; the length stays, so the word times fit). Guard 1 (PNFH) higher at the shared speed, Guard 2 (PNFT) lower and a bit slower. A tweak makes its own voice files.",
-    "voice_tweaks": {
-      "INTEL 404 PNFH": {"pitch_cents": -100},
-      "INTEL 404 PNFT": {"pitch_cents": -180},
-      "GIT REPO": {"pitch_cents": 100},
-      "CACHE PYC": {"pitch_cents": 160}
+    "robot_fx_about": "2026-10-28 (operator: \"I'd like to give my 2 Intel 404 security guards a robotic voice flavouring, slightly offset * on top of recently set parameters (lower pitch, etc...) * stamp into their respective templates * Do the same for the 'intern' voices * to account for brobots say in the app demos, use PLAYHEAD's voice * add brobotic flavourings for both brobots (slightly offset)\"): a host's robot_fx (voice_tweaks) - after Kokoro and the pitch shift, the preset's sox chain (ring-mod buzz: synth sine amod {carrier} Hz, band-limit, short metallic echoes) runs on a copy, mixed wet over the clean voice and evened out (norm -3); the length stays within ~20 ms, so the word times fit. Offsets: each host its own carrier. Guards heaviest (PNFH 38 Hz, PNFT 33 Hz), interns lightest (Git Repo 55, Cache PYC 62), the Brobots between (Brobot 1 demo 45, Brobot 2 demo 50, pitch -60 / +60). demo_voices: the Brobots' demo voices (the app demos - their robots aren't there) speak with PLAYHEAD's voice; their own host names, so the live robots' lines never take them. A changed effect makes its own voice files.",
+    "robot_fx_presets": {
+      "guard": {"chain": "highpass 120 lowpass 3600 synth sine amod {carrier} overdrive 6 echo 0.8 0.8 5 0.35 echo 0.7 0.7 11 0.25", "wet": 0.6},
+      "intern": {"chain": "highpass 150 lowpass 4200 synth sine amod {carrier} echo 0.8 0.8 4 0.25", "wet": 0.35},
+      "brobot": {"chain": "highpass 120 lowpass 4000 synth sine amod {carrier} overdrive 3 echo 0.8 0.85 4 0.4 echo 0.7 0.75 8 0.3", "wet": 0.5}
     },
+    "demo_voices": {"Brobot 1 demo": "PLAYHEAD", "Brobot 2 demo": "PLAYHEAD"},
+    "voice_tweaks": {
+      "INTEL 404 PNFH": {"pitch_cents": -100, "robot_fx": "guard", "carrier": 38},
+      "INTEL 404 PNFT": {"pitch_cents": -180, "robot_fx": "guard", "carrier": 33},
+      "GIT REPO": {"pitch_cents": 100, "robot_fx": "intern", "carrier": 55},
+      "CACHE PYC": {"pitch_cents": 160, "robot_fx": "intern", "carrier": 62},
+      "Brobot 1 demo": {"pitch_cents": -60, "robot_fx": "brobot", "carrier": 45},
+      "Brobot 2 demo": {"pitch_cents": 60, "robot_fx": "brobot", "carrier": 50}
+    },
+    "nickname_label_about": "2026-10-28 (operator: \"Please use new nicknames Buzzer/Switch for Intel 404 PNFH/PNFT * Intel 404 PNFH & Intel 404 PNFT are their security ID's * nicknames are Buzzer & Switch * use a bubble header template: \\\"[nickname] (Intel 404 PNF*)\\\"\"): a host with a nickname (host_personas.<host>.nickname) is headed with this - {nickname}, {name} (its name, the security ID) - in place of its label (Wire-Pod and the page both fill it).",
+    "nickname_label": "{nickname} ({name})",
     "labels": {
       "Brobot 3": "Reporter 1: Brobot 3",
       "Brobot 4": "Reporter 2: Brobot 4",
@@ -2873,7 +2884,8 @@
     },
     "INTEL 404 PNFH": {
       "name": "Intel 404 PNFH",
-      "call_name": "Intel 404 PNFH",
+      "nickname": "Buzzer",
+      "call_name": "Buzzer",
       "role": "",
       "steps": [],
       "signature": "",
@@ -2881,7 +2893,8 @@
     },
     "INTEL 404 PNFT": {
       "name": "Intel 404 PNFT",
-      "call_name": "Intel 404 PNFT",
+      "nickname": "Switch",
+      "call_name": "Switch",
       "role": "",
       "steps": [],
       "signature": "",

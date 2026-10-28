@@ -184,6 +184,18 @@ def main() -> int:
                 shifted = out.with_name(out.stem + ".pitch.wav")
                 subprocess.run(["sox", str(out), str(shifted), "pitch", f"{pitch:.0f}"], check=True, capture_output=True)
                 shifted.replace(out)
+            # 2026-10-28 (operator: "robotic voice flavouring, slightly offset"): a
+            # host's robot effect (voice_tweaks robot_fx) - the sox chain on a copy,
+            # mixed wet over the clean voice, then evened out.
+            chain = str(job.get("fx_chain") or "").split()
+            wet = float(job.get("fx_wet") or 0)
+            if chain and 0 < wet:
+                fx = out.with_name(out.stem + ".fx.wav")
+                mixed = out.with_name(out.stem + ".mix.wav")
+                subprocess.run(["sox", str(out), str(fx), *chain], check=True, capture_output=True)
+                subprocess.run(["sox", "-m", "-v", f"{max(0.0, 1 - wet):.2f}", str(out), "-v", f"{min(wet, 1.0):.2f}", str(fx), str(mixed), "norm", "-3"], check=True, capture_output=True)
+                fx.unlink(missing_ok=True)
+                mixed.replace(out)
             seconds = announcer.wav_duration_seconds(out)
             print(json.dumps({"ok": True, "seconds": seconds}), flush=True)
         except Exception as exc:  # noqa: BLE001 - never leave Wire-Pod waiting.

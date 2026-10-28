@@ -31,12 +31,52 @@ const gopodTypedAll = "all"
 
 // GopodTypedInput handles one typed line for the robot with this ESN.
 func GopodTypedInput(esn, text string) error {
+	if key, ok := gopodTypedKey(esn); ok {
+		return gopodTypedToKey(key, text, "Typed text")
+	}
 	return gopodOperatorLine(esn, text, "Typed text")
 }
 
 // GopodVisitorTypedInput: an approved visitor's line, under their username.
 func GopodVisitorTypedInput(esn, text, how string) error {
+	if key, ok := gopodTypedKey(esn); ok {
+		return gopodTypedToKey(key, text, how)
+	}
 	return gopodOperatorLine(esn, text, how)
+}
+
+// gopodTypedKey: the page's "kp:N" (its 1-9 menu, 3 to 9) as the numpad key "KPN".
+func gopodTypedKey(esn string) (string, bool) {
+	n := strings.TrimPrefix(strings.TrimSpace(esn), "kp:")
+	if n == esn || len(n) != 1 || n < "1" || n > "9" {
+		return "", false
+	}
+	return "KP" + n, true
+}
+
+// gopodTypedToKey (2026-10-28, operator: "Extend brobots selection drop down
+// menu from 1 to 9 * so I can communicate via keyboard to all * so app users can
+// communicate to all as well"): a typed line to a numpad key's persona, as
+// holding the key and speaking does (GopodNumpadPTTStop) - a persona answers in
+// its own bubble; a Brobot's key goes to that Brobot. A system- command still
+// runs as one.
+func gopodTypedToKey(key, text, how string) error {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return errors.New("empty text")
+	}
+	if gopodSystemSetMatch(text) {
+		return gopodOperatorLine(gopodTypedAll, text, how)
+	}
+	_, target, err := gopodNumpadBrobot(key)
+	if err != nil {
+		return err
+	}
+	if strings.HasPrefix(target, gopodPersonaMark) {
+		go gopodPersonaReply(strings.TrimPrefix(target, gopodPersonaMark), gopodCapsTypoFix(gopodSpellNames(text)), how)
+		return nil
+	}
+	return gopodOperatorLine(target, text, how)
 }
 
 // GopodVoiceCommandInput: a line a voice command's script hands over (start
