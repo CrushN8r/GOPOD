@@ -245,7 +245,7 @@ pop-up.
 - a single answer (`brobots`): the report - the comment - the value point - the reminders.
 Each Brobot in his own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C /
 24-hour). For a weather question with a value point the model is asked for two paragraphs:
-the weather line, then the point (`chain_prompts`). The typed line's All is a 1/2 menu - who
+the weather line, then the point (`chain_prompts`). The typed line's All menu (1-9; 1/2 below) - who
 answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2"); the All radio
 stays, the menu beside it. Hand-over
 nicknames: gear-head, cranky-shaft, coolant-leak, incompatible-particulate, fumble-nuts.
