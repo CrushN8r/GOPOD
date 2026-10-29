@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -61,7 +62,7 @@ func gopodPlayStep(dir, which string) (string, error) {
 		return steps[n-1].StepID, nil
 	}
 	if gopodSystemSetStepIndex(steps, which) < 0 {
-		return "", fmt.Errorf("no step %s in %s (system-score %s lists them)", which, filepath.Base(dir), filepath.Base(dir))
+		return "", errors.New(gopodSystemText("system_play.no_step", "step", which, "song", filepath.Base(dir)))
 	}
 	return which, nil
 }
@@ -161,7 +162,7 @@ func gopodSystemPlay(text string) string {
 		what = "from " + map[bool]string{true: from, false: "the start"}[from != ""] + " to " + map[bool]string{true: to, false: "the end"}[to != ""]
 	}
 	mode := map[bool]string{true: "live", false: "dry - no robots, nothing said"}[live]
-	return fmt.Sprintf("Playing %s, %s, robot %s, %s. stop run stops it. (log: /tmp/gopod_system_play.log)", filepath.Base(dir), what, robot, mode)
+	return gopodSystemText("system_play.playing", "song", filepath.Base(dir), "what", what, "robot", robot, "mode", mode)
 }
 
 func gopodSystemGap(text string) string {

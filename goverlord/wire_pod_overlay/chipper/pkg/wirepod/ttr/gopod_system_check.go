@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -316,9 +317,9 @@ func gopodPhraseOverlap(a, b string) bool {
 func gopodSystemCheck() string {
 	problems, checked := gopodSystemCheckProblems()
 	if len(problems) == 0 {
-		return fmt.Sprintf("system-check: all good - %d things checked (settings, chapters, songs).", checked)
+		return gopodSystemText("system_check.all_good", "checked", strconv.Itoa(checked))
 	}
-	out := []string{fmt.Sprintf("system-check: %d to fix (%d things checked):", len(problems), checked)}
+	out := []string{gopodSystemText("system_check.to_fix", "problems", strconv.Itoa(len(problems)), "checked", strconv.Itoa(checked))}
 	for i, p := range problems {
 		if i == 25 {
 			out = append(out, fmt.Sprintf("  ... %d more (system-find GOPOD_CHECK)", len(problems)-25))

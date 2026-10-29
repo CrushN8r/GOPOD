@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -120,7 +121,7 @@ var gopodSystemTests = []gopodSystemTest{
 				timed++
 			}
 		}
-		line := fmt.Sprintf("worker ready %v, %d of %d voices in use timed by Vosk", ready, timed, used)
+		line := gopodSystemText("system_tests.voices_timed", "ready", fmt.Sprint(ready), "timed", strconv.Itoa(timed), "used", strconv.Itoa(used))
 		if old > 0 {
 			line += fmt.Sprintf(" (%d old ones not timed - made again when next used)", old)
 		}
@@ -134,7 +135,7 @@ var gopodSystemTests = []gopodSystemTest{
 			}
 		}
 		if len(bad) > 0 || len(gopodBrobotsSettings.Managers.Personas) == 0 {
-			return false, "missing: " + strings.Join(bad, ", ")
+			return false, gopodSystemText("system_tests.missing", "missing", strings.Join(bad, ", "))
 		}
 		return true, fmt.Sprintf("%d personas", len(gopodBrobotsSettings.Managers.Personas))
 	}},
@@ -329,7 +330,7 @@ func gopodSystemTestRun(text string) string {
 		}
 		out = append(out, fmt.Sprintf("%s %s: %s", mark, n, saw))
 	}
-	head := fmt.Sprintf("system-test: %d of %d pass", pass, len(names))
+	head := gopodSystemText("system_tests.head", "pass", strconv.Itoa(pass), "tests", strconv.Itoa(len(names)))
 	return gopodJoinLines(append([]string{head}, out...))
 }
 
@@ -345,7 +346,7 @@ func gopodPageReplayRun() (string, error) {
 // stuck line or loop.
 func gopodPageReplayLine(out string, err error) (bool, string) {
 	if err != nil && !strings.Contains(out, "PLAYED ") {
-		return false, "didn't run: " + strings.TrimSpace(err.Error()+" "+gopodCut(strings.TrimSpace(out), 200))
+		return false, gopodSystemText("system_tests.didnt_run", "why", strings.TrimSpace(err.Error()+" "+gopodCut(strings.TrimSpace(out), 200)))
 	}
 	var problems []string
 	played, eggs, ops, section, mirror := "", 0, 0, "", ""
@@ -385,7 +386,7 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 		}
 	}
 	if played == "" {
-		return false, "no report: " + gopodCut(strings.TrimSpace(out), 200)
+		return false, gopodSystemText("system_tests.no_report", "out", gopodCut(strings.TrimSpace(out), 200))
 	}
 	line := fmt.Sprintf("%s lines played, %d eggs drawn and lit, %d Operator lines tied to their voice", played, eggs, ops)
 	if mirror != "" {
@@ -476,7 +477,7 @@ func gopodSystemAudit() string {
 		if last == "" {
 			last = "FAIL: the audit didn't finish - " + gopodCut(strings.TrimSpace(string(out)), 200)
 		}
-		answer := "system-audit: " + last
+		answer := gopodSystemText("system_tests.audit_last", "last", last)
 		if len(fails) > 0 {
 			answer += "\n" + strings.Join(fails, "\n")
 		}

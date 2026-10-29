@@ -138,29 +138,29 @@ func gopodWriteRaw(path string, data []byte) error {
 func gopodSystemStatus() string {
 	lines := []string{"system-status, " + time.Now().Format("15:04:05") + ":", "  Wire-Pod: up"}
 	if base, model, ok := gopodWarmupOllama(); !ok {
-		lines = append(lines, "  language model: no endpoint/model in the knowledge settings")
+		lines = append(lines, gopodSystemText("system_status.model_none"))
 	} else if gopodWarmupLoaded(base, model) {
-		lines = append(lines, "  language model: "+model+" loaded (warm)")
+		lines = append(lines, gopodSystemText("system_status.model_warm", "model", model))
 	} else {
-		lines = append(lines, "  language model: "+model+" not loaded (cold)")
+		lines = append(lines, gopodSystemText("system_status.model_cold", "model", model))
 	}
 	if gopodWarmingNow() {
-		lines = append(lines, "  warm-up: going - lines wait for LLM Ready")
+		lines = append(lines, gopodSystemText("system_status.warmup_going"))
 	} else {
-		lines = append(lines, "  warm-up: done")
+		lines = append(lines, gopodSystemText("system_status.warmup_done"))
 	}
 	if gopodPageHere() {
-		lines = append(lines, "  chat page: here")
+		lines = append(lines, gopodSystemText("system_status.page_here"))
 	} else {
-		lines = append(lines, "  chat page: away")
+		lines = append(lines, gopodSystemText("system_status.page_away"))
 	}
 	if n := GopodAdminPagesOpen(); n > 1 {
-		lines = append(lines, "  admin pages: "+strconv.Itoa(n)+" open - keep one (visitor pages can be many)")
+		lines = append(lines, gopodSystemText("system_status.admin_pages", "n", strconv.Itoa(n)))
 	}
 	if r, ok := gopodRunNow(); ok {
-		lines = append(lines, "  run: "+r.Name+" going")
+		lines = append(lines, gopodSystemText("system_status.run_going", "run", r.Name))
 	} else {
-		lines = append(lines, "  run: none")
+		lines = append(lines, gopodSystemText("system_status.run_none"))
 	}
 	gopodBatteryLast.Lock()
 	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {

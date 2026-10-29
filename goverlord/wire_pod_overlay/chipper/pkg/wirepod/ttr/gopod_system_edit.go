@@ -613,7 +613,7 @@ func gopodSystemTopic(text string) string {
 			return gopodSystemText("system_edit.words", "arg1", f[1], "words", strings.Join(words, ", "))
 		}
 		headSet("words", strings.Join(words, ", "))
-		answer = "words: " + strings.Join(words, ", ")
+		answer = gopodSystemText("system_edit.topic_words", "words", strings.Join(words, ", "))
 	case "point":
 		// The say lines (top) and the numbered points (after ---) stay the same list.
 		var says []string
@@ -639,16 +639,16 @@ func gopodSystemTopic(text string) string {
 				return fmt.Sprintf("%s has %d points.", f[1], len(says))
 			}
 			says = append(says[:n-1], says[n:]...)
-			answer = fmt.Sprintf("point %d taken out", n)
+			answer = gopodSystemText("system_edit.topic_point_taken_out", "n", strconv.Itoa(n))
 		case numErr == nil && len(g) > 1:
 			if n < 1 || n > len(says) {
 				return fmt.Sprintf("%s has %d points.", f[1], len(says))
 			}
 			says[n-1] = strings.TrimSpace(strings.Join(g[1:], " "))
-			answer = fmt.Sprintf("point %d: %s", n, says[n-1])
+			answer = gopodSystemText("system_edit.topic_point", "n", strconv.Itoa(n), "point", says[n-1])
 		default:
 			says = append(says, rest)
-			answer = fmt.Sprintf("point %d: %s", len(says), rest)
+			answer = gopodSystemText("system_edit.topic_point", "n", strconv.Itoa(len(says)), "point", rest)
 		}
 		lines = gopodTopicPointsWrite(lines, sep, says)
 	default:

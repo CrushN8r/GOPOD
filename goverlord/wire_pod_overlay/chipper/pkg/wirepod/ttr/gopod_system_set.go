@@ -85,7 +85,7 @@ func gopodSystemSetLine(esn, text, how string) {
 	gopodOperatorShow(to, text, how)
 	answer := ""
 	if how != "Typed text" {
-		answer = "system commands work from the chat page's keyboard only."
+		answer = gopodSystemText("system_set.keyboard_only")
 	} else if cmd := strings.ToLower(strings.Fields(text)[0]); cmd == "system-undo" {
 		answer = gopodSystemUndo()
 	} else if cmd == "system-status" {

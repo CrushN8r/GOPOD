@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -146,7 +147,7 @@ func gopodSystemValuePoints(text string) string {
 		if err != nil {
 			return "system-value-points lock: " + err.Error()
 		}
-		return fmt.Sprintf("value points locked: %d (system-undo puts the old index back)", n)
+		return gopodSystemText("value_points_golden.locked", "n", strconv.Itoa(n))
 	}
 	now := gopodValuePointsNow()
 	if len(f) > 1 {
@@ -167,12 +168,15 @@ func gopodSystemValuePoints(text string) string {
 		return gopodJoinLines(out)
 	}
 	problems := gopodValuePointsProblems()
-	head := fmt.Sprintf("value points: %d in %d topics - %s", len(now), len(gopodTopicRegistry()),
-		map[bool]string{true: "all locked, unchanged", false: fmt.Sprintf("%d to look at", len(problems))}[len(problems) == 0])
+	state := gopodSystemText("value_points_golden.all_locked")
+	if len(problems) > 0 {
+		state = gopodSystemText("value_points_golden.to_look_at", "n", strconv.Itoa(len(problems)))
+	}
+	head := gopodSystemText("value_points_golden.head", "points", strconv.Itoa(len(now)), "topics", strconv.Itoa(len(gopodTopicRegistry())), "state", state)
 	if len(problems) > 8 {
 		problems = append(problems[:8], fmt.Sprintf("... %d more (system-check)", len(problems)-8))
 	}
-	return gopodJoinLines(append([]string{head, "system-value-points <topic> lists a topic's; system-value-points lock locks changes"}, problems...))
+	return gopodJoinLines(append([]string{head, gopodSystemText("value_points_golden.how")}, problems...))
 }
 
 // ## EOF

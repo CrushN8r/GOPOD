@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -134,7 +135,7 @@ func gopodSystemChats(text string) string {
 		}
 		fh.Close()
 	}
-	head := fmt.Sprintf("system-chats \"%s\": %d found in %d sessions", want, found, len(gopodSessionChats()))
+	head := gopodSystemText("system_extras.chats_found", "words", want, "found", strconv.Itoa(found), "sessions", strconv.Itoa(len(gopodSessionChats())))
 	if found > len(out) {
 		head += fmt.Sprintf(" (the newest %d shown)", len(out))
 	}
@@ -188,7 +189,7 @@ func gopodSystemChatSave(text string) string {
 	if _, uid, gid := gopodRecordRoot(); uid >= 0 {
 		os.Chown(md, uid, gid)
 	}
-	return fmt.Sprintf("system-chat-save: %d lines -> %s", n, md)
+	return gopodSystemText("system_extras.chat_saved", "n", strconv.Itoa(n), "file", md)
 }
 
 func gopodSystemMenuTheme(text string) string {
@@ -256,7 +257,9 @@ func gopodSystemNumpadList() string {
 	for k := range m.NumlockOn {
 		keys = append(keys, k)
 	}
-	sort.Slice(keys, func(i, j int) bool { return len(keys[i]) < len(keys[j]) || len(keys[i]) == len(keys[j]) && keys[i] < keys[j] })
+	sort.Slice(keys, func(i, j int) bool {
+		return len(keys[i]) < len(keys[j]) || len(keys[i]) == len(keys[j]) && keys[i] < keys[j]
+	})
 	out := []string{"numpad keys (NumLock on) - system-numpad on|off switches them; KP+ / KP- turn the feeds:"}
 	for _, k := range keys {
 		e := m.NumlockOn[k]

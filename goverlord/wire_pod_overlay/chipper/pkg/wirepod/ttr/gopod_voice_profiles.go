@@ -374,7 +374,7 @@ func gopodSystemVoicesReport(text string) string {
 		}
 	}
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("Voice files, past %s (report only - nothing moves; plays counted since %s):", label, strings.SplitN(since, "T", 2)[0]))
+	b.WriteString(gopodSystemText("voices_report.head", "period", label, "since", strings.SplitN(since, "T", 2)[0]))
 	b.WriteString(fmt.Sprintf("\n  on disk: %d files, %s; made in the %s: %d; played in the %s: %d", len(all), mb(total), label, made, label, used))
 	var kn []string
 	for k := range kinds {

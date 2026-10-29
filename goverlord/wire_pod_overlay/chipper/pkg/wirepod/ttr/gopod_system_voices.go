@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -80,7 +81,7 @@ func gopodSystemVoicesRebuild(text string) string {
 		out = append(out, "Every scripted line has its voice.")
 	}
 	if len(problems) > 0 && !force {
-		out = append(out, fmt.Sprintf("Paused - system-check found %d to look at (%d checked):", len(problems), checked))
+		out = append(out, gopodSystemText("system_voices.rebuild_paused", "problems", strconv.Itoa(len(problems)), "checked", strconv.Itoa(checked)))
 		for i, p := range problems {
 			if i == 8 {
 				out = append(out, fmt.Sprintf("  ... %d more (system-check)", len(problems)-8))
@@ -110,7 +111,7 @@ func gopodSystemVoicesRebuild(text string) string {
 		}
 	}
 	logger.Println(fmt.Sprintf("GOPOD_VOICES_REBUILD backed up %d voices to %s", moved, backup))
-	out = append(out, fmt.Sprintf("Backed up %d voices. Ready for a restart: wpr 2, then F5 and click Log - every voice is made again at the start.", moved))
+	out = append(out, gopodSystemText("system_voices.rebuild_ready", "moved", strconv.Itoa(moved)))
 	return gopodJoinLines(out)
 }
 
