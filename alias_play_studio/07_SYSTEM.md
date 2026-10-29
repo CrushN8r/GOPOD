@@ -110,6 +110,24 @@ both, when the step is in both. A combo step's parts are still edited by hand.
 PASS/FAIL with what it saw. `gopod_system_tests.go`.
 - `system-test-list` lists them; `system-test-<name>` runs one; several in a row run in turn;
   `system-test-all` runs the audit in `system_tests.audit`'s order.
+- `system-test-admin-run` (also in the audit and the system menu): the 100% admin run as a standing
+  self-check. It plays `gopod_probes/admin_run/admin_run_001.txt` (`system_tests.admin_run.file`:
+  part|to|line, 82 lines - the 3 songs and their before/after asks, every value point, every egg, and
+  KP1-KP9 as held keys)
+  in order through the game's own code, as the room would - no robots, no model, nothing said; the
+  live game is saved first and put back after. It reports each point not revealed, each egg not
+  found, each prize not given, each reminder that went dry (a topic question whose reminder names
+  no topic or chapter, or an empty one, while points are left), each song line that isn't a run
+  card's start, and each numpad key that doesn't reach its Brobot or persona (a persona's "who are
+  you" gets its who line). PASS when there's none. `TestAdminRun`.
+- `system-comm-check` (system menu "9. Test one thing"): the pre-show comm check. It plays
+  `comm_check`'s rounds - each line on each key KP1-KP9 in turn, as if the key were held and the
+  words spoken: the page draws the key's bubbles (keep holding, recording, transcribing), the line
+  goes where the key goes, live (the model, the voices, the robots), and the next key waits for the
+  answer to finish. Rounds: "Hey party animal. Who are you and what do you do?", "Tell me about
+  yourself.", "Tell me all about yourself.", "Hey {name}, who all else is here with us?", and "Tell
+  me about your interns." for CHALK and PLAYHEAD. The game goes back to 0 after, so the show starts
+  clean; Record Session keeps it all. `TestCommCheck`.
 - Tests: files, python, voices, llm, search, weather-live, weather-offline, time-place, takes, qr,
   personas, eggs, page, robots, tpu (`system-test-tpu`, in the audit), audio
   (`system-test-audio`).

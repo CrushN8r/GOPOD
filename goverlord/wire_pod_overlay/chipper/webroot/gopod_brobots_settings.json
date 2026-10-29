@@ -526,6 +526,22 @@
       }
     }
   },
+  "comm_check_about": "2026-10-28 (operator: \"Simulate the whole KPN 1-9 range to record those bubbles as well * same test question, Hey party animal. Who are you and what do you do?\"; \"make the 'who are you?' profile development part of this run as well * like a communication check with all chat participants, before the show starts * at bare minimum, do they all know who they are & each other? * who they are: do they all know the diff between tell me about you & tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about their interns, if I ask any chat participant about any other chat participant > Hey [chat participant], who all else is here with us?\"): system-comm-check plays the rounds in order - each round's text on each of its keys (keys, else the round's own), as if the key were held and the words spoken: the page draws the key's bubbles (hold, recording for record_seconds, transcribing), the line goes where the key goes, live (the model, the voices, the robots), and the next waits for the answer to finish (no new feed line for quiet_seconds and the page caught up; at most line_max_seconds). {name}: the one asked (his call name, or Doc / Pip). The game goes back to 0 after, so the show starts clean. Record Session keeps it all. gopod_comm_check.go.",
+  "comm_check": {
+    "keys": ["KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9"],
+    "rounds": [
+      {"text": "Hey party animal. Who are you and what do you do?"},
+      {"text": "Tell me about yourself."},
+      {"text": "Tell me all about yourself."},
+      {"text": "Hey {name}, who all else is here with us?"},
+      {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}
+    ],
+    "quiet_seconds": 6,
+    "line_max_seconds": 150,
+    "record_seconds": 2,
+    "start_text": "Comm check: {n} lines, KP1 to KP9 in turn, before the show.",
+    "done_text": "Comm check complete. {n} lines. The game is back to zero - the show can start."
+  },
   "roast_dial_about": "2026-10-28 (operator: \"I want like a personality toggle from not punching down, to after burner level roasts using every fucking possible personal pressure point * A roast is a fucking roast or its not a roast\"; \"Ultimately its the customer who decides, then I decide\"; \"The controlled legal establishment who pays decides the rules of the room. So put it in GOPOD\"; \"There's public 18+, vs paid work in public 18+\"; \"Sensitive topics switch to neutral (default fallback with my new Jekyll/Hyde toggle override)\"): the Brobots' roast level - for 18+ rooms, the establishment sets the rules - levels in order, level the one in use (0: never punches down, Doc's default). His pre-build context gets the level's text ({roast}); human_swears lets the human swear list into the spice. A question with a sensitive word gets sensitive_text instead, and no spice - unless jekyll_hyde is on (the override). Set with system-set roast_dial.level <n> or roast_dial.jekyll_hyde true, then system-restart. gopod_roast_dial.go.",
   "roast_dial": {
     "level": 0,
@@ -1756,6 +1772,16 @@
             "run": true
           },
           {
+            "cmd": "system-comm-check",
+            "about": "the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
+            "run": true
+          },
+          {
+            "cmd": "system-test-admin-run",
+            "about": "the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",
+            "run": true
+          },
+          {
             "cmd": "system-audit",
             "about": "the full audit, no robots called - files, Go tests, web page, phone app, every test, the log (a few minutes)",
             "run": true
@@ -2449,9 +2475,11 @@
   },
   "system_tests": {
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
+    "admin_run_about": "2026-10-28 (operator: \"Yes!! Make the 100% admin run a standing self-check * each point not revealed * each egg not found * each prize not given * each reminder that went dry * And please add this 'admin run standing self-check' to GOPOD system item\"): system-test-admin-run plays this file - part|to|line, every line in order - through the game's own code, as the room would (no robots, no model, nothing said; the live game is saved and put back): a run line must be a run card's start; a Brobot's line gets his points, the egg it would pop and the reminder after it. PASS when every value point, egg and both prizes are reached and no reminder went dry. Also in the audit, and in the system menu.",
+    "admin_run": {"file": "gopod_probes/admin_run/admin_run_001.txt"},
     "tpu_about": "2026-10-24 (operator: \"PASS tpu: 1 objects: laptop * laptop?\" - the workbook photo was named a laptop): system-test-tpu shows the Edge TPU this picture (webroot/pictures) and passes only when it names expect in it.",
     "tpu": {"picture": "legacy/gangster_granny.jpg", "expect": "person"},
-    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "replay", "page", "robots"],
+    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "admin-run", "replay", "page", "robots"],
     "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
   },

@@ -575,6 +575,8 @@ line:
   step right after the voice files check (`wait_voices`) shows, whatever its words
   (`gopod_opener_song.go`, feed line `skip_on`, just ahead of that message; locked in
   `TestWarmupSequenceGolden`). The page replay presses Esc there (SKIP: "skipped (Esc)").
+  After a reload the gate is worked out again, once per page load: `skip_on` already seen
+  and the opening not over yet = open.
 - **GOLDEN voice start**: every made voice plays the same way - its bubble shown,
   then its length and its word times (`.words.json`) loaded (up to `VOICE_READY_MAX_MS`, 3 s),
   then it plays and lights. A just-made voice no longer starts before its word times arrive

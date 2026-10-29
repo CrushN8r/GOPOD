@@ -251,6 +251,10 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-18: system-test-all's order (gopod_system_tests.go).
 	SystemTests struct {
 		Audit []string `json:"audit"`
+		// 2026-10-28: the 100% admin run self-check (gopod_admin_run.go).
+		AdminRun struct {
+			File string `json:"file"`
+		} `json:"admin_run"`
 		Tpu   struct {
 			Picture string `json:"picture"`
 			Expect  string `json:"expect"`
@@ -547,6 +551,19 @@ type gopodBrobotsSettingsFile struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
+	CommCheck struct {
+		Keys   []string `json:"keys"`
+		Rounds []struct {
+			Text string   `json:"text"`
+			Keys []string `json:"keys"`
+		} `json:"rounds"`
+		QuietSeconds   float64 `json:"quiet_seconds"`
+		LineMaxSeconds float64 `json:"line_max_seconds"`
+		RecordSeconds  float64 `json:"record_seconds"`
+		StartText      string  `json:"start_text"`
+		DoneText       string  `json:"done_text"`
+	} `json:"comm_check"`
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {
 		Level  int `json:"level"`

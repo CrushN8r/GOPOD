@@ -232,6 +232,8 @@ func gopodSystemHelp() string {
 		"  system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again",
 		"  system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)",
 		"  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
+		"  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
+		"  system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",
 		"  system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)",
 		"  system-help                       this list",
 	})

@@ -1347,6 +1347,7 @@
             if (settings.addressing) { addressing = settings.addressing; }
             if (settings.system_bubble && settings.system_bubble.label) { systemLabel = settings.system_bubble.label; }
             if (settings.numpad_ptt) { numpad.cfg = settings.numpad_ptt; }
+            if (settings.comm_check && settings.comm_check.record_seconds) { commCheckRecordSeconds = settings.comm_check.record_seconds; }
             if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; }
             // 2026-10-27 (the game engine, gopod_game_engine.go): a group with
             // "runs": true starts with one line per run card (game.runs).
@@ -1892,7 +1893,17 @@
       // A saved ready bubble, redrawn on page load (restoreChat).
       function restoreWarmupBubble(saved) {
         var parts = String(saved).split("|");
-        showWarmupLevel(buildWarmupBubble(parts[0]), llmWarm.leds, true, parts.slice(1).join("|"));
+        var warm = buildWarmupBubble(parts[0]);
+        showWarmupLevel(warm, llmWarm.leds, true, parts.slice(1).join("|"));
+        // 2026-10-28 (operator: "Opener llm warming * Upon page refresh, spoken
+        // lines reset to 100% solid, not 85%"): its lines were all said - each
+        // shows as said (85%), like every restored line.
+        var label = warm.querySelector(".brobot-bubble-text");
+        String(label.textContent).split("\n").forEach(function (one) {
+          if (!one.trim()) { return; }
+          var said = voiceLineSpan(label, one);
+          if (said) { said.classList.add("spoken"); }
+        });
       }
       // 2026-10-13 (operator: "chat bubbles must run in an orderly sequence so
       // Goverlord's orchestration is presented correctly"; "reporter lines ...
@@ -3581,8 +3592,19 @@
             if (feed.boot && feed.boot !== playedBoot) { playedBoot = feed.boot; playedId = 0; playedSent = 0; }
             // A viewer plays none of it (the display mirror) - nothing queued.
             if (pageRoleKnown && !isMainPage) { return; }
+            // 2026-10-28 (operator: "Esc key not working * why did it break yet
+            // again?"; "skip not working"): the skip gate after a reload - the page
+            // reloads itself on Wire-Pod's new start, often just after skip_on
+            // played, and a line already seen isn't played again, so the gate
+            // stayed shut. Once per page load: skip_on already seen and the
+            // opening not over yet = the gate is open.
+            var seenSkipOn = false, seenOpeningEnd = false;
             feed.events.forEach(function (e) {
               var key = "feed|" + feed.boot + "|" + e.id;
+              if (isSeen(key) && e.who === reporterRole) {
+                if (String(e.text).trim() === "skip_on") { seenSkipOn = true; }
+                if (String(e.text).trim() === openingEndText) { seenOpeningEnd = true; }
+              }
               // 2026-10-24 (live: after an F5 the dry run waited, the page never
               // said it had caught up): a line this page already played counts as
               // played again, so Wire-Pod knows how far it is.
@@ -3590,6 +3612,10 @@
               if (isSeen(key) || feedQueued[key] || !e.who || !e.text) { return; }
               queueBubble(key, e);
             });
+            if (!skipGate.decided && seenSkipOn) {
+              skipGate.decided = true;
+              if (!seenOpeningEnd) { skipGate.on = true; }
+            }
             runFeedQueue();
           })
           .catch(function () { /* no feed yet (older Wire-Pod, or nothing said) */ })
@@ -4389,7 +4415,7 @@
       // can skip be enabled * upon skipped, 'skip' skip is set to disabled"):
       // the skip gate - off until Wire-Pod's skip_on feed line (the opener's
       // step after the voice files check), off again once used.
-      var skipGate = { on: false };
+      var skipGate = { on: false, decided: false };
       function skipReporters(how) {
         if (!skipGate.on) {
           fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -4485,11 +4511,29 @@
             done();
             return;
           }
+          // 2026-10-28 (the comm check, gopod_comm_check.go): a key "held" - its
+          // bubbles as a real press draws them (hold, recording, transcribing),
+          // then its words come in it, as the Operator's line.
+          if (String(e.text).indexOf("numpad_sim|") === 0) {
+            var sim = String(e.text).split("|"), simKey = sim[1] || "", simWho = (numpad.targets && numpad.targets[simKey]) || sim[2] || "";
+            if (restoringChat) { done(); return; }
+            var simSt = systemStatus(numpadText("hold", { key: simKey, brobot: simWho }), 0, simWho);
+            var holdMs = ((numpad.cfg && numpad.cfg.min_hold_seconds) || 0.5) * 1000, recMs = (commCheckRecordSeconds || 2) * 1000;
+            setTimeout(function () {
+              simSt.set(numpadText("recording", { brobot: simWho }));
+              setTimeout(function () {
+                simSt.set(numpadText("transcribing"));
+                numpadOpStatus = simSt;
+                done();
+              }, recMs);
+            }, holdMs);
+            return;
+          }
           if (String(e.text).trim() === "skip_on") {
             // 2026-10-25 (operator: "enable happens at \"Voices ready for
             // playback.\" independent of edits"): Wire-Pod opens the gate as
             // that step shows (gopod_opener_song.go), whatever its words.
-            if (!restoringChat) { skipGate.on = true; }
+            if (!restoringChat) { skipGate.on = true; skipGate.decided = true; }
             done();
             return;
           }
@@ -5109,7 +5153,7 @@
         if (goneAfterMs) { api.done(goneAfterMs); }
         return api;
       }
-      var numpadOpStatus = null;
+      var numpadOpStatus = null, commCheckRecordSeconds = 2;
       // GOPOD VISUAL CONTROL - the TPU +/- rotation (2026-10-20, operator: "Focus
       // on adding the tpu +/- rotation"; the retired 8011 demo's ring): KP+ / KP-
       // turn to the next / previous feed (visual_sources: Doc, Pip, the USB

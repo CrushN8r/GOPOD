@@ -159,6 +159,10 @@ var gopodSystemTests = []gopodSystemTest{
 	}},
 	// 2026-10-24 (operator: "Add into GOPOD system menu * The replay ... plays the
 	// real chat page code with no robots"): gopod_probes/tools/gopod_page_replay.sh.
+	// 2026-10-28 (operator: "Make the 100% admin run a standing self-check * each
+	// point not revealed * each egg not found * each prize not given * each
+	// reminder that went dry"): gopod_admin_run.go.
+	{"admin-run", "the 100% admin run, every line in order through the game: every value point, egg and prize, and no dry reminder (no robots, no model; the live game is put back)", gopodAdminRunLine},
 	{"eggvoice", "an Easter egg voice is made from its kept pieces and a live title, joined", gopodEggVoiceCheck},
 	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots", func() (bool, string) {
 		return gopodPageReplayLine(gopodPageReplayRun())

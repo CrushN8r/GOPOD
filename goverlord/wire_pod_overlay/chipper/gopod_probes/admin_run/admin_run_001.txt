@@ -1,0 +1,84 @@
+# The 100% admin run (operator 2026-10-28: "I want to 100% capture a full 'admin' GOPOD game run to cover all songs, topics, value points, easter eggs"; "Make the 100% admin run a standing self-check").
+# One line each: part|to|line - to is Brobot 1, Brobot 2, a numpad key (KP1-KP9, as holding it), or empty (a run). system-test-admin-run plays it through the game (gopod_admin_run.go). The interview is skipped.
+Bingo Test|Brobot 1|How was the Bingo test?
+Bingo Test||start bingo test
+Bingo Test|Brobot 2|How was the Bingo test?
+Baby Brobots|Brobot 2|Do you two ever dream?
+Baby Brobots||start baby brobots
+Baby Brobots|Brobot 1|What did you dream about?
+Fart Joke|Brobot 1|How was the fart joke?
+Fart Joke||start fart joke
+Fart Joke|Brobot 2|How was the fart joke?
+Who we are|Brobot 1|Tell me your whole story
+Who we are|Brobot 2|Tell me about Doc and Pip
+Who we are|Brobot 1|And Pip's full name - and what's he like?
+What GOPOD is|Brobot 2|Tell me about GOPOD
+What GOPOD is|Brobot 1|What brain do you run on - is there a monthly bill?
+What GOPOD is|Brobot 2|Tell me about the rig
+What GOPOD is|Brobot 1|What's in front of you?
+What GOPOD is|Brobot 1|Where can people see more - your websites?
+What GOPOD is|Brobot 2|And what are mathaftermath and foodmath for?
+What GOPOD is|Brobot 1|Tell me about the niche pillars
+What GOPOD is|Brobot 2|Tell me about personality math
+What GOPOD is|Brobot 1|What's on the personality math site?
+What GOPOD is|Brobot 2|How do you build a website by dinner?
+The livestream|Brobot 1|Tell me about the contest
+The livestream|Brobot 2|How do you win the contest - and where do winners show up?
+The livestream|Brobot 1|How does the contest wheel work?
+The livestream|Brobot 2|Tell me about the nine themes
+The livestream|Brobot 1|Where does everyday math hide in the themes?
+The livestream|Brobot 2|What's access math in the themes?
+The livestream|Brobot 1|Tell me about the channel
+The livestream|Brobot 2|How many subscribers are you going for on the channel?
+The livestream|Brobot 1|What's the channel goal for 2027?
+Social media|Brobot 2|Tell me about your socials
+Social media|Brobot 1|Which social media platform does what?
+Social media|Brobot 2|Where does every post on your socials lead?
+Social media|Brobot 1|Is Brobot 0 looking for help?
+Social media|Brobot 2|What's the job - is livestream help part of it?
+Social media|Brobot 1|Where is he looking for help, and how do I reach him?
+How Doc & Pip teach|Brobot 2|How do you teach?
+How Doc & Pip teach|Brobot 1|Tell me about bingo for seniors.
+How Doc & Pip teach|Brobot 2|What's 3/4 as a decimal? Explain the Math!
+Accessmath|Brobot 2|Tell me about accessmath
+Accessmath|Brobot 1|How is accessibility built into the app?
+Accessmath|Brobot 2|Is accessmath for people who were told they were bad at it?
+Accessmath|Brobot 1|How is GOPOD a healthy distraction?
+Accessmath|Brobot 2|I had a bad day - cheer me up?
+Accessmath|Brobot 1|What does borrowing a stage mean?
+Accessmath|Brobot 2|Where do you teach?
+Accessmath|Brobot 1|What about rural schools with low connectivity?
+Accessmath|Brobot 2|Who benefits from your teaching?
+Book us|Brobot 1|Walk me through a normal day - morning first.
+Book us|Brobot 2|And the afternoon of your typical day?
+Book us|Brobot 1|And your evening - rapid fire?
+Book us|Brobot 2|What rooms do you play - comedy clubs?
+Book us|Brobot 1|Do you play bingo halls and casinos?
+Book us|Brobot 2|Do you do hospital visits and school visits?
+Book us|Brobot 1|Could you two make a birthday video for my sister?
+Book us|Brobot 2|Could you make a video ad for my business?
+Book us|Brobot 1|How do I book you?
+Book us|Brobot 2|And on quiet days, with nothing booked?
+Book us|Brobot 1|Between gigs, are you ever idle?
+Book us|Brobot 2|Any Hot Wheels for my big day?
+Book us|Brobot 1|Would you do a live birthday show?
+Book us|Brobot 2|Any merch?
+Book us|Brobot 1|A big cake to go with those Hot Wheels?
+Book us|Brobot 2|Can GOPOD do a BBQ?
+Book us|Brobot 1|Any burgers and hot dogs for the cookout?
+Book us|Brobot 2|Who else comes to the barbecue?
+Book us|Brobot 1|Anything printable, like a word search?
+Book us|Brobot 2|Do you do print shop merch, like signs and posters?
+Book us|Brobot 1|Any affiliate links?
+Join the crew|Brobot 2|How do I keep up with you guys?
+Due Credit|Brobot 1|Who's Gangster Granny?
+Due Credit|Brobot 2|Roast me!
+Numpad|KP1|Who are you?
+Numpad|KP2|Who are you?
+Numpad|KP3|Who are you?
+Numpad|KP4|Who are you?
+Numpad|KP5|Who are you?
+Numpad|KP6|Who are you?
+Numpad|KP7|Who are you?
+Numpad|KP8|Who are you?
+Numpad|KP9|Who are you?
