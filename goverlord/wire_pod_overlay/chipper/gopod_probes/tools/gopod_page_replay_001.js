@@ -239,6 +239,25 @@ setInterval(() => {
   flickers.slice(0, 8).forEach(f => console.log("  " + f));
   console.log("\nVISITOR MIRROR"); console.log("  " + mirrorChecks + " checks, in step " + Math.round(100 * (mirrorChecks - mirrorOff) / Math.max(1, mirrorChecks)) + "%, longest catch-up " + (lagMost / 1000).toFixed(1) + " s" + (offSince ? ", OUT OF STEP at the end" : ""));
   mirrorProblems.slice(0, 8).forEach(m => console.log("  behind " + (MIRROR_LAG_MS / 1000) + " s+: " + m));
+  // 2026-10-29 (operator: "there are way too many inconsistencies ... run it all
+  // through a fucking templated system"): the bubble template check - each
+  // bubble's kind and its parts in order; one kind built more than one way is
+  // listed with a sample of each way.
+  console.log("\nBUBBLE TEMPLATE CHECK (kind: its parts in order)");
+  const ways = {};
+  c.querySelectorAll(":scope > .brobot-bubble").forEach(b => {
+    const kind = (b.dataset.kind || "") + "|" + Array.from(b.classList).filter(x => x !== "brobot-bubble" && !/^(speaking|spoken|revealed|placed|voice-lit|staged)$/.test(x)).sort().join(".");
+    const parts = Array.from(b.children).map(e => e.tagName.toLowerCase() + "." + (e.classList[0] || "")).join(" > ");
+    const head = b.querySelector(":scope > .brobot-bubble-head") ? b.querySelector(":scope > .brobot-bubble-head").textContent.replace(/\s+/g, " ").trim().slice(0, 30) : "(no head)";
+    ways[kind] = ways[kind] || {};
+    ways[kind][parts] = ways[kind][parts] || { n: 0, sample: head + " | " + b.textContent.replace(/\s+/g, " ").trim().slice(0, 60) };
+    ways[kind][parts].n++;
+  });
+  Object.keys(ways).sort().forEach(kind => {
+    const w = ways[kind], n = Object.keys(w).length;
+    console.log("  " + (n > 1 ? n + " WAYS " : "1 way  ") + kind);
+    Object.keys(w).forEach(parts => console.log("      x" + w[parts].n + "  " + parts + "\n          e.g. " + w[parts].sample));
+  });
   console.log("\nPAGE NOTES (errors, stuck, baton)"); notes.concat(visitor.notes).filter(n => /error|stuck|baton|NOT shown/i.test(n)).forEach(n => console.log("  " + n.slice(0, 200)));
   process.exit(0);
 }, 500);

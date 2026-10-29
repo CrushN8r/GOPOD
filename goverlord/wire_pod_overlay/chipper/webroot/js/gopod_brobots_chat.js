@@ -850,7 +850,14 @@
           // (the root-to-leaf pass, link 3b): a backpack line comes on the feed the
           // moment it's heard, before its answer (gopodHeardLine) - placed like
           // every Operator line (the old "goes above its answer" moves are gone).
-          popupWraps = {}; popupExchange = false; nestShells = {}; eggMarked = {};
+          popupWraps = {}; popupExchange = false; eggMarked = {};
+          // 2026-10-29 (live 05:13, the comm check: KP2's line came before Brobot
+          // 1's reply - his opened bubble was wiped, so his reply drew a second
+          // bubble under an empty one): a new line clears only the opened bubble
+          // of whoever it's to; a reply still on its way keeps its own.
+          var shellFor = to || operatorTarget(spoken);
+          if (/^Brobot [12]$/.test(shellFor)) { delete nestShells[shellFor]; }
+          else if (shellFor === "Brobots" || shellFor === "All" || !shellFor) { nestShells = {}; }
           // GOLDEN operator bubble (2026-10-18, operator: "Operator bubble: (not
           // manager bubble) * KP7 to CHALK / keep holding… / Recording for CHALK /
           // Got it - transcribing… / ["Generating..." + hourglass]/[transcription]"):
@@ -5244,7 +5251,7 @@
         // gopod-admin-only: the admin's template, never sent to a visitor (the display mirror).
         outer.className = "brobot-bubble operator system-status system-menu-host gopod-admin-only";
         // Its look from system_menu.look (system-set system_menu.look.<name> <value>, F5).
-        var look = { font_size: "--menu-font", background: "--menu-bg", code_background: "--menu-code-bg", code_color: "--menu-code-fg", results_background: "--menu-results-bg" };
+        var look = { font_size: "--menu-font", background: "--menu-bg", code_background: "--menu-code-bg", code_color: "--menu-code-fg", results_background: "--menu-results-bg", texture: "--menu-texture", border: "--menu-border", accent: "--menu-accent", rule: "--menu-rule" };
         Object.keys(look).forEach(function (k) { if (systemMenuLook[k]) { outer.style.setProperty(look[k], systemMenuLook[k]); } });
         // 2026-10-19 (operator: "No header ... to recover window space"): no header.
         var menu = document.createElement("div");

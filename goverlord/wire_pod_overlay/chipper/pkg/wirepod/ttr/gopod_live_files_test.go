@@ -23,6 +23,8 @@ func TestMain(m *testing.M) {
 	// 2026-10-29: DocBS is off in the tests (its own test turns it on), so other
 	// tests' answers stay the same each run.
 	gopodBrobotsSettings.DocBS.Share = 0
+	// The line queue runs a question at once in the tests (they check right after).
+	gopodBrobotsSettings.LineQueue.On = false
 	code := m.Run()
 	os.RemoveAll(dir)
 	os.Exit(code)

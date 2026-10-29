@@ -223,14 +223,15 @@
     "genders": {"Brobot 0": "male", "Brobot 1": "male", "Brobot 2": "male"},
     "voice_genders": {"f": "female", "m": "male"},
     "cast_about": "One entry per participant (who: his host or Brobot name), {gender} filled the same way.",
+    "cast_mentors_about": "2026-10-29 (operator: \"Yes: add CHALK's intern and PLAYHEAD's intern to the cast list * interns work with/for both, but male/male female/female * CHALK mentors Cache PYC (display pizzazz/wow stuff) * PLAYHEAD mentors Git Repo (more tech helper)\"): the managers' and interns' cast lines say who mentors whom.",
     "cast": [
       {"who": "Brobot 0", "line": "Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)"},
       {"who": "Brobot 1", "line": "Doc ({gender}, Brobot 1, a Brobot)"},
       {"who": "Brobot 2", "line": "Pip ({gender}, Brobot 2, a Brobot)"},
-      {"who": "CHALK", "line": "CHALK BORED ({gender}, display manager)"},
-      {"who": "PLAYHEAD", "line": "PLAYHEAD ZUMINTU ({gender}, session manager)"},
-      {"who": "GIT REPO", "line": "Git Repo ({gender}, intern: USB ports)"},
-      {"who": "CACHE PYC", "line": "Cache PYC ({gender}, intern: web search results)"},
+      {"who": "CHALK", "line": "CHALK BORED ({gender}, display manager, mentors Cache PYC - display pizzazz, the wow stuff)"},
+      {"who": "PLAYHEAD", "line": "PLAYHEAD ZUMINTU ({gender}, session manager, mentors Git Repo - the tech helper)"},
+      {"who": "GIT REPO", "line": "Git Repo ({gender}, intern: USB ports - PLAYHEAD's intern, works with both managers)"},
+      {"who": "CACHE PYC", "line": "Cache PYC ({gender}, intern: web search results - CHALK's intern, works with both managers)"},
       {"who": "INTEL 404 PNFH", "line": "Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)"},
       {"who": "INTEL 404 PNFT", "line": "Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)"},
       {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"}
@@ -526,6 +527,8 @@
       }
     }
   },
+  "line_queue_about": "2026-10-29 (operator: \"even if a few requests come in together, they still must each get processed until completion before another bubbles starts\"; live 05:13: KP2's line came before Brobot 1's reply, and the replies landed among KP3's bubbles): every question - typed, numpad, a persona's, the comm check's - takes its turn, one at a time, in the order they came. The next starts only when this one is complete: a line on the feed from each one asked (his answer; at most answer_max_seconds, or idle_seconds with nothing new at all), then the page has played it all (at most page_max_seconds). Commands (system-, stop run, thanks, skip, start ...) never wait. on false: every question runs at once, as before. gopod_line_queue.go.",
+  "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90},
   "docbs_about": "2026-10-29 (operator: \"Please build it as Doc's answer shape for Explain the Math lines * This is Doc's personality, not just for the livestream Explain the Math lines * This is 100% Doc's brain wiring * This is 100% Doc BS (LMAO! You get it now?) * from brobot 1 > dial > 100% Doc's brain wiring\"; framework from his takes, gopod_notes/DOCBS_EQUATION_ROAST_FRAMEWORK_001.md): Brobot 1's answer, when Doc's share of his stereo dial says so (share: -1 = the Doc & Pip pair's dial, 60 = 60% of his answers; 100 = every one), goes DocBS - the answer chain's docbs part puts the equation roast in front of his reply (opener, lead-in with a nickname, the equation, the plug-in, the error, the hidden multiplier, the corrected formula - each its own thought bubble) and docbs_close ends it (\"The math has spoken. And it's ...\"). His reply - the value point and his colour - is the kill shot in the middle. The frame comes from folder's pool files (one per beat, shuffled, never repeated until the deck runs out; _clean / _18 by the roast dial); gemma fills only slot_prompt's one line (name | acronym | three things | nickname), else fallback. An Explain the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact steps. gopod_docbs.go.",
   "docbs": {
     "folder": "gopod_probes/docbs",
@@ -1343,6 +1346,7 @@
     "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
   },
   "system_menu": {
+    "torah_about": "2026-10-29 (operator: \"the GOPOD system Torah ... the matching master-GOPOD-system document to refer to * use the book's colour pallete for system window look (textured darkened lamb's skin & metallic silvers/golds)\"; \"a fun take, not religious\"; \"A matching a light touch of a Torah look\"): the torah theme - dark leather (texture), a gold double frame (border), gold group titles (accent), silver rules between groups (rule), gold commands. The system window's look; system-menu-theme <name> switches back. GOPOD_TORAH.md is the matching reference.",
     "themes_about": "2026-10-20 (the JSON tree viewer's presets): system-menu-theme <name> copies one into look.",
     "themes": {
       "dark": {
@@ -1374,16 +1378,11 @@
         "code_background": "#1a1426",
         "code_color": "#d2b4ff",
         "results_background": "#1e1729"
-      }
+      },
+      "torah": {"background": "#15110d", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a"}
     },
     "look_about": "2026-10-19 (operator: \"Make [menu system- bubble] font size 50% for more room below\"; \"<code>system-restart</code> background contrast is too harsh * darken to make it easier on the eyes * where would I find this setting to edit/set within the menu?\"): the menu's look - system-set system_menu.look.<name> <value>, then F5.",
-    "look": {
-      "font_size": "50%",
-      "background": "#1e2633",
-      "code_background": "#141a24",
-      "code_color": "#9fd3ff",
-      "results_background": "#161c26"
-    },
+    "look": {"font_size": "50%", "background": "#15110d", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)"},
     "about": "The system menu (operator 2026-10-19: \"New system- commands drop-down-menu system * start from system-restart? * then group & order by semantic relevance * arrange in drop-down-menu bubble * 🔇 opens it * 🔊 closes it * menu system should lead me like a tour guide * like after restart, where do I start? what's next? * how are these commands arranged for me to find what I need fast to make edits?\"). The speaker icon opens it (and the background loop) and closes it. Groups in tour order, one open at a time: title, guide (when to use it), items, next (where to go after). An item with run: true runs on click; the rest go in the text box to finish (fill: the text put there, else cmd and a space). Edit freely - the page reads it at F5.",
     "intro": "Goverlord's tour: start at 1 after a restart, then go where you need. Click a command - it runs, or waits in the text box for your words (press Enter).",
     "groups": [
@@ -1777,6 +1776,11 @@
           {
             "cmd": "system-test-game",
             "about": "every topic, value point and Easter egg found by its own words - no robots, no model",
+            "run": true
+          },
+          {
+            "cmd": "system-torah",
+            "about": "the GOPOD Torah (GOPOD_TORAH.md, the master system reference) written again from the system as it is now",
             "run": true
           },
           {

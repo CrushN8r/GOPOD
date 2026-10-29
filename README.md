@@ -118,6 +118,8 @@ work well enough to demo.
 
 - [BROBOT_ASKS.md](BROBOT_ASKS.md): what to ask the Brobots - each topic's ask, what you get,
   and where to read more.
+- [GOPOD_TORAH.md](GOPOD_TORAH.md): the GOPOD Torah - the master reference for the system window
+  (every group, command, test and run), written by GOPOD itself so it always matches.
 - [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
   networking and power modes, and the photos.
 - [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, BBQs, videos, printables and

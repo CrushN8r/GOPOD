@@ -569,6 +569,13 @@ line:
 - one Generating look everywhere - the text, then the hourglass, the text's own
   height, on its line (`.voice-wait`; `voiceWaitOn` and `slotWaiting`).
 - A skip's end (Esc, numpad *, `system-skip`) takes the chat to its bottom (`skipEndScroll`).
+- **One question at a time** (`line_queue`): every question - typed, numpad, a persona's, the comm
+  check's - takes its turn in the order they came; the next starts only when this one is complete: a
+  line from each one asked (his answer), then the page has played it all (when a page is here).
+  Commands (system-, stop run, thanks, skip, start ...) never wait. A new line clears only the opened
+  bubble of whoever it's to, so a reply still on its way keeps its own. `TestLineQueue`. The page replay
+  lists each bubble kind with its parts in order - one kind built more than one way shows up there
+  (BUBBLE TEMPLATE CHECK).
 - **The skip gate** (`skip_gate`): every skip (Esc, numpad *, the menu, typed or
   spoken "skip") is off until the gate opens, and off again once used. A skip while off does
   nothing (logged: skip ignored). no words matched - Wire-Pod opens it as the opener's message

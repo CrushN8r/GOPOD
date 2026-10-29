@@ -85,6 +85,26 @@ func gopodCommCheckLines() [][2]string {
 	return lines
 }
 
+// gopodCommCheckWaitAnswer: until a feed line after from comes from who
+// (his answer), or max.
+func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
+	for end := time.Now().Add(max); time.Now().Before(end); time.Sleep(500 * time.Millisecond) {
+		gopodChatFeed.Lock()
+		found := false
+		for i := len(gopodChatFeed.events) - 1; i >= 0 && gopodChatFeed.events[i].ID > from; i-- {
+			if strings.EqualFold(gopodChatFeed.events[i].Who, who) {
+				found = true
+				break
+			}
+		}
+		gopodChatFeed.Unlock()
+		if found {
+			return
+		}
+	}
+	logger.Println("GOPOD_COMM_CHECK no answer from " + who + " in time")
+}
+
 // gopodSystemCommCheck starts the comm check; the answer says it started.
 func gopodSystemCommCheck() string {
 	cc := gopodBrobotsSettings.CommCheck
@@ -125,11 +145,21 @@ func gopodSystemCommCheck() string {
 			GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, "numpad_sim|"+key+"|"+label)
 			gopodCommCheckWaitPage(gopodFeedLastID(), 30*time.Second)
 			gopodNumpadLastKey.Store(key)
+			// 2026-10-29 (live 05:13: KP2 went before Brobot 1 had answered, and
+			// the replies landed among KP3's bubbles): the next key waits for
+			// this one's own answer - a line from who was asked - then the quiet.
+			from := gopodFeedLastID()
+			answerer := label
 			if strings.HasPrefix(target, gopodPersonaMark) {
-				gopodPersonaReply(strings.TrimPrefix(target, gopodPersonaMark), text, "Numpad text")
+				answerer = strings.TrimPrefix(target, gopodPersonaMark)
+			}
+			if strings.HasPrefix(target, gopodPersonaMark) {
+				host := strings.TrimPrefix(target, gopodPersonaMark)
+				gopodLineTurn(text, []string{host}, func() error { gopodPersonaReply(host, text, "Numpad text"); return nil })
 			} else if err := gopodOperatorLine(target, text, "Numpad text"); err != nil {
 				logger.Println("GOPOD_COMM_CHECK " + err.Error())
 			}
+			gopodCommCheckWaitAnswer(from, answerer, max)
 			gopodCommCheckWaitQuiet(quiet, max)
 		}
 		gopodGameReset("comm check")

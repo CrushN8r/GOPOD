@@ -247,7 +247,11 @@ func GopodNumpadPTTStop(key string) map[string]any {
 		}
 		go func() {
 			if strings.HasPrefix(esn, gopodPersonaMark) {
-				gopodPersonaReply(strings.TrimPrefix(esn, gopodPersonaMark), text, "Numpad text")
+				host := strings.TrimPrefix(esn, gopodPersonaMark)
+				gopodLineTurn(text, []string{host}, func() error {
+					gopodPersonaReply(host, text, "Numpad text")
+					return nil
+				})
 				return
 			}
 			if err := gopodOperatorLine(esn, text, "Numpad text"); err != nil {

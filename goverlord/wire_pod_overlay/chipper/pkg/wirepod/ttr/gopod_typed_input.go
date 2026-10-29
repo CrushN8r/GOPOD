@@ -73,8 +73,11 @@ func gopodTypedToKey(key, text, how string) error {
 		return err
 	}
 	if strings.HasPrefix(target, gopodPersonaMark) {
-		go gopodPersonaReply(strings.TrimPrefix(target, gopodPersonaMark), gopodCapsTypoFix(gopodSpellNames(text)), how)
-		return nil
+		host := strings.TrimPrefix(target, gopodPersonaMark)
+		return gopodLineTurn(text, []string{host}, func() error {
+			gopodPersonaReply(host, gopodCapsTypoFix(gopodSpellNames(text)), how)
+			return nil
+		})
 	}
 	return gopodOperatorLine(target, text, how)
 }
@@ -172,6 +175,18 @@ func gopodOperatorLine(esn, text, how string) error {
 	if gopodYourselfCommand(esn, text, how) {
 		return nil
 	}
+	// 2026-10-29 (operator: "even if a few requests come in together, they still
+	// must each get processed until completion before another bubbles starts"):
+	// a question waits its turn in the line queue (gopod_line_queue.go).
+	answerers := []string{gopodBrobotName(esn)}
+	if esn == gopodTypedAll {
+		answerers = []string{"Brobot 1", "Brobot 2"}
+	}
+	return gopodLineTurn(text, answerers, func() error { return gopodOperatorAsk(esn, text, how) })
+}
+
+// gopodOperatorAsk: a question to one Brobot or "all", in its turn.
+func gopodOperatorAsk(esn, text, how string) error {
 	// How it came in, for a recorded session's take (gopod_take_sheet.go).
 	gopodRecordOperatorInput(how)
 	if esn == gopodTypedAll {

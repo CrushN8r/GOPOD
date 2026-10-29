@@ -110,6 +110,14 @@ both, when the step is in both. A combo step's parts are still edited by hand.
 PASS/FAIL with what it saw. `gopod_system_tests.go`.
 - `system-test-list` lists them; `system-test-<name>` runs one; several in a row run in turn;
   `system-test-all` runs the audit in `system_tests.audit`'s order.
+- **The GOPOD Torah and its look.** `GOPOD_TORAH.md` (repo root) is the master reference for the
+  system window - "the ancient scrolls Ron used to bring the Brobots to life", a fun take, not a
+  religious one. GOPOD writes it from the running settings: the window's groups and items (with the
+  run cards), every commandment (`system-help` - in the Torah, system commands are commandments), every test and the audit's order, the runs, the looks.
+  `system-check` says when it's behind (a setting changed live); `system-torah` writes it again;
+  `TestTorahMatches` holds it at every build. The system window's look is the `torah` theme: dark
+  leather (`texture`), a gold double frame (`border`), gold group titles (`accent`), silver rules
+  (`rule`), gold commands; `system-menu-theme <name>` switches back.
 - `system-test-admin-run` (also in the audit and the system menu): the 100% admin run as a standing
   self-check. It plays `gopod_probes/admin_run/admin_run_001.txt` (`system_tests.admin_run.file`:
   part|to|line, 82 lines - the 3 songs and their before/after asks, every value point, every egg, and

@@ -551,6 +551,13 @@ type gopodBrobotsSettingsFile struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	// 2026-10-29: the line queue - one question at a time (gopod_line_queue.go).
+	LineQueue struct {
+		On               bool    `json:"on"`
+		AnswerMaxSeconds float64 `json:"answer_max_seconds"`
+		IdleSeconds      float64 `json:"idle_seconds"`
+		PageMaxSeconds   float64 `json:"page_max_seconds"`
+	} `json:"line_queue"`
 	// 2026-10-29: DocBS, Doc's brain wiring (gopod_docbs.go).
 	DocBS struct {
 		Folder     string `json:"folder"`

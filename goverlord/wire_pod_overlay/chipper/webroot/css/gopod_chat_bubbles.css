@@ -984,13 +984,18 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   padding: 8px 10px;
   border-radius: 12px;
   background: var(--menu-bg, #1e2633);
+  /* 2026-10-29 (operator: "the GOPOD system Torah ... A matching light touch of a
+     Torah look"): a theme's texture, frame and accent (system_menu.look texture,
+     border, accent); none for the other themes. */
+  background-image: var(--menu-texture, none);
+  border: var(--menu-border, none);
   color: #e8ecf2;
   text-align: left;
   font-size: var(--menu-font, 50%);
 }
 .system-menu-intro { margin-bottom: 6px; opacity: 0.85; }
-.system-menu-group { border-top: 1px solid rgba(255, 255, 255, 0.12); padding: 4px 0; }
-.system-menu-group > summary { cursor: pointer; font-weight: 600; padding: 3px 0; }
+.system-menu-group { border-top: 1px solid var(--menu-rule, rgba(255, 255, 255, 0.12)); padding: 4px 0; }
+.system-menu-group > summary { cursor: pointer; font-weight: 600; padding: 3px 0; color: var(--menu-accent, inherit); }
 .system-menu-guide, .system-menu-next { margin: 2px 0 4px; opacity: 0.8; }
 .system-menu-next { font-style: italic; }
 .system-menu-item {

@@ -95,7 +95,12 @@ func gopodSystemCheckProblems() ([]string, int) {
 		checked++
 		problems = append(problems, "topic "+p)
 	}
-	// 2026-10-27: the game engine's run cards (gopod_game_engine.go).
+	// 2026-10-29: the GOPOD Torah matches the system (gopod_torah.go).
+	checked++
+	if gopodTorahBehind() {
+		problems = append(problems, "GOPOD_TORAH.md is behind the system - system-torah writes it again")
+	}
+	// 2026-10-28: the game engine's run cards (gopod_game_engine.go).
 	checked += len(gopodBrobotsSettings.Game.Runs)
 	problems = append(problems, gopodGameRunsCheck()...)
 	root := gopodChipperRoot()

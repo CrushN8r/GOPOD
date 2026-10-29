@@ -1,0 +1,101 @@
+// goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_line_queue.go
+package wirepod_ttr
+
+// The line queue (2026-10-29, operator: "even if a few requests come in
+// together, they still must each get processed until completion before another
+// bubbles starts"; live 05:13: KP2's line came before Brobot 1's reply, and the
+// replies landed among KP3's bubbles). Every question - typed, numpad, a
+// persona's, the comm check's - takes its turn: one at a time, in the order they
+// came; the next starts only when this one is complete - a line from each one
+// asked after it (his answer), then the page has played it all. Commands (system-,
+// stop run, thanks, skip, start ...) don't wait - they never reach the queue.
+// line_queue: on, and how long each wait may take.
+
+import (
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
+)
+
+type gopodLineJob struct {
+	text      string
+	answerers []string
+	run       func() error
+}
+
+var gopodLineJobs = make(chan gopodLineJob, 64)
+
+func init() {
+	go func() {
+		for j := range gopodLineJobs {
+			gopodLineRun(j)
+		}
+	}()
+}
+
+// gopodLineTurn queues a question; off (line_queue.on false), it runs now.
+func gopodLineTurn(text string, answerers []string, run func() error) error {
+	if !gopodBrobotsSettings.LineQueue.On {
+		return run()
+	}
+	if n := len(gopodLineJobs); n > 0 {
+		logger.Println("GOPOD_LINE_QUEUE waiting (" + strings.Join(answerers, ", ") + "), " + strconv.Itoa(n) + " ahead: " + gopodCut(text, 60))
+	}
+	gopodLineJobs <- gopodLineJob{text: text, answerers: answerers, run: run}
+	return nil
+}
+
+// gopodLineRun: one question, then its answers, then the page caught up.
+func gopodLineRun(j gopodLineJob) {
+	lq := gopodBrobotsSettings.LineQueue
+	from := gopodFeedLastID()
+	if err := j.run(); err != nil {
+		logger.Println("GOPOD_LINE_QUEUE " + err.Error())
+		return
+	}
+	idle := gopodSecondsToDuration(lq.IdleSeconds)
+	end := time.Now().Add(gopodSecondsToDuration(lq.AnswerMaxSeconds))
+	last, since := gopodFeedLastID(), time.Now()
+	for time.Now().Before(end) {
+		if gopodLineAnswered(from, j.answerers) {
+			break
+		}
+		if id := gopodFeedLastID(); id != last {
+			last, since = id, time.Now()
+		} else if time.Since(since) >= idle {
+			logger.Println("GOPOD_LINE_QUEUE nothing more came for " + gopodCut(j.text, 60))
+			break
+		}
+		time.Sleep(300 * time.Millisecond)
+	}
+	// The page shows it all - when a page is here to show it (gopodPageHere).
+	if gopodPageHere() {
+		pend := time.Now().Add(gopodSecondsToDuration(lq.PageMaxSeconds))
+		for time.Now().Before(pend) && gopodPagePlayedUpTo() < gopodFeedLastID() {
+			time.Sleep(300 * time.Millisecond)
+		}
+	}
+}
+
+// gopodLineAnswered: every one asked has a line on the feed after from.
+func gopodLineAnswered(from int, who []string) bool {
+	gopodChatFeed.Lock()
+	defer gopodChatFeed.Unlock()
+	for _, w := range who {
+		found := false
+		for i := len(gopodChatFeed.events) - 1; i >= 0 && gopodChatFeed.events[i].ID > from; i-- {
+			if strings.EqualFold(gopodChatFeed.events[i].Who, w) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
+}
+
+// ## EOF
