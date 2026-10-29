@@ -5,6 +5,8 @@
   "song_type": "bingo_capture",
   "story_ref": "story.md",
   "global_tempo": 0.1,
+  "moves_about": "This song's own move values (2026-10-29, operator: \"a song may tell the global runner, nods & arm lifts are these speeds & times to do\"): any of global_knobs.json's moves, e.g. {\"nod\": {\"speed\": 3, \"hold_seconds\": 0.4}}; a step's own value still wins. Empty: the global knobs.",
+  "moves": {},
   "steps": [
     {"step_id": "reporter_gap_0101", "note": "pause", "speaker": "brobot_1", "pause_seconds": 0, "gap_label": "before_wake", "section": "OPENER"},
     {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPENER"},

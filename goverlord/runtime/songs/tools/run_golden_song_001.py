@@ -51,7 +51,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-from knobs_envelope_001 import load_knobs_envelope
+from knobs_envelope_001 import load_knobs_envelope, apply_knob_layers, global_runner_value
 from song_folders_001 import find_song_dir
 
 RUNNER_PATH = Path(__file__).resolve().parent / "run_section1_full_live_001.py"
@@ -73,7 +73,7 @@ GOLDEN_PLAYHEAD_TO_ENV = "GOPOD_GOLDEN_PLAYHEAD_TO"
 GOLDEN_PLAYHEAD_WAKE_ENV = "GOPOD_GOLDEN_PLAYHEAD_WAKE"
 GOLDEN_REPORTER_GAP_OVERRIDE_ENV = "GOPOD_GOLDEN_REPORTER_GAP_OVERRIDE"
 GOLDEN_CONNECTION_PASS_ENV = "GOPOD_GOLDEN_CONNECTION_PASS"
-CONNECTION_PASS_TIMEOUT_SECONDS = 15
+CONNECTION_PASS_TIMEOUT_SECONDS = global_runner_value("connection_pass_timeout_seconds")  # songs/global_knobs.json
 
 # Phase 2 only: which single robot a synthesize_speaker=True song targets -
 # mirrors run_robot_control_song_001.py's own GOPOD_CONTROL_SONG_ROBOT
@@ -178,7 +178,7 @@ WIREPOD_HOME_PATH = "/home/goverlord/wire-pod"
 SLEEP_BIN_PATH = TOGETHER_BIN_PATH.parent / "direct_sdk_robot_sleep_001"
 # The sleep tool's own safety net (it wakes the Brobot after this long with no
 # signal): longer than any nap in a song.
-SLEEPY_MAX_WAIT_SECONDS = 300.0
+SLEEPY_MAX_WAIT_SECONDS = float(global_runner_value("sleepy_max_wait_seconds"))  # songs/global_knobs.json
 SLEEPY_MOVE_NOTES = ("arm_cue", "nod", "animation")
 
 WIREPOD_PAIRING_RECOVERY_MESSAGE = (
@@ -451,6 +451,9 @@ def load_golden_song(song_dir, control_mod, _seen=None):
     shape) is untouched."""
     song_dir = Path(song_dir)
     knobs_path, knobs = load_knobs_envelope(song_dir)
+    # 2026-10-29 (operator: "global knobs > [zKnobs > knobs]"): each move step's
+    # values - its own, else the song's "moves", else the global knobs.
+    apply_knob_layers(knobs)
     # 2026-10-25 (operator's new story format): a step name can repeat (a Brobot's
     # lines around a move, "brat_say_0203" twice) - the nth step of a name in
     # knobs.json takes the nth one in story.md.
@@ -628,8 +631,8 @@ def run_continuous_hold_assume(mod, live):
 # its next step the song waits for Wire-Pod to reach it again (conn_test) and
 # then retakes its control the heal's own way - release, settle, retake, settle.
 CONTROL_RETAKE_NOTES = ("say_turn", "animation", "emotion_beat", "arm_cue", "nod")
-CONTROL_RETAKE_WAIT_SECONDS = 30.0
-CONTROL_RETAKE_POLL_SECONDS = 2.0
+CONTROL_RETAKE_WAIT_SECONDS = float(global_runner_value("control_retake_wait_seconds"))  # songs/global_knobs.json
+CONTROL_RETAKE_POLL_SECONDS = float(global_runner_value("control_retake_poll_seconds"))
 
 
 def retake_robot_control(mod, serial, name, live, robots, tag):
@@ -2521,14 +2524,14 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             # and drifts back to sleep on its own time (SleepyBrobots).
             if note == "arm_cue":
                 move = lambda serial=serial, step=step: control_mod.run_arm_cue(
-                    mod, serial, step.get("cycles", 1), step.get("hold_seconds", 1.2), live,
-                    speed=step.get("speed", 2), manage_control=False)
+                    mod, serial, step["cycles"], step["hold_seconds"], live,
+                    speed=step["speed"], manage_control=False)
             elif note == "nod":
                 move = lambda serial=serial, step=step: control_mod.run_nod(
-                    mod, serial, step.get("hold_seconds", 0.35), live, speed=step.get("speed", 2), manage_control=False)
+                    mod, serial, step["hold_seconds"], live, speed=step["speed"], manage_control=False)
             else:
                 move = lambda serial=serial, step=step: run_animation_only(
-                    mod, serial, step.get("animation_token"), step.get("hold_seconds", 2.5), live, manage_control=False)
+                    mod, serial, step.get("animation_token"), step["hold_seconds"], live, manage_control=False)
             sleepy.move(serial, step_id, move)
             entry["ok"] = True
             entry["sleepy"] = "handed to " + name
@@ -2542,7 +2545,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["ok"] = False
                 entry["error"] = "stir needs sleep_both first"
             else:
-                sleepy.move(serial, step_id, None, awake=step.get("hold_seconds", 1.0))
+                sleepy.move(serial, step_id, None, awake=step["hold_seconds"])
                 entry["ok"] = True
                 entry["sleepy"] = "stir " + name
 
@@ -2690,8 +2693,8 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         elif note == "arm_cue":
             def arm_move():
                 return control_mod.run_arm_cue(
-                    mod, serial, step.get("cycles", 1), step.get("hold_seconds", 1.2), live,
-                    speed=step.get("speed", 2), manage_control=manage_control,
+                    mod, serial, step["cycles"], step["hold_seconds"], live,
+                    speed=step["speed"], manage_control=manage_control,
                 )
             result = run_move_with_line(arm_move, lambda: say_step_line(name, step["text"])) if step.get("text") else arm_move()
             entry["ok"] = result["ok"]
@@ -2700,8 +2703,8 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         elif note == "nod":
             def nod_move():
                 return control_mod.run_nod(
-                    mod, serial, step.get("hold_seconds", 0.35), live,
-                    speed=step.get("speed", 2), manage_control=manage_control,
+                    mod, serial, step["hold_seconds"], live,
+                    speed=step["speed"], manage_control=manage_control,
                 )
             result = run_move_with_line(nod_move, lambda: say_step_line(name, step["text"])) if step.get("text") else nod_move()
             entry["ok"] = result["ok"]
@@ -2713,7 +2716,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             # a later, separate decision, per scope).
             result = control_mod.run_wheel_nudge(
                 mod, serial, control_mod.WHEEL_NUDGE_REVERSE_LW, control_mod.WHEEL_NUDGE_REVERSE_RW,
-                step.get("hold_seconds", control_mod.WHEEL_NUDGE_DEFAULT_HOLD_SECONDS), live,
+                step["hold_seconds"], live,
                 manage_control=manage_control,
             )
             entry["ok"] = result["ok"]
@@ -2738,7 +2741,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         elif note == "emotion_beat":
             result = run_emotion_beat(
                 mod, serial, name, step["text"], step.get("animation_token"),
-                step.get("hold_seconds", 5.0), live, robots, tag,
+                step["hold_seconds"], live, robots, tag,
                 manage_control=manage_control,
                 scripted_split=song.get("sentence_split") == "scripted",
             )
@@ -2759,7 +2762,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 )
             else:
                 result = run_animation_only(
-                    mod, serial, token, step.get("hold_seconds", 2.5), live,
+                    mod, serial, token, step["hold_seconds"], live,
                     manage_control=manage_control,
                 )
                 # A held clip (searching) that carries a line: the clip, then the line.

@@ -7,6 +7,12 @@ is [ALIAS-PLAY-STUDIO.md](../../../ALIAS-PLAY-STUDIO.md). Start a new song by co
 them, no steps = nothing said.
 
 One folder per song: `story.md` (the lines) and `knobs.json` (what each step does, and when).
+
+Every song starts from `global_knobs.json`: the default move values (nod, arm cue, animation,
+emotion beat, wheel nudge, stir) and the runner's shared waits. A song's own `knobs.json` overrides
+them: its `moves` block for the whole song (`{"nod": {"speed": 3, "hold_seconds": 0.4}}`), and any
+step's own value over that. Global knobs, then the song's knobs (zKnobs.json feeding knobs.json),
+then the step.
 Play the Bingo test with `pha0b` (Take Out part 1) or `start bingo test` in the Brobots chat,
 and the interview with `start interview`.
 

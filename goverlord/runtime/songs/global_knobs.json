@@ -1,0 +1,17 @@
+{
+  "about": "2026-10-29 (operator: \"what about per song/scripted run over rides? like a song may tell the global runner, nods & arm lifts are these speeds & times to do\"; \"global knobs > [zKnobs > knobs]\"): the global knobs every song starts from. A song's own knobs.json overrides any of them (its \"moves\", or a step's own value), the way zKnobs.json feeds knobs.json. moves: each move note's values when neither the step nor the song names them. runner: the song runner's shared waits, in seconds.",
+  "moves": {
+    "arm_cue": {"cycles": 1, "hold_seconds": 1.2, "speed": 2},
+    "nod": {"hold_seconds": 0.35, "speed": 2},
+    "animation": {"hold_seconds": 2.5},
+    "emotion_beat": {"hold_seconds": 5.0},
+    "wheel_nudge": {"hold_seconds": 0.5},
+    "stir": {"hold_seconds": 1.0}
+  },
+  "runner": {
+    "connection_pass_timeout_seconds": 15,
+    "sleepy_max_wait_seconds": 300,
+    "control_retake_wait_seconds": 30,
+    "control_retake_poll_seconds": 2
+  }
+}
