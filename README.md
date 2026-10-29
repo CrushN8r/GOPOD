@@ -16,6 +16,17 @@ build.
 
 ![Under construction](goverlord/wire_pod_overlay/chipper/webroot/pictures/under-construction.jpg)
 
+## How to play, not what to play
+
+GOPOD's game isn't *what* to play. It's *how* to play - that's the teaching tool: "This is how I
+thought it through. So you can too." Teach not what to think, but how to think: how to approach,
+how to engage, how to interact, how to gracefully exit.
+
+> Be a good surfer on the ocean waves of life and you'll do fine. Explain the Math!
+
+That's why it's a treasure hunt: GOPOD has value worth chasing. The chase - learning from all of
+it - is the gift back.
+
 ## What it does
 
 - **Two Brobots, one conversation.** Ask either Vector. They share one chat, remember it, and
