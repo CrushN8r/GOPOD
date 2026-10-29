@@ -37,7 +37,7 @@ func gopodAudioLevelsStart() {
 	go func() {
 		for {
 			gopodAudioLevelsUpdate()
-			time.Sleep(30 * time.Second)
+			time.Sleep(gopodTiming("audio_levels_every_seconds"))
 		}
 	}()
 }

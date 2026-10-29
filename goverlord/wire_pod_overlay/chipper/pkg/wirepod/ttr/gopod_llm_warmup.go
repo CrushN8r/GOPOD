@@ -31,12 +31,9 @@ import (
 
 var gopodLLMWarmupStatePath = gopodPathWithEnvOverride("GOPOD_LLM_WARMUP_STATE_PATH", "webroot/gopod_llm_warmup.json")
 
-const (
-	gopodLLMWarmupConfigWait = 2 * time.Minute
-	gopodLLMWarmupRetryWait  = 5 * time.Second
-	gopodLLMWarmupRetries    = 24
-	gopodLLMWarmupTimeout    = 10 * time.Minute
-)
+// The warm-up's waits are timings in the settings file (gopod_timings.go):
+// llm_config_wait_seconds, llm_retry_wait_seconds, llm_warm_request_seconds.
+const gopodLLMWarmupRetries = 24
 
 // GopodLLMWarmupStart runs the warm-up and then the keep-loaded refresh in the
 // background. Called once at startup (sdkapp BeginServer).
@@ -189,7 +186,7 @@ func gopodRunWarmup(readyText string, lines func()) {
 		}()
 		select {
 		case <-warm:
-		case <-time.After(10 * time.Minute):
+		case <-time.After(gopodTiming("llm_warm_request_seconds")):
 		}
 	}
 	if lines != nil {
@@ -273,7 +270,8 @@ var gopodWarming = struct {
 	drains bool
 }{}
 
-const gopodWarmingMax = 10 * time.Minute
+// gopodWarmingMax: timings.llm_warming_max_seconds (gopod_timings.go).
+func gopodWarmingMax() time.Duration { return gopodTiming("llm_warming_max_seconds") }
 
 type gopodQueuedLine struct{ esn, text, how string }
 
@@ -347,7 +345,7 @@ func gopodWarmingEnd() {
 func gopodWarmingNow() bool {
 	gopodWarming.Lock()
 	defer gopodWarming.Unlock()
-	return gopodWarmGateClosed.Load() || !gopodWarming.since.IsZero() && time.Since(gopodWarming.since) < gopodWarmingMax
+	return gopodWarmGateClosed.Load() || !gopodWarming.since.IsZero() && time.Since(gopodWarming.since) < gopodWarmingMax()
 }
 
 // gopodWarmupHold queues the line while a warm-up is going; true when queued.
@@ -408,7 +406,7 @@ func gopodWarmGateDrop(esn, how, text string) bool {
 // start) and returns Ollama's base address (the endpoint without "/v1") and the
 // model. Only the "custom" provider (the local Ollama) is warmed.
 func gopodWaitForOllamaConfig() (string, string, bool) {
-	deadline := time.Now().Add(gopodLLMWarmupConfigWait)
+	deadline := time.Now().Add(gopodTiming("llm_config_wait_seconds"))
 	for {
 		k := vars.APIConfig.Knowledge
 		if k.Enable && k.Provider == "custom" && strings.TrimSpace(k.Endpoint) != "" && strings.TrimSpace(k.Model) != "" {
@@ -437,7 +435,7 @@ func gopodLLMWarmup(base, model string) {
 		if err = gopodLLMWarmRequest(base, model); err == nil || !gopodIsNotUpYet(err) {
 			break
 		}
-		time.Sleep(gopodLLMWarmupRetryWait)
+		time.Sleep(gopodTiming("llm_retry_wait_seconds"))
 	}
 	if err == nil {
 		err = gopodLLMKeepLoaded(base, model)
@@ -462,7 +460,7 @@ func gopodLLMWarmRequest(base, model string) error {
 
 // gopodLLMLoaded: Ollama already holds the model (its /api/ps list); unknown is false.
 func gopodLLMLoaded(base, model string) bool {
-	client := &http.Client{Timeout: 5 * time.Second}
+	client := &http.Client{Timeout: gopodTiming("llm_check_seconds")}
 	resp, err := client.Get(base + "/api/ps")
 	if err != nil {
 		return false
@@ -500,7 +498,7 @@ func gopodOllamaPost(url string, body map[string]any) error {
 	if err != nil {
 		return err
 	}
-	client := &http.Client{Timeout: gopodLLMWarmupTimeout}
+	client := &http.Client{Timeout: gopodTiming("llm_warm_request_seconds")}
 	resp, err := client.Post(url, "application/json", bytes.NewReader(data))
 	if err != nil {
 		return err

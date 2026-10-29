@@ -38,7 +38,7 @@ func gopodEyeColorsStart() {
 					}
 				}
 			}
-			time.Sleep(30 * time.Second)
+			time.Sleep(gopodTiming("eye_colors_every_seconds"))
 		}
 	}()
 }

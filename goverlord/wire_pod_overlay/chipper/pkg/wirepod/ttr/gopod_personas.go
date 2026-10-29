@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 )
 
 // The reporters' live personas (2026-10-18, operator: "Shared reporters persona =
@@ -75,7 +74,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 		"messages": gopodPersonaMessages(host, text),
 		"options":  map[string]any{"num_predict": 120},
 	})
-	client := &http.Client{Timeout: 60 * time.Second}
+	client := &http.Client{Timeout: gopodTiming("persona_answer_seconds")}
 	resp, err := client.Post(base+"/api/chat", "application/json", bytes.NewReader(body))
 	if err != nil {
 		return "", err

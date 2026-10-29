@@ -113,7 +113,7 @@ func gopodPictureDescribeAhead() {
 		gopodPictureCache(file, e.Points)
 	}
 	// The vision model is Ollama's; give Wire-Pod's own start a moment first.
-	time.Sleep(30 * time.Second)
+	time.Sleep(gopodTiming("picture_describe_delay_seconds"))
 	for _, file := range gopodEggPictures() {
 		data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", tp.Folder, file))
 		if err != nil {

@@ -69,9 +69,6 @@ func gopodSearch(query string) ([]gopodSearchResult, error) {
 	}
 	gopodSearchCache.Unlock()
 	timeout := gopodSecondsToDuration(ss.TimeoutSeconds)
-	if timeout <= 0 {
-		timeout = 6 * time.Second
-	}
 	started := time.Now()
 	resp, err := (&http.Client{Timeout: timeout}).Get(strings.TrimRight(ss.URL, "/") + "?format=json&q=" + url.QueryEscape(query))
 	if err != nil {

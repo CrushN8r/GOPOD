@@ -49,12 +49,12 @@ var gopodRecordStatePath = gopodPathWithEnvOverride("GOPOD_RECORD_SESSION_STATE_
 const (
 	gopodRecordMarkerRecording = ".recording"
 	gopodRecordMarkerPending   = ".pending"
-	gopodRecordMicStartWait    = 15 * time.Second
-	gopodRecordMicStopWait     = 3 * time.Minute // a resample at the end (sox) included
-	gopodRecordReplyStale      = 5 * time.Minute
-	// A typed question's answer comes this long after it at most.
-	gopodRecordTypedSameWindow = 5 * time.Minute
 )
+
+// Record Session's waits are timings in the settings file (gopod_timings.go):
+// record_mic_start_seconds, record_mic_stop_seconds (a resample at the end, sox,
+// included), record_reply_stale_seconds, record_typed_same_window_seconds (a
+// typed question's answer comes this long after it at most).
 
 var gopodRecord = struct {
 	sync.Mutex
@@ -187,7 +187,7 @@ func gopodReplyBusy() bool {
 	gopodReplying.Lock()
 	defer gopodReplying.Unlock()
 	for _, at := range gopodReplying.at {
-		if time.Since(at) < gopodRecordReplyStale {
+		if time.Since(at) < gopodTiming("record_reply_stale_seconds") {
 			return true
 		}
 	}
@@ -261,7 +261,7 @@ func gopodRecordBegin() error {
 // push-to-talk works during a recording. No USB mic: the session goes on with
 // chat and logs only.
 func gopodRecordStartMic(dir string) bool {
-	r, err := gopodMicCall(map[string]any{"cmd": "record_start", "out": filepath.Join(dir, "mic_48k.wav")}, gopodRecordMicStartWait)
+	r, err := gopodMicCall(map[string]any{"cmd": "record_start", "out": filepath.Join(dir, "mic_48k.wav")}, gopodTiming("record_mic_start_seconds"))
 	if err == nil {
 		if e := gopodMicReplyError(r); e != "" {
 			err = errors.New(e)
@@ -296,7 +296,7 @@ func gopodRecordStop(reason string) string {
 	gopodRecord.Unlock()
 
 	if micOn {
-		if r, err := gopodMicCall(map[string]any{"cmd": "record_stop"}, gopodRecordMicStopWait); err != nil {
+		if r, err := gopodMicCall(map[string]any{"cmd": "record_stop"}, gopodTiming("record_mic_stop_seconds")); err != nil {
 			logger.Println("GOPOD_RECORD_SESSION room mic stop: " + err.Error())
 		} else if e := gopodMicReplyError(r); e != "" {
 			logger.Println("GOPOD_RECORD_SESSION room mic stop: " + e)
@@ -567,7 +567,7 @@ func gopodRecordExchange(esn, question string, result gopodStreamResult) {
 	// A typed question is already recorded, at the time it was typed (the feed
 	// line); a spoken one is recorded here.
 	gopodRecord.Lock()
-	typed := time.Since(gopodRecord.typedAt) < gopodRecordTypedSameWindow && gopodSameQuestion(gopodRecord.typedWords, gopodAddressWords(question))
+	typed := time.Since(gopodRecord.typedAt) < gopodTiming("record_typed_same_window_seconds") && gopodSameQuestion(gopodRecord.typedWords, gopodAddressWords(question))
 	input := "mic"
 	if typed {
 		input = "typed"

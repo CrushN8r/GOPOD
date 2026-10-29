@@ -80,7 +80,7 @@ var gopodOllamaAsk = func(prompt string, numPredict int, temperature float64) st
 		"messages": []map[string]string{{"role": "user", "content": prompt}},
 		"options":  map[string]any{"num_predict": numPredict, "temperature": temperature},
 	})
-	resp, err := (&http.Client{Timeout: 30 * time.Second}).Post(base+"/api/chat", "application/json", bytes.NewReader(body))
+	resp, err := (&http.Client{Timeout: gopodTiming("ask_ahead_seconds")}).Post(base+"/api/chat", "application/json", bytes.NewReader(body))
 	if err != nil {
 		return ""
 	}

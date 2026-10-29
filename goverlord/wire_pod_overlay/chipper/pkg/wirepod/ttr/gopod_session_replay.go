@@ -363,7 +363,7 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 				logger.Println("GOPOD_REPLAY " + err.Error())
 			}
 			// The song checks in, plays its own score and checks out.
-			for wait := time.Now().Add(20 * time.Second); !gopodRunActive() && time.Now().Before(wait); {
+			for wait := time.Now().Add(gopodTiming("replay_song_start_wait_seconds")); !gopodRunActive() && time.Now().Before(wait); {
 				time.Sleep(250 * time.Millisecond)
 			}
 			for gopodRunActive() {

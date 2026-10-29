@@ -118,7 +118,7 @@ func gopodChatHoldTakeBoth() {
 
 func gopodChatHoldWatchIdle() {
 	for {
-		time.Sleep(15 * time.Second)
+		time.Sleep(gopodTiming("chat_hold_check_seconds"))
 		idle := time.Duration(gopodBrobotsSettings.ChatHold.IdleMinutes * float64(time.Minute))
 		gopodChatHold.Lock()
 		expired := gopodChatHold.active && time.Since(gopodChatHold.last) > idle

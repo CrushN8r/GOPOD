@@ -53,7 +53,7 @@ func gopodWirePodCall(route, esn string, params url.Values) (string, error) {
 		params = url.Values{}
 	}
 	params.Set("serial", esn)
-	resp, err := (&http.Client{Timeout: 15 * time.Second}).PostForm("http://127.0.0.1:"+vars.WebPort+"/api-sdk/"+route, params)
+	resp, err := (&http.Client{Timeout: gopodTiming("robot_call_seconds")}).PostForm("http://127.0.0.1:"+vars.WebPort+"/api-sdk/"+route, params)
 	if err != nil {
 		return "", err
 	}

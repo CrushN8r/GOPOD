@@ -154,7 +154,7 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	if key == "" || place == "" {
 		return gopodWeatherFacts{}, errors.New("no weather key or location")
 	}
-	client := &http.Client{Timeout: 6 * time.Second}
+	client := &http.Client{Timeout: gopodTiming("weather_seconds")}
 	get := func(u string, into any) error {
 		resp, err := client.Get(u)
 		if err != nil {

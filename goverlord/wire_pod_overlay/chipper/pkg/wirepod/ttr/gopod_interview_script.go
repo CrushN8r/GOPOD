@@ -508,8 +508,8 @@ func gopodSayDraftLines(lines []gopodDraftLine) {
 // the question first) and then to be said; with two answers (the sign-off), the
 // brother's too, if he hasn't already answered.
 func gopodScriptWaitAnswered(answers int) {
-	deadline := time.Now().Add(8 * time.Minute)
-	waitStart := 3 * time.Minute
+	deadline := time.Now().Add(gopodTiming("interview_answers_max_seconds"))
+	waitStart := gopodTiming("interview_first_answer_wait_seconds")
 	for i := 0; i < answers; i++ {
 		start := time.Now().Add(waitStart)
 		for !gopodReplyBusy() && time.Now().Before(start) {
@@ -518,7 +518,7 @@ func gopodScriptWaitAnswered(answers int) {
 		for gopodReplyBusy() && time.Now().Before(deadline) {
 			time.Sleep(200 * time.Millisecond)
 		}
-		waitStart = 10 * time.Second
+		waitStart = gopodTiming("interview_next_answer_wait_seconds")
 	}
 }
 

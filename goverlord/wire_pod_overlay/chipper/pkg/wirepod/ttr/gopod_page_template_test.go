@@ -147,4 +147,32 @@ func TestSystemTextKeys(t *testing.T) {
 	}
 }
 
+// TestTimingsInSettings (2026-10-29, pass 4 of FLEXIBLE_DATA_SURVEY_001.md): every
+// show timing the code asks for (gopodTiming) is in the settings' timings block,
+// more than 0.
+func TestTimingsInSettings(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("no overlay here")
+	}
+	call := regexp.MustCompile(`gopodTiming\("([a-z0-9_]+)"\)`)
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	n := 0
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		data, _ := os.ReadFile(f)
+		for _, m := range call.FindAllStringSubmatch(string(data), -1) {
+			n++
+			if gopodBrobotsSettings.Timings[m[1]] <= 0 {
+				t.Errorf("%s: timings.%s is missing or not more than 0", filepath.Base(f), m[1])
+			}
+		}
+	}
+	if n < 20 {
+		t.Errorf("only %d timings read from the settings - the test no longer finds them", n)
+	}
+}
+
 // ## EOF

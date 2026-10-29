@@ -155,7 +155,7 @@ func gopodThanksEnding() {
 	// to All, Brobot 2's sign-off first (he starts within sign_off.safe_spot_seconds
 	// of Brobot 1's end); his own thanks then finds the ending already going.
 	time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.SignOff.SafeSpotSeconds))
-	for waited := time.Duration(0); gopodReplyBusy() && waited < 5*time.Minute; waited += 250 * time.Millisecond {
+	for waited := time.Duration(0); gopodReplyBusy() && waited < gopodTiming("thanks_reply_wait_max_seconds"); waited += 250 * time.Millisecond {
 		time.Sleep(250 * time.Millisecond)
 	}
 	// The session's value-point score first (gopod_value_points.go).
