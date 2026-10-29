@@ -1782,7 +1782,7 @@ _ROBOT_INFO_DIRECT_BIN="/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_ov
 # CUBE_BLIP_ALIAS_PHCAL_WIRED_001.md. No dry mode - same as
 # direct_sdk_brobots_ready_001/robot-sleep/robot-wake/robot-info above, this
 # class of tool always fires for real; there is nothing to simulate.
-# Defaults to Brobot 2 (0dd1d8bf), the cube keeper - override with a first
+# Defaults to Brobot 2 (ESN02), the cube keeper - override with a first
 # argument for a different serial. Builds the binary first if it's missing
 # or its .go source is newer (mtime check) - "builds if needed," so a fresh
 # checkout or an edited tool still works with no separate manual build step.
@@ -1790,7 +1790,7 @@ _ROBOT_INFO_DIRECT_BIN="/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_ov
 # apply: vector.NewWP() reads this env var to build an absolute path to
 # chipper/jdocs/botSdkInfo.json - unset, it falls back to a path relative to
 # whatever cwd the binary happens to be launched from, which is exactly the
-# bug a raw, unwired `./direct_sdk_cube_blip_001 0dd1d8bf` run from
+# bug a raw, unwired `./direct_sdk_cube_blip_001 ESN02` run from
 # gopod_probes/tools/ hit ("open chipper/jdocs/botSdkInfo.json: no such file
 # or directory" - it was looking for tools/chipper/jdocs/..., since nothing
 # set WIREPOD_HOME). This alias exists specifically so that never happens
@@ -1826,6 +1826,29 @@ _GOPOD_SLEEP_FIRST_WAKE_SETTLE_SECONDS="${GOPOD_SLEEP_FIRST_WAKE_SETTLE_SECONDS:
 # RETIRED 2026-07-06: duplicate of brobots-happy/brobots-angry, see alias_keyboard_survey_001.md
 # angry-robots() { brobots-angry; }
 
+# _gopod_robot_serial (2026-10-29, the robots' labels - gopod_esn_labels.go): a
+# label (ESN01, ESN02) as its robot's serial, for a direct robot connection - who
+# it is this Wire-Pod start (gopod_brobots_now.json), else the private
+# ~/.gopod_esns.json. Anything that goes through Wire-Pod just sends the label.
+_gopod_robot_serial() {
+    python3 - "$1" <<'PYEOF'
+import json, os, sys
+label = sys.argv[1].upper()
+key = {"ESN01": "brobot_1", "ESN02": "brobot_2"}.get(label)
+out = sys.argv[1]
+if key:
+    for path, k in (("/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_brobots_now.json", key), (os.path.expanduser("~/.gopod_esns.json"), label)):
+        try:
+            v = json.load(open(path)).get(k)
+            if v and v != "no-brobot-2":
+                out = v
+                break
+        except (OSError, ValueError):
+            pass
+print(out)
+PYEOF
+}
+
 # gobingo: the live Bingo game (moved from demo.sh 2026-10-08, alias clean-out).
 gobingo() {
     (
@@ -1845,7 +1868,7 @@ gobingo() {
         WIREPOD_EX_DATA_PATH=/home/goverlord/crushn8r_git/SDK/sources/vectorx/vectorfs/data \
         WIREPOD_EX_NVM_PATH=/home/goverlord/crushn8r_git/SDK/sources/vectorx/vectorfs/nvm \
         /home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/01b_brobots_bingo_game/bin/vectorx-gobingo \
-            --serial 0dd1b9e9 \
+            --serial "$(_gopod_robot_serial ESN01)" \
             --locale en-US \
             --speechText bingo \
             "$@"

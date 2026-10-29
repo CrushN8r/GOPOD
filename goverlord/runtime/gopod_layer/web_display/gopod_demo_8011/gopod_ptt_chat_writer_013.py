@@ -355,9 +355,9 @@ def persona_awareness_reply(persona: str, operator_text: str) -> str | None:
     return None
 
 # STAGE 4: minimal robot dispatch. Serials are the invariant constants
-# (CLAUDE.md: Brobot 1/Doc/vector1 = 0dd1b9e9, Brobot 2/Pip/vector2 =
-# 0dd1d8bf) - same values PERSONA_BY_KEY's KP1/KP2 already route to.
-PERSONA_ROBOT_SERIAL = {"doc": "0dd1b9e9", "pip": "0dd1d8bf"}
+# (Brobot 1/Doc = ESN01, Brobot 2/Pip = ESN02 - the robots' labels, which Wire-Pod
+# changes to the robot at its door) - the same robots PERSONA_BY_KEY's KP1/KP2 route to.
+PERSONA_ROBOT_SERIAL = {"doc": "ESN01", "pip": "ESN02"}
 WIREPOD_BASE_URL = _ENDPOINTS["wirepod"]["base_url"]
 WIREPOD_TIMEOUT_SECONDS = 8.0
 ROBOT_SETTLE_SECONDS = 1.0

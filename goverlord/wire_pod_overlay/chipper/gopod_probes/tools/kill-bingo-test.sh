@@ -21,7 +21,7 @@ settings=/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/w
     pkill -f run_golden_song_001.py && echo "song stopped" || echo "no song running"
     off_file=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['touch_interrupt']['off_file'])" "$settings")
     rm -f "$chipper/$off_file" && echo "touch interrupt on"
-    for serial in "${GOPOD_BROBOT_1_SERIAL:-0dd1b9e9}" "${GOPOD_BROBOT_2_SERIAL:-0dd1d8bf}"; do
+    for serial in "${GOPOD_BROBOT_1_SERIAL:-ESN01}" "${GOPOD_BROBOT_2_SERIAL:-ESN02}"; do
         curl -fsS --max-time 10 -X POST --data-urlencode "serial=$serial" \
             "$GOPOD_WIREPOD_BASE_URL/api-sdk/release_behavior_control" > /dev/null 2>&1 \
             && echo "released $serial" || echo "release failed $serial"

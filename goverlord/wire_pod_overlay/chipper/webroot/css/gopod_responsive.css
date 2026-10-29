@@ -78,10 +78,10 @@ body.gopod-chat-only #brobot-chat-bubbles-container.expanded {
    text field ("Waiting for approval", "Muted"). */
 .system-visitors { display: flex; flex-direction: column; gap: 4px; margin: 4px 0; }
 .system-visitors-on { display: flex; align-items: center; gap: 6px; font-weight: 600; }
-.system-visitor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 3px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); }
+.system-visitor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 3px 6px; border-radius: 6px; background: var(--glow-05); }
 .system-visitor-meta { opacity: 0.7; }
 .system-visitor .system-visitor-button { width: auto; min-width: 0; margin: 0; padding: 1px 8px; font-size: 1em; }
-.gopod-typed-input .gopod-typed-text.gopod-typed-note::placeholder { color: #ffb347; opacity: 1; }
+.gopod-typed-input .gopod-typed-text.gopod-typed-note::placeholder { color: var(--marquee-warm); opacity: 1; }
 
 /* A visitor's typing row (2026-10-24, operator: "visitor page brobots input row *
    remove 3rd line: | Record? [] | 00:25:46 | 🔇"): two lines - the Brobots, then

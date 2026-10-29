@@ -293,7 +293,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "        off - connect -> off -> release, immediate")
 		fmt.Fprintln(os.Stderr, "        connect - connect only (no lights) -> release")
 		fmt.Fprintln(os.Stderr, "        light-on-signal PATH [MAX_WAIT] [DELAY] - DELAY s, connect, wait for PATH, then the blip's lights -> release")
-		fmt.Fprintln(os.Stderr, "  Brobot 2 (cube keeper) ESN: 0dd1d8bf")
+		fmt.Fprintln(os.Stderr, "  Brobot 2 (cube keeper): ESN02")
 		os.Exit(2)
 	}
 	serial := os.Args[1]

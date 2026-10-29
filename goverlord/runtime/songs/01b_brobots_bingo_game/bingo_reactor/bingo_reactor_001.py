@@ -7,6 +7,7 @@ itself."""
 
 import argparse
 import json
+import os
 import signal
 import time
 from datetime import datetime, timezone
@@ -14,7 +15,7 @@ from pathlib import Path
 
 import anki_vector
 
-DEFAULT_BROBOT2_SERIAL = "0dd1d8bf"
+DEFAULT_BROBOT2_SERIAL = "ESN02"  # Brobot 2's label; gopod_robot_serial() finds the robot
 DEFAULT_CHAT_FILE = (
     "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/gopod_layer/web_display/"
     "gopod_demo_8011/live_chat_messages.json"
@@ -24,6 +25,26 @@ ANGRY_ANIMATION_NAME = "anim_rtpickup_loop_10"
 
 _stop_requested = False
 _stop_reason = None
+
+
+
+def gopod_robot_serial(label):
+    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
+    who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
+    private ~/.gopod_esns.json; anything else as it is (2026-10-29)."""
+    key = {"ESN01": "brobot_1", "ESN02": "brobot_2"}.get(str(label).upper())
+    if not key:
+        return label
+    now = "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_brobots_now.json"
+    for path, k in ((now, key), (os.path.expanduser("~/.gopod_esns.json"), str(label).upper())):
+        try:
+            with open(path) as f:
+                value = json.load(f).get(k)
+            if value and value != "no-brobot-2":
+                return value
+        except (OSError, ValueError):
+            pass
+    return label
 
 
 def _handle_sigint(_signum, _frame):
@@ -80,7 +101,7 @@ def run(args, robot_factory=anki_vector.Robot) -> None:
     # animation list from scratch every time, which is too slow to keep up
     # once draws come in close together.
     try:
-        robot_ctx = robot_factory(serial=args.brobot2_serial)
+        robot_ctx = robot_factory(serial=gopod_robot_serial(args.brobot2_serial))
         robot = robot_ctx.__enter__()
     except Exception as exc:  # noqa: BLE001 - best-effort by design
         print(f"GOPOD_BINGO_REACTOR_CONNECT_FAIL serial={args.brobot2_serial} reason={exc}")

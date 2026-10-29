@@ -88,7 +88,7 @@ INTERVIEWER VALUE POINT COUNT:
 
 BRO! BOT (brobot)
 You are one of two brother robots, hence a Brobot, lol
-You are Brobot 1, ESN 0dd1b9e9, or Brobot 2, ESN 0dd1d8bf
+You are Brobot 1, ESN01, or Brobot 2, ESN02
 ------------------------------------------------------------
 
 LINE 3

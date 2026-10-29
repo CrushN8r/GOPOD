@@ -64,27 +64,27 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 		"do you want to play bingo": "Another test performance?", // 2026-10-26: the pre-bingo line
 		"tell me all about GOPOD":   "",
 	} {
-		if got := gopodScriptedSnippet("0dd1b9e9", q, "start", ""); got != want {
+		if got := gopodScriptedSnippet("ESN01", q, "start", ""); got != want {
 			t.Errorf("snippet for %q = %q, want %q", q, got, want)
 		}
 	}
-	if got := gopodScriptedSnippet("0dd1d8bf", "do you want to play bingo", "start", ""); got != "Another test performance?" {
+	if got := gopodScriptedSnippet("ESN02", "do you want to play bingo", "start", ""); got != "Another test performance?" {
 		t.Errorf("Brobot 2's pre-bingo line = %q", got)
 	}
-	if got := gopodScriptedSnippet("0dd1d8bf", "what's your favourite food", "end", "happy___ Pizza and beer, bro!"); got != "Chocolate Bingo is fun for kids and adult kids too!" {
+	if got := gopodScriptedSnippet("ESN02", "what's your favourite food", "end", "happy___ Pizza and beer, bro!"); got != "Chocolate Bingo is fun for kids and adult kids too!" {
 		t.Errorf("end line for a pizza reply = %q", got)
 	}
-	if got := gopodScriptedSnippet("0dd1d8bf", "what's your favourite food", "end", "happy___ Pizza, bro!"); got != "Chocolate Bingo is fun for kids of all ages!" {
+	if got := gopodScriptedSnippet("ESN02", "what's your favourite food", "end", "happy___ Pizza, bro!"); got != "Chocolate Bingo is fun for kids of all ages!" {
 		t.Errorf("end line for a pizza-only reply = %q", got)
 	}
 	if got := gopodStitchEndSnippet("Bingo is fun for kids and adult kids too!", "happy___ Pizza, bro!"); got != "happy___ Pizza, bro!"+gopodThoughtGap()+"Bingo is fun for kids and adult kids too!" {
 		t.Errorf("end stitch = %q", got)
 	}
-	if got := gopodScriptedSnippet("0dd1b9e9", "thanks brobots", "end", "celebrate___ Party on!"); got != "Remember to GOPOD Yourself!" && got != "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!" {
+	if got := gopodScriptedSnippet("ESN01", "thanks brobots", "end", "celebrate___ Party on!"); got != "Remember to GOPOD Yourself!" && got != "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!" {
 		t.Errorf("thank-you end line = %q", got)
 	}
 	gopodBingoPlayed.Store(true)
-	if got := gopodScriptedSnippet("0dd1b9e9", "do you want to play bingo", "start", ""); got != "" {
+	if got := gopodScriptedSnippet("ESN01", "do you want to play bingo", "start", ""); got != "" {
 		t.Errorf("bingo snippet after a played run = %q, want none", got)
 	}
 	for reply, want := range map[string]string{
@@ -133,9 +133,9 @@ func TestStuckReplyGivesUp(t *testing.T) {
 	defer func() { gopodBrobotsSettings.ChatHold.StuckSeconds = saved }()
 	gopodBrobotsSettings.ChatHold.StuckSeconds = 0.05
 	start := time.Now()
-	gopodSendOrGiveUp(make(chan bool), "0dd1d8bf", "test")
-	gopodReceiveOrGiveUp(make(chan bool), "0dd1d8bf", "test")
-	gopodWaitOrGiveUp(make(chan struct{}), "0dd1d8bf", "test")
+	gopodSendOrGiveUp(make(chan bool), "ESN02", "test")
+	gopodReceiveOrGiveUp(make(chan bool), "ESN02", "test")
+	gopodWaitOrGiveUp(make(chan struct{}), "ESN02", "test")
 	if took := time.Since(start); took > time.Second {
 		t.Fatalf("stuck waits took %v", took)
 	}
@@ -164,7 +164,7 @@ func TestHighlightPiecesGolden(t *testing.T) {
 			// live 2026-10-06 14:43: the curly apostrophe in "It’s".
 			"thinking___ Now we're in HQ, the big stage awaits! 🚀 It\u2019s all about party bro beats - how your audience connects through our own wild robot vibes. 🤘 Whatcha say to that?!",
 		} {
-			rawInternal := gopodAnimationMarkerToInternal(gopodFixSelfName("0dd1b9e9", gopodCorrectNames(gopodStripLeadingAnimationWords(raw))))
+			rawInternal := gopodAnimationMarkerToInternal(gopodFixSelfName("ESN01", gopodCorrectNames(gopodStripLeadingAnimationWords(raw))))
 			display := gopodDisplayReply(raw)
 			pieces := gopodSpokenPieceTexts(buildGOPODStreamResult(rawInternal).AudibleChunks)
 			marked, segOf := gopodSegmentDisplay(display, pieces)

@@ -45,7 +45,7 @@ func TestSharedBrobotChatSpellsNames(t *testing.T) {
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
 	gopodSharedBrobotChatStart = time.Now().Add(-time.Hour)
 	writeBrobotChatSession(t, []gopodSessionExchange{
-		{Timestamp: time.Now().Add(-time.Minute), ESN: "0dd1b9e9", UserMessage: "explain go pod under the hood", RawResponse: "Go minions do the work."},
+		{Timestamp: time.Now().Add(-time.Minute), ESN: "ESN01", UserMessage: "explain go pod under the hood", RawResponse: "Go minions do the work."},
 	})
 	chat := brobotChatText(t)
 	if !strings.Contains(chat, "explain GOPOD under the hood") || !strings.Contains(chat, "Gominions do the work") {

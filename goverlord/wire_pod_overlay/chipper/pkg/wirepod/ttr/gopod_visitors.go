@@ -462,6 +462,8 @@ var gopodVisitorExact = map[string]bool{"/": true, "/index.html": true, "/favico
 var gopodVisitorRefused sync.Map // "address path" -> when last logged
 
 func gopodVisitorGate(w http.ResponseWriter, r *http.Request) bool {
+	// 2026-10-29: a robot's label (ESN01, ESN02) becomes its serial here (gopod_esn_labels.go).
+	gopodESNLabelsIn(r)
 	p := r.URL.Path
 	// 2026-10-25 (operator: "briefly shows home page then jumps ... prune out
 	// everything wire-pod from visitor GOPOD app page"): a visitor's "/" is the

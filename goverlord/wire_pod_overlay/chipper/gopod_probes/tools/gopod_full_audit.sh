@@ -123,7 +123,7 @@ fi
 # 6. System tests (inside Wire-Pod) -------------------------------------------
 run_system() { # run_system <command> -> the GOPOD_SYSTEM_SET result line
   local at; at="$(date '+%Y-%m-%d %H:%M:%S')"
-  curl -s -X POST --max-time 15 --data-urlencode "serial=0dd1b9e9" --data-urlencode "text=$1" "$base/api-sdk/gopod_typed_input" >/dev/null
+  curl -s -X POST --max-time 15 --data-urlencode "serial=ESN01" --data-urlencode "text=$1" "$base/api-sdk/gopod_typed_input" >/dev/null
   for i in $(seq 1 120); do
     sleep 3
     out="$(journalctl -a -u wire-pod --since "$at" --no-pager | grep -a -m1 "GOPOD_SYSTEM_SET system-test")" && [ -n "$out" ] && { echo "${out#*GOPOD_SYSTEM_SET }"; return; }

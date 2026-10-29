@@ -41,7 +41,7 @@ func GopodBrobotsSetup() {
 	if gopodSolo() {
 		mode = "solo - one robot, Brobot 1"
 	}
-	logger.Println("GOPOD_BROBOTS Brobot 1 " + b1 + ", Brobot 2 " + b2 + " (" + mode + ")")
+	logger.Println("GOPOD_BROBOTS Brobot 1 " + gopodESN1 + ", Brobot 2 " + GopodESNLabel(b2) + " (" + mode + ")")
 	// The songs read who's who from here (run_section1_full_live_001.py, Robots.say:
 	// solo, Brobot 2's lines are said on the speaker).
 	state, _ := json.Marshal(map[string]any{"brobot_1": b1, "brobot_2": b2, "solo": gopodSolo()})
@@ -53,10 +53,22 @@ func GopodBrobotsSetup() {
 // gopodBrobotsNowPath: who's who now, for the songs (live state, gitignored).
 func gopodBrobotsNowPath() string { return filepath.Join(gopodChipperRoot(), "gopod_brobots_now.json") }
 
-// gopodBrobotsPick: Brobot 1 and 2 from the settings, GOPOD's own two, or the
-// robots in order; one robot alone is Brobot 1 with no Brobot 2.
+// gopodBrobotsPick: Brobot 1 and 2 from the settings, the operator's own two
+// (his private ~/.gopod_esns.json, gopod_esn_labels.go), or the robots in order;
+// one robot alone is Brobot 1 with no Brobot 2. A label in the settings (ESN01,
+// ESN02) is his own robot of that label.
 func gopodBrobotsPick(robots []string, set1, set2 string) (string, string) {
-	const own1, own2 = "0dd1b9e9", "0dd1d8bf"
+	own1, own2 := gopodPrivateESNs()
+	label := func(v string) string {
+		switch strings.ToUpper(strings.TrimSpace(v)) {
+		case gopodESN1:
+			return own1
+		case gopodESN2:
+			return own2
+		}
+		return v
+	}
+	set1, set2 = label(set1), label(set2)
 	has := func(e string) bool {
 		for _, r := range robots {
 			if strings.EqualFold(r, e) {
@@ -66,11 +78,11 @@ func gopodBrobotsPick(robots []string, set1, set2 string) (string, string) {
 		return false
 	}
 	if len(robots) == 0 {
-		return firstNonEmpty(set1, own1), firstNonEmpty(set2, own2)
+		return firstNonEmpty(firstNonEmpty(set1, own1), gopodESN1), firstNonEmpty(firstNonEmpty(set2, own2), gopodESN2)
 	}
 	b1 := strings.TrimSpace(set1)
 	if b1 == "" {
-		if has(own1) {
+		if own1 != "" && has(own1) {
 			b1 = own1
 		} else {
 			b1 = robots[0]
@@ -78,7 +90,7 @@ func gopodBrobotsPick(robots []string, set1, set2 string) (string, string) {
 	}
 	b2 := strings.TrimSpace(set2)
 	if b2 == "" {
-		if has(own2) && own2 != b1 {
+		if own2 != "" && has(own2) && own2 != b1 {
 			b2 = own2
 		} else {
 			for _, r := range robots {

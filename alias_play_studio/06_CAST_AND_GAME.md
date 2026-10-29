@@ -188,6 +188,8 @@ cast, the brother banter) and gets `solo_note`. Wire-Pod writes who's who to `go
 (live state, gitignored); the songs read it - solo, Brobot 2's lines are said on the speaker. No robot
 known: nothing changes. `TestBrobotsSetup`.
 
+**The robots' labels.** Everything public - the code, the settings, the page, the docs, the scripts - names a Brobot's robot by its label: ESN01 is Brobot 1's robot, ESN02 Brobot 2's. Who they are is worked out at Wire-Pod's start: the operator's own two from a private file in his home (`~/.gopod_esns.json`), never in the repo; with none, the robots Wire-Pod knows. Wire-Pod changes a label to the robot's serial at its door (every `/api-sdk/` call and the camera stream, `gopod_esn_labels.go`), so the page, a song or a script just sends the label; what the page reads carries the label (`gopod_speaking_now.json`), and the admin page's battery icons get the order from `/api-sdk/gopod_brobot_order` (admin only). A direct robot connection (the direct-SDK tools, the Bingo reactor, `gobingo`) looks the label up itself (`gopod_brobots_now.json`, then the private file). `TestNoRealESNInRepo` fails if a tracked file names a real serial; older commits still hold them (a history rewrite is a separate call).
+
 **DocBS - Doc's brain wiring.** Brobot 1's answer, when Doc's share of his stereo dial says so
 (`docbs.share`: -1 = the Doc & Pip dial, 60 = 60% of his answers; 100 = every one), is the equation
 roast around his reply: the `docbs` part puts the frame in front - an opener, a lead-in with a

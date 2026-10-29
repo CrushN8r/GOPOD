@@ -731,6 +731,7 @@ func BeginServer() {
 	// GOPOD 2026-10-06: the chat page has played the hosts' opening (gopod_reporter_voices.go).
 	http.HandleFunc("/api-sdk/gopod_opening_heard", gopodOpeningHeardHandler)
 	http.HandleFunc("/api-sdk/gopod_page_shown", gopodPageShownHandler)
+	http.HandleFunc("/api-sdk/gopod_brobot_order", gopodBrobotOrderHandler)
 	http.HandleFunc("/api-sdk/gopod_page_played", gopodPagePlayedHandler)
 	http.HandleFunc("/api-sdk/gopod_page_note", gopodPageNoteHandler)
 	// GOPOD 2026-10-09: a song's system line, said and heard before it goes on (gopod_say_heard.go).

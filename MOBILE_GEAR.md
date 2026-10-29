@@ -25,8 +25,8 @@ Upper Crate 2 — GOPOD Compute
 ├── network gear    ← local Wi-Fi for robots and operator
 ├── Coral Edge TPU  ← local vision inference
 ├── cables, hubs, SSDs
-├── Brobot 1 (vector1 / 0dd1b9e9)
-├── Brobot 2 (vector2 / 0dd1d8bf)
+├── Brobot 1 (vector1 / ESN01)
+├── Brobot 2 (vector2 / ESN02)
 ├── Cozmos
 ├── chargers
 └── cameras / mics

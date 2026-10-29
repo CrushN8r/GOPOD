@@ -69,7 +69,7 @@ func gopodWriteSpeakingPiece(esn, text string, piece int, active, interrupted bo
 	if v, ok := gopodLastBrobotFeed.Load(gopodBrobotName(esn)); ok {
 		feed, _ = v.(int)
 	}
-	data, _ := json.Marshal(gopodSpeakingNow{ESN: esn, Text: text, Active: active, Interrupted: interrupted, Piece: piece, Seq: gopodSpeakingNowSeq, TimeMs: time.Now().UnixMilli(), Feed: feed})
+	data, _ := json.Marshal(gopodSpeakingNow{ESN: GopodESNLabel(esn), Text: text, Active: active, Interrupted: interrupted, Piece: piece, Seq: gopodSpeakingNowSeq, TimeMs: time.Now().UnixMilli(), Feed: feed})
 	tmp := gopodSpeakingNowPath + ".tmp"
 	if err := gopodWriteFile(tmp, data, 0644); err != nil {
 		logger.Println("GOPOD speaking-now write failed: " + err.Error())

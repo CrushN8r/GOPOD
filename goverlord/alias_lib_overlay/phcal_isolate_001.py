@@ -161,8 +161,8 @@ def _resolve_brobot_serials():
     if len(candidates) >= 2:
         return candidates[0]["esn"], candidates[1]["esn"]
     return (
-        os.getenv("GOPOD_BROBOT_1_SERIAL", "0dd1b9e9"),
-        os.getenv("GOPOD_BROBOT_2_SERIAL", "0dd1d8bf"),
+        os.getenv("GOPOD_BROBOT_1_SERIAL", "ESN01"),
+        os.getenv("GOPOD_BROBOT_2_SERIAL", "ESN02"),
     )
 
 
@@ -1231,7 +1231,7 @@ def cmd_cube(mod, clock, serial, robot, live):
     audio-streaming settle margin applies. Net-new 2026-08-15, the first
     GOPOD code to touch the cube instrument - see
     CUBE_DOOR_SURVEY_001.md/CUBE_BLIP_TOOL_BUILT_001.md. Cube keeper is Brobot 2
-    (robot=2, ESN 0dd1d8bf) - this primitive doesn't hardcode that (same as
+    (robot=2, ESN02) - this primitive doesn't hardcode that (same as
     rattle/danger not hardcoding a robot), it just fails cleanly if fired at
     a robot with no cube paired (ConnectCube's own Success=false path).
     WIREPOD_HOME must be set so vector.NewWP() resolves

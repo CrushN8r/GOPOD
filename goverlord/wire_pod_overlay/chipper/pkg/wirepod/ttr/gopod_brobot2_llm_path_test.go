@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const brobot2LLMProbeESN = "0dd1d8bf"
+const brobot2LLMProbeESN = "ESN02"
 
 func TestBrobot2IndependentLLMPath(t *testing.T) {
 	runLLM := strings.TrimSpace(os.Getenv("GOPOD_BROBOT2_LLM_PROBE")) == "1"

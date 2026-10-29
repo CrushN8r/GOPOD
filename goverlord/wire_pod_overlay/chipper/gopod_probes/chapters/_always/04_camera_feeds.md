@@ -1,6 +1,6 @@
 # camera feeds
 
-- **pictures:** /cam-stream?serial=0dd1b9e9, /cam-stream?serial=0dd1d8bf
+- **pictures:** /cam-stream?serial=ESN01, /cam-stream?serial=ESN02
 - **words:** camera feed, camera feeds, cam feed, cam feeds, camera feeds please, show me your cameras, what do your cameras see
 - **summary:** camera feeds | the room through our own eyes, live | KP+ / KP- turn the feeds | the Edge TPU names what it sees
 

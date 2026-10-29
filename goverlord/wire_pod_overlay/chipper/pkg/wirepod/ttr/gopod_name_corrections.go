@@ -34,13 +34,15 @@ var gopodBrainNamePattern = regexp.MustCompile(`(?i)\b(?:chat\s?)?gpt(?:-\d[\w.]
 // of its sentence, keeping the rest of the sentence.
 var gopodInventedAcronymPattern = regexp.MustCompile(`(?i)(\bGOPOD\b[^.!?\n]*?)[ \t]*(?:[,\x{2013}\x{2014}-][ \t]*)?\b(?:which[ \t]+)?(?:is[ \t]+)?(?:short[ \t]+for|stands[ \t]+for)\b[^.!?\x{2026}\n]*`)
 
-// A robot's ESN from the prompt said as a name ("Okay, so Party Bro 0dd1d8bf",
+// A robot's ESN from the prompt said as a name ("Okay, so Party Bro <Brobot 2's serial>",
 // live 2026-10-04 14:54) becomes that Brobot's name.
 func gopodESNToName(text string) string {
 	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 		text = strings.ReplaceAll(text, esn, gopodBrobotName(esn))
 	}
-	return text
+	// 2026-10-29: and a label said as a name ("Party Bro ESN02").
+	text = strings.ReplaceAll(text, gopodESN1, gopodBrobotName(gopodBrobot1ESN))
+	return strings.ReplaceAll(text, gopodESN2, gopodBrobotName(gopodBrobot2ESN))
 }
 
 func gopodCorrectNames(text string) string {

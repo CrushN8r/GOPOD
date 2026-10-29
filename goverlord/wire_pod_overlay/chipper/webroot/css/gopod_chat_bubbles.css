@@ -13,6 +13,79 @@
    that same /api/get_logs feed's own "Brobot 1: <text>" / "Brobot 2: <text>"
    lines (server.go's /api-sdk/say_text display_text/display_role fields, sent
    by every song's shared Robots.say()). */
+/* GOLDEN look tokens (2026-10-29, operator: "sweep for all flexible data ... take
+   what's there and give me a new awesome templated css/js/json cohesive package"):
+   every colour the GOPOD pages use lives here, once; every rule below uses a token.
+   Live values (a Brobot's eye colour, the system window's look) still override their
+   token from the page. */
+:root {
+  --chat-text-white: rgba(255, 255, 255, 0.85);
+  --operator-bubble-bg: #5c5c5c;
+  --score-bar-height: 6px;
+  --score-bar-track: rgba(255, 255, 255, 0.2);
+  --score-bar-fill: var(--chat-text-white);
+  --bubble-border-width: 2px;
+  --brobot-border: #33ED6D;            /* Wire-Pod's own green */
+  --goverlord-border: #00C853;         /* traffic light green */
+  --error-border: #FF1744;             /* traffic light red */
+  --chalk-border: #F5F5F0;
+  --playhead-border: #C0C0C0;
+  --git-repo-bg: #0D1117;   --git-repo-border: #2F81F7;
+  --cache-pyc-bg: #E0A800;  --cache-pyc-border: #6A0DAD;
+  --cameo-bg: #D6006F;      --cameo-border: #00E5FF;
+  --intel-404-bg: #1C3F94;  --intel-404-border: #FF2D2D;
+  --white: #fff;
+  --black: #000;
+  --ink-111: #111;
+  --ink-222: #222;
+  --ink-333: #333;
+  --ink-3a3a3a: #3a3a3a;
+  --ink-555: #555;
+  --ink-888: #888;
+  --ink-bbb: #bbb;
+  --ink-ccc: #ccc;
+  --ink-ddd: #ddd;
+  --ink-d8d8d8: #d8d8d8;
+  --shade-35: rgba(0, 0, 0, 0.35);
+  --shade-45: rgba(0, 0, 0, 0.45);
+  --shade-50: rgba(0, 0, 0, 0.5);
+  --shade-80: rgba(0, 0, 0, 0.8);
+  --shade-90: rgba(0, 0, 0, 0.9);
+  --glow-0: rgba(255, 255, 255, 0);
+  --glow-05: rgba(255, 255, 255, 0.05);
+  --glow-06: rgba(255, 255, 255, 0.06);
+  --glow-08: rgba(255, 255, 255, 0.08);
+  --glow-12: rgba(255, 255, 255, 0.12);
+  --glow-14: rgba(255, 255, 255, 0.14);
+  --glow-25: rgba(255, 255, 255, 0.25);
+  --glow-35: rgba(255, 255, 255, 0.35);
+  --glow-55: rgba(255, 255, 255, 0.55);
+  --glow-60: rgba(255, 255, 255, 0.6);
+  --brobot-1-default: #FF001A;
+  --brobot-2-default: #0009FF;
+  --eye-default: #00e5ff;
+  --record-red: #ff5a5a;
+  --menu-text: #e8ecf2;
+  --menu-code-fg-default: #9fd3ff;
+  --menu-bg-default: #1e2633;
+  --menu-code-bg-default: #141a24;
+  --menu-results-bg-default: #161c26;
+  --hourglass-sand: #e8b84a;
+  --hourglass-frame: #8a6a3a;
+  --marquee-gold: #ffd700;
+  --marquee-warm: #ffb347;
+  --marquee-cool: #e0e0ff;
+  --marquee-off: #3a3320;
+  --marquee-gold-glow: rgba(255, 215, 0, 0.6);
+  --marquee-warm-glow: rgba(255, 179, 71, 0.6);
+  --marquee-cool-glow: rgba(224, 224, 255, 0.5);
+  --chalk-board: #2f4a3c;
+  --chalk-text: #f2f2ea;
+  --playhead-board: #3b2a1e;
+  --playhead-text: #f2ece4;
+  --focus-ring: #4af;
+}
+
 #brobot-chat-bubbles-container {
   height: 0;
   overflow: hidden;
@@ -28,19 +101,19 @@
   gap: 16px;
   padding: 20px;
   box-sizing: border-box;
-  background: #111;
+  background: var(--ink-111);
   border-radius: 16px;
   margin: 12px 0;
   position: relative;
   /* 2026-10-18 (operator: "Colourize brobots window scrollbar ... to match
      brobots window"): the window's own dark, a soft grey thumb. */
-  scrollbar-color: #3a3a3a #111;
+  scrollbar-color: var(--ink-3a3a3a) var(--ink-111);
   scrollbar-width: thin;
 }
 #brobot-chat-bubbles-container.expanded::-webkit-scrollbar { width: 10px; }
-#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-track { background: #111; border-radius: 16px; }
-#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; border: 2px solid #111; }
-#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb:hover { background: #555; }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-track { background: var(--ink-111); border-radius: 16px; }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb { background: var(--ink-3a3a3a); border-radius: 8px; border: 2px solid var(--ink-111); }
+#brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb:hover { background: var(--ink-555); }
 /* 2026-10-04 (operator: "add a line for keyboard input at the very left ...
    radio buttons to select robot 1 or 2. And then a text input"; then "inside
    within the robots chat bubble"): inside the chat window, on its bottom edge,
@@ -61,10 +134,10 @@
      bottom - minimal padding - same font size as 'Brobots Chat' button"):
      Wire-Pod's buttons are 0.8em. */
   padding: 4px 12px;
-  background: #111;
-  border-top: 1px solid #333;
+  background: var(--ink-111);
+  border-top: 1px solid var(--ink-333);
   font-size: 0.8em;
-  color: #fff;
+  color: var(--white);
 }
 .gopod-typed-input label {
   display: inline-flex;
@@ -105,7 +178,7 @@
   height: 7px;
 }
 .gopod-record-session.recording {
-  color: #ff5a5a;
+  color: var(--record-red);
 }
 /* 2026-10-08: "Brobots ()1 ()2 ()All | Numpad? [] | Record? [] | 00:00:00". */
 .gopod-typed-name {
@@ -123,7 +196,7 @@
   opacity: 0.8;
 }
 .gopod-session-timer.recording {
-  color: #ff5a5a;
+  color: var(--record-red);
   opacity: 1;
 }
 .gopod-typed-text {
@@ -132,9 +205,9 @@
   font-size: 1em;
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid #555;
-  background: #222;
-  color: #fff;
+  border: 1px solid var(--ink-555);
+  background: var(--ink-222);
+  color: var(--white);
 }
 /* Wire-Pod's own text-box style (css/style.css) is trimmed to the line. */
 .gopod-typed-input input.gopod-typed-text {
@@ -144,11 +217,11 @@
   padding: 2px 8px;
   line-height: 1.3;
   text-align: left;
-  border: 1px solid var(--fg-color, #555);
+  border: 1px solid var(--fg-color, var(--ink-555));
   box-shadow: none;
 }
 .gopod-typed-text:focus {
-  outline: 2px solid #888;
+  outline: 2px solid var(--ink-888);
   outline-offset: 1px;
 }
 /* 2026-10-04 (operator: "reduce fonts & checkboxes for Show all logs & Scroll
@@ -177,7 +250,7 @@
   line-height: 1.3;
   padding: 10px 14px; /* 2026-10-02: was 16px 24px - more room for text */
   border-radius: 20px;
-  color: #fff;
+  color: var(--white);
   word-wrap: break-word;
   /* 2026-10-02 (operator): a header row ([icon] Name:) on top, the chat text
      below it at the bubble's full width. */
@@ -200,12 +273,12 @@
    robots' real colors as read live, 2026-09-01: Brobot 1 #FF001A,
    Brobot 2 #0009FF. */
 .brobot-bubble.brobot-1 {
-  background: var(--brobot-1-color, #FF001A);
+  background: var(--brobot-1-color, var(--brobot-1-default));
   align-self: flex-start;
   text-align: left;
 }
 .brobot-bubble.brobot-2 {
-  background: var(--brobot-2-color, #0009FF);
+  background: var(--brobot-2-color, var(--brobot-2-default));
   align-self: flex-end;
   /* 2026-09-29: inner text left-aligned (default), per the operator; the bubble
      itself stays on the right. */
@@ -277,11 +350,11 @@
      chapters, pictures, and the end of an "Operator to Goverlord" line. */
 .brobot-bubble.brobot-1 .brobot-bubble-avatar,
 .brobot-bubble-avatar.to-brobot-1 {
-  --eye-fill: var(--brobot-1-color, #FF001A);
+  --eye-fill: var(--brobot-1-color, var(--brobot-1-default));
 }
 .brobot-bubble.brobot-2 .brobot-bubble-avatar,
 .brobot-bubble-avatar.to-brobot-2 {
-  --eye-fill: var(--brobot-2-color, #0009FF);
+  --eye-fill: var(--brobot-2-color, var(--brobot-2-default));
 }
 .brobot-bubble-avatar.to-system {
   --eye-fill: var(--operator-bubble-bg);
@@ -338,17 +411,17 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 45%), var(--ball-color);
-  color: #fff;
+  background: radial-gradient(circle at 32% 28%, var(--glow-60), var(--glow-0) 45%), var(--ball-color);
+  color: var(--white);
   font-size: 28px;
   line-height: 56px;
   text-align: center;
 }
-.juggle-ball.ball-b { --ball-color: var(--brobot-1-color, #FF001A); }
-.juggle-ball.ball-i { --ball-color: var(--brobot-2-color, #0009FF); }
-.juggle-ball.ball-n { --ball-color: var(--brobot-1-color, #FF001A); }
-.juggle-ball.ball-g { --ball-color: var(--brobot-2-color, #0009FF); }
-.juggle-ball.ball-o { --ball-color: var(--brobot-1-color, #FF001A); }
+.juggle-ball.ball-b { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
+.juggle-ball.ball-i { --ball-color: var(--brobot-2-color, var(--brobot-2-default)); }
+.juggle-ball.ball-n { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
+.juggle-ball.ball-g { --ball-color: var(--brobot-2-color, var(--brobot-2-default)); }
+.juggle-ball.ball-o { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
 
 /* 2026-10-04 (operator: "make it like a horizontal battery power level
    indicator, horizontal with a series of vertical LEDs ... left to right, red to
@@ -359,7 +432,7 @@
   display: flex;
   gap: 5px;
   padding: 6px;
-  border: 3px solid #ddd;
+  border: 3px solid var(--ink-ddd);
   border-radius: 8px;
   height: 64px;
   box-sizing: border-box;
@@ -374,12 +447,12 @@
   width: 8px;
   height: 24px;
   border-radius: 0 4px 4px 0;
-  background: #ddd;
+  background: var(--ink-ddd);
 }
 .llm-led {
   width: 16px;
   border-radius: 3px;
-  background: #333;
+  background: var(--ink-333);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 .llm-led.lit {
@@ -411,7 +484,7 @@
   align-self: center;
   padding: 0;
   /* 2026-10-02 (operator): every called ball is the operator bubble's colour. */
-  --ball-color: #3a3a3a;
+  --ball-color: var(--ink-3a3a3a);
 }
 
 /* 2026-10-12: the called ball under its "Bingo ball captured." words. */
@@ -421,14 +494,14 @@
   margin-top: 0.75em;
 }
 .bingo-ball-under.waiting { visibility: hidden; }
-.bingo-ball-under .bingo-ball { --ball-color: #3a3a3a; }
+.bingo-ball-under .bingo-ball { --ball-color: var(--ink-3a3a3a); }
 
 .bingo-ball-face {
   width: 300px;
   height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 42%), var(--ball-color);
-  box-shadow: inset -14px -18px 30px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.45);
+  background: radial-gradient(circle at 32% 28%, var(--glow-55), var(--glow-0) 42%), var(--ball-color);
+  box-shadow: inset -14px -18px 30px var(--shade-35), 0 8px 24px var(--shade-45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -437,8 +510,8 @@
   width: 190px;
   height: 190px;
   border-radius: 50%;
-  background: #fff;
-  color: #111;
+  background: var(--white);
+  color: var(--ink-111);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -452,10 +525,6 @@
    solid white (index.html pollSpeakingNow), then back. Per the operator. Chat-reply bubbles
    (.brobot-bubble-live) and, since 2026-10-01, scripted song lines (.brobot-bubble-scripted,
    the Bingo test); other song lines, which aren't highlighted, stay solid. */
-:root {
-  --chat-text-white: rgba(255, 255, 255, 0.85);
-  --operator-bubble-bg: #5c5c5c;
-}
 .brobot-bubble-live .brobot-say,
 .brobot-bubble-scripted .brobot-say,
 .brobot-bubble.narrator .brobot-say,
@@ -466,7 +535,7 @@
 .brobot-bubble-scripted .brobot-say.speaking,
 .brobot-bubble.narrator .brobot-say.speaking,
 .brobot-bubble.voice-lit .brobot-say.speaking {
-  color: #fff;
+  color: var(--white);
 }
 /* 2026-10-15 (operator, a global rule for highlighting: "before spoken = 0% solid
    white, spoken/highlighted = 100% solid white, after spoken = 85% solid white";
@@ -636,7 +705,7 @@
   max-height: 80vh;
   object-fit: contain;
   cursor: zoom-out;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 24px var(--shade-45);
 }
 /* 2026-10-14 (operator: "QR codes ... aligned-top-right"; the weather faces:
    "use same rule: aligned top-right * display 50% of actual size"): a
@@ -661,7 +730,7 @@
   width: 64px;
   height: 64px;
   border-radius: 4px;
-  background: #fff;
+  background: var(--white);
   cursor: zoom-in;
   transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
 }
@@ -669,7 +738,7 @@
   width: 240px;
   height: 240px;
   cursor: zoom-out;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 24px var(--shade-45);
 }
 /* Vector's face screen at his own size, 184x96 (operator 2026-10-14: "increase
    weather animation size from 50% to 100%"), in the speaking Brobot's eye
@@ -680,9 +749,9 @@
   position: relative;
   width: 184px;
   height: 96px;
-  background: #000;
+  background: var(--black);
   border-radius: 6px;
-  border: 2px solid #222;
+  border: 2px solid var(--ink-222);
   overflow: hidden;
   cursor: zoom-in;
   transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
@@ -691,19 +760,19 @@
   width: 368px;
   height: 192px;
   cursor: zoom-out;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 24px var(--shade-45);
 }
 .gopod-weather-face .tint {
   position: absolute;
   inset: 0;
-  background: #00e5ff;
+  background: var(--eye-default);
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-.brobot-bubble.brobot-1 .gopod-weather-face .tint { background: var(--brobot-1-color, #FF001A); }
-.brobot-bubble.brobot-2 .gopod-weather-face .tint { background: var(--brobot-2-color, #0009FF); }
+.brobot-bubble.brobot-1 .gopod-weather-face .tint { background: var(--brobot-1-color, var(--brobot-1-default)); }
+.brobot-bubble.brobot-2 .gopod-weather-face .tint { background: var(--brobot-2-color, var(--brobot-2-default)); }
 @media (prefers-reduced-motion: reduce) {
   .topic-pictures img { transition: none; }
 }
@@ -715,10 +784,10 @@
   height: 1.33em;
   vertical-align: middle;
 }
-.warmup-hourglass .hg-frame { fill: #8a6a3a; }
-.warmup-hourglass .hg-glass { fill: none; stroke: #d8d8d8; stroke-width: 1.2; stroke-linejoin: round; }
-.warmup-hourglass .hg-sand { fill: #e8b84a; }
-.warmup-hourglass .hg-stream { stroke: #e8b84a; stroke-width: 0.8; }
+.warmup-hourglass .hg-frame { fill: var(--hourglass-frame); }
+.warmup-hourglass .hg-glass { fill: none; stroke: var(--ink-d8d8d8); stroke-width: 1.2; stroke-linejoin: round; }
+.warmup-hourglass .hg-sand { fill: var(--hourglass-sand); }
+.warmup-hourglass .hg-stream { stroke: var(--hourglass-sand); stroke-width: 0.8; }
 
 /* 2026-10-13 (operator, signed off "marquee lights are fine"; then "For marquee
    lights, please grab golden guts from this unrelated response and apply to live
@@ -742,21 +811,21 @@
   height: 8px;
   margin: -4px 0 0 -4px;
   border-radius: 50%;
-  background: #3a3320;
-  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
+  background: var(--marquee-off);
+  box-shadow: inset 0 0 2px var(--shade-80);
   transition: background 0.08s ease, box-shadow 0.08s ease;
 }
 .marquee-light.on {
-  background: #ffd700;
-  box-shadow: 0 0 5px 1px #ffd700, 0 0 10px 2px rgba(255, 215, 0, 0.6), inset 0 0 3px #fff;
+  background: var(--marquee-gold);
+  box-shadow: 0 0 5px 1px var(--marquee-gold), 0 0 10px 2px var(--marquee-gold-glow), inset 0 0 3px var(--white);
 }
 .marquee-light.on-warm {
-  background: #ffb347;
-  box-shadow: 0 0 5px 1px #ffb347, 0 0 10px 2px rgba(255, 179, 71, 0.6), inset 0 0 3px #fff;
+  background: var(--marquee-warm);
+  box-shadow: 0 0 5px 1px var(--marquee-warm), 0 0 10px 2px var(--marquee-warm-glow), inset 0 0 3px var(--white);
 }
 .marquee-light.on-cool {
-  background: #e0e0ff;
-  box-shadow: 0 0 5px 1px #e0e0ff, 0 0 10px 2px rgba(224, 224, 255, 0.5), inset 0 0 3px #fff;
+  background: var(--marquee-cool);
+  box-shadow: 0 0 5px 1px var(--marquee-cool), 0 0 10px 2px var(--marquee-cool-glow), inset 0 0 3px var(--white);
 }
 
 /* 2026-10-13 (operator: "add a speaker on/off toggle icon thingy, after the
@@ -778,7 +847,7 @@
   cursor: pointer;
 }
 .gopod-loop-speaker:focus-visible {
-  outline: 2px solid #4af;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -837,7 +906,7 @@
    (live_split.thought_lines). */
 .thought-gap { display: block; height: 0.8em; }
 .brobot-say.speaking .seq-unit.said { color: var(--chat-text-white); }
-.brobot-say.speaking .seq-unit.now { color: #fff; }
+.brobot-say.speaking .seq-unit.now { color: var(--white); }
 
 /* 2026-10-15: a link in a bubble (the Weather Kit) - the bubble's own text colour,
    underlined. */
@@ -896,13 +965,13 @@ img.gopod-qr2 {
   width: 64px;
   height: 64px;
   border-radius: 4px;
-  background: #fff;
+  background: var(--white);
   vertical-align: middle;
   margin-left: 4px;
   cursor: zoom-in;
   transition: width 0.25s ease, height 0.25s ease, box-shadow 0.25s ease;
 }
-img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45); }
+img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow: 0 6px 24px var(--shade-45); }
 /* 2026-10-17 (operator: "put a centered rounded-rectangle bubble around the search
    results * search results font @ 50% size * do a fast character by character
    reveal"): a "search ..." line's results, centered, small, typed in. */
@@ -912,8 +981,8 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   margin-right: auto;
   max-width: 80%;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--glow-06);
+  border: 1px solid var(--glow-25);
   padding: 8px 14px;
 }
 .search-results-text { font-size: 50%; line-height: 1.45; white-space: normal; }
@@ -935,21 +1004,21 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 /* 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
    chalkboard color background"): CHALK's bubbles and its egg on a chalkboard. */
 .brobot-bubble.host-chalk {
-  background: #2f4a3c;
-  color: #f2f2ea;
+  background: var(--chalk-board);
+  color: var(--chalk-text);
 }
 /* 2026-10-18 (operator: "PLAYHEAD ... his bubble background is tape ribbon color
    of vintage video tape cassettes"): PLAYHEAD's bubbles and eggs on tape brown. */
 .brobot-bubble.host-playhead {
-  background: #3b2a1e;
-  color: #f2ece4;
+  background: var(--playhead-board);
+  color: var(--playhead-text);
 }
 /* CHALK's search-results box on its board too (it keeps its small size). */
-.brobot-bubble.search-results.host-chalk { background: #2f4a3c; }
+.brobot-bubble.search-results.host-chalk { background: var(--chalk-board); }
 /* 2026-10-18 (operator: "QR codes handled by CHALK"): CHALK's QR board - each
    code with its name under it, the magnifier on each. */
 .chalk-qr .chalk-qr-code { margin: 0 8px; text-align: center; }
-.chalk-qr .chalk-qr-code img.gopod-qr { width: 120px; height: 120px; border-radius: 4px; background: #fff; cursor: zoom-in; }
+.chalk-qr .chalk-qr-code img.gopod-qr { width: 120px; height: 120px; border-radius: 4px; background: var(--white); cursor: zoom-in; }
 .chalk-qr .chalk-qr-code img.gopod-qr.zoomed { width: 280px; height: 280px; }
 .chalk-qr .chalk-qr-code figcaption { font-size: 50%; margin-top: 4px; }
 /* 2026-10-18 (operator: "PLAYHEAD bubble displays inside brobot N bubble * at top
@@ -961,7 +1030,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   margin: 8px 0;
   align-self: stretch;
 }
-.manager-qr { width: 120px; height: 120px; border-radius: 4px; background: #fff; cursor: zoom-in; }
+.manager-qr { width: 120px; height: 120px; border-radius: 4px; background: var(--white); cursor: zoom-in; }
 .manager-qr.zoomed { width: 280px; height: 280px; }
 
 /* GOLDEN system menu (2026-10-19, operator: "drop-down-menu bubble * similar to
@@ -983,18 +1052,18 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   margin-top: 0;
   padding: 8px 10px;
   border-radius: 12px;
-  background: var(--menu-bg, #1e2633);
+  background: var(--menu-bg, var(--menu-bg-default));
   /* 2026-10-29 (operator: "the GOPOD system Torah ... A matching light touch of a
      Torah look"): a theme's texture, frame and accent (system_menu.look texture,
      border, accent); none for the other themes. */
   background-image: var(--menu-texture, none);
   border: var(--menu-border, none);
-  color: #e8ecf2;
+  color: var(--menu-text);
   text-align: left;
   font-size: var(--menu-font, 50%);
 }
 .system-menu-intro { margin-bottom: 6px; opacity: 0.85; }
-.system-menu-group { border-top: 1px solid var(--menu-rule, rgba(255, 255, 255, 0.12)); padding: 4px 0; }
+.system-menu-group { border-top: 1px solid var(--menu-rule, var(--glow-12)); padding: 4px 0; }
 .system-menu-group > summary { cursor: pointer; font-weight: 600; padding: 3px 0; color: var(--menu-accent, inherit); }
 .system-menu-guide, .system-menu-next { margin: 2px 0 4px; opacity: 0.8; }
 .system-menu-next { font-style: italic; }
@@ -1008,16 +1077,16 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   padding: 4px 8px;
   border: 0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glow-06);
   color: inherit;
   font: inherit;
   cursor: pointer;
 }
-.system-menu-item:hover, .system-menu-item:focus-visible { background: rgba(255, 255, 255, 0.14); }
+.system-menu-item:hover, .system-menu-item:focus-visible { background: var(--glow-14); }
 .system-menu-item code {
   white-space: nowrap;
-  color: var(--menu-code-fg, #9fd3ff);
-  background: var(--menu-code-bg, #141a24);
+  color: var(--menu-code-fg, var(--menu-code-fg-default));
+  background: var(--menu-code-bg, var(--menu-code-bg-default));
   padding: 1px 6px;
   border-radius: 4px;
 }
@@ -1032,8 +1101,8 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   margin-top: 0;
   padding: 8px 10px;
   border-radius: 12px;
-  background: var(--menu-results-bg, #161c26);
-  color: #e8ecf2;
+  background: var(--menu-results-bg, var(--menu-results-bg-default));
+  color: var(--menu-text);
   text-align: left;
   font-size: var(--menu-font, 50%);
   white-space: pre-wrap;
@@ -1045,7 +1114,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .voices-panel .voices-row { margin: 2px 0; }
 .voices-panel select { font: inherit; }
 .voices-panel select.voice-twice { font-weight: bold; }
-.system-menu-result.ask { color: var(--menu-code-fg, #9fd3ff); }
+.system-menu-result.ask { color: var(--menu-code-fg, var(--menu-code-fg-default)); }
 .system-menu-results .search-results { max-width: 100%; margin: 4px 0; }
 /* The bar between the menu and its results: drag it up or down. */
 /* 2026-10-19 (operator: "I cannot adjust vertical heights? ... some visual
@@ -1059,19 +1128,19 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   margin: 0;
   cursor: row-resize;
   touch-action: none;
-  background: linear-gradient(to right, transparent calc(50% - 24px), rgba(255, 255, 255, 0.35) calc(50% - 24px), rgba(255, 255, 255, 0.35) calc(50% + 24px), transparent calc(50% + 24px)) center / 100% 3px no-repeat;
+  background: linear-gradient(to right, transparent calc(50% - 24px), var(--glow-35) calc(50% - 24px), var(--glow-35) calc(50% + 24px), transparent calc(50% + 24px)) center / 100% 3px no-repeat;
 }
-.system-menu-split:hover { background-color: rgba(255, 255, 255, 0.12); }
+.system-menu-split:hover { background-color: var(--glow-12); }
 .system-menu-results:empty { display: block; }
 /* GOLDEN system window, locked 2026-10-19 (operator: "Perfect. I like how window 2
    overlaps window 1 * increase system inner width a bit, so top-right scroll bar
    corner doesn't overlap * Lock that in"): the menu a little wider (less padding
    on the right), its scroll bar in its own lane, clear of the rounded corner. */
 .brobot-bubble.system-menu-host { padding-right: 2px; }
-.system-menu, .system-menu-results { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+.system-menu, .system-menu-results { scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: var(--ink-3a3a3a) transparent; }
 .system-menu::-webkit-scrollbar, .system-menu-results::-webkit-scrollbar { width: 8px; }
 .system-menu::-webkit-scrollbar-track, .system-menu-results::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
-.system-menu::-webkit-scrollbar-thumb, .system-menu-results::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 6px; }
+.system-menu::-webkit-scrollbar-thumb, .system-menu-results::-webkit-scrollbar-thumb { background: var(--ink-3a3a3a); border-radius: 6px; }
 /* 2026-10-20 (operator: "upon mouseover, display a vertical volume bar + knob to
    adjust volume * range = 0% to 100%"): above the speaker icon, while hovered. */
 .gopod-typed-input { position: sticky; }
@@ -1085,8 +1154,8 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   gap: 4px;
   padding: 8px 6px;
   border-radius: 10px;
-  background: #1e2633;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  background: var(--menu-bg-default);
+  box-shadow: 0 2px 8px var(--shade-50);
   z-index: 5;
 }
 .gopod-loop-volume.open { display: flex; }
@@ -1096,10 +1165,10 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   height: 120px;
   width: 22px;
   margin: 0;
-  accent-color: #9fd3ff;
+  accent-color: var(--menu-code-fg-default);
   cursor: pointer;
 }
-.gopod-loop-volume-label { font-size: 11px; color: #e8ecf2; }
+.gopod-loop-volume-label { font-size: 11px; color: var(--menu-text); }
 /* 2026-10-20 (operator: "cams feed * only a single row should appear"): a picture row in the menu's results stays one row. */
 .system-menu-results .topic-pictures { display: flex; flex-wrap: nowrap; gap: 6px; }
 .system-menu-results .topic-pictures img { flex: 1 1 0; min-width: 0; max-height: 180px; object-fit: contain; }
@@ -1176,7 +1245,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glow-06);
 }
 .topic-pictures .picture-wait .warmup-timer.generating-timer { display: inline-flex; font-size: 48px; gap: 0; margin: 0; padding: 0; }
 .topic-pictures .picture-wait .countdown-hourglass .hg { width: 0.75em; height: 1em; }
@@ -1243,7 +1312,6 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   white-space: nowrap;
 }
 .bubble-notice .notice-score-label { flex: 0 0 11.5em; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
-:root { --score-bar-height: 6px; --score-bar-track: rgba(255, 255, 255, 0.2); --score-bar-fill: var(--chat-text-white); }
 .bubble-notice .notice-score-bar {
   flex: 1 1 auto;
   min-width: 2em;
@@ -1262,18 +1330,6 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    gold * Cameo = deep neon pink * Both Intel 404's = police blue"; "Apply Bubble
    borders as shown"). The bubble template: each kind's two colours, here only -
    bg and border. The border is a thin ring (box-shadow), so no bubble moves. */
-:root {
-  --bubble-border-width: 2px;
-  --brobot-border: #33ED6D;            /* Wire-Pod's own green */
-  --goverlord-border: #00C853;         /* traffic light green */
-  --error-border: #FF1744;             /* traffic light red */
-  --chalk-border: #F5F5F0;
-  --playhead-border: #C0C0C0;
-  --git-repo-bg: #0D1117;   --git-repo-border: #2F81F7;
-  --cache-pyc-bg: #E0A800;  --cache-pyc-border: #6A0DAD;
-  --cameo-bg: #D6006F;      --cameo-border: #00E5FF;
-  --intel-404-bg: #1C3F94;  --intel-404-border: #FF2D2D;
-}
 .brobot-bubble[data-tier="gominion"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--brobot-border); }
 .brobot-bubble[data-tier="goverlord"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--goverlord-border); }
 .brobot-bubble.host-chalk { box-shadow: 0 0 0 var(--bubble-border-width) var(--chalk-border); }
@@ -1304,14 +1360,14 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .gopod-result-title { font-weight: bold; margin: 0 0 4px; }
 .gopod-result-line { margin: 1px 0; white-space: pre-wrap; }
 .gopod-result-table { display: grid; grid-template-columns: minmax(0, max-content) 1fr; gap: 2px 12px; margin: 2px 0 4px; align-items: baseline; }
-.gopod-result-cmd { font-family: monospace; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--menu-code-bg, rgba(255, 255, 255, 0.08)); padding: 0 4px; border-radius: 4px; }
+.gopod-result-cmd { font-family: monospace; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--menu-code-bg, var(--glow-08)); padding: 0 4px; border-radius: 4px; }
 .gopod-result-about { white-space: pre-wrap; }
 .brobot-bubble.terminal .brobot-bubble-text.terminal-text { display: block; text-align: left; }
 /* 2026-10-29 (operator: "click to copy results to clipboard button/icon"): each
    answer's copy button, at its top right. */
 .system-menu-result.answer { position: relative; padding-right: 2em; }
-.gopod-result-copy { position: absolute; top: 0; right: 0; font: inherit; line-height: 1; padding: 2px 5px; border: 1px solid var(--menu-rule, #3a3a3a); border-radius: 6px; background: var(--menu-code-bg, #141a24); color: inherit; cursor: pointer; opacity: 0.7; }
+.gopod-result-copy { position: absolute; top: 0; right: 0; font: inherit; line-height: 1; padding: 2px 5px; border: 1px solid var(--menu-rule, var(--ink-3a3a3a)); border-radius: 6px; background: var(--menu-code-bg, var(--menu-code-bg-default)); color: inherit; cursor: pointer; opacity: 0.7; }
 .gopod-result-copy:hover { opacity: 1; }
 /* 2026-10-29: the copy-all bar, at the top of the results while they scroll. */
-.gopod-results-copy-all { position: sticky; top: -8px; z-index: 1; display: flex; justify-content: flex-end; margin: -8px -10px 4px; padding: 4px 6px; background: var(--menu-results-bg, #161c26); }
+.gopod-results-copy-all { position: sticky; top: -8px; z-index: 1; display: flex; justify-content: flex-end; margin: -8px -10px 4px; padding: 4px 6px; background: var(--menu-results-bg, var(--menu-results-bg-default)); }
 .gopod-results-copy-all .gopod-result-copy { position: static; }

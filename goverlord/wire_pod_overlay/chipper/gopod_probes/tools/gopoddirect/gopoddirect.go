@@ -17,12 +17,48 @@ package gopoddirect
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/fforchino/vector-go-sdk/pkg/vector"
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
 )
+
+// RobotSerial (2026-10-29, the robots' labels - ttr/gopod_esn_labels.go): a
+// label (ESN01, ESN02) as its robot's serial, for a direct connection - who it
+// is this Wire-Pod start (chipper/gopod_brobots_now.json, under WIREPOD_HOME or
+// the overlay), else the operator's private ~/.gopod_esns.json; anything else as
+// it is.
+func RobotSerial(serial string) string {
+	label := strings.ToUpper(strings.TrimSpace(serial))
+	key := map[string]string{"ESN01": "brobot_1", "ESN02": "brobot_2"}[label]
+	if key == "" {
+		return serial
+	}
+	home, _ := os.UserHomeDir()
+	tries := [][2]string{
+		{filepath.Join(home, "crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_brobots_now.json"), key},
+		{filepath.Join(home, ".gopod_esns.json"), label},
+	}
+	for _, t := range tries {
+		data, err := os.ReadFile(t[0])
+		if err != nil {
+			continue
+		}
+		var m map[string]any
+		if json.Unmarshal(data, &m) != nil {
+			continue
+		}
+		if v, ok := m[t[1]].(string); ok && v != "" && v != "no-brobot-2" {
+			return v
+		}
+	}
+	return serial
+}
 
 // ConnectAndGrant connects to serial and requests+waits for a real,
 // confirmed BehaviorControl grant (OVERRIDE_BEHAVIORS priority) - the exact
@@ -36,7 +72,7 @@ import (
 // control_request_send/control_grant_recv), so nothing downstream that logs
 // or inspects that text sees a different shape than before this refactor.
 func ConnectAndGrant(ctx context.Context, serial string) (*vector.Vector, vectorpb.ExternalInterface_BehaviorControlClient, error) {
-	robot, err := vector.NewWP(serial)
+	robot, err := vector.NewWP(RobotSerial(serial))
 	if err != nil {
 		return nil, nil, fmt.Errorf("connect: %v", err)
 	}

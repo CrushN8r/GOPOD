@@ -154,7 +154,10 @@
       // command runs, anything else is a chat question. The choice of Brobot
       // starts on All at every page load (see savedRobot below).
       // Which Brobot each robot ESN is (also used for the "zzz" bubble below).
-      var ESN_TO_BROBOT = { "0dd1b9e9": "Brobot 1", "0dd1d8bf": "Brobot 2" };
+      // 2026-10-29 (operator: "publically all people see is ESN01, ESN02 labels"): the
+      // page names each Brobot's robot by its label; Wire-Pod knows who they are
+      // (gopod_esn_labels.go) and changes a label to the robot at its door.
+      var ESN_TO_BROBOT = { "ESN01": "Brobot 1", "ESN02": "Brobot 2" };
       // The admin (2026-10-23, operator: "System Window for admin users only
       // (me)"): the page opened on GOPOD's own machine. Other devices are
       // visitors (an admin PIN for them comes with C5).
@@ -172,7 +175,7 @@
       // both Brobots get the line, as when both hear it spoken (gopod_typed_input.go).
       // 2026-10-08 (operator: "Brobots ()1 ()2 ()All | Numpad? [] | Record? [] |
       // 00:00:00"): the line's layout.
-      var TYPED_TARGETS = { "0dd1b9e9": "1", "0dd1d8bf": "2", "all": "All" };
+      var TYPED_TARGETS = { "ESN01": "1", "ESN02": "2", "all": "All" };
       function typedRowText(text, className) {
         var span = document.createElement("span");
         span.className = className;
@@ -4851,7 +4854,7 @@
       // the reply ends; interrupted=true on a touch interrupt); the sentence in that robot's newest bubble that shares
       // the most words with it gets the "speaking" class (solid white). Words are compared, not
       // exact text, because the spoken copy is the pronounced one ("Gowp-awd", no emoji).
-      var ESN_TO_BUBBLE_CLASS = { "0dd1b9e9": "brobot-1", "0dd1d8bf": "brobot-2" };
+      var ESN_TO_BUBBLE_CLASS = { "ESN01": "brobot-1", "ESN02": "brobot-2" };
       // 2026-10-15 (operator: "revealed as it is heard, not ahead of robot
       // speech"): a piece shows when it's lit (.speaking) and stays at 85%
       // (.spoken); the pieces before it count as heard too (a missed highlight
@@ -5233,11 +5236,22 @@
       // each by its place in the page, so they are reordered by CSS order only
       // (the page order stays as battery.js made it). Each icon is known by the
       // serial in its tooltip.
+      // 2026-10-29: the serials in Brobot order come from Wire-Pod (admin only,
+      // /api-sdk/gopod_brobot_order) - the page itself names robots by label.
+      var botOrder = [], botOrderAsked = 0;
       function orderBotStats() {
+        if (!isAdminPage) { return; }
+        if (!botOrder.length && Date.now() - botOrderAsked > 10000) {
+          botOrderAsked = Date.now();
+          fetch("/api-sdk/gopod_brobot_order", { cache: "no-store" })
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (list) { if (Array.isArray(list)) { botOrder = list.map(function (e) { return String(e).toLowerCase(); }); } })
+            .catch(function () { /* Wire-Pod gone */ });
+        }
         var boxes = document.querySelectorAll("#botStats .batteryContainer");
         Array.prototype.forEach.call(boxes, function (box) {
           var serial = box.querySelector(".tooltip b");
-          var place = serial ? Object.keys(ESN_TO_BROBOT).indexOf(serial.textContent.trim()) : -1;
+          var place = serial ? botOrder.indexOf(serial.textContent.trim().toLowerCase()) : -1;
           if (place >= 0 && box.style.order !== String(place)) { box.style.order = String(place); }
         });
       }

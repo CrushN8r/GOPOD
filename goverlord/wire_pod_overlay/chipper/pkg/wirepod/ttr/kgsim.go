@@ -230,7 +230,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	// check last, nearest the question (BROBOTS_LAYERED_PROMPT_002.md).
 	if !usedOpenAIPrompt {
 		// 2026-10-05: the brother's persona line only - no ESN. The robot ID in
-		// the prompt was said out loud ("I'm Brobot ESN 0dd1b9e9"); the code tells
+		// the prompt was said out loud ("I'm Brobot ESN <serial>"); the code tells
 		// the brothers apart by ESN, the model only needs his name
 		// (SOCIAL_DEMO_REPLAY_003.md).
 		whoIAm := esnLine

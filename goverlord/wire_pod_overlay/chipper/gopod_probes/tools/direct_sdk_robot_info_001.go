@@ -49,6 +49,7 @@ import (
 
 	"github.com/fforchino/vector-go-sdk/pkg/vector"
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
+	"github.com/kercre123/wire-pod/chipper/gopod_probes/tools/gopoddirect"
 )
 
 const rpcTimeoutSeconds = 20.0
@@ -96,7 +97,7 @@ func fetchInfo(serial, label string) (res robotResult) {
 	// to-tens-of-seconds stalls, so each RPC call below gets its own
 	// bounded context rather than sharing one that could be exhausted by
 	// an earlier slow/hung call.
-	robot, err := vector.NewWP(serial)
+	robot, err := vector.NewWP(gopoddirect.RobotSerial(serial))
 	if err != nil {
 		res.ConnectErr = err.Error()
 		return res

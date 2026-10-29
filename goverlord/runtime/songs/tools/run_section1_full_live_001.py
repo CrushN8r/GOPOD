@@ -86,8 +86,10 @@ LIVE_GATE = "GOPOD_ALLOW_LIVE_ROBOT_SPEECH"
 # ever runs - same env var brobots.sh's own aliases now read the same way.
 WIREPOD_BASE_URL = os.getenv("GOPOD_WIREPOD_BASE_URL")
 ROBOT_EXPRESSION_GATE = os.getenv("ROBOT_EXPRESSION", "")
-BROBOT_1_SERIAL = os.getenv("GOPOD_BROBOT_1_SERIAL", "0dd1b9e9")
-BROBOT_2_SERIAL = os.getenv("GOPOD_BROBOT_2_SERIAL", "0dd1d8bf")
+# 2026-10-29: the robots' labels (ESN01, ESN02) - Wire-Pod changes a label to its
+# robot at its door (gopod_esn_labels.go); gopod_brobots_now.json, below, names them.
+BROBOT_1_SERIAL = os.getenv("GOPOD_BROBOT_1_SERIAL", "ESN01")
+BROBOT_2_SERIAL = os.getenv("GOPOD_BROBOT_2_SERIAL", "ESN02")
 # 2026-10-29 (the single-bot setup): who's who this Wire-Pod start
 # (gopod_brobots_now.json, written by Wire-Pod - gopod_brobots_setup.go). Solo
 # (one robot): Brobot 1 is that robot, and Brobot 2's lines are said on the

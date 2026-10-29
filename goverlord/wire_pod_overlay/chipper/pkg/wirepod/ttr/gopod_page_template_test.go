@@ -74,4 +74,25 @@ func TestPageRunsFromSettings(t *testing.T) {
 	}
 }
 
+// TestLookIsTokens (2026-10-29, pass 2 of FLEXIBLE_DATA_SURVEY_001.md): every colour
+// the GOPOD pages use is a look token, set once in a :root block; no rule types a
+// colour of its own.
+func TestLookIsTokens(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("no overlay here")
+	}
+	strip := regexp.MustCompile(`(?s)/\*.*?\*/|:root\s*\{[^}]*\}`)
+	colour := regexp.MustCompile(`#[0-9a-fA-F]{3,8}\b|rgba?\(`)
+	for _, f := range []string{"gopod_chat_bubbles.css", "gopod_responsive.css", "gopod_weather_kit.css", "gopod_session_page.css"} {
+		data, err := os.ReadFile(filepath.Join(root, "webroot/css", f))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if m := colour.FindString(strip.ReplaceAllString(string(data), "")); m != "" {
+			t.Errorf("%s types a colour in a rule (%s) - make it a look token in :root", f, m)
+		}
+	}
+}
+
 // ## EOF

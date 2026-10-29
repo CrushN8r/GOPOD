@@ -20,6 +20,10 @@ func TestMain(m *testing.M) {
 	gopodRecordStatePath = filepath.Join(dir, "gopod_record_session.json")
 	gopodLLMWarmupStatePath = filepath.Join(dir, "gopod_llm_warmup.json")
 	gopodSpeakingNowPath = filepath.Join(dir, "gopod_speaking_now.json")
+	// 2026-10-29: the robots are their labels (ESN01, ESN02) in the tests, and the
+	// operator's private file of his own robots is a test one.
+	gopodPrivateESNsPath = filepath.Join(dir, "gopod_esns.json")
+	os.WriteFile(gopodPrivateESNsPath, []byte(`{"ESN01": "own00001", "ESN02": "own00002"}`), 0o644)
 	// 2026-10-29: DocBS is off in the tests (its own test turns it on), so other
 	// tests' answers stay the same each run.
 	gopodBrobotsSettings.DocBS.Share = 0

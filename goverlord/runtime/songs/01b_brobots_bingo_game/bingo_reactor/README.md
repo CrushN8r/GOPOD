@@ -1,7 +1,7 @@
 # Bingo reactor
 
 `bingo_reactor_001.py` watches the chat file the Bingo game writes to. Each time a number is
-drawn, it plays an angry animation (`anim_rtpickup_loop_10`) on Brobot 2 (`0dd1d8bf`), and it
+drawn, it plays an angry animation (`anim_rtpickup_loop_10`) on Brobot 2 (`ESN02`), and it
 stops itself about 2 seconds after the game ends.
 
 - **Runs with the game:** `gobingo` starts it in the background and stops it when Bingo exits.

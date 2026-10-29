@@ -18,7 +18,7 @@ func TestSessionPageCarriesItsCSS(t *testing.T) {
 		t.Fatal("no page written")
 	}
 	page, _ := os.ReadFile(matches[0])
-	if !strings.Contains(string(page), ".b2{background:#101a4a}") || !strings.Contains(string(page), "Operator") {
+	if !strings.Contains(string(page), ".b2{background:var(--brobot-2-bg)}") || !strings.Contains(string(page), "--brobot-2-bg:#101a4a") || !strings.Contains(string(page), "Operator") {
 		t.Fatalf("page lacks its css or line:\n%s", page)
 	}
 }

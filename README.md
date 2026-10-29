@@ -87,6 +87,11 @@ Wire-Pod knows; one robot alone is Brobot 1, solo:
 
 To pick which robot is which, set `brobots_setup.brobot_1` / `brobot_2` (an ESN) in the settings file.
 
+GOPOD names the robots by label everywhere public - ESN01 is Brobot 1's robot, ESN02 Brobot 2's.
+Your own robots' serials go in a private file in your home, `~/.gopod_esns.json`
+(`{"ESN01": "<serial>", "ESN02": "<serial>"}`), never in the repo; Wire-Pod changes a label to its
+robot as a call comes in.
+
 ## The rig
 
 ![Both crates on the dolly](goverlord/wire_pod_overlay/chipper/webroot/pictures/gear/rig_dolly_side.jpg)

@@ -30,7 +30,7 @@ from pathlib import Path
 
 BASE = "http://localhost:8080"
 NOTES = Path.home() / "crushn8r_git" / "gopod_notes"
-ESN = {"1": "0dd1b9e9", "2": "0dd1d8bf", "all": "all"}
+ESN = {"1": "ESN01", "2": "ESN02", "all": "all"}  # the robots' labels (gopod_esn_labels.go)
 
 # The session: (to, line, what it checks, words the answer must have).
 # 2026-10-24 (operator: "Ask questions to finish the game, not tell a joke * ask

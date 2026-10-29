@@ -7,5 +7,5 @@
 # Arg 1: the robot's serial (!botSerial). Output: /tmp/start_interview_intent.log
 source /home/goverlord/.gopod_alias_lib/local_config.sh
 curl -s -X POST "$GOPOD_WIREPOD_BASE_URL/api-sdk/gopod_typed_input" \
-    --data-urlencode "voice=1" --data-urlencode "serial=${1:-0dd1b9e9}" --data-urlencode "text=start interview" \
+    --data-urlencode "voice=1" --data-urlencode "serial=${1:-ESN01}" --data-urlencode "text=start interview" \
     > /tmp/start_interview_intent.log 2>&1 &

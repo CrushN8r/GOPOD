@@ -292,6 +292,26 @@ def format_for_robot(facts, unit, clock, include_location_date=False):
     return {"spoken": spoken, "display_text": display_text, "local_time": time_str}
 
 
+
+def gopod_robot_serial(label):
+    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
+    who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
+    private ~/.gopod_esns.json; anything else as it is (2026-10-29)."""
+    key = {"ESN01": "brobot_1", "ESN02": "brobot_2"}.get(str(label).upper())
+    if not key:
+        return label
+    now = "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_brobots_now.json"
+    for path, k in ((now, key), (os.path.expanduser("~/.gopod_esns.json"), str(label).upper())):
+        try:
+            with open(path) as f:
+                value = json.load(f).get(k)
+            if value and value != "no-brobot-2":
+                return value
+        except (OSError, ValueError):
+            pass
+    return label
+
+
 def load_robot_format_from_jdocs(serial, jdocs_path=None):
     """Read the target robot's LIVE vic.RobotSettings jdoc (jdocs.json,
     read-only Wire-Pod Go-runtime property, never mirrored - same rule as
@@ -328,8 +348,8 @@ def main():
     # path (run_robot_control_song_001.py) always passes an already-resolved
     # serial from that exact constant - this is not a second ESN map.
     demo_serials = {
-        "brobot_1": os.getenv("GOPOD_BROBOT_1_SERIAL", "0dd1b9e9"),
-        "brobot_2": os.getenv("GOPOD_BROBOT_2_SERIAL", "0dd1d8bf"),
+        "brobot_1": gopod_robot_serial(os.getenv("GOPOD_BROBOT_1_SERIAL", "ESN01")),
+        "brobot_2": gopod_robot_serial(os.getenv("GOPOD_BROBOT_2_SERIAL", "ESN02")),
     }
     for robot_name, serial in demo_serials.items():
         fmt = load_robot_format_from_jdocs(serial)

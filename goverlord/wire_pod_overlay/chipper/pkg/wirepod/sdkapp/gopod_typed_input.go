@@ -235,6 +235,19 @@ func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reply)
 }
 
+// gopodBrobotOrderHandler (2026-10-29, the robots' labels, gopod_esn_labels.go):
+// Brobot 1's and Brobot 2's serials, in order, for the admin page's battery icons
+// (Wire-Pod's own page names each by its serial). Admin only - the visitor gate
+// lets no visitor reach it, and the page itself names robots by label.
+func gopodBrobotOrderHandler(w http.ResponseWriter, r *http.Request) {
+	if !wirepod_ttr.GopodIsAdmin(r.RemoteAddr) {
+		http.Error(w, "admin only", http.StatusForbidden)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(wirepod_ttr.GopodBrobotOrderSerials())
+}
+
 // gopodPageNoteHandler: POST note=... - a click on the chat page, written to
 // Wire-Pod's log as GOPOD_PAGE (operator 2026-10-08: "add to log numpad
 // checkbox clicks").

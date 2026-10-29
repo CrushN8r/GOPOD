@@ -43,9 +43,9 @@ func TestSharedBrobotChatWindowDropsOldAndPreStartExchanges(t *testing.T) {
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
 	now := time.Now()
 	writeBrobotChatSession(t, []gopodSessionExchange{
-		{Timestamp: now.Add(-3 * time.Hour), ESN: "0dd1b9e9", UserMessage: "three hours ago", RawResponse: "old answer"},
-		{Timestamp: now.Add(-30 * time.Minute), ESN: "0dd1b9e9", UserMessage: "thirty minutes ago", RawResponse: "middle answer"},
-		{Timestamp: now.Add(-1 * time.Minute), ESN: "0dd1d8bf", UserMessage: "one minute ago", RawResponse: "new answer"},
+		{Timestamp: now.Add(-3 * time.Hour), ESN: "ESN01", UserMessage: "three hours ago", RawResponse: "old answer"},
+		{Timestamp: now.Add(-30 * time.Minute), ESN: "ESN01", UserMessage: "thirty minutes ago", RawResponse: "middle answer"},
+		{Timestamp: now.Add(-1 * time.Minute), ESN: "ESN02", UserMessage: "one minute ago", RawResponse: "new answer"},
 	})
 
 	// Started long ago: only the 120-minute limit applies.
@@ -91,8 +91,8 @@ func TestSharedBrobotChatSnapshotsBingoRuns(t *testing.T) {
 	now := time.Now()
 	gopodSharedBrobotChatStart = now.Add(-time.Hour)
 	writeBrobotChatSession(t, []gopodSessionExchange{
-		{Timestamp: now.Add(-10 * time.Minute), ESN: "0dd1b9e9", UserMessage: "ready for a test run", RawResponse: "Ready!"},
-		{Timestamp: now.Add(-1 * time.Minute), ESN: "0dd1b9e9", UserMessage: "so was that fun", RawResponse: "It was a blast."},
+		{Timestamp: now.Add(-10 * time.Minute), ESN: "ESN01", UserMessage: "ready for a test run", RawResponse: "Ready!"},
+		{Timestamp: now.Add(-1 * time.Minute), ESN: "ESN01", UserMessage: "so was that fun", RawResponse: "It was a blast."},
 	})
 	gopodChatFeed.Lock()
 	savedEvents := gopodChatFeed.events
@@ -134,7 +134,7 @@ func TestSharedBrobotChatKeeps13QuestionsAndTheBingoSnapshot(t *testing.T) {
 	gopodSharedBrobotChatStart = now.Add(-2 * time.Hour)
 	var exchanges []gopodSessionExchange
 	for i := 0; i < 16; i++ {
-		exchanges = append(exchanges, gopodSessionExchange{Timestamp: now.Add(time.Duration(i-60) * time.Minute), ESN: "0dd1b9e9", UserMessage: fmt.Sprintf("question %02d", i), RawResponse: "ok"})
+		exchanges = append(exchanges, gopodSessionExchange{Timestamp: now.Add(time.Duration(i-60) * time.Minute), ESN: "ESN01", UserMessage: fmt.Sprintf("question %02d", i), RawResponse: "ok"})
 	}
 	writeBrobotChatSession(t, exchanges)
 	gopodChatFeed.Lock()

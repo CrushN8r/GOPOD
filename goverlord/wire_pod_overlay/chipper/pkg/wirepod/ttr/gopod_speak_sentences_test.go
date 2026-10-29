@@ -21,9 +21,9 @@ func TestGopodSpeakSentencesWritesEachSentence(t *testing.T) {
 		return now
 	}
 	var said, seen []string
-	GopodSpeakSentences("0dd1b9e9", "Excuse Me? Bingo Test Continues. Round 3! Juggling big shiny bingo balls. Please wait.", -1, func(sentence string) {
+	GopodSpeakSentences("ESN01", "Excuse Me? Bingo Test Continues. Round 3! Juggling big shiny bingo balls. Please wait.", -1, func(sentence string) {
 		now := read()
-		if !now.Active || now.ESN != "0dd1b9e9" {
+		if !now.Active || now.ESN != "ESN01" {
 			t.Fatalf("not marked active before saying %q: %+v", sentence, now)
 		}
 		seen = append(seen, now.Text)
@@ -188,7 +188,7 @@ func TestComboPartLightsItsPieceThenReleases(t *testing.T) {
 		return now
 	}
 	var pieces []int
-	GopodSpeakSentences("0dd1d8bf", gopodAnimationLeadIn+" Lol!", 5, func(string) { pieces = append(pieces, read().Piece) })
+	GopodSpeakSentences("ESN02", gopodAnimationLeadIn+" Lol!", 5, func(string) { pieces = append(pieces, read().Piece) })
 	if len(pieces) != 1 || pieces[0] != 5 {
 		t.Fatalf("pieces lit = %v, want [5]", pieces)
 	}

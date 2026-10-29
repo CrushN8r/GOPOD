@@ -76,7 +76,7 @@ func TestGopodMisspellingsAreCues(t *testing.T) {
 }
 
 func TestGopodRunFixes1454(t *testing.T) {
-	if got := gopodESNToName("Okay, so Party Bro 0dd1d8bf."); got != "Okay, so Party Bro Brobot 2." {
+	if got := gopodESNToName("Okay, so Party Bro ESN02."); got != "Okay, so Party Bro Brobot 2." {
 		t.Errorf("ESN: %q", got)
 	}
 	if got := gopodFixNearCues("thinking__ Okay, so"); got != "thinking"+gopodAnimationMarker+" Okay, so" {
