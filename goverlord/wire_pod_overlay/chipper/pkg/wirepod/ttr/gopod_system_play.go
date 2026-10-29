@@ -69,7 +69,7 @@ func gopodPlayStep(dir, which string) (string, error) {
 func gopodSystemPlay(text string) string {
 	f := strings.Fields(text)
 	if len(f) < 2 {
-		return "system-play <song> [from <step>] [to <step>] [robot 1|2] [dry] - steps by id or number (system-score <song>)."
+		return gopodSystemText("system_play.system_play_song_from_step")
 	}
 	if gopodScriptPlaying.Load() || gopodRunActive() {
 		return gopodBrobotsSettings.Session.BusyText
@@ -85,7 +85,7 @@ func gopodSystemPlay(text string) string {
 		json.Unmarshal(data, &knobs)
 	}
 	if knobs.SongType == "interview" || knobs.SongType == "llm_warm" {
-		return filepath.Base(dir) + " isn't a golden-engine song - start interview plays the interview."
+		return gopodSystemText("system_play.isn_t_a_golden_engine", "dir", filepath.Base(dir))
 	}
 	from, to, robot, live := "", "", "both", true
 	for i := 2; i < len(f); i++ {
@@ -97,7 +97,7 @@ func gopodSystemPlay(text string) string {
 		switch w {
 		case "from", "to":
 			if next == "" {
-				return "system-play: " + w + " needs a step."
+				return gopodSystemText("system_play.system_play_needs_a_step", "w", w)
 			}
 			step, err := gopodPlayStep(dir, next)
 			if err != nil {
@@ -111,14 +111,14 @@ func gopodSystemPlay(text string) string {
 			i++
 		case "robot":
 			if next != "1" && next != "2" {
-				return "system-play: robot 1 or robot 2."
+				return gopodSystemText("system_play.system_play_robot_1_or")
 			}
 			robot = next
 			i++
 		case "dry":
 			live = false
 		default:
-			return "system-play: \"" + f[i] + "\"? - system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]"
+			return gopodSystemText("system_play.system_play_system_play_song", "value", f[i])
 		}
 	}
 	gopodPlaySwitches.Lock()
@@ -176,13 +176,13 @@ func gopodSystemGap(text string) string {
 			gopodPlaySwitches.gap = "0"
 		default:
 			if v, err := strconv.ParseFloat(f[1], 64); err != nil || v < 0 {
-				return "system-gap <seconds> | off | default"
+				return gopodSystemText("system_play.system_gap_seconds_off_default")
 			}
 			gopodPlaySwitches.gap = f[1]
 		}
 	}
 	now := map[bool]string{true: "the song's own", false: gopodPlaySwitches.gap + " s"}[gopodPlaySwitches.gap == ""]
-	return "Reporter gap for system-play: " + now + " - system-gap <seconds> | off | default"
+	return gopodSystemText("system_play.reporter_gap_for_system_play", "now", now)
 }
 
 func gopodSystemTweaks(text string) string {
@@ -192,13 +192,13 @@ func gopodSystemTweaks(text string) string {
 	if len(f) > 1 && (f[1] == "on" || f[1] == "off") {
 		gopodPlaySwitches.tweaks = f[1] == "on"
 	}
-	return "Apply phcal tweaks before a live system-play: " + map[bool]string{true: "on", false: "off"}[gopodPlaySwitches.tweaks] + " - system-tweaks on|off"
+	return gopodSystemText("system_play.apply_phcal_tweaks_before_a", "value", map[bool]string{true: "on", false: "off"}[gopodPlaySwitches.tweaks])
 }
 
 func gopodSystemCalibrate(text string) string {
 	f := strings.Fields(text)
 	if len(f) < 3 {
-		return "system-calibrate <arm|nod|rattle|danger|cube> <1|2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry]"
+		return gopodSystemText("system_play.system_calibrate_arm_nod_rattle")
 	}
 	if gopodScriptPlaying.Load() || gopodRunActive() {
 		return gopodBrobotsSettings.Session.BusyText
@@ -211,7 +211,7 @@ func gopodSystemCalibrate(text string) string {
 			continue
 		}
 		if strings.ContainsAny(w, ";&|`$<>\\\"'") {
-			return "system-calibrate: \"" + w + "\"? - words, numbers and --options only."
+			return gopodSystemText("system_play.system_calibrate_words_numbers_and", "w", w)
 		}
 		args = append(args, w)
 	}
@@ -223,7 +223,7 @@ func gopodSystemCalibrate(text string) string {
 		return "system-calibrate: not started - " + err.Error()
 	}
 	logger.Println("GOPOD_SYSTEM_CALIBRATE " + strings.Join(env, " "))
-	return "Calibrating: " + strings.Join(args, " ") + " (" + map[bool]string{true: "live", false: "dry"}[live] + "). Its values: /tmp/gopod_system_play.log"
+	return gopodSystemText("system_play.calibrating_its_values_tmp_gopod", "args", strings.Join(args, " "), "value", map[bool]string{true: "live", false: "dry"}[live])
 }
 
 // ## EOF

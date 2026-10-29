@@ -71,7 +71,7 @@ var gopodRobotEyeColors = []string{"teal", "orange", "yellow", "lime", "sapphire
 func gopodSystemRobot(text string) string {
 	f := strings.Fields(text)
 	if len(f) < 2 {
-		return "system-brobot stats | anims <word> | anim <name> | cube <name> | volume <0-5> | eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> | locale <en-US> | units c|f | location <place> | timezone <zone> | say <text> | wake | head|lift <speed> | wheels <left> <right> | camera   [1|2|both]"
+		return gopodSystemText("system_robots.system_brobot_stats_anims_word", "eye_colors", strings.Join(gopodRobotEyeColors, "|"))
 	}
 	who, rest := gopodRobotWho(f[1:])
 	what := strings.ToLower(rest[0])
@@ -112,7 +112,7 @@ func gopodSystemRobot(text string) string {
 				if what == "wake" {
 					return "woken"
 				}
-				return what + " set to " + arg
+				return gopodSystemText("system_robots.set_to", "what", what, "arg", arg)
 			}
 			return got
 		}
@@ -126,7 +126,7 @@ func gopodSystemRobot(text string) string {
 			}
 			var m map[string]any
 			if json.Unmarshal([]byte(got), &m) != nil || len(m) == 0 {
-				return "no stats yet (the robot keeps none)"
+				return gopodSystemText("system_robots.no_stats_yet_the_robot")
 			}
 			var keys []string
 			for k := range m {
@@ -142,7 +142,7 @@ func gopodSystemRobot(text string) string {
 	case "volume":
 		v, err := strconv.Atoi(arg)
 		if err != nil || v < 0 || v > 5 {
-			return "system-brobot volume <0-5> [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_volume_0_5")
 		}
 		each(call("volume", url.Values{"volume": {arg}}))
 	case "eyes":
@@ -153,7 +153,7 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if n < 0 {
-			return "system-brobot eyes <" + strings.Join(gopodRobotEyeColors, "|") + "> [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_eyes_1_2", "eye_colors", strings.Join(gopodRobotEyeColors, "|"))
 		}
 		each(call("eye_color", url.Values{"color": {strconv.Itoa(n)}}))
 	case "locale":
@@ -161,7 +161,7 @@ func gopodSystemRobot(text string) string {
 	case "units":
 		route := map[string]string{"c": "temp_c", "f": "temp_f"}[strings.ToLower(arg)]
 		if route == "" {
-			return "system-brobot units c|f [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_units_c_f")
 		}
 		each(call(route, nil))
 	case "location":
@@ -170,7 +170,7 @@ func gopodSystemRobot(text string) string {
 		each(call("timezone", url.Values{"timezone": {arg}}))
 	case "say":
 		if arg == "" {
-			return "system-brobot say <text> [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_say_text_1")
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			resp, err := gopodLogSayText(robot, ctx, &vectorpb.SayTextRequest{
@@ -178,17 +178,17 @@ func gopodSystemRobot(text string) string {
 			if err != nil {
 				return "not said - " + err.Error()
 			}
-			return "said (" + resp.GetState().String() + ")"
+			return gopodSystemText("system_robots.said", "value", resp.GetState().String())
 		})
 	case "anim":
 		if arg == "" {
-			return "system-brobot anim <name> [1|2|both] - system-robot anims <word> finds names (anims sleep)."
+			return gopodSystemText("system_robots.system_brobot_anim_name_1")
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			if _, err := gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{Animation: &vectorpb.Animation{Name: arg}, Loops: 1}); err != nil {
 				return "not played - " + err.Error()
 			}
-			return "played " + arg
+			return gopodSystemText("system_robots.played", "arg", arg)
 		})
 	case "anims":
 		// The robot's own animation list (Vector keeps them on the robot) - e.g.
@@ -225,7 +225,7 @@ func gopodSystemRobot(text string) string {
 			}
 			out2 = append(out2, fmt.Sprintf("%s (%d): %s", k, len(names), strings.Join(names, ", ")))
 		}
-		return "system-brobot beat <alias> [1|2|both]\n" + strings.Join(out2, "\n")
+		return gopodSystemText("system_robots.system_brobot_beat_alias_1", "out2", strings.Join(out2, "\n"))
 	case "beat":
 		// 2026-10-19 (operator: "all the 100+ sleep commands"): one sleep beat -
 		// a trigger or a clip (sleep_beats, from SLEEP_BENCH_ALIASES_001.md).
@@ -238,7 +238,7 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if name == "" {
-			return "system-brobot beat <alias> [1|2|both] - system-brobot beats lists them."
+			return gopodSystemText("system_robots.system_brobot_beat_alias_1_2")
 		}
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			var err error
@@ -250,7 +250,7 @@ func gopodSystemRobot(text string) string {
 			if err != nil {
 				return "not played - " + err.Error()
 			}
-			return "played " + name
+			return gopodSystemText("system_robots.played_2", "name", name)
 		})
 	case "cube":
 		// 2026-10-19 (operator: "cube calls pop a wheelie, where's your cube,
@@ -271,13 +271,13 @@ func gopodSystemRobot(text string) string {
 			}
 		}
 		if intent == "" {
-			return "system-brobot cube <" + strings.Join(names, "|") + "> [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_cube_1_2", "names", strings.Join(names, "|"))
 		}
 		eachHow(false, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			if _, err := robot.Conn.AppIntent(ctx, &vectorpb.AppIntentRequest{Intent: intent}); err != nil {
 				return "not done - " + err.Error()
 			}
-			return "doing " + arg
+			return gopodSystemText("system_robots.doing", "arg", arg)
 		})
 	case "wake":
 		each(call("trigger_wake_word", nil))
@@ -285,13 +285,13 @@ func gopodSystemRobot(text string) string {
 		// A short nudge, woken first: the move, a moment, stop.
 		g := strings.Fields(arg)
 		if (what == "wheels" && len(g) != 2) || (what != "wheels" && len(g) != 1) {
-			return "system-brobot head|lift <speed, e.g. 3 or -3> | wheels <left> <right> [1|2|both]"
+			return gopodSystemText("system_robots.system_brobot_head_lift_speed")
 		}
 		var v []float64
 		for _, x := range g {
 			n, err := strconv.ParseFloat(x, 64)
 			if err != nil {
-				return "system-brobot " + what + ": numbers only."
+				return gopodSystemText("system_robots.system_brobot_numbers_only", "what", what)
 			}
 			v = append(v, n)
 		}
@@ -327,7 +327,7 @@ func gopodSystemRobot(text string) string {
 		}
 		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, gopodMenuPictureMark+strings.Join(paths, "|"))
 	default:
-		return "system-robot: \"" + what + "\"? - system-brobot alone lists them."
+		return gopodSystemText("system_robots.system_robot_system_brobot_alone", "what", what)
 	}
 	return gopodJoinLines(out)
 }
@@ -372,42 +372,42 @@ func gopodSystemFaces(text string) string {
 			names = append(names, fc.Name)
 		}
 		if len(names) == 0 {
-			return gopodBrobotName(esn) + " knows no faces yet - system-faces add <name> " + map[string]string{gopodBrobot1ESN: "1", gopodBrobot2ESN: "2"}[esn]
+			return gopodSystemText("system_robots.knows_no_faces_yet_system", "brobot", gopodBrobotName(esn), "value", map[string]string{gopodBrobot1ESN: "1", gopodBrobot2ESN: "2"}[esn])
 		}
-		return gopodBrobotName(esn) + " knows: " + strings.Join(names, ", ")
+		return gopodSystemText("system_robots.knows", "brobot", gopodBrobotName(esn), "names", strings.Join(names, ", "))
 	case "rename":
 		if len(rest) != 3 {
-			return "system-faces rename <old> <new> [1|2]"
+			return gopodSystemText("system_robots.system_faces_rename_old_new")
 		}
 		id := find(rest[1])
 		if id < 0 {
-			return "no face " + rest[1]
+			return gopodSystemText("system_robots.no_face", "arg1", rest[1])
 		}
 		_, err = gopodWirePodCall("rename_face", esn, url.Values{"id": {strconv.Itoa(id)}, "oldname": {rest[1]}, "newname": {rest[2]}})
 	case "delete":
 		if len(rest) != 2 {
-			return "system-faces delete <name> [1|2]"
+			return gopodSystemText("system_robots.system_faces_delete_name_1")
 		}
 		id := find(rest[1])
 		if id < 0 {
-			return "no face " + rest[1]
+			return gopodSystemText("system_robots.no_face", "arg1", rest[1])
 		}
 		_, err = gopodWirePodCall("delete_face", esn, url.Values{"id": {strconv.Itoa(id)}})
 	case "add":
 		if len(rest) != 2 {
-			return "system-faces add <name> [1|2] - then look at " + gopodBrobotName(esn)
+			return gopodSystemText("system_robots.system_faces_add_name_1", "brobot", gopodBrobotName(esn))
 		}
 		_, err = gopodWirePodCall("add_face", esn, url.Values{"name": {rest[1]}})
 		if err == nil {
-			return gopodBrobotName(esn) + " is learning " + rest[1] + "'s face - look at him."
+			return gopodSystemText("system_robots.is_learning_s_face_look", "brobot", gopodBrobotName(esn), "arg1", rest[1])
 		}
 	default:
-		return "system-faces [list | rename <old> <new> | delete <name> | add <name>] [1|2]"
+		return gopodSystemText("system_robots.system_faces_list_rename_old")
 	}
 	if err != nil {
 		return "system-faces: not done - " + err.Error()
 	}
-	return "system-faces " + what + ": done"
+	return gopodSystemText("system_robots.system_faces_done", "what", what)
 }
 
 // gopodSystemPhotos: a Brobot's photos as thumbnails (a picture bubble, the magnifier on each).
@@ -499,10 +499,10 @@ var gopodOverlayNativeFiles = []string{
 func gopodSystemAnim(text string) string {
 	rest := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), strings.Fields(text)[0]))
 	if rest == "" {
-		return "system-anim <text with {{playAnimationWI||token}}> [1|2|both] - system-anim list for the tokens"
+		return gopodSystemText("system_robots.system_anim_text_with_1")
 	}
 	if strings.EqualFold(rest, "list") {
-		return "animation tokens: " + strings.Join(verifiedTokenNames(loadedAnimationVocab), ", ")
+		return gopodSystemText("system_robots.animation_tokens", "value", strings.Join(verifiedTokenNames(loadedAnimationVocab), ", "))
 	}
 	if gopodScriptPlaying.Load() || gopodRunActive() {
 		return gopodBrobotsSettings.Session.BusyText

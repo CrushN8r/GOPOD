@@ -95,4 +95,56 @@ func TestLookIsTokens(t *testing.T) {
 	}
 }
 
+// TestSystemTextKeys (2026-10-29, pass 3 of FLEXIBLE_DATA_SURVEY_001.md): every
+// system reply the code asks for (gopodSystemText) is in system_text, and its
+// {names} are the ones the code fills - none missing, none left over.
+func TestSystemTextKeys(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("no overlay here")
+	}
+	call := regexp.MustCompile(`gopodSystemText\("([^"]+)"(.*)$`)
+	names := regexp.MustCompile(`, "([a-z0-9_]+)", `)
+	holes := regexp.MustCompile(`\{([a-z0-9_]+)\}`)
+	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
+	n := 0
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") || strings.HasSuffix(f, "gopod_system_text.go") {
+			continue
+		}
+		data, _ := os.ReadFile(f)
+		for _, line := range strings.Split(string(data), "\n") {
+			m := call.FindStringSubmatch(line)
+			if m == nil {
+				continue
+			}
+			n++
+			tpl, ok := gopodBrobotsSettings.SystemText[m[1]]
+			if !ok {
+				t.Errorf("%s: system_text has no %s", filepath.Base(f), m[1])
+				continue
+			}
+			given := map[string]bool{}
+			for _, g := range names.FindAllStringSubmatch(m[2], -1) {
+				given[g[1]] = true
+			}
+			used := map[string]bool{}
+			for _, h := range holes.FindAllStringSubmatch(tpl, -1) {
+				if !given[h[1]] {
+					t.Errorf("system_text.%s has {%s} - the code doesn't fill it", m[1], h[1])
+				}
+				used[h[1]] = true
+			}
+			for g := range given {
+				if !used[g] {
+					t.Errorf("system_text.%s has no {%s} - the code fills it", m[1], g)
+				}
+			}
+		}
+	}
+	if n < 100 {
+		t.Errorf("only %d system replies read from system_text - the test no longer finds them", n)
+	}
+}
+
 // ## EOF

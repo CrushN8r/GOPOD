@@ -416,7 +416,7 @@ func gopodPactl(args ...string) (string, error) {
 func gopodSetAudioRouting() string {
 	a := gopodBrobotsSettings.SystemTests.Audio
 	if a.Sink == "" {
-		return "no speaker named (system_tests.audio.sink)"
+		return gopodSystemText("system_tests.no_speaker_named_system_tests")
 	}
 	if _, err := gopodPactl("set-default-sink", a.Sink); err != nil {
 		return "speaker not set: " + err.Error()
@@ -428,10 +428,10 @@ func gopodSetAudioRouting() string {
 			if _, err := gopodPactl("set-default-source", f[1]); err != nil {
 				return "mic not set: " + err.Error()
 			}
-			return "speaker and mic set"
+			return gopodSystemText("system_tests.speaker_and_mic_set")
 		}
 	}
-	return "speaker set, no mic with " + a.SourceHas + " found"
+	return gopodSystemText("system_tests.speaker_set_no_mic_with", "source_has", a.SourceHas)
 }
 
 // gopodAsOperatorUser: a program run as the operator himself (his user, not only
@@ -456,7 +456,7 @@ var gopodAuditRunning atomic.Bool
 
 func gopodSystemAudit() string {
 	if !gopodAuditRunning.CompareAndSwap(false, true) {
-		return "system-audit is already running - its result comes here when it's done."
+		return gopodSystemText("system_tests.system_audit_is_already_running")
 	}
 	script := filepath.Join(gopodChipperRoot(), "gopod_probes", "tools", "gopod_full_audit.sh")
 	go func() {
@@ -483,7 +483,7 @@ func gopodSystemAudit() string {
 		logger.Println("GOPOD_SYSTEM_AUDIT " + strings.ReplaceAll(answer, "\n", " | "))
 		GopodChatFeedAdd(gopodSystemSetRole(), answer)
 	}()
-	return "system-audit started - everything but the robots (a few minutes; keep this page open). Its result comes here."
+	return gopodSystemText("system_tests.system_audit_started_everything_but")
 }
 
 // ## EOF

@@ -88,7 +88,7 @@ func gopodSystemSetPath(dotted, value string) string {
 	old, exists := gopodSettingsGet(path)
 	if value == "" {
 		if !exists {
-			return "no setting " + dotted + " (system-locate <word> finds one)."
+			return gopodSystemText("system_edit.no_setting_system_locate_word", "dotted", dotted)
 		}
 		return dotted + " = " + old
 	}
@@ -103,11 +103,11 @@ func gopodSystemSetPath(dotted, value string) string {
 		raw = string(b)
 	}
 	if exists && (strings.HasPrefix(old, "{") || strings.HasPrefix(old, "[")) && !(strings.HasPrefix(raw, "{") || strings.HasPrefix(raw, "[")) {
-		return dotted + " is a list or a group - system-add / system-remove change its items, or system-set " + dotted + ".<key> one value."
+		return gopodSystemText("system_edit.is_a_list_or_a", "dotted", dotted)
 	}
 	was, err := gopodSettingsWrite(func(file string) (string, error) { return gopodJSONFileSet(file, path, raw) })
 	if err != nil {
-		return dotted + ": not changed - " + err.Error()
+		return gopodSystemText("system_edit.not_changed", "dotted", dotted, "error", err.Error())
 	}
 	return dotted + ": " + gopodShort(was, 80) + " -> " + gopodShort(raw, 80) + gopodAfterRestart
 }
@@ -125,13 +125,13 @@ func gopodSystemAddRemove(text string) string {
 	f := strings.Fields(text)
 	add := strings.EqualFold(f[0], "system-add")
 	if len(f) < 3 {
-		return f[0] + " <path> <item> - e.g. " + f[0] + " managers.who_words what's your name"
+		return gopodSystemText("system_edit.path_item_e_g_managers", "arg0", f[0])
 	}
 	dotted, item := f[1], strings.TrimSpace(strings.Join(f[2:], " "))
 	path := gopodSettingsPath(dotted)
 	old, ok := gopodSettingsGet(path)
 	if !ok {
-		return "no setting " + dotted + "."
+		return gopodSystemText("system_edit.no_setting", "dotted", dotted)
 	}
 	var result string
 	_, err := gopodSettingsWrite(func(file string) (string, error) {
@@ -200,7 +200,7 @@ func gopodSystemAddRemove(text string) string {
 		return "", errors.New("it's one value - system-set " + dotted + " <value>")
 	})
 	if err != nil {
-		return f[0] + " " + dotted + ": not changed - " + err.Error()
+		return gopodSystemText("system_edit.not_changed_2", "arg0", f[0], "dotted", dotted, "error", err.Error())
 	}
 	verb := "added"
 	if !add {
@@ -273,11 +273,11 @@ func gopodSystemLingo(text string) string {
 	rest := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), strings.Fields(text)[0]))
 	f := strings.Fields(rest)
 	if len(f) == 0 {
-		return "system-lingo <brobots|reporters|butler> <word> = <said> / remove <word> / (just the lingo: its list)"
+		return gopodSystemText("system_edit.system_lingo_brobots_reporters_butler")
 	}
 	lingo, path := gopodLingoWhich(f[0])
 	if lingo == "" {
-		return "system-lingo: brobots, reporters or butler."
+		return gopodSystemText("system_edit.system_lingo_brobots_reporters_or")
 	}
 	rest = strings.TrimSpace(rest[len(f[0]):])
 	remove := false
@@ -306,12 +306,12 @@ func gopodSystemLingo(text string) string {
 		_, err = gopodSettingsWrite(func(file string) (string, error) { return gopodJSONFileSet(file, key, string(b)) })
 	}
 	if err != nil {
-		return "system-lingo " + lingo + ": not changed - " + err.Error()
+		return gopodSystemText("system_edit.system_lingo_not_changed", "lingo", lingo, "error", err.Error())
 	}
 	if remove {
-		return lingo + " lingo: " + word + " taken out" + gopodAfterRestart
+		return gopodSystemText("system_edit.lingo_taken_out", "lingo", lingo, "word", word, "after_restart", gopodAfterRestart)
 	}
-	return lingo + " lingo: " + word + " = " + said + gopodAfterRestart
+	return gopodSystemText("system_edit.lingo", "lingo", lingo, "word", word, "said", said, "after_restart", gopodAfterRestart)
 }
 
 func gopodLingoList(lingo string, path []string) string {
@@ -368,11 +368,11 @@ func gopodLingoBrobots(word, said string, remove bool) string {
 		}
 	}
 	if start < 0 {
-		return "system-lingo brobots: the pronunciation list isn't found in " + filepath.Base(file)
+		return gopodSystemText("system_edit.system_lingo_brobots_the_pronunciation", "file", filepath.Base(file))
 	}
 	switch {
 	case remove && at < 0:
-		return "brobots lingo: no " + word + " in it."
+		return gopodSystemText("system_edit.brobots_lingo_no_in_it", "word", word)
 	case remove:
 		m := gopodLingoEntryRE.FindStringSubmatch(lines[at])
 		lines = append(lines[:at], lines[at+1:]...)
@@ -394,15 +394,15 @@ func gopodLingoBrobots(word, said string, remove bool) string {
 	}
 	out := []byte(strings.Join(lines, "\n"))
 	if m := gopodPronunciationBlockPattern.FindSubmatch(out); m == nil || !json.Valid(m[1]) {
-		return "system-lingo brobots: not changed - the list wouldn't read"
+		return gopodSystemText("system_edit.system_lingo_brobots_not_changed")
 	}
 	if err := gopodWriteFileSafe(file, out); err != nil {
 		return "system-lingo brobots: " + err.Error()
 	}
 	if remove {
-		return "brobots lingo: " + word + " taken out" + gopodAfterRestart
+		return gopodSystemText("system_edit.brobots_lingo_taken_out", "word", word, "after_restart", gopodAfterRestart)
 	}
-	return "brobots lingo: " + word + " = " + said + gopodAfterRestart
+	return gopodSystemText("system_edit.brobots_lingo", "word", word, "said", said, "after_restart", gopodAfterRestart)
 }
 
 // --- system-native / system-numpad (2026-10-19, operator: "make Native?[]
@@ -414,7 +414,7 @@ func gopodSystemNative(text string) string {
 		GopodNativeSet(f[1] == "on")
 	}
 	state := map[bool]string{true: "on", false: "off"}[GopodNativeOn()]
-	return "Native voice answers (Wire-Pod's own: \"Hey Vector, what time is it\" and the rest): " + state + " - system-native on|off"
+	return gopodSystemText("system_edit.native_voice_answers_wire_pod", "state", state)
 }
 
 // gopodSystemNumpad: the numpad is the page's; the page switches it as the line is sent.
@@ -424,12 +424,12 @@ func gopodSystemNumpad(text string) string {
 		return gopodSystemNumpadList()
 	}
 	if f[1] != "on" && f[1] != "off" {
-		return "system-numpad on|off - the numpad keys as push-to-talk; alone: each key."
+		return gopodSystemText("system_edit.system_numpad_on_off_the")
 	}
 	if f[1] == "on" {
-		return "Numpad on: " + gopodBrobotsSettings.NumpadPTT.Texts["on"]
+		return gopodSystemText("system_edit.numpad_on", "value", gopodBrobotsSettings.NumpadPTT.Texts["on"])
 	}
-	return "Numpad off: " + gopodBrobotsSettings.NumpadPTT.Texts["exit"]
+	return gopodSystemText("system_edit.numpad_off", "value", gopodBrobotsSettings.NumpadPTT.Texts["exit"])
 }
 
 // --- system-score (2026-10-19, operator: "start with the score and the audio
@@ -445,7 +445,7 @@ func gopodSystemScore(text string) string {
 			names = append(names, filepath.Base(dir))
 		}
 		sort.Strings(names)
-		return "system-score <song> - " + strings.Join(names, ", ")
+		return gopodSystemText("system_edit.system_score_song", "names", strings.Join(names, ", "))
 	}
 	dir, err := gopodSystemSetSong(f[1])
 	if err != nil {
@@ -477,7 +477,7 @@ func gopodSystemScore(text string) string {
 // couldn't start with stop it.
 func gopodSystemRestart(text string) string {
 	if lerr := gopodSettingsStillLoad(); lerr != nil {
-		return "Not restarted - Wire-Pod wouldn't start with the settings as they are: " + lerr.Error()
+		return gopodSystemText("system_edit.not_restarted_wire_pod_wouldn", "error", lerr.Error())
 	}
 	audio := gopodSetAudioRouting()
 	logger.Println("GOPOD_SYSTEM_RESTART audio: " + audio)
@@ -490,7 +490,7 @@ func gopodSystemRestart(text string) string {
 			logger.Println("GOPOD_SYSTEM_RESTART failed: " + err.Error() + " " + strings.TrimSpace(string(out)))
 		}
 	}()
-	return "Restarting Wire-Pod (forced, like wpr 2; " + audio + ") - the page reloads itself when it's back; click Log once for sound."
+	return gopodSystemText("system_edit.restarting_wire_pod_forced_like", "audio", audio)
 }
 
 // --- 5. system-topic ---
@@ -514,11 +514,11 @@ func gopodSystemTopic(text string) string {
 		for _, p := range gopodTopicRegistry() {
 			names = append(names, p.Name)
 		}
-		return "system-topic <topic> [words add|remove <word> | words <a, b, c> | point <text> | point <n> <text> | point <n> remove | label|reminder|pictures <text>]\ntopics: " + strings.Join(names, ", ")
+		return gopodSystemText("system_edit.system_topic_topic_words_add", "names", strings.Join(names, ", "))
 	}
 	file, ok := gopodTopicFind(f[1])
 	if !ok {
-		return "no topic " + f[1] + " - system-topic lists them."
+		return gopodSystemText("system_edit.no_topic_system_topic_lists", "arg1", f[1])
 	}
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -610,7 +610,7 @@ func gopodSystemTopic(text string) string {
 				}
 			}
 		default:
-			return f[1] + " words: " + strings.Join(words, ", ")
+			return gopodSystemText("system_edit.words", "arg1", f[1], "words", strings.Join(words, ", "))
 		}
 		headSet("words", strings.Join(words, ", "))
 		answer = "words: " + strings.Join(words, ", ")
@@ -652,7 +652,7 @@ func gopodSystemTopic(text string) string {
 		}
 		lines = gopodTopicPointsWrite(lines, sep, says)
 	default:
-		return "system-topic " + f[1] + " words | point | label | reminder | pictures ..."
+		return gopodSystemText("system_edit.system_topic_words_point_label", "arg1", f[1])
 	}
 	if err := gopodWriteFileSafe(file, []byte(strings.Join(lines, "\n"))); err != nil {
 		return "system-topic: " + err.Error()

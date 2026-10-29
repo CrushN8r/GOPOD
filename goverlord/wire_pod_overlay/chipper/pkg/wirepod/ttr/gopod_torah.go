@@ -293,7 +293,7 @@ func gopodSystemTorah() string {
 	if err := gopodWriteTorah(); err != nil {
 		return "system-torah: " + err.Error()
 	}
-	return "The GOPOD Torah is written again: GOPOD_TORAH.md and its scriptures (torah/) match the system as it is now."
+	return gopodSystemText("torah.the_gopod_torah_is_written")
 }
 
 // ## EOF

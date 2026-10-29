@@ -22,7 +22,7 @@ func gopodThinkingLineSpoken() string {
 	if t := strings.TrimSpace(gopodBrobotsSettings.ChatMoves.ThinkingText); t != "" {
 		return t
 	}
-	return "Thinking, please wait."
+	return gopodSystemText("thinking_line.thinking_please_wait")
 }
 
 // gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words,

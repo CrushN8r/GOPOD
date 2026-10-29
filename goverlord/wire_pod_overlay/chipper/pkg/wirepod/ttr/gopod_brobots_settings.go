@@ -664,6 +664,10 @@ type gopodBrobotsSettingsFile struct {
 		OnceSeconds float64 `json:"once_seconds"`
 	} `json:"native_intent"`
 	// 2026-10-18: the engine times itself by the page (gopod_page_sync.go).
+	SystemText map[string]string `json:"system_text"`
+	SystemHelp struct {
+		Lines []string `json:"lines"`
+	} `json:"system_help"`
 	PageSync struct {
 		ReplyWaitSeconds float64 `json:"reply_wait_seconds"`
 		HeldLogSeconds   float64 `json:"held_log_seconds"`

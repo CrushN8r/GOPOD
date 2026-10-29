@@ -65,7 +65,7 @@ func gopodLineAt(data []byte, at int) int {
 func gopodLocateJSON(file string, path []string) string {
 	data, err := os.ReadFile(file)
 	if err != nil {
-		return gopodLocateShow(file) + " (can't read it)"
+		return gopodSystemText("system_locate.can_t_read_it", "value", gopodLocateShow(file))
 	}
 	for n := len(path); n > 0; n-- {
 		if s, _, ok := gopodJSONSpan(data, path[:n]); ok {
@@ -76,7 +76,7 @@ func gopodLocateJSON(file string, path []string) string {
 			return out
 		}
 	}
-	return gopodLocateShow(file) + " (not in it)"
+	return gopodSystemText("system_locate.not_in_it", "value", gopodLocateShow(file))
 }
 
 func gopodLocateSong(dir string, args []string) string {
@@ -119,7 +119,7 @@ func gopodLocateSong(dir string, args []string) string {
 		}
 	}
 	if len(out) == 0 {
-		return "no step " + id + " in " + filepath.Base(dir) + " - system-set " + filepath.Base(dir) + " lists them."
+		return gopodSystemText("system_locate.no_step_in_system_set", "id", id, "dir", filepath.Base(dir))
 	}
 	return id + ":\n  " + strings.Join(out, "\n  ")
 }
@@ -128,7 +128,7 @@ func gopodLocateSong(dir string, args []string) string {
 func gopodLocateWord(file, word string) string {
 	data, err := os.ReadFile(file)
 	if err != nil {
-		return gopodLocateShow(file) + " (can't read it)"
+		return gopodSystemText("system_locate.can_t_read_it", "value", gopodLocateShow(file))
 	}
 	type hit struct {
 		line int
@@ -152,7 +152,7 @@ func gopodLocateWord(file, word string) string {
 		hits = append(hits, hit{gopodLineAt(data, start), strings.Join(path, ".") + value})
 	})
 	if len(hits) == 0 {
-		return "nothing named \"" + word + "\" in the settings or songs - system-locate shows how to use it."
+		return gopodSystemText("system_locate.nothing_named_in_the_settings", "word", word)
 	}
 	sort.Slice(hits, func(a, b int) bool { return hits[a].line < hits[b].line })
 	var b strings.Builder

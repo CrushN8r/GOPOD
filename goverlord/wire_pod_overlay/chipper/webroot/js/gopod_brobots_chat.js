@@ -209,10 +209,14 @@
           // communicate to all as well"): 1 and 2 stay All, starting with that
           // Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9),
           // as holding the key does (gopodTypedToKey).
-          ["1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
+          // 2026-10-29 (operator: "add a 0 to the All drop down menu for system
+          // calls * bypass '0' on app visitor pages"): 0 - the system itself, the
+          // admin's only (shown once Wire-Pod says this page is the admin's).
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
             var o = document.createElement("option");
             o.value = n;
             o.textContent = n;
+            if (n === "0") { o.className = "gopod-all-system"; o.hidden = true; o.disabled = true; }
             allFirstSelect.appendChild(o);
           });
           allFirstSelect.value = "1";
@@ -491,6 +495,7 @@
       function sendTypedLine(serial, text) {
         var first = serial === "all" && allFirstSelect ? allFirstSelect.value : "";
         if (Number(first) >= 3) { serial = "kp:" + first; first = ""; }
+        if (first === "0") { serial = "system"; first = ""; }
         if (first === "2") { allSecondFirst[text] = true; }
         fetch("/api-sdk/gopod_typed_input", {
           method: "POST",
@@ -2265,13 +2270,22 @@
         // segment"): "lines:" - one bubble, one line each, every line its own voice
         // (named ahead, so each starts dormant and lights as its voice plays).
         if (String(text).indexOf("lines:") === 0) {
+          // 2026-10-29 (operator: "The highlighting mechanism is loose inside the
+          // torah bubbles * Entire paragraph lit up before its turn * Upon ... stop
+          // run ... the text didn't default to 85% solid white"): each line's words
+          // are its voice's line from the moment it's drawn - dormant (0%) until
+          // its voice plays, 85% after, or shown whole by a skip or a stop.
           String(text).slice(6).split("\n").forEach(function (one) {
             var el = document.createElement("span");
             el.className = "brobot-bubble-text brobot-bubble-line";
-            el.textContent = one;
+            var say = document.createElement("span");
+            say.className = "brobot-say";
+            say.textContent = one;
+            el.appendChild(say);
             bubble.appendChild(el);
-            if (restoringChat || skippingReporters) { el.classList.add("spoken"); return; }
-            if (one.trim()) { voiceLineAhead(one, el); }
+            if (restoringChat || skippingReporters || !one.trim()) { say.classList.add("spoken"); return; }
+            voiceLineAhead(one, say);
+            showOnItsTurn(bubble, say);
           });
           if (!restoringChat) { bubble.classList.add("voice-lit"); voiceTieAhead(); }
           placeBubble(bubble, then);
@@ -2334,6 +2348,36 @@
       function voiceWaitsGone() {
         voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); saidWhole(say); });
       }
+      // 2026-10-29 (live: a tour paragraph lit up whole before its turn - its
+      // voice was still being made while the long one above it played): a voiced
+      // line with no voice is shown anyway after voiceLitWaitMs - counted from its
+      // turn, once every line above it in its bubble has been said, never from
+      // when the bubble showed.
+      function lineTurnCome(bubble, say) {
+        var lines = bubble.querySelectorAll(".brobot-say");
+        for (var i = 0; i < lines.length && lines[i] !== say; i++) {
+          if (!lines[i].classList.contains("spoken")) { return false; }
+        }
+        return true;
+      }
+      function showOnItsTurn(bubble, say) {
+        var shownAt = 0;
+        (function showAnyway() {
+          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
+          if (say._wait && say._wait.isConnected) { shownAt = 0; setTimeout(showAnyway, 500); return; }
+          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1" && lineTurnCome(bubble, say)) {
+            if (!shownAt) { shownAt = Date.now(); }
+            if (Date.now() - shownAt >= voiceLitWaitMs) {
+              saidWhole(say);
+              if (voiceLitNext === say) { voiceLitNext = null; }
+              return;
+            }
+          } else {
+            shownAt = 0;
+          }
+          setTimeout(showAnyway, 500);
+        })();
+      }
       // A line shown said without its voice - and the line said last in the
       // same voice (the egg's "MouseOver to Zoom In"), dormant until then.
       function saidWhole(say) {
@@ -2358,20 +2402,7 @@
         voiceLitNext = say;
         // message0 until its voice plays: "Generating..." and the hourglass.
         if (waits) { voiceWaitOn(bubble, say, typeof waits === "string" ? waits : ""); }
-        var shownAt = 0;
-        (function showAnyway() {
-          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
-          if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
-          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
-            if (!shownAt) { shownAt = Date.now(); }
-            if (Date.now() - shownAt >= voiceLitWaitMs) {
-              saidWhole(say);
-              if (voiceLitNext === say) { voiceLitNext = null; }
-              return;
-            }
-          }
-          setTimeout(showAnyway, 500);
-        })();
+        showOnItsTurn(bubble, say);
       }
       // Its voice starts: the words revealed across seconds, then said.
       function voiceLitStart(seconds, words, src) {
@@ -3884,16 +3915,7 @@
         if (skippingReporters) { say.classList.add("spoken"); return say; }
         bubble.classList.add("voice-lit");
         if (waits) { voiceWaitOn(bubble, say, file); }
-        var shownAt = 0;
-        (function showAnyway() {
-          if (!bubble.isConnected || say.classList.contains("speaking") || say.classList.contains("spoken")) { return; }
-          if (say._wait && say._wait.isConnected) { setTimeout(showAnyway, 500); return; }
-          if (bubble.style.visibility !== "hidden" && bubble.dataset.staged !== "1") {
-            if (!shownAt) { shownAt = Date.now(); }
-            if (Date.now() - shownAt >= voiceLitWaitMs) { say.classList.add("spoken"); return; }
-          }
-          setTimeout(showAnyway, 500);
-        })();
+        showOnItsTurn(bubble, say);
         return say;
       }
       function voiceLineTie(file, t, waits) {
@@ -3902,7 +3924,11 @@
           delete voiceLinesAhead[key];
           if (ahead.isConnected && !ahead.classList.contains("spoken")) {
             // Already a voiced line (the egg's): that line. Else the line it named.
-            if (ahead.classList.contains("brobot-say")) { return ahead; }
+            if (ahead.classList.contains("brobot-say")) {
+              var host = ahead.closest(".brobot-bubble");
+              if (waits && host && !ahead._wait && !ahead.classList.contains("speaking")) { voiceWaitOn(host, ahead, file); }
+              return ahead;
+            }
             var named = ahead.closest(".brobot-bubble");
             var tied = named ? voiceLineTieIn(ahead, named, file, t, waits, true) : null;
             if (tied) { return tied; }
@@ -4288,6 +4314,13 @@
           .then(function (d) {
             if (!d || typeof d.main !== "boolean") { return; }
             isAdminPage = d.admin === true;
+            // The All menu's 0 (the system) is the admin's alone.
+            var zero = allFirstSelect && allFirstSelect.querySelector(".gopod-all-system");
+            if (zero) {
+              zero.hidden = !isAdminPage;
+              zero.disabled = !isAdminPage;
+              if (!isAdminPage && allFirstSelect.value === "0") { allFirstSelect.value = "1"; }
+            }
             // A visitor's typing row is two lines (2026-10-24, operator: "remove
             // 3rd line: | Record? [] | 00:25:46 | 🔇"): the Brobots, then the text.
             if (document.body.classList.contains("gopod-visitor") === isAdminPage) {
@@ -5996,7 +6029,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect && Number(allFirstSelect.value) >= 1 && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }

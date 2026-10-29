@@ -158,7 +158,7 @@ func gopodSystemValuePoints(text string) string {
 		}
 		sort.Strings(ids)
 		if len(ids) == 0 {
-			return "no topic " + f[1] + " (system-topic lists them)"
+			return gopodSystemText("value_points_golden.no_topic_system_topic_lists", "arg1", f[1])
 		}
 		out := []string{fmt.Sprintf("%s - %d value points:", f[1], len(ids))}
 		for _, id := range ids {

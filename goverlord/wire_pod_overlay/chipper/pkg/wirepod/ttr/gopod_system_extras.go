@@ -61,7 +61,7 @@ func gopodChatShown(l gopodChatLine) bool {
 func gopodSystemChats(text string) string {
 	f := strings.Fields(text)
 	if len(f) < 2 {
-		return "system-chats <words> [operator|brobots|managers]"
+		return gopodSystemText("system_extras.system_chats_words_operator_brobots")
 	}
 	who := ""
 	words := f[1:]
@@ -71,7 +71,7 @@ func gopodSystemChats(text string) string {
 	}
 	want := strings.ToLower(strings.Join(words, " "))
 	if want == "" {
-		return "system-chats <words> [operator|brobots|managers]"
+		return gopodSystemText("system_extras.system_chats_words_operator_brobots")
 	}
 	wantRE := regexp.MustCompile("(?i)" + regexp.QuoteMeta(want))
 	var out []string
@@ -145,7 +145,7 @@ func gopodSystemChatSave(text string) string {
 	f := strings.Fields(text)
 	chats := gopodSessionChats()
 	if len(chats) == 0 {
-		return "system-chat-save: no saved sessions."
+		return gopodSystemText("system_extras.system_chat_save_no_saved")
 	}
 	file := chats[0]
 	if len(f) > 1 {
@@ -157,7 +157,7 @@ func gopodSystemChatSave(text string) string {
 			}
 		}
 		if file == "" {
-			return "system-chat-save: no session " + f[1] + " (its folder name, e.g. 154136_session)"
+			return gopodSystemText("system_extras.system_chat_save_no_session", "arg1", f[1])
 		}
 	}
 	fh, err := os.Open(file)
@@ -199,11 +199,11 @@ func gopodSystemMenuTheme(text string) string {
 	}
 	sort.Strings(names)
 	if len(f) < 2 {
-		return "system-menu-theme <" + strings.Join(names, "|") + "> (then F5)"
+		return gopodSystemText("system_extras.system_menu_theme_then_f5", "names", strings.Join(names, "|"))
 	}
 	theme, ok := gopodBrobotsSettings.SystemMenu.Themes[f[1]]
 	if !ok {
-		return "system-menu-theme <" + strings.Join(names, "|") + ">"
+		return gopodSystemText("system_extras.system_menu_theme", "names", strings.Join(names, "|"))
 	}
 	keys := make([]string, 0, len(theme))
 	for k := range theme {
@@ -218,7 +218,7 @@ func gopodSystemMenuTheme(text string) string {
 			return "system-menu-theme: not changed - " + err.Error()
 		}
 	}
-	return "system-menu-theme: " + f[1] + " - F5 to see it (system-undo puts it back one value at a time)"
+	return gopodSystemText("system_extras.system_menu_theme_f5_to", "arg1", f[1])
 }
 
 // gopodSystemTPU: "system-tpu [restart]" - the Edge TPU worker's state, or a fresh start.
@@ -236,21 +236,21 @@ func gopodSystemTPU(text string) string {
 			ready := gopodQuickLook.ready
 			gopodQuickLook.Unlock()
 			if ready {
-				return "Edge TPU worker: ready."
+				return gopodSystemText("system_extras.edge_tpu_worker_ready")
 			}
 		}
-		return "Edge TPU worker: not ready after 30 s."
+		return gopodSystemText("system_extras.edge_tpu_worker_not_ready")
 	}
 	gopodQuickLook.Lock()
 	ready := gopodQuickLook.ready
 	gopodQuickLook.Unlock()
-	return "Edge TPU worker: " + map[bool]string{true: "ready", false: "not ready - system-tpu restart"}[ready]
+	return gopodSystemText("system_extras.edge_tpu_worker", "value", map[bool]string{true: "ready", false: "not ready - system-tpu restart"}[ready])
 }
 
 func gopodSystemNumpadList() string {
 	m, _, err := gopodNumpadMap()
 	if err != nil {
-		return "system-numpad: the key map can't be read - " + err.Error()
+		return gopodSystemText("system_extras.system_numpad_the_key_map", "error", err.Error())
 	}
 	var keys []string
 	for k := range m.NumlockOn {

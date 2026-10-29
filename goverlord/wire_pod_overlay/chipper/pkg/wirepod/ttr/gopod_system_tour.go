@@ -37,14 +37,14 @@ func GopodSkipped() { gopodSkippedAt.Store(time.Now().UnixMilli()) }
 func gopodSystemTour() string {
 	if gopodTourRunning.Load() {
 		gopodTourStop.Store(true)
-		return "system-tour: stopping at the next commandment."
+		return gopodSystemText("system_tour.system_tour_stopping_at_the")
 	}
 	if gopodRunActive() || gopodScriptPlaying.Load() {
-		return "system-tour: a run is going - try again after it"
+		return gopodSystemText("system_tour.system_tour_a_run_is")
 	}
 	role := gopodBrobotsSettings.SignOff.SystemRole
 	if role == "" {
-		return "system-tour: no system voice (sign_off.system_role)"
+		return gopodSystemText("system_tour.system_tour_no_system_voice")
 	}
 	scriptures := gopodTorahScriptures()
 	gopodTourRunning.Store(true)

@@ -161,7 +161,7 @@ func gopodInterviewRebuild() string {
 		}
 	}
 	logger.Println("GOPOD_INTERVIEW rebuilt from the game: " + strconv.Itoa(len(d.Questions)) + " questions")
-	return "Interview rebuilt from the game: " + strconv.Itoa(len(d.Questions)) + " questions, one per value point, in " + strconv.Itoa(len(gopodBrobotsSettings.ValuePoints.CoreTopics)) + " chapters (system-undo puts the old one back)."
+	return gopodSystemText("interview_from_game.interview_rebuilt_from_the_game", "questions", strconv.Itoa(len(d.Questions)), "core_topics", strconv.Itoa(len(gopodBrobotsSettings.ValuePoints.CoreTopics)))
 }
 
 // gopodCoverageMark (A5): a scripted answer reveals its point ("topic#n") - once.

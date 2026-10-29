@@ -192,14 +192,14 @@ func gopodSearchLine(message string) string {
 func gopodSystemSearchList(text string) string {
 	q := strings.TrimSpace(strings.Join(strings.Fields(text)[1:], " "))
 	if q == "" {
-		return "system-search <words> - GOPOD's own web search (no LLM). To the Brobots: \"search <words>\"."
+		return gopodSystemText("system_search.system_search_words_gopod_s")
 	}
 	got, err := gopodSearch(q)
 	if err != nil {
-		return "system-search \"" + q + "\": no answer from the search (" + err.Error() + ") - is gopod-searxng running?"
+		return gopodSystemText("system_search.system_search_no_answer_from", "q", q, "error", err.Error())
 	}
 	if len(got) == 0 {
-		return "system-search \"" + q + "\": nothing found."
+		return gopodSystemText("system_search.system_search_nothing_found", "q", q)
 	}
 	var b strings.Builder
 	b.WriteString("system-search \"" + q + "\":")

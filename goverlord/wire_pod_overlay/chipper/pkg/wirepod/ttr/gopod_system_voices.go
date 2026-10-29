@@ -94,11 +94,11 @@ func gopodSystemVoicesRebuild(text string) string {
 	dir := gopodReporterAudioDir()
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return "system-voices-rebuild: the voice folder can't be read - " + err.Error()
+		return gopodSystemText("system_voices.system_voices_rebuild_the_voice", "error", err.Error())
 	}
 	backup := filepath.Join(gopodVoicesBackupDir(), time.Now().Format("20060102_150405"))
 	if err := gopodMkdirAll(backup, 0o755); err != nil {
-		return "system-voices-rebuild: no backup folder - " + err.Error()
+		return gopodSystemText("system_voices.system_voices_rebuild_no_backup", "error", err.Error())
 	}
 	moved := 0
 	for _, e := range entries {

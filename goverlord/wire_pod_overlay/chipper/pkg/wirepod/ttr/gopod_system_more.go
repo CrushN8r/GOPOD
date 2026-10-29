@@ -98,13 +98,13 @@ func gopodUndoSave(edits []gopodUndoEdit) {
 func gopodSystemUndo() string {
 	edits := gopodUndoLoad()
 	if len(edits) == 0 {
-		return "system-undo: nothing to undo."
+		return gopodSystemText("system_more.system_undo_nothing_to_undo")
 	}
 	last := edits[len(edits)-1]
 	for _, f := range last.Files {
 		now, err := os.ReadFile(f.Path)
 		if err != nil || !bytes.Equal(now, f.After) {
-			return "system-undo: not undone - " + filepath.Base(f.Path) + " has changed since \"" + last.What + "\" (" + last.At + "). Edit it by hand: system-locate."
+			return gopodSystemText("system_more.system_undo_not_undone_has", "path", filepath.Base(f.Path), "what", last.What, "at", last.At)
 		}
 	}
 	for i := len(last.Files) - 1; i >= 0; i-- {
@@ -118,7 +118,7 @@ func gopodSystemUndo() string {
 	if n := len(edits) - 1; n > 0 {
 		left = " (system-undo again for \"" + edits[n-1].What + "\")"
 	}
-	return "system-undo: undid \"" + last.What + "\" (" + last.At + ")" + left
+	return gopodSystemText("system_more.system_undo_undid", "what", last.What, "at", last.At, "left", left)
 }
 
 // gopodWriteRaw writes a file through a temp file, keeping its mode (no undo note).
@@ -187,64 +187,11 @@ func gopodJoinLines(lines []string) string {
 	return b.String()
 }
 
-// gopodSystemHelp: every system command.
+// gopodSystemHelp: every system command - its list is system_help.lines in the
+// settings file (2026-10-29, pass 3 of FLEXIBLE_DATA_SURVEY_001.md: the code
+// prints it, the words live with the rest).
 func gopodSystemHelp() string {
-	return gopodJoinLines([]string{
-		"system commands (typed on this keyboard):",
-		"  system-set <setting> <value>      change a setting (system-set master-volume 35%)",
-		"  system-set <path.to.setting> <value>   any setting by its path (system-set managers.qr_note Scan it!)",
-		"  system-add / system-remove <path> <item>   an item in a list, or key = value in a group",
-		"  system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)",
-		"  system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures",
-		"  system-skip  (or Esc)             skip the voiced lines playing (from Voices ready on)",
-		"  system-restart                    a forced restart, like wpr 2 (speaker + mic set); the page reloads itself",
-		"  system-audit                      the full audit, no robots called: files, Go tests, web page, phone app, every test, the log",
-		"  system-score <song>               a song's score: every step and its words",
-		"  system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]   a song or part of it (pha0b)",
-		"  system-gap <seconds>|off|default  reporter gap for system-play",
-		"  system-tweaks on|off              apply phcal tweaks before a live system-play",
-		"  system-calibrate <move> <1|2> [values] [dry]   one move alone (phcal)",
-		"  system-set <song> tempo <seconds>   the song's tempo (tempo-set); a step's tempo_factor too",
-		"  system-brobot <stats|volume|eyes|locale|units|location|timezone|say|wake|head|lift|wheels|camera> [1|2|both]",
-		"  system-faces [list|rename|delete|add] [1|2]   the faces a Brobot knows",
-		"  system-value-points [lock|<topic>]   the golden value points: locked? changed? a topic's; lock on purpose",
-		"  system-interview-rebuild            the interview song, rebuilt from the game's topics and value points",
-		"  system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route",
-		"  system-usb                        the USB devices plugged in (live in the menu)",
-		"  system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)",
-		"  system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)",
-		"  system-tpu [restart]              the Edge TPU worker's state, or start it again",
-		"  system-photos [1|2]               a Brobot's photos",
-		"  system-cams [tpu]                 the Brobots' cameras and the webcam side by side; tpu = the Edge TPU on the selected one",
-		"  system-chats <words> [operator|brobots|managers]   search every saved session's chat",
-		"  system-chat-save [session]        a readable chat.md in the session's folder",
-		"  system-menu-theme <preset>        the menu's look: dark, light, blue, green, purple",
-		"  system-visual [next|prev|<id>]    the TPU +/- rotation: a feed's frame and its Edge TPU objects (KP+ / KP-)",
-		"  system-version                    Wire-Pod's commit, the newest, what an update touches",
-		"  system-native [on|off]            Wire-Pod's own voice answers (was the Native? box)",
-		"  system-numpad on|off              the numpad keys as push-to-talk (was the Numpad? box)",
-		"  system-set <song> <step> <field> <value>   change one step (volume, text, timing)",
-		"  system-set <song> [step]          a song's steps, or one step",
-		"  system-set-list                   every setting, song and step field",
-		"  system-locate <thing>             where it lives, file:line (a setting, a song step, a word)",
-		"  system-locate-list                every setting's and song's file:line",
-		"  system-undo                       put back the last system-set",
-		"  system-status                     Wire-Pod, language model, page, run, Brobots' battery",
-		"  system-find <word>                where a word shows up: the log (6 hours), settings, songs",
-		"  system-search <words>             GOPOD's own web search, the results (to the Brobots: \"search <words>\")",
-		"  system-check                      every file the settings, chapters and songs name - all there?",
-		"  system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again",
-		"  system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)",
-		"  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
-		"  system-record on|off              Record Session on or off (the page's Record? box)",
-		"  system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one",
-		"  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
-		"  system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now",
-		"  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
-		"  system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",
-		"  system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)",
-		"  system-help                       this list",
-	})
+	return gopodJoinLines(gopodBrobotsSettings.SystemHelp.Lines)
 }
 
 // ## EOF

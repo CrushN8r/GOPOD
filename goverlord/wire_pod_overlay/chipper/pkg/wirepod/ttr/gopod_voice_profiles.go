@@ -296,7 +296,7 @@ func gopodSystemVoicesReport(text string) string {
 	if len(f) > 1 {
 		days, ok := gopodVoiceReportWindows[f[1]]
 		if !ok {
-			return "system-voices-report [3d | week | month | year]"
+			return gopodSystemText("voice_profiles.system_voices_report_3d_week")
 		}
 		window, label = days, f[1]
 	}

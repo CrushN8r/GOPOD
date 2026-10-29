@@ -31,14 +31,48 @@ const gopodTypedAll = "all"
 
 // GopodTypedInput handles one typed line for the robot with this ESN.
 func GopodTypedInput(esn, text string) error {
+	// 2026-10-29 (operator: "add a 0 to the All drop down menu for system calls *
+	// bypass '0' on app visitor pages"): the admin's 0 - the system.
+	if strings.EqualFold(strings.TrimSpace(esn), gopodTypedSystem) {
+		return gopodTypedToSystem(text, "Typed text")
+	}
 	if key, ok := gopodTypedKey(esn); ok {
 		return gopodTypedToKey(key, text, "Typed text")
 	}
 	return gopodOperatorLine(esn, text, "Typed text")
 }
 
+// gopodTypedSystem: the page's 0 - a line to the system itself.
+const gopodTypedSystem = "system"
+
+// gopodSystemCommandMatch: a line the system runs, whoever it's typed to -
+// system-..., stop run, start <run>, stop session, replay <session>.
+func gopodSystemCommandMatch(text string) bool {
+	return gopodSystemSetMatch(text) || gopodScriptCommandMatch(text) || gopodStopRunMatch(text) ||
+		gopodStopSessionMatch(text) || gopodReplayMatch(text)
+}
+
+// gopodTypedToSystem: a line typed to 0 - a system command runs; anything else
+// gets the system's one-line pointer (system_text.typed_system.not_a_command).
+func gopodTypedToSystem(text, how string) error {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return errors.New("empty text")
+	}
+	if gopodSystemCommandMatch(text) {
+		return gopodOperatorLine(gopodTypedAll, text, how)
+	}
+	gopodOperatorShow(gopodBrobotsSettings.SignOff.SystemRole, text, how)
+	GopodChatFeedAdd(gopodSystemSetRole(), gopodSystemText("typed_system.not_a_command"))
+	return nil
+}
+
 // GopodVisitorTypedInput: an approved visitor's line, under their username.
+// A visitor has no 0 (the system is the admin's).
 func GopodVisitorTypedInput(esn, text, how string) error {
+	if strings.EqualFold(strings.TrimSpace(esn), gopodTypedSystem) {
+		return errors.New("the system is the admin's")
+	}
 	if key, ok := gopodTypedKey(esn); ok {
 		return gopodTypedToKey(key, text, how)
 	}
@@ -59,13 +93,15 @@ func gopodTypedKey(esn string) (string, bool) {
 // communicate to all as well"): a typed line to a numpad key's persona, as
 // holding the key and speaking does (GopodNumpadPTTStop) - a persona answers in
 // its own bubble; a Brobot's key goes to that Brobot. A system- command still
-// runs as one.
+// runs as one - 2026-10-29 (operator: "Cameo, mechanically ok, but no system
+// override"; live 14:42:05 - "stop run" with 9 picked went to Cameo): so does
+// every system command (gopodSystemCommandMatch).
 func gopodTypedToKey(key, text, how string) error {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return errors.New("empty text")
 	}
-	if gopodSystemSetMatch(text) {
+	if gopodSystemCommandMatch(text) {
 		return gopodOperatorLine(gopodTypedAll, text, how)
 	}
 	_, target, err := gopodNumpadBrobot(key)
@@ -139,7 +175,14 @@ func gopodOperatorLine(esn, text, how string) error {
 	// next safe spot, any time (gopod_thanks_close_out.go).
 	// 2026-10-11 (live: "No run is going." was heard before "stop run" - its voice
 	// file was still being made): the line is shown and read out first, then acted on.
+	// 2026-10-29 (operator: "Escaping the run still an issue"; live 14:42:34 - the
+	// stop waited 8 s behind the tour's lines to be read out): with something
+	// going, it stops at once, then the line shows; with nothing going, as before.
 	if gopodStopRunMatch(text) {
+		if gopodStopRuns("stop run") {
+			gopodShowCommandLine(esn, text, how)
+			return nil
+		}
 		gopodShowCommandLine(esn, text, how)
 		gopodStopRunCommand(text)
 		return nil

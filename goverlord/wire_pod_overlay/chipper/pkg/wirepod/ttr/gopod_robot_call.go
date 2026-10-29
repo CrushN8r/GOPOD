@@ -53,7 +53,7 @@ func gopodRobotCall(esn string, keep bool, act func(robot *vector.Vector, ctx co
 	defer lock.Unlock()
 	robot := gopodRobotFor(esn)
 	if robot == nil {
-		return "not connected to Wire-Pod"
+		return gopodSystemText("robot_call.not_connected_to_wire_pod")
 	}
 	gopodChatHoldLetGo(esn)
 	defer gopodChatHoldResume(esn)
@@ -71,7 +71,7 @@ func gopodRobotCall(esn string, keep bool, act func(robot *vector.Vector, ctx co
 	case <-granted:
 	case <-time.After(8 * time.Second):
 		giveBack()
-		return "didn't wake (no behavior control in 8 s - asleep on the charger, or off?)"
+		return gopodSystemText("robot_call.didn_t_wake_no_behavior")
 	}
 	time.Sleep(1500 * time.Millisecond)
 	if !keep {

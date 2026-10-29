@@ -22,10 +22,10 @@ import (
 func gopodSystemRecord(text string) string {
 	f := strings.Fields(strings.ToLower(text))
 	if len(f) < 2 || (f[1] != "on" && f[1] != "off") {
-		return "system-record on|off - Record Session (the page's Record? box)"
+		return gopodSystemText("system_window_more.system_record_on_off_record")
 	}
 	GopodRecordSessionSet(f[1] == "on")
-	return "Record Session " + f[1] + "."
+	return gopodSystemText("system_window_more.record_session", "arg1", f[1])
 }
 
 var gopodDocBSVowelRE = regexp.MustCompile(`[aeiouAEIOU]`)
@@ -47,15 +47,15 @@ func gopodSystemDocBS(text string) string {
 			out = append(out, base+" ("+strconv.Itoa(len(gopodDocBSLines(n)))+")")
 		}
 		sort.Strings(out)
-		return "DocBS pools: " + strings.Join(out, ", ") + " - system-docbs <pool> shows one; add|remove <line> edits it."
+		return gopodSystemText("system_window_more.docbs_pools_system_docbs_pool", "out", strings.Join(out, ", "))
 	}
 	pool := f[1]
 	if strings.ContainsAny(pool, "/\\.") || strings.HasPrefix(pool, "z") {
-		return "system-docbs: no pool " + pool
+		return gopodSystemText("system_window_more.system_docbs_no_pool", "pool", pool)
 	}
 	public := filepath.Join(dir, pool+".txt")
 	if _, err := os.Stat(public); err != nil {
-		return "system-docbs: no pool " + pool + " (system-docbs lists them)"
+		return gopodSystemText("system_window_more.system_docbs_no_pool_system", "pool", pool)
 	}
 	if len(f) < 4 || (f[2] != "add" && f[2] != "remove") {
 		return pool + ": " + strings.Join(gopodDocBSLines(public), " | ")
@@ -94,7 +94,7 @@ func gopodSystemDocBS(text string) string {
 	gopodDocBSDecks.Lock()
 	gopodDocBSDecks.left = map[string][]string{}
 	gopodDocBSDecks.Unlock()
-	return pool + ": " + f[2] + " \"" + line + "\" - " + strconv.Itoa(len(gopodDocBSLines(public))) + " lines now."
+	return gopodSystemText("system_window_more.lines_now", "pool", pool, "arg2", f[2], "line", line, "value", strconv.Itoa(len(gopodDocBSLines(public))))
 }
 
 func gopodDocBSLines(file string) []string {

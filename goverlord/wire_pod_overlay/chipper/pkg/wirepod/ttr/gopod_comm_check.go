@@ -109,13 +109,13 @@ func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
 func gopodSystemCommCheck() string {
 	cc := gopodBrobotsSettings.CommCheck
 	if len(cc.Rounds) == 0 {
-		return "system-comm-check: comm_check.rounds is empty"
+		return gopodSystemText("comm_check.system_comm_check_comm_check")
 	}
 	if gopodRunActive() || gopodScriptPlaying.Load() {
-		return "system-comm-check: a run is going - try again after it"
+		return gopodSystemText("comm_check.system_comm_check_a_run")
 	}
 	if !gopodCommCheckRunning.CompareAndSwap(false, true) {
-		return "system-comm-check: already running"
+		return gopodSystemText("comm_check.system_comm_check_already_running")
 	}
 	lines := gopodCommCheckLines()
 	go func() {

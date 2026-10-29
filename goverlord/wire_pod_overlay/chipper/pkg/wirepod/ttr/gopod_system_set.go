@@ -214,7 +214,7 @@ func gopodSystemSetLine(esn, text, how string) {
 // (extra seconds per step, 0 = none; a step's tempo_factor weighs it).
 func gopodSystemSetTempo(dir, value string) string {
 	if v, err := strconv.ParseFloat(value, 64); err != nil || v < 0 {
-		return "system-set <song> tempo <seconds, 0 or more>"
+		return gopodSystemText("system_set.system_set_song_tempo_seconds")
 	}
 	var out []string
 	for _, name := range []string{"knobs.json", "zKnobs.json"} {
@@ -224,11 +224,11 @@ func gopodSystemSetTempo(dir, value string) string {
 		}
 		old, err := gopodJSONFileSet(path, []string{"global_tempo"}, value)
 		if err != nil {
-			return name + ": not changed - " + err.Error()
+			return gopodSystemText("system_set.not_changed", "name", name, "error", err.Error())
 		}
 		out = append(out, name+" "+old+" -> "+value)
 	}
-	return filepath.Base(dir) + " tempo: " + strings.Join(out, ", ") + " (the next run of it)"
+	return gopodSystemText("system_set.tempo_the_next_run_of", "dir", filepath.Base(dir), "out", strings.Join(out, ", "))
 }
 
 func gopodSystemSetRole() string {
@@ -270,7 +270,7 @@ func gopodSystemSet(text string) string {
 		if strings.EqualFold(args[1], "tempo") {
 			return gopodSystemSetTempo(dir, args[2])
 		}
-		return "Give it a value: system-set " + args[0] + " " + args[1] + " " + args[2] + " <value>"
+		return gopodSystemText("system_set.give_it_a_value_system", "arg0", args[0], "arg1", args[1], "arg2", args[2])
 	}
 	return gopodSystemSetStepWrite(dir, args[1], strings.ToLower(args[2]), strings.Join(args[3:], " "))
 }
@@ -354,9 +354,9 @@ func gopodSystemSetKnobWrite(name string, k gopodSystemSetKnob, value string) st
 	path := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
 	old, err := gopodJSONFileSet(path, k.path, raw)
 	if err != nil {
-		return name + ": not changed - " + err.Error()
+		return gopodSystemText("system_set.not_changed", "name", name, "error", err.Error())
 	}
-	return name + ": " + old + " -> " + raw + " (" + k.about + "; takes effect after " + k.when + ")"
+	return gopodSystemText("system_set.takes_effect_after", "name", name, "old", old, "raw", raw, "about", k.about, "when", k.when)
 }
 
 // gopodSettingsGet: a setting's value as written in the settings file.
@@ -461,7 +461,7 @@ func gopodSystemSetStep(dir, id string) string {
 	}
 	i := gopodSystemSetStepIndex(steps, id)
 	if i < 0 {
-		return "no step " + id + " in " + filepath.Base(dir) + " - system-set " + filepath.Base(dir) + " lists them."
+		return gopodSystemText("system_set.no_step_in_system_set", "id", id, "dir", filepath.Base(dir))
 	}
 	s, e, _ := gopodJSONSpan(data, []string{"steps", strconv.Itoa(i)})
 	out := id + ": " + string(bytes.TrimSpace(data[s:e]))
@@ -474,13 +474,13 @@ func gopodSystemSetStep(dir, id string) string {
 func gopodSystemSetStepWrite(dir, id, field, value string) string {
 	kind, ok := gopodSystemSetFields[field]
 	if !ok {
-		return field + " isn't a field system-set writes - system-set lists them."
+		return gopodSystemText("system_set.isn_t_a_field_system", "field", field)
 	}
 	where := filepath.Base(dir) + " " + id + " " + field
 	if kind == "text" {
 		old, err := gopodStorySetText(filepath.Join(dir, "story.md"), id, strings.TrimSpace(value))
 		if err != nil {
-			return where + ": not changed - " + err.Error()
+			return gopodSystemText("system_set.not_changed_2", "where", where, "error", err.Error())
 		}
 		return where + ": \"" + old + "\" -> \"" + strings.TrimSpace(value) + "\" (" + gopodSystemSetWhen(dir) + ")"
 	}
@@ -500,21 +500,21 @@ func gopodSystemSetStepWrite(dir, id, field, value string) string {
 			Steps []gopodSetStep `json:"steps"`
 		}
 		if json.Unmarshal(data, &k) != nil {
-			return where + ": not changed - " + name + " doesn't read"
+			return gopodSystemText("system_set.not_changed_doesn_t_read", "where", where, "name", name)
 		}
 		i := gopodSystemSetStepIndex(k.Steps, id)
 		if i < 0 {
 			if name == "knobs.json" {
-				return "no step " + id + " in " + filepath.Base(dir) + " - system-set " + filepath.Base(dir) + " lists them."
+				return gopodSystemText("system_set.no_step_in_system_set", "id", id, "dir", filepath.Base(dir))
 			}
 			continue
 		}
 		if len(k.Steps[i].Combo) > 0 {
-			return where + ": a combo step - its parts are edited in knobs.json for now."
+			return gopodSystemText("system_set.a_combo_step_its_parts", "where", where)
 		}
 		was, err := gopodJSONFileSet(path, []string{"steps", strconv.Itoa(i), field}, raw)
 		if err != nil {
-			return where + ": not changed in " + name + " - " + err.Error()
+			return gopodSystemText("system_set.not_changed_in", "where", where, "name", name, "error", err.Error())
 		}
 		if old == "" {
 			old = was
@@ -526,9 +526,9 @@ func gopodSystemSetStepWrite(dir, id, field, value string) string {
 
 func gopodSystemSetWhen(dir string) string {
 	if dir2, err := gopodFindSong(gopodBrobotsSettings.LLM.OpenerSongID); err == nil && dir2 == dir {
-		return "takes effect after wpr 2"
+		return gopodSystemText("system_set.takes_effect_after_wpr_2")
 	}
-	return "takes effect at the next run"
+	return gopodSystemText("system_set.takes_effect_at_the_next")
 }
 
 // gopodStorySetText writes one step's > TEXT: line in a story.md; the old words back.
