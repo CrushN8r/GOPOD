@@ -3742,6 +3742,12 @@
               // played again, so Wire-Pod knows how far it is.
               if (isSeen(key) && e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; }
               if (isSeen(key) || feedQueued[key] || !e.who || !e.text) { return; }
+              // GOLDEN, the master chat queue (2026-10-29, operator: "every event
+              // should go in a main chat-queue of nested chat-queues"; Wire-Pod's
+              // gopod_chat_queue.go): a turn's drop acts the moment it arrives -
+              // never in its place in line - and a dropped turn's lines never play.
+              if (e.who === reporterRole && String(e.text).indexOf(turnDropMark) === 0) { markSeen(key); dropTurn(Number(String(e.text).slice(turnDropMark.length))); return; }
+              if (e.turn && droppedTurns[e.turn]) { markSeen(key); if (e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; } return; }
               queueBubble(key, e);
             });
             if (!skipGate.decided && seenSkipOn) {
@@ -3764,6 +3770,33 @@
       // between). The opening_end_text line tells Wire-Pod the hosts' opening was
       // heard, and only then is it LLM Ready.
       var feedQueue = [], feedQueued = {}, feedRunning = false;
+      // The master chat queue's drops (gopod_chat_queue.go): the turns dropped, and
+      // the line being shown now.
+      var turnDropMark = "drop:", droppedTurns = {}, feedItemNow = null;
+      function dropTurn(turn) {
+        if (!turn) { return; }
+        droppedTurns[turn] = true;
+        var kept = [];
+        feedQueue.forEach(function (item) {
+          if (item.e && item.e.turn === turn) {
+            delete feedQueued[item.key];
+            markSeen(item.key);
+            if (item.e.id > playedId) { playedId = item.e.id; }
+          } else {
+            kept.push(item);
+          }
+        });
+        feedQueue = kept;
+        // Its line on screen now: its voice stops, its words show whole.
+        if (feedItemNow && feedItemNow.e && feedItemNow.e.turn === turn) {
+          if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
+          skipFinishWaiting();
+        }
+        var note = new URLSearchParams();
+        note.set("note", "turn " + turn + " dropped");
+        fetch("/api-sdk/gopod_page_note", { method: "POST", body: note }).catch(function () { /* Wire-Pod gone */ });
+        runFeedQueue();
+      }
       // 2026-10-17: the page's side of the dialogue - each second, how far it has
       // played the feed goes back to Wire-Pod (/api-sdk/gopod_page_played), which
       // writes "GOPOD_PAGE played <id> ..." under its own "GOPOD_FEED <id> ...".
@@ -4019,6 +4052,7 @@
         feedRunning = true;
         var item = feedQueue.shift();
         delete feedQueued[item.key];
+        feedItemNow = item;
         // 2026-10-18 (step 3, "the engine conducts"): how long this line waited
         // here (the bubble above, a countdown, the warm-up) - told to Wire-Pod.
         if (item.e && item.e.id && Date.now() - item.at > heldMost.ms) { heldMost = { id: item.e.id, ms: Date.now() - item.at }; }
@@ -5565,8 +5599,10 @@
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
+                // 2026-10-29: a system window click is the system's, whoever is picked
+                // (a system- command typed to anyone but 0 gets Goverlord's sting).
                 var chosen = typedRow.querySelector("input[name=gopod-typed-robot]:checked");
-                sendTypedLine(chosen ? chosen.value : "all", it.cmd);
+                sendTypedLine(/^system-/i.test(it.cmd) ? "system" : (chosen ? chosen.value : "all"), it.cmd);
               } else {
                 typedText.value = it.fill != null ? it.fill : it.cmd + " ";
                 typedText.focus();

@@ -14,6 +14,7 @@ package wirepod_ttr
 import (
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -26,6 +27,9 @@ type gopodLineJob struct {
 }
 
 var gopodLineJobs = make(chan gopodLineJob, 64)
+
+// gopodLineBusy: a question is being asked and answered now.
+var gopodLineBusy atomic.Bool
 
 func init() {
 	go func() {
@@ -47,8 +51,25 @@ func gopodLineTurn(text string, answerers []string, run func() error) error {
 	return nil
 }
 
-// gopodLineRun: one question, then its answers, then the page caught up.
+// gopodLineRun: one question, then its answers, then the page caught up - its
+// own turn of the master chat queue (gopod_chat_queue.go) when nothing else is
+// going; a turn that holds questions (the tour) is waited out first; inside a
+// turn that doesn't (the comm check's own questions), it's that turn's line.
 func gopodLineRun(j gopodLineJob) {
+	for gopodTurnHolding() {
+		time.Sleep(300 * time.Millisecond)
+	}
+	gopodLineBusy.Store(true)
+	defer gopodLineBusy.Store(false)
+	if gopodTurnNow.Load() == 0 {
+		id := gopodTurnSeq.Add(1)
+		gopodTurn.Lock()
+		gopodTurn.id, gopodTurn.kind, gopodTurn.holds = id, "question", false
+		gopodTurn.Unlock()
+		gopodTurnNow.Store(id)
+		defer gopodTurnEnd(id)
+		defer gopodTurnOwn(id)()
+	}
 	lq := gopodBrobotsSettings.LineQueue
 	from := gopodFeedLastID()
 	if err := j.run(); err != nil {

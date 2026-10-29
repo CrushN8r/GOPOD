@@ -55,6 +55,9 @@ func gopodSystemTour() string {
 	}
 	go func() {
 		defer gopodTourRunning.Store(false)
+		// 2026-10-29: the tour is a turn of the master chat queue; a question
+		// asked meanwhile waits for its end (gopod_chat_queue.go).
+		defer gopodTurnBeginOwn("tour", true)()
 		say := func(text string) bool {
 			if gopodTourStop.Load() || gopodRunActive() {
 				return false

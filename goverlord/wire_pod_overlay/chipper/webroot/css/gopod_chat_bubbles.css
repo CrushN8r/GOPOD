@@ -1371,3 +1371,8 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 /* 2026-10-29: the copy-all bar, at the top of the results while they scroll. */
 .gopod-results-copy-all { position: sticky; top: -8px; z-index: 1; display: flex; justify-content: flex-end; margin: -8px -10px 4px; padding: 4px 6px; background: var(--menu-results-bg, var(--menu-results-bg-default)); }
 .gopod-results-copy-all .gopod-result-copy { position: static; }
+/* 2026-10-29 (operator: "text under header not correct sizes & did not default to
+   85% solid white * default = 85% solid white, starts at 0% solid white to 100% sold
+   white, to default"): a system answer's text, like every system bubble's text, is
+   75% of its header and rests at 85% white (it has no voice to light it). */
+.brobot-bubble.terminal .brobot-bubble-text.terminal-text { font-size: 75%; letter-spacing: 0.03em; color: var(--chat-text-white); }

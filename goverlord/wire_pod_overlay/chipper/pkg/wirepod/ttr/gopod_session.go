@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -37,6 +38,9 @@ type gopodRun struct {
 	PID     int       `json:"pid,omitempty"`
 	Started time.Time `json:"started"`
 }
+
+// gopodRunTurn: the run's turn of the master chat queue.
+var gopodRunTurn atomic.Int64
 
 var gopodSession = struct {
 	sync.Mutex
@@ -99,6 +103,9 @@ func GopodRunStart(name, kind string, pid int) (bool, string) {
 	gopodSession.run = &gopodRun{Name: name, Kind: kind, PID: pid, Started: time.Now()}
 	gopodSession.Unlock()
 	logger.Println("GOPOD_SESSION run " + name + " (" + kind + ") started")
+	// 2026-10-29: the run is a turn of the master chat queue, check-in to
+	// check-out - its lines are its own (gopod_chat_queue.go).
+	gopodRunTurn.Store(gopodTurnBegin("run "+name, false))
 	// 2026-10-13 (operator: "all songs (scripted runs) * remember speaker toggle
 	// * toggle speaker (loop audio) off * after run, last thing is to set back to
 	// remembered toggle"): the page's background loop goes quiet for the run.
@@ -133,6 +140,7 @@ func GopodRunEndThen(name, reason string, then func()) {
 	}
 	gopodSession.run = nil
 	gopodSession.Unlock()
+	gopodTurnEnd(gopodRunTurn.Swap(0))
 	// A run that ends mid warm-up lets the queued lines go.
 	gopodWarmingEnd()
 	logger.Println("GOPOD_SESSION run " + r.Name + " ended reason=" + reason + " took=" + time.Since(r.Started).Round(time.Second).String())

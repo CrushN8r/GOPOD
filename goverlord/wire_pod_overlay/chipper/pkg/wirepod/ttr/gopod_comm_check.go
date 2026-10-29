@@ -120,6 +120,9 @@ func gopodSystemCommCheck() string {
 	lines := gopodCommCheckLines()
 	go func() {
 		defer gopodCommCheckRunning.Store(false)
+		// 2026-10-29: the comm check is a turn of the master chat queue; its KP1-9
+		// questions are its own nested lines (gopod_chat_queue.go).
+		defer gopodTurnBeginOwn("comm_check", false)()
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
 		gopodCommCheckStop.Store(false)

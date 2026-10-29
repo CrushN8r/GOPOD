@@ -42,6 +42,8 @@ type gopodChatFeedEvent struct {
 	Via    string `json:"via,omitempty"` // an operator line's input: "Keyboard", "KP1", "Backpack" (the page's label)
 	Text   string `json:"text"`
 	TimeMS int64  `json:"time_ms"`
+	// 2026-10-29: the turn it belongs to (the master chat queue, gopod_chat_queue.go).
+	Turn int64 `json:"turn,omitempty"`
 }
 
 var gopodChatFeed = struct {
@@ -82,6 +84,11 @@ func GopodChatFeedAdd(who, text string) {
 		return
 	}
 	GopodChatFeedAddTo(who, "", text)
+}
+
+// gopodChatFeedAddTurn adds a line with its own turn (0: none - a control line).
+func gopodChatFeedAddTurn(turn int64, who, text string) {
+	gopodChatFeedAddEventTurn(who, "", "", "", text, turn)
 }
 
 // gopodChatFeedAddOperator adds an operator line to a Brobot ("Brobots" for
@@ -251,6 +258,11 @@ func gopodChatFeedAddEvent(who, to, by, text string) {
 }
 
 func gopodChatFeedAddEventVia(who, to, by, via, text string) {
+	gopodChatFeedAddEventTurn(who, to, by, via, text, gopodTurnForLine())
+}
+
+// gopodChatFeedAddEventTurn: a line, with the turn it belongs to (gopod_chat_queue.go).
+func gopodChatFeedAddEventTurn(who, to, by, via, text string, turn int64) {
 	who, to, text = strings.TrimSpace(who), strings.TrimSpace(to), strings.TrimSpace(text)
 	if who == "" || text == "" {
 		return
@@ -267,7 +279,7 @@ func gopodChatFeedAddEventVia(who, to, by, via, text string) {
 	}
 	gopodChatFeed.Lock()
 	gopodChatFeed.next++
-	event := gopodChatFeedEvent{ID: gopodChatFeed.next, Who: who, To: to, By: by, Via: via, Text: text, TimeMS: time.Now().UnixMilli()}
+	event := gopodChatFeedEvent{ID: gopodChatFeed.next, Who: who, To: to, By: by, Via: via, Text: text, TimeMS: time.Now().UnixMilli(), Turn: turn}
 	// 2026-10-21 (operator: "highlighting ... should run as an independent agent on
 	// any & all bubbles"): a Brobot's newest bubble, so his speech names it exactly.
 	if who == "Brobot 1" || who == "Brobot 2" {

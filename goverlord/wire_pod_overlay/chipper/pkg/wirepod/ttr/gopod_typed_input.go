@@ -31,15 +31,36 @@ const gopodTypedAll = "all"
 
 // GopodTypedInput handles one typed line for the robot with this ESN.
 func GopodTypedInput(esn, text string) error {
+	// The control lane's thread: what this line posts itself (a command's answer,
+	// stop run's line) is no turn's; a question goes on to the queue's own turn.
+	defer gopodTurnOwn(0)()
 	// 2026-10-29 (operator: "add a 0 to the All drop down menu for system calls *
 	// bypass '0' on app visitor pages"): the admin's 0 - the system.
 	if strings.EqualFold(strings.TrimSpace(esn), gopodTypedSystem) {
 		return gopodTypedToSystem(text, "Typed text")
 	}
+	// 2026-10-29 (operator: "re: All with '0' NOT selected * when system-
+	// commandment is entered, should be a sting bubble, did you mean to dial '0'
+	// for the operator? * that trains me to learn to avoid being stung"): a system-
+	// command typed to anyone but 0 doesn't run - its line, then Goverlord's sting.
+	if gopodSystemSetMatch(strings.TrimSpace(text)) {
+		gopodShowCommandLine(gopodTypedTo(esn), text, "Typed text")
+		GopodSystemSayHeard(gopodSystemText("typed_system.dial_zero"), 0)
+		return nil
+	}
 	if key, ok := gopodTypedKey(esn); ok {
 		return gopodTypedToKey(key, text, "Typed text")
 	}
 	return gopodOperatorLine(esn, text, "Typed text")
+}
+
+// gopodTypedTo: who a typed line is shown to - a Brobot, or All (a persona key's
+// line shows as to All).
+func gopodTypedTo(esn string) string {
+	if _, ok := gopodTypedKey(esn); ok {
+		return gopodTypedAll
+	}
+	return esn
 }
 
 // gopodTypedSystem: the page's 0 - a line to the system itself.
@@ -153,6 +174,27 @@ func gopodOperatorLine(esn, text, how string) error {
 		gopodSystemSetLine(esn, text, how)
 		return nil
 	}
+	// 2026-10-09: "stop run" stops a playing draft or a running song at its
+	// next safe spot, any time (gopod_thanks_close_out.go).
+	// 2026-10-11 (live: "No run is going." was heard before "stop run" - its voice
+	// file was still being made): the line is shown and read out first, then acted on.
+	// 2026-10-29 (operator: "Escaping the run still an issue"; live 14:42:34 - the
+	// stop waited 8 s behind the tour's lines to be read out): with something
+	// going, it stops at once, then the line shows; with nothing going, as before.
+	// 2026-10-29 (live: a stop run typed during the warm-up waited for LLM Ready):
+	// the control lane never waits - stop run comes before the warm-up hold.
+	if gopodStopRunMatch(text) {
+		if gopodStopRuns("stop run") {
+			// The control lane's own line, through the whole template (shown, read
+			// out, heard) - no turn's, so the drop never takes it.
+			defer gopodTurnOwn(0)()
+			gopodShowCommandLine(esn, text, how)
+			return nil
+		}
+		gopodShowCommandLine(esn, text, how)
+		gopodStopRunCommand(text)
+		return nil
+	}
 	// 2026-10-13: during an LLM warm-up, every line waits for LLM Ready
 	// (gopod_llm_warmup.go gopodWarmupHold).
 	if gopodWarmupHold(esn, text, how) {
@@ -169,22 +211,6 @@ func gopodOperatorLine(esn, text, how string) error {
 	if gopodScriptCommandMatch(text) {
 		gopodShowCommandLine(esn, text, how)
 		gopodScriptCommand(text)
-		return nil
-	}
-	// 2026-10-09: "stop run" stops a playing draft or a running song at its
-	// next safe spot, any time (gopod_thanks_close_out.go).
-	// 2026-10-11 (live: "No run is going." was heard before "stop run" - its voice
-	// file was still being made): the line is shown and read out first, then acted on.
-	// 2026-10-29 (operator: "Escaping the run still an issue"; live 14:42:34 - the
-	// stop waited 8 s behind the tour's lines to be read out): with something
-	// going, it stops at once, then the line shows; with nothing going, as before.
-	if gopodStopRunMatch(text) {
-		if gopodStopRuns("stop run") {
-			gopodShowCommandLine(esn, text, how)
-			return nil
-		}
-		gopodShowCommandLine(esn, text, how)
-		gopodStopRunCommand(text)
 		return nil
 	}
 	// 2026-10-12 (operator: "replay [session-name]"): a session's score played

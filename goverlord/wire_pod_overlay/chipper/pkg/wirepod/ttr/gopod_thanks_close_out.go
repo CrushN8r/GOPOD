@@ -64,8 +64,12 @@ func gopodStopRuns(why string) bool {
 		logger.Println("GOPOD_STOP_RUN " + why + ": " + strconv.Itoa(n) + " waiting questions dropped")
 	}
 	if stopped {
+		// 2026-10-29 (the master chat queue, gopod_chat_queue.go): the run's turn
+		// is dropped on the page at once - its lines waiting and any still coming;
+		// the skip line is no turn's (a control line).
+		gopodTurnDrop(why)
 		GopodSkipped()
-		GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+why)
+		gopodChatFeedAddTurn(0, gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+why)
 	}
 	return stopped
 }
@@ -85,6 +89,7 @@ func gopodWaitRunsStopped() {
 // tour, the comm check) stops, as stop run does, and the system says so; true
 // when something stopped (with nothing going, the page's Esc skips instead).
 func GopodEscape() bool {
+	defer gopodTurnOwn(0)()
 	if !gopodStopRuns("Esc") {
 		return false
 	}
