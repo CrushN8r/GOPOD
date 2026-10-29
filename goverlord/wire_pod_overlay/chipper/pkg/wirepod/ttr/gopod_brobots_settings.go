@@ -667,6 +667,13 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-18: the engine times itself by the page (gopod_page_sync.go).
 	SystemText map[string]string  `json:"system_text"`
 	Timings    map[string]float64 `json:"timings"`
+	Lightning  struct {
+		On          bool    `json:"on"`
+		TopTopics   int     `json:"top_topics"`
+		TriggerPull float64 `json:"trigger_pull"`
+		MinWordPull float64 `json:"min_word_pull"`
+		KeepShare   float64 `json:"keep_share"`
+	} `json:"lightning"`
 	SystemHelp struct {
 		Lines []string `json:"lines"`
 	} `json:"system_help"`

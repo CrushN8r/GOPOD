@@ -477,6 +477,20 @@ const gopodMaxScenarioPackets = 3
 func loadScenarioPacketsForMessage(message string) []loadedScenarioPacket {
 	normalizedMessage := strings.ToLower(message)
 	registry := gopodTopicRegistry()
+	// 2026-10-29: the lightning - the topics found, ranked by the dynamic order
+	// valuation (gopod_lightning.go); lightning.on false: the triggers below.
+	if gopodBrobotsSettings.Lightning.On {
+		var out []loadedScenarioPacket
+		for _, t := range gopodLightningTopics(message, registry) {
+			packetBytes, err := gopodReadTopicFacts(t.entry.File)
+			if err != nil {
+				logger.Println("Unable to load scenario packet file: " + err.Error())
+				continue
+			}
+			out = append(out, loadedScenarioPacket{Name: t.entry.Name, File: t.entry.File, Content: packetBytes})
+		}
+		return out
+	}
 	var out []loadedScenarioPacket
 	for _, packet := range registry {
 		if len(out) >= gopodMaxScenarioPackets {
