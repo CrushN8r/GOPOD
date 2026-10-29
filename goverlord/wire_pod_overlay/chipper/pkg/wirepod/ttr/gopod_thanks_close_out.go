@@ -86,15 +86,30 @@ func gopodWaitRunsStopped() {
 
 // GopodEscape (2026-10-29, operator: "to me, Esc & stop run = exit the run, skip =
 // skip to next scripture"): the page's Esc - a run going (a song, a draft, the
-// tour, the comm check) stops, as stop run does, and the system says so; true
+// tour, the comm check) stops, as stop run does, and Goverlord says session.
+// stopped_text (a song run at its check-out); true
 // when something stopped (with nothing going, the page's Esc skips instead).
 func GopodEscape() bool {
 	defer gopodTurnOwn(0)()
+	songRun := gopodRunActive() || gopodScriptPlaying.Load()
 	if !gopodStopRuns("Esc") {
 		return false
 	}
-	GopodChatFeedAdd(gopodSystemSetRole(), gopodSystemText("stop_run.escaped"))
+	if !songRun {
+		go func() {
+			defer gopodTurnOwn(0)()
+			gopodStoppedSay()
+		}()
+	}
 	return true
+}
+
+// gopodStoppedSay: Goverlord's session.stopped_text for a stop with no song run
+// to check out (the tour, the comm check) - a song run says it at its check-out.
+// No turn's (the control lane), so the drop never takes it.
+func gopodStoppedSay() {
+	defer gopodTurnOwn(0)()
+	GopodSystemSayHeard(gopodRunText(gopodBrobotsSettings.Session.StoppedText, ""), 0)
 }
 
 // gopodStopRunCommand: a typed or numpad song_stop.stop_words line. True when it was one.

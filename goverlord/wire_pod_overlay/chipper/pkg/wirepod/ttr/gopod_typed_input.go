@@ -184,11 +184,18 @@ func gopodOperatorLine(esn, text, how string) error {
 	// 2026-10-29 (live: a stop run typed during the warm-up waited for LLM Ready):
 	// the control lane never waits - stop run comes before the warm-up hold.
 	if gopodStopRunMatch(text) {
+		songRun := gopodRunActive() || gopodScriptPlaying.Load()
 		if gopodStopRuns("stop run") {
 			// The control lane's own line, through the whole template (shown, read
 			// out, heard) - no turn's, so the drop never takes it.
 			defer gopodTurnOwn(0)()
 			gopodShowCommandLine(esn, text, how)
+			// 2026-10-29 (operator: "Goverlord brain should respond with run stopped
+			// message we have already"): then session.stopped_text - a song run
+			// says it as it checks out (GopodRunEnd); the tour and the comm check here.
+			if !songRun {
+				gopodStoppedSay()
+			}
 			return nil
 		}
 		gopodShowCommandLine(esn, text, how)
