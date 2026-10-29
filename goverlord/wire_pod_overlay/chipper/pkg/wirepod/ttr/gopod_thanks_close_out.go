@@ -80,6 +80,18 @@ func gopodWaitRunsStopped() {
 	logger.Println("GOPOD_STOP_RUN runs closed out")
 }
 
+// GopodEscape (2026-10-29, operator: "to me, Esc & stop run = exit the run, skip =
+// skip to next scripture"): the page's Esc - a run going (a song, a draft, the
+// tour, the comm check) stops, as stop run does, and the system says so; true
+// when something stopped (with nothing going, the page's Esc skips instead).
+func GopodEscape() bool {
+	if !gopodStopRuns("Esc") {
+		return false
+	}
+	GopodChatFeedAdd(gopodSystemSetRole(), gopodSystemText("stop_run.escaped"))
+	return true
+}
+
 // gopodStopRunCommand: a typed or numpad song_stop.stop_words line. True when it was one.
 // gopodStopRunMatch: text is a stop command (song_stop.stop_words).
 func gopodStopRunMatch(text string) bool {

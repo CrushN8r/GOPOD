@@ -235,6 +235,18 @@ func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reply)
 }
 
+// gopodEscapeHandler (2026-10-29, operator: "to me, Esc & stop run = exit the run,
+// skip = skip to next scripture"): the page's Esc - whatever is running stops
+// (wirepod_ttr.GopodEscape); with nothing running, the page skips instead.
+func gopodEscapeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !wirepod_ttr.GopodIsAdmin(r.RemoteAddr) {
+		http.Error(w, "admin POST only", http.StatusForbidden)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"stopped": wirepod_ttr.GopodEscape()})
+}
+
 // gopodBrobotOrderHandler (2026-10-29, the robots' labels, gopod_esn_labels.go):
 // Brobot 1's and Brobot 2's serials, in order, for the admin page's battery icons
 // (Wire-Pod's own page names each by its serial). Admin only - the visitor gate

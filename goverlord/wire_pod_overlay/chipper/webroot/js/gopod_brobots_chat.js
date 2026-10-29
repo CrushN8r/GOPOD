@@ -475,7 +475,10 @@
         if (ev.key === "Escape") { typedText.blur(); }
       });
       document.addEventListener("keydown", function (ev) {
-        if (ev.key === "Escape" && !typingInBox()) { skipReporters("Esc"); }
+        // 2026-10-29 (operator: "to me, Esc & stop run = exit the run, skip = skip
+        // to next scripture"): Esc exits whatever is running (Wire-Pod stops it);
+        // with nothing running - the opener's warm-up - it skips the lines waiting.
+        if (ev.key === "Escape" && !typingInBox()) { escapeRun(); }
       });
       typedRow.addEventListener("submit", function (ev) {
         ev.preventDefault();
@@ -4587,6 +4590,12 @@
       // the skip gate - off until Wire-Pod's skip_on feed line (the opener's
       // step after the voice files check), off again once used.
       var skipGate = { on: false, decided: false };
+      function escapeRun() {
+        fetch("/api-sdk/gopod_escape", { method: "POST" })
+          .then(function (r) { return r.ok ? r.json() : { stopped: false }; })
+          .then(function (d) { if (!d || !d.stopped) { skipReporters("Esc"); } })
+          .catch(function () { skipReporters("Esc"); });
+      }
       function skipReporters(how) {
         if (!skipGate.on) {
           fetch("/api-sdk/gopod_page_note", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },

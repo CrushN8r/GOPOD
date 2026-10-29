@@ -9,7 +9,7 @@ All PASS? Go to Scripture 2 to play, or Scripture 3 to edit.
 ## Commandments
 
 - system-restart, a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm)
-- system-skip, skip the voiced lines playing (or press Esc)
+- system-skip, skip the voiced lines playing - in the tour, on to the next scripture (Esc exits the run)
 - system-status, Wire-Pod, language model, page, run, battery
 - system-test-all, the full audit, PASS / FAIL for each
 - system-check, every file named is there; story.md / knobs match

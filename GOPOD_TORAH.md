@@ -33,7 +33,8 @@ system commands (typed on this keyboard):
   system-add / system-remove <path> <item>   an item in a list, or key = value in a group
   system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)
   system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures
-  system-skip  (or Esc)             skip the voiced lines playing (from Voices ready on)
+  system-skip                       skip the voiced lines playing - in the tour, on to the next scripture (from Voices ready on)
+  Esc                               exit the run going (a song, the tour, the comm check); with none, skip
   system-restart                    a forced restart, like wpr 2 (speaker + mic set); the page reloads itself
   system-audit                      the full audit, no robots called: files, Go tests, web page, phone app, every test, the log
   system-score <song>               a song's score: every step and its words
