@@ -1296,3 +1296,22 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .host-cameo .brobot-bubble-avatar, .brobot-bubble .host-cameo .brobot-bubble-avatar { --eye-fill: var(--cameo-border); }
 .host-intel-404-pnfh .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnfh .brobot-bubble-avatar,
 .host-intel-404-pnft .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnft .brobot-bubble-avatar { --eye-fill: var(--intel-404-border); }
+/* GOLDEN results template (2026-10-29, operator: "results outputs are center-aligned,
+   not read friendly * can you set up a templated results output format?"): every
+   system answer left-aligned - a bold title, then its lines; "<command>  <what it does>"
+   lines as a two-column table, the command in code style. */
+.gopod-result { text-align: left; white-space: normal; }
+.gopod-result-title { font-weight: bold; margin: 0 0 4px; }
+.gopod-result-line { margin: 1px 0; white-space: pre-wrap; }
+.gopod-result-table { display: grid; grid-template-columns: minmax(0, max-content) 1fr; gap: 2px 12px; margin: 2px 0 4px; align-items: baseline; }
+.gopod-result-cmd { font-family: monospace; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--menu-code-bg, rgba(255, 255, 255, 0.08)); padding: 0 4px; border-radius: 4px; }
+.gopod-result-about { white-space: pre-wrap; }
+.brobot-bubble.terminal .brobot-bubble-text.terminal-text { display: block; text-align: left; }
+/* 2026-10-29 (operator: "click to copy results to clipboard button/icon"): each
+   answer's copy button, at its top right. */
+.system-menu-result.answer { position: relative; padding-right: 2em; }
+.gopod-result-copy { position: absolute; top: 0; right: 0; font: inherit; line-height: 1; padding: 2px 5px; border: 1px solid var(--menu-rule, #3a3a3a); border-radius: 6px; background: var(--menu-code-bg, #141a24); color: inherit; cursor: pointer; opacity: 0.7; }
+.gopod-result-copy:hover { opacity: 1; }
+/* 2026-10-29: the copy-all bar, at the top of the results while they scroll. */
+.gopod-results-copy-all { position: sticky; top: -8px; z-index: 1; display: flex; justify-content: flex-end; margin: -8px -10px 4px; padding: 4px 6px; background: var(--menu-results-bg, #161c26); }
+.gopod-results-copy-all .gopod-result-copy { position: static; }

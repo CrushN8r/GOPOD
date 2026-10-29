@@ -35,7 +35,7 @@ Every answer scores in the game: topics, value points and easter eggs, shown in 
 
 | Ask | What you get | Also ask | More in |
 |---|---|---|---|
-| "Tell me about what GOPOD is" | GOPOD: AI wordplay! You gotta know all the rules, before you can break them, GOPOD teaches the mind to be like 'The Great Filter' of real-world bullshit, Explain the MAth! Comedic bullshitting, hence, the 'AI wordplay! Explain the MAth!' livestream | "Tell me all about GOPOD." |  |
+| "Tell me about what GOPOD is" | GOPOD: AI wordplay! You gotta know all the rules, before you can break them, GOPOD teaches the mind to be like 'The Great Filter' of real-world b*llsh*t, Explain the MAth! Comedic b*llsh*tt*ng, hence, the 'AI wordplay! Explain the MAth!' livestream | "Tell me all about GOPOD." |  |
 | "Tell me about the Gomads" | Gomads: Goverlord's managers, they go mad doing their jobs, hand the work to Gominions | "What are Gomads?" |  |
 | "Tell me about GOPOD lingo" | Golden: tested and proven · dinner before dessert: prove the real thing first, a demo of a demo of a demo · names you remember: Brobots, GOPOD Yourself, they lead back here | "What does golden mean?" · "What's dinner before dessert?" · "Why all the funny words and weird names?" |  |
 | "Tell me about why real robots" | real Brobots: a real bit, not AI filler, confusion in, clarity out | "Why real robots, and not just slop?" |  |

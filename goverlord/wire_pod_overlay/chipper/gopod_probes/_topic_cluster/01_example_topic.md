@@ -1,0 +1,23 @@
+# the rig
+
+- **words:** rig, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile
+- **ask:** Tell me about the rig
+- **summary:** One dolly, two crates | Lower Crate 1 - Power Station | Upper Crate 2 - GOPOD Compute | roll in, plug in, party
+- **source:** MOBILE_GEAR.md
+- **pictures:** gear/rig_dolly_side.jpg, gear/rig_dolly_crate_2.jpg
+- **reminder:** Hey, that reminds me... One dolly, two crates - roll in, plug in, party.
+- **pre:** You haven't shown this room the rig yet - talk it up like a roadie who loves his gear.
+- **post:** You've shown them the rig - point back to it, don't list it again.
+- **closing:** Roll in, plug in, party!
+- **say 1:** One dolly, two crates: the power station below, GOPOD Compute on top.
+- **notes 1:** one dolly, two crates | Lower Crate 1 - Power Station | Upper Crate 2 - GOPOD Compute
+- **say 2:** The upper crate holds the Jetson that runs our brain, the hotspot, the Edge TPU, the mic and the numpad.
+- **notes 2:** GOPOD Compute | the Jetson runs our brain | hotspot, Edge TPU, mic, numpad
+- **notes 3:** roll in, plug in, party | no internet needed | runs anywhere
+
+---
+
+The rig: mobile gear for local gigs. Reveal these, in order, in your own words:
+1. One dolly, two crates: Lower Crate 1 is the power station, the Anker Solix C1000. Upper Crate 2 is GOPOD Compute.
+2. GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI and Wire-Pod, the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU, the mic and the numpad.
+3. No internet needed - roll in, plug in, party.

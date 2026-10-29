@@ -14,15 +14,21 @@ import (
 // played and heard reports. With two pages open, both would play every voice
 // and both would answer. So one page is the main page: it plays the sound and
 // its reports time the run. Every other page is a viewer: the same bubbles,
-// silent, its reports ignored. The first page that can play claims it; it
-// keeps it while it reports in (every few seconds); gone longer than
-// page_sync.main_lease_seconds, the next page that can play takes over. A page
-// that asks to be a viewer (the app's ?view) never claims it.
+// silent, its reports ignored. The first admin page claims it; it keeps it
+// while it reports in (every few seconds); gone longer than
+// page_sync.main_lease_seconds, the next admin page takes over. A page that
+// asks to be a viewer (the app's ?view) never claims it.
+// 2026-10-29 (operator: "llm warmup is flaking out on me"; live 10:43, 11:11:
+// after a restart the page reloads itself, can't play until it's clicked, and
+// so came back a viewer - no main page, nothing shown, the opening never
+// heard): an admin page that can't play yet still owns an empty show, and a
+// page that can play takes the show from a main page that can't.
 
 var gopodMainPage = struct {
 	sync.Mutex
-	id   string
-	seen time.Time
+	id    string
+	seen  time.Time
+	shown bool
 }{}
 
 func gopodMainLease() time.Duration {
@@ -33,26 +39,63 @@ func gopodMainLease() time.Duration {
 	return time.Duration(s * float64(time.Second))
 }
 
-// GopodMainPageClaim: the page id reports in (canPlay: it's shown and can play
-// sound, and isn't a viewer by choice). True when it's the main page. A page
-// with no id (an older page) is treated as the main page, as before.
-func GopodMainPageClaim(id string, canPlay bool) bool {
+// GopodMainPageClaim: the page id reports in (admin: a page on GOPOD's own
+// machine, not a viewer by choice; shown: it's shown and can play sound). True
+// when it's the main page. A page with no id (an older page) is treated as the
+// main page, as before.
+func GopodMainPageClaim(id string, admin, shown bool) bool {
 	if id == "" {
 		return true
 	}
 	gopodMainPage.Lock()
 	defer gopodMainPage.Unlock()
 	now := time.Now()
+	if admin {
+		gopodAdminPageSeen(id, now)
+	}
 	if gopodMainPage.id == id {
-		gopodMainPage.seen = now
+		gopodMainPage.seen, gopodMainPage.shown = now, shown
 		return true
 	}
-	if canPlay && (gopodMainPage.id == "" || now.Sub(gopodMainPage.seen) > gopodMainLease()) {
+	if admin && (gopodMainPage.id == "" || now.Sub(gopodMainPage.seen) > gopodMainLease() || (shown && !gopodMainPage.shown)) {
 		logger.Println("GOPOD_PAGE main page: " + id + " (was " + gopodMainPageName(gopodMainPage.id) + ")")
-		gopodMainPage.id, gopodMainPage.seen = id, now
+		gopodMainPage.id, gopodMainPage.seen, gopodMainPage.shown = id, now, shown
 		return true
 	}
 	return false
+}
+
+// One admin page (2026-10-29, operator: "I should only have one admin page
+// open, correct? * add a check for one admin controller page * visitor pages
+// are multiple"): every admin page reporting in is counted (seen within the
+// lease); a second one is logged once, its page told (page_sync.second_admin_text),
+// and system-status says how many are open. Visitor pages aren't counted.
+var gopodAdminPages = map[string]time.Time{}
+
+// gopodAdminPageSeen (gopodMainPage held): an admin page reported in.
+func gopodAdminPageSeen(id string, now time.Time) {
+	if _, known := gopodAdminPages[id]; !known && gopodMainPage.id != "" && gopodMainPage.id != id && now.Sub(gopodMainPage.seen) <= gopodMainLease() {
+		logger.Println("GOPOD_PAGE second admin page: " + id + " (main page " + gopodMainPage.id + ") - one admin page at a time")
+	}
+	gopodAdminPages[id] = now
+	for k, t := range gopodAdminPages {
+		if now.Sub(t) > gopodMainLease() {
+			delete(gopodAdminPages, k)
+		}
+	}
+}
+
+// GopodAdminPagesOpen: the admin pages reporting in now.
+func GopodAdminPagesOpen() int {
+	gopodMainPage.Lock()
+	defer gopodMainPage.Unlock()
+	n := 0
+	for _, t := range gopodAdminPages {
+		if time.Since(t) <= gopodMainLease() {
+			n++
+		}
+	}
+	return n
 }
 
 func gopodMainPageName(id string) string {
@@ -100,5 +143,8 @@ func GopodIsLocalMachine(remoteAddr string) bool {
 	}
 	return false
 }
+
+// GopodSecondAdminText: what a second admin page's text field says.
+func GopodSecondAdminText() string { return gopodBrobotsSettings.PageSync.SecondAdminText }
 
 // ## EOF

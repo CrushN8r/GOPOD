@@ -1,0 +1,18 @@
+# the workbook
+
+- **words:** workbook, math book, homework, answer key, worksheet, no credit for close, e for effort
+- **pictures:** doc_pip_math/docpip_1a_factoring_warmup.jpg, doc_pip_math/docpip_1b_one_big_slot.jpg, doc_pip_math/docpip_1c_speed_round.jpg, doc_pip_math/docpip_2a_answer_key.jpg, doc_pip_math/docpip_2b_flip_to_the_back.jpg, doc_pip_math/docpip_2c_no_credit_for_close.jpg
+- **reminder:** Hey, that reminds me... Doc's Rule: No credit for close.
+- **say 1:** Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it. The errors aren't random: they're the ones real learners actually make.
+- **say 2:** Pip's Clueless Workbook: "pretty sure factoring means adding. i'll ask Doc." Doc's Answer Key: "The Answers. Obviously."
+- **notes 1:** the workbook | Pip, charmingly wrong | Doc's key fixes it | the mistakes real learners make
+- **notes 2:** two books | Pip's Clueless Workbook | Doc's Answer Key
+- **notes 3:** Doc's Rule | no credit for close | here's how you actually do it
+- **summary:** the workbook: Pip, charmingly wrong, Doc's key fixes it, the mistakes real learners make | two books: Pip's Clueless Workbook, Doc's Answer Key | Doc's Rule: no credit for close, here's how you actually do it
+
+---
+
+The Doc & Pip Math Workbook - a concept, not printed yet. Reveal these, in order, in your own words:
+1. Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it. The errors aren't random: they're the ones real learners actually make.
+2. Pip's Clueless Workbook: "pretty sure factoring means adding. i'll ask Doc." Doc's Answer Key: "The Answers. Obviously."
+3. Doc's Rule: "No credit for close." "E for Effort. Which is an F. Here's how you actually do it."

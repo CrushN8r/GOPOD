@@ -1,0 +1,3 @@
+# Websites
+
+- **summary:** The CRUSHN8R sites, the personality math trick, and the newsletter.

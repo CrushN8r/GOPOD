@@ -76,6 +76,17 @@ note, is in [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md).
 
 **GOPOD not tested on other devices or set ups. Back up your stuff and attempt at your own risk.**
 
+### With one Vector
+
+Most Wire-Pod owners have one robot, and GOPOD works with one. At start, the Brobots are the robots
+Wire-Pod knows; one robot alone is Brobot 1, solo:
+
+- **The chat:** a line to All - typed, the menu, or numpad 0 - goes to him alone, and Brobot 2's key goes to him.
+- **The persona:** the shared Brobots persona stays; his prompt drops his brother and says he's on his own today.
+- **Scripted runs:** Brobot 2's lines are said on the computer's speaker.
+
+To pick which robot is which, set `brobots_setup.brobot_1` / `brobot_2` (an ESN) in the settings file.
+
 ## The rig
 
 ![Both crates on the dolly](goverlord/wire_pod_overlay/chipper/webroot/pictures/gear/rig_dolly_side.jpg)
@@ -116,20 +127,36 @@ work well enough to demo.
 
 ## More
 
+### GOPOD edutainment - GOPOD's own content
+
+The game, the songs, the chat and the Brobots: what GOPOD plays and teaches, in the room.
+
+- [ACCESSMATH.md](ACCESSMATH.md): GOPOD for everyone - the app, access built in, a healthy
+  distraction, and where GOPOD teaches.
 - [BROBOT_ASKS.md](BROBOT_ASKS.md): what to ask the Brobots - each topic's ask, what you get,
   and where to read more.
-- [GOPOD_TORAH.md](GOPOD_TORAH.md): the GOPOD Torah - the master reference for the system window
+- [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, BBQs, videos, printables and
+  affiliates, live or scripted.
+
+### The content engine - the livestream first, plus the Pinterest niche pillars
+
+What GOPOD's sessions turn into outside the room: the contest, its clips, and the pages they lead to.
+
+- [LIVESTREAM.md](LIVESTREAM.md): the livestream - AI Wordplay! Explain the MAth!, the contest
+  and its nine themes, where it lands, and the channel.
+- [SOCIAL_MEDIA.md](SOCIAL_MEDIA.md): the socials, the niche pillars, and help wanted.
+
+### The build
+
+- [GOPOD_TORAH.md](GOPOD_TORAH.md): the GOPOD Torah (each scripture its own scroll in [torah/](torah/)) - the master reference for the system window
   (every group, command, test and run), written by GOPOD itself so it always matches.
 - [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
   networking and power modes, and the photos.
-- [BOOKING.md](BOOKING.md): gigs to book - the rooms, birthdays, BBQs, videos, printables and
-  affiliates, live or scripted.
-- [ACCESSMATH.md](ACCESSMATH.md): GOPOD for everyone - the app, access built in, a healthy
-  distraction, and where GOPOD teaches.
-- [SOCIAL_MEDIA.md](SOCIAL_MEDIA.md): the socials, the niche pillars, and help wanted.
-- [LIVESTREAM.md](LIVESTREAM.md): the livestream - AI Wordplay! Explain the MAth!, the contest
-  and its nine themes, where it lands, and the channel.
-- **Contact:** [crushn8r.ca](https://crushn8r.ca), and the CRUSHN8R CREW'd newsletter.
+- [WIRED-POD.md](WIRED-POD.md): what GOPOD adds on top of Wire-Pod, and how to take it home.
+- [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md): GOPOD's own documentation - songs, the chat page,
+  every rule and command.
+
+**Contact:** [crushn8r.ca](https://crushn8r.ca), and the CRUSHN8R CREW'd newsletter.
 
 ## Credits
 

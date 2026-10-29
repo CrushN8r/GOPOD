@@ -96,7 +96,7 @@ Explain the Math!" is GOPOD as a whole).
 - **Surprise eggs** (`topic_pictures.not_listed`: Roast Battle, Halloween, camera feeds) pop up
   when their words come up but are never named. The roast battle (in no chapter) is its own egg.
   Halloween: `_always/03_halloween.txt`, an emoji card (`cards.halloween`), no picture; its say
-  lines are drafts. Camera feeds: `chapters/_always/04_camera_feeds.txt` - "camera feed(s)" shows
+  lines are drafts. Camera feeds: `chapters/_always/04_camera_feeds.md` - "camera feed(s)" shows
   the Brobots' live camera streams on CHALK's board (a picture path starting with "/" is used as
   it is).
 - **Explain the Math** is the livestream show's egg ([8.5](04_CHAT.md#85-explain-the-math-the-contest-format)):
@@ -180,6 +180,14 @@ list. Each "Hey, that reminds me..." names at least one egg still to find; a que
 still ends with two (not a thank-you); each in turn, then round again. `gopod_egg_list.go`,
 `TestEggList`.
 
+**With one Vector - the single-bot setup** (`brobots_setup`). At Wire-Pod's start the Brobots are
+the robots Wire-Pod knows: `brobot_1` / `brobot_2` (an ESN) when set; else GOPOD's own two when they're
+there; else Wire-Pod's robots in order. One robot alone is Brobot 1 and GOPOD runs solo: a line to All
+(typed, the menu, KP0) goes to him alone; Brobot 2's key goes to him; his prompt drops his brother (the
+cast, the brother banter) and gets `solo_note`. Wire-Pod writes who's who to `gopod_brobots_now.json`
+(live state, gitignored); the songs read it - solo, Brobot 2's lines are said on the speaker. No robot
+known: nothing changes. `TestBrobotsSetup`.
+
 **DocBS - Doc's brain wiring.** Brobot 1's answer, when Doc's share of his stereo dial says so
 (`docbs.share`: -1 = the Doc & Pip dial, 60 = 60% of his answers; 100 = every one), is the equation
 roast around his reply: the `docbs` part puts the frame in front - an opener, a lead-in with a
@@ -196,6 +204,10 @@ steps. `TestDocBS`.
 (f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and
 gitignored (`zgopod_human_swears.json`, `gopod_probes/docbs/z*.txt`, the zKnobs.json pattern) and used
 when there. Quotes in comments and setting descriptions are starred too.
+The working lists are starred the same way and still work: a pronunciation entry keeps its
+vowels in order (`"from": "sh*t", "vowels": "i"`), so it matches the word said and the word written
+starred - never another word (shot, shut). A starred word in a value point (b\*llsh\*t) is said and
+struck the same. One rule in Go and in the song runner (`gopodStarredPattern` / `starred_pattern`).
 
 **The 1-9 menu and the guards' nicknames.** The typed line's All menu runs 1 to 9: 1 and 2 stay All,
 starting with that Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9), as holding
@@ -417,7 +429,7 @@ part; none = none), `pre_closing` (before it has played, by the answer's place: 
   the Brobot: `"2"` = the second answer, "If you're
   watching, tell Goverlord to start Baby Brobots." `TestNapMoveInSecondAnswer`. Flavour lines re-locked.
   Points: `pack` "nap" =
-  `chapters/_always/05_nap.txt` (words dream, nap, baby brobots...), outside the chapters, his three
+  `chapters/_always/05_nap.md` (words dream, nap, baby brobots...), outside the chapters, his three
   lines as nap#1-3 - "They remember little before napping, cupped in a pair of hands after finally
   being rescued by Ron." / "Everything went dark until Wire-Pod brought them back, where Ron found
   them." / "They remember waking together, ready to party." Value points re-locked (94).
@@ -434,7 +446,7 @@ part; none = none), `pre_closing` (before it has played, by the answer's place: 
   open "Another test performance?" (`bingo_not_played`). Post: Brobot 2 opens "Oh! Zero!"
   (`bingo_played` - `<name>_played`, new); closings "\"I Won!\" Lol!" / "That's ok tho. Brobot ZERO is my
   HERO! Lol!"; the snapshot note says it was a test, before the real Bingo game. `run_pack`
-  "bingo_test" (`chapters/_always/06_bingo_test.txt`, loaded only once it has played; the pitch
+  "bingo_test" (`chapters/_always/06_bingo_test.md`, loaded only once it has played; the pitch
   pack before): 1. We ran a test before the real Bingo game. 2. Brobot 1 hosted and called three
   balls: B-1, I-9 and O-0. 3. O-0 doesn't exist on purpose - Brobot 1 won, and Brobot 2 scored zero.
   Value points re-locked (97); flavour lines re-locked.
@@ -446,7 +458,7 @@ part; none = none), `pre_closing` (before it has played, by the answer's place: 
 - **Fart Joke**: `experiences` "fart_joke" - attitudes (Brobot 1 the party-bro victim: no
   experience, unprepared, like a lost burp; Brobot 2 the party-bro prankster: prepared, couldn't
   contain himself), his closing jokes, takes from the story's own lines, and its run's value points
-  (`run_pack` "fart_joke", `chapters/_always/07_fart_joke.txt`: the prank, the farts). Once it has played, Brobot 1 says "Ugh. I didn't know." and Brobot 2 "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!" (`fart_joke_played`).
+  (`run_pack` "fart_joke", `chapters/_always/07_fart_joke.md`: the prank, the farts). Once it has played, Brobot 1 says "Ugh. I didn't know." and Brobot 2 "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!" (`fart_joke_played`).
   Closing riff (`closing_riff`, any experience): each Brobot's base line; each run, his closing is
   either the closing word for word or a riff on his base line (`closing_riff_text`), at random.
   Brobot 1 (victim): "Was not happy about being fart-hotboxed." Brobot 2 (prankster): "The intended
@@ -523,6 +535,8 @@ a pool of AI slop (the game assumes it's there), personalitymath the made-up exa
 trick - not a real website. Neither chapter is an easter egg (`topic_pictures.not_eggs`). A new
 cluster starts from `gopod_probes/_topic_cluster/`.
 
+**Topic clusters are md files.** Every topic and chapter file is a readable markdown topic-cluster file: the label as its `# heading` (no heading = never named in a reminder), each setting a `- **key:** value` line, a `---` line with a blank line on both sides, then the facts and their numbered value points. A chapter is `chapter.md` (`# title`, `- **summary:**`). One reader and one writer (`gopodTopicHeadKV`, `gopodTopicHeadLine`, `gopod_chapters_folder.go`) serve the game, `system-topic` and every check; `TestTopicClusterFormat` locks every file, the template folder (`gopod_probes/_topic_cluster/`) included.
+
 **Topic cluster: Social media** (chapter 10, sourced from `SOCIAL_MEDIA.md`): our socials (the
 channel identity, one platform one job, every post leads home to crushn8r.com), the niche pillars
 (Pinterest), the call for help (social media and livestream clips, Windsor-Essex,
@@ -539,7 +553,9 @@ words, also Wire-Pod voice commands), `menu_about` (its line in the system menu'
 `experience` (its pre/post chat). At load the cards fill `session.run_names`,
 `song_stop.stop_words`, `bingo`, `experiences` and `interview_script.play_words`; the page builds
 the Play menu from them (a group with `"runs": true`); system-check checks each card (its song
-folder, its words in `customIntents.json`). A new run is one new card. `TestGameRunsFillTheSettings`.
+folder, its words in `customIntents.json`). A new run is one new card. A card's `lines` are its spoken lines before and after it has played (`not_played` / `played`,
+one Brobot's or both); at load they're filled in first in `scripted_snippets`, in the cards' order, as
+`<name>_not_played` / `<name>_played`. `TestGameRunsFillTheSettings`.
 
 **Pre and post, for songs and topics.** A song's before and after is whether it has played (its
 `experiences` entry: Bingo, the nap, the fart joke, the interview - the interview's slots are

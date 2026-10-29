@@ -41,6 +41,13 @@ func TestGameRunsFillTheSettings(t *testing.T) {
 	if !strings.Contains(string(js), "settings.game.runs") {
 		t.Errorf("the page doesn't build the Play menu from game.runs")
 	}
+	// Engine step 2: the cards' spoken lines come first in the snippets, in order.
+	want := []string{"bingo_not_played", "bingo_played", "nap_not_played", "nap_not_played", "fart_joke_played", "fart_joke_played"}
+	for i, w := range want {
+		if i >= len(s.ScriptedSnippets.Lines) || s.ScriptedSnippets.Lines[i].When != w || len(s.ScriptedSnippets.Lines[i].Lines) == 0 {
+			t.Errorf("snippet %d: want %s from its run card", i, w)
+		}
+	}
 	if p := gopodGameRunsCheck(); len(p) > 0 {
 		t.Errorf("system-check: %v", p)
 	}

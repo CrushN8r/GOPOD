@@ -88,6 +88,20 @@ WIREPOD_BASE_URL = os.getenv("GOPOD_WIREPOD_BASE_URL")
 ROBOT_EXPRESSION_GATE = os.getenv("ROBOT_EXPRESSION", "")
 BROBOT_1_SERIAL = os.getenv("GOPOD_BROBOT_1_SERIAL", "0dd1b9e9")
 BROBOT_2_SERIAL = os.getenv("GOPOD_BROBOT_2_SERIAL", "0dd1d8bf")
+# 2026-10-29 (the single-bot setup): who's who this Wire-Pod start
+# (gopod_brobots_now.json, written by Wire-Pod - gopod_brobots_setup.go). Solo
+# (one robot): Brobot 1 is that robot, and Brobot 2's lines are said on the
+# speaker (Robots.say). The env vars above still win when set.
+BROBOTS_SOLO = False
+try:
+    _now = json.loads((Path(__file__).resolve().parents[3] / "wire_pod_overlay/chipper/gopod_brobots_now.json").read_text())
+    if not os.getenv("GOPOD_BROBOT_1_SERIAL") and _now.get("brobot_1"):
+        BROBOT_1_SERIAL = _now["brobot_1"]
+    if not os.getenv("GOPOD_BROBOT_2_SERIAL") and _now.get("brobot_2"):
+        BROBOT_2_SERIAL = _now["brobot_2"]
+    BROBOTS_SOLO = bool(_now.get("solo"))
+except (OSError, ValueError):
+    pass
 
 
 # 2026-10-17 (operator: "eye colours from native wire-pod"): the bubbles' eye
@@ -2185,6 +2199,21 @@ def pronunciation_entries(registry_path=SPEECH_PRONUNCIATION_REGISTRY_PATH):
     return clean_entries
 
 
+def starred_pattern(word, vowels=""):
+    """A word quoted for a regex, each "*" its own vowel from vowels, in order (or
+    a "*" itself) - a public, starred entry ("sh*t", "i") matches the word said and
+    the word written starred, never another word ("shot") (2026-10-29, operator:
+    "Public GOPOD: star '*' out expletives"; gopod_pronunciation.go
+    gopodStarredPattern, the same rule)."""
+    left = list(vowels or "")
+    def one(_m):
+        if not left:
+            return r"\*"
+        v = left.pop(0)
+        return "[" + v.lower() + v.upper() + r"\*]"
+    return re.sub(r"\\\*", one, re.escape(word))
+
+
 def apply_pronunciation_safety(text):
     speech = str(text or "")
     for entry in pronunciation_entries():
@@ -2196,11 +2225,11 @@ def apply_pronunciation_safety(text):
             # 2026-10-17 (operator: "choco[text] = chalk-o-[new text]"): at the
             # start of a word, the rest kept; "except" words left alone
             # (gopod_pronunciation.go, the same rule).
-            pattern = re.compile(rf"(?<!\w){re.escape(source)}(\w*)", flags)
+            pattern = re.compile(rf"(?<!\w){starred_pattern(source, entry.get('vowels', ''))}(\w*)", flags)
             skip = entry.get("except") or []
             speech = pattern.sub(lambda m: m.group(0) if m.group(0).lower() in skip else target + m.group(1), speech)
             continue
-        pattern = re.compile(rf"(?<!\w){re.escape(source)}(?!\w)", flags)
+        pattern = re.compile(rf"(?<!\w){starred_pattern(source, entry.get('vowels', ''))}(?!\w)", flags)
         speech = pattern.sub(target, speech)
     return speech
 
@@ -2853,7 +2882,9 @@ class Robots:
         if self.voice_destination == "off":
             return {**prelude, "spoken": False, "mode": "off"}
 
-        if self.voice_destination == "monitor":
+        # 2026-10-29 (the single-bot setup): solo, Brobot 2 isn't there - his
+        # lines are said on the speaker, the same way as the monitor destination.
+        if self.voice_destination == "monitor" or (BROBOTS_SOLO and name == "Brobot 2" and self.voice_destination == "robot"):
             # Voice lane hardening: gated here exactly like the robot engine
             # below - a misconfigured engine should surface during a
             # compose-only run, not wait for a live show.

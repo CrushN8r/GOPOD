@@ -45,7 +45,7 @@ it at a safe spot.
 
 ## STEP q03_02_brobot_2
 
-> TEXT: GOPOD. AI wordplay! You gotta know all the rules, before you can break them. GOPOD teaches the mind to be like 'The Great Filter' of real-world bullshit. Explain the MAth! Comedic bullshitting. Hence, the 'AI wordplay! Explain the MAth!' livestream.
+> TEXT: GOPOD. AI wordplay! You gotta know all the rules, before you can break them. GOPOD teaches the mind to be like 'The Great Filter' of real-world b*llsh*t. Explain the MAth! Comedic b*llsh*tt*ng. Hence, the 'AI wordplay! Explain the MAth!' livestream.
 
 ---
 

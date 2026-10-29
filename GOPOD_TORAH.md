@@ -1,188 +1,26 @@
 # The GOPOD Torah
 
-> The ancient scrolls Ron used to bring the Brobots to life.
+> Goverlord's Torah: In the beginning there was a great restart.
 
-The master reference for GOPOD's system window: every book (the window's groups), every commandment (its
-commands), every test, every run. A fun take, not a religious one. GOPOD writes these scrolls itself from its running
-settings, so they always match the system as it grows - `system-check` says when they've fallen behind,
-`system-torah` writes them again.
+The master reference for GOPOD's system window: every scripture (the window's groups), every commandment (its
+commands), every test, every run. A fun take, not a religious one. GOPOD writes these scrolls itself from its
+running settings, so they always match the system as it grows - `system-check` says when they've fallen behind,
+`system-torah` writes them again; `system-tour` goes through them in the chat.
 
-*Goverlord's tour: start at 1 after a restart, then go where you need. Click a command - it runs, or waits in the text box for your words (press Enter).*
+*Click a commandment to run it, or it waits in the text box for your words (press Enter).*
 
-## The Books of the System Window
+## The Scriptures
 
-### Book 1 - Restart and check
-
-Just started, or made edits? Restart, then check everything is up.
-
-| Commandment | What it does |
-|---|---|
-| `system-restart` | a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm) |
-| `system-skip` | skip the reporters' warm-up lines (or press Esc) |
-| `system-status` | Wire-Pod, language model, page, run, battery |
-| `system-test-all` | the full audit, PASS / FAIL for each |
-| `system-check` | every file named is there; story.md / knobs match |
-
-*All PASS? Go to 2 to play, or 3 to edit.*
-
-### Book 2 - Play
-
-Run a song or a saved session. One at a time.
-
-| Commandment | What it does |
-|---|---|
-| `start interview` | the scripted interview |
-| `start bingo test` | the Bingo test |
-| `start baby brobots` | the Baby Brobots nap song |
-| `start fart joke` | the Fart Joke |
-| `system-play` | a song or part of it: <song> [from <step>] [to <step>] [robot 1/2] [dry] (steps: system-score) |
-| `replay` | a saved session - add its name |
-| `stop run` | stops the song playing |
-
-*Something to change? Go to 3.*
-
-### Book 3 - Edit words and settings
-
-Change what's said and how. system-undo puts back the last edit.
-
-| Commandment | What it does |
-|---|---|
-| `system-topic` | a chapter topic: its words, points, label, reminder, pictures (alone: the topics) |
-| `system-lingo` | how a word is said: brobots / reporters / butler <word> = <said> |
-| `system-set` | a setting by its path, or a song step's text / volume / timing |
-| `system-add` | an item into a list (or key = value into a group) |
-| `system-remove` | an item out of a list (or a key out of a group) |
-| `system-set chat_moves.thinking_text` | the "Got it!" line: said while the model works, and the last line of the Value Points notice (then system-restart) |
-| `system-set bubble_notices` | what goes in a notice in a Brobot's bubble: value_points, egg, native_intent |
-| `system-set <song> tempo` | a song's tempo in seconds (a step's: system-set <song> <step> tempo_factor <n>) |
-| `system-set system_menu.look` | this menu's own look: font_size, background, code_background, code_color, results_background |
-| `system-menu-theme` | dark / light / blue / green / purple (then F5) |
-| `system-voices-report` | voice files: made, played, most played, not played - past 3d / week / month / year (report only, nothing moves) |
-| `system-voices` | numpad voices: KPN > persona [voice] - pick a voice per key (bold = used twice); robot-bodied keys need none |
-| `system-set-list` | every setting, song and step field |
-| `system-undo` | puts back the last edit |
-
-*Don't know the name or path? Go to 4. Done editing? Go to 5.*
-
-### Book 4 - Find
-
-Don't know where something lives? Find it first.
-
-| Commandment | What it does |
-|---|---|
-| `system-locate` | where a setting, song step or word lives, file:line |
-| `system-find` | where a word shows up: the log, settings, songs |
-| `system-score` | a song's score: every step and its words (alone: the songs) |
-| `system-locate-list` | every setting's and song's file:line |
-| `system-search` | GOPOD's own web search |
-| `system-chats` | <words> [operator/brobots/managers] - search every saved session's chat |
-| `system-chat-save` | a readable chat.md of the newest session (or name one) |
-
-*Found it? Back to 3 to change it.*
-
-### Book 5 - Apply
-
-Edits take effect after a restart; edited story lines get new voices.
-
-| Commandment | What it does |
-|---|---|
-| `system-voices-rebuild` | check, back up every voice, then restart makes them all again |
-| `system-restart` | a forced restart, like wpr 2 - speaker and mic set; the page reloads itself |
-
-*After the restart: back to 1.*
-
-### Book 6 - Switches
-
-Turn parts on or off for this session.
-
-| Commandment | What it does |
-|---|---|
-| `system-numpad` | each numpad key: who it talks to, live or not |
-| `system-numpad on` | numpad keys are push-to-talk |
-| `system-numpad off` | numpad keys type as usual |
-| `system-gap` | reporter gap for system-play: <seconds> / off / default |
-| `system-tweaks on` | apply phcal tweaks before a live system-play |
-| `system-tweaks off` | play the moves as written |
-| `system-native on` | Wire-Pod's own voice answers on |
-| `system-native off` | Wire-Pod's own voice answers off |
-
-*Close the menu with the speaker icon.*
-
-### Book 7 - Brobots
-
-Wire-Pod's bot page, here: add 1 or 2 at the end for one Brobot (both when left out).
-
-| Commandment | What it does |
-|---|---|
-| `system-visual next` | the TPU +/- rotation: next feed, photo, enhancement, TPU boxes and "I see..." (KP+) |
-| `system-visual prev` | previous feed (KP-) |
-| `system-cams` | every feed's photo in a row, then the TPU boxes on the selected one |
-| `system-tpu` | the Edge TPU worker: ready or not |
-| `system-tpu restart` | start the Edge TPU worker again |
-| `system-usb` | the USB devices plugged in, live (hot-swap) |
-| `system-brobot stats` | both Brobots' statistics |
-| `system-version` | Wire-Pod's commit, the newest, what an update touches |
-| `system-brobot volume` | <0-5> |
-| `system-brobot eyes` | <teal/orange/yellow/lime/sapphire/purple/green> |
-| `system-brobot locale` | <en-US ...> |
-| `system-brobot units` | c / f |
-| `system-brobot location` | <place> |
-| `system-brobot timezone` | <America/Toronto ...> |
-| `system-faces` | the faces a Brobot knows (list / rename <old> <new> / delete <name> / add <name>) |
-| `system-photos` | a Brobot's photos |
-| `system-brobot cube` | <pickupcube/fetchcube/rollcube/popawheelie/keepaway/findcube> - his own cube moves |
-| `system-brobot beats` | the 126 sleep beats by family: sleep, rts-asleep, held-on-palm, petting |
-| `system-brobot beat` | <alias> - plays one sleep beat (snores, warbles, sleep moves...) |
-| `system-brobot anims sleep` | every sleep animation on the robot (any word: anims happy) |
-| `system-brobot anim` | <name> - plays one (names from anims) |
-| `system-brobot say` | <text> - said by the Brobot |
-| `system-brobot wake` | "Hey Vector" without the words |
-| `system-brobot head` | <speed, e.g. 3 or -3> - a short nudge |
-| `system-brobot lift` | <speed> |
-| `system-brobot wheels` | <left> <right> |
-| `system-brobot camera` | live video from the Brobot's camera |
-
-*Done? Close the menu with the speaker icon.*
-
-### Book 8 - Tune moves
-
-A move looks off? Try it alone on one Brobot, then play it in its song.
-
-| Commandment | What it does |
-|---|---|
-| `system-calibrate` | <arm/nod/rattle/danger/cube> <1/2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry] |
-| `system-tweaks on` | then system-play uses the tuned values |
-| `system-anim list` | the animation tokens |
-| `system-anim` | the animationWI tester (WIP): a token and words, e.g. angry with a count |
-
-*Play that part: system-play <song> from <step> to <step> (group 2).*
-
-### Book 9 - Test one thing
-
-Something acting up? Test just that part.
-
-| Commandment | What it does |
-|---|---|
-| `system-test-list` | the tests, then system-test-<name> |
-| `system-test-game` | every topic, value point and Easter egg found by its own words - no robots, no model |
-| `system-torah` | the GOPOD Torah (GOPOD_TORAH.md, the master system reference) written again from the system as it is now |
-| `system-comm-check` | the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns |
-| `system-test-admin-run` | the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders |
-| `system-audit` | the full audit, no robots called - files, Go tests, web page, phone app, every test, the log (a few minutes) |
-| `system-test-replay` | the chat page plays every egg kind, both prizes and the Operator voices - no robots (run it after any page change) |
-| `system-test-` | one test - add its name (weather-live, qr, voices...) |
-
-*A FAIL says what it saw - fix it in 3, then 5.*
-
-### Book 10 - Wrap up
-
-End the show.
-
-| Commandment | What it does |
-|---|---|
-| `thanks brobots` | the ending |
-| `stop session` | ends the session |
-| `system-help` | every command, a line each |
+- [Scripture 1, Restart and check](torah/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
+- [Scripture 2, Play](torah/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
+- [Scripture 3, Edit words and settings](torah/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
+- [Scripture 4, Find](torah/SCRIPTURE_04_FIND.md) - Don't know where something lives?
+- [Scripture 5, Apply](torah/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
+- [Scripture 6, Switches](torah/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
+- [Scripture 7, Brobots](torah/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
+- [Scripture 8, Tune moves](torah/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
+- [Scripture 9, Test one thing](torah/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
+- [Scripture 10, Wrap up](torah/SCRIPTURE_10_WRAP_UP.md) - End the show.
 
 ## The Commandments
 
@@ -195,7 +33,7 @@ system commands (typed on this keyboard):
   system-add / system-remove <path> <item>   an item in a list, or key = value in a group
   system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)
   system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures
-  system-skip  (or Esc)             skip the reporters' warm-up lines (once, after Voices ready)
+  system-skip  (or Esc)             skip the voiced lines playing (from Voices ready on)
   system-restart                    a forced restart, like wpr 2 (speaker + mic set); the page reloads itself
   system-audit                      the full audit, no robots called: files, Go tests, web page, phone app, every test, the log
   system-score <song>               a song's score: every step and its words
@@ -203,7 +41,7 @@ system commands (typed on this keyboard):
   system-gap <seconds>|off|default  reporter gap for system-play
   system-tweaks on|off              apply phcal tweaks before a live system-play
   system-calibrate <move> <1|2> [values] [dry]   one move alone (phcal)
-  system-set <song> tempo <seconds> the song's tempo (tempo-set); a step's tempo_factor too
+  system-set <song> tempo <seconds>   the song's tempo (tempo-set); a step's tempo_factor too
   system-brobot <stats|volume|eyes|locale|units|location|timezone|say|wake|head|lift|wheels|camera> [1|2|both]
   system-faces [list|rename|delete|add] [1|2]   the faces a Brobot knows
   system-value-points [lock|<topic>]   the golden value points: locked? changed? a topic's; lock on purpose
@@ -235,6 +73,9 @@ system commands (typed on this keyboard):
   system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again
   system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)
   system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)
+  system-record on|off              Record Session on or off (the page's Record? box)
+  system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
+  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
   system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now
   system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns
   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
@@ -277,7 +118,7 @@ One card per run (`game.runs`) - start it, stop it, its song.
 
 | Run | Start | Stop | Song |
 |---|---|---|---|
-| Interview | `start interview` | `stop interview` | 02_brobots_interview (the scripted draft) |
+| Interview | `start interview` | `stop interview` | 02_brobots_interview (the scripted draft) - pending, not on the menu yet |
 | Bingo Test | `start bingo test` | `stop bingo test` | 01a_brobots_bingo_test |
 | Baby Brobots | `start baby brobots` | `stop baby brobots` | 101_brobots_nap |
 | Fart Joke | `start fart joke` | `stop fart joke` | 03_fart_joke |

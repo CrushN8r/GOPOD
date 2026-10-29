@@ -36,7 +36,7 @@ type gopodPersonaLock struct {
 }
 
 func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
-	raw, _ := gopodRawSettingsForTest(t)
+	_, _ = gopodRawSettingsForTest(t)
 	l := gopodPersonaLock{
 		Locked:             "2026-10-26",
 		PersonaLines:       gopodHostPersonaLines(),
@@ -49,10 +49,10 @@ func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 		// the live here-and-now line (time, place, cast) changes by the minute - not locked
 		l.GomadPersonas[host] = strings.TrimSpace(strings.ReplaceAll(gopodPersonaPrompt(host), gopodHereNow(host), "")) + "\n" + p.WhoLine
 	}
-	ss, _ := raw["scripted_snippets"].(map[string]any)
-	lines, _ := ss["lines"].([]any)
-	for _, e := range lines {
-		if m, ok := e.(map[string]any); ok && m["when"] == "reminder" {
+	// 2026-10-29 (engine step 2): the snippets as loaded - the run cards' lines
+	// included (gopod_game_engine.go) - so moving a line into its card isn't a change.
+	for _, e := range gopodBrobotsSettings.ScriptedSnippets.Lines {
+		if e.When == "reminder" {
 			continue
 		}
 		b, _ := json.Marshal(e)

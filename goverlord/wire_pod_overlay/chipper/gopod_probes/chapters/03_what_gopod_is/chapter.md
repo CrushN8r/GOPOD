@@ -1,0 +1,3 @@
+# What GOPOD is
+
+- **summary:** What GOPOD is, who runs it, its lingo, and why real Brobots.

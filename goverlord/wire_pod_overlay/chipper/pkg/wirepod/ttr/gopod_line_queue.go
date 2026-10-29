@@ -98,4 +98,17 @@ func gopodLineAnswered(from int, who []string) bool {
 	return true
 }
 
+// gopodLineQueueClear: the questions still waiting their turn dropped (stop run); how many.
+func gopodLineQueueClear() int {
+	n := 0
+	for {
+		select {
+		case <-gopodLineJobs:
+			n++
+		default:
+			return n
+		}
+	}
+}
+
 // ## EOF

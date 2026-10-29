@@ -82,51 +82,6 @@
     "about": "Flavour lists: exact lines the code says for a Brobot, word for word, stitched to the LLM's reply (operator 2026-10-05: \"scripted snippets to stitch together\"; 2026-10-06: \"the brobots can each build up a flavoured personality from a list of shared and specific party-brobot responses\"). Each entry: when - a topic pack name from gopod_probes/scenario_packs/registry.json, bingo_not_played (a Bingo question while the Bingo-played flag is 0), thanks (a thank-you: chat_hold.thanks_phrases; operator 2026-10-06: \"Brobots as GOPOD reps > scripted snippets (CTA's) / remember to GOPOD Yourself / subscribe to newsletter\"), reply_mentions (the LLM's reply holds one of words), or any (every reply); chance - 0 to 1, how often a matching entry is used (left out = always; operator 2026-10-06: CTA reminders through the chat, \"wanna know more? get CREW'd ... and if you ever feel the urge, just GOPOD Yourself!\"); brobot - \"Brobot 1\" or \"Brobot 2\" for his own line, left out for both; at - \"start\" (after the cue word, the default) or \"end\"; lines - one is picked each time, never the same one twice in a row. Per Brobot, list his own entry before the shared one. The first matching entry wins: at most one start line and one end line per reply. The LLM is not told the lines; if it says one anyway, that copy is dropped. They show in the bubble, are spoken in that Brobot's voice, and are remembered with his reply. when \"reminder\": the \"Hey, that reminds me...\" line the value-point list picks (value_points.reminders).",
     "lines": [
       {
-        "when": "bingo_not_played",
-        "why": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\"): both open with it; the start move is experience_moves, in the 2nd answer (was \"I guess so... Say start Bingo test!\" / \"I can't wait! Say start Bingo test!\").",
-        "lines": [
-          "Another test performance?"
-        ]
-      },
-      {
-        "when": "bingo_played",
-        "brobot": "Brobot 2",
-        "lines": [
-          "Oh! Zero!"
-        ]
-      },
-      {
-        "when": "nap_not_played",
-        "brobot": "Brobot 1",
-        "why": "2026-10-25 (operator: \"Brobot 1: \u201cUgh. Dreaming again?\u201d with attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: \u201cA lot was lost\u201d attitude. Then his own take on dreaming, then ensure/script in a move towards start baby brobots\"): his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer.",
-        "lines": [
-          "Ugh. Dreaming again?"
-        ]
-      },
-      {
-        "when": "nap_not_played",
-        "brobot": "Brobot 2",
-        "lines": [
-          "A lot was lost."
-        ]
-      },
-      {
-        "when": "fart_joke_played",
-        "brobot": "Brobot 1",
-        "why": "2026-10-27 (operator: \"Fart Joke start lines * Brobot 1, victim, Ugh. I didn't know. [not happy about being fart-hotboxed]\"): once the Fart Joke has played, like Bingo's \"Oh! Zero!\"; the bracket is his attitude (fart_joke post_attitude).",
-        "lines": [
-          "Ugh. I didn't know."
-        ]
-      },
-      {
-        "when": "fart_joke_played",
-        "brobot": "Brobot 2",
-        "why": "2026-10-27 (operator: \"Brobot 2, prankster, Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!\"): once the Fart Joke has played.",
-        "lines": [
-          "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!"
-        ]
-      },
-      {
         "when": "thanks",
         "at": "end",
         "lines": [
@@ -419,6 +374,22 @@
     "role": "Terminal",
     "role_about": "2026-10-22 (operator: \"Terminal under Goverlord & adjust accordingly\"): Goverlord's terminal bubble - Goverlord's header, a goverlord bubble kind; \"Terminal\" is only the role's inside name."
   },
+  "page_text": {
+    "about": "2026-10-29 (operator: \"sweep for all flexible data, variables, names, labels, etc and export to external files ... then code blindly runs templates from loaded files\"): the chat page's own words - its typing row, the system window's panels. {placeholders} are filled by the page.",
+    "typed_placeholder": "Type to the Brobot, press Enter",
+    "submit": "Submit",
+    "all_first_title": "All: who answers first",
+    "drag_title": "Drag to resize",
+    "voices_title": "Numpad voices:",
+    "voices_unassigned": "unassigned ({host}'s voice)",
+    "usb_title": "USB devices",
+    "no_answer": "{what}: Wire-Pod didn't answer",
+    "visitors_title": "Local network visitors",
+    "visitors_count": "Local network visitors ({n})",
+    "visitors_none": "No visitors.",
+    "visitor_asks": "asks for: {name}",
+    "visitor_nameless": "nameless-visitor"
+  },
   "chat_window": {
     "about": "The chat bubbles window's timings and sizes (operator 2026-10-18: \"ensure flexible data/info values/variables are in loadable files (css, js, json, md, etc...) * code is dumb flow guiding machine\"), read by the page on F5: max_bubbles/max_seen - the saved chat; baton_max_ms - the longest a bubble waits for the one above to finish; bubble_ready_max_ms - for its pictures to load; reply_delay_ms - a reply after its question; top_gap_px - space above the newest bubble; scroll_ms - one scroll; focus_dead_zone - how far the highlight may drift before the chat follows (share of the window); countdown_hold_ms / countdown_hold_most_ms - the next line after a countdown; voice_lit_wait_ms - a reporter/Goverlord line's words show anyway after this with no voice; marquee_* - the egg bulbs; narrator_fade_* - the narrator bubbles' fades (seconds); reveal_rest_ms - a reply's rest shows after this with no more highlight.",
     "max_bubbles": 3000,
@@ -447,7 +418,8 @@
     "picture_retry_ms": 1000,
     "picture_wait_max_ms": 30000,
     "typed_text_min_px_about": "2026-10-23 (operator: \"New responsive Brobots-Input-Row single line can adjust to 3 lines\"): the narrowest the text field may get on one line; narrower, the row takes three lines.",
-    "typed_text_min_px": 200
+    "typed_text_min_px": 200,
+    "hourglass_sprites": 5
   },
   "managers": {
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
@@ -527,6 +499,28 @@
       }
     }
   },
+  "system_tour_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah\"; \"Yes to: a recorded tour of the system window: every menu item played in order, the way the admin run plays the game, with the restart left out\"): system-tour - Goverlord says the Torah's opening, then each scripture, each commandment and the scripture's next line (torah's words); a commandment on run is run too and its answer shown, the rest only said - the restart, anything that moves a robot, flips a switch, ends the session, takes long (system-test-all, the audit, the replay) or waits for your words. quiet_seconds: the quiet after each line before the next. system-tour again stops it; Record Session keeps it. gopod_system_tour.go.",
+  "system_tour": {
+    "run": ["system-status", "system-check", "system-set-list", "system-locate-list", "system-version", "system-usb", "system-voices", "system-test-list", "system-test-game", "system-test-admin-run", "system-help"],
+    "quiet_seconds": 2,
+    "start_text": "The Torah tour: {n} scriptures, Goverlord reading - system-tour again stops it.",
+    "end_text": "And so ends the Torah. Now GOPOD Yourself!"
+  },
+  "brobots_setup_about": "2026-10-29 (operator: \"Yes, a single-bot GOPOD path * more realistic on-ramp for most Wire-Pod users * does GOPOD detect a single brobot and still work? * how to handle shared brobots persona? * how to handle 'All' selected? * how to handle scripted runs for 2 brobots?\"; \"Finish 7 (the single-bot setup)\"): at Wire-Pod's start the Brobots are the robots Wire-Pod knows - brobot_1 / brobot_2 (an ESN) when set; else GOPOD's own two when they're there; else Wire-Pod's robots in order. One robot alone is Brobot 1 and GOPOD runs solo: a line to All (typed, the menu, KP0) goes to him alone, Brobot 2's key goes to him, his prompt drops his brother (the cast, the brother banter) and gets solo_note ({solo} in the pre-build context). No robot known: nothing changes. gopod_brobots_setup.go.",
+  "brobots_setup": {
+    "brobot_1": "",
+    "brobot_2": "",
+    "solo_note": "Today I'm on my own - my brother isn't here, so I answer everything myself."
+  },
+  "tour_paragraphs_about": "2026-10-29 (operator: \"Scripture tours >> human friendly easy to read paragraph\" - his Scripture 2 paragraph, word for word): each system window group's tour - plain paragraphs the tour reads (system-tour, one voice a paragraph) and the Torah shows under its scripture.",
+    "torah_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah * Goverlord's Torah: In the beginning there was a great restart. * Scripture 1, Restart and check * system-restart, a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm) ... * All PASS? Go to scripture 2 to play, or 3 to edit.\"; \"Click a commandment to run it, or it waits in the text box for your words (press Enter).\"): the Torah's words - GOPOD_TORAH.md and the system window tour (system-tour) both read them: opening; scripture ({n}, {title} - a group's title without its number); commandment ({cmd}, {about}); next_from / next_to (a group's next line, \"Go to 2\" said \"Go to scripture 2\").",
+  "torah": {
+    "opening": "Goverlord's Torah: In the beginning there was a great restart.",
+    "scripture": "Scripture {n}, {title}",
+    "commandment": "{cmd}, {about}",
+    "next_from": "Go to ",
+    "next_to": "Go to scripture "
+  },
   "line_queue_about": "2026-10-29 (operator: \"even if a few requests come in together, they still must each get processed until completion before another bubbles starts\"; live 05:13: KP2's line came before Brobot 1's reply, and the replies landed among KP3's bubbles): every question - typed, numpad, a persona's, the comm check's - takes its turn, one at a time, in the order they came. The next starts only when this one is complete: a line on the feed from each one asked (his answer; at most answer_max_seconds, or idle_seconds with nothing new at all), then the page has played it all (at most page_max_seconds). Commands (system-, stop run, thanks, skip, start ...) never wait. on false: every question runs at once, as before. gopod_line_queue.go.",
   "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90},
   "docbs_about": "2026-10-29 (operator: \"Please build it as Doc's answer shape for Explain the Math lines * This is Doc's personality, not just for the livestream Explain the Math lines * This is 100% Doc's brain wiring * This is 100% Doc BS (LMAO! You get it now?) * from brobot 1 > dial > 100% Doc's brain wiring\"; framework from his takes, gopod_notes/DOCBS_EQUATION_ROAST_FRAMEWORK_001.md): Brobot 1's answer, when Doc's share of his stereo dial says so (share: -1 = the Doc & Pip pair's dial, 60 = 60% of his answers; 100 = every one), goes DocBS - the answer chain's docbs part puts the equation roast in front of his reply (opener, lead-in with a nickname, the equation, the plug-in, the error, the hidden multiplier, the corrected formula - each its own thought bubble) and docbs_close ends it (\"The math has spoken. And it's ...\"). His reply - the value point and his colour - is the kill shot in the middle. The frame comes from folder's pool files (one per beat, shuffled, never repeated until the deck runs out; _clean / _18 by the roast dial); gemma fills only slot_prompt's one line (name | acronym | three things | nickname), else fallback. An Explain the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact steps. gopod_docbs.go.",
@@ -535,7 +529,10 @@
     "share": -1,
     "slot_prompt": "Turn this line into a pompous fake equation that mocks it. Reply with ONE line only, exactly this form, six parts split by |: Equation Name | ACRONYM | first thing | second thing | third thing | Professor nickname for the speaker. Example: Thought Quality | TQ | Confidence Level | Volume of the Claim | Brain Cells Used | Professor Overclock. The line: {question}",
     "fallback": "Thought Quality | TQ | Your Confidence | Volume of the Claim | Brain Cells Used | Professor Know-It-All",
-    "num_predict": 60
+    "num_predict": 60,
+    "colour_prompt_about": "2026-10-29 (operator: \"Hey gemma how would you colour this part?\"; \"re: each small background ask ... runs while the previous bubble is being spoken * yes, please build\"): the colour ask - gemma's one escalated-metaphor line for the question, last before his reply. Asked ahead with the equation ask, the moment the question is known (gopod_ask_ahead.go); colour_prompt_18 at the 18+ roast levels. Empty = no colour line.",
+    "colour_prompt": "In ONE short punchy sentence, roast this line with an over-the-top metaphor that makes it bigger and dumber than it is. No swearing, no emojis, no quotes, no labels. The line: {question}",
+    "colour_prompt_18": "In ONE short punchy sentence, roast this line with an over-the-top, crude adult metaphor that makes it bigger and dumber than it is. No emojis, no quotes, no labels. The line: {question}"
   },
   "comm_check_about": "2026-10-28 (operator: \"Simulate the whole KPN 1-9 range to record those bubbles as well * same test question, Hey party animal. Who are you and what do you do?\"; \"make the 'who are you?' profile development part of this run as well * like a communication check with all chat participants, before the show starts * at bare minimum, do they all know who they are & each other? * who they are: do they all know the diff between tell me about you & tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about their interns, if I ask any chat participant about any other chat participant > Hey [chat participant], who all else is here with us?\"): system-comm-check plays the rounds in order - each round's text on each of its keys (keys, else the round's own), as if the key were held and the words spoken: the page draws the key's bubbles (hold, recording for record_seconds, transcribing), the line goes where the key goes, live (the model, the voices, the robots), and the next waits for the answer to finish (no new feed line for quiet_seconds and the page caught up; at most line_max_seconds). {name}: the one asked (his call name, or Doc / Pip). The game goes back to 0 after, so the show starts clean. Record Session keeps it all. gopod_comm_check.go.",
   "comm_check": {
@@ -585,6 +582,7 @@
       "I am {brobot} ({host}, {gender}), located in {place}.",
       "I'm chatting with friends: {cast}. I check recent chat history for context.",
       "My role is a GOPOD rep.",
+  "{solo}",
       "I have a reminders-list to go through: {reminders}.",
       "What was asked of me: \"{question}\"",
       "Where this answer sits: {plan}.",
@@ -689,6 +687,8 @@
     "main_lease_seconds": 12,
     "feed_max_about": "2026-10-24 (the root-to-leaf pass, link 2): the chat feed - the one line everything the page shows comes from, numbered - keeps its newest this many lines.",
     "feed_max": 300,
+    "second_admin_text_about": "2026-10-29 (operator: \"I should only have one admin page open, correct? * add a check for one admin controller page * visitor pages are multiple\"): shown in a second admin page's text field - it stays a silent viewer; Wire-Pod logs it (GOPOD_PAGE second admin page) and system-status counts the admin pages open.",
+    "second_admin_text": "Another admin page is open - this one only watches. Keep one admin page.",
     "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
     "item_max_ms_about": "2026-10-24 (live: the chat stopped after a reply until F5): a feed line that hasn't handed on after this long is logged (GOPOD_PAGE error stuck ...) and passed. F5.",
     "item_max_ms": 90000,
@@ -707,7 +707,7 @@
   "background_loop": {
     "about": "2026-10-13 (operator: \"a 6s loop * I want to run the loop in the background very quiet, try 10% volume * keyboard line record/session clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s\"): the chat page plays file (from the overlay's sounds/, copied to the page's voice folder at Wire-Pod's start) over and over with no gap, at volume (0-1), starting again from its top each time the session clock resets to 00:00:00. Empty file: off. 2026-10-17 (the master): volume is a percentage of chat_audio.volume - 0.05 on its own was 14% of 0.35.",
     "file": "BrobotsGroove-Loop-1.wav",
-    "volume": "11%",
+    "volume": "3%",
     "starts_on_about": "2026-10-24 (operator: \"Page refresh now shows background loop speaker icon = ON, should be/it starts OFF\"): the speaker on every page load - false, off (its volume bar shows only while it's on).",
     "starts_on": false
   },
@@ -1133,9 +1133,9 @@
     "prizes_about": "2026-10-24 (operator: \"Logic of NEW, 2 Grand Prizes * Grand Prize: Revealed upon all reached except hidden eggs, after all responses are properly completed * Master Grand Prize: Revealed upon all reached, after all responses are properly completed\"): win_text is the Grand Prize - every value point (so every topic) and every game egg (4: Bingo and foodmath, Legacy and wrap-up, Explain the Math, Get Photo); master_text is the Master Grand Prize - all that and every hidden egg too (1: Roast Battle; Halloween and Camera Feeds aren't eggs). Each once a session, said after every answer to the line is done (a follow-up too). Both due at once: Grand, then Master. Needs wpr 2.",
     "master_text": "Master Grand Prize! Every value point and every Easter egg found, hidden ones too. {score}. Now GOPOD Yourself!",
     "reset_on": "thanks",
-    "runs_about": "The Unified Templated GOPOD Game Engine (operator 2026-10-27: \"Unified Templated GOPOD Game Engine!! * clear?\"; \"Then the Engine: one game template that every run plugs into\"; gopod_game_engine.go). Every run is one card: name (its experience's name; scripted_snippets <name>_played / _not_played), title (its name in the chat), song (its folder in goverlord/runtime/songs), draft (played as the scripted draft, not by the song engine), start and stop (its words - also Wire-Pod voice commands in customIntents.json, which system-check checks), menu_about (its line in the system menu's Play group), session and said (the name it checks in with Goverlord, and how Goverlord says it), experience (its pre/post chat - the experiences template). At load the cards fill session.run_names, song_stop.stop_words, bingo, experiences and interview_script.play_words; the page builds the Play menu from them. A new run is one new card.",
+    "runs_about": "The Unified Templated GOPOD Game Engine (operator 2026-10-27: \"Unified Templated GOPOD Game Engine!! * clear?\"; \"Then the Engine: one game template that every run plugs into\"; gopod_game_engine.go). Every run is one card: name (its experience's name; scripted_snippets <name>_played / _not_played), title (its name in the chat), song (its folder in goverlord/runtime/songs), draft (played as the scripted draft, not by the song engine), start and stop (its words - also Wire-Pod voice commands in customIntents.json, which system-check checks), menu_about (its line in the system menu's Play group), session and said (the name it checks in with Goverlord, and how Goverlord says it), experience (its pre/post chat - the experiences template). At load the cards fill session.run_names, song_stop.stop_words, bingo, experiences and interview_script.play_words; the page builds the Play menu from them. lines (its spoken lines before and after it has played - when not_played / played, a Brobot's or both; filled into scripted_snippets at load as <name>_not_played / <name>_played, first, in the cards' order; 2026-10-29, engine step 2). pending: true keeps a run out of the system menu, the Torah and the tour - its card stays (2026-10-29, operator: \"disable/hide start interview slot item. not yet. pending\"). A new run is one new card.",
     "runs": [
-      {"name": "interview", "title": "Interview", "song": "02_brobots_interview", "draft": true, "start": "start interview", "stop": "stop interview", "menu_about": "the scripted interview", "session": "interview", "said": "Interview",
+      {"name": "interview", "pending": true, "title": "Interview", "song": "02_brobots_interview", "draft": true, "start": "start interview", "stop": "stop interview", "menu_about": "the scripted interview", "session": "interview", "said": "Interview",
         "experience": {
           "about": "2026-10-26 (operator: \"The rest? Apply pre/post template to all, even minimally to what's already there\"): the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).",
           "run_marker": "Interview started",
@@ -1152,10 +1152,10 @@
           "closing": {"Brobot 1": "", "Brobot 2": ""},
           "takes": {}
         }},
-      {"name": "bingo", "title": "Bingo Test", "song": "01a_brobots_bingo_test", "start": "start bingo test", "stop": "stop bingo test", "menu_about": "the Bingo test", "session": "Bingo Test Live", "said": "Bingo test",
+      {"name": "bingo", "title": "Bingo Test", "song": "01a_brobots_bingo_test", "start": "start bingo test", "stop": "stop bingo test", "menu_about": "the Bingo test", "session": "Bingo Test Live", "said": "Bingo test", "lines": [{"when": "not_played", "lines": ["Another test performance?"], "why": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, “Another test performance?” [Ugh... whatever...] ... * b2 framing, “Another test performance?” [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... “I Won!”. Lol!” * b2 framing, “Oh! Zero!” [I scored Zero?] ... “That's ok tho. Brobot ZERO is my HERO! Lol!”\"): both open with it; the start move is experience_moves, in the 2nd answer (was \"I guess so... Say start Bingo test!\" / \"I can't wait! Say start Bingo test!\")."}, {"when": "played", "brobot": "Brobot 2", "lines": ["Oh! Zero!"]}],
         "experience": {
         "run_pack": "bingo_test",
-        "run_pack_about": "The Bingo test run's own value points (chapters/_always/06_bingo_test.txt), loaded for Bingo questions once it has played; the pitch pack (bingo) before.",
+        "run_pack_about": "The Bingo test run's own value points (chapters/_always/06_bingo_test.md), loaded for Bingo questions once it has played; the pitch pack (bingo) before.",
         "flow_about": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, \u201cAnother test performance?\u201d [Ugh... whatever...] ... * b2 framing, \u201cAnother test performance?\u201d [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... \u201cI Won!\u201d. Lol!\u201d * b2 framing, \u201cOh! Zero!\u201d [I scored Zero?] ... \u201cThat's ok tho. Brobot ZERO is my HERO! Lol!\u201d\").",
         "pre_attitude": {"Brobot 1": "Your attitude: Ugh... whatever...", "Brobot 2": "Your attitude: Super Hyped!! Ready for whatever..."},
         "post_attitude": {"Brobot 1": "Your attitude: Ha! You see?", "Brobot 2": "Your attitude: I scored Zero?"},
@@ -1175,7 +1175,7 @@
           "Brobot 2": "If the Bingo test comes up, tell it your way, sticking to what really happened: you were so happy to be part of it, and cluelessly messed it up. You interrupted your brother's test to ask if he knew your lucky Bingo number - \"I, Won!\" Round 1, he drew B-1, a real Bingo number, and you said \"I be, the one!\" Round 2, he drew I-9, a test number, and you said the I column is I-16 to I-30 and asked if he was telling you his age. Round 3, he drew O-0, a number that doesn't exist on purpose, and you said \"This election is rigged! I wanna speak to the manager!\" He said \"I'm the manager\" and ended the test."
         }
       }},
-      {"name": "nap", "title": "Baby Brobots", "song": "101_brobots_nap", "start": "start baby brobots", "stop": "stop baby brobots", "menu_about": "the Baby Brobots nap song", "session": "Start Baby Brobots", "said": "Baby Brobots",
+      {"name": "nap", "title": "Baby Brobots", "song": "101_brobots_nap", "start": "start baby brobots", "stop": "stop baby brobots", "menu_about": "the Baby Brobots nap song", "session": "Start Baby Brobots", "said": "Baby Brobots", "lines": [{"when": "not_played", "brobot": "Brobot 1", "lines": ["Ugh. Dreaming again?"], "why": "2026-10-25 (operator: \"Brobot 1: “Ugh. Dreaming again?” with attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: “A lot was lost” attitude. Then his own take on dreaming, then ensure/script in a move towards start baby brobots\"): his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer."}, {"when": "not_played", "brobot": "Brobot 2", "lines": ["A lot was lost."]}],
         "experience": {
           "run_marker": "Cupped in my hands",
           "run_marker_about": "The nap's first caption (101_brobots_nap/story.md, the Narrator's bubble); the operator's own \"Start Baby Brobots\" doesn't count.",
@@ -1186,7 +1186,7 @@
           "pitch_pack": "",
           "no_run_note": "No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.",
           "pack": "nap",
-          "pack_about": "The nap's own value points (gopod_probes/chapters/_always/05_nap.txt; operator: \"another scoped set of value points for the sleep song\"), loaded for its questions before and after the nap, outside the chapters.",
+          "pack_about": "The nap's own value points (gopod_probes/chapters/_always/05_nap.md; operator: \"another scoped set of value points for the sleep song\"), loaded for its questions before and after the nap, outside the chapters.",
           "closing": {},
           "takes_about": "2026-10-25 (operator: \"they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party\").",
           "takes": {
@@ -1194,7 +1194,7 @@
             "Brobot 2": "If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party."
           }
         }},
-      {"name": "fart_joke", "title": "Fart Joke", "song": "03_fart_joke", "start": "start fart joke", "stop": "stop fart joke", "menu_about": "the Fart Joke", "session": "Fart Joke Live", "said": "Fart joke",
+      {"name": "fart_joke", "title": "Fart Joke", "song": "03_fart_joke", "start": "start fart joke", "stop": "stop fart joke", "menu_about": "the Fart Joke", "session": "Fart Joke Live", "said": "Fart joke", "lines": [{"when": "played", "brobot": "Brobot 1", "lines": ["Ugh. I didn't know."], "why": "2026-10-27 (operator: \"Fart Joke start lines * Brobot 1, victim, Ugh. I didn't know. [not happy about being fart-hotboxed]\"): once the Fart Joke has played, like Bingo's \"Oh! Zero!\"; the bracket is his attitude (fart_joke post_attitude)."}, {"when": "played", "brobot": "Brobot 2", "lines": ["Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!"], "why": "2026-10-27 (operator: \"Brobot 2, prankster, Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!\"): once the Fart Joke has played."}],
         "experience": {
           "about": "2026-10-26 (operator: \"Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)\"): the Bingo shape, slots left empty (\"\" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like \"I Won!\" Lol!), pre_attitude / post_attitude (\"Your attitude: ...\"), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. 2026-10-26: filled - attitudes, closings, takes and run_pack. 2026-10-27: his lines once it has played (scripted_snippets fart_joke_played).",
           "run_marker": "pretend you and I are stuck in an elevator",
@@ -1204,7 +1204,7 @@
           "question_word": "fart",
           "not_a_test_phrases": [],
           "pitch_pack": "",
-          "run_pack_about": "2026-10-26 (operator: \"the run's value points? fart, prank\"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.txt), loaded for Fart Joke questions once it has played.",
+          "run_pack_about": "2026-10-26 (operator: \"the run's value points? fart, prank\"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.md), loaded for Fart Joke questions once it has played.",
           "run_pack": "fart_joke",
           "no_run_note": "No Fart Joke has been played yet - one short take of your own on it.",
           "pre_attitude_about": "2026-10-26 (operator: \"preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself\").",
@@ -1384,10 +1384,12 @@
     "look_about": "2026-10-19 (operator: \"Make [menu system- bubble] font size 50% for more room below\"; \"<code>system-restart</code> background contrast is too harsh * darken to make it easier on the eyes * where would I find this setting to edit/set within the menu?\"): the menu's look - system-set system_menu.look.<name> <value>, then F5.",
     "look": {"font_size": "50%", "background": "#15110d", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)"},
     "about": "The system menu (operator 2026-10-19: \"New system- commands drop-down-menu system * start from system-restart? * then group & order by semantic relevance * arrange in drop-down-menu bubble * 🔇 opens it * 🔊 closes it * menu system should lead me like a tour guide * like after restart, where do I start? what's next? * how are these commands arranged for me to find what I need fast to make edits?\"). The speaker icon opens it (and the background loop) and closes it. Groups in tour order, one open at a time: title, guide (when to use it), items, next (where to go after). An item with run: true runs on click; the rest go in the text box to finish (fill: the text put there, else cmd and a space). Edit freely - the page reads it at F5.",
-    "intro": "Goverlord's tour: start at 1 after a restart, then go where you need. Click a command - it runs, or waits in the text box for your words (press Enter).",
+    "copy_about": "2026-10-29 (operator: \"in the results window, can you add a, click to copy results to clipboard button/icon\"): each answer in the system window's results has a copy button - its command and its answer, as plain text. icon: the button; title: its tip; copied: what it says once copied, for copied_ms. all: the copy-all button at the top of the results (operator: \"At the very top ... first add a similar, but 'copy all results' button, before the results\") - every command and answer in the window.",
+    "copy": {"icon": "📋", "title": "Copy this result", "copied": "Copied", "copied_ms": 1500, "all": {"icon": "📋 Copy all results", "title": "Copy every result in this window", "copied": "Copied all", "copied_ms": 1500}},
+    "intro": "Goverlord's Torah: In the beginning there was a great restart. Click a commandment to run it, or it waits in the text box for your words (press Enter).",
     "groups": [
       {
-        "title": "1. Restart and check",
+        "title": "1. Restart and check", "tour": ["Just started, or made some edits? This is where every show begins. Say “system-restart” for a fresh start, just like wpr 2: the speaker and mic get set, and the page reloads itself. While the reporters warm up, “system-skip”, or the Esc key, skips their lines.", "Then make sure everything is up. “system-status” shows Wire-Pod, the language model, the page, any run and the batteries. “system-check” makes sure every file is where it should be, and “system-test-all” runs the full audit, PASS or FAIL for each part.", "All PASS? Go to Scripture 2 to play, or Scripture 3 to edit."],
         "guide": "Just started, or made edits? Restart, then check everything is up.",
         "items": [
           {
@@ -1419,7 +1421,7 @@
         "next": "All PASS? Go to 2 to play, or 3 to edit."
       },
       {
-        "title": "2. Play",
+        "title": "2. Play", "tour": ["You can run one song or one saved session at a time. To start a specific song, say “start bingo test”, “start baby brobots”, or “start fart joke”.", "You can also play any song (or just part of it) with “system-play” followed by the song name. Optional details include the starting step, ending step, which robot should perform it (1 or 2), and whether to do a dry run.", "Available steps are listed under “system-score”. To replay a previously saved session, say “replay” then the session name. To stop whatever is currently playing, say “stop run.” If you want to change any of this, go to Scripture 3."],
         "guide": "Run a song or a saved session. One at a time.",
         "runs": true,
         "items": [
@@ -1440,7 +1442,7 @@
         "next": "Something to change? Go to 3."
       },
       {
-        "title": "3. Edit words and settings",
+        "title": "3. Edit words and settings", "tour": ["This is where you change what's said and how. “system-topic” edits a chapter topic: its words, points and pictures. “system-lingo” changes how a word is said. “system-set” changes any setting by its path, or a song step's words, volume or timing, and “system-add” and “system-remove” put items into a list or take them out.", "The show's character lives here too: the roast level and the Jekyll and Hyde switch, how often Brobot 1 goes full Doc BS, his Doc BS lines with “system-docbs”, the parts of a live answer chain, the run cards, one question at a time, and which robot is Brobot 1. “system-voices” picks a voice for each numpad key, and this window's own look and theme can change as well.", "Made a mistake? “system-undo” puts back the last edit. Don't know a name or path? Go to Scripture 4. Done editing? Go to Scripture 5."],
         "guide": "Change what's said and how. system-undo puts back the last edit.",
         "items": [
           {
@@ -1506,12 +1508,20 @@
             "cmd": "system-undo",
             "about": "puts back the last edit",
             "run": true
-          }
+          },
+          {"cmd": "system-set roast_dial.level", "about": "the roast level: 0 clean (never punches down), 1 roast, 2 public 18+, 3 paid 18+ afterburner - then system-restart", "fill": "system-set roast_dial.level "},
+          {"cmd": "system-set roast_dial.jekyll_hyde", "about": "Jekyll/Hyde: true lets the roast through on sensitive topics too - then system-restart", "fill": "system-set roast_dial.jekyll_hyde "},
+          {"cmd": "system-set docbs.share", "about": "DocBS: how many of Brobot 1's answers go equation roast, 0-100 (-1: his Doc dial) - then system-restart", "fill": "system-set docbs.share "},
+          {"cmd": "system-docbs", "about": "DocBS's lines: the pools, one pool's lines (system-docbs openers_clean), or add / remove one", "run": true},
+          {"cmd": "system-set answer_chains.brobots.parts", "about": "a live answer's chain - its parts in order (system-add / system-remove one part)", "fill": "system-set answer_chains.brobots.parts "},
+          {"cmd": "system-set game.runs", "about": "a run card - its words, song, lines and pre/post chat (system-set game.runs.1.experience.closing ...)", "fill": "system-set game.runs."},
+          {"cmd": "system-set line_queue.on", "about": "one question at a time: true / false - then system-restart", "fill": "system-set line_queue.on "},
+          {"cmd": "system-set brobots_setup.brobot_1", "about": "which robot is Brobot 1 (an ESN; empty: Wire-Pod's robots decide) - then system-restart", "fill": "system-set brobots_setup.brobot_1 "}
         ],
         "next": "Don't know the name or path? Go to 4. Done editing? Go to 5."
       },
       {
-        "title": "4. Find",
+        "title": "4. Find", "tour": ["Don't know where something lives? Find it first. “system-locate” tells you where a setting, a song step or a word lives, and “system-find” shows everywhere a word shows up. “system-score” prints a song's score, every step and its words.", "“system-search” is GOPOD's own web search, “system-chats” searches every saved session's chat, and “system-chat-save” writes the newest session as a readable chat.", "Found it? Go back to Scripture 3 to change it."],
         "guide": "Don't know where something lives? Find it first.",
         "items": [
           {
@@ -1548,24 +1558,19 @@
         "next": "Found it? Back to 3 to change it."
       },
       {
-        "title": "5. Apply",
-        "guide": "Edits take effect after a restart; edited story lines get new voices.",
+        "title": "5. Apply", "tour": ["Edits take effect after a restart, from Scripture 1. Edited story lines get their new voices made then.", "“system-voices-rebuild” checks and backs up every voice, and the restart after it makes them all again. Then restart: go to Scripture 1."],
+        "guide": "Edits take effect after a restart (group 1); edited story lines get new voices.",
         "items": [
           {
             "cmd": "system-voices-rebuild",
             "about": "check, back up every voice, then restart makes them all again",
             "fill": "system-voices-rebuild"
-          },
-          {
-            "cmd": "system-restart",
-            "about": "a forced restart, like wpr 2 - speaker and mic set; the page reloads itself",
-            "fill": "system-restart"
           }
-        ],
-        "next": "After the restart: back to 1."
+          ],
+        "next": "Then restart: Go to 1."
       },
       {
-        "title": "6. Switches",
+        "title": "6. Switches", "tour": ["Turn parts on or off for this session. “system-numpad” shows who each numpad key talks to; “on” makes the keys push-to-talk, “off” lets them type as usual. “system-gap” sets the reporter gap for system-play.", "“system-tweaks on” plays the moves with their tuned values, “system-native” turns Wire-Pod's own voice answers on or off, and “system-record” turns Record Session on or off. When you're done, close the window with the speaker icon."],
         "guide": "Turn parts on or off for this session.",
         "items": [
           {
@@ -1606,12 +1611,14 @@
             "cmd": "system-native off",
             "about": "Wire-Pod's own voice answers off",
             "run": true
-          }
+          },
+          {"cmd": "system-record on", "about": "Record Session on (the page's Record? box)", "run": true},
+          {"cmd": "system-record off", "about": "Record Session off, kept zipped", "run": true}
         ],
         "next": "Close the menu with the speaker icon."
       },
       {
-        "title": "7. Brobots",
+        "title": "7. Brobots", "tour": ["Wire-Pod's bot page, right here. Add 1 or 2 at the end for one Brobot, or leave it out for both. “system-visual” steps through the camera feeds and what the Edge TPU sees, “system-cams” shows every feed at once, and “system-usb” lists what's plugged in.", "“system-brobot” does everything else: their stats, volume, eye colour, units, place and time zone, their cube tricks, sleep beats and animations, a line said, a wake, or a small nudge of the head, lift or wheels. “system-faces” and “system-photos” show the faces they know and the photos they took. Done? Close the window with the speaker icon."],
         "guide": "Wire-Pod's bot page, here: add 1 or 2 at the end for one Brobot (both when left out).",
         "items": [
           {
@@ -1739,17 +1746,12 @@
         "next": "Done? Close the menu with the speaker icon."
       },
       {
-        "title": "8. Tune moves",
-        "guide": "A move looks off? Try it alone on one Brobot, then play it in its song.",
+        "title": "8. Tune moves", "tour": ["A move looks off? Try it alone on one Brobot first. “system-calibrate” plays one move, an arm, a nod, the rattle or a cube light, with its speed, hold and cycles. Turn tweaks on in Scripture 6 to keep the tuned values.", "“system-anim” tests an animation token with words. Then play that part in its song with system-play, from Scripture 2."],
+        "guide": "A move looks off? Try it alone on one Brobot (tweaks on: group 6), then play it in its song.",
         "items": [
           {
             "cmd": "system-calibrate",
             "about": "<arm|nod|rattle|danger|cube> <1|2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry]"
-          },
-          {
-            "cmd": "system-tweaks on",
-            "about": "then system-play uses the tuned values",
-            "run": true
           },
           {
             "cmd": "system-anim list",
@@ -1765,7 +1767,7 @@
         "next": "Play that part: system-play <song> from <step> to <step> (group 2)."
       },
       {
-        "title": "9. Test one thing",
+        "title": "9. Test one thing", "tour": ["Something acting up? Test just that part. “system-test-list” lists the tests, and “system-test” followed by a name runs one. “system-test-game” finds every topic, value point and Easter egg by its own words, and “system-test-admin-run” plays the full admin run, every line in order.", "“system-comm-check” holds every numpad key in turn before the show, live. “system-tour” is this tour, “system-torah” writes the Torah again, and “system-audit” runs everything with no robots called. A FAIL says what it saw: fix it in Scripture 3, then Scripture 5."],
         "guide": "Something acting up? Test just that part.",
         "items": [
           {
@@ -1776,6 +1778,11 @@
           {
             "cmd": "system-test-game",
             "about": "every topic, value point and Easter egg found by its own words - no robots, no model",
+            "run": true
+          },
+          {
+            "cmd": "system-tour",
+            "about": "the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
             "run": true
           },
           {
@@ -1812,7 +1819,7 @@
         "next": "A FAIL says what it saw - fix it in 3, then 5."
       },
       {
-        "title": "10. Wrap up",
+        "title": "10. Wrap up", "tour": ["End the show. Say “thanks Brobots” for the ending, or “stop session” to end the session. “system-help” lists every command, a line each."],
         "guide": "End the show.",
         "items": [
           {

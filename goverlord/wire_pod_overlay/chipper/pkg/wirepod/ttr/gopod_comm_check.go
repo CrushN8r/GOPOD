@@ -26,7 +26,7 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-var gopodCommCheckRunning atomic.Bool
+var gopodCommCheckRunning, gopodCommCheckStop atomic.Bool
 
 // gopodFeedLastID: the newest feed line's id.
 func gopodFeedLastID() int {
@@ -122,7 +122,12 @@ func gopodSystemCommCheck() string {
 		defer gopodCommCheckRunning.Store(false)
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
+		gopodCommCheckStop.Store(false)
 		for i, l := range lines {
+			if gopodCommCheckStop.Load() {
+				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")
+				return
+			}
 			if gopodRunActive() {
 				logger.Println("GOPOD_COMM_CHECK stopped: a run started")
 				return

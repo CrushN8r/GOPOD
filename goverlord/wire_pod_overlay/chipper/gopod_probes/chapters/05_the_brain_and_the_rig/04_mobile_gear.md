@@ -1,0 +1,13 @@
+# the rig
+
+- **words:** rig, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile, gig, gigs
+- **pictures:** gear/crate_2_display.jpg
+- **reminder:** Hey, that reminds me... One dolly, two crates - roll in, plug in, party.
+- **say 1:** One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras.
+- **notes 1:** Ron's rig | one dolly, two crates | gear on top of battery | upon arrival, party
+- **summary:** One dolly, two crates | Lower Crate 1 - Power Station | Upper Crate 2 - GOPOD Compute | roll in, plug in, party
+- **source:** MOBILE_GEAR.md
+
+---
+
+The rig: mobile gear for high-paying local gigs. One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras. No internet needed - roll in, plug in, party.

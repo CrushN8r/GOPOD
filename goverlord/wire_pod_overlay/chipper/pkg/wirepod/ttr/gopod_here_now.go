@@ -67,7 +67,10 @@ func gopodHereNowCast(self string) string {
 		case c.Who == self:
 			continue
 		case brobot && (c.Who == "Brobot 1" || c.Who == "Brobot 2"):
-			out = append(out, hn.BrotherLine)
+			// 2026-10-29: solo, no brother in the room.
+			if !gopodSolo() {
+				out = append(out, hn.BrotherLine)
+			}
 		default:
 			out = append(out, strings.NewReplacer("{gender}", gopodHereNowGender(c.Who)).Replace(c.Line))
 		}

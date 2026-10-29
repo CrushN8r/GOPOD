@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -44,6 +45,27 @@ func gopodStopRuns(why string) bool {
 			logger.Println("GOPOD_STOP_RUN " + why + ": the song stops at its next safe spot")
 		}
 		stopped = true
+	}
+	// 2026-10-29 (operator: "Please ensure Esc, stop run & skip all work globally
+	// as intended"): stop run stops everything going - the tour and the comm check
+	// too - drops the questions still waiting their turn, and skips the voices
+	// queued on the page (the page's skip, from here).
+	if gopodTourRunning.Load() {
+		gopodTourStop.Store(true)
+		logger.Println("GOPOD_STOP_RUN " + why + ": the tour stops")
+		stopped = true
+	}
+	if gopodCommCheckRunning.Load() {
+		gopodCommCheckStop.Store(true)
+		logger.Println("GOPOD_STOP_RUN " + why + ": the comm check stops")
+		stopped = true
+	}
+	if n := gopodLineQueueClear(); n > 0 {
+		logger.Println("GOPOD_STOP_RUN " + why + ": " + strconv.Itoa(n) + " waiting questions dropped")
+	}
+	if stopped {
+		GopodSkipped()
+		GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+why)
 	}
 	return stopped
 }

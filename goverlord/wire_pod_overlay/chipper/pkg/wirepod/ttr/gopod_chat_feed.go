@@ -56,6 +56,8 @@ var gopodChatFeed = struct {
 // changes, i.e. after every Wire-Pod restart (operator: "upon wpr 2, clear out
 // brobots chat window contents").
 func GopodChatFeedStart() {
+	// 2026-10-29: who Brobot 1 and Brobot 2 are - one robot alone, solo (gopod_brobots_setup.go).
+	GopodBrobotsSetup()
 	// 2026-10-09: the sounds the page plays (gopod_robot_cmd_log.go).
 	gopodSoundsToPage()
 	gopodChatFeed.Lock()

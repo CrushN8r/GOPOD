@@ -31,6 +31,10 @@ Every video is a scripted robot performance, and it says so.
 - **BBQs** - GOPOD can do BBQ's too! A pizza-box of BBQ-food Hot Wheels cars, and LEGO hot-dog and
   pizza-slice minifigures.
 
+<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/brobots_party_01.jpg" width="400" alt="Brobot 1 and Brobot 2 on their chargers under a LEGO party stage of PARTY dancers">
+
+*The Brobots ready to party.*
+
 | | |
 |---|---|
 | <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/hw_birthday_box_02.jpg" width="260" alt="A pizza box of donut Hot Wheels cars"> | <img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/hw_birthday_box_01.jpg" width="260" alt="A pizza box of cupcake and cake-slice Hot Wheels cars"> |

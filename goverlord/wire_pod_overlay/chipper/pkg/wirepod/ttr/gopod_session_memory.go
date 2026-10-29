@@ -294,8 +294,10 @@ func recordCompletedGOPODSessionExchange(esn, userMessage string, result gopodSt
 	gopodRecordExchange(esn, userMessage, result)
 }
 
-// The Brobots' robot serials (ESNs).
-const (
+// The Brobots' robot serials (ESNs): GOPOD's own two by default; at Wire-Pod's
+// start, the robots Wire-Pod knows (gopodBrobotsSetup, gopod_brobots_setup.go) -
+// one robot alone is Brobot 1, solo.
+var (
 	gopodBrobot1ESN = "0dd1b9e9"
 	gopodBrobot2ESN = "0dd1d8bf"
 )

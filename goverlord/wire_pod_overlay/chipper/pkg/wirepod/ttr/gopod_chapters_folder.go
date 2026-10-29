@@ -17,33 +17,83 @@ import (
 //
 //	gopod_probes/chapters/
 //	  summary.txt                 the whole interview in one line
-//	  _always/01_what_else.txt    topics that belong to no chapter
-//	  01_warm_up/chapter.txt      "title: ..." and "summary: ..."
-//	  01_warm_up/01_checks.txt    one topic file per topic, in order
+//	  _always/01_what_else.md     topics that belong to no chapter
+//	  01_warm_up/chapter.md       "# <title>" and "- **summary:** ..."
+//	  01_warm_up/01_checks.md     one topic-cluster file per topic, in order
 //
 // A folder's number sets the chapter order; a file's number sets the topic order
-// (the number isn't part of the topic's name). A topic file is its settings, a
+// (the number isn't part of the topic's name). 2026-10-29 (operator: "Would
+// turning topic clusters into readable md files, help organize? * template out a
+// topic-cluster format for md files * then anything can be a topic-cluster for
+// the GOPOD game, as a GOPOD formatted topic-cluster md file"): a topic is a
+// readable markdown file - its label the heading, each setting a list line, a
 // "---" line, then the facts the Brobots get (the numbered value points):
 //
-//	label: the rig                    how a reminder names it
-//	words: rig, gear, dolly           the words in a question that load it
-//	pictures: gear/crate_2_display.jpg         shown in the chat with it
-//	reminder: Hey, that reminds me... its reminder line
-//	sentences: 0                      its own sentence budget (left out = the usual)
-//	say 1: One dolly, two crates.     point 1's exact line, said first
-//	start line: ...                   a scripted line at the start (one per line)
-//	end line: ...                     a scripted line at the end (one per line)
-//	summary: Lower crate 1 ... | ...  what a summary ask riffs on (gopod_topic_asks.go)
-//	source: MOBILE_GEAR.md            the repo file it tells - the game matches the repo
-//	ask: Tell me about yourself       its ask on BROBOT_ASKS.md (left out = "Tell me about <label>")
-//	pre: ... / post: ...              its note before / after the room has covered it (topic_asks defaults)
-//	closing: ...                      a closing remark once it's covered (none = none)
+//	# the rig                                 its label: how a reminder names it (no heading = never named)
+//	- **words:** rig, gear, dolly             the words in a question that load it
+//	- **pictures:** gear/crate_2_display.jpg  shown in the chat with it
+//	- **reminder:** Hey, that reminds me...   its reminder line
+//	- **sentences:** 0                        its own sentence budget (left out = the usual)
+//	- **say 1:** One dolly, two crates.       point 1's exact line, said first
+//	- **start line:** ...                     a scripted line at the start (one per line)
+//	- **end line:** ...                       a scripted line at the end (one per line)
+//	- **summary:** Lower crate 1 ... | ...    what a summary ask riffs on (gopod_topic_asks.go)
+//	- **source:** MOBILE_GEAR.md              the repo file it tells - the game matches the repo
+//	- **ask:** Tell me about yourself         its ask on BROBOT_ASKS.md (left out = "Tell me about <label>")
+//	- **pre:** ... / **post:** ...            its note before / after the room has covered it
+//	- **closing:** ...                        a closing remark once it's covered (none = none)
 //	---
 //	The rig: ... Reveal these, in order: 1. ... 2. ...
+//
+// The template: gopod_probes/_topic_cluster/ (README.md, an example chapter and topic).
+// One reader and one writer for the format (gopodTopicHeadKV, gopodTopicHeadLine):
+// the game, system-topic and every check go through them.
 //
 // The facts are read from the folder each time a question comes in; the rest is
 // read once, when Wire-Pod starts.
 var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/chapters")
+
+// gopodTopicExt / gopodChapterFile: a topic-cluster file, and a chapter's own file.
+const (
+	gopodTopicExt    = ".md"
+	gopodChapterFile = "chapter.md"
+)
+
+// gopodTopicHeadKV reads one settings line of a topic-cluster file: "# label"
+// is the label (a chapter's title), "- **key:** value" a setting (a bare
+// "key: value" still reads). ok false for any other line.
+func gopodTopicHeadKV(line string) (key, value string, ok bool) {
+	t := strings.TrimSpace(line)
+	if strings.HasPrefix(t, "# ") {
+		return "label", strings.TrimSpace(t[2:]), true
+	}
+	if strings.HasPrefix(t, "- ") || strings.HasPrefix(t, "* ") {
+		t = strings.TrimSpace(t[2:])
+	}
+	if strings.HasPrefix(t, "**") {
+		if end := strings.Index(t[2:], "**"); end >= 0 {
+			k := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(t[2:2+end]), ":"))
+			rest := strings.TrimSpace(t[2+end+2:])
+			rest = strings.TrimSpace(strings.TrimPrefix(rest, ":"))
+			if k != "" {
+				return strings.ToLower(k), rest, true
+			}
+		}
+		return "", "", false
+	}
+	if k, v, found := strings.Cut(t, ":"); found && strings.TrimSpace(k) != "" && !strings.ContainsAny(strings.TrimSpace(k), "#*") {
+		return strings.ToLower(strings.TrimSpace(k)), strings.TrimSpace(v), true
+	}
+	return "", "", false
+}
+
+// gopodTopicHeadLine writes one settings line the format's way.
+func gopodTopicHeadLine(key, value string) string {
+	if key == "label" || key == "title" {
+		return "# " + value
+	}
+	return "- **" + key + ":** " + value
+}
 
 type gopodTopicFile struct {
 	Name      string
@@ -96,11 +146,11 @@ func gopodReadChaptersFolder() (chapters []gopodChapterFolder, always []gopodTop
 			continue
 		}
 		c := gopodChapterFolder{Topics: topics}
-		if data, err := os.ReadFile(filepath.Join(dir, "chapter.txt")); err == nil {
+		if data, err := os.ReadFile(filepath.Join(dir, gopodChapterFile)); err == nil {
 			head, _ := gopodSplitTopicFile(string(data))
 			for _, kv := range head {
 				switch kv[0] {
-				case "title":
+				case "title", "label":
 					c.Title = kv[1]
 				case "summary":
 					c.Summary = kv[1]
@@ -117,7 +167,7 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
 	var out []gopodTopicFile
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".txt") || e.Name() == "chapter.txt" {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), gopodTopicExt) || e.Name() == gopodChapterFile {
 			continue
 		}
 		path := filepath.Join(dir, e.Name())
@@ -126,7 +176,7 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 			continue
 		}
 		t := gopodTopicFile{
-			Name:     gopodTopicNumberPrefix.ReplaceAllString(strings.TrimSuffix(e.Name(), ".txt"), ""),
+			Name:     gopodTopicNumberPrefix.ReplaceAllString(strings.TrimSuffix(e.Name(), gopodTopicExt), ""),
 			Path:     path,
 			SayLines: map[int]string{},
 			Notes:    map[int]string{},
@@ -178,7 +228,7 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 	return out
 }
 
-// gopodSplitTopicFile splits a file into its "key: value" lines (before a "---"
+// gopodSplitTopicFile splits a file into its settings lines (gopodTopicHeadKV) (before a "---"
 // line) and the facts (after it). A file with no "---" is all settings.
 func gopodSplitTopicFile(text string) (head [][2]string, body string) {
 	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
@@ -187,8 +237,8 @@ func gopodSplitTopicFile(text string) (head [][2]string, body string) {
 			body = strings.Join(lines[i+1:], "\n")
 			break
 		}
-		if k, v, ok := strings.Cut(line, ":"); ok && strings.TrimSpace(k) != "" {
-			head = append(head, [2]string{strings.ToLower(strings.TrimSpace(k)), strings.TrimSpace(v)})
+		if k, v, ok := gopodTopicHeadKV(line); ok {
+			head = append(head, [2]string{k, v})
 		}
 	}
 	return head, body

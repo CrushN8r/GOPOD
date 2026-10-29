@@ -110,6 +110,12 @@ both, when the step is in both. A combo step's parts are still edited by hand.
 PASS/FAIL with what it saw. `gopod_system_tests.go`.
 - `system-test-list` lists them; `system-test-<name>` runs one; several in a row run in turn;
   `system-test-all` runs the audit in `system_tests.audit`'s order.
+- **The Torah's scrolls.** `GOPOD_TORAH.md` is the main scroll: the opening, a link and first line for each scripture, every commandment, test, run and look. Each scripture is its own scroll in `torah/` (`SCRIPTURE_01_RESTART_AND_CHECK.md` ...): its title, its plain paragraphs, its commandments, and links to the scriptures before and after and back to the Torah. GOPOD writes them all (`system-torah`) and drops a scroll the system no longer has; `system-check` and the build say when any is behind.
+- **The results template.** Every system answer, in the chat's Terminal bubble or the system window's results, is drawn one way, left-aligned: its first line the title (bold), then its lines in order; a "<command>  <what it does>" line (two or more spaces between) lines up in a two-column table, the command in code style.
+- **The Torah's scrolls**: `GOPOD_TORAH.md` is the main scroll: the opening, a link and first line for each scripture, every commandment, test, run and look. Each scripture is its own scroll in `torah/` (`SCRIPTURE_01_RESTART_AND_CHECK.md` ...): its title, its plain paragraphs, its commandments, and links to the scriptures before and after and back to the Torah. GOPOD writes them all (`system-torah`) and drops a scroll the system no longer has; `system-check` and the build say when any is behind.
+- **The page runs from the settings**: the chat page keeps no value of its own for what the settings file holds - its timings and sizes (`chat_window`, `page_sync`), its roles and labels, and its own words (`page_text`: the typing row, the system window's panels, `{placeholders}` filled by the page). Each is read once the settings load, before the first bubble; `TestPageRunsFromSettings` fails if one is missing from the settings or written into the page as well.
+- **Copy a result**: each answer in the system window's results has a copy button at its top right (`system_menu.copy`): its command and its answer, as plain text. At the very top of the results, with the first one, a copy-all button (`system_menu.copy.all`): every command and answer in the window, in order.
+- **The results template**: every system answer, in the chat's Terminal bubble or the system window's results, is drawn one way, left-aligned: its first line the title (bold), then its lines in order; a "<command>  <what it does>" line (two or more spaces between) lines up in a two-column table, the command in code style.
 - **The GOPOD Torah and its look.** `GOPOD_TORAH.md` (repo root) is the master reference for the
   system window - "the ancient scrolls Ron used to bring the Brobots to life", a fun take, not a
   religious one. GOPOD writes it from the running settings: the window's groups and items (with the
@@ -128,6 +134,20 @@ PASS/FAIL with what it saw. `gopod_system_tests.go`.
   no topic or chapter, or an empty one, while points are left), each song line that isn't a run
   card's start, and each numpad key that doesn't reach its Brobot or persona (a persona's "who are
   you" gets its who line). PASS when there's none. `TestAdminRun`.
+- **Double click a commandment**: anywhere on the admin page - a bubble, the system window, its results - a double click on a `system-...` word puts it in the text field (`system-torah`); nothing runs until Enter. A single click does what it always did.
+- **The Torah tour** (`system-tour`, system menu "9. Test one thing"): Goverlord goes through the GOPOD
+  Torah in the chat - the opening ("Goverlord's Torah: In the beginning there was a great restart."),
+  each scripture in its own bubble - its title ("Scripture 1, Restart and check"), then its plain
+  paragraphs (`system_menu.groups[].tour`, also shown in the Torah under its scripture); a group
+  with none falls back to its guide, commandments and next line, in the Torah's words (`torah`). Each line is its own voice
+  (the system bubble's `lines:` form): every line named at once, so each starts dormant, the first made,
+  then each next one made while the one before plays (`gopodSayLinesInBubble`). A commandment on `system_tour.run` runs too and its answer shows; the rest -
+  the restart, robot moves, switches, the session's end, the long tests, anything that waits for your
+  words - is only said. Each line waits for the page to play it (when a page is here). `system-tour`
+  again stops it; Record Session keeps it. The system window: all slots start closed, the results under
+  the last; an opened slot moves to the top and the results follow to the line under it. No commandment is
+  in the menu twice; a run card marked `pending` (the interview, for now) stays out of the menu, the Torah
+  and the tour.
 - `system-comm-check` (system menu "9. Test one thing"): the pre-show comm check. It plays
   `comm_check`'s rounds - each line on each key KP1-KP9 in turn, as if the key were held and the
   words spoken: the page draws the key's bubbles (keep holding, recording, transcribing), the line
@@ -249,9 +269,9 @@ chat keyboard: it looks for every file the settings, chapters and songs name, an
 | To... | Do this | Then |
 |---|---|---|
 | **Change a setting** (volume, waits, texts) | `system-set <setting> <value>` on the chat keyboard, or edit `webroot/gopod_brobots_settings.json` (`system-locate <word>` finds it) | page: F5; Wire-Pod: `wpr 2` |
-| **Add a picture to an egg** | put it in `webroot/pictures/`, add its name to the topic file's `pictures:` line (`gopod_probes/chapters/<chapter>/<topic>.txt`) | `wpr 2` |
-| **Add a topic** (new egg words, value points) | a new `NN_name.txt` in its chapter folder: `label:`, `words:`, `pictures:` (optional), `reminder:`, `say 1:`, `say 2:` ..., then `---` and its reveal text | `wpr 2` |
-| **Add a chapter** (a new egg) | a new folder `NN_name/` in `gopod_probes/chapters/` with `chapter.txt` (`title:` = the egg's title, `summary:`) and its topic files; the number sets its order | `wpr 2` |
+| **Add a picture to an egg** | put it in `webroot/pictures/`, add its name to the topic file's `- **pictures:**` line (`gopod_probes/chapters/<chapter>/<topic>.md`) | `wpr 2` |
+| **Add a topic** (new egg words, value points) | a new `NN_name.md` topic-cluster file in its chapter folder, from the template (`gopod_probes/_topic_cluster/`): `# label`, then `- **words:**`, `- **pictures:**` (optional), `- **reminder:**`, `- **say 1:**` ..., then `---` and its reveal text | `wpr 2` |
+| **Add a chapter** (a new egg) | a new folder `NN_name/` in `gopod_probes/chapters/` with `chapter.md` (`# title` = the egg's title, `- **summary:**`) and its topic files; the number sets its order | `wpr 2` |
 | **Change a song line** | its `## STEP` / `> TEXT:` in the song's `story.md`, or `system-set <song> <step> text <words>` | next run |
 | **Add a song step** | a `## STEP <id>` + `> TEXT:` in `story.md` **and** a step with the same `step_id` in `knobs.json` (`system-check` says if one is missing) | next run |
 | **Add a sound** (sting, song sound, soundtrack) | put the `.wav` in `webroot/gopod_reporter_audio/`; name it in the settings (a sting) or a song's `knobs.json` | evened to the loudness rule by itself |

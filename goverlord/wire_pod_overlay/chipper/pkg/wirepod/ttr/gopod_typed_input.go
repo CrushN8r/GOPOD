@@ -178,6 +178,10 @@ func gopodOperatorLine(esn, text, how string) error {
 	// 2026-10-29 (operator: "even if a few requests come in together, they still
 	// must each get processed until completion before another bubbles starts"):
 	// a question waits its turn in the line queue (gopod_line_queue.go).
+	// 2026-10-29 (the single-bot setup): solo, a line to All goes to Brobot 1 alone.
+	if esn == gopodTypedAll && gopodSolo() {
+		esn = gopodBrobot1ESN
+	}
 	answerers := []string{gopodBrobotName(esn)}
 	if esn == gopodTypedAll {
 		answerers = []string{"Brobot 1", "Brobot 2"}

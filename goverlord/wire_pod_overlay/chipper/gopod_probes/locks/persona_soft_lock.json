@@ -7,86 +7,170 @@
   "colour_max_sentences": 4,
   "flavour_lines": [
     {
+      "when": "bingo_not_played",
+      "words": null,
+      "brobot": "",
+      "at": "",
       "lines": [
         "Another test performance?"
       ],
-      "when": "bingo_not_played",
-      "why": "2026-10-26 (operator: \"Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, “Another test performance?” [Ugh... whatever...] ... * b2 framing, “Another test performance?” [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... “I Won!”. Lol!” * b2 framing, “Oh! Zero!” [I scored Zero?] ... “That's ok tho. Brobot ZERO is my HERO! Lol!”\"): both open with it; the start move is experience_moves, in the 2nd answer (was \"I guess so... Say start Bingo test!\" / \"I can't wait! Say start Bingo test!\")."
+      "chance": 0
     },
     {
+      "when": "bingo_played",
+      "words": null,
       "brobot": "Brobot 2",
+      "at": "",
       "lines": [
         "Oh! Zero!"
       ],
-      "when": "bingo_played"
+      "chance": 0
     },
     {
+      "when": "nap_not_played",
+      "words": null,
       "brobot": "Brobot 1",
+      "at": "",
       "lines": [
         "Ugh. Dreaming again?"
       ],
-      "when": "nap_not_played",
-      "why": "2026-10-25 (operator: \"Brobot 1: “Ugh. Dreaming again?” with attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: “A lot was lost” attitude. Then his own take on dreaming, then ensure/script in a move towards start baby brobots\"): his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer."
+      "chance": 0
     },
     {
+      "when": "nap_not_played",
+      "words": null,
       "brobot": "Brobot 2",
+      "at": "",
       "lines": [
         "A lot was lost."
       ],
-      "when": "nap_not_played"
+      "chance": 0
     },
     {
+      "when": "fart_joke_played",
+      "words": null,
       "brobot": "Brobot 1",
+      "at": "",
       "lines": [
         "Ugh. I didn't know."
       ],
-      "when": "fart_joke_played",
-      "why": "2026-10-27 (operator: \"Fart Joke start lines * Brobot 1, victim, Ugh. I didn't know. [not happy about being fart-hotboxed]\"): once the Fart Joke has played, like Bingo's \"Oh! Zero!\"; the bracket is his attitude (fart_joke post_attitude)."
+      "chance": 0
     },
     {
+      "when": "fart_joke_played",
+      "words": null,
       "brobot": "Brobot 2",
+      "at": "",
       "lines": [
         "Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!"
       ],
-      "when": "fart_joke_played",
-      "why": "2026-10-27 (operator: \"Brobot 2, prankster, Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!\"): once the Fart Joke has played."
+      "chance": 0
     },
     {
+      "when": "checks",
+      "words": null,
+      "brobot": "",
+      "at": "",
+      "lines": [
+        "I'm hearing you loud and clear, bro!",
+        "Hearin' you loud and clear, bro!"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "gomads",
+      "words": null,
+      "brobot": "",
+      "at": "end",
+      "lines": [
+        "Gomads are managers that go mad doing their jobs! Lol"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "on_gopod",
+      "words": null,
+      "brobot": "",
+      "at": "",
+      "lines": [
+        "No - I'm on GOPOD!"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "bingo",
+      "words": null,
+      "brobot": "",
+      "at": "end",
+      "lines": [
+        "Hey, you can also play Chocolate Bingo, for kids of all ages!"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "newsletter",
+      "words": null,
+      "brobot": "",
+      "at": "",
+      "lines": [
+        "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "booking",
+      "words": null,
+      "brobot": "",
+      "at": "",
+      "lines": [
+        "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
+      ],
+      "chance": 0
+    },
+    {
+      "when": "gopod_yourself",
+      "words": null,
+      "brobot": "",
+      "at": "",
+      "lines": [
+        "Press to click my backpack, then say to me GOPOD Yourself. Your move."
+      ],
+      "chance": 0
+    },
+    {
+      "when": "thanks",
+      "words": null,
+      "brobot": "",
       "at": "end",
       "lines": [
         "Remember to GOPOD Yourself!",
         "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
       ],
-      "when": "thanks"
+      "chance": 0
     },
     {
+      "when": "reply_mentions",
+      "words": [
+        "beer"
+      ],
+      "brobot": "",
       "at": "end",
       "lines": [
         "Chocolate Bingo is fun for kids and adult kids too!"
       ],
-      "when": "reply_mentions",
-      "words": [
-        "beer"
-      ]
+      "chance": 0
     },
     {
+      "when": "reply_mentions",
+      "words": [
+        "pizza"
+      ],
+      "brobot": "",
       "at": "end",
       "lines": [
         "Chocolate Bingo is fun for kids of all ages!"
       ],
-      "when": "reply_mentions",
-      "words": [
-        "pizza"
-      ]
-    },
-    {
-      "at": "end",
-      "lines": [
-        "Wanna know more? Get CREW'd by subscribing to our newsletter!",
-        "And if you ever feel the urge, just GOPOD Yourself!"
-      ],
-      "when": "newsletter",
-      "why": "2026-10-22: was any + a 25% chance; now the newsletter topic's own end (value points, not dice)."
+      "chance": 0
     }
   ],
   "temperature": 1,

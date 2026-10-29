@@ -240,7 +240,7 @@ setInterval(() => {
   console.log("\nVISITOR MIRROR"); console.log("  " + mirrorChecks + " checks, in step " + Math.round(100 * (mirrorChecks - mirrorOff) / Math.max(1, mirrorChecks)) + "%, longest catch-up " + (lagMost / 1000).toFixed(1) + " s" + (offSince ? ", OUT OF STEP at the end" : ""));
   mirrorProblems.slice(0, 8).forEach(m => console.log("  behind " + (MIRROR_LAG_MS / 1000) + " s+: " + m));
   // 2026-10-29 (operator: "there are way too many inconsistencies ... run it all
-  // through a fucking templated system"): the bubble template check - each
+  // through a f*ck*ng templated system"): the bubble template check - each
   // bubble's kind and its parts in order; one kind built more than one way is
   // listed with a sample of each way.
   console.log("\nBUBBLE TEMPLATE CHECK (kind: its parts in order)");

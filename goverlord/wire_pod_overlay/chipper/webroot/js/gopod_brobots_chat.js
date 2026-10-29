@@ -68,8 +68,8 @@
       // behaviour instead of breaking the chat.
       var CHAT_STORE_KEY = "gopod_brobots_chat_v1";
       var CHAT_OPEN_KEY = "gopod_brobots_chat_open";
-      var CHAT_MAX_BUBBLES = 3000;
-      var CHAT_MAX_SEEN = 6000;
+      var CHAT_MAX_BUBBLES;
+      var CHAT_MAX_SEEN;
       var chatStore = { bubbles: [], seen: [] };
       var seenLines = {};
       var restoringChat = false;
@@ -200,7 +200,7 @@
           label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
           allFirstSelect = document.createElement("select");
           allFirstSelect.className = "gopod-all-first";
-          allFirstSelect.title = "All: who answers first";
+          allFirstSelect.title = "";
           // 2026-10-28 (operator: "Extend brobots selection drop down menu from 1
           // to 9 * so I can communicate via keyboard to all * so app users can
           // communicate to all as well"): 1 and 2 stay All, starting with that
@@ -223,7 +223,7 @@
           var typedSubmit = document.createElement("button");
           typedSubmit.type = "submit";
           typedSubmit.className = "gopod-typed-submit";
-          typedSubmit.textContent = "Submit";
+          typedSubmit.textContent = "";
         } else {
           label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
         }
@@ -388,7 +388,7 @@
       var typedText = document.createElement("input");
       typedText.type = "text";
       typedText.className = "gopod-typed-text";
-      var typedPlaceholder = "Type to the Brobot, press Enter";
+      var typedPlaceholder = "";
       typedText.placeholder = typedPlaceholder;
       typedText.setAttribute("aria-label", "Type to the chosen Brobot");
       typedRow.insertBefore(typedText, typedFirstSep);
@@ -513,8 +513,9 @@
       // 2026-10-23 (operator: "New responsive Brobots-Input-Row single line can
       // adjust to 3 lines"): one line while everything fits beside a usable text
       // field, else three (.stacked, gopod_responsive.css).
-      var TYPED_TEXT_MIN_PX = 200;
+      var TYPED_TEXT_MIN_PX;
       function fitTypedRow() {
+        if (TYPED_TEXT_MIN_PX == null) { return; } // until the settings load
         var need = TYPED_TEXT_MIN_PX, gap = parseFloat(getComputedStyle(typedRow).columnGap) || 0;
         Array.prototype.forEach.call(typedRow.children, function (el) {
           if (el === typedText || getComputedStyle(el).position === "absolute" || el.offsetParent === null) { return; }
@@ -1053,7 +1054,7 @@
       // chat bubble must run & finish 100% before the next bubble"): 15 s let a
       // long answer be overtaken while still being said; now only a highlight
       // stuck on for 2 minutes lets go.
-      var CHAT_BATON_MAX_MS = 120000, SPEAKING_MAX_MS = 30000;
+      var CHAT_BATON_MAX_MS, SPEAKING_MAX_MS;
       function batonHeld() {
         if (narratorLines.some(function (n) { return n.shown; })) { return true; }
         return Array.prototype.some.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
@@ -1097,7 +1098,7 @@
       }
       // Calls then once every picture in the bubbles has loaded and each one's
       // voice can play (at most BUBBLE_READY_MAX_MS).
-      var BUBBLE_READY_MAX_MS = 6000;
+      var BUBBLE_READY_MAX_MS;
       function whenBubblesReady(bubbles, then) {
         var from = performance.now();
         (function check() {
@@ -1221,8 +1222,8 @@
       // middle of the chat window, the window scrolls so that line stays in the
       // middle, down to the end of the reply (the browser stops at the bottom).
       // It never scrolls back up on its own.
-      var CHAT_REPLY_DELAY_MS = 400;
-      var CHAT_TOP_GAP_PX = 12;
+      var CHAT_REPLY_DELAY_MS;
+      var CHAT_TOP_GAP_PX;
       var lastOperatorBubble = null;
       // 2026-09-30, v10 (operator: "a NEW revised scroller of our own with a 1s ease").
       // One controller is the only thing that moves the chat. Each move eases in and
@@ -1233,7 +1234,7 @@
       // so rounding never builds up. Once the end of the chat reaches the bottom,
       // centring stops and the highlight carries on down (no empty space). Instant when
       // the viewer asks for reduced motion.
-      var CHAT_SCROLL_MS = 1000;
+      var CHAT_SCROLL_MS;
       var chatMove = null; // { from, to, speed (px per ms at the start), start (ms), frame }
       function chatMoveAt(now) {
         var T = CHAT_SCROLL_MS;
@@ -1294,7 +1295,7 @@
       // highlighting continues normally * then upon reaching/passing the
       // vertical center, the bubble will move up to ensure the text being
       // highlighted is in full view"): back on, in that rule.
-      var FOCUS_DEAD_ZONE = 0.25;
+      var FOCUS_DEAD_ZONE;
       function focusSpeaking(span) {
         if (!span || !container.contains(span)) { return; }
         var rect = span.getBoundingClientRect();
@@ -1328,16 +1329,33 @@
       var liveSentenceEnds = ".!?";
       var liveCommaEnds = ",";
       // The song's countdown lines (countdown.role in the settings file).
-      var countdownRole = "Countdown";
+      var countdownRole;
       // The song's Bingo ball lines (bingo_ball in the settings file).
-      var ballRole = "Bingo Ball";
+      var ballRole;
       function escapeForRegExp(text) {
         return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+      // The page's own words (page_text in the settings file, 2026-10-29: "sweep for
+      // all flexible data ... names, labels ... export to external files"): a key,
+      // its {placeholders} filled.
+      var pageTexts = {};
+      function pageText(key, values) {
+        var t = String(pageTexts[key] == null ? "" : pageTexts[key]);
+        Object.keys(values || {}).forEach(function (k) { t = t.split("{" + k + "}").join(String(values[k])); });
+        return t;
       }
       function loadBrobotsSettings() {
         return fetch("/gopod_brobots_settings.json", { cache: "no-store" })
           .then(function (r) { return r.json(); })
           .then(function (settings) {
+            pageTexts = settings.page_text || {};
+            typedPlaceholder = pageText("typed_placeholder");
+            if (!typedText.value && !typedText.classList.contains("gopod-typed-note")) { typedText.placeholder = typedPlaceholder; }
+            var allFirst = typedRow.querySelector(".gopod-all-first");
+            if (allFirst) { allFirst.title = pageText("all_first_title"); }
+            var submit = typedRow.querySelector(".gopod-typed-submit");
+            if (submit) { submit.textContent = pageText("submit"); }
+            if (settings.chat_window && typeof settings.chat_window.hourglass_sprites === "number") { HOURGLASS_SPRITES = settings.chat_window.hourglass_sprites; }
             var marker = String(settings.animation_marker || "");
             if (marker) {
               var last = escapeForRegExp(marker.slice(-1));
@@ -1355,14 +1373,15 @@
             if (settings.system_bubble && settings.system_bubble.label) { systemLabel = settings.system_bubble.label; }
             if (settings.numpad_ptt) { numpad.cfg = settings.numpad_ptt; }
             if (settings.comm_check && settings.comm_check.record_seconds) { commCheckRecordSeconds = settings.comm_check.record_seconds; }
-            if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; }
+            if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; systemMenuCopy = settings.system_menu.copy || systemMenuCopy; }
             // 2026-10-27 (the game engine, gopod_game_engine.go): a group with
             // "runs": true starts with one line per run card (game.runs).
             var runCards = (settings.game && settings.game.runs) || [];
             systemMenuData = systemMenuData.map(function (g) {
               if (!g.runs) { return g; }
               var copy = Object.assign({}, g);
-              copy.items = runCards.map(function (r) { return { cmd: r.start, about: r.menu_about, fill: r.start }; }).concat(g.items || []);
+              // A pending run (its card's "pending") isn't on the menu yet.
+              copy.items = runCards.filter(function (r) { return !r.pending; }).map(function (r) { return { cmd: r.start, about: r.menu_about, fill: r.start }; }).concat(g.items || []);
               return copy;
             });
             if (settings.math && settings.math.popup_title) { mathPopupTitle = settings.math.popup_title; }
@@ -1418,9 +1437,7 @@
               chapterRole = settings.interview_chapters.role;
               chapterLabel = settings.interview_chapters.label || chapterLabel;
             }
-            if (settings.value_points && settings.value_points.score_role) {
-              scoreRole = settings.value_points.score_role;
-            }
+            if (settings.value_points) { scoreRole = settings.value_points.score_role || ""; }
             if (settings.value_points && settings.value_points.score_bar && settings.value_points.score_bar.done) {
               scoreBarDone = settings.value_points.score_bar.done;
             }
@@ -1589,7 +1606,7 @@
       // warm-up, the rattle countdown) carry the same grey-icon header, labelled
       // system_bubble.label from the settings file.
       var SYSTEM_TARGET = "Goverlord";
-      var systemLabel = "Goverlord: GOPOD Brain";
+      var systemLabel;
       function systemHead(label) {
         var sysHead = bubbleHead(label, true);
         sysHead.classList.add("system-head");
@@ -1669,7 +1686,7 @@
       // ball, or the next line) takes its place, never sooner than
       // COUNTDOWN_HOLD_MS after the end. A timer with nothing after it goes after
       // COUNTDOWN_HOLD_MOST_MS.
-      var COUNTDOWN_HOLD_MS = 3000, COUNTDOWN_HOLD_MOST_MS = 20000, countdownDoneAt = 0;
+      var COUNTDOWN_HOLD_MS, COUNTDOWN_HOLD_MOST_MS, countdownDoneAt = 0;
       function countdownHold() {
         if (!container.querySelector(".brobot-bubble.countdown")) { countdownDoneAt = 0; return; }
         countdownDoneAt = Date.now();
@@ -1880,7 +1897,7 @@
       // The warm-up hourglass, sprite stage 0 (top full) to 4 (bottom full): the
       // sand in the top bulb drains to the neck, the bottom bulb fills from its
       // base, with a thin stream between while it runs.
-      var HOURGLASS_SPRITES = 5;
+      var HOURGLASS_SPRITES;
       var hourglassCfg = {};
       function hourglassSprite(stage, steps) {
         var f = stage / ((steps || HOURGLASS_SPRITES) - 1); // share of the sand at the bottom
@@ -1989,7 +2006,7 @@
       // 2026-10-06 (operator: "think of it like a long interview video on youtube,
       // segmented with chapters"): a chapter title, in a system bubble
       // (interview_chapters in the settings file, gopod_interview_chapters.go).
-      var chapterRole = "Chapter", chapterLabel = "Chapter: {title}";
+      var chapterRole, chapterLabel;
       // 2026-10-24 (the root-to-leaf pass, link 3): on the raw bubble template and
       // placed the one way (placeBubble) - the next line waits for it (then).
       function showChapter(title, then) {
@@ -1999,16 +2016,16 @@
       // 2026-10-06 (operator: "Yes, please build this way, with score bubble"):
       // the session's value-point score at "Thanks Brobots", in a Goverlord
       // system bubble (value_points, gopod_value_points.go).
-      var scoreRole = "Score";
+      var scoreRole;
       // 2026-10-08 (operator: "Operator bubble: system message (... GOPOD
       // Brain) with \"Draft run completed.\""): sign_off.system_role's lines
       // show in the same system bubble.
-      var systemRole = "Goverlord";
+      var systemRole;
       // 2026-10-17 (operator: "terminal-results are sent back to chat bubbles
       // window * In terminal-results chat bubble, make terminal-bubble-text
       // font-size 50% of current bubble-text font-size"): system-set's answers,
       // in a system bubble with small text (not kept in the saved chat).
-      var terminalRole = "Terminal";
+      var terminalRole;
       // 2026-10-18 (operator: "CHALK (display) now is to take ownership of:
       // search-results box (same smaller size, no audio) * system-status and the
       // other system bubbles"): these bubbles carry CHALK's header and board
@@ -2116,12 +2133,65 @@
         var tasks = (b._tasks || []).map(function (t) { return Promise.resolve(t).catch(function () {}); });
         Promise.race([Promise.all(tasks), new Promise(function (ok) { setTimeout(ok, BUBBLE_TASK_MAX_MS); })]).then(finish);
       }
+      // GOLDEN results template (2026-10-29, operator: "results outputs are
+      // center-aligned, not read friendly * can you set up a templated results
+      // output format?"): every system answer - in the chat's Terminal bubble or
+      // the system window's results - is drawn the one way, left-aligned: its
+      // first line the title (bold), then each line in order; lines that read
+      // "<command>  <what it does>" (two or more spaces between) line up as a
+      // two-column table, the command in code style; any other line stays as is.
+      function resultTemplate(text) {
+        var out = document.createElement("div");
+        out.className = "gopod-result";
+        var lines = String(text).replace(/\s+$/, "").split("\n"), table = null, titled = false;
+        lines.forEach(function (raw) {
+          var line = raw.replace(/\s+$/, "");
+          if (!line.trim()) { table = null; return; }
+          if (!titled) {
+            titled = true;
+            var title = document.createElement("div");
+            title.className = "gopod-result-title";
+            title.textContent = line.trim();
+            out.appendChild(title);
+            return;
+          }
+          // The last wide gap splits the columns ("system-skip  (or Esc)      skip ...").
+          var cols = /^\s*(\S.*\S)\s{2,}(\S.*)$/.exec(line);
+          if (cols) {
+            if (!table) {
+              table = document.createElement("div");
+              table.className = "gopod-result-table";
+              out.appendChild(table);
+            }
+            var cmd = document.createElement("code");
+            cmd.className = "gopod-result-cmd";
+            cmd.textContent = cols[1];
+            var about = document.createElement("span");
+            about.className = "gopod-result-about";
+            about.textContent = cols[2];
+            table.appendChild(cmd);
+            table.appendChild(about);
+            return;
+          }
+          table = null;
+          var row = document.createElement("div");
+          row.className = "gopod-result-line";
+          var indent = /^\s*/.exec(line)[0].length;
+          if (indent) { row.style.paddingLeft = Math.min(indent, 8) * 0.5 + "em"; }
+          row.textContent = line.trim();
+          out.appendChild(row);
+        });
+        return out;
+      }
       function showTerminal(text, then) {
         // While the system menu is open, its answers go in its results (systemMenuResult).
         if (systemMenuResult(String(text), "answer")) { if (then) { then(); } return; }
         // 2026-10-21: a system answer is Goverlord's (the Captain's).
-        placeBubble(rawBubble({ kind: "terminal", classes: "operator system-status score terminal gopod-admin-only",
-          head: systemHead(systemLabel), text: text, lineClass: "terminal-text" }), then);
+        var b = rawBubble({ kind: "terminal", classes: "operator system-status score terminal gopod-admin-only",
+          head: systemHead(systemLabel), text: "", lineClass: "terminal-text" });
+        var line = b.querySelector(".terminal-text");
+        if (line) { line.appendChild(resultTemplate(text)); }
+        placeBubble(b, then);
       }
       // 2026-10-17 (operator: "Don't speak or highlight search results * put a
       // centered rounded-rectangle bubble around the search results * search
@@ -2186,6 +2256,24 @@
         if (!restoringChat) { recordBubble(scoreRole, String(text), "score"); }
         // On the raw bubble template (built and loaded hidden, then shown).
         var bubble = rawBubble({ kind: "system", classes: "operator system-status score", head: systemHead(label || systemLabel) });
+        // 2026-10-29 (operator: "each scripture in its own bubble * generate audio
+        // for system tour * rather than a long wait for a single audio wav file
+        // ... send segment for processing, while the brobot speaks send next
+        // segment"): "lines:" - one bubble, one line each, every line its own voice
+        // (named ahead, so each starts dormant and lights as its voice plays).
+        if (String(text).indexOf("lines:") === 0) {
+          String(text).slice(6).split("\n").forEach(function (one) {
+            var el = document.createElement("span");
+            el.className = "brobot-bubble-text brobot-bubble-line";
+            el.textContent = one;
+            bubble.appendChild(el);
+            if (restoringChat || skippingReporters) { el.classList.add("spoken"); return; }
+            if (one.trim()) { voiceLineAhead(one, el); }
+          });
+          if (!restoringChat) { bubble.classList.add("voice-lit"); voiceTieAhead(); }
+          placeBubble(bubble, then);
+          return;
+        }
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
         bubble.appendChild(line);
@@ -2345,8 +2433,8 @@
       }
       // 2026-10-06 (operator: "Pictures in the chat"): a topic's pictures, one
       // row in a system bubble; the line is their paths, "|" between them.
-      var pictureRole = "Picture", picturesInQuestion = [];
-      var eggZoomText = "MouseOver to Zoom In";
+      var pictureRole, picturesInQuestion = [];
+      var eggZoomText;
       // A Brobot's pop-up wrapper waiting for his reply (showPictures).
       var popupWraps = {};
       // A pop-up was found for the question being answered (reset by the next
@@ -2358,8 +2446,8 @@
       // this pop-up"; "use system chat bubbles"; "I still want the zoom
       // feature"): a live topic's pictures ("popup:" on the line) in a Goverlord
       // system bubble, popup_text over them, zoom as ever.
-      var popupText = "Congratulations, Master CrushN8r! You found a pop-up.";
-      var mathPopupTitle = "Explain the Math";
+      var popupText;
+      var mathPopupTitle;
       // 2026-10-24 (the root-to-leaf pass, link 3d): placed the one way
       // (placeBubble: built hidden, its pictures loaded, then shown); the next
       // line waits for it (then); the marquee and the weather sound once placed.
@@ -2555,7 +2643,7 @@
       // read live, and a ResizeObserver lays the bulbs out again whenever the
       // bubble changes size (text wrapping, a picture loading, the window), the
       // count following the border's length so the spacing stays even.
-      var MARQUEE_SPACING_PX = 22, MARQUEE_INSET_PX = 9, MARQUEE_PATTERN_MS = 5000;
+      var MARQUEE_SPACING_PX, MARQUEE_INSET_PX, MARQUEE_PATTERN_MS;
       var marquees = [], marqueeFrame = null, marqueePattern = 0, marqueeSwitch = 0;
       var marqueeSizes = typeof ResizeObserver === "function" ? new ResizeObserver(function (entries) {
         entries.forEach(function (entry) {
@@ -3060,7 +3148,7 @@
       // A browser plays sound only after the page has been clicked or typed in.
       // 2026-10-06 (operator: "Reporter 1, Brobot 3:" / "Reporter 2, Brobot 4:"):
       // the header is the host's label (reporter_voices.labels).
-      var reporterRole = "Reporter Voice", hostNames = {}, hostLabels = {};
+      var reporterRole, hostNames = {}, hostLabels = {};
       // 2026-10-22 (operator: "a bubble's header in a scripted run should have
       // what values? default (CHALK), fallback (Brobot 7), remembered edits
       // (CHALK BORED)? * editable"): the header template (display_names) - a
@@ -3089,7 +3177,7 @@
       }
       // 2026-10-09 (the nap, a lyric video): a song's soundtrack plays in the
       // background, and its captions show as the narrator's bubbles.
-      var songAudioRole = "Song Audio", narratorRole = "Narrator", songAudio = null;
+      var songAudioRole, narratorRole, songAudio = null;
       // GOLDEN nesting (2026-10-18, operator: "If I ask brobot N = weather trigger *
       // PLAYHEAD takes over in PLAYHEAD bubble * PLAYHEAD bubble displays inside
       // brobot N bubble * at top before brobot N 'Got it'"; QR: "CHALK bubble
@@ -3360,7 +3448,7 @@
       // picture behind its words, fading in to 50% as the section starts and out
       // after its last words; the next section's part then replaces it.
       var narratorStage = null;
-      var NARRATOR_FADE_IN_S = 1, NARRATOR_FADE_OUT_MAX_S = 1.5, NARRATOR_FADE_OUT_END_S = 2;
+      var NARRATOR_FADE_IN_S, NARRATOR_FADE_OUT_MAX_S, NARRATOR_FADE_OUT_END_S;
       function showNarratorSingle(pieces, pictures, last) {
         var line = document.createElement("div");
         line.className = "brobot-bubble-text brobot-bubble-line";
@@ -3967,7 +4055,7 @@
       // words; approved - "Username Approved" for a few seconds (once per name,
       // remembered in this browser), then the field as ever. A line sent still
       // answers with its own note (sendTypedLine).
-      var visitorLastState = "", visitorClearTimer = null;
+      var visitorLastState = "", visitorClearTimer = null, secondAdminShown = "";
       function visitorStanding(v) {
         var state = v.state || "";
         if (state === visitorLastState) { return; }
@@ -4026,7 +4114,7 @@
       // scrolling on their own devices"): GOPOD's rules - a new bubble placed
       // bottom/bottom or top/top, the lit words followed - on its own screen. Its
       // own typing row (sign-up, notes) stays its own.
-      var DISPLAY_BUBBLES = 12, DISPLAY_MS = 150;
+      var DISPLAY_BUBBLES, DISPLAY_MS;
       var displaySendTimer = null, displaySent = "", displayObserver = null, displayPollTimer = null, displaySeen = 0;
       var displayKeys = new WeakMap(), displayNextKey = 0;
       function displayBubbles() {
@@ -4152,6 +4240,36 @@
           displayPoll();
         }
       }
+      // 2026-10-29 (operator: "system menu bubble: [system-commandment] * single
+      // click is fine in results window * new (global rule applies to all): upon a
+      // detected double click, copy [system-commandment] into input text field,
+      // example [system-torah]"): anywhere on the page - a bubble, the system
+      // window, its results - a double click on a system-... word puts it in the
+      // text field (the admin page; a click on it runs nothing).
+      function commandmentAt(x, y) {
+        var node = null, at = 0;
+        if (document.caretRangeFromPoint) {
+          var r = document.caretRangeFromPoint(x, y);
+          if (r) { node = r.startContainer; at = r.startOffset; }
+        } else if (document.caretPositionFromPoint) {
+          var p = document.caretPositionFromPoint(x, y);
+          if (p) { node = p.offsetNode; at = p.offset; }
+        }
+        if (!node || node.nodeType !== 3) { return ""; }
+        var t = node.textContent, a = at, b = at;
+        while (a > 0 && /[A-Za-z0-9-]/.test(t.charAt(a - 1))) { a--; }
+        while (b < t.length && /[A-Za-z0-9-]/.test(t.charAt(b))) { b++; }
+        var word = t.slice(a, b).replace(/-+$/, "");
+        return /^system-[A-Za-z0-9-]+$/i.test(word) ? word.toLowerCase() : "";
+      }
+      document.addEventListener("dblclick", function (ev) {
+        if (!isAdminPage || ev.target === typedText) { return; }
+        var cmd = commandmentAt(ev.clientX, ev.clientY);
+        if (!cmd) { return; }
+        try { window.getSelection().removeAllRanges(); } catch (err) { /* no selection */ }
+        typedText.value = cmd;
+        typedText.focus();
+      }, true);
       function reportShown(force) {
         var log = document.getElementById("section-log");
         // 2026-10-17 (survey E1: the page said "shown" before it could play - it
@@ -4182,6 +4300,16 @@
             if (chatOnlyPending) { chatOnlyPending = false; setTimeout(chatOnlyOn, 0); }
             setPageRole(d.main);
             if (d.visitor) { visitorStanding(d.visitor); }
+            // 2026-10-29 (operator: "add a check for one admin controller page"):
+            // a second admin page says so in its text field (it only watches).
+            if (isAdminPage) {
+              var second = d.second_admin || "";
+              if (second !== secondAdminShown) {
+                secondAdminShown = second;
+                typedText.placeholder = second || typedPlaceholder;
+                typedText.classList.toggle("gopod-typed-note", !!second);
+              }
+            }
           })
           .catch(function () { /* Wire-Pod not up yet */ });
       }
@@ -4258,7 +4386,7 @@
         var v = audioLevels[name];
         return typeof v === "number" && v > 0 ? v : 1;
       }
-      var VOICE_READY_MAX_MS = 3000;
+      var VOICE_READY_MAX_MS;
       function voiceAudio(src) {
         var key = String(src);
         if (!voiceCache[key]) {
@@ -4429,7 +4557,10 @@
             body: "note=" + encodeURIComponent("skip ignored (" + (how || "Esc") + "): not enabled") }).catch(function () {});
           return;
         }
-        skipGate.on = false;
+        // 2026-10-29 (operator: "Please ensure Esc, stop run & skip all work
+        // globally as intended * WHERE IN THE GLOBAL UNIFIED GOPOD TEMPLATE IS THE
+        // ISSUE = FIX THE TEMPLATE"): the gate stays open once the voices are ready
+        // - every skip works, not only the first (it used to shut after one).
         // 2026-10-21 (operator: "add to logging * skipped [input] (Esc, numpad, mic, typed)").
         fetch("/api-sdk/gopod_page_note", {
           method: "POST",
@@ -4438,6 +4569,29 @@
         }).catch(function () { /* Wire-Pod not up */ });
         skippingReporters = true;
         if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
+        skipFinishWaiting();
+      }
+      // 2026-10-29 (live 10:49: after a skip, a reporter line already drawn held the
+      // baton 10 s+, waiting for a voice the skip had dropped): a skip finishes every
+      // voiced line still waiting - shown whole, the baton free. The Brobots' own
+      // replies (their robots speak them) are left alone.
+      // A skip covers what's queued: once the queue has played out, it's over -
+      // it never swallows lines that come later.
+      function skipEndWhenDrained() {
+        var check = setInterval(function () {
+          if (!skippingReporters) { clearInterval(check); return; }
+          if (!feedQueue.length && !feedRunning) { skippingReporters = false; clearInterval(check); skipEndScroll(); }
+        }, 500);
+      }
+      function skipFinishWaiting() {
+        skipEndWhenDrained();
+        Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble.voice-lit .brobot-say:not(.spoken)"), function (say) {
+          var b = say.closest(".brobot-bubble");
+          if (!b || b.classList.contains("brobot-1") || b.classList.contains("brobot-2")) { return; }
+          if (say._wait && say._wait.parentNode) { say._wait.parentNode.removeChild(say._wait); }
+          saidWhole(say);
+        });
+        voiceLitNext = null;
       }
       function skippedEvent(e) {
         if (!skippingReporters) { return false; }
@@ -4451,7 +4605,9 @@
         // 2026-10-20 (operator: "upon 'Esc' or skip * display all bubbles (in
         // the opener it'd be showing all the reporter lines) first, then llm
         // ready"): a skipped reporter line still shows, all its words at once.
-        if (hostNames[e.who] && !managerHosts[e.who]) { return false; }
+        // 2026-10-29: Goverlord's voiced lines are in the stretch too (the tour's
+        // scriptures, his system lines) - shown whole, their voices skipped.
+        if ((hostNames[e.who] && !managerHosts[e.who]) || e.who === systemRole) { return false; }
         skippingReporters = false;
         skipEndScroll();
         return false;
@@ -4468,9 +4624,9 @@
         // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
         if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) {
           // The mic's "skip" (Wire-Pod's skip: line) goes through the skip gate too.
+          // Wire-Pod's stop run sends one too (gopodStopRuns): a stop skips the voices queued.
           if (!skipGate.on) { done(); return; }
-          skipGate.on = false;
-          skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } done(); return; }
+          skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } skipFinishWaiting(); done(); return; }
         if (skippedEvent(e)) { done(); return; }
         // A held rattle timer gives its place to the next bubble (voices aren't bubbles).
         if (countdownDoneAt && e.who !== reporterRole && e.who !== countdownRole && e.who !== songAudioRole) {
@@ -4722,7 +4878,7 @@
       // seconds_per_number. Like every piece: hidden until said, solid white
       // while said, 85% after.
       var digitHighlight = { seconds_per_word: 0.3, seconds_per_number: 0.45 };
-      var militaryLabel = "Hours Military Time";
+      var militaryLabel;
       // GOLDEN, word at a time (operator 2026-10-16: "extend that same process to
       // a sentence a word at a time * sentence is displayed at 0% solid * then use
       // timed, word-at-a-time, reveals to kinda match brobot speech timing"; his
@@ -4970,7 +5126,7 @@
       // The robot stopped speaking: if nothing more is lit in that bubble within
       // REVEAL_REST_MS (his reply is over - a highlight missed at the end), the
       // rest shows. A pause between his sentences is shorter.
-      var REVEAL_REST_MS = 10000;
+      var REVEAL_REST_MS;
       function revealRestLater(bubble) {
         var seq = lastSpeakingSeq;
         setTimeout(function () {
@@ -5228,6 +5384,41 @@
       // command that needs nothing more runs on click; one that needs words goes
       // in the text box for you to finish and press Enter.
       var systemMenu = null, systemMenuData = [], systemMenuIntro = "", systemMenuLook = {};
+      // The results' copy button (system_menu.copy: its icon, its tip, what it says once copied).
+      var systemMenuCopy = {}, systemMenuLastAsk = "";
+      function copyButton(text, look) {
+        look = look || systemMenuCopy;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "gopod-result-copy";
+        b.textContent = look.icon || "";
+        b.title = look.title || "";
+        b.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          var done = function () {
+            b.textContent = look.copied || b.textContent;
+            setTimeout(function () { b.textContent = look.icon || ""; }, look.copied_ms || 1500);
+          };
+          // text: the words, or a function that gives them at the click (copy all).
+          var words = typeof text === "function" ? text() : text;
+          var fallback = function () {
+            var area = document.createElement("textarea");
+            area.value = words;
+            area.style.position = "fixed";
+            area.style.opacity = "0";
+            document.body.appendChild(area);
+            area.select();
+            try { document.execCommand("copy"); done(); } catch (err) { /* no clipboard */ }
+            area.remove();
+          };
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(words).then(done, fallback);
+          } else {
+            fallback();
+          }
+        });
+        return b;
+      }
       // 2026-10-19 (operator: "Make [menu system- bubble] font size 50% for more
       // room below * |menu system- bubble| |nested scroll bubble| * nested scroll
       // bubble underneath = "" or [results]"): under the menu, its results - each
@@ -5238,9 +5429,35 @@
       function systemMenuResult(text, kind) {
         var box = systemMenuResults();
         if (!box) { return false; }
+        // 2026-10-29 (operator: "At the very top ... upon a slot clicked open & the
+        // results window isn't empty * first add a similar, but 'copy all results'
+        // button, before the results"): with the first result, the copy-all bar.
+        if (!box.querySelector(".gopod-results-copy-all")) {
+          var bar = document.createElement("div");
+          bar.className = "gopod-results-copy-all";
+          bar.appendChild(copyButton(function () {
+            var out = [];
+            Array.prototype.forEach.call(box.querySelectorAll(":scope > .system-menu-result"), function (r) {
+              if (r.classList.contains("ask") && out.length) { out.push(""); }
+              out.push(r._copy != null ? r._copy : (r.innerText || r.textContent || "").trim());
+            });
+            return out.join("\n");
+          }, systemMenuCopy.all || systemMenuCopy));
+          box.insertBefore(bar, box.firstChild);
+        }
         var row = document.createElement("div");
         row.className = "system-menu-result " + kind;
-        row.textContent = kind === "ask" ? "\u203a " + text : text;
+        row._copy = kind === "ask" ? "\u203a " + text : String(text);
+        if (kind === "answer") {
+          row.appendChild(resultTemplate(text));
+          // 2026-10-29 (operator: "in the results window, can you add a, click to
+          // copy results to clipboard button/icon"): each answer's copy button -
+          // its command and its answer, as plain text.
+          row.appendChild(copyButton("\u203a " + systemMenuLastAsk + "\n" + String(text)));
+        } else {
+          if (kind === "ask") { systemMenuLastAsk = String(text); }
+          row.textContent = kind === "ask" ? "\u203a " + text : text;
+        }
         box.appendChild(row);
         box.scrollTop = box.scrollHeight;
         return true;
@@ -5308,20 +5525,49 @@
             group.appendChild(next);
           }
           group.addEventListener("toggle", function () {
-            if (!group.open) { return; }
-            Array.prototype.forEach.call(menu.querySelectorAll("details"), function (d) { if (d !== group) { d.open = false; } });
+            if (group.open) {
+              Array.prototype.forEach.call(menu.querySelectorAll("details"), function (d) { if (d !== group) { d.open = false; } });
+            }
           });
           menu.appendChild(group);
         });
         menu.appendChild(visitorsGroup(menu));
         outer.appendChild(menu);
+        // 2026-10-29 (operator: "when I open the system window all slots are closed
+        // * results window nicely sized underneath last closed slot * if I click
+        // slot 5 Apply, slot 5 scrolls up to the top of window, and results window
+        // follows up to the bottom of the open slot 5"): an open slot sits at the
+        // top of the menu and the menu ends at its bottom, so the results start
+        // right under it; all closed, the menu is its closed slots and the results
+        // start under the last one.
+        function menuFitSlot() {
+          var open = menu.querySelector("details[open]");
+          requestAnimationFrame(function () {
+            if (!open) {
+              menu.style.flex = "";
+              menu.style.height = "";
+              menu.scrollTop = 0;
+              return;
+            }
+            var pad = parseFloat(getComputedStyle(menu).paddingTop) || 0;
+            var room = outer.getBoundingClientRect().height * 0.85;
+            // 2026-10-29 (operator: "results needs to come up past #3 text, to the hr
+            // below 2"): the menu ends at the open slot's bottom - the line under it.
+            var want = Math.min(open.getBoundingClientRect().height + pad, room);
+            menu.style.flex = "0 0 auto";
+            menu.style.height = want + "px";
+            menu.scrollTop += open.getBoundingClientRect().top - menu.getBoundingClientRect().top - pad;
+          });
+        }
+        // Every slot's open and close (toggle doesn't bubble - caught on the way down).
+        menu.addEventListener("toggle", menuFitSlot, true);
         // 2026-10-19 (operator: "system window has 2 windows, system- commands &
         // results * upon mouseover of the horizontal space between them, cursor
         // changes to a space grabber, and I can resize by dragging the grabbed
         // space up & down"): the bar between them.
         var split = document.createElement("div");
         split.className = "system-menu-split";
-        split.title = "Drag to resize";
+        split.title = pageText("drag_title");
         outer.appendChild(split);
         // 2026-10-19 (operator: "both start at 50% window height * vertical
         // adjustments work like this: system menu/results, 50%/50% 10%/90%,
@@ -5399,7 +5645,7 @@
           var used = {};
           (data.rows || []).forEach(function (r) { if (!r.bodied && r.voice) { used[r.voice] = (used[r.voice] || 0) + 1; } });
           var title = document.createElement("div");
-          title.textContent = "Numpad voices:";
+          title.textContent = pageText("voices_title");
           panel.appendChild(title);
           (data.rows || []).forEach(function (r) {
             var row = document.createElement("div");
@@ -5416,7 +5662,7 @@
               if (r.key === "Operator") {
                 var un = document.createElement("option");
                 un.value = "";
-                un.textContent = "unassigned (" + (data.unassigned_host || "-") + "'s voice)";
+                un.textContent = pageText("voices_unassigned", { host: data.unassigned_host || "-" });
                 pick.appendChild(un);
               }
               (data.voices || []).forEach(function (v) {
@@ -5449,7 +5695,7 @@
         function load(note) {
           fetch("/api-sdk/gopod_voice_map", { cache: "no-store" }).then(function (x) { return x.json(); })
             .then(function (data) { draw(data || {}, note); })
-            .catch(function () { panel.textContent = "Numpad voices: Wire-Pod didn't answer"; });
+            .catch(function () { panel.textContent = pageText("no_answer", { what: pageText("voices_title").replace(/:\s*$/, "") }); });
         }
         load("");
       }
@@ -5481,7 +5727,7 @@
             });
             known = now;
             panel.textContent = lines.join("\n");
-          }).catch(function () { panel.textContent = "USB devices: Wire-Pod didn't answer"; });
+          }).catch(function () { panel.textContent = pageText("no_answer", { what: pageText("usb_title") }); });
         }
         poll();
         usbTimer = setInterval(poll, 3000);
@@ -5646,7 +5892,7 @@
         var group = document.createElement("details");
         group.className = "system-menu-group system-menu-visitors";
         var title = document.createElement("summary");
-        title.textContent = "Local network visitors";
+        title.textContent = pageText("visitors_title");
         group.appendChild(title);
         var body = document.createElement("div");
         body.className = "system-visitors";
@@ -5683,11 +5929,11 @@
           on.appendChild(document.createTextNode(" Visitor chat participation " + (d.participation ? "ON" : "OFF")));
           body.appendChild(on);
           var list = d.visitors || [];
-          title.textContent = "Local network visitors (" + list.length + ")";
+          title.textContent = pageText("visitors_count", { n: list.length });
           if (!list.length) {
             var none = document.createElement("div");
             none.className = "system-visitor";
-            none.textContent = "No visitors.";
+            none.textContent = pageText("visitors_none");
             body.appendChild(none);
           }
           list.forEach(function (v) {
@@ -5704,9 +5950,9 @@
               row.appendChild(box);
               who.textContent = v.name;
             } else if (v.name) {
-              who.textContent = "asks for: " + v.name;
+              who.textContent = pageText("visitor_asks", { name: v.name });
             } else {
-              who.textContent = "nameless-visitor";
+              who.textContent = pageText("visitor_nameless");
             }
             row.appendChild(who);
             var meta = document.createElement("span");

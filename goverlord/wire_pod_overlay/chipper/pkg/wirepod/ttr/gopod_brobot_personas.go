@@ -100,7 +100,8 @@ func gopodHostPersonaText(host, base string) string {
 		if as == "" {
 			as = gopodBrobotsSettings.HostPersonas[partner].Name
 		}
-		if t := strings.TrimSpace(pair.Banter); t != "" {
+		// 2026-10-29: solo, the Brobots' brother banter is left out (gopodSolo).
+		if t := strings.TrimSpace(pair.Banter); t != "" && !(gopodSolo() && (host == "Brobot 1" || host == "Brobot 2")) {
 			parts = append(parts, strings.ReplaceAll(t, "{partner}", as))
 		}
 		if n := strings.TrimSpace(h.Name); n != "" && strings.TrimSpace(pair.Left) != "" && pair.Dial >= 0 && pair.Dial <= 100 {
@@ -164,7 +165,15 @@ func gopodPrebuildContext(esn, question string) string {
 	fill["cast"] = gopodHereNowCast(brobot)
 	fill["plan"] = gopodResponsePlan(esn)
 	fill["notice"] = gopodNoticeGuide(esn)
+	// 2026-10-29: solo (one robot), his note (brobots_setup.solo_note).
+	if gopodSolo() {
+		fill["solo"] = strings.TrimSpace(gopodBrobotsSettings.BrobotsSetup.SoloNote)
+	} else {
+		fill["solo"] = ""
+	}
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
+	// 2026-10-29 (ask ahead): his DocBS asks start now, while the line is read out.
+	gopodDocBSAskAhead(esn, question)
 	fill["roast"] = gopodRoastLine(question)
 	fill["spice"] = gopodSpiceLine(question)
 	out := []string{strings.TrimSpace(pc.Header)}

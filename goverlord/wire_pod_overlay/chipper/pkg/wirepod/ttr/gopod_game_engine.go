@@ -28,6 +28,9 @@ type gopodGameRun struct {
 	Song string `json:"song"`
 	// Draft: played as the scripted draft (start interview), not by the song engine.
 	Draft bool `json:"draft"`
+	// Pending (2026-10-29, operator: "disable/hide start interview slot item. not
+	// yet. pending"): out of the system menu, the Torah and the tour; the card stays.
+	Pending bool `json:"pending"`
 	// Start / Stop: the words that start and stop it (typed, numpad or voice).
 	Start string `json:"start"`
 	Stop  string `json:"stop"`
@@ -38,6 +41,14 @@ type gopodGameRun struct {
 	Said    string `json:"said"`
 	// Experience: its pre/post chat (gopod_experiences.go); name and run_name come from the card.
 	Experience *gopodExperience `json:"experience"`
+	// Lines (2026-10-29, engine step 2): its spoken lines before and after it has
+	// played (when "not_played" / "played", a Brobot's or both) - filled into
+	// scripted_snippets at load as <name>_not_played / <name>_played.
+	Lines []struct {
+		When   string   `json:"when"`
+		Brobot string   `json:"brobot"`
+		Lines  []string `json:"lines"`
+	} `json:"lines"`
 }
 
 // gopodApplyGameRuns fills the settings from the run cards.
@@ -46,7 +57,11 @@ func gopodApplyGameRuns(s *gopodBrobotsSettingsFile) {
 		return
 	}
 	var experiences []gopodExperience
+	var runLines []gopodSnippetLine
 	for _, r := range s.Game.Runs {
+		for _, l := range r.Lines {
+			runLines = append(runLines, gopodSnippetLine{When: r.Name + "_" + l.When, Brobot: l.Brobot, Lines: l.Lines})
+		}
 		if r.Session != "" {
 			if s.Session.RunNames == nil {
 				s.Session.RunNames = map[string]string{}
@@ -71,6 +86,10 @@ func gopodApplyGameRuns(s *gopodBrobotsSettingsFile) {
 		}
 	}
 	s.Experiences = experiences
+	// The runs' lines first, in the cards' order, then the other snippets.
+	if len(runLines) > 0 {
+		s.ScriptedSnippets.Lines = append(runLines, s.ScriptedSnippets.Lines...)
+	}
 }
 
 func gopodHasString(list []string, want string) bool {

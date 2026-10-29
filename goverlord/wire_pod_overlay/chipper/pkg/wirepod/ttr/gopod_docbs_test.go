@@ -15,6 +15,7 @@ func TestDocBS(t *testing.T) {
 	saved := gopodBrobotsSettings.DocBS
 	defer func() { gopodBrobotsSettings.DocBS = saved }()
 	gopodGameReset("test")
+	gopodDocBSOnFor.Range(func(k, _ any) bool { gopodDocBSOnFor.Delete(k); return true }) // a clean slate
 	gopodGivenSet(gopodBrobot1ESN, nil)
 	gopodGivenSet(gopodBrobot2ESN, nil)
 	gopodBrobotsSettings.DocBS.Share = 100

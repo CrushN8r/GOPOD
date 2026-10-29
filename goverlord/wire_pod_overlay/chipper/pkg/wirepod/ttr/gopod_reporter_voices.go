@@ -813,11 +813,20 @@ func gopodReporterOpening(warm bool) {
 	if rv.GateMaxSeconds > 0 {
 		timeout = time.After(gopodSecondsToDuration(rv.GateMaxSeconds))
 	}
-	select {
-	case <-gopodOpeningHeard:
-		logger.Println("GOPOD_REPORTER_VOICES opening heard on the page")
-	case <-timeout:
-		logger.Println("GOPOD_REPORTER_VOICES opening not heard: no page after gate_max_seconds")
+	// While it waits, a page that's away (or not clicked yet, after its own
+	// reload) gets the awaits line in the System llm bubble (gopodOpenerAwaits).
+	defer gopodOpenerAwaits(false)
+	for {
+		select {
+		case <-gopodOpeningHeard:
+			logger.Println("GOPOD_REPORTER_VOICES opening heard on the page")
+			return
+		case <-timeout:
+			logger.Println("GOPOD_REPORTER_VOICES opening not heard: no page after gate_max_seconds")
+			return
+		case <-time.After(time.Second):
+			gopodOpenerAwaits(!gopodPageHere() && gopodLLMWarmupActive)
+		}
 	}
 }
 

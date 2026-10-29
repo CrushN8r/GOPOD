@@ -1523,17 +1523,22 @@ func TestOnePageOwnsTheShow(t *testing.T) {
 	gopodMainPage.Lock()
 	gopodMainPage.id = ""
 	gopodMainPage.Unlock()
-	if GopodMainPageClaim("b", false) {
-		t.Error("a page that can't play claimed the show")
+	if GopodMainPageClaim("b", false, true) {
+		t.Error("a visitor's page claimed the show")
 	}
-	if !GopodMainPageClaim("a", true) || GopodMainPageClaim("b", true) {
+	// 2026-10-29: an admin page not clicked yet (after its own reload) owns an
+	// empty show; a page that can play takes it from one that can't.
+	if !GopodMainPageClaim("c", true, false) || !GopodMainPageClaim("a", true, true) || GopodIsMainPage("c") {
+		t.Error("an unclicked admin page owns an empty show, until a page that can play takes it")
+	}
+	if !GopodMainPageClaim("a", true, true) || GopodMainPageClaim("b", true, true) {
 		t.Error("the first page that can play is main, the second a viewer")
 	}
 	if GopodIsMainPage("b") || !GopodIsMainPage("a") || !GopodIsMainPage("") {
 		t.Error("only the main page's reports (or an older page's, no id) count")
 	}
 	time.Sleep(150 * time.Millisecond)
-	if !GopodMainPageClaim("b", true) || GopodIsMainPage("a") {
+	if !GopodMainPageClaim("b", true, true) || GopodIsMainPage("a") {
 		t.Error("the main page gone past the lease: the next page takes over")
 	}
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
@@ -1557,14 +1562,24 @@ func TestOnePageOwnsTheShow(t *testing.T) {
 // (live: every bubble after the granny photo waited until F5); every voice
 // loads the moment it reaches the page.
 func TestStrikeAndPlacingHold(t *testing.T) {
-	if got := gopodStrikeExpletives("Comedic bullshit. Bullshitting! Bullseye."); got != "Comedic b̶u̶l̶l̶s̶h̶i̶t̶. B̶u̶l̶l̶s̶h̶i̶t̶t̶i̶n̶g̶! Bullseye." {
+	// 2026-10-29: the public list is starred ("b*llsh*t"); a star stands for a
+	// vowel, so the word said (its vowels put back here) and the starred word
+	// both match.
+	said := func(w string) string { return strings.Replace(strings.Replace(w, "*", "u", 1), "*", "i", 1) }
+	if got := gopodStrikeExpletives("Comedic " + said("b*llsh*t") + ". " + said("B*llsh*tting") + "! Bullseye."); got != "Comedic b̶u̶l̶l̶s̶h̶i̶t̶. B̶u̶l̶l̶s̶h̶i̶t̶t̶i̶n̶g̶! Bullseye." {
 		t.Errorf("strike: %q", got)
 	}
-	if got := gopodStrikeExpletives(gopodStrikeExpletives("bullshit")); strings.Count(got, "̶") != 8 {
+	if got := gopodStrikeExpletives(gopodStrikeExpletives(said("b*llsh*t"))); strings.Count(got, "̶") != 8 {
 		t.Errorf("struck twice: %q", got)
 	}
-	if got := gopodApplyPronunciations("bullshitting"); got != "bull bitting" {
+	if got := gopodApplyPronunciations(said("b*llsh*tting")); got != "bull bitting" {
 		t.Errorf("said: %q", got)
+	}
+	if got := gopodApplyPronunciations("real-world b*llsh*t"); got != "real-world bull bits" {
+		t.Errorf("a starred word said: %q", got)
+	}
+	if got := gopodApplyPronunciations("shot shut pass deck batch"); got != "shot shut pass deck batch" {
+		t.Errorf("a starred entry took another word: %q", got)
 	}
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1839,7 +1854,7 @@ func TestOnlyGOPODsMachineIsMain(t *testing.T) {
 		return
 	}
 	h, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/sdkapp/gopod_typed_input.go"))
-	if !strings.Contains(string(h), "GopodMainPageClaim(r.FormValue(\"page\"), shown && admin)") {
+	if !strings.Contains(string(h), "GopodMainPageClaim(r.FormValue(\"page\"), admin, shown)") {
 		t.Error("a page off GOPOD's machine can claim the main page again")
 	}
 	page, _ := os.ReadFile(filepath.Join(root, "webroot/js/gopod_brobots_chat.js"))

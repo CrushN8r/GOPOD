@@ -22,10 +22,7 @@ package wirepod_ttr
 // gets it; a computable one keeps its exact steps.
 
 import (
-	"bytes"
-	"encoding/json"
 	"math/rand"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -116,62 +113,97 @@ func gopodDocBSOn(esn, question string) bool {
 			on = true
 		}
 	}
-	v, _ := gopodDocBSOnFor.LoadOrStore(key, on)
+	v, loaded := gopodDocBSOnFor.LoadOrStore(key, on)
+	if !loaded {
+		// One answer's decision: cleared when the answer is shaped (the docbs
+		// part), and in any case a little later - never kept for the next time
+		// the same words are asked.
+		time.AfterFunc(2*time.Minute, func() { gopodDocBSOnFor.Delete(key) })
+	}
 	return v.(bool)
 }
 
-// gopodDocBSSlots: the equation's name, acronym, three things and a nickname,
-// from gemma (one short call), else docbs.fallback.
-func gopodDocBSSlots(question string) []string {
-	parse := func(line string) []string {
+// gopodDocBSParseSlots: "Name | ACR | a | b | c | nickname" from gemma's reply
+// (its markdown and end marks out), nil when unreadable.
+func gopodDocBSParseSlots(reply string) []string {
+	for _, line := range strings.Split(reply, "\n") {
 		f := strings.Split(line, "|")
 		if len(f) < 6 {
-			return nil
+			continue
 		}
+		ok := true
 		for i := range f {
 			// gemma's markdown and end marks out ("**EUD**", "Seaworthiness.").
 			f[i] = strings.Trim(strings.TrimSpace(strings.NewReplacer("*", "", "`", "", "_", " ").Replace(f[i])), "\"' .;:,")
 			if f[i] == "" || len(f[i]) > 60 {
-				return nil
+				ok = false
 			}
 		}
-		return f[:6]
+		if ok {
+			return f[:6]
+		}
 	}
-	fallback := parse(gopodBrobotsSettings.DocBS.Fallback)
+	return nil
+}
+
+// gopodDocBSSlots: the equation's name, acronym, three things and a nickname -
+// gemma's, asked ahead when the question came (gopodDocBSAskAhead), else asked
+// now, else docbs.fallback.
+func gopodDocBSSlots(question string) []string {
+	fallback := gopodDocBSParseSlots(gopodBrobotsSettings.DocBS.Fallback)
 	tpl := strings.TrimSpace(gopodBrobotsSettings.DocBS.SlotPrompt)
 	if tpl == "" {
 		return fallback
 	}
-	base, model, ok := gopodWarmupOllama()
-	if !ok || model == "" {
-		return fallback
+	reply := gopodAskAheadGet("docbs-slots|"+question, 20*time.Second)
+	if reply == "" {
+		reply = gopodOllamaAsk(strings.ReplaceAll(tpl, "{question}", question), gopodBrobotsSettings.DocBS.NumPredict, 0.9)
 	}
-	body, _ := json.Marshal(map[string]any{
-		"model": model, "stream": false,
-		"messages": []map[string]string{{"role": "user", "content": strings.ReplaceAll(tpl, "{question}", question)}},
-		"options":  map[string]any{"num_predict": gopodBrobotsSettings.DocBS.NumPredict, "temperature": 0.9},
-	})
-	resp, err := (&http.Client{Timeout: 20 * time.Second}).Post(base+"/api/chat", "application/json", bytes.NewReader(body))
-	if err != nil {
-		return fallback
+	if s := gopodDocBSParseSlots(reply); s != nil {
+		logger.Println("BROBOT_DOCBS slots: " + strings.Join(s, " | "))
+		return s
 	}
-	defer resp.Body.Close()
-	var out struct {
-		Message struct {
-			Content string `json:"content"`
-		} `json:"message"`
+	if reply != "" {
+		logger.Println("BROBOT_DOCBS slots unreadable, fallback: " + gopodCut(reply, 120))
 	}
-	if json.NewDecoder(resp.Body).Decode(&out) != nil {
-		return fallback
-	}
-	for _, line := range strings.Split(out.Message.Content, "\n") {
-		if s := parse(line); s != nil {
-			logger.Println("BROBOT_DOCBS slots: " + strings.Join(s, " | "))
-			return s
-		}
-	}
-	logger.Println("BROBOT_DOCBS slots unreadable, fallback: " + strings.TrimSpace(out.Message.Content))
 	return fallback
+}
+
+// gopodDocBSAskAhead (2026-10-29, ask ahead): Brobot 1's answer going DocBS -
+// its equation ask and its colour ask start now, while the line is read out and
+// the bubbles before his play.
+func gopodDocBSAskAhead(esn, question string) {
+	if !gopodDocBSOn(esn, question) {
+		return
+	}
+	db := gopodBrobotsSettings.DocBS
+	if t := strings.TrimSpace(db.SlotPrompt); t != "" {
+		gopodAskAhead("docbs-slots|"+question, strings.ReplaceAll(t, "{question}", question), db.NumPredict)
+	}
+	if t := gopodDocBSColourPrompt(); t != "" {
+		gopodAskAhead("docbs-colour|"+question, strings.ReplaceAll(t, "{question}", question), db.NumPredict)
+	}
+}
+
+// gopodDocBSColourPrompt: the colour ask for the roast level (18+ levels: colour_prompt_18).
+func gopodDocBSColourPrompt() string {
+	db := gopodBrobotsSettings.DocBS
+	if n, ok := gopodRoastLevel(); ok && gopodBrobotsSettings.RoastDial.Levels[n].HumanSwears && strings.TrimSpace(db.ColourPrompt18) != "" {
+		return strings.TrimSpace(db.ColourPrompt18)
+	}
+	return strings.TrimSpace(db.ColourPrompt)
+}
+
+// gopodDocBSColour: gemma's one escalated-metaphor line for this question ("how
+// would you colour this part?"), asked ahead; "" when there's none.
+func gopodDocBSColour(question string) string {
+	line := gopodAskAheadGet("docbs-colour|"+question, 15*time.Second)
+	line = strings.TrimSpace(strings.Split(line, "\n")[0])
+	line = strings.Trim(strings.NewReplacer("*", "", "`", "").Replace(line), "\" ")
+	if len(line) > 220 || gopodAnimationMarkerPattern.MatchString(line) {
+		return ""
+	}
+	return line
 }
 
 var gopodDocBSTokenRE = regexp.MustCompile(`\{[a-z]+\}`)
@@ -205,6 +237,10 @@ func gopodDocBSFrame(question string) string {
 		if line := strings.TrimSpace(fill(gopodDocBSPick(pool))); line != "" {
 			beats = append(beats, line)
 		}
+	}
+	// gemma's colour for this one (asked ahead): the escalated metaphor, last before his reply.
+	if c := gopodDocBSColour(question); c != "" {
+		beats = append(beats, c)
 	}
 	return strings.Join(beats, gopodThoughtGap())
 }

@@ -1,0 +1,20 @@
+# fractions and decimals
+
+- **words:** fraction, fractions, decimal, decimals, convert, converting, half, a quarter, three quarters, a third, a ninth, repeating, recurring, simplify, show me the math, do the math
+- **pictures:** doc_pip_math/doc_pip_workbook.jpg
+- **sentences:** 6
+- **say 1:** Fraction to decimal: divide the top by the bottom. A half is 0.5, a quarter is 0.25, three quarters is 0.75.
+- **say 2:** Decimal to fraction: put the digits over 10, 100 or 1000, then simplify. 0.5 is 5 tenths, which is a half. 0.125 is 125 thousandths, which is an eighth.
+- **say 3:** Some decimals never stop. A third is 0.3 repeating, two thirds is 0.6 repeating, a ninth is 0.1 repeating.
+- **say 4:** One repeating digit goes back over 9. 0.3 repeating is 3 ninths, which is a third. 1.1 repeating is 1 and a ninth, which is 10 ninths.
+- **say 5:** Doc's Rule: no credit for close. 0.33 is close to a third. Close is an F.
+- **summary:** fractions and decimals | fraction to decimal: top divided by bottom | decimal to fraction: digits over 10, 100 or 1000, then simplify | Pip gets it wrong, Doc's key fixes it
+
+---
+
+Fractions and decimals - Doc's lesson, the Math Aftermath way: Pip gets it wrong, Doc's key fixes it. Reveal these, in order, in your own words:
+1. Fraction to decimal: divide the top by the bottom. A half is 0.5, a quarter is 0.25, three quarters is 0.75.
+2. Decimal to fraction: put the digits over 10, 100 or 1000, then simplify. 0.5 is 5 tenths, which is a half. 0.125 is 125 thousandths, which is an eighth.
+3. Some decimals never stop. A third is 0.3 repeating, two thirds is 0.6 repeating, a ninth is 0.1 repeating.
+4. One repeating digit goes back over 9. 0.3 repeating is 3 ninths, which is a third. 1.1 repeating is 1 and a ninth, which is 10 ninths.
+5. Doc's Rule: no credit for close. 0.33 is close to a third. Close is an F.

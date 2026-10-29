@@ -123,6 +123,10 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 		return host, gopodPersonaMark + host, nil
 	}
 	brobot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[entry.Body]
+	// 2026-10-29 (the single-bot setup): solo, Brobot 2's key goes to Brobot 1.
+	if brobot == "Brobot 2" && gopodSolo() {
+		brobot = "Brobot 1"
+	}
 	esn := gopodBrobotESN(brobot)
 	if esn == "" {
 		return "", "", errors.New(key + "'s body " + entry.Body + " is no Brobot")

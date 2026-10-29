@@ -63,17 +63,35 @@ func gopodOpenerAwaitPage() {
 	if gopodPageHere() {
 		return
 	}
-	saved := gopodLLMWarmupText
-	gopodLLMWarmupText = gopodBrobotsSettings.Session.AwaitsText
-	gopodLLMWarmupAwaits = true
-	gopodWriteLLMWarmupState(true)
+	gopodOpenerAwaits(true)
 	logger.Println("GOPOD_OPENER awaits the chat page")
 	started := time.Now()
 	for !gopodPageHere() {
 		time.Sleep(500 * time.Millisecond)
 	}
 	logger.Println("GOPOD_OPENER the chat page is back after " + time.Since(started).Round(time.Second).String())
-	gopodLLMWarmupText, gopodLLMWarmupAwaits = saved, false
+	gopodOpenerAwaits(false)
+}
+
+// gopodOpenerAwaits (2026-10-29, operator: "llm warmup is flaking out on me"):
+// the System llm bubble shows awaits_text (on) or its own message again (off).
+// One switch for every wait on the page - before a step (above), and while the
+// queued opening waits to be heard (gopodReporterOpening): after a restart the
+// page reloads itself and plays nothing until it's clicked, and with a warm
+// model the chat sat still with no word why.
+var gopodOpenerAwaitsSaved string
+
+func gopodOpenerAwaits(on bool) {
+	if on == gopodLLMWarmupAwaits {
+		return
+	}
+	if on {
+		gopodOpenerAwaitsSaved = gopodLLMWarmupText
+		gopodLLMWarmupText = gopodBrobotsSettings.Session.AwaitsText
+	} else {
+		gopodLLMWarmupText = gopodOpenerAwaitsSaved
+	}
+	gopodLLMWarmupAwaits = on
 	gopodWriteLLMWarmupState(true)
 }
 

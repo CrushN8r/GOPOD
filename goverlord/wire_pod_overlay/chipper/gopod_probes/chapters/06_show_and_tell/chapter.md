@@ -1,0 +1,3 @@
+# Show and tell
+
+- **summary:** How this chat works, the songs, and who joins the cast next.

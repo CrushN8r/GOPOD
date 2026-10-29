@@ -1,0 +1,10 @@
+# the mic check
+
+- **words:** can you hear me, are you there, are you here, who heard me, are you brobot, you brobot 1, you brobot 2
+- **sentences:** 0
+- **start line:** I'm hearing you loud and clear, bro!
+- **start line:** Hearin' you loud and clear, bro!
+
+---
+
+Brobot 0 is checking you're there, or which Brobot you are. Answer in one or two short sentences: yes, you hear Brobot 0, and you're Brobot (your own number) - then invite the first question.

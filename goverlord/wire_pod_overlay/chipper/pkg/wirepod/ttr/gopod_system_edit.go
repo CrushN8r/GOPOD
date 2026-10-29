@@ -540,20 +540,30 @@ func gopodSystemTopic(text string) string {
 	}
 	what := strings.ToLower(f[2])
 	rest := strings.TrimSpace(strings.Join(f[3:], " "))
+	// The topic-cluster format's own reader and writer (gopod_chapters_folder.go).
 	headSet := func(key, value string) {
 		for i := 0; i < sep; i++ {
-			if strings.HasPrefix(strings.ToLower(lines[i]), key+":") {
-				lines[i] = key + ": " + value
+			if k, _, ok := gopodTopicHeadKV(lines[i]); ok && k == key {
+				lines[i] = gopodTopicHeadLine(key, value)
 				return
 			}
 		}
-		lines = append(lines[:1], append([]string{key + ": " + value}, lines[1:]...)...)
+		at := 0
+		if key != "label" {
+			for at < sep && strings.TrimSpace(lines[at]) != "" && !strings.HasPrefix(strings.TrimSpace(lines[at]), "- ") {
+				at++
+			}
+			for at < sep && strings.TrimSpace(lines[at]) == "" {
+				at++
+			}
+		}
+		lines = append(lines[:at], append([]string{gopodTopicHeadLine(key, value)}, lines[at:]...)...)
 		sep++
 	}
 	headGet := func(key string) string {
 		for i := 0; i < sep; i++ {
-			if strings.HasPrefix(strings.ToLower(lines[i]), key+":") {
-				return strings.TrimSpace(lines[i][len(key)+1:])
+			if k, v, ok := gopodTopicHeadKV(lines[i]); ok && k == key {
+				return v
 			}
 		}
 		return ""
@@ -608,8 +618,8 @@ func gopodSystemTopic(text string) string {
 		// The say lines (top) and the numbered points (after ---) stay the same list.
 		var says []string
 		for i := 0; i < sep; i++ {
-			if m := gopodTopicSayRE.FindStringSubmatch(lines[i]); m != nil {
-				says = append(says, m[2])
+			if k, v, ok := gopodTopicHeadKV(lines[i]); ok && gopodTopicSayRE.MatchString(k+":") {
+				says = append(says, v)
 			}
 		}
 		g := strings.Fields(rest)
@@ -655,7 +665,7 @@ func gopodTopicPointsWrite(lines []string, sep int, says []string) []string {
 	var head, body []string
 	sayAt := -1
 	for i := 0; i < sep; i++ {
-		if gopodTopicSayRE.MatchString(lines[i]) {
+		if k, _, ok := gopodTopicHeadKV(lines[i]); ok && gopodTopicSayRE.MatchString(k+":") {
 			if sayAt < 0 {
 				sayAt = len(head)
 			}
@@ -668,7 +678,7 @@ func gopodTopicPointsWrite(lines []string, sep int, says []string) []string {
 	}
 	var sayLines []string
 	for i, s := range says {
-		sayLines = append(sayLines, fmt.Sprintf("say %d: %s", i+1, s))
+		sayLines = append(sayLines, gopodTopicHeadLine(fmt.Sprintf("say %d", i+1), s))
 	}
 	head = append(head[:sayAt], append(sayLines, head[sayAt:]...)...)
 	pointAt := -1
@@ -695,7 +705,14 @@ func gopodTopicPointsWrite(lines []string, sep int, says []string) []string {
 		points = append(points, fmt.Sprintf("%d. %s", i+1, s))
 	}
 	body = append(body[:pointAt], append(points, body[pointAt:]...)...)
-	return append(append(head, "---"), body...)
+	// A blank line on both sides of "---" (markdown reads a line right above it as a heading).
+	for len(head) > 0 && strings.TrimSpace(head[len(head)-1]) == "" {
+		head = head[:len(head)-1]
+	}
+	for len(body) > 0 && strings.TrimSpace(body[0]) == "" {
+		body = body[1:]
+	}
+	return append(append(head, "", "---", ""), body...)
 }
 
 // ## EOF

@@ -61,15 +61,69 @@ func TestLingoBrobots(t *testing.T) {
 
 // TestTopicPointsWrite: the say lines and the numbered points stay one list.
 func TestTopicPointsWrite(t *testing.T) {
-	src := "label: x\nwords: a, b\nsay 1: One.\nsay 2: Two.\n---\nIntro. Reveal these, in order:\n1. One.\n2. Two.\n"
+	// 2026-10-29: the topic-cluster md format (TOPIC_TEMPLATE.md).
+	src := "# x\n\n- **words:** a, b\n- **say 1:** One.\n- **say 2:** Two.\n\n---\n\nIntro. Reveal these, in order:\n1. One.\n2. Two.\n"
 	lines := strings.Split(src, "\n")
-	out := strings.Join(gopodTopicPointsWrite(lines, 4, []string{"One.", "Two!", "Three."}), "\n")
-	for _, want := range []string{"say 2: Two!", "say 3: Three.", "---", "Intro. Reveal these", "2. Two!", "3. Three.", "words: a, b"} {
+	out := strings.Join(gopodTopicPointsWrite(lines, 5, []string{"One.", "Two!", "Three."}), "\n")
+	for _, want := range []string{"- **say 2:** Two!", "- **say 3:** Three.", "\n\n---\n\n", "Intro. Reveal these", "2. Two!", "3. Three.", "- **words:** a, b", "# x"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("missing %q:\n%s", want, out)
 		}
 	}
-	if strings.Contains(out, "say 2: Two.") || strings.Count(out, "1. One.") != 1 {
+	if strings.Contains(out, "say 2:** Two.") || strings.Count(out, "1. One.") != 1 {
 		t.Fatalf("old points left:\n%s", out)
+	}
+}
+
+// TestTopicClusterFormat (2026-10-29, operator: "template out a topic-cluster
+// format for md files"): every topic and chapter file is a topic-cluster md file -
+// its settings lines all read by the one format reader, a blank line around
+// "---" - and the reader takes "# label", "- **key:** value" and a bare "key: value".
+func TestTopicClusterFormat(t *testing.T) {
+	for line, want := range map[string][2]string{"# BBQs": {"label", "BBQs"}, "- **say 2:** Two: yes": {"say 2", "Two: yes"}, "words: a, b": {"words", "a, b"}} {
+		if k, v, ok := gopodTopicHeadKV(line); !ok || k != want[0] || v != want[1] {
+			t.Errorf("%q read as %q %q", line, k, v)
+		}
+	}
+	if gopodTopicHeadLine("label", "BBQs") != "# BBQs" || gopodTopicHeadLine("say 1", "Hi") != "- **say 1:** Hi" {
+		t.Error("the format writer changed")
+	}
+	files, _ := filepath.Glob(filepath.Join(canonicalChaptersDir, "*", "*"))
+	// The template folder too (gopod_probes/_topic_cluster/).
+	tpl, _ := filepath.Glob(filepath.Join(filepath.Dir(canonicalChaptersDir), "_topic_cluster", "*.md"))
+	for _, f := range tpl {
+		if filepath.Base(f) != "README.md" {
+			files = append(files, f)
+		}
+	}
+	n := 0
+	for _, f := range files {
+		if strings.HasSuffix(f, ".txt") {
+			t.Errorf("%s: a topic is a .md file now", f)
+			continue
+		}
+		if !strings.HasSuffix(f, ".md") {
+			continue
+		}
+		n++
+		data, _ := os.ReadFile(f)
+		lines := strings.Split(string(data), "\n")
+		for i, l := range lines {
+			if strings.TrimSpace(l) == "---" {
+				if i == 0 || strings.TrimSpace(lines[i-1]) != "" || i+1 >= len(lines) || strings.TrimSpace(lines[i+1]) != "" {
+					t.Errorf("%s: no blank line around ---", f)
+				}
+				break
+			}
+			if strings.TrimSpace(l) == "" {
+				continue
+			}
+			if _, _, ok := gopodTopicHeadKV(l); !ok || !(strings.HasPrefix(l, "# ") || strings.HasPrefix(l, "- **")) {
+				t.Errorf("%s: %q isn't a topic-cluster line", f, l)
+			}
+		}
+	}
+	if n == 0 {
+		t.Skip("no chapters folder here")
 	}
 }

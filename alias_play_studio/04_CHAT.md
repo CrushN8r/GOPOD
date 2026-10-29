@@ -577,13 +577,17 @@ line:
   lists each bubble kind with its parts in order - one kind built more than one way shows up there
   (BUBBLE TEMPLATE CHECK).
 - **The skip gate** (`skip_gate`): every skip (Esc, numpad *, the menu, typed or
-  spoken "skip") is off until the gate opens, and off again once used. A skip while off does
+  spoken "skip") is off until the gate opens. A skip while off does
   nothing (logged: skip ignored). no words matched - Wire-Pod opens it as the opener's message
   step right after the voice files check (`wait_voices`) shows, whatever its words
   (`gopod_opener_song.go`, feed line `skip_on`, just ahead of that message; locked in
   `TestWarmupSequenceGolden`). The page replay presses Esc there (SKIP: "skipped (Esc)").
   After a reload the gate is worked out again, once per page load: `skip_on` already seen
   and the opening not over yet = open.
+  The gate stays open once opened - every skip works, not only the first. A skip shows every
+  waiting voiced line whole (not the Brobots' own), Goverlord's lines included, and ends once the
+  page's queue is empty. `stop run` is global: it stops a run, the tour and the comm check, clears
+  the line queue and skips the page.
 - **GOLDEN voice start**: every made voice plays the same way - its bubble shown,
   then its length and its word times (`.words.json`) loaded (up to `VOICE_READY_MAX_MS`, 3 s),
   then it plays and lights. A just-made voice no longer starts before its word times arrive
@@ -927,9 +931,13 @@ by `TestGotItPerBrobot`.
 
 **One page owns the show: main page, viewer pages** (`gopod_main_page.go`): Wire-Pod names one main page - it plays the sound and its shown, played
 and heard reports time the run. Every other open page is a viewer: the same bubbles, silent, its
-reports ignored (a viewer's tab hidden pauses nothing). The first page that can play (shown,
-clicked) is main and keeps it while it reports in; gone past `page_sync.main_lease_seconds`
-(12 s), the next page that can play takes over. The page's id lives with its tab, so F5 keeps
+reports ignored (a viewer's tab hidden pauses nothing). The first admin page is main, even before its click (after a restart the page reloads itself and
+plays nothing until clicked), and keeps it while it reports in; a page that can play (shown,
+clicked) takes it from a main page that can't; gone past `page_sync.main_lease_seconds`
+(12 s), the next admin page takes over. One admin page at a time: a second one only watches, its
+text field says so (`page_sync.second_admin_text`), Wire-Pod logs it (GOPOD_PAGE second admin
+page) and `system-status` counts them. Visitor pages can be many. While the opening waits for
+the page, the System llm bubble shows `session.awaits_text` with its hourglass. The page's id lives with its tab, so F5 keeps
 its role. `?view` in the address = a viewer by choice. Nothing plays until a page knows its
 role. Locked by `TestOnePageOwnsTheShow`. Every other page is a display mirror: the main page sends what it shows - its newest
 `page_sync.display_bubbles` bubbles as drawn, highlights and all, each with its own key - through

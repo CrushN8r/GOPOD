@@ -39,7 +39,10 @@ type gopodPronunciationEntry struct {
 	Except    []string `json:"except"`
 	// Strike (2026-10-23, operator: "for listed expletives, can you use
 	// strikethrough characters?"): shown struck through in the chat; said as To.
-	Strike  bool `json:"strike"`
+	Strike bool `json:"strike"`
+	// Vowels (2026-10-29): a starred entry's vowels, in order ("f*ck", "u") -
+	// each star is its own vowel, or a "*" itself (gopodStarredPattern).
+	Vowels  string `json:"vowels"`
 	pattern *regexp.Regexp
 }
 
@@ -72,11 +75,32 @@ func loadGOPODPronunciations() []gopodPronunciationEntry {
 		if e.MatchCase {
 			flags = ""
 		}
-		e.pattern = regexp.MustCompile(flags + regexp.QuoteMeta(e.From))
+		e.pattern = regexp.MustCompile(flags + gopodStarredPattern(e.From, e.Vowels))
 		entries = append(entries, e)
 	}
 	sort.SliceStable(entries, func(i, j int) bool { return len(entries[i].From) > len(entries[j].From) })
 	return entries
+}
+
+// gopodStarredPattern (2026-10-29, operator: "Public GOPOD: star '*' out
+// expletives ... all there, but in a section with the magazines on a higher
+// shelf"): a word quoted for a regexp, each "*" its own vowel from vowels, in
+// order (or a "*" itself) - so a public, starred entry ("sh*t", "i") matches the
+// word said and the word written starred, never another word ("shot").
+func gopodStarredPattern(word, vowels string) string {
+	q := regexp.QuoteMeta(word)
+	v := []rune(vowels)
+	var b strings.Builder
+	for i := 0; i < len(q); i++ {
+		if q[i] == '\\' && i+1 < len(q) && q[i+1] == '*' && len(v) > 0 {
+			b.WriteString("[" + strings.ToLower(string(v[0])) + strings.ToUpper(string(v[0])) + `\*]`)
+			v = v[1:]
+			i++
+			continue
+		}
+		b.WriteByte(q[i])
+	}
+	return b.String()
 }
 
 var loadedGOPODPronunciations = loadGOPODPronunciations()

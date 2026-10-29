@@ -230,8 +230,10 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		}
 	case "docbs":
 		// 2026-10-29: Doc's brain wiring - the equation roast before his reply (gopod_docbs.go).
-		if gopodDocBSOn(esn, question) {
-			gopodDocBSOnFor.Delete(esn + "\x00" + question)
+		// The docbs part is the answer's last stitch: its decision is cleared here, on or off.
+		on := gopodDocBSOn(esn, question)
+		gopodDocBSOnFor.Delete(esn + "\x00" + question)
+		if on {
 			if frame := gopodDocBSFrame(question); frame != "" {
 				logger.Println("BROBOT_DOCBS frame " + gopodBrobotName(esn))
 				return gopodStitchSnippet(frame, raw)

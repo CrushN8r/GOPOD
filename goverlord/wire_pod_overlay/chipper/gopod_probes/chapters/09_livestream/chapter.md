@@ -1,0 +1,3 @@
+# Livestream: AI Wordplay! Explain the MAth!
+
+- **summary:** The livestream show, the contest and its wheel of nine themes, and the channel.

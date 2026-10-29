@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -153,6 +154,9 @@ func gopodSystemStatus() string {
 	} else {
 		lines = append(lines, "  chat page: away")
 	}
+	if n := GopodAdminPagesOpen(); n > 1 {
+		lines = append(lines, "  admin pages: "+strconv.Itoa(n)+" open - keep one (visitor pages can be many)")
+	}
 	if r, ok := gopodRunNow(); ok {
 		lines = append(lines, "  run: "+r.Name+" going")
 	} else {
@@ -192,7 +196,7 @@ func gopodSystemHelp() string {
 		"  system-add / system-remove <path> <item>   an item in a list, or key = value in a group",
 		"  system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)",
 		"  system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures",
-		"  system-skip  (or Esc)             skip the reporters' warm-up lines (once, after Voices ready)",
+		"  system-skip  (or Esc)             skip the voiced lines playing (from Voices ready on)",
 		"  system-restart                    a forced restart, like wpr 2 (speaker + mic set); the page reloads itself",
 		"  system-audit                      the full audit, no robots called: files, Go tests, web page, phone app, every test, the log",
 		"  system-score <song>               a song's score: every step and its words",
@@ -200,7 +204,7 @@ func gopodSystemHelp() string {
 		"  system-gap <seconds>|off|default  reporter gap for system-play",
 		"  system-tweaks on|off              apply phcal tweaks before a live system-play",
 		"  system-calibrate <move> <1|2> [values] [dry]   one move alone (phcal)",
-		"  system-set <song> tempo <seconds> the song's tempo (tempo-set); a step's tempo_factor too",
+		"  system-set <song> tempo <seconds>   the song's tempo (tempo-set); a step's tempo_factor too",
 		"  system-brobot <stats|volume|eyes|locale|units|location|timezone|say|wake|head|lift|wheels|camera> [1|2|both]",
 		"  system-faces [list|rename|delete|add] [1|2]   the faces a Brobot knows",
 		"  system-value-points [lock|<topic>]   the golden value points: locked? changed? a topic's; lock on purpose",
@@ -232,6 +236,9 @@ func gopodSystemHelp() string {
 		"  system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again",
 		"  system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)",
 		"  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
+		"  system-record on|off              Record Session on or off (the page's Record? box)",
+		"  system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one",
+		"  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
 		"  system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now",
 		"  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
 		"  system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",

@@ -51,14 +51,7 @@ type gopodBrobotsSettingsFile struct {
 		KeepWhole    []string `json:"keep_whole"`
 	} `json:"merged_words"`
 	ScriptedSnippets struct {
-		Lines []struct {
-			When   string   `json:"when"`
-			Words  []string `json:"words"`
-			Brobot string   `json:"brobot"`
-			At     string   `json:"at"`
-			Lines  []string `json:"lines"`
-			Chance float64  `json:"chance"`
-		} `json:"lines"`
+		Lines []gopodSnippetLine `json:"lines"`
 	} `json:"scripted_snippets"`
 	AnimationLeadIn      string   `json:"animation_lead_in"`
 	StageDirectionEmojis []string `json:"stage_direction_emojis"`
@@ -255,7 +248,7 @@ type gopodBrobotsSettingsFile struct {
 		AdminRun struct {
 			File string `json:"file"`
 		} `json:"admin_run"`
-		Tpu   struct {
+		Tpu struct {
 			Picture string `json:"picture"`
 			Expect  string `json:"expect"`
 		} `json:"tpu"`
@@ -551,6 +544,27 @@ type gopodBrobotsSettingsFile struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	// 2026-10-29: the system window tour (gopod_system_tour.go).
+	SystemTour struct {
+		Run          []string `json:"run"`
+		QuietSeconds float64  `json:"quiet_seconds"`
+		StartText    string   `json:"start_text"`
+		EndText      string   `json:"end_text"`
+	} `json:"system_tour"`
+	// 2026-10-29: the single-bot setup (gopod_brobots_setup.go).
+	BrobotsSetup struct {
+		Brobot1  string `json:"brobot_1"`
+		Brobot2  string `json:"brobot_2"`
+		SoloNote string `json:"solo_note"`
+	} `json:"brobots_setup"`
+	// 2026-10-29: the Torah's words (gopod_torah.go, gopod_system_tour.go).
+	Torah struct {
+		Opening     string `json:"opening"`
+		Scripture   string `json:"scripture"`
+		Commandment string `json:"commandment"`
+		NextFrom    string `json:"next_from"`
+		NextTo      string `json:"next_to"`
+	} `json:"torah"`
 	// 2026-10-29: the line queue - one question at a time (gopod_line_queue.go).
 	LineQueue struct {
 		On               bool    `json:"on"`
@@ -565,6 +579,9 @@ type gopodBrobotsSettingsFile struct {
 		SlotPrompt string `json:"slot_prompt"`
 		Fallback   string `json:"fallback"`
 		NumPredict int    `json:"num_predict"`
+		// 2026-10-29 (ask ahead): the colour ask - one escalated-metaphor line.
+		ColourPrompt   string `json:"colour_prompt"`
+		ColourPrompt18 string `json:"colour_prompt_18"`
 	} `json:"docbs"`
 	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
 	CommCheck struct {
@@ -652,6 +669,7 @@ type gopodBrobotsSettingsFile struct {
 		HeldLogSeconds   float64 `json:"held_log_seconds"`
 		MainLeaseSeconds float64 `json:"main_lease_seconds"`
 		FeedMax          int     `json:"feed_max"`
+		SecondAdminText  string  `json:"second_admin_text"`
 	} `json:"page_sync"`
 	ChatAudio struct {
 		Volume       float64 `json:"volume"`
@@ -1052,6 +1070,17 @@ type gopodExperience struct {
 	// run, his closing is either the word-for-word closing or a riff on this
 	// (closing_riff_text), picked at random (gopodExperienceClosingTurn).
 	ClosingRiff map[string]string `json:"closing_riff"`
+}
+
+// gopodSnippetLine: one scripted_snippets entry (a run card's lines fill some at
+// load - gopod_game_engine.go).
+type gopodSnippetLine struct {
+	When   string   `json:"when"`
+	Words  []string `json:"words"`
+	Brobot string   `json:"brobot"`
+	At     string   `json:"at"`
+	Lines  []string `json:"lines"`
+	Chance float64  `json:"chance"`
 }
 
 // ## EOF

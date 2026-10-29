@@ -1,0 +1,3 @@
+# Accessmath: GOPOD for everyone
+
+- **summary:** The GOPOD app and the access built into it, a healthy distraction, and where GOPOD teaches.

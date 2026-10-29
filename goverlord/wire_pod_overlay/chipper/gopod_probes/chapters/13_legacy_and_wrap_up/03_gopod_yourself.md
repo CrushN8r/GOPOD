@@ -1,0 +1,9 @@
+# how to GOPOD Yourself
+
+- **words:** interview over, what have we learned, what have we learnt, what did we learn, sum it up, recap
+- **reminder:** Hey, that reminds me... When you're ready, just GOPOD Yourself!
+- **start line:** Press to click my backpack, then say to me GOPOD Yourself. Your move.
+
+---
+
+Brobot 0 is closing the interview. Your closing line is already said for you; add one short, warm goodbye, nothing more.

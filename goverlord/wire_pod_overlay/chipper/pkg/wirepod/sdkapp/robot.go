@@ -169,9 +169,16 @@ func connTimer(ind int) {
 				return
 			}
 		}
+		// 2026-10-29 (live 11:44:42, the same crash again): both robots timed
+		// out 3 s apart, and the other's removeRobot shrank the list between
+		// the lookup above and here - so this one goes by its own ESN, and
+		// checks its place is still in the list.
+		if ind >= len(robots) {
+			continue
+		}
 		if robots[ind].ConnTimer >= 300 {
-			logger.Println("Closing SDK connection for " + robots[ind].ESN + ", source: connTimer")
-			removeRobot(robots[ind].ESN, "connTimer")
+			logger.Println("Closing SDK connection for " + esn + ", source: connTimer")
+			removeRobot(esn, "connTimer")
 			return
 		}
 		robots[ind].ConnTimer = robots[ind].ConnTimer + 1

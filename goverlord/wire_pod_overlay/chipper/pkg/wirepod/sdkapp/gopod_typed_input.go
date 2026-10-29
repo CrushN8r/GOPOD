@@ -218,12 +218,16 @@ func gopodPageShownHandler(w http.ResponseWriter, r *http.Request) {
 	if !admin {
 		wirepod_ttr.GopodVisitorSeen(r.RemoteAddr, r.FormValue("visitor"), r.UserAgent())
 	}
-	main := wirepod_ttr.GopodMainPageClaim(r.FormValue("page"), shown && admin)
+	main := wirepod_ttr.GopodMainPageClaim(r.FormValue("page"), admin, shown)
 	if main {
 		wirepod_ttr.GopodPageShown(shown)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	reply := map[string]any{"main": main, "admin": admin}
+	// One admin page at a time: a second one is told so (it stays a viewer).
+	if admin && !main {
+		reply["second_admin"] = wirepod_ttr.GopodSecondAdminText()
+	}
 	// A visitor's page hears where it stands (waiting, approved, muted...).
 	if !admin {
 		reply["visitor"] = wirepod_ttr.GopodVisitorStatus(r.RemoteAddr, r.FormValue("visitor"), r.UserAgent())
@@ -245,6 +249,10 @@ func gopodPageNoteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if note != "" {
 		logger.Println("GOPOD_PAGE " + note)
+		// 2026-10-29: a skip on the page - Wire-Pod stops voicing the stretch too.
+		if strings.HasPrefix(note, "skipped (") {
+			wirepod_ttr.GopodSkipped()
+		}
 		// 2026-10-17: a live reply's bubble accounted for (wirepod_ttr.GopodLiveReplyNoted).
 		if rest, ok := strings.CutPrefix(note, "live reply "); ok {
 			if id, err := strconv.Atoi(strings.Fields(rest + " ")[0]); err == nil {

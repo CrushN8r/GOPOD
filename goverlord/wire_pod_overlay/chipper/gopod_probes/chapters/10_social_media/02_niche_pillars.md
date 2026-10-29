@@ -1,0 +1,11 @@
+# niche pillars
+
+- **words:** niche pillars, niche pillar, content pillars, pinterest, niche content
+- **notes 1:** content for Pinterest | recipes, fashion, anything | unique among AI slop | foodmath
+- **ask:** Tell me about the niche pillars
+- **source:** SOCIAL_MEDIA.md
+- **summary:** content for Pinterest: recipes, fashion, anything, unique among AI slop, foodmath
+
+---
+
+Niche pillars: content for Pinterest - recipes, fashion, anything - unique among AI slop. Foodmath is one.
