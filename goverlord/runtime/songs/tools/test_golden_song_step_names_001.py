@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
 
 class SongWarmupSequenceTests(unittest.TestCase):
-    """GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND FUCKING LOCK
+    """GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND F*CK*NG LOCK
     THE PROCESS IN"): a song's warm-up, in the chat feed's order - "LLM Warming
     Up. Please wait." (shown and said), "Please wait." while its lines play,
     then the ready line."""
@@ -207,7 +207,7 @@ class NoneRequiredWarmupTests(unittest.TestCase):
                     mock.patch.object(golden, "_llm_loaded", side_effect=AssertionError("no model call")):
                 golden.song_llm_warmup(mod, "Nap Ready", [{"who": "Brobot 3", "text": ""}], False, False)
         llm = golden.load_brobots_settings()["llm"]
-        # 2026-10-25 (operator: "No llm required, so skip the bullshit"): no
+        # 2026-10-25 (operator: "No llm required, so skip the b*llsh*t"): no
         # warm-up bubble, no wait - one Goverlord line, then the song.
         self.assertFalse([f for f in calls if "warmup_text" in f or "warmup_ready" in f], calls)
         self.assertEqual([f.get("text") for f in calls], [llm["no_llm_text"] + "\nNap Ready"])

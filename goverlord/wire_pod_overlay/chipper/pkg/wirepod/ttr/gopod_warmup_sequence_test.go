@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND FUCKING LOCK
+// GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND F*CK*NG LOCK
 // THE PROCESS IN"): the System llm bubble's sequential run check, in the chat
 // feed's own order, so a page opened late still shows every step in turn.
 func TestWarmupSequenceGolden(t *testing.T) {

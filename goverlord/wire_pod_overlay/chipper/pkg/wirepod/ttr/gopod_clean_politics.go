@@ -9,7 +9,7 @@ import (
 
 // Clean GOPOD (2026-10-16, operator, on Brobot 2's 🇵🇸 flag in a "Jerusalem,
 // Israel" weather reply: "Please account for obvious politically motivated
-// bullshit in clean GOPOD * politically motivated bullshit only allowed in roast
+// b*llsh*t in clean GOPOD * politically motivated b*llsh*t only allowed in roast
 // battle"; "RULE: use correct & proper country flag emojis"). Outside a roast
 // battle (clean_politics.allowed_topics), a Brobot's reply keeps a country flag
 // only when its country is named in the question or the reply; a wrong flag

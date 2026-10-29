@@ -1,0 +1,2 @@
+Plugging in: {a} = {va}. {b} = {vb}. {c} = {vc}.
+Your variables: {a}, {va}. {b}, {vb}. {c}, {vc}.

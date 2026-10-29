@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_dry_run_001.py
 """GOPOD's own test run (2026-10-24, operator: "Do I have a full complete dry run
-file? * make me a new one to test on my behalf * Make me a fucking agent to whoop
+file? * make me a new one to test on my behalf * Make me a f*ck*ng agent to whoop
 your sorry AI ass").
 
 Types a full session into GOPOD the way the operator does (the chat's own typed
@@ -34,7 +34,7 @@ ESN = {"1": "0dd1b9e9", "2": "0dd1d8bf", "all": "all"}
 
 # The session: (to, line, what it checks, words the answer must have).
 # 2026-10-24 (operator: "Ask questions to finish the game, not tell a joke * ask
-# harder math questions, use fraction, decimal, repeating to test the fucker"):
+# harder math questions, use fraction, decimal, repeating to test the f*ck*r"):
 # the game's own value-point questions come in after the openers (game_steps).
 STEPS = []  # the game's value points come first (game_steps)
 # Each Easter egg's own question (value_points.reminder_eggs), after the points.

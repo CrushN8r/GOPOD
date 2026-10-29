@@ -180,6 +180,23 @@ list. Each "Hey, that reminds me..." names at least one egg still to find; a que
 still ends with two (not a thank-you); each in turn, then round again. `gopod_egg_list.go`,
 `TestEggList`.
 
+**DocBS - Doc's brain wiring.** Brobot 1's answer, when Doc's share of his stereo dial says so
+(`docbs.share`: -1 = the Doc & Pip dial, 60 = 60% of his answers; 100 = every one), is the equation
+roast around his reply: the `docbs` part puts the frame in front - an opener, a lead-in with a
+nickname, the equation (A × B) ÷ (C), the plug-in with meme numbers, the ERROR, the hidden multiplier
+("currently sitting at 69,420"), the corrected formula - each its own thought bubble; his reply (the
+value point, his colour) is the kill shot; `docbs_close` ends it: "The math has spoken. And it's
+...". The frame comes from `gopod_probes/docbs/` - one pool file per beat, shuffled, never repeated
+until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only one short line (the
+equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
+the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
+steps. `TestDocBS`.
+
+**Public GOPOD, the top shelf**: everything 18+ is in the public repo, expletives starred
+(f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and
+gitignored (`zgopod_human_swears.json`, `gopod_probes/docbs/z*.txt`, the zKnobs.json pattern) and used
+when there. Quotes in comments and setting descriptions are starred too.
+
 **The 1-9 menu and the guards' nicknames.** The typed line's All menu runs 1 to 9: 1 and 2 stay All,
 starting with that Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9), as holding
 the key does - for the admin and the app's visitors alike (`gopodTypedToKey`). A system- command

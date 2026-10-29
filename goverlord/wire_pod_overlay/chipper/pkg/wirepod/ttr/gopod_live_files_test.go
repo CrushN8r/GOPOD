@@ -20,6 +20,9 @@ func TestMain(m *testing.M) {
 	gopodRecordStatePath = filepath.Join(dir, "gopod_record_session.json")
 	gopodLLMWarmupStatePath = filepath.Join(dir, "gopod_llm_warmup.json")
 	gopodSpeakingNowPath = filepath.Join(dir, "gopod_speaking_now.json")
+	// 2026-10-29: DocBS is off in the tests (its own test turns it on), so other
+	// tests' answers stay the same each run.
+	gopodBrobotsSettings.DocBS.Share = 0
 	code := m.Run()
 	os.RemoveAll(dir)
 	os.Exit(code)

@@ -1391,7 +1391,7 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
     done if that's longer. Same page file Wire-Pod's own start warm-up uses."""
     llm = load_brobots_settings()["llm"]
     # 2026-10-25 (operator: "the first sign of Goverlord intelligence is, ah! No
-    # llm required, so skip the bullshit * Look at the run make it make sense with
+    # llm required, so skip the b*llsh*t * Look at the run make it make sense with
     # some sense of human flow"): a song that needs no language model (the nap)
     # has no warm-up - no warm-up bubble, no wait, no "Your move." Goverlord says
     # "No Language Model Required" and the song's own ready line, then it goes on.
@@ -1460,7 +1460,7 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
         return (text + "\n" + wait).strip()
 
     def show(text, say=""):
-        # GOLDEN, locked (2026-10-13, operator: "PLEASE FIX GOLDEN AND FUCKING
+        # GOLDEN, locked (2026-10-13, operator: "PLEASE FIX GOLDEN AND F*CK*NG
         # LOCK THE PROCESS IN"): the bubble's message as a chat-feed line, so the
         # page shows it in turn (gopod_llm_warmup.go GopodSongWarmupText), and
         # said by Goverlord when say is given.
@@ -2577,7 +2577,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             # 2026-10-09 (operator: "system message 'run complete'"): a Goverlord
             # bubble, said in the system voice; the bubble shows with the voice
             # (gopod_say_heard.go). "wait_spoken": true (operator: "Do not go
-            # forward if an expected sleep is not fucking spoken!!") - the song
+            # forward if an expected sleep is not f*ck*ng spoken!!") - the song
             # waits until the page has played it, up to spoken_wait_seconds, and
             # stops the run if it wasn't heard.
             wait_spoken = bool(step.get("wait_spoken"))

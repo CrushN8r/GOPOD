@@ -53,7 +53,7 @@ func GopodLLMWarmupStart() {
 	// GOLDEN, locked (2026-10-13, operator: "Always Use System llm bubble 2
 	// with animation + system messages ... \"System llm bubble\" displays first
 	// and always stays at the bottom of what ever happens until LLM Ready";
-	// "Sequential Run Check"; "PLEASE FIX GOLDEN AND FUCKING LOCK THE PROCESS
+	// "Sequential Run Check"; "PLEASE FIX GOLDEN AND F*CK*NG LOCK THE PROCESS
 	// IN"): the one System llm bubble from the start, then its messages in the
 	// chat's own order (gopodWarmupStartSequence). Locked by
 	// TestWarmupSequenceGolden.

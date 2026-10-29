@@ -228,6 +228,21 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			logger.Println("BROBOT_COLOUR_SLOT value_point: " + line)
 			return gopodStitchSnippet(line, raw)
 		}
+	case "docbs":
+		// 2026-10-29: Doc's brain wiring - the equation roast before his reply (gopod_docbs.go).
+		if gopodDocBSOn(esn, question) {
+			gopodDocBSOnFor.Delete(esn + "\x00" + question)
+			if frame := gopodDocBSFrame(question); frame != "" {
+				logger.Println("BROBOT_DOCBS frame " + gopodBrobotName(esn))
+				return gopodStitchSnippet(frame, raw)
+			}
+		}
+	case "docbs_close":
+		if gopodDocBSOn(esn, question) {
+			if line := gopodDocBSClose(); line != "" {
+				return gopodStitchEndSnippet(line, raw)
+			}
+		}
 	case "golden_line":
 		// 2026-10-23: a golden question's exact answer, word for word, first.
 		if line := gopodGoldenAnswer(esn, question); line != "" {

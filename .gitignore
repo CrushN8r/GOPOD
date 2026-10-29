@@ -133,7 +133,7 @@ goverlord/runtime.zip
 # file itself (BINGO_DISPLAY_PROBE_PUBLISH_SURVEY_001.md).
 goverlord/runtime/songs/01b_brobots_bingo_game/bingo_reactor/bingo_display_probe_001_private.json
 
-# Working notes for the AI assistant (operator 2026-10-09: "fuck my git repo
+# Working notes for the AI assistant (operator 2026-10-09: "f*ck my git repo
 # entirely ... shed/moult off the old GOPOD shell"): kept on disk, not public.
 .claude/
 CLAUDE.md
@@ -150,3 +150,7 @@ ALIAS-PLAY-STUDIO.local.md
 # human swear list (operator 2026-10-28) - the zKnobs.json pattern: the public
 # settings keep a vowels-starred copy; this one is preferred when it exists.
 goverlord/wire_pod_overlay/chipper/zgopod_human_swears.json
+
+# goverlord/wire_pod_overlay/chipper/gopod_probes/docbs/z*.txt: the private, uncensored
+# DocBS 18+ pools (operator 2026-10-29) - the public files keep expletives starred.
+goverlord/wire_pod_overlay/chipper/gopod_probes/docbs/z*.txt

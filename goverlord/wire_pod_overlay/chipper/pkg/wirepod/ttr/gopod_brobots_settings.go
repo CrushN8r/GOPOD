@@ -551,6 +551,14 @@ type gopodBrobotsSettingsFile struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
+	// 2026-10-29: DocBS, Doc's brain wiring (gopod_docbs.go).
+	DocBS struct {
+		Folder     string `json:"folder"`
+		Share      int    `json:"share"`
+		SlotPrompt string `json:"slot_prompt"`
+		Fallback   string `json:"fallback"`
+		NumPredict int    `json:"num_predict"`
+	} `json:"docbs"`
 	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
 	CommCheck struct {
 		Keys   []string `json:"keys"`

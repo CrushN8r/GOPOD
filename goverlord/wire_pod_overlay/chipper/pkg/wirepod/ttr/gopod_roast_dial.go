@@ -3,7 +3,7 @@ package wirepod_ttr
 
 // The roast dial and the spice (2026-10-28, operator: "I want like a
 // personality toggle from not punching down, to after burner level roasts using
-// every fucking possible personal pressure point * A roast is a fucking roast or
+// every f*ck*ng possible personal pressure point * A roast is a f*ck*ng roast or
 // its not a roast"; "The controlled legal establishment who pays decides the
 // rules of the room. So put it in GOPOD"; "There's public 18+, vs paid work in
 // public 18+"; "Sensitive topics switch to neutral (default fallback with my new

@@ -545,7 +545,7 @@ func gopodReporterSay(host, text string, show, wait bool) bool {
 
 // gopodSayForShownLine (2026-10-23, operator: "RULE: Every voiced line gets
 // generating+hourglass/voice per-word highlighting * when any voiced line is
-// created, the fucking template applies!!"): a voice whose words are already on
+// created, the f*ck*ng template applies!!"): a voice whose words are already on
 // the page (a warm-up/opener line, an egg, the Operator's own line) - its line
 // is named with its voice file, so the page ties them: "forwait:<page>|text"
 // (Generating... and the hourglass while it's made) or "forlit:<page>|text"

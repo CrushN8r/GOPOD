@@ -1061,7 +1061,7 @@ func TestPopupsOnlyLive(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (operator: "either the machine (game-mechanism) fucking works or it
+// 2026-10-23 (operator: "either the machine (game-mechanism) f*ck*ng works or it
 // doesn't, regardless of the editable data"): a point with notes always comes out
 // as its bubbles - a title line, then one line per note - whatever the model said.
 func TestPointBubblesShapeAlwaysHolds(t *testing.T) {
@@ -1470,7 +1470,7 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 	if !strings.Contains(string(src), "page, seconds, ok = gopodSayForShownLine(host, text)") {
 		t.Error("a voice-only line skips the voice template (gopodSayForShownLine)")
 	}
-	// RULE (operator 2026-10-23: "when any voiced line is created, the fucking
+	// RULE (operator 2026-10-23: "when any voiced line is created, the f*ck*ng
 	// template applies!!"): a voice reaches the page only from the template.
 	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
 	for _, file := range files {

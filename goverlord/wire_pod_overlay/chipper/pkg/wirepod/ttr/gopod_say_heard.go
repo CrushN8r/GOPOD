@@ -11,9 +11,9 @@ import (
 )
 
 // GOLDEN rule: a bubble is not its spoken words (operator 2026-10-09: "please
-// understand/make a fucking rule: a bubble is not the same as the fucking
+// understand/make a f*ck*ng rule: a bubble is not the same as the f*ck*ng
 // expected contents of the bubble!!"; "Do not go forward if an expected sleep is
-// not fucking spoken!!"). A song's system line ("Sleep.") is made into its
+// not f*ck*ng spoken!!"). A song's system line ("Sleep.") is made into its
 // voice file first; then its bubble, its voice and a heard marker go into the
 // page's queue together, so the bubble shows with the voice. The page tells
 // Wire-Pod when it reaches the marker - the voice has played - and only then

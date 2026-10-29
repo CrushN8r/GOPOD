@@ -13,7 +13,7 @@ import (
 // The point bubbles (2026-10-23, operator: "thought bubbles are not reiterating
 // their respective value points * brobots to reiterate their value points brobot
 // party style * I need a templated answer-chain mechanism * either the machine
-// (game-mechanism) fucking works or it doesn't, regardless of the editable
+// (game-mechanism) f*ck*ng works or it doesn't, regardless of the editable
 // data"): the answer chain's point_bubbles part. A value point with notes ("title |
 // note | note") becomes his thought bubbles, in order - a hype line for its title,
 // then one party line per note. The model writes them (point_bubbles.prompt asks

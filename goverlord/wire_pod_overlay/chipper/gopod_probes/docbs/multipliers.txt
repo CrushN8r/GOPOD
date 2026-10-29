@@ -1,0 +1,5 @@
+Delusion Coefficient|DC
+Hypocrisy Multiplier|HM
+False Idol Multiplier|FIM
+Copium Constant|CC
+Ego Overclock Factor|EOF

@@ -1,0 +1,2 @@
+So {acr} = ({va} × {vb}) ÷ {vc}. {error}
+Run it: ({va} × {vb}) ÷ {vc} = {error}

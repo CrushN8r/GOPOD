@@ -1,0 +1,2 @@
+Corrected formula: Real {name} = {acr} × (1/{ma}) = {result}.
+So the real number is {acr} × (1/{ma}), which comes out at {result}.

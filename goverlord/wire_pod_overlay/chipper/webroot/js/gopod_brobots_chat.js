@@ -3727,7 +3727,7 @@
       }
       // GOLDEN voice template, for a line shown some other way (2026-10-23,
       // operator: "RULE: Every voiced line gets generating+hourglass/voice
-      // per-word highlighting * when any voiced line is created, the fucking
+      // per-word highlighting * when any voiced line is created, the f*ck*ng
       // template applies!!"): Wire-Pod names the voice and its words
       // ("forwait:" being made, "forlit:" made); the newest shown line with those
       // words - a warm-up or opener line, the Operator's own line - becomes the

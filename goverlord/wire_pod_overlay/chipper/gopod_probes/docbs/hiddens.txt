@@ -1,0 +1,2 @@
+But wait - there's a hidden variable you forgot: the {multiplier} ({ma}). Yours is currently sitting at {number}.
+And then there's the secret {multiplier} ({ma}). Yours? {number}.
