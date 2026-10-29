@@ -34,14 +34,24 @@ func gopodSystemLocate(text string) string {
 			"  system-locate <song> <step> [field]  a step (knobs.json, zKnobs.json, story.md)\n" +
 			"  system-locate <word>                 settings holding the word (volume, sting, awaits...)"
 	}
-	settings := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
 	if k, ok := gopodSystemSetKnobs[strings.ToLower(args[0])]; ok {
-		return args[0] + ": " + gopodLocateJSON(settings, k.path) + "  (" + strings.Join(k.path, ".") + ")"
+		return args[0] + ": " + gopodLocateJSON(gopodSettingsFileFor(k.path), k.path) + "  (" + strings.Join(k.path, ".") + ")"
 	}
 	if dir, err := gopodSystemSetSong(args[0]); err == nil {
 		return gopodLocateSong(dir, args[1:])
 	}
-	return gopodLocateWord(settings, strings.ToLower(strings.Join(args, " ")))
+	// A word: every settings file that holds it (the settings folder).
+	word := strings.ToLower(strings.Join(args, " "))
+	var found []string
+	for _, f := range gopodSettingsFiles() {
+		if out := gopodLocateWord(f, word); out != gopodSystemText("system_locate.nothing_named_in_the_settings", "word", word) {
+			found = append(found, out)
+		}
+	}
+	if len(found) == 0 {
+		return gopodSystemText("system_locate.nothing_named_in_the_settings", "word", word)
+	}
+	return strings.Join(found, "\n")
 }
 
 // gopodLocateShow: a file as the repo names it (goverlord/...).
@@ -170,7 +180,6 @@ func gopodLocateWord(file, word string) string {
 // gopodSystemLocateList (2026-10-17, operator: "system-locate-list ... for fast
 // reference"): every system-set setting and every song's files, with their lines.
 func gopodSystemLocateList() string {
-	settings := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
 	var names []string
 	for n := range gopodSystemSetKnobs {
 		names = append(names, n)
@@ -179,7 +188,7 @@ func gopodSystemLocateList() string {
 	var b strings.Builder
 	b.WriteString("system-locate - settings:\n")
 	for _, n := range names {
-		b.WriteString("  " + n + ": " + gopodLocateJSON(settings, gopodSystemSetKnobs[n].path) + "\n")
+		b.WriteString("  " + n + ": " + gopodLocateJSON(gopodSettingsFileFor(gopodSystemSetKnobs[n].path), gopodSystemSetKnobs[n].path) + "\n")
 	}
 	songs, _ := gopodAllSongs()
 	var dirs []string

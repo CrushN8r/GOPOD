@@ -104,7 +104,7 @@ func GopodVoiceMapSet(key, voice string) (string, error) {
 	if !known {
 		return "", errors.New("no voice " + voice)
 	}
-	settings := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
+	settings := gopodSettingsFileFor([]string{"reporter_voices"})
 	raw := `"` + voice + `"`
 	rv := &gopodBrobotsSettings.ReporterVoices
 	if row.Key == "Operator" {

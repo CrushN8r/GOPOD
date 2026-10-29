@@ -732,6 +732,8 @@ func BeginServer() {
 	http.HandleFunc("/api-sdk/gopod_opening_heard", gopodOpeningHeardHandler)
 	http.HandleFunc("/api-sdk/gopod_page_shown", gopodPageShownHandler)
 	http.HandleFunc("/api-sdk/gopod_brobot_order", gopodBrobotOrderHandler)
+	// 2026-10-29: the settings folder, served whole at the address the page reads.
+	http.HandleFunc("/gopod_brobots_settings.json", wirepod_ttr.GopodSettingsHandler)
 	http.HandleFunc("/api-sdk/gopod_page_played", gopodPagePlayedHandler)
 	http.HandleFunc("/api-sdk/gopod_page_note", gopodPageNoteHandler)
 	// GOPOD 2026-10-09: a song's system line, said and heard before it goes on (gopod_say_heard.go).

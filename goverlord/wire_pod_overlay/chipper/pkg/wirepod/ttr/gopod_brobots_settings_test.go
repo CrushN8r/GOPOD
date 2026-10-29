@@ -1677,7 +1677,7 @@ func gopodRawSettingsForTest(t *testing.T) (map[string]any, string) {
 	if root == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
 	}
-	data, err := os.ReadFile(filepath.Join(root, "webroot/gopod_brobots_settings.json"))
+	data, err := gopodSettingsMerged()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2634,7 +2634,7 @@ func TestPageReplayLine(t *testing.T) {
 	if ok, line := gopodPageReplayLine(broken, nil); ok || !strings.Contains(line, "stopped") || !strings.Contains(line, "Operator line") || !strings.Contains(line, "page:") || !strings.Contains(line, "mirror:") {
 		t.Errorf("broken report: %v %q", ok, line)
 	}
-	raw, _ := os.ReadFile(gopodBrobotsSettingsPath)
+	raw, _ := gopodSettingsMerged()
 	var all map[string]json.RawMessage
 	json.Unmarshal(raw, &all)
 	if !strings.Contains(string(all["system_menu"]), `"cmd": "system-test-replay"`) {

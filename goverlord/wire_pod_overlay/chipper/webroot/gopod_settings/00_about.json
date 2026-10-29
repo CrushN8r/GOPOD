@@ -1,0 +1,3 @@
+{
+  "about": "The Brobots chat's settings - one source of truth, read by Wire-Pod at start (gopod_brobots_settings.go) and by the chat page on load (js/gopod_brobots_chat.js). Change a value here, then wpr 2 (Wire-Pod reads this overlay copy directly)."
+}

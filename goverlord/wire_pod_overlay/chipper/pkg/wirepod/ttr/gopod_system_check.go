@@ -108,8 +108,8 @@ func gopodSystemCheckProblems() ([]string, int) {
 	web := filepath.Join(root, "webroot")
 	// 1. The settings: every file they name.
 	var settings map[string]any
-	if data, err := os.ReadFile(filepath.Join(web, "gopod_brobots_settings.json")); err != nil || json.Unmarshal(data, &settings) != nil {
-		problems = append(problems, "gopod_brobots_settings.json can't be read")
+	if data, err := gopodSettingsMerged(); err != nil || json.Unmarshal(data, &settings) != nil {
+		problems = append(problems, "the settings folder (webroot/gopod_settings) can't be read")
 	} else {
 		gopodCheckWalk(settings, nil, func(path, value string) {
 			checked++

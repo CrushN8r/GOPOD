@@ -1,0 +1,858 @@
+{
+  "system_search": {
+    "about": "2026-10-17 (operator: \"Expire go search, replace with \\\"system-search\\\" * \\\"system-search\\\" is used for live guided search responses * brobots use \\\"system-search\\\" for 'search [search-text]' like 'stat [run-name]'\"; \"Please remap/build SearXNG container to belong to GOPOD\"): GOPOD's own web search - the gopod-searxng container (wire_pod_overlay/searxng/run_gopod_searxng.sh, this machine only), no LLM in the search. A line to the Brobots that opens with \"search <words>\" or \"look up <words>\" (after a Brobot's name at most) gets the top results' snippets as facts (note, {search} = the words; none_note when nothing came back), and the reply opens with line ({sentence} = the first result's first sentence, {title} its page), said word for word like the weather line. The same search within 2 minutes is the same answer, so both Brobots say the same facts. Typed \"system-search <words>\" lists the results in the terminal bubble. gopod_system_search.go. Needs wpr 2.",
+    "url": "http://localhost:8055/search",
+    "results": 3,
+    "timeout_seconds": 6,
+    "note": "A web search for \"{search}\" (GOPOD's own search) found these. Use only these facts, said simply in your own style:",
+    "none_note": "A web search for \"{search}\" found nothing. Say so, then give a quick take.",
+    "line": "{sentence}",
+    "results_role_about": "2026-10-17 (operator: \"Don't speak or highlight search results * put a centered rounded-rectangle bubble around the search results * search results font @ 50% size * do a fast character by character reveal * then brobot responses\"): the results show once in their own centered bubble (this role), small text, typed in a character at a time (reveal_ms_per_char, never longer than reveal_max_seconds); the Brobots answer after, never saying them. Empty = the old way (line opens the reply).",
+    "results_role": "Search Results",
+    "results_host_about": "2026-10-19 (operator: \"system-search = location = PLAYHEAD, not CHALK\"): who draws the search results box - system-search's answer and a \"search ...\" line's results. 2026-10-26 (Pass 2, the Gomad intern jobs): Cache PYC, the meme hustler intern.",
+    "results_host": "CACHE PYC",
+    "handoff_host_about": "2026-10-26 (operator: \"Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): the Gomad who hands the search results to results_host first (managers.handoff_text). Empty = no hand-over.",
+    "handoff_host": "PLAYHEAD",
+    "reveal_ms_per_char": 6,
+    "reveal_max_seconds": 2
+  },
+  "system_set": {
+    "about": "2026-10-17 (operator: \"automate the editing of all song pieces * like ask Goverlord to do it via the chat window * similar to start run-name, use \\\"system-set\\\" ... I type: system-set this-volume 13%\"; \"send \\\"system-set\\\" from web page keyboard as a terminal-command * terminal-results are sent back to chat bubbles window * In terminal-results chat bubble, make terminal-bubble-text font-size 50% of current bubble-text font-size\"): typed on the chat page's keyboard only (not voice, not the numpad). A fixed list of edits, never a terminal command: a named setting (system-set lists them) or one field of one song step (volume, text, timing), written into this file, the song's knobs.json (and zKnobs.json) or story.md - only that value, checked before it's saved. The answer (old -> new, and when it takes effect: F5, wpr 2, or the next run) shows in a terminal bubble from role. gopod_system_set.go.",
+    "role": "Terminal",
+    "role_about": "2026-10-22 (operator: \"Terminal under Goverlord & adjust accordingly\"): Goverlord's terminal bubble - Goverlord's header, a goverlord bubble kind; \"Terminal\" is only the role's inside name."
+  },
+  "system_text": {
+    "about": "2026-10-29 (operator: \"decouple dumb code from flexible data & bridge the two by loading external already templated files\"; pass 3 of FLEXIBLE_DATA_SURVEY_001.md): the system commands' replies, by command (file) and a few words. {name} is filled by the code; edit the words, keep the {names}.",
+    "comm_check.system_comm_check_a_run": "system-comm-check: a run is going - try again after it",
+    "comm_check.system_comm_check_already_running": "system-comm-check: already running",
+    "comm_check.system_comm_check_comm_check": "system-comm-check: comm_check.rounds is empty",
+    "interview_from_game.interview_rebuilt_from_the_game": "Interview rebuilt from the game: {questions} questions, one per value point, in {core_topics} chapters (system-undo puts the old one back).",
+    "robot_call.didn_t_wake_no_behavior": "didn't wake (no behavior control in 8 s - asleep on the charger, or off?)",
+    "robot_call.not_connected_to_wire_pod": "not connected to Wire-Pod",
+    "system_edit.brobots_lingo": "brobots lingo: {word} = {said}{after_restart}",
+    "system_edit.brobots_lingo_no_in_it": "brobots lingo: no {word} in it.",
+    "system_edit.brobots_lingo_taken_out": "brobots lingo: {word} taken out{after_restart}",
+    "system_edit.is_a_list_or_a": "{dotted} is a list or a group - system-add / system-remove change its items, or system-set {dotted}.<key> one value.",
+    "system_edit.lingo": "{lingo} lingo: {word} = {said}{after_restart}",
+    "system_edit.lingo_taken_out": "{lingo} lingo: {word} taken out{after_restart}",
+    "system_edit.native_voice_answers_wire_pod": "Native voice answers (Wire-Pod's own: \"Hey Vector, what time is it\" and the rest): {state} - system-native on|off",
+    "system_edit.no_setting": "no setting {dotted}.",
+    "system_edit.no_setting_system_locate_word": "no setting {dotted} (system-locate <word> finds one).",
+    "system_edit.no_topic_system_topic_lists": "no topic {arg1} - system-topic lists them.",
+    "system_edit.not_changed": "{dotted}: not changed - {error}",
+    "system_edit.not_changed_2": "{arg0} {dotted}: not changed - {error}",
+    "system_edit.not_restarted_wire_pod_wouldn": "Not restarted - Wire-Pod wouldn't start with the settings as they are: {error}",
+    "system_edit.numpad_off": "Numpad off: {value}",
+    "system_edit.numpad_on": "Numpad on: {value}",
+    "system_edit.path_item_e_g_managers": "{arg0} <path> <item> - e.g. {arg0} managers.who_words what's your name",
+    "system_edit.restarting_wire_pod_forced_like": "Restarting Wire-Pod (forced, like wpr 2; {audio}) - the page reloads itself when it's back; click Log once for sound.",
+    "system_edit.system_lingo_brobots_not_changed": "system-lingo brobots: not changed - the list wouldn't read",
+    "system_edit.system_lingo_brobots_reporters_butler": "system-lingo <brobots|reporters|butler> <word> = <said> / remove <word> / (just the lingo: its list)",
+    "system_edit.system_lingo_brobots_reporters_or": "system-lingo: brobots, reporters or butler.",
+    "system_edit.system_lingo_brobots_the_pronunciation": "system-lingo brobots: the pronunciation list isn't found in {file}",
+    "system_edit.system_lingo_not_changed": "system-lingo {lingo}: not changed - {error}",
+    "system_edit.system_numpad_on_off_the": "system-numpad on|off - the numpad keys as push-to-talk; alone: each key.",
+    "system_edit.system_score_song": "system-score <song> - {names}",
+    "system_edit.system_topic_topic_words_add": "system-topic <topic> [words add|remove <word> | words <a, b, c> | point <text> | point <n> <text> | point <n> remove | label|reminder|pictures <text>]\ntopics: {names}",
+    "system_edit.system_topic_words_point_label": "system-topic {arg1} words | point | label | reminder | pictures ...",
+    "system_edit.words": "{arg1} words: {words}",
+    "system_extras.edge_tpu_worker": "Edge TPU worker: {value}",
+    "system_extras.edge_tpu_worker_not_ready": "Edge TPU worker: not ready after 30 s.",
+    "system_extras.edge_tpu_worker_ready": "Edge TPU worker: ready.",
+    "system_extras.system_chat_save_no_saved": "system-chat-save: no saved sessions.",
+    "system_extras.system_chat_save_no_session": "system-chat-save: no session {arg1} (its folder name, e.g. 154136_session)",
+    "system_extras.system_chats_words_operator_brobots": "system-chats <words> [operator|brobots|managers]",
+    "system_extras.system_menu_theme": "system-menu-theme <{names}>",
+    "system_extras.system_menu_theme_f5_to": "system-menu-theme: {arg1} - F5 to see it (system-undo puts it back one value at a time)",
+    "system_extras.system_menu_theme_then_f5": "system-menu-theme <{names}> (then F5)",
+    "system_extras.system_numpad_the_key_map": "system-numpad: the key map can't be read - {error}",
+    "system_locate.can_t_read_it": "{value} (can't read it)",
+    "system_locate.no_step_in_system_set": "no step {id} in {dir} - system-set {dir} lists them.",
+    "system_locate.not_in_it": "{value} (not in it)",
+    "system_locate.nothing_named_in_the_settings": "nothing named \"{word}\" in the settings or songs - system-locate shows how to use it.",
+    "system_more.system_undo_not_undone_has": "system-undo: not undone - {path} has changed since \"{what}\" ({at}). Edit it by hand: system-locate.",
+    "system_more.system_undo_nothing_to_undo": "system-undo: nothing to undo.",
+    "system_more.system_undo_undid": "system-undo: undid \"{what}\" ({at}){left}",
+    "system_play.apply_phcal_tweaks_before_a": "Apply phcal tweaks before a live system-play: {value} - system-tweaks on|off",
+    "system_play.calibrating_its_values_tmp_gopod": "Calibrating: {args} ({value}). Its values: /tmp/gopod_system_play.log",
+    "system_play.isn_t_a_golden_engine": "{dir} isn't a golden-engine song - start interview plays the interview.",
+    "system_play.reporter_gap_for_system_play": "Reporter gap for system-play: {now} - system-gap <seconds> | off | default",
+    "system_play.system_calibrate_arm_nod_rattle": "system-calibrate <arm|nod|rattle|danger|cube> <1|2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry]",
+    "system_play.system_calibrate_words_numbers_and": "system-calibrate: \"{w}\"? - words, numbers and --options only.",
+    "system_play.system_gap_seconds_off_default": "system-gap <seconds> | off | default",
+    "system_play.system_play_needs_a_step": "system-play: {w} needs a step.",
+    "system_play.system_play_robot_1_or": "system-play: robot 1 or robot 2.",
+    "system_play.system_play_song_from_step": "system-play <song> [from <step>] [to <step>] [robot 1|2] [dry] - steps by id or number (system-score <song>).",
+    "system_play.system_play_system_play_song": "system-play: \"{value}\"? - system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]",
+    "system_robots.animation_tokens": "animation tokens: {value}",
+    "system_robots.doing": "doing {arg}",
+    "system_robots.is_learning_s_face_look": "{brobot} is learning {arg1}'s face - look at him.",
+    "system_robots.knows": "{brobot} knows: {names}",
+    "system_robots.knows_no_faces_yet_system": "{brobot} knows no faces yet - system-faces add <name> {value}",
+    "system_robots.no_face": "no face {arg1}",
+    "system_robots.no_stats_yet_the_robot": "no stats yet (the robot keeps none)",
+    "system_robots.played": "played {arg}",
+    "system_robots.played_2": "played {name}",
+    "system_robots.said": "said ({value})",
+    "system_robots.set_to": "{what} set to {arg}",
+    "system_robots.system_anim_text_with_1": "system-anim <text with {{playAnimationWI||token}}> [1|2|both] - system-anim list for the tokens",
+    "system_robots.system_brobot_anim_name_1": "system-brobot anim <name> [1|2|both] - system-robot anims <word> finds names (anims sleep).",
+    "system_robots.system_brobot_beat_alias_1": "system-brobot beat <alias> [1|2|both]\n{out2}",
+    "system_robots.system_brobot_beat_alias_1_2": "system-brobot beat <alias> [1|2|both] - system-brobot beats lists them.",
+    "system_robots.system_brobot_cube_1_2": "system-brobot cube <{names}> [1|2|both]",
+    "system_robots.system_brobot_eyes_1_2": "system-brobot eyes <{eye_colors}> [1|2|both]",
+    "system_robots.system_brobot_head_lift_speed": "system-brobot head|lift <speed, e.g. 3 or -3> | wheels <left> <right> [1|2|both]",
+    "system_robots.system_brobot_numbers_only": "system-brobot {what}: numbers only.",
+    "system_robots.system_brobot_say_text_1": "system-brobot say <text> [1|2|both]",
+    "system_robots.system_brobot_stats_anims_word": "system-brobot stats | anims <word> | anim <name> | cube <name> | volume <0-5> | eyes <{eye_colors}> | locale <en-US> | units c|f | location <place> | timezone <zone> | say <text> | wake | head|lift <speed> | wheels <left> <right> | camera   [1|2|both]",
+    "system_robots.system_brobot_units_c_f": "system-brobot units c|f [1|2|both]",
+    "system_robots.system_brobot_volume_0_5": "system-brobot volume <0-5> [1|2|both]",
+    "system_robots.system_faces_add_name_1": "system-faces add <name> [1|2] - then look at {brobot}",
+    "system_robots.system_faces_delete_name_1": "system-faces delete <name> [1|2]",
+    "system_robots.system_faces_done": "system-faces {what}: done",
+    "system_robots.system_faces_list_rename_old": "system-faces [list | rename <old> <new> | delete <name> | add <name>] [1|2]",
+    "system_robots.system_faces_rename_old_new": "system-faces rename <old> <new> [1|2]",
+    "system_robots.system_robot_system_brobot_alone": "system-robot: \"{what}\"? - system-brobot alone lists them.",
+    "system_search.system_search_no_answer_from": "system-search \"{q}\": no answer from the search ({error}) - is gopod-searxng running?",
+    "system_search.system_search_nothing_found": "system-search \"{q}\": nothing found.",
+    "system_search.system_search_words_gopod_s": "system-search <words> - GOPOD's own web search (no LLM). To the Brobots: \"search <words>\".",
+    "system_set.a_combo_step_its_parts": "{where}: a combo step - its parts are edited in knobs.json for now.",
+    "system_set.give_it_a_value_system": "Give it a value: system-set {arg0} {arg1} {arg2} <value>",
+    "system_set.isn_t_a_field_system": "{field} isn't a field system-set writes - system-set lists them.",
+    "system_set.no_step_in_system_set": "no step {id} in {dir} - system-set {dir} lists them.",
+    "system_set.not_changed": "{name}: not changed - {error}",
+    "system_set.not_changed_2": "{where}: not changed - {error}",
+    "system_set.not_changed_doesn_t_read": "{where}: not changed - {name} doesn't read",
+    "system_set.not_changed_in": "{where}: not changed in {name} - {error}",
+    "system_set.system_set_song_tempo_seconds": "system-set <song> tempo <seconds, 0 or more>",
+    "system_set.takes_effect_after": "{name}: {old} -> {raw} ({about}; takes effect after {when})",
+    "system_set.takes_effect_after_wpr_2": "takes effect after wpr 2",
+    "system_set.takes_effect_at_the_next": "takes effect at the next run",
+    "system_set.tempo_the_next_run_of": "{dir} tempo: {out} (the next run of it)",
+    "system_tests.no_speaker_named_system_tests": "no speaker named (system_tests.audio.sink)",
+    "system_tests.speaker_and_mic_set": "speaker and mic set",
+    "system_tests.speaker_set_no_mic_with": "speaker set, no mic with {source_has} found",
+    "system_tests.system_audit_is_already_running": "system-audit is already running - its result comes here when it's done.",
+    "system_tests.system_audit_started_everything_but": "system-audit started - everything but the robots (a few minutes; keep this page open). Its result comes here.",
+    "system_tour.system_tour_a_run_is": "system-tour: a run is going - try again after it",
+    "system_tour.system_tour_no_system_voice": "system-tour: no system voice (sign_off.system_role)",
+    "system_tour.system_tour_stopping_at_the": "system-tour: stopping at the next commandment.",
+    "system_voices.system_voices_rebuild_no_backup": "system-voices-rebuild: no backup folder - {error}",
+    "system_voices.system_voices_rebuild_the_voice": "system-voices-rebuild: the voice folder can't be read - {error}",
+    "system_window_more.docbs_pools_system_docbs_pool": "DocBS pools: {out} - system-docbs <pool> shows one; add|remove <line> edits it.",
+    "system_window_more.lines_now": "{pool}: {arg2} \"{line}\" - {value} lines now.",
+    "system_window_more.record_session": "Record Session {arg1}.",
+    "system_window_more.system_docbs_no_pool": "system-docbs: no pool {pool}",
+    "system_window_more.system_docbs_no_pool_system": "system-docbs: no pool {pool} (system-docbs lists them)",
+    "system_window_more.system_record_on_off_record": "system-record on|off - Record Session (the page's Record? box)",
+    "thinking_line.thinking_please_wait": "Thinking, please wait.",
+    "torah.the_gopod_torah_is_written": "The GOPOD Torah is written again: GOPOD_TORAH.md and its scriptures (torah/) match the system as it is now.",
+    "value_points_golden.no_topic_system_topic_lists": "no topic {arg1} (system-topic lists them)",
+    "voice_profiles.system_voices_report_3d_week": "system-voices-report [3d | week | month | year]",
+    "typed_system.not_a_command": "0 is the system: system-<command>, stop run, start <run>, replay <session>, stop session (system-help lists them). Pick 1-9 to talk.",
+    "system_check.all_good": "system-check: all good - {checked} things checked (settings, chapters, songs).",
+    "system_check.to_fix": "system-check: {problems} to fix ({checked} things checked):",
+    "system_edit.topic_point": "point {n}: {point}",
+    "system_edit.topic_point_taken_out": "point {n} taken out",
+    "system_edit.topic_words": "words: {words}",
+    "system_extras.chat_saved": "system-chat-save: {n} lines -> {file}",
+    "system_extras.chats_found": "system-chats \"{words}\": {found} found in {sessions} sessions",
+    "system_play.no_step": "no step {step} in {song} (system-score {song} lists them)",
+    "system_play.playing": "Playing {song}, {what}, robot {robot}, {mode}. stop run stops it. (log: /tmp/gopod_system_play.log)",
+    "system_set.keyboard_only": "system commands work from the chat page's keyboard only.",
+    "system_status.admin_pages": "  admin pages: {n} open - keep one (visitor pages can be many)",
+    "system_status.model_cold": "  language model: {model} not loaded (cold)",
+    "system_status.model_none": "  language model: no endpoint/model in the knowledge settings",
+    "system_status.model_warm": "  language model: {model} loaded (warm)",
+    "system_status.page_away": "  chat page: away",
+    "system_status.page_here": "  chat page: here",
+    "system_status.run_going": "  run: {run} going",
+    "system_status.run_none": "  run: none",
+    "system_status.warmup_done": "  warm-up: done",
+    "system_status.warmup_going": "  warm-up: going - lines wait for LLM Ready",
+    "system_tests.audit_last": "system-audit: {last}",
+    "system_tests.didnt_run": "didn't run: {why}",
+    "system_tests.head": "system-test: {pass} of {tests} pass",
+    "system_tests.missing": "missing: {missing}",
+    "system_tests.no_report": "no report: {out}",
+    "system_tests.voices_timed": "worker ready {ready}, {timed} of {used} voices in use timed by Vosk",
+    "system_voices.rebuild_paused": "Paused - system-check found {problems} to look at ({checked} checked):",
+    "system_voices.rebuild_ready": "Backed up {moved} voices. Ready for a restart: wpr 2, then F5 and click Log - every voice is made again at the start.",
+    "value_points_golden.how": "system-value-points <topic> lists a topic's; system-value-points lock locks changes",
+    "value_points_golden.locked": "value points locked: {n} (system-undo puts the old index back)",
+    "voices_report.head": "Voice files, past {period} (report only - nothing moves; plays counted since {since}):",
+    "value_points_golden.all_locked": "all locked, unchanged",
+    "value_points_golden.to_look_at": "{n} to look at",
+    "value_points_golden.head": "value points: {points} in {topics} topics - {state}"
+  },
+  "timings_about": "2026-10-29 (operator: \"decouple dumb code from flexible data & bridge the two by loading external already templated files\"; pass 4 of FLEXIBLE_DATA_SURVEY_001.md): GOPOD's show timings, in seconds - llm_*: the language model's warm-up (waiting for its settings, between tries, one warm request, the most a warm-up holds lines, a quick is-it-loaded check); record_*: Record Session (the mic starting and stopping, how old a reply may be, a typed question's answer window); interview_*: a scripted draft's answers (all of them at most, the first to start, each next one to start); persona_answer, ask_ahead, weather, robot_call: how long each call may take; picture_describe_delay: after Wire-Pod's start, before the egg pictures are described; audio_levels_every, eye_colors_every, chat_hold_check: how often each watch looks again; replay_song_start_wait: a replay waits this long for its song to check in; thanks_reply_wait_max: the ending waits at most this long for a Brobot still answering. Short polling ticks and hardware-tuned movement values stay in the code.",
+  "timings": {
+    "llm_config_wait_seconds": 120,
+    "llm_retry_wait_seconds": 5,
+    "llm_warm_request_seconds": 600,
+    "llm_warming_max_seconds": 600,
+    "llm_check_seconds": 5,
+    "record_mic_start_seconds": 15,
+    "record_mic_stop_seconds": 180,
+    "record_reply_stale_seconds": 300,
+    "record_typed_same_window_seconds": 300,
+    "interview_answers_max_seconds": 480,
+    "interview_first_answer_wait_seconds": 180,
+    "interview_next_answer_wait_seconds": 10,
+    "persona_answer_seconds": 60,
+    "ask_ahead_seconds": 30,
+    "weather_seconds": 6,
+    "robot_call_seconds": 15,
+    "picture_describe_delay_seconds": 30,
+    "audio_levels_every_seconds": 30,
+    "eye_colors_every_seconds": 30,
+    "chat_hold_check_seconds": 15,
+    "replay_song_start_wait_seconds": 20,
+    "thanks_reply_wait_max_seconds": 300
+  },
+  "system_help": {
+    "about": "2026-10-29 (operator: \"decouple dumb code from flexible data\"; pass 3 of FLEXIBLE_DATA_SURVEY_001.md): system-help's list, a line each - the command, two or more spaces, what it does (the results template lines them up as a table). The Torah's Commandments section prints the same list.",
+    "lines": [
+      "system commands (typed on this keyboard):",
+      "  system-set <setting> <value>      change a setting (system-set master-volume 35%)",
+      "  system-set <path.to.setting> <value>   any setting by its path (system-set managers.qr_note Scan it!)",
+      "  system-add / system-remove <path> <item>   an item in a list, or key = value in a group",
+      "  system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)",
+      "  system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures",
+      "  system-skip  (or Esc)             skip the voiced lines playing (from Voices ready on)",
+      "  system-restart                    a forced restart, like wpr 2 (speaker + mic set); the page reloads itself",
+      "  system-audit                      the full audit, no robots called: files, Go tests, web page, phone app, every test, the log",
+      "  system-score <song>               a song's score: every step and its words",
+      "  system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]   a song or part of it (pha0b)",
+      "  system-gap <seconds>|off|default  reporter gap for system-play",
+      "  system-tweaks on|off              apply phcal tweaks before a live system-play",
+      "  system-calibrate <move> <1|2> [values] [dry]   one move alone (phcal)",
+      "  system-set <song> tempo <seconds>   the song's tempo (tempo-set); a step's tempo_factor too",
+      "  system-brobot <stats|volume|eyes|locale|units|location|timezone|say|wake|head|lift|wheels|camera> [1|2|both]",
+      "  system-faces [list|rename|delete|add] [1|2]   the faces a Brobot knows",
+      "  system-value-points [lock|<topic>]   the golden value points: locked? changed? a topic's; lock on purpose",
+      "  system-interview-rebuild            the interview song, rebuilt from the game's topics and value points",
+      "  system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route",
+      "  system-usb                        the USB devices plugged in (live in the menu)",
+      "  system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)",
+      "  system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)",
+      "  system-tpu [restart]              the Edge TPU worker's state, or start it again",
+      "  system-photos [1|2]               a Brobot's photos",
+      "  system-cams [tpu]                 the Brobots' cameras and the webcam side by side; tpu = the Edge TPU on the selected one",
+      "  system-chats <words> [operator|brobots|managers]   search every saved session's chat",
+      "  system-chat-save [session]        a readable chat.md in the session's folder",
+      "  system-menu-theme <preset>        the menu's look: dark, light, blue, green, purple",
+      "  system-visual [next|prev|<id>]    the TPU +/- rotation: a feed's frame and its Edge TPU objects (KP+ / KP-)",
+      "  system-version                    Wire-Pod's commit, the newest, what an update touches",
+      "  system-native [on|off]            Wire-Pod's own voice answers (was the Native? box)",
+      "  system-numpad on|off              the numpad keys as push-to-talk (was the Numpad? box)",
+      "  system-set <song> <step> <field> <value>   change one step (volume, text, timing)",
+      "  system-set <song> [step]          a song's steps, or one step",
+      "  system-set-list                   every setting, song and step field",
+      "  system-locate <thing>             where it lives, file:line (a setting, a song step, a word)",
+      "  system-locate-list                every setting's and song's file:line",
+      "  system-undo                       put back the last system-set",
+      "  system-status                     Wire-Pod, language model, page, run, Brobots' battery",
+      "  system-find <word>                where a word shows up: the log (6 hours), settings, songs",
+      "  system-search <words>             GOPOD's own web search, the results (to the Brobots: \"search <words>\")",
+      "  system-check                      every file the settings, chapters and songs name - all there?",
+      "  system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again",
+      "  system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)",
+      "  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
+      "  system-record on|off              Record Session on or off (the page's Record? box)",
+      "  system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one",
+      "  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
+      "  system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now",
+      "  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
+      "  system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",
+      "  system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)",
+      "  system-help                       this list"
+    ]
+  },
+  "system_tour_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah\"; \"Yes to: a recorded tour of the system window: every menu item played in order, the way the admin run plays the game, with the restart left out\"): system-tour - Goverlord says the Torah's opening, then each scripture, each commandment and the scripture's next line (torah's words); a commandment on run is run too and its answer shown, the rest only said - the restart, anything that moves a robot, flips a switch, ends the session, takes long (system-test-all, the audit, the replay) or waits for your words. quiet_seconds: the quiet after each line before the next. system-tour again stops it; Record Session keeps it. gopod_system_tour.go.",
+  "system_tour": {
+    "run": ["system-status", "system-check", "system-set-list", "system-locate-list", "system-version", "system-usb", "system-voices", "system-test-list", "system-test-game", "system-test-admin-run", "system-help"],
+    "quiet_seconds": 2,
+    "start_text": "The Torah tour: {n} scriptures, Goverlord reading - system-tour again stops it.",
+    "end_text": "And so ends the Torah. Now GOPOD Yourself!"
+  },
+  "tour_paragraphs_about": "2026-10-29 (operator: \"Scripture tours >> human friendly easy to read paragraph\" - his Scripture 2 paragraph, word for word): each system window group's tour - plain paragraphs the tour reads (system-tour, one voice a paragraph) and the Torah shows under its scripture.",
+  "torah_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah * Goverlord's Torah: In the beginning there was a great restart. * Scripture 1, Restart and check * system-restart, a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm) ... * All PASS? Go to scripture 2 to play, or 3 to edit.\"; \"Click a commandment to run it, or it waits in the text box for your words (press Enter).\"): the Torah's words - GOPOD_TORAH.md and the system window tour (system-tour) both read them: opening; scripture ({n}, {title} - a group's title without its number); commandment ({cmd}, {about}); next_from / next_to (a group's next line, \"Go to 2\" said \"Go to scripture 2\").",
+  "torah": {
+    "opening": "Goverlord's Torah: In the beginning there was a great restart.",
+    "scripture": "Scripture {n}, {title}",
+    "commandment": "{cmd}, {about}",
+    "next_from": "Go to ",
+    "next_to": "Go to scripture "
+  },
+  "line_queue_about": "2026-10-29 (operator: \"even if a few requests come in together, they still must each get processed until completion before another bubbles starts\"; live 05:13: KP2's line came before Brobot 1's reply, and the replies landed among KP3's bubbles): every question - typed, numpad, a persona's, the comm check's - takes its turn, one at a time, in the order they came. The next starts only when this one is complete: a line on the feed from each one asked (his answer; at most answer_max_seconds, or idle_seconds with nothing new at all), then the page has played it all (at most page_max_seconds). Commands (system-, stop run, thanks, skip, start ...) never wait. on false: every question runs at once, as before. gopod_line_queue.go.",
+  "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90},
+  "comm_check_about": "2026-10-28 (operator: \"Simulate the whole KPN 1-9 range to record those bubbles as well * same test question, Hey party animal. Who are you and what do you do?\"; \"make the 'who are you?' profile development part of this run as well * like a communication check with all chat participants, before the show starts * at bare minimum, do they all know who they are & each other? * who they are: do they all know the diff between tell me about you & tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about their interns, if I ask any chat participant about any other chat participant > Hey [chat participant], who all else is here with us?\"): system-comm-check plays the rounds in order - each round's text on each of its keys (keys, else the round's own), as if the key were held and the words spoken: the page draws the key's bubbles (hold, recording for record_seconds, transcribing), the line goes where the key goes, live (the model, the voices, the robots), and the next waits for the answer to finish (no new feed line for quiet_seconds and the page caught up; at most line_max_seconds). {name}: the one asked (his call name, or Doc / Pip). The game goes back to 0 after, so the show starts clean. Record Session keeps it all. gopod_comm_check.go.",
+  "comm_check": {
+    "keys": ["KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9"],
+    "rounds": [
+      {"text": "Hey party animal. Who are you and what do you do?"},
+      {"text": "Tell me about yourself."},
+      {"text": "Tell me all about yourself."},
+      {"text": "Hey {name}, who all else is here with us?"},
+      {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}
+    ],
+    "quiet_seconds": 6,
+    "line_max_seconds": 150,
+    "record_seconds": 2,
+    "start_text": "Comm check: {n} lines, KP1 to KP9 in turn, before the show.",
+    "done_text": "Comm check complete. {n} lines. The game is back to zero - the show can start."
+  },
+  "session": {
+    "about": "GOLDEN - the session and its runs (operator 2026-10-10: \"There is the wire-pod session (wpr 2 until next wpr 2) * Goverlord is the wpr-session orchestrator\"; \"drop, yes, and one pass\"; gopod_session.go, ALIAS-PLAY-STUDIO.md \"The session\"). Goverlord keeps the one record of the session's phase (warming, ready, run) and the run going. One run at a time: the draft (start interview), the song engine (start bingo test, start baby brobots, pha0b live) and phcal live all check in and out with Goverlord (/api-sdk/gopod_run). A second start while a run is going gets busy_text. While a run is going it owns the Brobots: no chat hold, no live LLM answers; only stop run, thanks, Record Session's answer and the draft's own lines get through - anything else gets run_gate_text (at most every 5 s) and is dropped. A run that was stopped says stopped_text. A run whose process is gone without checking out is cleared.",
+    "busy_text": "A run is going. Say stop run first.",
+    "run_gate_text": "Run in progress. Say stop run or thanks.",
+    "stopped_text": "{run} stopped. Understood. Intercepting Goverlord's current process. All run-times are being brought to a civilized halt.",
+    "no_run_text": "An elegant gesture, Master CrushN8r, but Goverlord is currently idle. There is no active run to terminate.",
+    "started_text": "{run} started. Right away, sir. Executing your commands through Goverlord now. Let us see what we can crush today.",
+    "complete_text": "{run} complete. The sequence has concluded. Goverlord has delivered an optimal execution, as expected. Spectacular work, Master CrushN8r.",
+    "not_found_text": "{run} not found.",
+    "replay_about": "2026-10-12 (operator: \"replay [session-name] ... run the entire session, then run complete\"): \"<replay_word> <name>\" plays a session folder's score back (story.md + knobs.json, its words as edited in story.md; gopod_session_replay.go). The name is the folder's (\"095819_session\", \"095819\" or \"2026-10-12/095819_session\"). The started, complete, stopped and not-found lines are the ones above, with the session's name.",
+    "replay_word": "replay",
+    "replay_name_about": "2026-10-12 (operator: \"Distinguish stop run from stop run (kept-session) * stop run & stop session, in case a stop run is already in a session run\"): a replay's started/complete/stopped/paused/continues lines name it replay_name ({name}: the folder's time, \"095819\"); \"stop run\" stops only the run going inside it (a song), stop_session_words stop the replay itself (and the song in it).",
+    "replay_name": "Session {name}",
+    "stop_session_words": ["stop session"],
+    "pause_about": "2026-10-12 (operator: \"Upon page unfocus = pause at next safe spot until focus, then continue * add system messages: run paused, run continues\"): while the chat page is hidden (another tab, minimised), a song waits before its next step (page_hidden_file, in GOPOD's overlay chipper folder), the draft before its next question and a session replay before its next line; Goverlord says paused_text, then continues_text when the page shows again. A timed song (the nap) plays on with its soundtrack.",
+    "paused_text": "{run} paused.",
+    "continues_text": "{run} continues.",
+    "pause_after_ms_about": "2026-10-23 (live: a tab flicker said paused/continues twice in 5 s): the run pauses - flag and paused line - only once the page has stayed hidden this long (ms); shown again sooner, nothing is said.",
+    "pause_after_ms": 2000,
+    "page_hidden_file": "gopod_page_hidden",
+    "awaits_about": "2026-10-17 (operator: \"instead, system message, Goverlord awaits your return... + hourglass, and waits, nothing plays * upon page focus, opening llm should, go through each message ... in correct proper order * message and & must coordinate and run together\"; \"both the terminal run & web page run must be the same run\"): the chat page is away when it says it's hidden, or hasn't been heard from for page_present_seconds (it reports every 5 s). While it's away, page_hidden_file is kept, so a song run waits before its next step (and before it starts), saying so in the terminal (GOLDEN_AWAIT); the opener waits before each of its steps with awaits_text in the System llm bubble's hourglass, and nothing plays.",
+    "awaits_text": "Goverlord awaits your return...",
+    "page_present_seconds": 20,
+    "run_names_about": "Operator 2026-10-10: \"update static system run 'started' messages, to: [run-name] not-found/started/stopped\"; \"so far there is start [interview], [bingo test], [baby brobots] * so also, stop [run-name] and/or [run-name] stopped * start [anything else] = not found\". {run} in started_text and stopped_text is the run's name here (by its check-in name); a run not listed says \"Run\" and no started line. not_found_text: a typed or numpad \"start ...\" that is no run.",
+    "run_names": {}
+  },
+  "app": {
+    "about": "2026-10-24 (FINISH_PLAN_001.md C3; operator: \"Go on C3 for my phone\"): GOPOD as a phone app. A phone offers Install app only for a secure page, so Wire-Pod also serves GOPOD securely on https_port - the same pages. The certificate is GOPOD's own: a local authority named ca_name (made once, kept; the phone trusts it once from /gopod_ca.crt) and a server certificate for this machine's names and addresses, made again when they change. All in cert_dir (private, the operator's home, never the repo). The app opens on the chat (gopod_manifest.json, start ?app).",
+    "https_port": 8443,
+    "cert_dir": "~/.gopod_https",
+    "ca_name": "GOPOD local"
+  },
+  "visitors": {
+    "about": "2026-10-24 (operator: \"set me apart by my local PC & Laptop IP addresses ... everyone else is a visitor ... allow a chat participant gathering * initially visitor chat participation is OFF\"): the admin is GOPOD's own machine or a device in admin_addresses_file (private, outside the repo: one address a line); everyone else is a visitor, one per device. A visitor's first line is their username request (first come, first served; taken: name1, name2); lines after it are dropped until the admin approves it in the system window (Local network visitors). participation (starts OFF) and each approved visitor's box (unticked = muted) let their lines through, under their username. A dropped line tells them waiting_text or muted_text. A visitor never runs the show (commands dropped). seen_seconds: a nameless visitor stays listed this long after their page last reported in. name_max: the longest username.",
+    "participation": false,
+    "admin_addresses_file": "~/.gopod_admin_addresses",
+    "profiles_file_about": "2026-10-24 (operator: \"Save the visitor profile in case of a disconnect reconnect, like the brobot reboot recovery thing\"): each visitor's username, approval and mute box, kept here (private, outside the repo) and back after a dropped connection or a restart - by the phone's own browser ID, so a new network address is still the same visitor.",
+    "profiles_file": "~/.gopod_visitors.json",
+    "seen_seconds": 30,
+    "name_max": 20,
+    "waiting_text": "Waiting for approval",
+    "muted_text": "Muted",
+    "approved_text_about": "2026-10-24 (operator: \"Upon Approval * text toggles from 'Waiting for approval' to 'Username Approved', then clears & continues like before\"; \"Visitor chat participation OFF * 'Waiting for approval' or 'Username Approved' * is remembered across ON/OFF\"): shown in the visitor's text field when approved (for approved_show_ms, then the field clears), and as the answer to a line sent while participation is OFF.",
+    "approved_text": "Username Approved",
+    "approved_show_ms": 4000
+  },
+  "system_menu": {
+    "torah_about": "2026-10-29 (operator: \"the GOPOD system Torah ... the matching master-GOPOD-system document to refer to * use the book's colour pallete for system window look (textured darkened lamb's skin & metallic silvers/golds)\"; \"a fun take, not religious\"; \"A matching a light touch of a Torah look\"): the torah theme - dark leather (texture), a gold double frame (border), gold group titles (accent), silver rules between groups (rule), gold commands. The system window's look; system-menu-theme <name> switches back. GOPOD_TORAH.md is the matching reference.",
+    "themes_about": "2026-10-20 (the JSON tree viewer's presets): system-menu-theme <name> copies one into look.",
+    "themes": {
+      "dark": {
+        "background": "#1e2633",
+        "code_background": "#141a24",
+        "code_color": "#9fd3ff",
+        "results_background": "#161c26"
+      },
+      "light": {
+        "background": "#e9edf2",
+        "code_background": "#d6dde6",
+        "code_color": "#1f4e79",
+        "results_background": "#f4f6f9"
+      },
+      "blue": {
+        "background": "#16233a",
+        "code_background": "#0f1a2c",
+        "code_color": "#8cc8ff",
+        "results_background": "#111c30"
+      },
+      "green": {
+        "background": "#1b2a22",
+        "code_background": "#122019",
+        "code_color": "#9fe0b8",
+        "results_background": "#15231c"
+      },
+      "purple": {
+        "background": "#251d33",
+        "code_background": "#1a1426",
+        "code_color": "#d2b4ff",
+        "results_background": "#1e1729"
+      },
+      "torah": {"background": "#15110d", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a"}
+    },
+    "look_about": "2026-10-19 (operator: \"Make [menu system- bubble] font size 50% for more room below\"; \"<code>system-restart</code> background contrast is too harsh * darken to make it easier on the eyes * where would I find this setting to edit/set within the menu?\"): the menu's look - system-set system_menu.look.<name> <value>, then F5.",
+    "look": {"font_size": "50%", "background": "#15110d", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)"},
+    "about": "The system menu (operator 2026-10-19: \"New system- commands drop-down-menu system * start from system-restart? * then group & order by semantic relevance * arrange in drop-down-menu bubble * 🔇 opens it * 🔊 closes it * menu system should lead me like a tour guide * like after restart, where do I start? what's next? * how are these commands arranged for me to find what I need fast to make edits?\"). The speaker icon opens it (and the background loop) and closes it. Groups in tour order, one open at a time: title, guide (when to use it), items, next (where to go after). An item with run: true runs on click; the rest go in the text box to finish (fill: the text put there, else cmd and a space). Edit freely - the page reads it at F5.",
+    "copy_about": "2026-10-29 (operator: \"in the results window, can you add a, click to copy results to clipboard button/icon\"): each answer in the system window's results has a copy button - its command and its answer, as plain text. icon: the button; title: its tip; copied: what it says once copied, for copied_ms. all: the copy-all button at the top of the results (operator: \"At the very top ... first add a similar, but 'copy all results' button, before the results\") - every command and answer in the window.",
+    "copy": {"icon": "📋", "title": "Copy this result", "copied": "Copied", "copied_ms": 1500, "all": {"icon": "📋 Copy all results", "title": "Copy every result in this window", "copied": "Copied all", "copied_ms": 1500}},
+    "intro": "Goverlord's Torah: In the beginning there was a great restart. Click a commandment to run it, or it waits in the text box for your words (press Enter).",
+    "groups": [
+      {
+        "title": "1. Restart and check", "tour": ["Just started, or made some edits? This is where every show begins. Say “system-restart” for a fresh start, just like wpr 2: the speaker and mic get set, and the page reloads itself. While the reporters warm up, “system-skip”, or the Esc key, skips their lines.", "Then make sure everything is up. “system-status” shows Wire-Pod, the language model, the page, any run and the batteries. “system-check” makes sure every file is where it should be, and “system-test-all” runs the full audit, PASS or FAIL for each part.", "All PASS? Go to Scripture 2 to play, or Scripture 3 to edit."],
+        "guide": "Just started, or made edits? Restart, then check everything is up.",
+        "items": [
+          {
+            "cmd": "system-restart",
+            "about": "a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm)",
+            "fill": "system-restart"
+          },
+          {
+            "cmd": "system-skip",
+            "about": "skip the voiced lines playing (or press Esc)",
+            "page": "skip"
+          },
+          {
+            "cmd": "system-status",
+            "about": "Wire-Pod, language model, page, run, battery",
+            "run": true
+          },
+          {
+            "cmd": "system-test-all",
+            "about": "the full audit, PASS / FAIL for each",
+            "run": true
+          },
+          {
+            "cmd": "system-check",
+            "about": "every file named is there; story.md / knobs match",
+            "run": true
+          }
+        ],
+        "next": "All PASS? Go to 2 to play, or 3 to edit."
+      },
+      {
+        "title": "2. Play", "tour": ["You can run one song or one saved session at a time. To start a specific song, say “start bingo test”, “start baby brobots”, or “start fart joke”.", "You can also play any song (or just part of it) with “system-play” followed by the song name. Optional details include the starting step, ending step, which robot should perform it (1 or 2), and whether to do a dry run.", "Available steps are listed under “system-score”. To replay a previously saved session, say “replay” then the session name. To stop whatever is currently playing, say “stop run.” If you want to change any of this, go to Scripture 3."],
+        "guide": "Run a song or a saved session. One at a time.",
+        "runs": true,
+        "items": [
+          {
+            "cmd": "system-play",
+            "about": "a song or part of it: <song> [from <step>] [to <step>] [robot 1|2] [dry] (steps: system-score)"
+          },
+          {
+            "cmd": "replay",
+            "about": "a saved session - add its name"
+          },
+          {
+            "cmd": "stop run",
+            "about": "stops the song playing",
+            "run": true
+          }
+        ],
+        "next": "Something to change? Go to 3."
+      },
+      {
+        "title": "3. Edit words and settings", "tour": ["This is where you change what's said and how. “system-topic” edits a chapter topic: its words, points and pictures. “system-lingo” changes how a word is said. “system-set” changes any setting by its path, or a song step's words, volume or timing, and “system-add” and “system-remove” put items into a list or take them out.", "The show's character lives here too: the roast level and the Jekyll and Hyde switch, how often Brobot 1 goes full Doc BS, his Doc BS lines with “system-docbs”, the parts of a live answer chain, the run cards, one question at a time, and which robot is Brobot 1. “system-voices” picks a voice for each numpad key, and this window's own look and theme can change as well.", "Made a mistake? “system-undo” puts back the last edit. Don't know a name or path? Go to Scripture 4. Done editing? Go to Scripture 5."],
+        "guide": "Change what's said and how. system-undo puts back the last edit.",
+        "items": [
+          {
+            "cmd": "system-topic",
+            "about": "a chapter topic: its words, points, label, reminder, pictures (alone: the topics)"
+          },
+          {
+            "cmd": "system-lingo",
+            "about": "how a word is said: brobots / reporters / butler <word> = <said>"
+          },
+          {
+            "cmd": "system-set",
+            "about": "a setting by its path, or a song step's text / volume / timing"
+          },
+          {
+            "cmd": "system-add",
+            "about": "an item into a list (or key = value into a group)"
+          },
+          {
+            "cmd": "system-remove",
+            "about": "an item out of a list (or a key out of a group)"
+          },
+          {
+            "cmd": "system-set chat_moves.thinking_text",
+            "about": "the \"Got it!\" line: said while the model works, and the last line of the Value Points notice (then system-restart)",
+            "fill": "system-set chat_moves.thinking_text "
+          },
+          {
+            "cmd": "system-set bubble_notices",
+            "about": "what goes in a notice in a Brobot's bubble: value_points, egg, native_intent",
+            "fill": "system-set bubble_notices."
+          },
+          {
+            "cmd": "system-set <song> tempo",
+            "about": "a song's tempo in seconds (a step's: system-set <song> <step> tempo_factor <n>)",
+            "fill": "system-set "
+          },
+          {
+            "cmd": "system-set system_menu.look",
+            "about": "this menu's own look: font_size, background, code_background, code_color, results_background",
+            "fill": "system-set system_menu.look."
+          },
+          {
+            "cmd": "system-menu-theme",
+            "about": "dark | light | blue | green | purple (then F5)"
+          },
+          {
+            "cmd": "system-voices-report",
+            "about": "voice files: made, played, most played, not played - past 3d | week | month | year (report only, nothing moves)",
+            "fill": "system-voices-report week"
+          },
+          {
+            "cmd": "system-voices",
+            "about": "numpad voices: KPN > persona [voice] - pick a voice per key (bold = used twice); robot-bodied keys need none",
+            "page": "voices"
+          },
+          {
+            "cmd": "system-set-list",
+            "about": "every setting, song and step field",
+            "run": true
+          },
+          {
+            "cmd": "system-undo",
+            "about": "puts back the last edit",
+            "run": true
+          },
+          {"cmd": "system-set roast_dial.level", "about": "the roast level: 0 clean (never punches down), 1 roast, 2 public 18+, 3 paid 18+ afterburner - then system-restart", "fill": "system-set roast_dial.level "},
+          {"cmd": "system-set roast_dial.jekyll_hyde", "about": "Jekyll/Hyde: true lets the roast through on sensitive topics too - then system-restart", "fill": "system-set roast_dial.jekyll_hyde "},
+          {"cmd": "system-set docbs.share", "about": "DocBS: how many of Brobot 1's answers go equation roast, 0-100 (-1: his Doc dial) - then system-restart", "fill": "system-set docbs.share "},
+          {"cmd": "system-docbs", "about": "DocBS's lines: the pools, one pool's lines (system-docbs openers_clean), or add / remove one", "run": true},
+          {"cmd": "system-set answer_chains.brobots.parts", "about": "a live answer's chain - its parts in order (system-add / system-remove one part)", "fill": "system-set answer_chains.brobots.parts "},
+          {"cmd": "system-set game.runs", "about": "a run card - its words, song, lines and pre/post chat (system-set game.runs.1.experience.closing ...)", "fill": "system-set game.runs."},
+          {"cmd": "system-set line_queue.on", "about": "one question at a time: true / false - then system-restart", "fill": "system-set line_queue.on "},
+          {"cmd": "system-set brobots_setup.brobot_1", "about": "which robot is Brobot 1 (an ESN; empty: Wire-Pod's robots decide) - then system-restart", "fill": "system-set brobots_setup.brobot_1 "}
+        ],
+        "next": "Don't know the name or path? Go to 4. Done editing? Go to 5."
+      },
+      {
+        "title": "4. Find", "tour": ["Don't know where something lives? Find it first. “system-locate” tells you where a setting, a song step or a word lives, and “system-find” shows everywhere a word shows up. “system-score” prints a song's score, every step and its words.", "“system-search” is GOPOD's own web search, “system-chats” searches every saved session's chat, and “system-chat-save” writes the newest session as a readable chat.", "Found it? Go back to Scripture 3 to change it."],
+        "guide": "Don't know where something lives? Find it first.",
+        "items": [
+          {
+            "cmd": "system-locate",
+            "about": "where a setting, song step or word lives, file:line"
+          },
+          {
+            "cmd": "system-find",
+            "about": "where a word shows up: the log, settings, songs"
+          },
+          {
+            "cmd": "system-score",
+            "about": "a song's score: every step and its words (alone: the songs)"
+          },
+          {
+            "cmd": "system-locate-list",
+            "about": "every setting's and song's file:line",
+            "run": true
+          },
+          {
+            "cmd": "system-search",
+            "about": "GOPOD's own web search"
+          },
+          {
+            "cmd": "system-chats",
+            "about": "<words> [operator|brobots|managers] - search every saved session's chat"
+          },
+          {
+            "cmd": "system-chat-save",
+            "about": "a readable chat.md of the newest session (or name one)",
+            "run": true
+          }
+        ],
+        "next": "Found it? Back to 3 to change it."
+      },
+      {
+        "title": "5. Apply", "tour": ["Edits take effect after a restart, from Scripture 1. Edited story lines get their new voices made then.", "“system-voices-rebuild” checks and backs up every voice, and the restart after it makes them all again. Then restart: go to Scripture 1."],
+        "guide": "Edits take effect after a restart (group 1); edited story lines get new voices.",
+        "items": [
+          {
+            "cmd": "system-voices-rebuild",
+            "about": "check, back up every voice, then restart makes them all again",
+            "fill": "system-voices-rebuild"
+          }
+          ],
+        "next": "Then restart: Go to 1."
+      },
+      {
+        "title": "6. Switches", "tour": ["Turn parts on or off for this session. “system-numpad” shows who each numpad key talks to; “on” makes the keys push-to-talk, “off” lets them type as usual. “system-gap” sets the reporter gap for system-play.", "“system-tweaks on” plays the moves with their tuned values, “system-native” turns Wire-Pod's own voice answers on or off, and “system-record” turns Record Session on or off. When you're done, close the window with the speaker icon."],
+        "guide": "Turn parts on or off for this session.",
+        "items": [
+          {
+            "cmd": "system-numpad",
+            "about": "each numpad key: who it talks to, live or not",
+            "run": true
+          },
+          {
+            "cmd": "system-numpad on",
+            "about": "numpad keys are push-to-talk",
+            "run": true
+          },
+          {
+            "cmd": "system-numpad off",
+            "about": "numpad keys type as usual",
+            "run": true
+          },
+          {
+            "cmd": "system-gap",
+            "about": "reporter gap for system-play: <seconds> | off | default"
+          },
+          {
+            "cmd": "system-tweaks on",
+            "about": "apply phcal tweaks before a live system-play",
+            "run": true
+          },
+          {
+            "cmd": "system-tweaks off",
+            "about": "play the moves as written",
+            "run": true
+          },
+          {
+            "cmd": "system-native on",
+            "about": "Wire-Pod's own voice answers on",
+            "run": true
+          },
+          {
+            "cmd": "system-native off",
+            "about": "Wire-Pod's own voice answers off",
+            "run": true
+          },
+          {"cmd": "system-record on", "about": "Record Session on (the page's Record? box)", "run": true},
+          {"cmd": "system-record off", "about": "Record Session off, kept zipped", "run": true}
+        ],
+        "next": "Close the menu with the speaker icon."
+      },
+      {
+        "title": "7. Brobots", "tour": ["Wire-Pod's bot page, right here. Add 1 or 2 at the end for one Brobot, or leave it out for both. “system-visual” steps through the camera feeds and what the Edge TPU sees, “system-cams” shows every feed at once, and “system-usb” lists what's plugged in.", "“system-brobot” does everything else: their stats, volume, eye colour, units, place and time zone, their cube tricks, sleep beats and animations, a line said, a wake, or a small nudge of the head, lift or wheels. “system-faces” and “system-photos” show the faces they know and the photos they took. Done? Close the window with the speaker icon."],
+        "guide": "Wire-Pod's bot page, here: add 1 or 2 at the end for one Brobot (both when left out).",
+        "items": [
+          {
+            "cmd": "system-visual next",
+            "about": "the TPU +/- rotation: next feed, photo, enhancement, TPU boxes and \"I see...\" (KP+)",
+            "run": true
+          },
+          {
+            "cmd": "system-visual prev",
+            "about": "previous feed (KP-)",
+            "run": true
+          },
+          {
+            "cmd": "system-cams",
+            "about": "every feed's photo in a row, then the TPU boxes on the selected one",
+            "run": true
+          },
+          {
+            "cmd": "system-tpu",
+            "about": "the Edge TPU worker: ready or not",
+            "run": true
+          },
+          {
+            "cmd": "system-tpu restart",
+            "about": "start the Edge TPU worker again",
+            "run": true
+          },
+          {
+            "cmd": "system-usb",
+            "about": "the USB devices plugged in, live (hot-swap)",
+            "page": "usb"
+          },
+          {
+            "cmd": "system-brobot stats",
+            "about": "both Brobots' statistics",
+            "run": true
+          },
+          {
+            "cmd": "system-version",
+            "about": "Wire-Pod's commit, the newest, what an update touches",
+            "run": true
+          },
+          {
+            "cmd": "system-brobot volume",
+            "about": "<0-5>"
+          },
+          {
+            "cmd": "system-brobot eyes",
+            "about": "<teal|orange|yellow|lime|sapphire|purple|green>"
+          },
+          {
+            "cmd": "system-brobot locale",
+            "about": "<en-US ...>"
+          },
+          {
+            "cmd": "system-brobot units",
+            "about": "c | f"
+          },
+          {
+            "cmd": "system-brobot location",
+            "about": "<place>"
+          },
+          {
+            "cmd": "system-brobot timezone",
+            "about": "<America/Toronto ...>"
+          },
+          {
+            "cmd": "system-faces",
+            "about": "the faces a Brobot knows (list | rename <old> <new> | delete <name> | add <name>)",
+            "fill": "system-faces list "
+          },
+          {
+            "cmd": "system-photos",
+            "about": "a Brobot's photos",
+            "fill": "system-photos "
+          },
+          {
+            "cmd": "system-brobot cube",
+            "about": "<pickupcube|fetchcube|rollcube|popawheelie|keepaway|findcube> - his own cube moves"
+          },
+          {
+            "cmd": "system-brobot beats",
+            "about": "the 126 sleep beats by family: sleep, rts-asleep, held-on-palm, petting",
+            "run": true
+          },
+          {
+            "cmd": "system-brobot beat",
+            "about": "<alias> - plays one sleep beat (snores, warbles, sleep moves...)"
+          },
+          {
+            "cmd": "system-brobot anims sleep",
+            "about": "every sleep animation on the robot (any word: anims happy)",
+            "fill": "system-brobot anims sleep "
+          },
+          {
+            "cmd": "system-brobot anim",
+            "about": "<name> - plays one (names from anims)"
+          },
+          {
+            "cmd": "system-brobot say",
+            "about": "<text> - said by the Brobot"
+          },
+          {
+            "cmd": "system-brobot wake",
+            "about": "\"Hey Vector\" without the words"
+          },
+          {
+            "cmd": "system-brobot head",
+            "about": "<speed, e.g. 3 or -3> - a short nudge"
+          },
+          {
+            "cmd": "system-brobot lift",
+            "about": "<speed>"
+          },
+          {
+            "cmd": "system-brobot wheels",
+            "about": "<left> <right>"
+          },
+          {
+            "cmd": "system-brobot camera",
+            "about": "live video from the Brobot's camera",
+            "run": true
+          }
+        ],
+        "next": "Done? Close the menu with the speaker icon."
+      },
+      {
+        "title": "8. Tune moves", "tour": ["A move looks off? Try it alone on one Brobot first. “system-calibrate” plays one move, an arm, a nod, the rattle or a cube light, with its speed, hold and cycles. Turn tweaks on in Scripture 6 to keep the tuned values.", "“system-anim” tests an animation token with words. Then play that part in its song with system-play, from Scripture 2."],
+        "guide": "A move looks off? Try it alone on one Brobot (tweaks on: group 6), then play it in its song.",
+        "items": [
+          {
+            "cmd": "system-calibrate",
+            "about": "<arm|nod|rattle|danger|cube> <1|2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry]"
+          },
+          {
+            "cmd": "system-anim list",
+            "about": "the animation tokens",
+            "run": true
+          },
+          {
+            "cmd": "system-anim",
+            "about": "the animationWI tester (WIP): a token and words, e.g. angry with a count",
+            "fill": "system-anim {{playAnimationWI||angry}} wait 1, 2, 3, 4, 5, 6, 7, 8, 9, 0"
+          }
+        ],
+        "next": "Play that part: system-play <song> from <step> to <step> (group 2)."
+      },
+      {
+        "title": "9. Test one thing", "tour": ["Something acting up? Test just that part. “system-test-list” lists the tests, and “system-test” followed by a name runs one. “system-test-game” finds every topic, value point and Easter egg by its own words, and “system-test-admin-run” plays the full admin run, every line in order.", "“system-comm-check” holds every numpad key in turn before the show, live. “system-tour” is this tour, “system-torah” writes the Torah again, and “system-audit” runs everything with no robots called. A FAIL says what it saw: fix it in Scripture 3, then Scripture 5."],
+        "guide": "Something acting up? Test just that part.",
+        "items": [
+          {
+            "cmd": "system-test-list",
+            "about": "the tests, then system-test-<name>",
+            "run": true
+          },
+          {
+            "cmd": "system-test-game",
+            "about": "every topic, value point and Easter egg found by its own words - no robots, no model",
+            "run": true
+          },
+          {
+            "cmd": "system-tour",
+            "about": "the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
+            "run": true
+          },
+          {
+            "cmd": "system-torah",
+            "about": "the GOPOD Torah (GOPOD_TORAH.md, the master system reference) written again from the system as it is now",
+            "run": true
+          },
+          {
+            "cmd": "system-comm-check",
+            "about": "the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",
+            "run": true
+          },
+          {
+            "cmd": "system-test-admin-run",
+            "about": "the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders",
+            "run": true
+          },
+          {
+            "cmd": "system-audit",
+            "about": "the full audit, no robots called - files, Go tests, web page, phone app, every test, the log (a few minutes)",
+            "run": true
+          },
+          {
+            "cmd": "system-test-replay",
+            "about": "the chat page plays every egg kind, both prizes and the Operator voices - no robots (run it after any page change)",
+            "run": true
+          },
+          {
+            "cmd": "system-test-",
+            "about": "one test - add its name (weather-live, qr, voices...)",
+            "fill": "system-test-"
+          }
+        ],
+        "next": "A FAIL says what it saw - fix it in 3, then 5."
+      },
+      {
+        "title": "10. Wrap up", "tour": ["End the show. Say “thanks Brobots” for the ending, or “stop session” to end the session. “system-help” lists every command, a line each."],
+        "guide": "End the show.",
+        "items": [
+          {
+            "cmd": "thanks brobots",
+            "about": "the ending",
+            "fill": "thanks brobots"
+          },
+          {
+            "cmd": "stop session",
+            "about": "ends the session",
+            "fill": "stop session"
+          },
+          {
+            "cmd": "system-help",
+            "about": "every command, a line each",
+            "run": true
+          }
+        ]
+      }
+    ]
+  },
+  "system_tests": {
+    "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",
+    "admin_run_about": "2026-10-28 (operator: \"Yes!! Make the 100% admin run a standing self-check * each point not revealed * each egg not found * each prize not given * each reminder that went dry * And please add this 'admin run standing self-check' to GOPOD system item\"): system-test-admin-run plays this file - part|to|line, every line in order - through the game's own code, as the room would (no robots, no model, nothing said; the live game is saved and put back): a run line must be a run card's start; a Brobot's line gets his points, the egg it would pop and the reminder after it. PASS when every value point, egg and both prizes are reached and no reminder went dry. Also in the audit, and in the system menu.",
+    "admin_run": {"file": "gopod_probes/admin_run/admin_run_001.txt"},
+    "tpu_about": "2026-10-24 (operator: \"PASS tpu: 1 objects: laptop * laptop?\" - the workbook photo was named a laptop): system-test-tpu shows the Edge TPU this picture (webroot/pictures) and passes only when it names expect in it.",
+    "tpu": {"picture": "legacy/gangster_granny.jpg", "expect": "person"},
+    "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "admin-run", "replay", "page", "robots"],
+    "audio_about": "2026-10-19 (pha0b's audio-routing check): the sound defaults GOPOD needs - the speaker (sink) by name, the USB mic (source) by part of its name.",
+    "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
+  }
+}

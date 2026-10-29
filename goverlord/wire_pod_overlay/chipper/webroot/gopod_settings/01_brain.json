@@ -1,0 +1,264 @@
+{
+  "animation_marker": "___",
+  "placeholder_word": "actionParameter",
+  "placeholder_thought": "spoken thought",
+  "reply_examples": {
+    "about": "Each brother's own example lines, shown in his reply shape (wire-pod_response_prompt.txt, $REPLY_EXAMPLE): two cue words each, so gemma2:2b doesn't copy one cue word into every reply, and each one grumbles or cheers AND answers, on a topic far from GOPOD so nothing gets copied into a real answer (2026-10-05, SOCIAL_DEMO_REPLAY_001.md).",
+    "Brobot 1": "confused___ The weather, Brobot 0? Ugh, fine - it's sunny and warm, so everyone will want to dance and I'll have to watch, bro... 😒☀️\ndartingEyes___ Pizza or tacos? Pizza, obviously - round, sliced, and nobody argues over the last taco, bro... 🙄🍕",
+    "Brobot 2": "veryHappy___ The weather, Brobot 0? It's sunny and warm - perfect for a rooftop Brobot party, bro... 🤩☀️\ncelebrate___ Pizza or tacos? Tacos - wait, no, pizza! Both? Both is a party, bro... 🥳🌮"
+  },
+  "final_output_check": "FINAL CHECK, before you answer: exactly one line that starts with your cue word glued to three underscores, like the examples above, then one space and your own spoken words. Only your own words, as yourself. No labels, no name with a colon, no markdown, no asterisks.",
+  "question_facts_header": "FOR THIS QUESTION, USE THESE FACTS:",
+  "off_topic_note_2_about": "2026-10-25 (operator: \"Brobots as GOPOD reps, are hired to use their wordplay skills to gravitate back to GOPOD * recent session chat history for comedic context + wordplay * gravitate back using 'Hey' reminders list left to reveal\"; then \"Yes put that in please\"): no fixed list of points here - the \"Hey, that reminds me...\" end line names what's left.",
+  "off_topic_note": "This line is nonsense or far from GOPOD. Play with its words - wordplay, riffing on the chat so far - in one or two sentences, your own way. Then bridge back to GOPOD. You have a job to do.",
+  "web_links": {
+    "about": "No web addresses or links in a reply (operator 2026-10-06: \"no urls\" - gemma2:2b made up addresses and handles, and the other Brobot repeated them). Before a reply is shown or spoken, a link (http://, https://, www.) or a bare web address is taken out, unless it holds keep_with - then only the bare address stays (crushn8r.ca, said by the pronunciation registry as \"Crush-Ehnaydir dot see-aye\"). gopodDropWebLinks, gopod_kgsim_response_shaping.go.",
+    "keep_with": "crushn8r"
+  },
+  "stretched_words": {
+    "about": "A stretched word is said stretched, not spelled out (operator 2026-10-06: \"Long 'brooooo' = 'bro-o-o'\"): a word ending in one vowel repeated min_repeat or more times is spoken with that vowel said_repeats times, joined by hyphens - brooooo -> bro-o-o, gooooo -> go-o-o. Speech only; the bubble shows it as written. gopodSayStretchedWords, gopod_pronunciation.go.",
+    "min_repeat": 3,
+    "said_repeats": 3
+  },
+  "merged_words": {
+    "about": "Merged words get a hyphen before they're spoken (operator 2026-10-06: \"snoozefest = snooze-fest ... a filter to catch merged words ... and auto-split\"). Only poetically licensed, made-up merges are split (operator 2026-10-06: \"split poetically licensed/composed words, not recognized doublewords\"): a word of min_letters or more that isn't in the dictionaries, and splits cleanly into two dictionary words of min_part letters or more, is spoken split: snoozefest -> snooze-fest. A dictionary word plus one of word_endings (robotically = robotic + ally), or a dropped g (somethin), is a real word and stays whole. With several splits, the most even one wins, then the longer second part (kickstart -> kick-start, not kicks-tart). Speech only; the bubble shows the word as written. Words in the pronunciation registry and keep_whole count as known words (with their endings: rockstars) and are never split; a real compound the dictionaries miss goes in keep_whole. dictionaries: the system word list plus aspell's expanded English list (made once with: aspell -l en dump master | aspell -l en expand). A missing file is skipped; none at all = no splitting.",
+    "dictionaries": [
+      "/usr/share/dict/american-english",
+      "/home/goverlord/gopod_tts/word_lists/aspell_en_expanded.txt"
+    ],
+    "min_letters": 8,
+    "min_part": 4,
+    "word_endings": [
+      "s",
+      "es",
+      "ed",
+      "ing",
+      "er",
+      "ers",
+      "ly",
+      "ally",
+      "ist",
+      "ists",
+      "ism",
+      "able",
+      "ability",
+      "ness",
+      "ment",
+      "ful",
+      "less",
+      "ish"
+    ],
+    "keep_whole": [
+      "Brotobot",
+      "Goverlord",
+      "Gominion",
+      "crushn8r",
+      "multichat",
+      "foodmath",
+      "personalitymath",
+      "mathaftermath",
+      "accessmath",
+      "themself",
+      "blabbering",
+      "poutine",
+      "rockstar",
+      "kickstart",
+      "playdate",
+      "roleplay",
+      "rollercoaster",
+      "neverending",
+      "homebrew",
+      "dataset",
+      "shoutout",
+      "interdimensional",
+      "overcomplicated",
+      "curveball",
+      "braintrust",
+      "chatroom"
+    ]
+  },
+  "animation_lead_in": "...",
+  "spoken_symbols": {
+    "about": "How a symbol is said (operator 2026-10-08: \"add the missing symbols, the old 'times' and 'divided by', and the LaTeX cleanup to the speech cleanup\"; \"$\" = \"dollars\"). Speech only - the bubble keeps the symbol. \"$5\" is said \"5 dollars\". LaTeX math (\\frac{1}{2}, \\overline{3}, \\( \\)) is cleaned first: a fraction becomes 1/2, an overline \"3 repeating\" (gopod_spoken_symbols.go).",
+    "show_as_said_about": "2026-10-27 (operator: \"2026 * should be observed as 20 26 * spoken & heard, highlights follow 20 26 spoken/heard pattern\"): spoken forms a Brobot's bubble shows the way they're said - years: a date's year as its two halves (October 27, 20 26), like gopodSpeakYears says it.",
+    "show_as_said": ["years"],
+    "repeating_word": "repeating",
+    "hmm_said": "hmm-m-m", "negative_word": "negative",
+    "words": {
+      "×": "times", "÷": "divided by", "±": "plus minus", "√": "square root", "∞": "infinity",
+      "≈": "almost equals", "≠": "not equal", "≡": "identical to", "≤": "less than or equal",
+      "≥": "greater than or equal", "°": "degrees", "π": "pi", "∆": "delta, or change in,",
+      "∑": "sum", "∏": "product", "€": "EUR", "£": "GBP", "¥": "JPY", "₹": "INR",
+      "#": "hashtag", "$": "dollars", "⁄": "over", "−": "minus", "=": "equals", "%": "percent", "•": ""
+    }
+  },
+  "stage_direction_emojis": [
+    "📣",
+    "🎬"
+  ],
+  "llm": {
+    "about": "The Brobots' LLM stays warm (operator 2026-10-03: \"I prefer a pre-warm up and then have it stay loaded, so it doesn't go cold\"). At Wire-Pod start one silent request loads the model (same model and endpoint as the chat); warmup_text shows on the page meanwhile and disappears when done. Then every refresh_seconds Ollama is told to keep the model loaded for keep_alive (a negative value = until Ollama stops). Nothing is spoken or kept in the chat. A song with \"llm_warmup\": true in its knobs.json (the Bingo test) shows the same bubble at the start of a live run, for at least song_warmup_min_seconds or until its warm request is done (operator 2026-10-04). 2026-10-04 (operator: \"make it like a horizontal battery power level indicator ... left to right, red to green, cold llm to fully warmed up llm ... message changes, LLM Warming Up to LLM Ready ... use same hour glass\"): the bubble is a battery of leds LEDs, red to green, filling over expected_seconds (the cold load takes about 2 minutes here) but never full until the model is loaded; then all green with ready_text, the hourglass settled - and the bubble stays in the window, saved with the chat (operator: \"it is to stay. Keep it in\"). The rattle countdown keeps its Bingo balls. warmup_done_text (operator 2026-10-09; 2026-10-10 \"Combine into one bubble\"): the start's warm-up bubble reads \"LLM Ready. Warm-up complete.\", and Goverlord says both.",
+    "opener_about": "GOLDEN opener template (operator 2026-10-16, his exact lines, one line each message: 1: \"(music) Voice files generation check.\" - 2: \"Voice files generated. Language Model Loading\" - 3: \"Language Model Loaded, Master CrushN8r. Your move. (music)\"; \"visual: ensure bubble is fully rendered/loaded (off screen) * audio: ensure audio fully loaded & playable * upon both audio/visual and no sooner, position bubble correct & proper in chat window\"). Message 1 (voices_text) shows at every start - it is the check; message 2 (warmup_text; wait_text empty, nothing added); message 3 (ready_text; warmup_done_text empty). A song run: message 2, then run_ready_text, the song's own llm_ready_text (its knobs) and run_ready_end, a line each. (music) is shown, for deaf viewers, where the stings play; the butler doesn't say it. 2026-10-16 (operator: \"remove 1st \\\"(music)\\\" & remove its audio play ... Keep: \\\"Language Model Loaded, Master CrushN8r. Your move. (music)\\\" + audio play\"): message 1 is \"Voice files generation check.\", no sting; the end sting stays. Locked by TestWarmupSequenceGolden.",
+    "opener_song_id_about": "2026-10-16 (operator: \"from the LLM warm template, make the opener LLM Warming song\"): Wire-Pod's start plays this song (goverlord/runtime/songs/00_llm_warming/, from the template _new_song/_llm_warm/): its story.md words and knobs.json steps (gopod_opener_song.go). Empty, or a song it can't read: the built-in opener from voices_text, warmup_text and ready_text below. warmup_text and wait_text stay the song runs' own warm-up.",
+    "opener_song_id": "brobots_llm_warming",
+    "warmup_text": "Voice files generated. Language Model Loading",
+    "sequence_about": "2026-10-13 (operator: \"Always Use System llm bubble 2 with animation + system messages ... displays first and always stays at the bottom of what ever happens until LLM Ready ... Sequential Run Check\"): one System llm bubble from the start, its message in turn: voices_text + wait_text while the voices are made, warmup_text + wait_text while the LLM warms (skipped when warm), wait_text while the lines in between play, then the ready line.",
+    "voices_text": "Voice files generation check.",
+    "wait_text": "",
+    "warmup_check_seconds_about": "2026-10-13 (operator: \"'LLM Warming up.' not included in message update\"): the LLM Warming Up step always shows; a model already warm holds it this long (no voice), a cold one until it's loaded.",
+    "warmup_check_seconds": 3,
+    "keep_alive": "-1m",
+    "refresh_seconds": 240,
+    "temperature": 1,
+    "say_line_temperature": 1,
+    "temperature_about": "2026-10-07 (operator: \"a brobots creativity-temperature (as-is = default setting) ... for segments requiring a say-it-flat like scripted stuff\"): the Brobots' creativity per reply - temperature (1, Wire-Pod's as-is) for a normal question, say_line_temperature for a question whose value point has a scripted line (value_points.say_lines). The scripted line itself is said by the code, flat; this only steadies the LLM's talk around it, where facts were invented. One temperature per reply: it can't change partway through.",
+    "song_warmup_min_seconds": 5,
+    "ready_text": "Language Model Loaded, Master CrushN8r. Your move. (music)",
+    "run_ready_text_about": "2026-10-14 (operator: \"part 1 standard * keep it in settings file once * each song gives only part 2\"): a run's LLM Ready message is this, then the run's own part 2 - a song's knobs.json llm_ready_text, the interview's interview_script.llm_ready_text (\"We here, are Fart Joke Ready\"). One bubble, one spoken line. Wire-Pod's own start keeps ready_text + warmup_done_text.",
+    "run_ready_text": "Language Model Loaded, Master CrushN8r.",
+    "no_required_about": "2026-10-17 (operator: \"keep for future songs like Baby Brobots * add: fallbacks to system messages: \\\"No Voice Generation Required\\\" or voice generation check * \\\"No Language Model Required\\\" of language model loading/loaded * to skip in-between messages, a single in-between message = \\\"\\\" = the indication to skip\"): a song whose knobs.json says \"voices_required\": false shows no_voices_text in place of the voice files part of its warming message; \"llm_required\": false shows no_llm_text in place of the language model part and of run_ready_text, and calls no model. A warmup_lines line with no words is skipped; in an LLM warm song (00_llm_warming), a reporter_lines step with an empty TEXT is skipped (\"opening\" plays the reporters' opening).",
+    "no_voices_text": "No Voice Generation Required",
+    "no_llm_text": "No Language Model Required",
+    "run_ready_end_about": "2026-10-25 (operator: \"Your move. (music) * doesn't make sense * Let's Begin. (music)?\"): a song run's last ready line (a run that needs the language model; one that doesn't has no warm-up).",
+    "run_ready_end": "Let's Begin. (music)",
+    "warmup_done_text": "",
+    "expected_seconds": 120,
+    "leds": 10
+  },
+  "prebuild_context": {
+    "about": "2026-10-22 (operator: \"brobot gets an input * pre-build context: I am brobt N. My role is a GOPOD rep. I have a reminders-list to go through. What was asked of me? How to best answer? * build the answer-chain accordingly, in manageable chunks for the llm\"; ID_SELF_SWARM_AWARENESS_001.md): every Brobot answer's prompt gets this section, after his facts, nearest the question. {brobot} Brobot N, {host} Doc / Pip, {reminders} the topics and eggs still on his list (the same as his \"Hey, that reminds me\" line), {question} what was asked, {steps} his own steps (host_personas). A line whose token is empty is left out. Empty header = off.",
+    "header": "BEFORE I ANSWER:",
+    "lines_about": "2026-10-27 (operator: \"rather than the llm asses all that * pre-generate all that for the llm, instead * Time is [time]. You are [name], located in [Windsor Ontario Canada]. You're chatting with friends, [list chat participants]. Check recent chat history for context\"; \"Template the flow\"): the here-and-now pieces as tokens, from here_now (one source with the Gomads' note) - {time}, {gender}, {place}, {cast}; {plan} the response chain's plan line (the notice's), left out for a single answer; {notice} what he's told about each notice line (bubble_notices.value_points.guide).",
+    "lines": [
+      "Time is {time}.",
+      "I am {brobot} ({host}, {gender}), located in {place}.",
+      "I'm chatting with friends: {cast}. I check recent chat history for context.",
+      "My role is a GOPOD rep.",
+  "{solo}",
+      "I have a reminders-list to go through: {reminders}.",
+      "What was asked of me: \"{question}\"",
+      "Where this answer sits: {plan}.",
+      "{notice}",
+      "How to best answer: {steps}.",
+  "{roast}",
+  "{spice}",
+      "The game: {game}",
+      "Our score so far: {score}."
+    ]
+  },
+  "shared_chat": {
+    "max_questions": 13,
+    "max_minutes": 120,
+    "max_answer_chars": 600,
+    "max_performed_lines": 40,
+    "max_performed_line_chars": 200,
+    "performed_note": "[Not a question - this is what the Brobots just performed for the audience (a scripted show, e.g. the Bingo test), shown on the chat screen:]",
+    "forgotten_note": "[Not a question - older chat is forgotten. If asked about something not in this chat, say you don't remember it.]"
+  },
+  "clean_politics": {"about": "Clean GOPOD (operator 2026-10-16, on Brobot 2's 🇵🇸 flag in a \"Jerusalem, Israel\" weather reply: \"Please account for obvious politically motivated b*llsh*t in clean GOPOD * politically motivated b*llsh*t only allowed in roast battle\"; \"RULE: use correct & proper country flag emojis\"). Outside a roast battle (topic roast_battle), in a Brobot's reply: a country flag is kept only when its country is named in the question or the reply; a wrong flag becomes the named country's flag when exactly one country is named, else it goes. A sentence with one of words goes. countries: the names that say which flag is right. gopod_clean_politics.go.", "allowed_topics": ["roast_battle"], "words": ["zionist", "zionism", "hamas", "hezbollah", "intifada", "free palestine", "from the river to the sea", "genocide", "apartheid", "occupation", "occupied", "maga", "woke", "antifa", "trump", "biden", "kamala", "netanyahu", "putin", "democrat", "democrats", "republican", "republicans", "liberals", "conservatives", "left-wing", "right-wing", "election", "elections", "abortion", "pro-life", "pro-choice", "communist", "fascist", "nazi"], "countries": {"canada": "CA", "united states": "US", "usa": "US", "america": "US", "mexico": "MX", "brazil": "BR", "argentina": "AR", "chile": "CL", "peru": "PE", "colombia": "CO", "venezuela": "VE", "cuba": "CU", "jamaica": "JM", "united kingdom": "GB", "uk": "GB", "england": "GB", "scotland": "GB", "wales": "GB", "britain": "GB", "ireland": "IE", "france": "FR", "germany": "DE", "italy": "IT", "spain": "ES", "portugal": "PT", "netherlands": "NL", "belgium": "BE", "switzerland": "CH", "austria": "AT", "sweden": "SE", "norway": "NO", "denmark": "DK", "finland": "FI", "iceland": "IS", "poland": "PL", "ukraine": "UA", "russia": "RU", "greece": "GR", "turkey": "TR", "israel": "IL", "palestine": "PS", "lebanon": "LB", "syria": "SY", "jordan": "JO", "egypt": "EG", "iran": "IR", "iraq": "IQ", "saudi arabia": "SA", "united arab emirates": "AE", "uae": "AE", "qatar": "QA", "india": "IN", "pakistan": "PK", "china": "CN", "japan": "JP", "south korea": "KR", "korea": "KR", "north korea": "KP", "taiwan": "TW", "philippines": "PH", "vietnam": "VN", "thailand": "TH", "indonesia": "ID", "malaysia": "MY", "singapore": "SG", "australia": "AU", "new zealand": "NZ", "south africa": "ZA", "nigeria": "NG", "kenya": "KE", "ethiopia": "ET", "morocco": "MA", "ghana": "GH", "zimbabwe": "ZW", "zambia": "ZM", "tanzania": "TZ", "uganda": "UG", "senegal": "SN", "ivory coast": "CI", "cote d'ivoire": "CI", "algeria": "DZ", "tunisia": "TN", "hawaii": "US"}, "capitals_about": "2026-10-23 (live: \"what's the weather like in zimbabwe africa\" got a town named Zimbabwe in Ivory Coast, 🇨🇮): a question naming only a country (and a continent: continents) asks for its capital's weather.", "capitals": {"ZW": "Harare", "ZM": "Lusaka", "TZ": "Dodoma", "UG": "Kampala", "SN": "Dakar", "CI": "Yamoussoukro", "DZ": "Algiers", "TN": "Tunis", "ZA": "Pretoria", "NG": "Abuja", "KE": "Nairobi", "ET": "Addis Ababa", "MA": "Rabat", "GH": "Accra", "EG": "Cairo"}, "continents": ["africa", "europe", "asia", "south america", "north america", "oceania", "the middle east"]},
+  "response_chains_about": "2026-10-25 (operator: \"Do response-chain template as proposed last time to make the rest inherent * this to me falls under, flexible data sets\"; the vision: \"Single and multi (duo for now) responses are the boundaries * Response-chains, with answer-chains within them\"): a response is its answers in turn - single (one Brobot) or duo (A first, B next; multi later: more answers). Each answer is one Brobot's answer-chain (answer_chains.<chain>, his thought bubbles). Per answer: chain; opener - what he says first, while thinking (openers.<name>: {got_it} his own Got it words, {title} {nickname} from nicknames); ends_with, no_reminder, keep_reminder_types, weather_type, no_manager - the duo rules (moved here from duo). plan: the notice bubble's plan line ({order}, {n} of {total}; empty = none). Needs wpr 2. The duo rules' history: 2026-10-23 (operator: \"for brobot 2 first, the mechanics appear to work correctly * please soft lock this templated mechanism * a 'duo' answer-type templated mechanism, is a good starter for a 'multi' answer-type templated mechanism, later on * Brobot A 'duo-answer-type-A' > Brobot B 'duo-answer-type-B' * boilerplate for duo-response-type scaffolding * templates for duo-response-types A & B from boilerplate\"): the duo boilerplate - in a line to both (All, starting with 1 or 2: typed_line.all_first, or the words), A answers first, B next. Each: its answer chain (chain), and the rules every answer type follows in that place - A ends with the hand-over in place of the reminder (ends_with, no_reminder; keep_reminder_types keep theirs, then hand over); B's weather is weather_next; B gets no manager step-in (no_manager: 2026-10-23, operator: \"the 2nd manager assist not needed for same weather calls and other repeat calls\") - so no second \"Thanks for your help\" either. A multi answer type later: more letters here. Soft-locked by TestDuoAnswersHold.",
+  "response_chains": {
+    "single": {"plan": "", "answers": [{"chain": "brobots", "opener": "got_it"}]},
+    "duo": {"plan": "Response-chain: {order} - answer {n} of {total}", "answers": [
+      {"chain": "duo_a", "opener": "got_it", "ends_with": "handover", "no_reminder": true, "keep_reminder_types": ["math"]},
+      {"chain": "duo_b", "opener": "comeback", "weather_type": "weather_next", "no_manager": true}
+    ]}
+  },
+  "openers_about": "2026-10-25 (operator: \"Brobot B replaces his 'Got it!' with 'Nice try [funny-nickname]'\"): what a Brobot says first in his answer (response_chains answers' opener). {got_it} = his own Got it words (chat_moves.got_it); {title} {nickname} from nicknames.",
+  "openers": {
+    "got_it": "{got_it}",
+    "comeback": "Nice try, {title} {nickname}!"
+  },
+  "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
+  "multiple_responses_about": "2026-10-22 (operator: \"Multiple Responses Template * no reminders in 1st brobot response * this is how I see answer-chains handling different queries * cater answer-chains to handle known/expected/desired prompts to reveal value points\"): a line to both - the first Brobot: weather report (weather_lines.report), weather comment, his value point, the hand-over (answer_chains.brobots_all_first, no reminders); the next: weather confirmed (weather_lines.confirm), comment following his brother's, his value point, the Weather Kit, the reminders (brobots_follow_up). A single answer: report, comment, value point, reminders (brobots). Each Brobot's own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C / 24-hour). The model's parts: chain_prompts.",
+  "weather_lines": {
+    "report": "Brobot Weather Report for {place}, {date}. Temperature is {temp} and {sky} as of {time}.",
+    "confirm": "Confirmed. Temperature is {temp} at {time}."
+  },
+  "chain_prompts": {
+    "weather_point_first": "Write two short paragraphs: first one line about this weather; then, on a new line, party on your value point above, your way.",
+    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way.",
+    "weather_lead": "First one short line about this weather. Then:",
+    "weather_lead_next": "First one short line following up your brother's weather comment. Then:"
+  },
+  "golden_answers_about": "2026-10-23 (operator: \"What is AI wordplay? * the fun challenges humans input to the brobots (future live hosts, Doc & Pip) * What is Explain the MAth? * the hilarity that ensues afterwards\"; his answer: notes + golden answers): a question asking one of these gets its line word for word, first (the answer chain's golden_line part); the rest of the answer follows its type (the summary, for these).",
+  "golden_answers": [
+    {"queries": ["what is ai wordplay", "what's ai wordplay"], "line": "AI wordplay: the fun challenges humans throw at the Brobots - Doc & Pip, the future live hosts."},
+    {"queries": ["what is explain the math", "what's explain the math"], "line": "Explain the MAth!: the hilarity that ensues afterwards."}
+  ],
+  "session_memory": {
+    "about": "2026-10-23 (template sweep): how each earlier exchange is told to the Brobots ({who} {asked} {answered}; scenario {scenario}); empty_text when a line has no words left.",
+    "line": "* User asked {who} about {asked}; {who} answered {answered}.",
+    "scenario": " Prior matched scenario: {scenario}.",
+    "empty_text": "a short GOPOD point"
+  },
+  "summary": {
+    "about": "2026-10-23 (operator: \"'AI wordplay' is a good example of what I mean by overlapping * if I ask, 'What is AI wordplay?' * that would be like a golden query that unlocks it all * large overlapping value-points will demand more of a contextual summary * please build its own answer type\"; \"from 'AI wordplay! Explain the MAth!' live stream > ...\"): the summary answer type - a golden query (queries) or a question opening min_topics core topics or more gets one bubble per core topic still to come (its next value point's title and first note), up to max_topics, in topic_order (the livestream first). The model is given facts_note ({topics}); a bubble it misses is made from fallback ({topic} {title} {Title} {note}). No point counted - a map of what's ahead; the pull still names what's next.",
+    "queries": ["ai wordplay", "explain the math", "what is gopod", "what's gopod", "tell me everything", "what do you guys do", "what do you do"],
+    "min_topics": 3,
+    "max_topics": 3,
+    "topic_order": ["The livestream", "Social media", "What GOPOD is", "How Doc & Pip teach", "Accessmath", "Book us", "Join the crew", "Who we are", "Due Credit"],
+    "facts_note": "This asks for the big picture - a short summary across what we do. One short line for each, in order, your way:\n{topics}",
+    "fallback": "{Title}: {note}."
+  },
+  "answer_shapes_about": "2026-10-23 (FINISH_PLAN_001.md step A2; operator: \"the flow of output in the responses isn't consistent * I need a templated answer-chain mechanism\"): GOLDEN - one shape per answer type, the order of his thought bubbles. Every answer is checked as it's made (BROBOT_SHAPE in the log: ok, or DRIFT and the shape it wanted) and every type is run through the real answer chain at deploy (TestAnswerShapesHold). A shape is marks in order: llm = his own words; point = his value point's title line (its notes follow as his words); say_line = a point's exact line; the others are found by their text (marks, checked in mark_order). ? = may be missing; a|b = either. In a line to both, the first answer's reminder is the hand-over (math: reminder, then hand-over).",
+  "answer_shapes": {
+    "shapes": {
+      "weather": ["weather_report", "llm?", "point?", "llm?", "reminder"],
+      "weather_next": ["weather_confirm", "llm?", "point?", "llm?", "weather_kit", "reminder"],
+      "topic": ["point|say_line", "llm?", "reminder"],
+      "free": ["llm", "reminder"],
+      "math": ["say_line", "llm?", "rule?", "reminder"],
+      "thanks": ["llm"],
+      "summary": ["summary", "llm?", "reminder"]
+    },
+    "marks": {
+      "weather_report": "Brobot Weather Report",
+      "weather_confirm": "Confirmed. Temperature",
+      "weather_kit": "Weather Kit",
+      "reminder": "that reminds me",
+      "rule": "Doc's Rule",
+      "handover": "what say you on this",
+      "golden": "the fun challenges humans throw at the Brobots|the hilarity that ensues afterwards"
+    },
+    "mark_order": ["golden", "weather_report", "weather_confirm", "weather_kit", "reminder", "rule", "handover"]
+  },
+  "typed_line": {
+    "about": "2026-10-22 (operator: \"replace 'All' radio button with a small drop down menu: 1/2 * default selection = '1' (brobot 1) * selection '2' = (brobot 2) * look at 'Starting with Brobot 2' flag/condition * template drop down menu selection with default brobot 1/'Starting with Brobot 2'\"): the page's All menu picks who answers first in a line to both - 2 is the same as \"Starting with Brobot 2\" (gopodAllFirst); all_first is the default when the page sends none. The words still win: \"Starting with Brobot 2\" turns it round with the menu on 1.",
+    "all_first": "1"
+  },
+  "colour_slots": {
+    "about": "2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 3; operator: \"set cap from 5 sentences to 4 sentences\"): colour:value_point in answer_chains - a value point's exact line (its topic's say N: line) said word for word first, the model's part after it its colour, cut to max_sentences (even with reply_tighten.budget_off). Doc and Pip colour it their own way (host_personas).",
+    "max_sentences": 4,
+    "reminder_about": "2026-10-22 (step 4; operator: \"Every answer steers back to the money\"): the answer chain's reminder part - a free answer (no value point given, not a thank-you, not a follow-up) always ends with value_points.reminder_topics_text (\"Hey, that reminds me...\"), then no other end line."
+  },
+  "answer_chains": {
+    "base": {"parts": ["start_snippet", "docbs", "colour:value_point", "llm", "docbs_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
+    "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "reminder", "end_snippet"]},
+    "brobots_summary": {"parts": ["golden_line", "llm", "summary_bubbles", "reminder"]},
+    "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "redirect"]},
+    "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "weather_kit", "reminder", "end_snippet"]},
+    "brobots_math": {"parts": ["colour:value_point", "llm", "rule", "reminder", "redirect"]},
+    "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
+  },
+  "reply_tighten": {
+    "about": "Tighter replies (operator 2026-10-06: \"Tighten the responses\"; 2026-10-07: a response budget instead of one cap - \"Can you hear me? vs Tell me all about yourself\"; gopod_reply_tighten.go). On the LLM's part of a reply only, before the scripted lines go in. The budget is worked out by the code per question, the prompt is unchanged: base_sentences, plus per_topic_sentences for each topic the question loads (topic_sentences sets a topic's own number - checks, \"can you hear me?\", adds none), plus more_sentences when it has a more_words phrase, never over max_sentences; after a point's scripted line (value_points.say_lines) the LLM gets say_line_sentences (2026-10-07: its talk after the line argued with it). Anything in [square brackets] is dropped - a placeholder, never speech. not_sentence_ends don't end a sentence. drop_lists cuts numbered and bulleted list lines and ``` blocks and keeps **bold** words without the stars; drop_stage_directions cuts *stage directions* (two words or more, or one on stage_directions.json) - false brings back the stage_direction_emojis lines.",
+    "budget_off": true,
+    "budget_off_about": "2026-10-08 (operator: \"I like this: 'It's like he took all these tricky bits... and made them into something beautiful.' * remove 2-sentence clamps & stuff\"): true - no reply is cut to a sentence count (the budget below and say_line_sentences are kept, unused); the prompt's own sizing and the clean-up (brackets, drop_sentences_with, lists, stage directions) stay. false brings the budget back.",
+    "base_sentences": 2,
+    "per_topic_sentences": 2,
+    "more_words": ["tell me all", "all about", "explain", "why", "how does", "how do", "what happened", "the story", "everything", "go on", "tell me more"],
+    "more_sentences": 2,
+    "max_sentences": 8,
+    "free_max_sentences_about": "2026-10-24 (operator: \"Brobot 1 response * is amazing, lol, but too long\"): a free answer (no value point - a greeting too) keeps at most this many sentences, budget_off or not.",
+    "free_max_sentences": 4,
+    "say_line_sentences": 2,
+    "drop_sentences_with": ["the response reflects", "this response", "the response above", "as an ai language model", "would like me to continue", "want me to continue", "like to continue", "use emojis in your responses", "need more assistance", "let me know"],
+    "not_sentence_ends": ["Dr.", "Mr.", "Mrs.", "Ms.", "St.", "vs.", "etc.", "e.g.", "i.e."],
+    "drop_lists": true,
+    "drop_stage_directions": true,
+    "brand_words_about": "Branding (operator 2026-10-09: \"every 'robot' possible = 'brobot' ... 'brobot' for branding\"): in the LLM's part of a live reply, each from word becomes its to word (whole words, any case), before the bubble and the speech are made.",
+    "brand_words_about": "Every way the model writes a brand, said and shown one way (any case, whole words). 2026-10-23 (operator: \"Keep exact test string: 'MAth', like Toys R Us * If I say Keep 'MAth' update the template\"): AI Wordplay! Explain the MAth!",
+    "brand_words": [{"from": "robots", "to": "Brobots"}, {"from": "robot", "to": "Brobot"}, {"from": "AI Wordplay! Explain the Math!", "to": "AI Wordplay! Explain the MAth!"}, {"from": "Explain the Math!", "to": "Explain the MAth!"}]
+  }
+}

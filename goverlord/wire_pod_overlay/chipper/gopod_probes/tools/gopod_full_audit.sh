@@ -61,7 +61,7 @@ else
 fi
 
 # 2. Files --------------------------------------------------------------------
-for f in "$chipper/webroot/gopod_brobots_settings.json" "$chipper/webroot/gopod_picture_descriptions.json" "$chipper/webroot/app/gopod_manifest.json" "$overlay/overlay.json"; do
+for f in "$chipper"/webroot/gopod_settings/*.json "$chipper/webroot/gopod_picture_descriptions.json" "$chipper/webroot/app/gopod_manifest.json" "$overlay/overlay.json"; do
   if err="$(python3 -I -c 'import json,sys; json.load(open(sys.argv[1]))' "$f" 2>&1)"; then check "Files" "$(basename "$f")" 0 "valid JSON"; else check "Files" "$(basename "$f")" 1 "${err##*: }"; fi
 done
 for f in "$chipper"/webroot/js/gopod_*.js "$chipper/webroot/gopod_sw.js" "$here/gopod_page_replay_001.js"; do
@@ -98,7 +98,7 @@ feedok="$(curl -s --max-time 10 "$base/gopod_chat_feed.json" | python3 -I -c 'im
 if [ "$feedok" = "ok" ]; then check "Web page" "feed in order" 0 "ids rising, none repeated"; else check "Web page" "feed in order" 1 "$feedok"; fi
 
 # 5. Phone app ----------------------------------------------------------------
-port="$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1]))["app"]["https_port"])' "$chipper/webroot/gopod_brobots_settings.json" 2>/dev/null || echo 8443)"
+port="$(python3 -I -c 'import json,glob,sys; m={}; [m.update(json.load(open(f))) for f in sorted(glob.glob(sys.argv[1]+"/*.json"))]; print(m["app"]["https_port"])' "$chipper/webroot/gopod_settings" 2>/dev/null || echo 8443)"
 sbase="https://localhost:$port"
 ca="$HOME/.gopod_https/ca.crt"
 for p in "/" "/app/gopod_manifest.json" "/gopod_sw.js" "/app/gopod_icon_192.png" "/app/gopod_icon_512.png" "/gopod_ca.crt" "/?app"; do

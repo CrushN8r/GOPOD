@@ -12,7 +12,7 @@ the test that locks it. If the code, a song folder and this manual disagree, fix
 assistant working on the code. You do not need to know the code to use it: start with
 [Concepts and terms](alias_play_studio/01_CONCEPTS.md).
 
-**Where things live.** Values are in `gopod_brobots_settings.json` (each block's `about` says
+**Where things live.** Values are in the settings folder (`webroot/gopod_settings/`) (each block's `about` says
 what it tunes). Go files are in `goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/`. The chat
 page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs are in
 `goverlord/runtime/songs/`.

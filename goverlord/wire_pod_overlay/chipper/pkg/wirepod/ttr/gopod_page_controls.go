@@ -32,7 +32,7 @@ func init() {
 			return
 		}
 		raw := fmt.Sprintf("%q", fmt.Sprintf("%d%%", v))
-		if _, err := gopodSettingsWrite(func(file string) (string, error) {
+		if _, err := gopodSettingsWrite([]string{"background_loop"}, func(file string) (string, error) {
 			return gopodJSONFileSet(file, []string{"background_loop", "volume"}, raw)
 		}); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

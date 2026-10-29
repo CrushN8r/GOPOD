@@ -30,9 +30,6 @@ import (
 //   system-restart [go]                        Wire-Pod restarts; the page reloads itself
 //   system-topic [<topic> [words|point|label|reminder|pictures ...]]   a chapter topic
 
-func gopodSettingsFilePath() string {
-	return filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
-}
 
 // gopodSettingsStillLoad: the settings file as it now is would load at Wire-Pod's start.
 func gopodSettingsStillLoad() (err error) {
@@ -54,9 +51,10 @@ func gopodUndoForget() {
 	gopodUndo.Unlock()
 }
 
-// gopodSettingsWrite: one edit of the settings file, put back if it wouldn't load.
-func gopodSettingsWrite(edit func(file string) (string, error)) (string, error) {
-	file := gopodSettingsFilePath()
+// gopodSettingsWrite: one edit of the settings file holding path's block, put
+// back if it wouldn't load.
+func gopodSettingsWrite(path []string, edit func(file string) (string, error)) (string, error) {
+	file := gopodSettingsFileFor(path)
 	before, err := os.ReadFile(file)
 	if err != nil {
 		return "", err
@@ -105,7 +103,7 @@ func gopodSystemSetPath(dotted, value string) string {
 	if exists && (strings.HasPrefix(old, "{") || strings.HasPrefix(old, "[")) && !(strings.HasPrefix(raw, "{") || strings.HasPrefix(raw, "[")) {
 		return gopodSystemText("system_edit.is_a_list_or_a", "dotted", dotted)
 	}
-	was, err := gopodSettingsWrite(func(file string) (string, error) { return gopodJSONFileSet(file, path, raw) })
+	was, err := gopodSettingsWrite(path, func(file string) (string, error) { return gopodJSONFileSet(file, path, raw) })
 	if err != nil {
 		return gopodSystemText("system_edit.not_changed", "dotted", dotted, "error", err.Error())
 	}
@@ -134,7 +132,7 @@ func gopodSystemAddRemove(text string) string {
 		return gopodSystemText("system_edit.no_setting", "dotted", dotted)
 	}
 	var result string
-	_, err := gopodSettingsWrite(func(file string) (string, error) {
+	_, err := gopodSettingsWrite(path, func(file string) (string, error) {
 		switch {
 		case strings.HasPrefix(old, "["):
 			var list []any
@@ -300,10 +298,10 @@ func gopodSystemLingo(text string) string {
 	key := append(append([]string{}, path...), word)
 	var err error
 	if remove {
-		_, err = gopodSettingsWrite(func(file string) (string, error) { return gopodJSONFileDelete(file, key) })
+		_, err = gopodSettingsWrite(key, func(file string) (string, error) { return gopodJSONFileDelete(file, key) })
 	} else {
 		b, _ := json.Marshal(said)
-		_, err = gopodSettingsWrite(func(file string) (string, error) { return gopodJSONFileSet(file, key, string(b)) })
+		_, err = gopodSettingsWrite(key, func(file string) (string, error) { return gopodJSONFileSet(file, key, string(b)) })
 	}
 	if err != nil {
 		return gopodSystemText("system_edit.system_lingo_not_changed", "lingo", lingo, "error", err.Error())

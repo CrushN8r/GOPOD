@@ -57,7 +57,9 @@ CHIPPER = Path(__file__).resolve().parents[2]
 def game_steps():
     """Each core value point's golden question (value_points.core_points, the
     questions in harvest_questions.json numbered per topic), in the game's order."""
-    settings = json.loads((CHIPPER / "webroot/gopod_brobots_settings.json").read_text())
+    settings = {}
+    for f in sorted((CHIPPER / "webroot/gopod_settings").glob("*.json")):  # the settings folder, read as one
+        settings.update(json.loads(f.read_text()))
     core = settings.get("value_points", {}).get("core_points", [])
     questions = json.loads((CHIPPER / "gopod_probes/interview_harvest/harvest_questions.json").read_text())["questions"]
     seen, out = {}, []

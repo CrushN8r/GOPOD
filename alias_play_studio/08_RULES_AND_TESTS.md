@@ -21,7 +21,7 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
    freezes or reboots: check his charger contact, then reboot him.
 7. **Stop at a safe spot:** `stop run` ends a run before its next step, with control handed back.
 8. **Values live in files, never in code:** a song's in its knobs, the chat's in
-   `gopod_brobots_settings.json`.
+   the settings folder (`webroot/gopod_settings/`).
 9. **A locked thing gets a test:** the engine's animation lock, the chat's highlight, and this
    standard's own check. Nothing deploys if one fails.
 10. **GOLDEN: chat bubbles appear whole, on time, and the chat scrolls once for them.** A new

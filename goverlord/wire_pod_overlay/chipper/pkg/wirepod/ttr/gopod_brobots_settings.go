@@ -4,12 +4,13 @@ package wirepod_ttr
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 )
 
-// The Brobots chat's settings live in one file, webroot/gopod_brobots_settings.json,
+// The Brobots chat's settings live in one folder, webroot/gopod_settings/ (a short
+// file per area, loaded as one - gopod_settings_folder.go; until 2026-10-29 one file,
+// webroot/gopod_brobots_settings.json, still the address the page reads them from),
 // read here at Wire-Pod start and by the chat page on load (operator 2026-10-01:
 // "offload values like "___" to a file as a single source of truth to refer to,
 // rather than getting changed in code by mistake. same with any data sets"). The
@@ -933,18 +934,18 @@ type gopodHostLine struct {
 	Text string `json:"text"`
 }
 
-var gopodBrobotsSettingsPath = gopodPathWithEnvOverride("GOPOD_BROBOTS_SETTINGS_PATH", "webroot/gopod_brobots_settings.json")
+// The settings are the settings folder's files, loaded as one (gopod_settings_folder.go).
 
 var gopodBrobotsSettings = loadGOPODBrobotsSettings()
 
 func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	var s gopodBrobotsSettingsFile
-	data, err := os.ReadFile(gopodBrobotsSettingsPath)
+	data, err := gopodSettingsMerged()
 	if err != nil {
-		panic("GOPOD Brobots settings missing at " + gopodBrobotsSettingsPath + ": " + err.Error())
+		panic("GOPOD Brobots settings missing at " + gopodSettingsDir + ": " + err.Error())
 	}
 	if err := json.Unmarshal(data, &s); err != nil {
-		panic("GOPOD Brobots settings unreadable at " + gopodBrobotsSettingsPath + ": " + err.Error())
+		panic("GOPOD Brobots settings unreadable at " + gopodSettingsDir + ": " + err.Error())
 	}
 	// 2026-10-08: the topics' parts come from the chapters folder (gopod_chapters_folder.go).
 	gopodApplyChaptersFolder(&s)
@@ -1032,7 +1033,7 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	check(len(s.ResponseChains["single"].Answers) == 1, "response_chains.single.answers")
 	check(len(s.ResponseChains["duo"].Answers) == 2, "response_chains.duo.answers")
 	if len(missing) > 0 {
-		panic(fmt.Sprintf("GOPOD Brobots settings at %s are missing: %s", gopodBrobotsSettingsPath, strings.Join(missing, ", ")))
+		panic(fmt.Sprintf("GOPOD Brobots settings at %s are missing: %s", gopodSettingsDir, strings.Join(missing, ", ")))
 	}
 	return s
 }

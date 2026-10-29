@@ -94,7 +94,7 @@ both, when the step is in both. A combo step's parts are still edited by hand.
 (here/away), the run going, and each Brobot's last battery reading.
 
 **`system-check`:** looks for every file the data names and every song step - no changes made.
-- **What it checks:** every file named in `gopod_brobots_settings.json` (sounds, pictures, QR
+- **What it checks:** every file named in the settings folder (`webroot/gopod_settings/`) (sounds, pictures, QR
   codes, workers, models, word lists), the weather faces and sounds, each chapter topic's
   `words:` and `pictures:`, `egg_names` and chapter topic lists against the topic files, every
   song's `story.md` steps against its `knobs.json` (and `zKnobs.json`), every file a song's knobs
@@ -116,6 +116,7 @@ PASS/FAIL with what it saw. `gopod_system_tests.go`.
 - **0, the system**: the All menu's 0 (the admin page's only - visitor pages never show it) sends a typed line to the system itself: a system command runs; anything else gets the system's one-line pointer (`system_text.typed_system.not_a_command`). Every system command - `system-...`, `stop run`, `start <run>`, `stop session`, `replay <session>` - also runs as one whoever is picked, a persona key (3-9) included.
 - **Stop run stops first**: with something going, a typed `stop run` stops it at once, then its line shows; with nothing going, the line shows and is read first, then "No run is going".
 - **A lines bubble's lines are dormant from the start**: each line of a `lines:` bubble (the Torah tour's scriptures) is its voice's line the moment it's drawn - 0% until its voice plays, lit word by word, then 85%; a skip or a stop shows every line left whole (85%). A voiced line whose voice never comes is shown anyway after `voiceLitWaitMs` counted from its turn - once every line above it in its bubble has been said (`showOnItsTurn`), never from when the bubble showed.
+- **The settings folder**: GOPOD's settings are one set of blocks kept in `webroot/gopod_settings/`, a short file per area - `00_about`, `01_brain` (the language model, answer shapes and chains), `02_cast` (personas, managers, nicknames, the roast dial, Doc's BS), `03_chat_page` (bubbles, highlight, the page's words and look), `04_game` (topics, value points, experiences, the interview), `05_voices_and_robots` (reporter voices, the numpad, Record Session, weather, sleep beats), `06_system` (the system window, the Torah, tests, timings, replies). Each block lives in exactly one file. Wire-Pod reads them as one, serves that whole to the page at `/gopod_brobots_settings.json`, and an edit (`system-set`, `system-add/remove`, the lingo, the voices menu, the menu look) goes to the file holding its block; `system-locate` and `system-find` answer file:line there (`gopod_settings_folder.go`). A block in two files stops Wire-Pod's start with the reason.
 - **Global knobs, then the song, then the step**: every song starts from `goverlord/runtime/songs/global_knobs.json` - the default move values (`moves`: nod, arm cue, animation, emotion beat, wheel nudge, stir) and the song runner's shared waits (`runner`). A song's own `knobs.json` overrides them - its `moves` block for the whole song, any step's own value over that (`apply_knob_layers`, `knobs_envelope_001.py`). The hardware-tuned values (the nod speed floor, the settles after taking control) and the "apply phcal tweaks?" switch stay as they are.
 - **Show timings live in the settings**: how long a warm-up, a recording, an answer or a call may take, and how often a watch looks again, are `timings` in the settings file, in seconds (`gopodTiming`, `gopod_timings.go`; `timings_about` names each). The short polling ticks and the hardware-tuned movement values (arm cue holds, the settle after taking control) stay in the code. `TestTimingsInSettings` fails if a timing the code asks for is missing or not more than 0.
 - **System replies and help live in the settings**: `system-help` prints `system_help.lines` (a line each, the command, two or more spaces, what it does), and every system command's reply is a template in `system_text`, keyed by command and a few words, its `{names}` filled by the code (`gopodSystemText`, `gopod_system_text.go`). Edit the words, keep the `{names}`. `TestSystemTextKeys` fails if a reply's key is missing or its `{names}` don't match the code. Error passthroughs ("system-play: <error>") stay in the code.
@@ -275,7 +276,7 @@ chat keyboard: it looks for every file the settings, chapters and songs name, an
 
 | To... | Do this | Then |
 |---|---|---|
-| **Change a setting** (volume, waits, texts) | `system-set <setting> <value>` on the chat keyboard, or edit `webroot/gopod_brobots_settings.json` (`system-locate <word>` finds it) | page: F5; Wire-Pod: `wpr 2` |
+| **Change a setting** (volume, waits, texts) | `system-set <setting> <value>` on the chat keyboard, or edit `webroot/gopod_settings/` (`system-locate <word>` finds it) | page: F5; Wire-Pod: `wpr 2` |
 | **Add a picture to an egg** | put it in `webroot/pictures/`, add its name to the topic file's `- **pictures:**` line (`gopod_probes/chapters/<chapter>/<topic>.md`) | `wpr 2` |
 | **Add a topic** (new egg words, value points) | a new `NN_name.md` topic-cluster file in its chapter folder, from the template (`gopod_probes/_topic_cluster/`): `# label`, then `- **words:**`, `- **pictures:**` (optional), `- **reminder:**`, `- **say 1:**` ..., then `---` and its reveal text | `wpr 2` |
 | **Add a chapter** (a new egg) | a new folder `NN_name/` in `gopod_probes/chapters/` with `chapter.md` (`# title` = the egg's title, `- **summary:**`) and its topic files; the number sets its order | `wpr 2` |
@@ -290,7 +291,7 @@ chat keyboard: it looks for every file the settings, chapters and songs name, an
 
 ## 16. Settings file reference
 
-All in `goverlord/wire_pod_overlay/chipper/webroot/gopod_brobots_settings.json`. Values are
+All in `goverlord/wire_pod_overlay/chipper/webroot/gopod_settings/ (a short file per area, read as one)`. Values are
 data; the code only guides the flow. Wire-Pod checks every key at start.
 
 | Block / key | What it holds |

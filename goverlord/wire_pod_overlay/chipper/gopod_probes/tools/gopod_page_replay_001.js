@@ -111,6 +111,12 @@ function makePage(role) {
     const full = String(url).replace(/^https?:\/\/[^/]+/, ""), p = full.split("?")[0];
     let body = null, ok = true, status = 200;
     if (p === "/gopod_chat_feed.json") { body = JSON.stringify(feed); }
+    // 2026-10-29: the settings folder, served as one - as Wire-Pod does (gopod_settings_folder.go).
+    else if (p === "/gopod_brobots_settings.json") {
+      const dir = path.join(W, "gopod_settings"), merged = {};
+      fs.readdirSync(dir).filter(f => f.endsWith(".json")).sort().forEach(f => Object.assign(merged, JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"))));
+      body = JSON.stringify(merged);
+    }
     else if (p === "/api-sdk/gopod_page_shown") { body = JSON.stringify(role === "main" ? { main: true, admin: true } : { main: false, admin: false, visitor: { state: "on", name: "visitor" } }); }
     else if (p === "/api-sdk/gopod_page_note") { notes.push(decodeURIComponent(String(opt && opt.body)).replace(/\+/g, " ")); body = "ok"; }
     else if (p === "/api-sdk/gopod_page_played") { const m = /id=(\d+)/.exec(String(opt && opt.body)); if (m && role === "main") { played = Math.max(played, +m[1]); } body = "ok"; }

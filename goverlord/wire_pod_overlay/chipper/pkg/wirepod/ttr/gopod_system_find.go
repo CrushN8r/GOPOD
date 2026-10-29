@@ -71,8 +71,9 @@ func gopodSystemFind(text string) string {
 	}
 
 	// The settings.
-	settings := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
-	b.WriteString(gopodFindInFile(settings, lower))
+	for _, settings := range gopodSettingsFiles() {
+		b.WriteString(gopodFindInFile(settings, lower))
+	}
 
 	// The songs.
 	songs, _ := gopodAllSongs()

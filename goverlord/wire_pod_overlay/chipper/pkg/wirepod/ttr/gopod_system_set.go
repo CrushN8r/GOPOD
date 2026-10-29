@@ -351,8 +351,7 @@ func gopodSystemSetKnobWrite(name string, k gopodSystemSetKnob, value string) st
 	if err != nil {
 		return name + ": " + err.Error()
 	}
-	path := filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json")
-	old, err := gopodJSONFileSet(path, k.path, raw)
+	old, err := gopodJSONFileSet(gopodSettingsFileFor(k.path), k.path, raw)
 	if err != nil {
 		return gopodSystemText("system_set.not_changed", "name", name, "error", err.Error())
 	}
@@ -361,7 +360,7 @@ func gopodSystemSetKnobWrite(name string, k gopodSystemSetKnob, value string) st
 
 // gopodSettingsGet: a setting's value as written in the settings file.
 func gopodSettingsGet(path []string) (string, bool) {
-	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_brobots_settings.json"))
+	data, err := os.ReadFile(gopodSettingsFileFor(path))
 	if err != nil {
 		return "", false
 	}

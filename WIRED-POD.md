@@ -68,7 +68,7 @@ Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
 - **Record a session.** Tick one box: the chat, Wire-Pod's log and the room mic are saved
   together. Say "Thanks Brobots" and a Brobot asks whether to keep it.
 - **One settings file.** Every value and text lives in
-  `webroot/gopod_brobots_settings.json`, and Wire-Pod checks every key at start.
+  `webroot/gopod_settings/`, and Wire-Pod checks every key at start.
 
 ---
 

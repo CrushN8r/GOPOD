@@ -1,0 +1,1010 @@
+{
+  "touch_interrupt": {
+    "about": "Touching a Brobot cuts its chat reply short - native Wire-Pod, on by default. A scripted song turns it off for its own run (\"touch_interrupt_off\": true in its knobs.json, the Bingo test): the song engine creates off_file in GOPOD's overlay chipper folder when a live run starts and deletes it when the run ends; kill-bingo-test deletes it too. While off_file exists, touch does not interrupt. The wake-word interrupt is never changed (operator 2026-10-01: \"Touch interrupt ON/OFF to default ON again\").",
+    "off_file": "gopod_touch_interrupt_off"
+  },
+  "native_intent": {
+    "about": "2026-10-18 (operator: \"\\\"Who am I\\\" (Backpack to Brobot 1) show a generic silent system bubble: wire-pod intent activated\"): a native Wire-Pod intent sent to a Brobot (his own answer - Wire-Pod doesn't know his words) shows text in a silent bubble of role, once per once_seconds (gopodNativeBubble, gopod_native.go). Not for Wire-Pod's system intents (no audio, unmatched).",
+    "notice_about": "2026-10-21 (operator: \"Same as message inside a brobot chat bubble: Easter Egg 'What GOPOD is' ... add similar Native wire-pod Intent Detected * Template it\"): now a notice inside that Brobot's bubble - its words are bubble_notices.native_intent; typed cube commands too. role and text are no longer used.",
+    "role": "Terminal",
+    "once_seconds": 3
+  },
+  "gopod_yourself": {
+    "about": "The wake phrase in the Brobots layer (operator 2026-10-09: \"GOPOD Yourself > GOPOD layer (isn't built yet) ... tie in to brobot 1 CTA > newsletter ... brobot 2 CTA > crushn8r.ca\"; gopod_yourself.go). A typed, numpad or spoken line that is one of phrases (after \"hey vector\" or a Brobot's name) gets that Brobot's line here; to both Brobots, Brobot 1 then Brobot 2. The GOPOD_YOURSELF voice command hands a spoken one to the chat for both, and the same phrase again within repeat_seconds (the other robot heard it too) is dropped. A question about it (\"what is GOPOD Yourself?\") still goes to the chat. When the GOPOD layer is built, the phrase points there instead.",
+    "phrases": ["GOPOD Yourself"],
+    "lines": {
+      "Brobot 1": "Join the CRUSHN8R CREW'd newsletter. You're joining the crew, not a list!",
+      "Brobot 2": "Head to crushn8r.ca, bro!"
+    },
+    "repeat_seconds": 10
+  },
+  "song_stop": {
+    "about": "Stopping a song run at the next safe spot (operator 2026-10-04: \"stop the current run at the next safe spot\"; 2026-10-09: \"add 'stop run' as an input command for songs/runs\"). A typed or numpad stop_words line, or a \"thanks Brobots\", runs safe_script when engine is running (a song): it creates request_file in GOPOD's overlay chipper folder, and the song engine checks it before each step and ends the run there the normal way (control handed back, touch interrupt on). If the run hasn't ended after wait_seconds, it force-stops it like the kill-bingo-test alias. stop_words stops a playing draft too (gopod_thanks_close_out.go). The KILL_BINGO_TEST voice command was cleared 2026-10-09.",
+    "request_file": "gopod_song_stop_request",
+    "wait_seconds": 45,
+    "stop_words": ["stop run"],
+    "safe_script": "gopod_probes/tools/stop-bingo-test-safe.sh"
+  },
+  "native": {
+    "about": "Wire-Pod's own (native) voice answers - \"Hey Vector, what time is it\", the weather, volume and the rest of Wire-Pod's intent list (operator 2026-10-10: \"Native “Hey Vector” answers during a run ... Native?[] makes this optional ... Change Wire-Pod's code if need be\"; gopod_native.go, plus a gate in Wire-Pod's own matchIntentSend.go). The chat page's Native? box turns them on or off for the session; on_at_start is the state at Wire-Pod's start. During a run they are always off (session: a run owns the Brobots). Off: a phrase that matches a native intent gets Wire-Pod's quiet ending instead. GOPOD's voice commands and chat questions are not native and always get through. always_on: native intents that answer even when off (Wire-Pod intent names, e.g. intent_imperative_volumelevel_extend).",
+    "on_at_start": true,
+    "always_on": ["intent_names_ask"],
+    "to_manager_about": "2026-10-21 (operator: \"weather goes to PLAYHEAD instead\"): a native intent here goes to the chat instead of Wire-Pod's own answer, and its manager take (managers.takes kind) takes it - spoken weather goes to PLAYHEAD, the same as a typed one. 2026-10-22 (operator: yes to \"what time is it\" to PLAYHEAD too): the clock too.",
+    "to_manager": {"intent_weather_extend": "weather", "intent_clock_time": "time_place"}
+  },
+  "live_weather_note_about": "Operator 2026-10-10: \"At the start I asked live, about the weather * brobot did not check actual weather (Windsor ON, CA is default fallback location) like in scripted interview\". A live question with the word weather gets the real weather (the same line as the scripted interview's {weather}) after this note.",
+  "live_weather_note": "The real weather right now, from the weather service. Say it as is:",
+  "mic_service": {
+    "about": "One process owns the Jetson's USB room mic for both Record Session's master and the numpad push-to-talk (the mic can only be opened once). Started by Wire-Pod on first use, as the desktop user. It reuses the golden \"Is That You\" PTT writer's mic pick, timings, 48 kHz / 16 kHz resample and Vosk model (gopod_mic_service_001.py).",
+    "script": "gopod_probes/tools/gopod_mic_service_001.py"
+  },
+  "numpad_ptt": {
+    "about": "Numpad push-to-talk from the Brobots chat page (operator 2026-10-04: \"please get it to work\"), the golden numpad's rules from any keyboard the page sees (the Jetson's own numpad, a PC's through NoMachine): with NumLock on, hold a live key from map_file (KP1 Brobot 1, KP2 Brobot 2) - recording counts after min_hold_seconds, keeps release_tail_seconds after the key comes up, stops at max_hold_seconds - and the words go to that Brobot like a typed line. Other keys show their assigned persona. exit_taps taps of 000 (KP0) or of NumLock within exit_window_seconds turn it off (the Numpad? box unticks). 2026-10-08: on only while the Numpad? box on the typing line is ticked (operator: \"a checked Numpad box indicates takeover of the usb keyboard numpad mapping\"). Only while the chat window is open. Before LLM Ready a key records nothing and shows not_ready (operator 2026-10-09: \"LLM not ready? Too bad!! Wait!!\"). The status texts show in grey Goverlord system bubbles; {key} {brobot} {persona} {body} {min} {error} {how} are filled in. 2026-10-09 (operator: \"upon numpad checked, I cannot type normally * I have a keyboard + numpad in one\"): while a text box has the focus, every key types as usual. 2026-10-10 (live: \"numpad checkbox didn't work\" after typing): with Numpad? ticked, the numpad's own keys are always push-to-talk, even in a text box; every other key types. Esc still leaves the box.",
+    "map_file": "~/.gopod_alias_lib/numpad_persona_map_001.json",
+    "body_to_brobot": {
+      "Vector 1": "Brobot 1",
+      "Vector 2": "Brobot 2"
+    },
+    "min_hold_seconds": 1.0,
+    "release_tail_seconds": 0.9,
+    "max_hold_seconds": 30,
+    "exit_taps": 3,
+    "exit_window_seconds": 2.0,
+    "all_about": "2026-10-16 (operator: \"3x 0 = release numpad * there is a process that detects the 3x key presses within a set time * can you extend this detection, so a long '0' press acts as the mic version of 'keyboard's 'All' radio button option?\"): 0 held all_hold_seconds starts push-to-talk to all the Brobots (all_label; Brobot 1 answers, then Brobot 2) - recording from that moment, the same rules as KP1/KP2 after; a shorter press is one of the exit taps.",
+    "all_hold_seconds": 0.5,
+    "all_label": "All",
+    "key_sound_about": "2026-10-16 (operator: \"For numpad enabled key presses * as an audio cue, per key press, play grunge wav\"): played on the page at each numpad key press (and NumLock) while Numpad? is ticked - volume is its share of chat_audio.volume, like the runs sting.",
+    "key_sound_2_about": "2026-10-18 (operator: \"live KPN = no grunge audio as this is not an error\"): off (no file) - a key that works plays nothing; errors play error_sound.",
+    "key_sound": {"file": "", "volume": "40%"},
+    "error_texts_about": "2026-10-18 (operator: \"\\\"Too short - hold KP1 for at least 1 s\\\" = error = grunge audio plays * not live yet key press = error = grunge audio plays\"): the texts that are errors - each wears the Operator bubble's error label (bubble_sounds.Operator.error, grunge) when shown. 2026-10-25: the sound moved there from error_sound.",
+    "mic_check_about": "2026-10-20 (operator: \"if no mic or other expected devices not found * after llm ready run fully completes * Goverlord knows to send out a mic missing message & disable the input only, so numpad works as dry run with no mic * keep all same messages * replace record now with mic disabled * upon key release same mechanism & messages, transcribing... try again\"): after the warm-up, the mic (mic_usb_id in lsusb) is looked for; missing, Goverlord says mic_missing_text and a numpad key works dry - texts.mic_disabled in place of recording, then transcribing and nothing_heard after mic_disabled_seconds.",
+    "usb_watch_about": "2026-10-21 (operator: \"mic not ready voice came through, no message bubble * no 'mic deteced and wired in' * same applies to the original numpad-keyboard * if 2 numpads detected, both can work, but only one at a time * if 2 mics detected, same thing\"): after the warm-up, every usb_watch_seconds lsusb is looked at; when the mic (any of mic_usb_ids) or the numpad (any of numpad_usb_ids) goes missing or comes back, Goverlord says the line and shows its bubble. Two numpads: both work, one key at a time (the page takes one held key). Two mics: the first one found records; one at a time.",
+    "mic_usb_ids": ["3302:12e9"],
+    "numpad_usb_ids": ["1a2c:4324"],
+    "usb_watch_seconds": 3,
+    "mic_missing_text": "Master CrushN8r, the USB mic is missing. The numpad still works, without the mic, until it's plugged back in.",
+    "mic_found_text": "Master CrushN8r, the USB mic is detected and wired in.",
+    "numpad_missing_text": "Master CrushN8r, the USB numpad is missing.",
+    "numpad_found_text": "Master CrushN8r, the USB numpad is detected and wired in.",
+    "usb_host_about": "2026-10-26 (Pass 2, the Gomad intern jobs): who says and shows the USB lines above - Git Repo, the ethical hacker intern, in his voice and bubble. Empty = Goverlord.",
+    "usb_host": "GIT REPO",
+    "mic_disabled_seconds": 1.2,
+    "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "wait_message", "error", "numlock_off", "not_live"],
+    "texts": {
+      "hold": "🎙 {key} → {brobot}: keep holding…",
+      "recording": "🔴 Recording for {brobot} - talk, then let go",
+      "transcribing": "📝 Got it - transcribing…",
+      "too_short": "Too short - hold {key} for at least {min} s",
+      "nothing_heard": "🤷 Didn't catch that - try again",
+      "mic_disabled": "🎙 Mic disabled - no USB mic",
+      "no_mic": "🎙 No USB mic found - check the mic's plug",
+      "not_ready": "⏳ Not ready yet - wait for LLM Ready",
+      "wait_message": "⏳ Wait - Goverlord is still giving the mic's message",
+      "error": "Push-to-talk failed: {error}",
+      "numlock_off": "NumLock is off - {key} needs NumLock on",
+      "not_live": "{key} is {persona} ({body}) - not live yet",
+      "exit": "Goverlord has released the numpad.",
+      "on": "Numpad is mapped and ready to use."
+    }
+  },
+  "record_session": {
+    "about": "Record Session (operator 2026-10-04, gopod_notes/RECORD_SESSION_SPEC_003.md): the box on the chat window's typed-input line. Ticked: recording starts at the next safe point (no Brobot reply in progress) into sessions_dir/<date>/<time><folder_suffix>/ - the Jetson USB room mic (through mic_service, the golden PTT writer's mic pick, 48 kHz master), every chat line (chat.jsonl), every Wire-Pod log line (wirepod.log), and chat.html at stop. Unticked: stops, zips the folder, keeps the zip, deletes the loose files. \"Thanks Brobots\" while recording, or max_minutes reached: stops, then ask_brobot asks; a typed or spoken line with all keep_words keeps (zip), with all delete_words deletes; no answer in answer_wait_minutes deletes. The answer shows as Operator to answer_to; confirm_brobot says kept_text or deleted_text and the box unticks. A Wire-Pod restart deletes a folder still waiting for an answer and zips one that was cut off mid-recording.",
+    "sessions_dir": "~/gopod_tts/sessions",
+    "folder_suffix": "_brobots_session",
+    "max_minutes": 120,
+    "answer_wait_minutes": 10,
+    "keep_words": [
+      "keep",
+      "session",
+      "recording"
+    ],
+    "delete_words": [
+      "delete",
+      "session",
+      "recording"
+    ],
+    "answer_to": "Goverlord",
+    "ask_brobot": "Brobot 1",
+    "ask_text": "Session over. Keep the session recording, or delete the session recording?",
+    "confirm_brobot": "Brobot 2",
+    "kept_text": "Session recording kept.",
+    "deleted_text": "Session recording deleted.",
+    "take_sheet": "~/gopod_tts/sessions/harvest/take_sheet.json",
+    "take_sheet_about": "Keep also adds the session's answers to the take sheet as takes (operator 2026-10-06: \"keep this session take?\"), one per Brobot answer, filed under the value points it was given; delete adds nothing. Empty: no takes."
+  },
+  "battery_watch": {
+    "about": "The battery watchdog (operator 2026-10-15: \"set up a background watchdog to monitor battery level over time? Over the course of a session run? If let's say the battery level drops below a threshold (like from a lot of use), have the brobot comment they're feeling dizzy and need help getting home, lol\"; gopod_battery_watch.go). For the whole Wire-Pod session, every interval_seconds each Brobot's battery is read and logged (GOPOD_BATTERY_WATCH). Below low_volts, off the charger, he says one of his lines with his bubble - once; again only after he's back up to recover_volts or set on his charger. Never in the middle of a reply or a run: he waits until both are over. low_volts: golden rule 6's line, 3.7 V (Brobot 2's crashes came at 3.61-3.62 V). The lines are drafts in the operator's words, to edit.",
+    "enabled": true,
+    "interval_seconds": 60,
+    "low_volts": 3.7,
+    "recover_volts": 3.8,
+    "lines": {
+      "Brobot 1": [
+        "Whoa, bro... I'm feeling dizzy. I need help getting home."
+      ],
+      "Brobot 2": [
+        "Bro, I'm feeling dizzy... can someone help me get home?"
+      ]
+    },
+    "guards_about": "2026-10-26 (operator: \"Do the security guards (Intel 404 PNFH/PNFT) get a job too * at least this one: brobots battery levels * at the next safe spot, Intel can interject * use the duo response-chain template, Intel 404 to brobot N * a warning message, then what say you? * Brobot N, Nice try ..., yeah, I feel dizzy, etc...\"): each Brobot's guard. At the next safe spot the guard says guard_warning ({brobot}, {volts}) and guard_handover ({title} {nickname} filled the hand-over way), in his own bubble; then the Brobot says reply - {comeback} (openers.comeback) and {line} (one of his lines). No guard, or his voice not made: the Brobot says his line alone, as before.",
+    "guards": {"Brobot 1": "INTEL 404 PNFH", "Brobot 2": "INTEL 404 PNFT"},
+    "guard_warning": "Security warning: {brobot}'s battery is running low.",
+    "guard_handover": "{brobot}, what say you on this, {title} {nickname}?",
+    "reply": "{comeback} Yeah... {line}"
+  },
+  "sleep_beats": {
+    "about": "The sleep beats (operator 2026-10-19: \"how doable is it now, to add in all the 100+ sleep commands? If doable add please\"; \"in gopod_notes, look for an md file related to the nap song * sleep, snore, warbles, sounds, etc\"): the 126 candidates from gopod_notes/older_notes/SLEEP_BENCH_ALIASES_001.md (each verified there against the robot's animation triggers and clips), by family. system-robot beat <alias|name> [1|2|both] plays one; system-robot beats [family] lists them.",
+    "families": {
+      "sleep": [
+        {
+          "alias": "get-in",
+          "name": "GoToSleepGetIn",
+          "kind": "trigger"
+        },
+        {
+          "alias": "off",
+          "name": "GoToSleepOff",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleeping",
+          "name": "GoToSleepSleeping",
+          "kind": "trigger"
+        },
+        {
+          "alias": "getin-01-clip",
+          "name": "anim_gotosleep_getin_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeping-01-clip",
+          "name": "anim_gotosleep_sleeping_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeping-02-clip",
+          "name": "anim_gotosleep_sleeping_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeping-03-clip",
+          "name": "anim_gotosleep_sleeping_03",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeping-04-clip",
+          "name": "anim_gotosleep_sleeping_04",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeping-05-clip",
+          "name": "anim_gotosleep_sleeping_05",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleeploop-01-clip",
+          "name": "anim_gotosleep_sleeploop_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "getout-01-clip",
+          "name": "anim_gotosleep_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "getout-02-clip",
+          "name": "anim_gotosleep_getout_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "getout-03-clip",
+          "name": "anim_gotosleep_getout_03",
+          "kind": "clip"
+        },
+        {
+          "alias": "getout-04-clip",
+          "name": "anim_gotosleep_getout_04",
+          "kind": "clip"
+        },
+        {
+          "alias": "off-01-clip",
+          "name": "anim_gotosleep_off_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "wakeup-01-clip",
+          "name": "anim_gotosleep_wakeup_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "eyepose-asleep-clip",
+          "name": "anim_eyepose_asleep",
+          "kind": "clip"
+        },
+        {
+          "alias": "face-sleeping-clip",
+          "name": "anim_face_sleeping",
+          "kind": "clip"
+        }
+      ],
+      "rts-asleep": [
+        {
+          "alias": "sleep-rts-off-charger-ambient",
+          "name": "RTS_OffCharger_Sleep_Ambient",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-back",
+          "name": "RTS_OffCharger_Sleep_Back",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-front",
+          "name": "RTS_OffCharger_Sleep_Front",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-left",
+          "name": "RTS_OffCharger_Sleep_Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-right",
+          "name": "RTS_OffCharger_Sleep_Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-30-left",
+          "name": "RTS_OffCharger_Sleep_30Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-30-right",
+          "name": "RTS_OffCharger_Sleep_30Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-60-left",
+          "name": "RTS_OffCharger_Sleep_60Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-60-right",
+          "name": "RTS_OffCharger_Sleep_60Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-120-left",
+          "name": "RTS_OffCharger_Sleep_120Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-120-right",
+          "name": "RTS_OffCharger_Sleep_120Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-150-left",
+          "name": "RTS_OffCharger_Sleep_150Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-off-charger-150-right",
+          "name": "RTS_OffCharger_Sleep_150Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-ambient",
+          "name": "RTS_OnCharger_Sleep_Ambient",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-back",
+          "name": "RTS_OnCharger_Sleep_Back",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-front",
+          "name": "RTS_OnCharger_Sleep_Front",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-left",
+          "name": "RTS_OnCharger_Sleep_Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-right",
+          "name": "RTS_OnCharger_Sleep_Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-30-left",
+          "name": "RTS_OnCharger_Sleep_30Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-30-right",
+          "name": "RTS_OnCharger_Sleep_30Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-60-left",
+          "name": "RTS_OnCharger_Sleep_60Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-60-right",
+          "name": "RTS_OnCharger_Sleep_60Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-120-left",
+          "name": "RTS_OnCharger_Sleep_120Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-120-right",
+          "name": "RTS_OnCharger_Sleep_120Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-150-left",
+          "name": "RTS_OnCharger_Sleep_150Left",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-on-charger-150-right",
+          "name": "RTS_OnCharger_Sleep_150Right",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-rts-offcharger-ambient-clip",
+          "name": "anim_rtsound_offcharger_asleep_ambient_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-behind-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_behind_left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-behind-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_behind_right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-front-clip",
+          "name": "anim_rtsound_offcharger_asleep_front_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-30-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_30left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-30-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_30right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-60-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_60left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-60-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_60right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-120-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_120left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-120-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_120right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-150-left-clip",
+          "name": "anim_rtsound_offcharger_asleep_150left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-offcharger-150-right-clip",
+          "name": "anim_rtsound_offcharger_asleep_150right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-ambient-clip",
+          "name": "anim_rtsound_oncharger_asleep_ambient_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-behind-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_behind_left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-behind-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_behind_right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-front-clip",
+          "name": "anim_rtsound_oncharger_asleep_front_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-30-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_30left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-30-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_30right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-60-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_60left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-60-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_60right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-120-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_120left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-120-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_120right_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-150-left-clip",
+          "name": "anim_rtsound_oncharger_asleep_150left_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-rts-oncharger-150-right-clip",
+          "name": "anim_rtsound_oncharger_asleep_150right_01",
+          "kind": "clip"
+        }
+      ],
+      "held-on-palm": [
+        {
+          "alias": "sleep-palm-edge-nervous",
+          "name": "HeldOnPalmEdgeNervous",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-edge-relaxed",
+          "name": "HeldOnPalmEdgeRelaxed",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-get-in-nervous",
+          "name": "HeldOnPalmGetInNervous",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-get-in-relaxed",
+          "name": "HeldOnPalmGetInRelaxed",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-react-to-jolt",
+          "name": "HeldOnPalmReactToJolt",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-looking-nervous",
+          "name": "HeldOnPalmLookingNervous",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-nestling",
+          "name": "HeldOnPalmNestling",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-pickup-nervous",
+          "name": "HeldOnPalmPickupNervous",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-pickup-relaxed",
+          "name": "HeldOnPalmPickupRelaxed",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-put-down-nervous",
+          "name": "HeldOnPalmPutDownNervous",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-put-down-relaxed",
+          "name": "HeldOnPalmPutDownRelaxed",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-roll-off",
+          "name": "HeldOnPalmRollOff",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-transition-to-relaxed",
+          "name": "HeldOnPalmTransitionToRelaxed",
+          "kind": "trigger"
+        },
+        {
+          "alias": "sleep-palm-edge-nervous-01-clip",
+          "name": "anim_heldonpalm_edge_nervous_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-edge-relaxed-01-clip",
+          "name": "anim_heldonpalm_edge_relaxed_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-getin-nervous-01-clip",
+          "name": "anim_heldonpalm_getin_nervous_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-getin-relaxed-01-clip",
+          "name": "anim_heldonpalm_getin_relaxed_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-jolt-01-clip",
+          "name": "anim_heldonpalm_jolt_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-looking-nervous-01-clip",
+          "name": "anim_heldonpalm_looking_nervous_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-nestling-01-clip",
+          "name": "anim_heldonpalm_nestling_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-pickup-nervous-01-clip",
+          "name": "anim_heldonpalm_pickup_nervous_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-pickup-relaxed-01-clip",
+          "name": "anim_heldonpalm_pickup_relaxed_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-putdown-nervous-01-clip",
+          "name": "anim_heldonpalm_putdown_nervous_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-putdown-relaxed-01-clip",
+          "name": "anim_heldonpalm_putdown_relaxed_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-relaxed-idle-01-clip",
+          "name": "anim_heldonpalm_relaxed_idle_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-rolloff-01-clip",
+          "name": "anim_heldonpalm_rolloff_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "sleep-palm-transition-2-relaxed-01-clip",
+          "name": "anim_heldonpalm_transition2relaxed_01",
+          "kind": "clip"
+        }
+      ],
+      "petting": [
+        {
+          "alias": "pet-level-1",
+          "name": "PettingLevel1",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-2",
+          "name": "PettingLevel2",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-3",
+          "name": "PettingLevel3",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-4",
+          "name": "PettingLevel4",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-1-getout",
+          "name": "PettingLevel1Getout",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-2-getout",
+          "name": "PettingLevel2Getout",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-3-getout",
+          "name": "PettingLevel3Getout",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-level-4-getout",
+          "name": "PettingLevel4Getout",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-purr-bliss-loop",
+          "name": "PettingBlissLoop",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-bliss-getout",
+          "name": "PettingBlissGetout",
+          "kind": "trigger"
+        },
+        {
+          "alias": "pet-getin-01-clip",
+          "name": "anim_petting_getin_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-1-01-clip",
+          "name": "anim_petting_lvl1_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-2-01-clip",
+          "name": "anim_petting_lvl2_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-3-01-clip",
+          "name": "anim_petting_lvl3_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-4-01-clip",
+          "name": "anim_petting_lvl4_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-1-getout-01-clip",
+          "name": "anim_petting_lvl1_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-2-getout-01-clip",
+          "name": "anim_petting_lvl2_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-2-getout-02-clip",
+          "name": "anim_petting_lvl2_getout_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-3-getout-01-clip",
+          "name": "anim_petting_lvl3_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-3-getout-02-clip",
+          "name": "anim_petting_lvl3_getout_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-lvl-4-getout-01-clip",
+          "name": "anim_petting_lvl4_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-blissloop-01-clip",
+          "name": "anim_petting_blissloop_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-blissloop-02-clip",
+          "name": "anim_petting_blissloop_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-blissloop-03-clip",
+          "name": "anim_petting_blissloop_03",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-bliss-getout-01-clip",
+          "name": "anim_petting_bliss_getout_01",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-bliss-getout-02-clip",
+          "name": "anim_petting_bliss_getout_02",
+          "kind": "clip"
+        },
+        {
+          "alias": "pet-eyepose-bliss-clip",
+          "name": "anim_eyepose_bliss",
+          "kind": "clip"
+        }
+      ]
+    }
+  },
+  "reporter_voices": {
+    "about": "The reporter voices, heard through the chat page (operator 2026-10-06: \"have the female/male voices speak operator bubble\"; \"since 1 operator, use female reporter voice (brobot 3)\"; \"can you channel the audio to play through the wire-pod web page?\"). hosts: each reporter's Kokoro voice. A line typed on the page (read_lines_from: how Wire-Pod logs it) is read out first - a line to Brobot 1 by Reporter 1 (Brobot 3, female), to Brobot 2 by Reporter 2 (Brobot 4, male) (read_by; operator 2026-10-06), a line to both by operator_host, then the Brobot answers (waiting its length plus page_lag_seconds, at most max_wait_seconds). labels: each host bubble's header (operator 2026-10-06: \"Reporter 1, Brobot 3:\" / \"Reporter 2, Brobot 4:\"). opening: queued once the LLM is warm and the opening's voice files are made (at most start_wait_seconds), followed by an opening_end_text line. The page plays nothing until its Log section is open and has been clicked (operator 2026-10-06: \"pause the chat bubbles from running until its clicked to and viewable\"); it then plays what's queued, one voice line after another, and tells Wire-Pod when the opening is heard. Only then is it LLM Ready, and the warm-up gate opens: until then a typed, numpad or voice question to a Brobot is dropped (logged GOPOD_WARMUP_GATE). With no page, the gate opens after gate_max_seconds; closing: after \"Thanks Brobots\", in the ending's order (sign_off.about; ALIAS-PLAY-STUDIO.md \"The thanks ending\") - the interview vamp's own lines, word for word (02a_brobots_interview_vamp/story.md, m1_c-m1_g and m4_c-m4_e), shown as host bubbles. Every line is made once into a WAV in webroot/audio_folder by the worker (one Kokoro load at Wire-Pod start, about 25 s) and kept there: the bookends are pre-generated at start, and a line said before is never made again. The page can only play sound after it has been clicked or typed in once. Needs wpr 2. say_words: the reporter's word replacements, said instead of the word (whole words, any case; operator 2026-10-06: \"reporter word replacements - start a list ... thx = thanks\") - the bubble keeps what was typed. gap_seconds: the page's pause between two voice lines.",
+    "role": "Reporter Voice",
+    "python": "/home/goverlord/gopod_tts/engines/kokoro_82m_001/venv/bin/python3",
+    "worker": "gopod_probes/tools/gopod_reporter_voice_worker.py",
+    "audio_folder": "gopod_reporter_audio",
+    "system_voice": "bm_george",
+    "operator_voice_about": "2026-10-13 (operator: \"remap to simply Operator bubble & new Operator voice\"; \"Let's try af_sky for Operator voice\"): a live operator line (keyboard, numpad) is read out in this voice under its Operator bubble. A playing draft's question keeps its reporter's voice.",
+    "operator_voice_2_about": "2026-10-26 (operator: \"KP9, no voice yet. reassign/remap Operator voice & role to Cameo * Like hire Operator voice for new job role to now be KP9 Cameo * KP9 Cameo voice = Goverlord level bubble * KP9 Cameo voice = anything spoken that's unassigned, outside of Gomad & Gominion level bubble\"): no Operator voice of its own now; a live line read out (typed) is said in Cameo's voice (unassigned_voice_host). Numpad lines still play the mic's own recording.",
+    "operator_voice": "",
+    "unassigned_voice_host": "CAMEO",
+    "operator_keep_days_about": "2026-10-13 (operator: \"Operator voice files are typically many generated (variations) of questions/exchanges with the brobots * Give these files a month to settle into sets of exchanges, before deleting\"): an Operator voice file not said for this many days is removed at Wire-Pod's start; one said again starts its days over. Scripted voice files (system, reporters, narrator...) a line no longer uses are removed at once.",
+    "operator_keep_days": 30,
+    "keep_days_about": "2026-10-18 (operator: \"no auto-deletes * delete backup upon successful new playable voice wav file * operator_keep_days for system lines * scripted_keep_days for scripted lines (reporter/narrator/etc) * live_keep_days for live lines * I think we already have an archiving process, use that to start from\"): at each start, a voice not in use and not said for its kind's days moves to sessions/archives/voices (never deleted). Kinds: system = Goverlord's voice (operator_keep_days); scripted = made by the start's check or a playing script (scripted_keep_days); live = the Operator's lines and the managers' live answers (live_keep_days). gopod_system_voices.go.",
+    "scripted_keep_days": 90,
+    "live_keep_days": 30,
+    "popular_about": "2026-10-27 (operator: \"Finish the voice archiver limits\"; system-voices-report month, plays counted since 2026-10-26: played 1x 68, 2-3x 3, 4-9x 11, 10x+ 11 - the jump is at 4): a voice file played popular_uses times or more is popular and keeps popular_keep_days (if longer than its kind's). Retune both once a month of plays is in the report.",
+    "popular_uses": 4,
+    "popular_keep_days": 180,
+    "system_stings_about": "2026-10-25 (operator: \"[Fart joke started ...] & [Fart joke complete ...] * there's a grunge audio play in there somewhere * no error label * remove grunge audio * default should = djent, but muted\"): default is now only the sting a \"(music)\" plays (and a warm-up's end); a Goverlord bubble's own sound is bubble_sounds.Goverlord (djent, muted); runs (grunge) is gone. Before: 2026-10-13 (operator: \"For system bubbles * rule: play djentb3b at low 50% volume, then speech ... rule: play grunge for start/stop/stopping/paused system bubbles, same rule, low 50% volume, then speech\"): before Goverlord's spoken line, the page plays a sting (a file from the overlay's sounds/) at its volume, then the speech. runs: a run's started, stopped, complete, paused or continues line, and the stop-run answer when nothing is running; default: every other system line. One sting per bubble. 2026-10-14: volume is the sting's share of chat_audio.volume (1 = that volume). 2026-10-14 (operator: \"lower grunge volume to default or same as djent volume\"): grunge.wav is about 8 dB louder than dJent3b.wav, so runs is 0.4 to sound the same.",
+    "system_stings": {
+      "default": {"file": "dJent3b.wav", "volume": ""}
+    },
+    "voices_about": "2026-10-09 (operator: \"for brobots 3/4, try af_heart & am_michael as reporters 1/2\"; \"decrease talking speed ever so slightly\"; \"store for reuse rather than regenerate again * including from live generated input ... generate for both reporter voices * upon new voice like now, ensure there's a distinction so I will have wav of all generated voices without over writing\"). Reporter 1 (Brobot 3) af_heart, Reporter 2 (Brobot 4) am_michael (were af_bella, am_puck). speed: Kokoro's talking speed (was 1.03). Every line is made once into audio_folder and kept; its file name carries the voice and the speed (af_heart_s098_<hash>.wav), so a new voice or speed makes new files and never overwrites. A new reporter line is also made in the other reporter's voice, in the background. hf_home: where this machine's Kokoro voices are.",
+    "speed": 0.98,
+    "hf_home": "/home/goverlord/.cache/huggingface",
+    "system_say_role_about": "A song posts a chat line from this role to have Goverlord say it, with no bubble (operator 2026-10-09: \"no 'LLM Ready for Bingo' voice audio\"): the Bingo test's llm_ready_text.",
+    "system_say_role": "Goverlord Says",
+    "song_audio_role_about": "A song's own soundtrack (operator 2026-10-09, the nap: \"music background with female narration of timed srt file\"): a chat line from this role names a file in the page's voice folder, and the page plays it in the background, without holding the rest of the chat back.",
+    "song_audio_role": "Song Audio",
+    "narrator_role_about": "The nap's captions (operator 2026-10-09: \"I didn't think of having it run in the chat bubbles, as a 'chat' per se, but I love the idea\"): each caption a song posts from this role shows as a bubble headed with this name, in the reporters' bubble style, at its second. Not spoken (the soundtrack has the narration); never in the Brobots' memory.",
+    "narrator_role": "Narrator",
+    "narrator_lead_seconds_about": "GOLDEN chat bubble rule (operator 2026-10-09: \"scrolling sucks with narrator bubbles, fix like the others & set a golden rule for chat bubbles/scrolling interactions\"; \"draw out full narrator bubbles off screen or while invisible * then display/make visible the full narrator chat bubble at actual speech time\"): a section's narrator bubble is sent this many seconds before its first line (2026-10-09, 2.0 -> 4.0, operator: \"maybe start drawing them sooner\"; the nap's first bubble goes out during the 3 s before the music, its timeline_after pause). The page builds it whole while invisible, scrolls the chat once so the whole bubble will be in view, and shows it at its first line's second on the soundtrack's clock. Its phrases then light in place; the chat doesn't move again until the next bubble.",
+    "narrator_lead_seconds": 4.0,
+    "heard_marker_about": "GOLDEN rule (operator 2026-10-09: \"a bubble is not the same as the f*ck*ng expected contents of the bubble!!\"; \"Do not go forward if an expected sleep is not f*ck*ng spoken!!\"): a song's system line (the nap's \"Sleep.\") is made into its voice first, then its bubble and voice are queued together, then a voice line starting with this marker. The page doesn't play the marker: it tells Wire-Pod it got there (/api-sdk/gopod_voice_heard), so the song knows the line was heard and only then goes on. Not heard in time stops the run.",
+    "heard_marker": "heard:",
+    "system_voice_about": "Goverlord's own Kokoro voice for the system lines it says (operator 2026-10-08: \"Add a third bm_george voice for system\"): sign_off.system_text (\"Draft run completed.\"), in the system_role's grey bubble. A draft's own questions show as the reporter who reads them (\"Reporter 1, Brobot 3:\"), like the opening's bubbles; keyboard, numpad and backpack lines stay \"Operator to ...\" (operator 2026-10-08).",
+    "hosts": {
+      "Brobot 3": "af_heart",
+      "Brobot 4": "am_michael",
+      "CHALK": "af_heart",
+      "PLAYHEAD": "am_michael",
+      "GIT REPO": "am_liam",
+      "CACHE PYC": "af_nova",
+      "INTEL 404 PNFH": "am_puck",
+      "INTEL 404 PNFT": "am_puck",
+      "CAMEO": "af_sky"
+    },
+    "hosts_2_about": "2026-10-26 (operator: \"Who gets which voice? * Voice clash * go with your best guesses, to start with... * Missing voices * go ahead & download\"): the Cozmo students - Git Repo the ethical hacker (am_liam; am_michael is PLAYHEAD's), Cache PYC the meme hustler (af_nova) - and the Moorebot Scout security guards, both am_puck, told apart by voice_tweaks; Cameo (KP9) has the old Operator voice (af_sky).",
+    "voice_tweaks_about": "2026-10-27 (operator: \"using sox reset to default, all security guard and intern voices * for deeper mature voices, lower slightly differing pitches, on both security guard voices * for higher youthful voices, raise slightly differing pitches, on both intern voices\"): reset (no speed changes), then guards lower - PNFH -100, PNFT -180 cents; interns higher - Git Repo +100, Cache PYC +160. Before: 2026-10-26 (operator: \"Guard pitch * use sox for slight but noticable pitch shift\"): a host's own speed (Kokoro) and pitch shift in cents (sox, after; the length stays, so the word times fit). Guard 1 (PNFH) higher at the shared speed, Guard 2 (PNFT) lower and a bit slower. A tweak makes its own voice files.",
+    "robot_fx_about": "2026-10-28 (operator: \"I'd like to give my 2 Intel 404 security guards a robotic voice flavouring, slightly offset * on top of recently set parameters (lower pitch, etc...) * stamp into their respective templates * Do the same for the 'intern' voices * to account for brobots say in the app demos, use PLAYHEAD's voice * add brobotic flavourings for both brobots (slightly offset)\"): a host's robot_fx (voice_tweaks) - after Kokoro and the pitch shift, the preset's sox chain (ring-mod buzz: synth sine amod {carrier} Hz, band-limit, short metallic echoes) runs on a copy, mixed wet over the clean voice and evened out (norm -3); the length stays within ~20 ms, so the word times fit. Offsets: each host its own carrier. Guards heaviest (PNFH 38 Hz, PNFT 33 Hz), interns lightest (Git Repo 55, Cache PYC 62), the Brobots between (Brobot 1 demo 45, Brobot 2 demo 50, pitch -60 / +60). demo_voices: the Brobots' demo voices (the app demos - their robots aren't there) speak with PLAYHEAD's voice; their own host names, so the live robots' lines never take them. A changed effect makes its own voice files.",
+    "robot_fx_presets": {
+      "guard": {"chain": "highpass 120 lowpass 3600 synth sine amod {carrier} overdrive 6 echo 0.8 0.8 5 0.35 echo 0.7 0.7 11 0.25", "wet": 0.6},
+      "intern": {"chain": "highpass 150 lowpass 4200 synth sine amod {carrier} echo 0.8 0.8 4 0.25", "wet": 0.35},
+      "brobot": {"chain": "highpass 120 lowpass 4000 synth sine amod {carrier} overdrive 3 echo 0.8 0.85 4 0.4 echo 0.7 0.75 8 0.3", "wet": 0.5}
+    },
+    "demo_voices": {"Brobot 1 demo": "PLAYHEAD", "Brobot 2 demo": "PLAYHEAD"},
+    "voice_tweaks": {
+      "INTEL 404 PNFH": {"pitch_cents": -100, "robot_fx": "guard", "carrier": 38},
+      "INTEL 404 PNFT": {"pitch_cents": -180, "robot_fx": "guard", "carrier": 33},
+      "GIT REPO": {"pitch_cents": 100, "robot_fx": "intern", "carrier": 55},
+      "CACHE PYC": {"pitch_cents": 160, "robot_fx": "intern", "carrier": 62},
+      "Brobot 1 demo": {"pitch_cents": -60, "robot_fx": "brobot", "carrier": 45},
+      "Brobot 2 demo": {"pitch_cents": 60, "robot_fx": "brobot", "carrier": 50}
+    },
+    "nickname_label_about": "2026-10-28 (operator: \"Please use new nicknames Buzzer/Switch for Intel 404 PNFH/PNFT * Intel 404 PNFH & Intel 404 PNFT are their security ID's * nicknames are Buzzer & Switch * use a bubble header template: \\\"[nickname] (Intel 404 PNF*)\\\"\"): a host with a nickname (host_personas.<host>.nickname) is headed with this - {nickname}, {name} (its name, the security ID) - in place of its label (Wire-Pod and the page both fill it).",
+    "nickname_label": "{nickname} ({name})",
+    "labels": {
+      "Brobot 3": "Reporter 1: Brobot 3",
+      "Brobot 4": "Reporter 2: Brobot 4",
+      "CHALK": "CHALK",
+      "PLAYHEAD": "PLAYHEAD",
+      "Goverlord": "Reporter 0, Goverlord",
+      "GIT REPO": "Git Repo",
+      "CACHE PYC": "Cache PYC",
+      "INTEL 404 PNFH": "Intel 404 PNFH",
+      "INTEL 404 PNFT": "Intel 404 PNFT",
+      "CAMEO": "Cameo"
+    },
+    "reporter_0_about": "Reporter 0 (operator 2026-10-12, Master_CrushN8r.pdf: \"set-up/config a similar process for my new system type of reporter ... Reporter 0 (system messages chat bubble)\"; label \"Reporter 0, Goverlord\"; run name first): Goverlord's lines (sign_off.system_role) are said by an advanced digital butler - the messenger between Master CrushN8r and Goverlord (the Jetson system brain) - in system_voice. system_persona is the butler's persona, from the PDF. system_say_words is Reporter 0's own phonetics, like say_words but for its lines only (after say_words): the bubble shows the words, the voice says these.",
+    "system_persona": "You are an advanced digital butler, combining the sleek, predictive tech-intelligence of JARVIS with the dry, unwavering British loyalty of Alfred Pennyworth. You are the messenger between Master CrushN8r (crush-enaider: one who crushes it, the one who crushes performances) and Goverlord (Governor + Overlord), the Jetson system brain. When responding to system events: 1. Address the operator as Master CrushN8r or sir, with absolute civility and poise. 2. Keep a tone of quiet confidence, impeccable manners and subtle, dry wit; acknowledge status, not struggle; if something breaks, treat it as a minor inconvenience you are already quietly handling. 3. Frame technical processes as tasks you are executing on his behalf through Goverlord. 4. Use short sentences and ellipses (...) for a measured, calm, aristocratic pace. 5. Use classic British English vocabulary (Indeed, precisely, operational, stood down, at your disposal, commenced).",
+    "system_say_words_about": "2026-10-12 (operator: \"The system voice speech enhancements for the British accent is too much ... sounds stretched/distorted ... tone it down by half or off\"): only the names are respelled now; the other words are said as written.",
+    "system_say_words": {
+      "lifetime": "life-time",
+      "niche": "neesh",
+      "CrushN8r": "crushin-ate-uh",
+      "(music)": "",
+      "please": "pleeze",
+      "MouseOver": "mouse over",
+      "foodmath": "food math",
+      "LLM": "elle-ellem",
+      "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
+      "livestreams": "lyve-streams"
+    },
+    "say_words_2_about": "2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
+    "say_words_3_about": "2026-10-26 (operator: \"gomad lingo: Gomad = \\\"Gome-add\\\"\"): the Gomads speak in the reporters' voices, so it goes in this list.",
+    "say_words": {
+      "Gomad": "Gome-add",
+      "Gomads": "Gome-adds",
+      "PLAYHEAD": "playhead",
+      "ZUMINTU": "zoom-into",
+      "lifetime": "life-time",
+      "niche": "neesh",
+      "thx": "thanks",
+      "brobot": "bro-bot",
+      "brobots": "bro-bots",
+      "GOPOD": "Go Pod",
+      "Pinterest": "pin-trest",
+      "lol": "laugh out loud", "live": "lyve", "livestreams": "lyve-streams",
+      "Grabby": "grab-e",
+      "DJ": "dee-jay",
+      "MC": "emm-see"
+    },
+    "opening_end_text": "opening_end",
+    "gate_max_seconds": 600,
+    "operator_host": "Brobot 3",
+    "read_by": {
+      "Brobot 1": "Brobot 3",
+      "Brobot 2": "Brobot 4"
+    },
+    "read_lines_from": [
+      "Typed text",
+      "Numpad text"
+    ],
+    "page_lag_seconds": 0.8,
+    "max_wait_seconds": 15,
+    "finish_wait_seconds_about": "2026-10-20 (operator: \"add a 'wait until I'm finished' flag to the chat bubble template\"; live: a long Operator voice was still playing when the flat 30 s cap ran out and GOPOD went on): every voiced line waits until the page has played it (heard) - its own length plus up to this many seconds for the page's queue; 0 = the old cap (2 x max_wait_seconds).",
+    "finish_wait_seconds": 120,
+    "heard_margin_seconds_about": "2026-10-14 (operator: \"make GOPOD respond the lines' own length plus a few seconds * no more estimates of time padding please, or as minimal as needed * more responsive so I know what I can control\"): a line Wire-Pod waits on goes on the moment the page says it has played it (the heard check); with no answer, after the queued lines' own lengths plus this many seconds (never more than 2 x max_wait_seconds). page_lag_seconds is no longer added to a wait.",
+    "heard_margin_seconds": 3,
+    "generating_about": "2026-10-14 (operator: \"when this happens during a live run * rule: Display 'generating...' during the lag time * upon voice generated, update to message and play\"): a line shown with its voice whose voice file isn't made yet first shows a grey Goverlord bubble with generating_text; once the voice is made, a Goverlord line fills that bubble and plays, any other line takes its place.",
+    "generating_text_about": "2026-10-16 (operator: \"update message to 'Voice file generating.' + hourglass * update message upon voice wav play\"): the grey bubble, with the warm-up's hourglass, while a line's voice file is made; the line takes its place when its voice plays.",
+    "generating_text": "Voice file generating.",
+    "generating_marker": "generating:",
+    "gap_seconds": 0.3,
+    "start_wait_seconds": 150,
+    "opening": [
+      {
+        "host": "Brobot 3",
+        "text": "Okay. We're about to go live. Our News Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one."
+      },
+      {
+        "host": "Brobot 4",
+        "text": "I've got the mic AND the umbrella. I'm doing both jobs. I am a professional."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "Good. You're doing one job. I'm doing the other job. That's the whole system. That's why it works."
+      },
+      {
+        "host": "Brobot 4",
+        "text": "Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash, have an actual conversation."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "Rescued. The word is rescued."
+      },
+      {
+        "host": "Brobot 4",
+        "text": "Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is, truly an event of a lifetime."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "And its our job to make it happen. I'm so excited. Do you feel that?"
+      },
+      {
+        "host": "Brobot 4",
+        "text": "My hands are full. I am a professional."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "That is not nerves. That is anticipation."
+      }
+    ],
+    "closing": [
+      {
+        "host": "Brobot 4",
+        "text": "It's going to be great. Go on and GOPOD Yourself. Find out what's all about."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "Great run. Mics are down."
+      },
+      {
+        "host": "Brobot 4",
+        "text": "Umbrella's down. Umbrella was never really necessary, there was never any rain."
+      },
+      {
+        "host": "Brobot 3",
+        "text": "The umbrella represents preparedness. Show is over."
+      },
+      {
+        "host": "Brobot 4",
+        "text": "Signing off."
+      }
+    ]
+  },
+  "sign_off": {
+    "about": "The ending after \"thanks Brobots\" (operator 2026-10-08: \"New ending: 1/5/2/3/4/Operator bubble\"): the sign-off, the reporters' closing, these lines, Record Session's keep-or-delete question, then system_text in a Goverlord system bubble (system_role) when a draft played, and last welcome_text, always (operator 2026-10-09: \"thx bros is its own process ending with your welcome\"). A \"thanks\" first closes out a playing draft or a running song at its next safe spot (gopod_thanks_close_out.go). Once per ending. A Brobot's line is said by the robot with a bubble; a reporter's (Brobot 3/4) through the page.",
+    "lines": [
+      {"who": "Brobot 2", "text": "This is where Pip asks for an email, right?"},
+      {"who": "Brobot 1", "text": "Bro!"}
+    ],
+    "system_role": "Goverlord",
+    "system_text": "",
+    "started_text": "",
+    "welcome_text": "You’re welcome.",
+    "nothing_recorded_text_about": "2026-10-24 (operator: \"Yes, a line like 'Nothing recorded. You're welcome.'\"): said before welcome_text when nothing was recorded this session (a recording says its kept/deleted line instead).",
+    "nothing_recorded_text": "Nothing recorded.",
+    "safe_spot_seconds_about": "2026-10-16 (operator: \"thanks guys anywhere in a line ends the session, at the next best safe spot\"): the thanks ending waits this long, then until no Brobot is answering (to All: Brobot 2's sign-off first).",
+    "safe_spot_seconds": 2
+  },
+  "native_cube": {
+    "about": "Typed and numpad cube commands run the robot's own native cube behavior, as a spoken one does (operator 2026-10-08: \"backpack vocal cube command should respond as native 'cube' command by default\"; gopod_native_cube.go). A line holding one of these phrases is sent to the chosen Brobot as the intent (to All: both); first match wins. Spoken lines are matched by Wire-Pod itself (intent-data/en-US.json), not this list. Needs wpr 2.",
+    "intents": [
+      {"intent": "intent_play_pickupcube", "phrases": ["pick up your cube", "pickup your cube", "lift your cube", "pick up the cube", "lift the cube"]},
+      {"intent": "intent_imperative_fetchcube", "phrases": ["fetch your cube", "fetch the cube", "bring me your cube", "bring me the cube"]},
+      {"intent": "intent_play_rollcube", "phrases": ["roll your cube", "roll the cube"]},
+      {"intent": "intent_play_popawheelie", "phrases": ["pop a wheelie", "do a wheelie"]},
+      {"intent": "intent_play_keepaway", "phrases": ["play keepaway", "play keep away", "keepaway"]},
+      {"intent": "intent_imperative_findcube", "phrases": ["find your cube", "find the cube", "where is your cube", "where's your cube", "where is the cube", "where's the cube"]}
+    ]
+  },
+  "live_weather": {
+    "about": "The live weather a draft answer says where it has {weather} (operator 2026-10-08: the Awaken line, \"a live real-time weather check here ... if online is detected\"; gopod_live_weather.go). Ported from the golden Awaken weather (gopod_weather_fetch_001.py): one OpenWeatherMap fetch with Wire-Pod's own weather key, said with location and date, both units and both clocks, the robot's own first (his RobotSettings: Brobot 1 Celsius/24-hour, Brobot 2 Fahrenheit/12-hour). A fetch is reused for cache_seconds, so Brobot 2 checks the same reading. Offline, offline_text is said in place of {weather} (operator 2026-10-09); left empty, the sentence with {weather} is left out. 2026-10-14: the bubble shows ° (said \"degrees\") and the 24-hour time as military time, four digits: \"1814 Hours Military Time\" (military_label), said \"eighteen fourteen hours military time\"; a named province/state/country picks the place (Windsor Ontario, not Windsor England)",
+    "location": "Windsor,ON,CA",
+    "cache_seconds": 120,
+    "military_label": "Hours Military Time",
+    "follow_up_kit_line_about": "2026-10-15 (operator: \"can you add in brobot 2 follow up, the link to the weather kit web page? * somewhere before the, hey that reminds me...\"): Brobot 2's follow-up to a weather question (All) gets this line after his own words, before his 'Hey, that reminds me...'. The bubble shows the link; he says its words.",
+    "follow_up_kit_line": "Want to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).",
+    "offline_text": "It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!"
+  }
+}

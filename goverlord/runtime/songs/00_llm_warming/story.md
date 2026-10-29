@@ -18,7 +18,7 @@ for the new words.
 
 Before each step here, the opener waits for the chat page to be here (open, visible, its Log clicked). While
 it's away, Goverlord's warm-up bubble says "Goverlord awaits your return..." with the hourglass
-(`awaits_text`, gopod_brobots_settings.json) and nothing plays; on return the steps go on in order.
+(`awaits_text`, the settings folder (webroot/gopod_settings/)) and nothing plays; on return the steps go on in order.
 
 ## STEP goverlord_warm_0101
 

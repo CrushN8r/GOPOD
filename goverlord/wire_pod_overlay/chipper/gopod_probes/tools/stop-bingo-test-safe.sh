@@ -14,8 +14,9 @@ if [ "$(id -u)" = "0" ]; then
     exec runuser -u goverlord -- "$0" "$@"
 fi
 chipper=/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper
-settings=$chipper/webroot/gopod_brobots_settings.json
-read -r request wait_s < <(python3 -c "import json,sys; s=json.load(open(sys.argv[1]))['song_stop']; print(s['request_file'], s['wait_seconds'])" "$settings")
+settings=$chipper/webroot/gopod_settings
+# The settings folder, read as one (gopod_settings_folder.go).
+read -r request wait_s < <(python3 -c "import json,glob,sys; m={}; [m.update(json.load(open(f))) for f in sorted(glob.glob(sys.argv[1]+'/*.json'))]; s=m['song_stop']; print(s['request_file'], s['wait_seconds'])" "$settings")
 (
     echo "stop-bingo-test-safe $(date '+%F %T')"
     if ! pgrep -f run_golden_song_001.py > /dev/null; then

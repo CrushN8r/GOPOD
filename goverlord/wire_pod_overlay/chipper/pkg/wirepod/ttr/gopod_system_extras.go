@@ -213,7 +213,7 @@ func gopodSystemMenuTheme(text string) string {
 	sort.Strings(keys)
 	for _, k := range keys {
 		b, _ := json.Marshal(theme[k])
-		if _, err := gopodSettingsWrite(func(file string) (string, error) {
+		if _, err := gopodSettingsWrite([]string{"system_menu"}, func(file string) (string, error) {
 			return gopodJSONFileSet(file, []string{"system_menu", "look", k}, string(b))
 		}); err != nil {
 			return "system-menu-theme: not changed - " + err.Error()

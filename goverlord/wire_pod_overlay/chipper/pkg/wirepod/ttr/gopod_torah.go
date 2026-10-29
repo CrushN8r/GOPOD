@@ -119,7 +119,7 @@ func gopodTorahPage() string {
 			} `json:"groups"`
 		} `json:"system_menu"`
 	}
-	data, _ := os.ReadFile(gopodBrobotsSettingsPath)
+	data, _ := gopodSettingsMerged()
 	_ = json.Unmarshal(data, &raw)
 	s := gopodBrobotsSettings
 	var b strings.Builder
@@ -210,7 +210,7 @@ func gopodTorahScriptures() []gopodTorahScripture {
 			} `json:"groups"`
 		} `json:"system_menu"`
 	}
-	data, _ := os.ReadFile(gopodBrobotsSettingsPath)
+	data, _ := gopodSettingsMerged()
 	_ = json.Unmarshal(data, &raw)
 	tw := gopodBrobotsSettings.Torah
 	var out []gopodTorahScripture

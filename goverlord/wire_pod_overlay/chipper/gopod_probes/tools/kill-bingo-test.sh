@@ -15,11 +15,11 @@ if [ "$(id -u)" = "0" ]; then
 fi
 source /home/goverlord/.gopod_alias_lib/local_config.sh
 chipper=/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper
-settings=/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/webroot/gopod_brobots_settings.json
+settings=/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/webroot/gopod_settings  # the settings folder, read as one
 {
     echo "kill-bingo-test $(date '+%F %T')"
     pkill -f run_golden_song_001.py && echo "song stopped" || echo "no song running"
-    off_file=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['touch_interrupt']['off_file'])" "$settings")
+    off_file=$(python3 -c "import json,glob,sys; m={}; [m.update(json.load(open(f))) for f in sorted(glob.glob(sys.argv[1]+'/*.json'))]; print(m['touch_interrupt']['off_file'])" "$settings")
     rm -f "$chipper/$off_file" && echo "touch interrupt on"
     for serial in "${GOPOD_BROBOT_1_SERIAL:-ESN01}" "${GOPOD_BROBOT_2_SERIAL:-ESN02}"; do
         curl -fsS --max-time 10 -X POST --data-urlencode "serial=$serial" \

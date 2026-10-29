@@ -720,7 +720,7 @@ bottom is reached, the highlight carries on down the bubble.
   In a corner, QR1 sits top-right in the header row; scrolled above the chat's top it jumps to
   the bubble's bottom-right (`corner-low`, marquee inset kept). QR2 (`qr_codes.second`) goes
   right after "...subscribing to our newsletter!", the last step of the reveal. The magnifier as
-  ever. `qr_codes` in `gopod_brobots_settings.json` (`qr_codes.codes`: the words that show each),
+  ever. `qr_codes` in the settings folder (`webroot/gopod_settings/`) (`qr_codes.codes`: the words that show each),
   pictures in `webroot/qr/`.
 - **Weather faces:** a bubble holding the live weather line gets Vector's own weather face for it
   (sunny, cloudy, rain, snow, thunderstorms, windy; clear at night = stars; cold has none),

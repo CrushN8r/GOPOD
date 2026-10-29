@@ -97,7 +97,7 @@ func TestSystemSetReads(t *testing.T) {
 // TestSystemLocate (2026-10-17, operator: "Please build system-locate"): a
 // setting, a song step and a word are found with their file and line.
 func TestSystemLocate(t *testing.T) {
-	if s := gopodSystemLocate("system-locate master-volume"); !strings.Contains(s, "gopod_brobots_settings.json:") {
+	if s := gopodSystemLocate("system-locate master-volume"); !strings.Contains(s, "gopod_settings/03_chat_page.json:") {
 		t.Errorf("setting: %s", s)
 	}
 	s := gopodSystemLocate("system-locate 00_llm_warming goverlord_sting_0106 volume")

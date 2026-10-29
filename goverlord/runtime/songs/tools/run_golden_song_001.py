@@ -1340,15 +1340,19 @@ def run_say_turn(mod, robots, name, text, display_text=None, suppress_assume_rel
     return {"ok": ok, "result": result, "silent_heal": heal}
 
 
-# The Brobots settings file (single source of truth, shared with Wire-Pod and the
-# chat page): the animation lead-in the emotion beats use.
-BROBOTS_SETTINGS_PATH = (
-    Path(__file__).resolve().parents[3] / "wire_pod_overlay" / "chipper" / "webroot" / "gopod_brobots_settings.json"
+# The Brobots settings (single source of truth, shared with Wire-Pod and the chat
+# page): the settings folder, a short file per area, read as one (2026-10-29,
+# gopod_settings_folder.go) - the animation lead-in the emotion beats use.
+BROBOTS_SETTINGS_DIR = (
+    Path(__file__).resolve().parents[3] / "wire_pod_overlay" / "chipper" / "webroot" / "gopod_settings"
 )
 
 
 def load_brobots_settings():
-    return json.loads(BROBOTS_SETTINGS_PATH.read_text(encoding="utf-8"))
+    merged = {}
+    for f in sorted(BROBOTS_SETTINGS_DIR.glob("*.json")):
+        merged.update(json.loads(f.read_text(encoding="utf-8")))
+    return merged
 
 
 def load_animation_lead_in():

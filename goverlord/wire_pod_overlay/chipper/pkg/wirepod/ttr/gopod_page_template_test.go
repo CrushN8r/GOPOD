@@ -20,7 +20,7 @@ func TestPageRunsFromSettings(t *testing.T) {
 	if root == "" {
 		t.Skip("no overlay here")
 	}
-	data, _ := os.ReadFile(filepath.Join(root, "webroot/gopod_brobots_settings.json"))
+	data, _ := gopodSettingsMerged()
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(data, &top); err != nil {
 		t.Fatal(err)
