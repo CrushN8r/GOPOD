@@ -47,3 +47,29 @@ tell me a joke | -
 what time is it? | -
 how are the both of you doing | -
 hey buddy can you hear me | checks
+Can my grandpa play along from his phone? Is there an app for that? | accessmath
+Okay, give me the whole story. Did Ron give up, or build something? | background
+Burgers on the grill, kids everywhere. Can GOPOD do a BBQ? | bbq
+Nothing booked this week. What would it cost to book you two for a gig? | booking
+You two partners, or do you work alone? | brothers
+Are you hiring? I could use some social media help, and so could you. | call_for_help
+My niece turns ten Saturday. Can Doc and Pip make her a birthday video? | cameo
+Where's the launch pad? How does the community path work? | community_path
+Pip gets it wrong on purpose? Show me the workbook and Doc's answer key. | doc_and_pip_workbook
+Who's Gangster Granny, and why does she get due credit? | due_credit
+Golden, dinner before dessert, what's with all the funny words? | gopod_words
+Interview over. Sum it up, what have we learned? | gopod_yourself
+Bad day at work. Can a healthy distraction actually cheer me up? | healthy_distraction
+Bubbles lighting up, numpad keys, how does this chat work? | how_the_chat_works
+When the lights go out, what's your legacy? What's the point of all this? | legacy
+Did Ron come back through the Downtown Mission? | mission_comeback
+Two crates on a dolly? Show me the gear. | mobile_gear
+What are your niche pillars, the niche content that sells? | niche_pillars
+Nine themes of math? Which ones, and where's the money math? | nine_pillars
+Wait, are you an AI? Are you on Alexa or Siri? | on_gopod
+Personality math, is this you? How did that website go up by dinner? | personalitymath_demo
+Can I print a word search or a sudoku at home? | printables_and_affiliates
+While Doc and Pip perform, what's the teacher watching for? The seven tells? | teacher_tells
+Where do I find you online? Which websites are yours? | websites
+Rural schools with no internet, where do you teach? | where_we_teach
+How many subs on the YouTube channel, and when do you go viral? | youtube_goal
