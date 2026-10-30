@@ -85,7 +85,7 @@ menu (🔊), and turns it off and closes it (🔇).
   scores the next value point, never said word for word; anything else is a pointed question, its
   own point. A topic's `source:` names the repo md it tells; system-check flags it when that md
   changes after the topic (touch the topic once it's checked). `BROBOT_ASKS.md` (repo root) is
-  made from the topics and the game's own questions (`GOPOD_WRITE_ASKS=1`, kept by
+  made from the topics, the game's own questions and the probers list - each topic's probers, the operator's own words (`GOPOD_WRITE_ASKS=1`, kept by
   `TestBrobotAsksPageMatches`). Pictures live in folders under `webroot/pictures/` (gear,
   chocolate_bingo, doc_pip_math, birthday, baby_brobots, legacy, qr); a picture name includes its
   folder.

@@ -213,6 +213,17 @@ func gopodAsksPage() string {
 	for _, q := range qfile.Questions {
 		asked[q.Topic] = append(asked[q.Topic], "\""+gopodAskWithoutAddress(q.Ask)+"\"")
 	}
+	// 2026-10-29 (operator: "Start with the single source of truth, BROBOT_ASKS.md";
+	// "I consider my probing questions as examples of how I thought"): the probers
+	// list (gopod_probers_list.go) - each topic's probers, the operator's own words.
+	probed := map[string][]string{}
+	if probers, _, err := gopodProbers(); err == nil {
+		for _, p := range probers {
+			if len(p.want) > 0 {
+				probed[p.want[0]] = append(probed[p.want[0]], "\""+p.text+"\"")
+			}
+		}
+	}
 	quote := func(words []string, n int) string {
 		var out []string
 		for i, w := range words {
@@ -233,6 +244,7 @@ func gopodAsksPage() string {
 	b.WriteString("| " + quote(ta.DetailWords, 3) + " | \"Tell me all about the rig\" · \"Tell me more\" | The details, one value point at a time. \"Tell me more\" stays on the last topic. |\n")
 	b.WriteString("| A pointed question | \"What's in the upper crate?\" | The one value point it asks about. |\n\n")
 	b.WriteString("Every answer scores in the game: topics, value points and easter eggs, shown in the notice bubble.\n\n")
+	b.WriteString("**The probers** are Ron's own questions from real sessions - examples of how he thought, kept in the probers list (`goverlord/wire_pod_overlay/chipper/gopod_probes/probers_list/`, checked by `system-test-probers-list`).\n\n")
 	b.WriteString("## The topics\n")
 	for _, c := range chapters {
 		var rows []string
@@ -248,12 +260,12 @@ func gopodAsksPage() string {
 			for _, src := range t.Sources {
 				docs = append(docs, "["+filepath.Base(src)+"]("+src+")")
 			}
-			rows = append(rows, "| \""+ask+"\" | "+strings.ReplaceAll(t.Summary, " | ", " · ")+" | "+strings.Join(asked[t.Name], " · ")+" | "+strings.Join(docs, " ")+" |")
+			rows = append(rows, "| \""+ask+"\" | "+strings.ReplaceAll(t.Summary, " | ", " · ")+" | "+strings.Join(asked[t.Name], " · ")+" | "+strings.Join(probed[t.Name], " · ")+" | "+strings.Join(docs, " ")+" |")
 		}
 		if len(rows) == 0 {
 			continue
 		}
-		b.WriteString("\n### " + c.Title + "\n\n| Ask | What you get | Also ask | More in |\n|---|---|---|---|\n")
+		b.WriteString("\n### " + c.Title + "\n\n| Ask | What you get | Also ask | The probers | More in |\n|---|---|---|---|---|\n")
 		b.WriteString(strings.Join(rows, "\n") + "\n")
 	}
 	b.WriteString("\n---\n\nGOPOD — [README](README.md) · [mobile gear](MOBILE_GEAR.md) · [WIRED-POD](WIRED-POD.md)\n")
