@@ -127,23 +127,33 @@ func gopodBatterySay(name string, volts float64) {
 	for gopodReplyBusy() || gopodRunActive() || gopodScriptPlaying.Load() {
 		time.Sleep(2 * time.Second)
 	}
-	line := lines[rand.Intn(len(lines))]
+	guard, warning, reply, line := gopodBatteryLines(name, volts, lines[rand.Intn(len(lines))])
 	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s low (%.2f V): %s", name, volts, line))
 	// 2026-10-26 (operator: "at the next safe spot, Intel can interject * use
 	// the duo response-chain template, Intel 404 to brobot N * a warning
 	// message, then what say you? * Brobot N, Nice try ..., yeah, I feel
 	// dizzy"): his guard (battery_watch.guards) warns and hands over, then he
 	// answers - the comeback opener, then his line (battery_watch.reply).
-	if guard := gopodBrobotsSettings.BatteryWatch.Guards[name]; guard != "" {
-		bw := gopodBrobotsSettings.BatteryWatch
-		warn := strings.NewReplacer("{brobot}", name, "{volts}", fmt.Sprintf("%.1f", volts)).Replace(bw.GuardWarning)
-		hand := gopodNicknameFill(guard, strings.ReplaceAll(bw.GuardHandover, "{brobot}", name))
-		if gopodReporterSayTo(guard, "", strings.TrimSpace(warn+" "+hand), true, true) {
-			come := gopodNicknameFill(name, gopodBrobotsSettings.Openers["comeback"])
-			line = strings.Join(strings.Fields(strings.NewReplacer("{comeback}", come, "{line}", line).Replace(bw.Reply)), " ")
-		}
+	if guard != "" && gopodReporterSayTo(guard, "", warning, true, true) {
+		line = reply
 	}
 	gopodRecordSay(name, line)
+}
+
+// gopodBatteryLines: what a low battery says - his guard (none: ""), the guard's
+// warning and handover, his reply after it, and his line alone (with no guard).
+// The live watch and the pre-show check (gopod_preshow.go) build them the same way.
+func gopodBatteryLines(name string, volts float64, line string) (guard, warning, reply, alone string) {
+	bw := gopodBrobotsSettings.BatteryWatch
+	guard = bw.Guards[name]
+	if guard == "" {
+		return "", "", line, line
+	}
+	warn := strings.NewReplacer("{brobot}", name, "{volts}", fmt.Sprintf("%.1f", volts)).Replace(bw.GuardWarning)
+	hand := gopodNicknameFill(guard, strings.ReplaceAll(bw.GuardHandover, "{brobot}", name))
+	come := gopodNicknameFill(name, gopodBrobotsSettings.Openers["comeback"])
+	reply = strings.Join(strings.Fields(strings.NewReplacer("{comeback}", come, "{line}", line).Replace(bw.Reply)), " ")
+	return guard, strings.TrimSpace(warn + " " + hand), reply, line
 }
 
 // ## EOF

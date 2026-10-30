@@ -102,6 +102,7 @@ Each checks one thing, nothing said or moved (`system-test-<name>`; `system-test
 | `eggs` | the egg list: chapters (less not_eggs), no surprise eggs, no weather |
 | `game` | every topic, value point and Easter egg is found by its own words (no robots, no model) |
 | `admin-run` | the 100% admin run, every line in order through the game: every value point, egg and prize, and no dry reminder (no robots, no model; the live game is put back) |
+| `preshow` | the pre-show pass, simulated: the comm check's KP1-9 routes and prompts, a Doc's BS answer's beats, a low battery's guard warning and dizzy reply (no robots, no model) |
 | `probers-list` | the probers list - the operator's own probers from his saved sessions, through the topic loader: the right topic first, lightning against the word triggers (no robots, no model) |
 | `eggvoice` | an Easter egg voice is made from its kept pieces and a live title, joined |
 | `replay` | the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots |
