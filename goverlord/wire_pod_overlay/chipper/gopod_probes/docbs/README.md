@@ -11,3 +11,14 @@ Tokens: {nickname} {name} {acr} {a} {b} {c} {va} {vb} {vc} {multiplier} {ma} {nu
 
 Public files keep expletives starred (f*ck); a private, gitignored `z<name>.txt` copy, uncensored, is used when
 it's there (the zKnobs.json pattern).
+
+## The Master Library (2026-10-30)
+
+`DOCBS_LIBRARY.md` is the Doc Squawkadoodle Master Library, the operator's own: the locked profile,
+the response pipeline, the catchphrase bank, the prompts, the golden formulas and the 50 chains of
+thought. Public copy starred; the uncensored `zDOCBS_LIBRARY.md` is private and gitignored.
+
+Its catchphrase bank is in pools, one per bank section: `roasts`, `riddles`, `insights`,
+`dismissals`, `crew`, `paradoxes`, `taunts`, `signoffs`, `gutshots` - `_clean` (the lines with no
+swear), `_18` (all of them, starred), `z..._18` (all of them, uncensored, private). Not wired into
+an answer yet: the next steps pick them by chain and dial.

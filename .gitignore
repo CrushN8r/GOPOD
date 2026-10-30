@@ -154,6 +154,7 @@ goverlord/wire_pod_overlay/chipper/zgopod_human_swears.json
 # goverlord/wire_pod_overlay/chipper/gopod_probes/docbs/z*.txt: the private, uncensored
 # DocBS 18+ pools (operator 2026-10-29) - the public files keep expletives starred.
 goverlord/wire_pod_overlay/chipper/gopod_probes/docbs/z*.txt
+goverlord/wire_pod_overlay/chipper/gopod_probes/docbs/z*.md
 
 # goverlord/wire_pod_overlay/chipper/gopod_brobots_now.json: who Brobot 1 and 2 are this
 # Wire-Pod start (live state, written at start; the songs read it).
