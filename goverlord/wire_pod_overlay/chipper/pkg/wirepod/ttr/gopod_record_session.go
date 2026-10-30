@@ -703,6 +703,7 @@ func gopodRecordSay(brobot, text string) {
 	for _, bot := range vars.BotInfo.Robots {
 		if bot.Esn == esn {
 			robot, _ = vector.New(vector.WithSerialNo(esn), vector.WithToken(bot.GUID), vector.WithTarget(bot.IPAddress+":443"))
+			robot = GopodRobotsOffConn(robot) // robots off (gopod_robots_off.go)
 			break
 		}
 	}

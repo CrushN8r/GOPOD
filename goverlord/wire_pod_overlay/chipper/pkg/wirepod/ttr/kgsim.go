@@ -384,6 +384,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		if err != nil {
 			return err.Error(), err
 		}
+		robot = GopodRobotsOffConn(robot)  // GOPOD 2026-10-29: robots off (gopod_robots_off.go)
 	}
 	_, err := robot.Conn.BatteryState(context.Background(), &vectorpb.BatteryStateRequest{})
 	if err != nil {
@@ -1164,6 +1165,7 @@ func KGSim(esn string, textToSay string) error {
 		if err != nil {
 			return err
 		}
+		robot = GopodRobotsOffConn(robot)  // GOPOD 2026-10-29: robots off (gopod_robots_off.go)
 	}
 	controlRequest := &vectorpb.BehaviorControlRequest{
 		RequestType: &vectorpb.BehaviorControlRequest_ControlRequest{

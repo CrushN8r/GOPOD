@@ -163,11 +163,12 @@ func gopodEndWithPunctuation(text string) string {
 func connectVector(esn string) (*vector.Vector, error) {
 	for _, bot := range vars.BotInfo.Robots {
 		if esn == bot.Esn {
-			return vector.New(
+			robot, err := vector.New(
 				vector.WithSerialNo(esn),
 				vector.WithToken(bot.GUID),
 				vector.WithTarget(bot.IPAddress+":443"),
 			)
+			return GopodRobotsOffConn(robot), err // robots off (gopod_robots_off.go)
 		}
 	}
 	return nil, fmt.Errorf("robot ESN not found: %s", esn)

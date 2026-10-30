@@ -16,6 +16,8 @@ Turn parts on or off for this session. “system-numpad” shows who each numpad
 - system-native off, Wire-Pod's own voice answers off
 - system-record on, Record Session on (the page's Record? box)
 - system-record off, Record Session off, kept zipped
+- system-robots-off on, Robots off: the Brobots' says on the page in their numpad voices, says and animations captured
+- system-robots-off off, Robots back on
 
 *Close the menu with the speaker icon.*
 

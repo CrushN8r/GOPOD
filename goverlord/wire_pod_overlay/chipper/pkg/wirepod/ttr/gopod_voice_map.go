@@ -65,7 +65,11 @@ func gopodVoiceRows() []gopodVoiceRow {
 		}
 		e := m.NumlockOn[key]
 		row := gopodVoiceRow{Key: key, Persona: e.Persona}
-		if _, robot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[e.Body]; robot {
+		// 2026-10-29 (operator: "follow numpad for voices"): with robots off, a
+		// bodied Brobot's key picks the voice his says play in (gopod_robots_off.go).
+		if brobot, robot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[e.Body]; robot && GopodRobotsOff() {
+			row.Host, row.Voice = brobot, gopodBrobotsSettings.RobotsOff.Voices[brobot]
+		} else if robot {
 			row.Bodied = true
 		} else if host := gopodPersonaFor(e.Persona); host != "" {
 			row.Host, row.Voice = host, rv.Hosts[host]
@@ -107,7 +111,19 @@ func GopodVoiceMapSet(key, voice string) (string, error) {
 	settings := gopodSettingsFileFor([]string{"reporter_voices"})
 	raw := `"` + voice + `"`
 	rv := &gopodBrobotsSettings.ReporterVoices
-	if row.Key == "Operator" {
+	if gopodIsBodiedBrobot(row.Host) {
+		// 2026-10-29: robots off - a Brobot's temp voice, in robots_off.voices.
+		settings = gopodSettingsFileFor([]string{"robots_off"})
+		if _, err := gopodJSONFileSet(settings, []string{"robots_off", "voices", row.Host}, raw); err != nil {
+			return "", err
+		}
+		voices := map[string]string{}
+		for k, v := range gopodBrobotsSettings.RobotsOff.Voices {
+			voices[k] = v
+		}
+		voices[row.Host] = voice
+		gopodBrobotsSettings.RobotsOff.Voices = voices
+	} else if row.Key == "Operator" {
 		if _, err := gopodJSONFileSet(settings, []string{"reporter_voices", "operator_voice"}, raw); err != nil {
 			return "", err
 		}

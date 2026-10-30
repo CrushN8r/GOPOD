@@ -149,6 +149,14 @@ func GopodReporterVoicesStart() {
 // system role (operator 2026-10-08: "Add a third bm_george voice for system").
 func gopodReporterVoice(host string) string {
 	rv := gopodBrobotsSettings.ReporterVoices
+	// 2026-10-29: robots off - a Brobot's temp voice (robots_off.voices, the
+	// numpad's KP1/KP2); none picked: the unassigned voice (gopod_robots_off.go).
+	if GopodRobotsOff() && gopodIsBodiedBrobot(host) {
+		if voice := gopodBrobotsSettings.RobotsOff.Voices[host]; voice != "" {
+			return voice
+		}
+		return rv.Hosts[rv.UnassignedVoiceHost]
+	}
 	if voice := rv.Hosts[host]; voice != "" {
 		return voice
 	}

@@ -15,6 +15,7 @@ import (
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
+	wirepod_ttr "github.com/kercre123/wire-pod/chipper/pkg/wirepod/ttr"
 )
 
 var robots []Robot
@@ -74,6 +75,8 @@ func newRobot(serial string) (Robot, int, error) {
 		inhibitCreation = false
 		return RobotObj, 0, err
 	}
+	// GOPOD 2026-10-29: robots off - a stand-in connection (ttr/gopod_robots_off.go).
+	RobotObj.Vector = wirepod_ttr.GopodRobotsOffConn(RobotObj.Vector)
 
 	// connection check
 	_, err = RobotObj.Vector.Conn.BatteryState(context.Background(), &vectorpb.BatteryStateRequest{})
@@ -231,12 +234,17 @@ func NewWP(serial string, useGlobal bool) (*vector.Vector, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := c.Connect(); err != nil {
-		return nil, err
+	// GOPOD 2026-10-29: robots off - no connection to the robot, a stand-in
+	// (ttr/gopod_robots_off.go).
+	if !wirepod_ttr.GopodRobotsOff() {
+		if err := c.Connect(); err != nil {
+			return nil, err
+		}
 	}
-	return vector.New(
+	robot, err := vector.New(
 		vector.WithTarget(target),
 		vector.WithSerialNo(serial),
 		vector.WithToken(guid),
 	)
+	return wirepod_ttr.GopodRobotsOffConn(robot), err
 }

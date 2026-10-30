@@ -253,6 +253,7 @@ song-start intents; the engine checks in with Goverlord (one run at a time).
 | `system-skip` | skips the reporters' warm-up lines ([6.7](03_SESSION.md#67-skip)) |
 | `system-voices-rebuild [go]` | rebuilds every voice ([10.2](05_VOICES_AND_SOUND.md#102-voice-files-made-once-play-many)) |
 | `system-menu-theme <preset>` | the menu's look |
+| `system-robots-off on\|off` | robots off: nothing reaches the Brobots - their says play on the page in temp voices (the voices panel's KP1/KP2, `robots_off.voices`) - bubbles, order and waits as with the robots, every say and animation captured to `gopod_probes/demo_runs/robots_off_capture_<date>.jsonl` for a replay with the Brobots later; saved, holds after a restart (`robots_off`) |
 
 ### 14.10 Every command at a glance
 
@@ -270,7 +271,7 @@ song-start intents; the engine checks in with Goverlord (one run at a time).
 | `system-visual`, `system-cams`, `system-tpu`, `system-usb` | [14.6](#146-cameras-and-the-edge-tpu) |
 | `system-brobot` / `system-robot`, `system-faces`, `system-photos`, `system-version`, `system-anim` | [14.7](#147-the-brobots-from-the-chat) |
 | `system-play`, `system-gap`, `system-tweaks`, `system-calibrate` | [14.8](#148-play-and-tune-from-the-chat-pha0b-and-phcal) |
-| `system-restart`, `system-native`, `system-numpad`, `system-skip`, `system-voices-rebuild` | [14.9](#149-restart-and-switches) |
+| `system-restart`, `system-native`, `system-numpad`, `system-skip`, `system-voices-rebuild`, `system-robots-off` | [14.9](#149-restart-and-switches) |
 
 ---
 

@@ -40,7 +40,7 @@ func gopodRobotFor(esn string) *vector.Vector {
 		if bot.Esn == esn {
 			robot, err := vector.New(vector.WithSerialNo(esn), vector.WithToken(bot.GUID), vector.WithTarget(bot.IPAddress+":443"))
 			if err == nil {
-				return robot
+				return GopodRobotsOffConn(robot) // robots off (gopod_robots_off.go)
 			}
 		}
 	}

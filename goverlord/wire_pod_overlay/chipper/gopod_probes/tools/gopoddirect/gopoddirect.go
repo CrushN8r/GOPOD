@@ -72,7 +72,12 @@ func RobotSerial(serial string) string {
 // control_request_send/control_grant_recv), so nothing downstream that logs
 // or inspects that text sees a different shape than before this refactor.
 func ConnectAndGrant(ctx context.Context, serial string) (*vector.Vector, vectorpb.ExternalInterface_BehaviorControlClient, error) {
-	robot, err := vector.NewWP(RobotSerial(serial))
+	// 2026-10-29: robots off - a stand-in, no robot reached (robots_off.go).
+	newRobot := vector.NewWP
+	if RobotsOff() {
+		newRobot = robotsOffRobot
+	}
+	robot, err := newRobot(RobotSerial(serial))
 	if err != nil {
 		return nil, nil, fmt.Errorf("connect: %v", err)
 	}

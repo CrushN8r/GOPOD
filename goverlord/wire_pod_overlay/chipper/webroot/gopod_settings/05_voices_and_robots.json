@@ -112,6 +112,12 @@
     "take_sheet": "~/gopod_tts/sessions/harvest/take_sheet.json",
     "take_sheet_about": "Keep also adds the session's answers to the take sheet as takes (operator 2026-10-06: \"keep this session take?\"), one per Brobot answer, filed under the value points it was given; delete adds nothing. Empty: no takes."
   },
+  "robots_off": {
+    "about": "2026-10-29 (operator: \"I want to show what the visitor's runs will look like * plus all audio a visitor would hear in the same room * the only things missing would be my voice & the vector robot speaker output * there are voices assigned in place of the brobots speaker speech * if I later replay with the brobots I want all the full replay there\"; \"Just capture the brobot safe say + playanimations\"; \"follow numpad for voices\"). on: nothing reaches a Brobot - a Brobot's say plays on the chat page in his numpad voice (the voices panel's KP1/KP2, saved in voices; none picked: the unassigned voice) - his bubble, its order and its wait stay as with the robots, only the voice is a temp one, and every say and animation goes into capture_file ({date} filled in, one JSON line each) for a replay with the Brobots later. Switched with system-robots-off on|off (gopod_robots_off.go).",
+    "on": false,
+    "capture_file": "gopod_probes/demo_runs/robots_off_capture_{date}.jsonl",
+    "voices": {"Brobot 1": "am_michael", "Brobot 2": "am_puck"}
+  },
   "battery_watch": {
     "about": "The battery watchdog (operator 2026-10-15: \"set up a background watchdog to monitor battery level over time? Over the course of a session run? If let's say the battery level drops below a threshold (like from a lot of use), have the brobot comment they're feeling dizzy and need help getting home, lol\"; gopod_battery_watch.go). For the whole Wire-Pod session, every interval_seconds each Brobot's battery is read and logged (GOPOD_BATTERY_WATCH). Below low_volts, off the charger, he says one of his lines with his bubble - once; again only after he's back up to recover_volts or set on his charger. Never in the middle of a reply or a run: he waits until both are over. low_volts: golden rule 6's line, 3.7 V (Brobot 2's crashes came at 3.61-3.62 V). The lines are drafts in the operator's words, to edit.",
     "enabled": true,

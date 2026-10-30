@@ -680,6 +680,11 @@ type gopodBrobotsSettingsFile struct {
 		KeepShare   float64 `json:"keep_share"`
 		OrderMargin float64 `json:"order_margin"`
 	} `json:"lightning"`
+	RobotsOff struct {
+		On          bool   `json:"on"`
+		CaptureFile string            `json:"capture_file"`
+		Voices      map[string]string `json:"voices"`
+	} `json:"robots_off"`
 	ProbersMake struct {
 		File          string            `json:"file"`
 		Shapes        []string          `json:"shapes"`
