@@ -1,0 +1,56 @@
+# Made by the probe maker (system-probers-make, gopod_probers_make.go): a prober
+# for each value point - topic, point, shape, fill, checked. Same format as the
+# probers list: the question, " | ", the topic it lands on first.
+Hold on. Doc? What's the deal with Doc and Pip? | doc_and_pip
+Real talk. Pip N Stall, from terminal command, pip install - is that true about Doc and Pip? | doc_and_pip
+Real talk. orphaned when our maker folded - is that true about our whole story? | background
+Walk a real day. Where does Doc is a strict funny teacher fit in with how we teach? | teaching_method
+Nice try. And our local brain? Tell me about local brain. | local_ai
+Hey party animal, the websites - what's the deal with the CRUSHN8R sites? | websites
+Hold on. the content sites? What's the deal with the websites? | websites
+Someone just walked in. What's an idea to a website, and why should they care about personality math? | personalitymath_demo
+Real talk. a made-up example, not a real website - is that true about personality math? | personalitymath_demo
+Walk a real day. Where does the build is easy fit in with personality math? | personalitymath_demo
+Real talk. wordplay is thrown at the hosts - is that true about the contest? | AIWP_livestream
+Real talk. funniest, clearest, best analogy - is that true about the contest? | AIWP_livestream
+Hold on. the wheel? What's the deal with the contest? | AIWP_livestream
+Someone just walked in. What's nine pillars, and why should they care about the nine themes? | nine_pillars
+Real talk. hiding in ordinary moments - is that true about the nine themes? | nine_pillars
+Real talk. maths for anyone told they were bad at it - is that true about the nine themes? | nine_pillars
+Nice try. And the channel? Tell me about real Vector Brobots. | youtube_goal
+Hey party animal, the channel - what's the deal with subscriber goals? | youtube_goal
+Hold on. Doc's Take? What's the deal with the channel? | youtube_goal
+Real talk. CrushN8r - "Crazy Off-Course Crash-Courses!" - is that true about our socials? | socials
+Real talk. TikTok fast clips, Instagram reels and CHALK cards - is that true about our socials? | socials
+Walk a real day. Where does every post leads home fit in with our socials? | socials
+Real talk. social media, coach or hands-on - is that true about help wanted? | call_for_help
+Real talk. accounts on a schedule, a posting template - is that true about help wanted? | call_for_help
+Real talk. the GOPOD app's home - is that true about accessmath? | accessmath
+Real talk. speak, type or press a key - is that true about accessmath? | accessmath
+Walk a real day. Where does maths for anyone fit in with accessmath? | accessmath
+Nice try. And healthy distraction? Tell me about turnarounds. | healthy_distraction
+Hey party animal, healthy distraction - what's the deal with a funny break? | healthy_distraction
+Hold on. borrowing a stage? What's the deal with healthy distraction? | healthy_distraction
+Real talk. classrooms, libraries, community centres - is that true about who benefits? | where_we_teach
+Real talk. rural schools, no IT budget - is that true about who benefits? | where_we_teach
+Real talk. kids who don't like being called on - is that true about who benefits? | where_we_teach
+Nice try. And booking us? Tell me about bookings. | booking
+Real talk. on set making ads - is that true about booking us? | booking
+Hold on. never idle? What's the deal with booking us? | booking
+Someone just walked in. What's Morning, and why should they care about party? | bookings
+Real talk. good Afternoon - is that true about party? | bookings
+Walk a real day. Where does Evening fit in with party? | bookings
+Nice try. And bars? Tell me about comedy rooms. | nightclub
+Hold on. bingo rooms? What's the deal with bars? | nightclub
+Hold on. hospitals and schools? What's the deal with bars? | nightclub
+Someone just walked in. What's a birthday video from Doc & Pip, and why should they care about videos for ads or personal use? | cameo
+Walk a real day. Where does foodie cars fit in with birthdays and merch? | birthday_and_merch
+Nice try. And birthdays and merch? Tell me about birthday shows. | birthday_and_merch
+Hey party animal, birthdays and merch - what's the deal with merch ideas? | birthday_and_merch
+Hold on. a big foodie-car cake? What's the deal with birthdays and merch? | birthday_and_merch
+Someone just walked in. What's printables, and why should they care about printables and affiliates? | printables_and_affiliates
+Real talk. bingo cards, signs, winner photos, posters - is that true about printables and affiliates? | printables_and_affiliates
+Real talk. foodmath recipe links - is that true about printables and affiliates? | printables_and_affiliates
+Real talk. GOPOD can do BBQ's too - is that true about BBQs? | bbq
+Hey party animal, BBQs - what's the deal with BBQ cars? | bbq
+Hold on. the LEGO crew? What's the deal with BBQs? | bbq

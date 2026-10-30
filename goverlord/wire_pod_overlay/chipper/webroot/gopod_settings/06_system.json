@@ -184,7 +184,9 @@
     "value_points_golden.all_locked": "all locked, unchanged",
     "value_points_golden.to_look_at": "{n} to look at",
     "value_points_golden.head": "value points: {points} in {topics} topics - {state}",
-    "typed_system.dial_zero": "Did you mean to dial '0' for the operator?"
+    "typed_system.dial_zero": "Did you mean to dial '0' for the operator?",
+    "probers_make.made": "The probe maker made {made} probers for {points} value points - {file}. Mic-record them for the demo.",
+    "probers_make.not_written": "system-probers-make: not written - {error}"
   },
   "timings_about": "2026-10-29 (operator: \"decouple dumb code from flexible data & bridge the two by loading external already templated files\"; pass 4 of FLEXIBLE_DATA_SURVEY_001.md): GOPOD's show timings, in seconds - llm_*: the language model's warm-up (waiting for its settings, between tries, one warm request, the most a warm-up holds lines, a quick is-it-loaded check); record_*: Record Session (the mic starting and stopping, how old a reply may be, a typed question's answer window); interview_*: a scripted draft's answers (all of them at most, the first to start, each next one to start); persona_answer, ask_ahead, weather, robot_call: how long each call may take; picture_describe_delay: after Wire-Pod's start, before the egg pictures are described; audio_levels_every, eye_colors_every, chat_hold_check: how often each watch looks again; replay_song_start_wait: a replay waits this long for its song to check in; thanks_reply_wait_max: the ending waits at most this long for a Brobot still answering. Short polling ticks and hardware-tuned movement values stay in the code.",
   "timings": {
@@ -263,6 +265,7 @@
       "  system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)",
       "  system-record on|off              Record Session on or off (the page's Record? box)",
       "  system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one",
+      "  system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo",
       "  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)",
       "  system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now",
       "  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns",

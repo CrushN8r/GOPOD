@@ -1,4 +1,16 @@
 {
+  "probers_make": {
+    "about": "2026-10-29 (operator: \"Look at how I thought to get those probes * set up a templated chain of how-to-probe thought-bubbles * the whole point is to automate anyways * I can always go in after and mic record whatever probes are generated, for the app demo\"): system-probers-make - for every value point, the chain: the topic, the point (its notes: {title}, {note}), a shape (turn by turn), the fill ({word}: the topic's own word, {label}: its label), the check (the game takes it to that topic and that point; else the next shape). shapes: the ways Ron probes - a scene, a challenge, real talk, walk a real day, nice try. file: where the made probers go (the probers list's format).",
+    "file": "gopod_probes/probers_list/probers_made_001.txt",
+    "shapes": [
+      "Hold on. {title}? What's the deal with {word}?",
+      "Someone just walked in. What's {title}, and why should they care about {word}?",
+      "Real talk. {note} - is that true about {word}?",
+      "Walk a real day. Where does {title} fit in with {word}?",
+      "Nice try. And {word}? Tell me about {title}.",
+      "Hey party animal, {word} - what's the deal with {title}?"
+    ]
+  },
   "lightning": {
     "about": "2026-10-29 (operator: \"I see Goverlord orchestrating like how lightning branches out gravitating to the path of least resistance: the library of value points ... whatever shortest trajectory it takes to grab the best relevant value points ... pull out with the goodies the same way the lightning disappears\"; \"topic order still matters to GOPOD game * what needs to be revealed first, so whatever value reveals after make better sense * bigger aha moment * I would establish a dynamic topic order valuation list of topic-cluster topics found\"): a question branches out over every value point; each pulls by the words it shares with the question (rarer words harder), its topic by its own words (trigger_pull). Two stages: the lightning finds the strong branches - a trigger matched, or a point pulling min_word_pull or more, and only those pulling keep_share or more of the best; then the order decides - the strongest pull first, topics pulling within order_margin of each other in the game's order (a weak earlier topic never jumps a strong one), the ones already covered last. The best top_topics are loaded; inside a topic the point asked about first, else the next in order. on false: the word triggers alone.",
     "on": true,
