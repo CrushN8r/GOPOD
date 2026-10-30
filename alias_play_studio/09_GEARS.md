@@ -19,6 +19,7 @@ whether it's locked yet.
 | **Cassette** (rear sprockets) | The choices inside a stage: which song, which in-between, a global or a local warm-up | [20.3](#203-the-cassette-choices-inside-a-stage) |
 | **Derailleurs** | The switches that move the chain live: `start <run>`, stop run, Esc, skip, the thanks ending, `system-` commands | [20.4](#204-the-derailleurs-shifting-live) |
 | **Chain** | The master chat queue: everything shown belongs to a turn, and turns run one at a time, each to its end | [20.5](#205-the-chain-the-master-chat-queue) |
+| **A second chainring set: the live game** | Opener → rounds (a question, its answer, value points, eggs, a reminder) → grand prizes → closer | [20.8](#208-the-live-game-gear) |
 | **Teeth** | The values in the settings folder (`webroot/gopod_settings/`) and each song's `knobs.json` | [20.6](#206-the-teeth-values-not-code) |
 
 ### 20.2 The chainrings: opener, run, closer
@@ -82,6 +83,36 @@ tooth never changes the gear. `system-set` changes one from the chat ([14.3](07_
 A `start <run-name>` while a run is going is not applicable: it's nulled before it reaches any
 queue (`session.busy_text`, "A run is going. Say stop run first."). Locked by
 `TestSessionOneRunAtATime`.
+
+### 20.8 The live game gear
+
+A scripted run has its own end. Live chat could go on forever, so the game gives it a purpose:
+**reveal every value point, find every egg.** The live game runs on the same chain as a run:
+opener, rounds, closer.
+
+| Stage | What plays | Where |
+|---|---|---|
+| **Opener** | Wire-Pod's start opener: the LLM warm-up bubble, the reporters' opening, the ready line. Then the session is **Ready**: live chat | [6.3](03_SESSION.md#63-wire-pod-start-and-the-opener), `00_llm_warming/` |
+| **A round** | 1. A question comes in: typed, numpad, the mic, a prober<br>2. Lightning picks the topics it pulls (`lightning`)<br>3. The Brobot answers, revealing value points (the score)<br>4. An egg pops when the line's words find it<br>5. The reminder: "Hey, that reminds me..." names an egg still to find, with a prober to try ("Try asking: ...") | [8](04_CHAT.md#8-a-live-reply), [13](06_CAST_AND_GAME.md#13-eggs), `gopod_lightning.go`, `gopod_probers_list.go` |
+| **Grand prizes** | Every value point revealed and every game egg found: Goverlord's `game.win_text` ("Grand prize! ... {score}. Now GOPOD Yourself!"). With the hidden eggs too: `game.master_text`. Once per session | `gopod_game.go` |
+| **Closer** | "thanks brobots": the thanks ending - the score, the reporters' closing, the Brobots' sign-off, Record Session's keep-or-delete, "You're welcome." | [6.10](03_SESSION.md#610-the-thanks-ending) |
+| **Reset** | The thanks ending resets the game: score, points said, reminders, eggs found back to 0 | `gopodGameReset` |
+
+The teeth of the game: the chapters, topics and value points (`gopod_probes/chapters/`, locked in
+`value_points_golden.json`), the probers (`probers_list_001.txt`), and the settings blocks
+`lightning`, `value_points`, `topic_pictures`, `game`.
+
+**The rounds have no fixed count.** A round is one question and its answer. The reminders keep
+the game moving (each one names an egg still to find), and reminder rounds start again until
+every topic is covered (`TestRemindersStartAgain`).
+
+**After a won game: a free for all.** Viewers throw whatever at GOPOD until the session maxes
+out. GOPOD Yourself after that.
+
+**Not chained yet: the chat participation awareness contract.** A templated, local contract every
+chat participant follows - the minimum requirement is basic chat participation awareness: who
+they're chatting with, and about what. Today only the Gomads get the who / where /
+what's-going-on line (`gopodHereNow`).
 
 ---
 
