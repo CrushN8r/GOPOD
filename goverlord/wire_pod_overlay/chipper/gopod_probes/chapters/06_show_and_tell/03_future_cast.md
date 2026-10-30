@@ -1,6 +1,6 @@
 # the rest of the cast
 
-- **words:** other robots, more robots, cozmo, cozmos, reporter, reporters, brobot 3, brobot 4, brobot three, brobot four, chalk, playhead, git repo, cache pyc, pnfh, pnft, intel 404, who else is here, who else is coming, six robots, the cast, moorebot, scout, scouts
+- **words:** other robots, more robots, cozmo, cozmos, reporter, reporters, brobot 3, brobot 4, brobot three, brobot four, chalk, playhead, git repo, cache pyc, pnfh, pnft, intel 404, who else is here, who else is coming, six robots, the cast, moorebot, scout, scouts, intern, interns
 - **pictures:** gear/crate_2_display.jpg
 - **reminder:** Hey, that reminds me... There's a whole cast on the numpad.
 - **notes 1:** CHALK and PLAYHEAD | the news crew | KP7 and KP8 | live

@@ -1,6 +1,6 @@
 # keeping up with us
 
-- **words:** newsletter, keep up, subscribe, email, crew, crew'd, mailing list
+- **words:** newsletter, keep up, subscribe, email, crew, crew'd, mailing list, keep up with
 - **start line:** Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!
 - **notes 1:** the CREW'd newsletter | get CREW'd | crushn8r.ca
 - **summary:** the CREW'd newsletter: get CREW'd, crushn8r.ca

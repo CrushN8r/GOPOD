@@ -134,14 +134,22 @@ func gopodLightningTopics(message string, registry []scenarioPacketEntry) []gopo
 	}
 	out = kept
 	// 2. The order decides (operator: "what needs to be revealed first, so
-	// whatever value reveals after make better sense"): the topics found in the
-	// game's order, the ones already covered last.
-	sort.SliceStable(out, func(a, b int) bool {
-		if out[a].covered != out[b].covered {
-			return !out[a].covered
+	// whatever value reveals after make better sense"): the strongest pull first;
+	// topics pulling within order_margin of each other go in the game's order; the
+	// ones already covered last. (Live 2026-10-29, the real-questions run: by game
+	// order alone, a weak earlier topic jumped ahead - "Who's Brobot 0?" went to
+	// the brothers.)
+	sort.SliceStable(out, func(a, b int) bool { return out[a].pull > out[b].pull })
+	for i := 0; i < len(out); {
+		j := i + 1
+		for j < len(out) && out[i].pull-out[j].pull <= ls.OrderMargin {
+			j++
 		}
-		return out[a].order < out[b].order
-	})
+		group := out[i:j]
+		sort.SliceStable(group, func(a, b int) bool { return group[a].order < group[b].order })
+		i = j
+	}
+	sort.SliceStable(out, func(a, b int) bool { return !out[a].covered && out[b].covered })
 	if ls.TopTopics > 0 && len(out) > ls.TopTopics {
 		out = out[:ls.TopTopics]
 	}

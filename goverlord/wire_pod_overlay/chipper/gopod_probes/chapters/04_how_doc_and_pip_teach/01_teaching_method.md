@@ -1,6 +1,6 @@
 # how we teach
 
-- **words:** teach, teaching, how do you teach, school, schools, classroom, students, learning, education, desirable difficulties, why is pip wrong
+- **words:** teach, teaching, how do you teach, school, schools, classroom, students, learning, education, desirable difficulties, why is pip wrong, lesson, lessons, joke on
 - **reminder:** Hey, that reminds me... The struggle is not a bug. The struggle is the mechanism.
 - **say 1:** Doc's teaching method has a name: desirable difficulties. The struggle is not a bug. The struggle is the mechanism.
 - **say 3:** The audience does not identify with Doc. The audience identifies with Pip. That is the whole trick.

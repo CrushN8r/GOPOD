@@ -1,0 +1,49 @@
+# The probers list (2026-10-29, operator: "I like the name 'probers list' * probers list >
+# accessmath demo"): the operator's own best probers, from his saved sessions (2026-10-29: "Just grab a
+# bunch of my best probers, lol"; "I consider my probing questions as examples of how I
+# thought"). Public, expletives starred. A line: the question,
+# " | ", the topic(s) it should land on first ("a/b": either; "-": no topic).
+Howdy there party animal! Who are you? What do you do? | who_we_are
+Hey party animal. Who are you, what do you do, and is your brother actually on this thing? | who_we_are/brothers
+Tell me about the type of brobot you are | who_we_are
+tell me all about yourself | who_we_are
+who are you and who are you here with? do you work alone? | who_we_are/brothers
+who's actually behind you two? Who's Brobot 0? | brobot_zero
+Before the robots. Who was holding this mic, and what did 2020 do to him? | brobot_zero/background
+Hold on. He said GOPOD and skipped the stars. Doc and Pip — who are they, and why is the room laughing? | doc_and_pip/gopod_words
+Tell me about Pip | doc_and_pip
+Then what's so valuable about GOPOD? Tell me all about it? | gopod
+who's Goverlord? And what are Gomads and Gominions? | gomads
+Someone just walked in. Party animal — what is this, and why not a cartoon? | why_real_robots/gopod
+When the lesson starts, who is the joke on? | teaching_method
+show me how you conver 0.5 into a fraction | fractions_and_decimals
+Explain the math of one divided by three becoming a decimal | fractions_and_decimals
+is 0.33 the same as 1/3? explain the math | fractions_and_decimals
+what brain do you run on? Are you on ChatGPT? | local_ai
+No wifi in the building. Do you pack up? | offline_modes/local_ai
+what do you see in front of you? | -
+who's CHALK - more robots coming? | future_cast
+tell me about the other robots in the cast. | future_cast
+Tell me about your interns. | future_cast
+what's the Is That You song? | the_songs
+tell me about bingo | bingo
+Are you ready to host bingo? | bingo/bingo_test
+how was your bingo experience? | bingo_test
+tell me about chocolate bingo please | foodmath_recipes
+what about the foodmath website and Chocolate Bingo? | foodmath_recipes/websites
+how do I keep up with you two? | newsletter/socials
+Where do I go to subscribe? | newsletter/socials
+are you on TikTok? | socials
+They liked it. They are not booking. Where do they go, and are you hiring a crowd? | socials/newsletter/call_for_help
+what is AI wordplay? | AIWP_livestream
+Walk a real day. And if a bar in Windsor calls, what are they booking? | nightclub/bookings/booking
+tell me about your party work | bookings/booking/nightclub
+who can I set up merch with? | birthday_and_merch
+where do baby brobots go when they dream? | nap
+what do you guys dream about? | nap
+tell me more about bullsh*t filters and all-out comedic f*ck-you roast battles!! | roast_battle
+tell me about the wilderness in the Amazon jungle. | -
+tell me a joke | -
+what time is it? | -
+how are the both of you doing | -
+hey buddy can you hear me | checks

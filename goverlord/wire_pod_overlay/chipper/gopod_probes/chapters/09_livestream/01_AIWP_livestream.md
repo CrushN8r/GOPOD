@@ -1,6 +1,6 @@
 # the contest
 
-- **words:** contest, contests, competition, who wins, the wheel, funniest explanation, this week's theme
+- **words:** contest, contests, competition, who wins, the wheel, funniest explanation, this week's theme, wordplay, ai wordplay
 - **reminder:** Hey, that reminds me... This week: Survival Math.
 - **say 1:** Throw a confusing number or claim at the room, and watch people fight to explain it.
 - **say 2:** Funniest explanation, clearest explanation, best analogy wins - winners get written up on Math Aftermath.

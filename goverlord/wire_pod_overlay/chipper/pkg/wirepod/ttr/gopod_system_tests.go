@@ -164,6 +164,10 @@ var gopodSystemTests = []gopodSystemTest{
 	// point not revealed * each egg not found * each prize not given * each
 	// reminder that went dry"): gopod_admin_run.go.
 	{"admin-run", "the 100% admin run, every line in order through the game: every value point, egg and prize, and no dry reminder (no robots, no model; the live game is put back)", gopodAdminRunLine},
+	// 2026-10-29 (operator: "create a scripted 'real questions' run to test with *
+	// then test if its working well enough"; "I like the name 'probers list'"):
+	// gopod_probers_list.go.
+	{"probers-list", "the probers list - the operator's own probers from his saved sessions, through the topic loader: the right topic first, lightning against the word triggers (no robots, no model)", gopodProbersListLine},
 	{"eggvoice", "an Easter egg voice is made from its kept pieces and a live title, joined", gopodEggVoiceCheck},
 	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots", func() (bool, string) {
 		return gopodPageReplayLine(gopodPageReplayRun())

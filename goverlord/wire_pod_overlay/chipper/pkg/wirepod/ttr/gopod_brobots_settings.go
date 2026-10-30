@@ -249,6 +249,11 @@ type gopodBrobotsSettingsFile struct {
 		AdminRun struct {
 			File string `json:"file"`
 		} `json:"admin_run"`
+		// 2026-10-29: the probers list (gopod_probers_list.go).
+		ProbersList struct {
+			File      string  `json:"file"`
+			PassShare float64 `json:"pass_share"`
+		} `json:"probers_list"`
 		Tpu struct {
 			Picture string `json:"picture"`
 			Expect  string `json:"expect"`
@@ -673,6 +678,7 @@ type gopodBrobotsSettingsFile struct {
 		TriggerPull float64 `json:"trigger_pull"`
 		MinWordPull float64 `json:"min_word_pull"`
 		KeepShare   float64 `json:"keep_share"`
+		OrderMargin float64 `json:"order_margin"`
 	} `json:"lightning"`
 	SystemHelp struct {
 		Lines []string `json:"lines"`
