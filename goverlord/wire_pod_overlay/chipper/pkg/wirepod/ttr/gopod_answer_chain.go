@@ -343,6 +343,11 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 // gopodGomadAnswer runs the gomad_persona chain for a line to a manager: its
 // answer parts in order, the first that applies answers. True when one did.
 func gopodGomadAnswer(host, text string) bool {
+	return gopodGomadAnswerAs(host, host, text)
+}
+
+// gopodGomadAnswerAs: the gomad_persona chain for host, its lines said as sayAs.
+func gopodGomadAnswerAs(host, sayAs, text string) bool {
 	parts := gopodAnswerChain("gomad_persona")
 	if len(parts) == 0 {
 		parts = []string{"who_line", "manager_take", "llm"}
@@ -354,7 +359,7 @@ func gopodGomadAnswer(host, text string) bool {
 			if who := strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].WhoLine); who != "" {
 				if at, _ := gopodEggWord(strings.ToLower(text), gopodBrobotsSettings.Managers.WhoWords); at >= 0 {
 					logger.Println("GOPOD_PERSONA " + host + " (who): " + who)
-					gopodReporterSay(host, who, true, true)
+					gopodReporterSay(sayAs, who, true, true)
 					return true
 				}
 			}
@@ -371,7 +376,7 @@ func gopodGomadAnswer(host, text string) bool {
 				return false
 			}
 			logger.Println("GOPOD_PERSONA " + host + ": " + reply)
-			gopodReporterSay(host, reply, true, true)
+			gopodReporterSay(sayAs, reply, true, true)
 			return true
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)

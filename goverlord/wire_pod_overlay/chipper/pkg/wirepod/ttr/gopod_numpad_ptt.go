@@ -31,6 +31,10 @@ type gopodNumpadEntry struct {
 	Persona string `json:"persona"`
 	Body    string `json:"body"`
 	Status  string `json:"status"`
+	// 2026-10-30 (operator: "CHALK/PLAYHEAD = same mapping, 2 suits
+	// (indoor/outdoor)"; "KP7/8 + numlock OFF exception"): "reporter" - the
+	// persona in its outdoor suit, answering as its reporter.
+	Suit string `json:"suit"`
 }
 
 type gopodNumpadMapFile struct {
@@ -89,6 +93,10 @@ func GopodNumpadMapJSON() ([]byte, error) {
 		} else {
 			targets[key] = ""
 		}
+		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
+		if label, _, err := gopodNumpadBrobot(key + gopodNumlockOffSuffix); err == nil {
+			targets[key+gopodNumlockOffSuffix] = label
+		}
 	}
 	return json.Marshal(map[string]any{
 		"map":               json.RawMessage(raw),
@@ -111,6 +119,15 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 	m, _, err := gopodNumpadMap()
 	if err != nil {
 		return "", "", err
+	}
+	// 2026-10-30: a NumLock-off key - a live persona in its reporter suit.
+	if base, off := strings.CutSuffix(key, gopodNumlockOffSuffix); off {
+		entry, ok := m.NumlockOff[base]
+		host := gopodPersonaFor(entry.Persona)
+		if !ok || entry.Status != "live" || entry.Suit != "reporter" || host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
+			return "", "", errors.New(key + " is not live")
+		}
+		return host + ", reporter", gopodPersonaReporterMark + host, nil
 	}
 	entry, ok := m.NumlockOn[key]
 	if !ok || entry.Status != "live" {
@@ -136,6 +153,13 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 
 // gopodPersonaMark: a numpad "ESN" that is a voice-only persona's host.
 const gopodPersonaMark = "persona:"
+
+// gopodPersonaReporterMark: a numpad "ESN" that is a persona in its reporter
+// suit - it answers as its reporter (managers.personas.<host>.reporter).
+const gopodPersonaReporterMark = "persona-reporter:"
+
+// gopodNumlockOffSuffix: a key pressed with NumLock off ("KP7off").
+const gopodNumlockOffSuffix = "off"
 
 // gopodMicMissing: the USB mic wasn't found after the warm-up (gopodMicCheck).
 var gopodMicMissing atomic.Bool
@@ -250,6 +274,14 @@ func GopodNumpadPTTStop(key string) map[string]any {
 			gopodMicVoiceRemember(text, master)
 		}
 		go func() {
+			if strings.HasPrefix(esn, gopodPersonaReporterMark) {
+				host := strings.TrimPrefix(esn, gopodPersonaReporterMark)
+				gopodLineTurn(text, []string{host}, func() error {
+					gopodPersonaReplyAs(host, gopodBrobotsSettings.Managers.Personas[host].Reporter, text, "Numpad text")
+					return nil
+				})
+				return
+			}
 			if strings.HasPrefix(esn, gopodPersonaMark) {
 				host := strings.TrimPrefix(esn, gopodPersonaMark)
 				gopodLineTurn(text, []string{host}, func() error {

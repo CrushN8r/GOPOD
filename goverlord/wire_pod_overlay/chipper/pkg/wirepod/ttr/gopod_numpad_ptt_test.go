@@ -71,3 +71,29 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-10-30: KP7 with NumLock off is CHALK in its reporter suit - same persona,
+// answering as its reporter; a reserved NumLock-off key isn't live.
+func TestNumpadNumlockOffReporter(t *testing.T) {
+	old := gopodBrobotsSettings
+	defer func() { gopodBrobotsSettings = old }()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "map.json")
+	os.WriteFile(path, []byte(`{"numlock_on":{"KP7":{"persona":"CHALK","body":"voice-only","status":"live"}},
+"numlock_off":{"KP7":{"persona":"CHALK","body":"voice-only","suit":"reporter","status":"live"},"KP8":{"persona":"-","body":"-","status":"reserved"}}}`), 0o644)
+	gopodBrobotsSettings.NumpadPTT.MapFile = path
+	host := gopodPersonaFor("CHALK")
+	if host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
+		t.Skip("no CHALK persona with a reporter in the settings")
+	}
+	label, esn, err := gopodNumpadBrobot("KP7off")
+	if err != nil || label != host+", reporter" || esn != gopodPersonaReporterMark+host {
+		t.Fatalf("KP7off: %q %q %v", label, esn, err)
+	}
+	if label, esn, err := gopodNumpadBrobot("KP7"); err != nil || esn != gopodPersonaMark+host {
+		t.Fatalf("KP7 (NumLock on) stays the anchor: %q %q %v", label, esn, err)
+	}
+	if _, _, err := gopodNumpadBrobot("KP8off"); err == nil {
+		t.Fatal("KP8off is reserved, not live")
+	}
+}

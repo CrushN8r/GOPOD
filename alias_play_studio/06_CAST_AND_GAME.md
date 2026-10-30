@@ -40,6 +40,13 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 | **Git Repo / Cache PYC** (KP3/KP4, Cozmo students), **Intel 404 PNFH / PNFT** (KP5/KP6, Moorebot Scout security guards), **Cameo** (KP9, the social media Gomad) | their own voices (above), the default host bubble look - Cameo's bubble is Goverlord level (`bubble_kinds`, `host-cameo`) | Scaffolding: CHALK's shape - `managers.personas` prompt and who line, no scripted lines; `host_personas`, `host_pairs` ("Git Repo & Cache PYC", "Intel 404 PNFH & PNFT"). Answers from the language model, like KP7/KP8. Intern jobs: Git Repo (ethical hacker) says the USB lines - mic and numpad missing or back (`numpad_ptt.usb_host`) - and takes "usb devices / what's plugged in / lsusb" (kind `usb`, `managers.usb_text`); Cache PYC (meme hustler) draws the search results box; Intel 404 PNFH / PNFT (security guards) warn when a Brobot's battery runs low (`battery_watch.guards`). The hand-over: a take with `via` - that Gomad says `managers.handoff_text` ("Git Repo will help you with that."), then the intern takes over (USB: via CHALK; search results: `system_search.handoff_host`, PLAYHEAD). |
 | **CHALK BORED** (KP7) | Reporter 1's voice, chalkboard bubbles | Display: QR codes, the surprise eggs (Roast Battle, Halloween, camera feeds) and the visual board, drawn on its board (`display_host`). |
 
+- **Two suits (2026-10-30):** CHALK and PLAYHEAD are the indoor news anchors: their own
+  bubbles, chalkboard green and vintage tape. They're also the outdoor reporters: a run's
+  reporter lines (the `_llm_song` lines, spoken by their reporter, `managers.personas.<host>.reporter`)
+  wear the reporter suit - suit grey (`--reporter-suit-bg`), the anchor's colour as the border
+  (`reporterSuit`, page). Live, KP7 / KP8 with **NumLock off** are CHALK and PLAYHEAD as
+  reporters: same persona and voice, answering in the reporter suit (the numpad map's
+  `numlock_off` layer, `"suit": "reporter"`). Locked by `TestNumpadNumlockOffReporter`.
 - **Talking to a manager:** KP7 or KP8 (voice only): your line, then the persona's answer from
   the language model - its identity and its reporter's scripted lines as the style - in its
   reporter voice and colour (`managers.personas`, `gopod_personas.go`). "Who are you?"

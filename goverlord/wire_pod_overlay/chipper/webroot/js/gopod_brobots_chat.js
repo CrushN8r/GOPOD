@@ -3203,6 +3203,14 @@
         }
         return null;
       }
+      // 2026-10-30 (CHALK & PLAYHEAD, 2 suits): a reporter line - a speaker that
+      // belongs to another persona (numpad.personaReporters: "Brobot 3" -> CHALK) -
+      // wears the outdoor reporter suit, its anchor's colour as the border.
+      function reporterSuit(who) {
+        var anchor = (numpad.personaReporters || {})[who];
+        if (!anchor || String(anchor).toUpperCase() === String(who).toUpperCase()) { return ""; }
+        return " reporter-suit suit-" + String(anchor).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      }
       function hostHeader(who) {
         var np = numpadPersona(who);
         var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
@@ -3248,7 +3256,7 @@
       }
       // A manager's part (its header and colour) inside a Brobot's bubble.
       function nestBox(shell, who, atTop) {
-        var box = nestPart("host", "host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"), reporterHead(hostHeader(who)));
+        var box = nestPart("host", "host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-") + reporterSuit(who), reporterHead(hostHeader(who)));
         box.dataset.host = who;
         // 2026-10-22 (operator's notice log, line 3): a manager's part at the top
         // goes in his notice, after its lines - its header and line on one row.
@@ -3335,7 +3343,7 @@
       }
       function showHostLine(who, text, to, then) {
         var next = function () { if (then) { then(); } };
-        var hostClass = "operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        var hostClass = "operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-") + reporterSuit(who);
         if (String(text).indexOf("qr:") !== 0) {
           var joined = hostLineInto(who, text);
           if (joined) {
@@ -6250,7 +6258,12 @@
           return;
         }
         if (numpad.active) { return; }
-        if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: key }), 3000, "Brobots"); return; }
+        // 2026-10-30 (operator: "KP7/8 + numlock OFF exception"): a key with NumLock
+        // off talks to its own layer when the map has it live (KP7off: CHALK, reporter).
+        if (!ev.getModifierState("NumLock")) {
+          if (numpad.targets[key + "off"]) { numpadStart(key + "off", numpad.targets[key + "off"]); return; }
+          systemStatus(numpadText("numlock_off", { key: key }), 3000, "Brobots"); return;
+        }
         // 2026-10-26 (operator: "\"1 robust key detection process\" =
         // Template/unify so everything goes through 1 place"): who a key talks
         // to comes from Wire-Pod's one place (gopodNumpadBrobot, the map's
@@ -6271,7 +6284,7 @@
           return;
         }
         var m = /^Numpad([0-9])$/.exec(ev.code);
-        if (!m || !numpad.active || numpad.active.key !== "KP" + m[1]) { return; }
+        if (!m || !numpad.active || String(numpad.active.key).replace(/off$/, "") !== "KP" + m[1]) { return; }
         ev.preventDefault();
         var key = "KP" + m[1];
         numpad.pendingUp = {

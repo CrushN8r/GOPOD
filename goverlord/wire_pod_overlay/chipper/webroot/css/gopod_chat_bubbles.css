@@ -83,6 +83,7 @@
   --chalk-text: #f2f2ea;
   --playhead-board: #3b2a1e;
   --playhead-text: #f2ece4;
+  --reporter-suit-bg: #3a3d42;
   --focus-ring: #4af;
 }
 
@@ -1013,6 +1014,16 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
   background: var(--playhead-board);
   color: var(--playhead-text);
 }
+/* 2026-10-30 (operator: "CHALK & PLAYHEAD are Indoor News Anchors * News Anchor
+   background colour = current chalkboard & vintage tape colours"; "reporter
+   bubbles: same background = dark outdoors-suit grey * border = Anchor background
+   color"; "CHALK/PLAYHEAD = same mapping, 2 suits (indoor/outdoor)"): a run's
+   reporter line wears the outdoor suit - the suit grey, its anchor's colour as
+   the border. Its anchor is the persona the line belongs to (persona_reporters). */
+.suit-chalk { --suit-border: var(--chalk-board); }
+.suit-playhead { --suit-border: var(--playhead-board); }
+.brobot-bubble.reporter-suit,
+.brobot-bubble.host.reporter-suit { background: var(--reporter-suit-bg); color: var(--chalk-text); box-shadow: 0 0 0 var(--bubble-border-width) var(--suit-border, transparent); }
 /* CHALK's search-results box on its board too (it keeps its small size). */
 .brobot-bubble.search-results.host-chalk { background: var(--chalk-board); }
 /* 2026-10-18 (operator: "QR codes handled by CHALK"): CHALK's QR board - each
