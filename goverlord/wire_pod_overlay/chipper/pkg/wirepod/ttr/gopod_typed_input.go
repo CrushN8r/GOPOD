@@ -43,7 +43,9 @@ func GopodTypedInput(esn, text string) error {
 	// commandment is entered, should be a sting bubble, did you mean to dial '0'
 	// for the operator? * that trains me to learn to avoid being stung"): a system-
 	// command typed to anyone but 0 doesn't run - its line, then Goverlord's sting.
-	if gopodSystemSetMatch(strings.TrimSpace(text)) {
+	// 2026-10-30 (live: "system-end-keep-recording" typed to All went to the
+	// Brobots): any system- line, a known command or not.
+	if gopodSystemSetMatch(strings.TrimSpace(text)) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "system-") {
 		gopodShowCommandLine(gopodTypedTo(esn), text, "Typed text")
 		GopodSystemSayHeard(gopodSystemText("typed_system.dial_zero"), 0)
 		return nil
@@ -391,11 +393,25 @@ func gopodTypedInputAll(text, how string) error {
 					close(failed)
 				}
 			}()
-			select {
-			case <-done:
-			case <-failed:
-			case <-time.After(gopodSecondsToDuration(gopodBrobotsSettings.Addressing.AllNextWaitSeconds)):
-				logger.Println("GOPOD_ALL " + gopodBrobotName(first) + "'s answer didn't end in time")
+			// 2026-10-30 (operator: "Brobot 1 long response * Brobot 2 start mid
+			// brobot 1 long response * its queued timings"): all_next_wait_seconds
+			// counted from the question, his thinking time too - a long answer was
+			// still being said when it ran out. While his reply is going, his
+			// brother waits for its end; the wait only runs out on a reply gone quiet.
+		wait:
+			for {
+				select {
+				case <-done:
+					break wait
+				case <-failed:
+					break wait
+				case <-time.After(gopodSecondsToDuration(gopodBrobotsSettings.Addressing.AllNextWaitSeconds)):
+					if gopodReplyGoing(first) {
+						continue
+					}
+					logger.Println("GOPOD_ALL " + gopodBrobotName(first) + "'s answer didn't end in time")
+					break wait
+				}
 			}
 			logger.Println("GOPOD_ALL " + gopodBrobotName(second) + " answers next: " + text)
 			gopodAnswerNext.Store(second, true)

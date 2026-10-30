@@ -106,7 +106,11 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 		return strings.Contains(string(feed), gopodBrobotsSettings.RecordSession.KeptText)
 	})
 	feed, _ := os.ReadFile(gopodChatFeedPath)
-	for _, want := range []string{gopodBrobotsSettings.RecordSession.AskText, gopodBrobotsSettings.RecordSession.KeptText, `"to":"Goverlord"`} {
+	// The question is a Brobot bubble, cut once into its pieces (gopodRecordSay).
+	cut := func(text string) string {
+		return strings.Join(gopodSentences(text), gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
+	}
+	for _, want := range []string{cut(gopodBrobotsSettings.RecordSession.AskText), cut(gopodBrobotsSettings.RecordSession.KeptText), `"to":"Goverlord"`} {
 		if !strings.Contains(string(feed), want) {
 			t.Errorf("feed is missing %q", want)
 		}

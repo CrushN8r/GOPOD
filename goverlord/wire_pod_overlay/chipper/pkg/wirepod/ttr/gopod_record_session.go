@@ -183,6 +183,14 @@ func gopodReplyDone(esn string) <-chan struct{} {
 	return done
 }
 
+// gopodReplyGoing: esn's reply is going (started, not ended, not gone stale).
+func gopodReplyGoing(esn string) bool {
+	gopodReplying.Lock()
+	defer gopodReplying.Unlock()
+	at, ok := gopodReplying.at[esn]
+	return ok && time.Since(at) < gopodTiming("record_reply_stale_seconds")
+}
+
 func gopodReplyBusy() bool {
 	gopodReplying.Lock()
 	defer gopodReplying.Unlock()
@@ -698,6 +706,13 @@ func gopodRecordSay(brobot, text string) {
 	// not highlighted"): his bubble the way an answer's goes (GopodChatFeedAddLive),
 	// and he speaks once it's on the page (gopodWaitReplyShown), so it lights as
 	// he says it - "Bro!" was said before its bubble showed.
+	// 2026-10-30 (operator: "a repeating highlight glitch in, Brobot 1: Session
+	// over. Keep the session recording, or [delete the session recording]?"): the
+	// bubble is cut once, its pieces joined with the segment marker, as a song's
+	// line is - the page lights each piece by its number and never re-splits.
+	if marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker; marker != "" && !strings.Contains(text, marker) {
+		text = strings.Join(gopodSentences(text), marker)
+	}
 	GopodChatFeedAddLive(esn, text)
 	var robot *vector.Vector
 	for _, bot := range vars.BotInfo.Robots {
