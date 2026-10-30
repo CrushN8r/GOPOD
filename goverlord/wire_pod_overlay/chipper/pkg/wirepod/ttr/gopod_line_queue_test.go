@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -41,3 +42,34 @@ func TestLineQueue(t *testing.T) {
 }
 
 // ## EOF
+
+// CLOCK_AUDIT_001.md A (2026-10-30): a question's idle wait doesn't count while an
+// answer is going - a Brobot's reply from its start (his thinking too) to its end,
+// or a Gomad's answer being made.
+func TestLineQueueIdleWaitsForAnswer(t *testing.T) {
+	if gopodAnswerGoing([]string{"Brobot 1"}) {
+		t.Fatal("no reply going yet")
+	}
+	gopodReplyStart(gopodBrobot1ESN)
+	if !gopodAnswerGoing([]string{"Brobot 1", "Brobot 2"}) {
+		t.Error("Brobot 1 thinking: his answer is going")
+	}
+	gopodReplyEnd(gopodBrobot1ESN)
+	if gopodAnswerGoing([]string{"Brobot 1"}) {
+		t.Error("Brobot 1's reply ended")
+	}
+	n, _ := gopodGomadAnswers.LoadOrStore("CHALK", &atomic.Int32{})
+	n.(*atomic.Int32).Add(1)
+	if !gopodAnswerGoing([]string{"CHALK"}) {
+		t.Error("CHALK's answer is being made")
+	}
+	n.(*atomic.Int32).Add(-1)
+	if gopodAnswerGoing([]string{"CHALK"}) {
+		t.Error("CHALK's answer is done")
+	}
+	gopodVoicesMaking.Add(1)
+	if !gopodAnswerGoing([]string{"Brobot 1"}) {
+		t.Error("a voice being made: an answer is going")
+	}
+	gopodVoicesMaking.Add(-1)
+}

@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -346,8 +347,20 @@ func gopodGomadAnswer(host, text string) bool {
 	return gopodGomadAnswerAs(host, host, text)
 }
 
+// gopodGomadAnswers: the Gomads whose answer is being made now (host -> count).
+var gopodGomadAnswers sync.Map
+
+// gopodGomadAnswering: host's answer is being made (the line queue's idle wait).
+func gopodGomadAnswering(host string) bool {
+	n, ok := gopodGomadAnswers.Load(strings.ToUpper(strings.TrimSpace(host)))
+	return ok && n.(*atomic.Int32).Load() > 0
+}
+
 // gopodGomadAnswerAs: the gomad_persona chain for host, its lines said as sayAs.
 func gopodGomadAnswerAs(host, sayAs, text string) bool {
+	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(host)), &atomic.Int32{})
+	n.(*atomic.Int32).Add(1)
+	defer n.(*atomic.Int32).Add(-1)
 	parts := gopodAnswerChain("gomad_persona")
 	if len(parts) == 0 {
 		parts = []string{"who_line", "manager_take", "llm"}

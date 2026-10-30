@@ -236,6 +236,10 @@ func gopodReporterFile(host, text string) (string, float64, bool) {
 	if voice == "" || file == "" {
 		return "", 0, false
 	}
+	// 2026-10-30 (operator: "account for voice generation times as well?"): a
+	// voice being made counts as an answer going (the line queue's idle wait).
+	gopodVoicesMaking.Add(1)
+	defer gopodVoicesMaking.Add(-1)
 	text = strings.TrimSpace(text)
 	// 2026-10-17 (live 11:01: the opener's "Voice ready to play." and "Language
 	// Model Loading..." were never said - asked for while Kokoro was still

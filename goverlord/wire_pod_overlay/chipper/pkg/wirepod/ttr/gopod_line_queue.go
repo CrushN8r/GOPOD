@@ -80,10 +80,15 @@ func gopodLineRun(j gopodLineJob) {
 	end := time.Now().Add(gopodSecondsToDuration(lq.AnswerMaxSeconds))
 	last, since := gopodFeedLastID(), time.Now()
 	for time.Now().Before(end) {
-		if gopodLineAnswered(from, j.answerers) {
+		// CLOCK_AUDIT_001.md B (2026-10-30): answered once every answerer's
+		// bubble is on the feed and his answer has ended - said, not just posted.
+		if gopodLineAnswered(from, j.answerers) && !gopodAnswerGoing(j.answerers) {
 			break
 		}
-		if id := gopodFeedLastID(); id != last {
+		// 2026-10-30 (CLOCK_AUDIT_001.md A, operator: "go for A"): an answer still
+		// coming - a Brobot thinking or speaking, a Gomad's answer being made - is
+		// not "nothing more came"; idle counts only once no answer is going.
+		if id := gopodFeedLastID(); id != last || gopodAnswerGoing(j.answerers) {
 			last, since = id, time.Now()
 		} else if time.Since(since) >= idle {
 			logger.Println("GOPOD_LINE_QUEUE nothing more came for " + gopodCut(j.text, 60))
@@ -130,6 +135,27 @@ func gopodLineQueueClear() int {
 			return n
 		}
 	}
+}
+
+// gopodVoicesMaking: voice files being made now (gopodReporterFile).
+var gopodVoicesMaking atomic.Int32
+
+// gopodAnswerGoing: a voice is being made, or one of these answerers' answers is still going - a Brobot's
+// reply from its start to its end (gopodReplyGoing), or a Gomad's answer being
+// made (gopodGomadAnswering).
+func gopodAnswerGoing(answerers []string) bool {
+	if gopodVoicesMaking.Load() > 0 {
+		return true
+	}
+	for _, who := range answerers {
+		if esn := gopodBrobotESN(who); esn != "" && gopodReplyGoing(esn) {
+			return true
+		}
+		if gopodGomadAnswering(who) {
+			return true
+		}
+	}
+	return false
 }
 
 // ## EOF

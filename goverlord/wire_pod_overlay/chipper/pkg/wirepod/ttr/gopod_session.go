@@ -118,7 +118,10 @@ func GopodRunStart(name, kind string, pid int) (bool, string) {
 	// the reporters' first line).
 	if _, named := gopodBrobotsSettings.Session.RunNames[name]; named {
 		if text := gopodRunText(gopodBrobotsSettings.Session.StartedText, name); strings.TrimSpace(text) != "" {
-			GopodSystemSayHeard(text, 6*time.Second) // inside the song's 10 s check-in
+			// CLOCK_AUDIT_001.md C (2026-10-30): the line is queued before the
+			// check-in answers - the page plays it before the run's first line, in
+			// the feed's order - but its wait isn't inside the song's 10 s check-in.
+			GopodSystemSayHeard(text, 0)
 		}
 	}
 	return true, ""

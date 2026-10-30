@@ -1143,8 +1143,13 @@
         return "";
       }
       function placeNewBubbles() {
-        var waitFrom = performance.now();
+        var waitFrom = performance.now(), litNow = "";
         (function waitForBaton() {
+          // CLOCK_AUDIT_001.md D (2026-10-30): a long answer still being said moves
+          // on to its next piece - while it does, the baton's wait starts again;
+          // CHAT_BATON_MAX_MS only counts once the lit line stops changing.
+          var lit = batonHolder();
+          if (lit && lit !== litNow) { litNow = lit; waitFrom = performance.now(); }
           if (performance.now() - waitFrom > 10000 && Date.now() - batonNoted > 10000 && batonHeld()) {
             batonNoted = Date.now();
             var held = new URLSearchParams();
