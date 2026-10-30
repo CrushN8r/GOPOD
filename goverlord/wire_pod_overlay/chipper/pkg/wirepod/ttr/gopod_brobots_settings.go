@@ -681,8 +681,9 @@ type gopodBrobotsSettingsFile struct {
 		OrderMargin float64 `json:"order_margin"`
 	} `json:"lightning"`
 	ProbersMake struct {
-		File   string   `json:"file"`
-		Shapes []string `json:"shapes"`
+		File          string            `json:"file"`
+		Shapes        []string          `json:"shapes"`
+		WrongGreeting map[string]string `json:"wrong_greeting"`
 	} `json:"probers_make"`
 	SystemHelp struct {
 		Lines []string `json:"lines"`

@@ -13,7 +13,9 @@ package wirepod_ttr
 //  3. the shape - probers_make.shapes, the shapes Ron probes in (a scene, a
 //     challenge, real talk, walk a real day, nice try), turn by turn;
 //  4. the fill - {title} and {note} from the point, {word} the topic's own word
-//     (its label when that alone finds it);
+//     (its label when that alone finds it), {wrong_greeting} the greeting wrong
+//     for the time it's made (operator: "[incorrect time-of-day greeting],
+//     [probing GOPOD 'party'] * test the incorrect, clarity through confusion");
 //  5. the check - the game takes it to that topic (the lightning) and that point
 //     (gopodPickPoint); else the next shape.
 
@@ -21,12 +23,20 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // gopodProbersMake: a prober for every value point that can have one, and how many.
 func gopodProbersMake() (lines []string, made, points int) {
 	pm := gopodBrobotsSettings.ProbersMake
 	chapters, _, _ := gopodReadChaptersFolder()
+	part := "evening"
+	if h := time.Now().Hour(); h >= 5 && h < 12 {
+		part = "morning"
+	} else if h >= 12 && h < 17 {
+		part = "afternoon"
+	}
+	wrong := pm.WrongGreeting[part]
 	turn := 0
 	for _, c := range chapters {
 		for _, t := range c.Topics {
@@ -65,7 +75,7 @@ func gopodProbersMake() (lines []string, made, points int) {
 					if strings.EqualFold(title, word) && strings.Contains(shape, "{title}") && strings.Contains(shape, "{word}") {
 						continue
 					}
-					q := strings.NewReplacer("{title}", title, "{note}", note, "{word}", word, "{label}", t.Label).Replace(shape)
+					q := strings.NewReplacer("{title}", title, "{note}", note, "{word}", word, "{label}", t.Label, "{wrong_greeting}", wrong).Replace(shape)
 					if l := loadScenarioPacketsForMessage(q); len(l) == 0 || l[0].Name != t.Name {
 						continue
 					}
