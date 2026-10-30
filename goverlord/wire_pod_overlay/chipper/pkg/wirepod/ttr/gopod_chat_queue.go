@@ -56,6 +56,18 @@ func gopodTurnBegin(kind string, holds bool) int64 {
 	for gopodLineBusy.Load() && time.Now().Before(end) {
 		time.Sleep(200 * time.Millisecond)
 	}
+	return gopodTurnOpen(kind, holds)
+}
+
+// gopodTurnBeginAtOnce opens a run's turn without waiting (2026-10-30, operator:
+// "Please fix the check-in in the run template"): the line busy is the one that
+// started the run - its native reply ("Got it!", "Ok. Done.") - and waiting for it
+// took the song's check-in past its 10 s, so the song never checked out.
+func gopodTurnBeginAtOnce(kind string, holds bool) int64 {
+	return gopodTurnOpen(kind, holds)
+}
+
+func gopodTurnOpen(kind string, holds bool) int64 {
 	id := gopodTurnSeq.Add(1)
 	gopodTurn.Lock()
 	gopodTurn.id, gopodTurn.kind, gopodTurn.holds = id, kind, holds

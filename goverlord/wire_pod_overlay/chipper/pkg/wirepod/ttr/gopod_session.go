@@ -105,7 +105,7 @@ func GopodRunStart(name, kind string, pid int) (bool, string) {
 	logger.Println("GOPOD_SESSION run " + name + " (" + kind + ") started")
 	// 2026-10-29: the run is a turn of the master chat queue, check-in to
 	// check-out - its lines are its own (gopod_chat_queue.go).
-	gopodRunTurn.Store(gopodTurnBegin("run "+name, false))
+	gopodRunTurn.Store(gopodTurnBeginAtOnce("run "+name, false))
 	// 2026-10-13 (operator: "all songs (scripted runs) * remember speaker toggle
 	// * toggle speaker (loop audio) off * after run, last thing is to set back to
 	// remembered toggle"): the page's background loop goes quiet for the run.
