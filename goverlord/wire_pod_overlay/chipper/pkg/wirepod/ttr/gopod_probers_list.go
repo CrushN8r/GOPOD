@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // gopodProber: a question and the topics it should land on first ("" = none).
@@ -108,6 +109,41 @@ func gopodProbersListLine() (bool, string) {
 		line += "\n  misses: " + strings.Join(misses, "\n  misses: ")
 	}
 	return share >= gopodBrobotsSettings.SystemTests.ProbersList.PassShare, line
+}
+
+// gopodProberTurn: each topic's next prober, round the list (gopodProberFor).
+var gopodProberTurn = struct {
+	sync.Mutex
+	next map[string]int
+}{next: map[string]int{}}
+
+// gopodProberFor: one of Ron's probers for a topic - one the game takes to that
+// topic, the next in turn, so a reminder doesn't invite with the same one twice
+// running; "" with none.
+func gopodProberFor(topic string) string {
+	probers, _, err := gopodProbers()
+	if err != nil {
+		return ""
+	}
+	var mine []string
+	for _, p := range probers {
+		if len(p.want) == 0 || p.want[0] != topic {
+			continue
+		}
+		// An invite lands where it says: only a prober the game takes to its topic.
+		if l := loadScenarioPacketsForMessage(p.text); len(l) == 0 || l[0].Name != topic {
+			continue
+		}
+		mine = append(mine, p.text)
+	}
+	if len(mine) == 0 {
+		return ""
+	}
+	gopodProberTurn.Lock()
+	defer gopodProberTurn.Unlock()
+	i := gopodProberTurn.next[topic] % len(mine)
+	gopodProberTurn.next[topic] = i + 1
+	return mine[i]
 }
 
 // ## EOF

@@ -525,7 +525,7 @@ func gopodReminderLine(userMessage string) string {
 		want = 3
 	}
 	used := map[string]bool{current: true}
-	var chain []string
+	var chain, chainTopics []string
 	for from := current; len(chain) < want; {
 		best, bestSim := "", -1.0
 		// 2026-10-23 (operator: "Answer chain!! Start at what is GOPOD * GOPOD =
@@ -554,6 +554,7 @@ func gopodReminderLine(userMessage string) string {
 		}
 		used[best] = true
 		chain = append(chain, ic.TopicLabels[best])
+		chainTopics = append(chainTopics, best)
 		from = best
 	}
 	// The egg list: the reminder names at least one egg still to find - in
@@ -580,7 +581,19 @@ func gopodReminderLine(userMessage string) string {
 			gopodRemind(t)
 		}
 	}
-	return strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
+	line := strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
+	// 2026-10-29 (operator: "then reps' reminders to prep for accessmath demo";
+	// "go reminders"): the reminder invites with one of Ron's probers for the
+	// first topic it names that has one (the probers list, gopod_probers_list.go).
+	if t := strings.TrimSpace(vp.ReminderProberText); t != "" {
+		for _, topic := range chainTopics {
+			if pr := gopodProberFor(topic); pr != "" {
+				line += " " + strings.ReplaceAll(t, "{prober}", pr)
+				break
+			}
+		}
+	}
+	return line
 }
 
 // The 3d grid: how alike two topics are - the share of their packs' words

@@ -709,6 +709,7 @@ type gopodBrobotsSettingsFile struct {
 		ReminderSkip         int               `json:"reminder_skip_next_topics"`
 		ReminderChaptersText string            `json:"reminder_chapters_text"`
 		ReminderTopicsText   string            `json:"reminder_topics_text"`
+		ReminderProberText   string            `json:"reminder_prober_text"`
 		ReminderTopicCount   int               `json:"reminder_topic_count"`
 		// 2026-10-17: the eggs that aren't a topic's (gopod_egg_list.go).
 		ReminderEggs []struct {
