@@ -34,6 +34,7 @@ page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs 
 - [The cast and the game](alias_play_studio/06_CAST_AND_GAME.md) - 12. Managers: CHALK and PLAYHEAD; 13. Eggs
 - [The system menu, your stuff, the settings](alias_play_studio/07_SYSTEM.md) - 14. The system menu and commands; 15. Your stuff, no code; 16. Settings file reference
 - [Golden rules, troubleshooting, tests](alias_play_studio/08_RULES_AND_TESTS.md) - 17. Golden rules; 18. Troubleshooting; 19. Tests that lock behaviour
+- [The gears: the run chain](alias_play_studio/09_GEARS.md) - 20. Opener, run, closer; the switches; the master chat queue; values
 
 ---
 
