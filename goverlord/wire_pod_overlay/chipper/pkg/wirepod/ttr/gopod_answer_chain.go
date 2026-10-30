@@ -240,6 +240,18 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return gopodStitchSnippet(frame, raw)
 			}
 		}
+	case "persona_chain":
+		// 2026-10-30: the persona's chain - its beats before the reply (gopod_persona_chains.go).
+		// The before part is the answer's last stitch: its decision is cleared here.
+		line := gopodPersonaChainFor2(esn, question)[0]
+		gopodPersonaChainFor.Delete(esn + "\x00" + question)
+		if line != "" {
+			return gopodStitchSnippet(line, raw)
+		}
+	case "persona_chain_close":
+		if line := gopodPersonaChainFor2(esn, question)[1]; line != "" {
+			return gopodStitchEndSnippet(line, raw)
+		}
 	case "docbs_close":
 		if gopodDocBSOn(esn, question) {
 			if line := gopodDocBSClose(); line != "" {
@@ -389,6 +401,8 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 				return false
 			}
 			logger.Println("GOPOD_PERSONA " + host + ": " + reply)
+			// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
+			reply = gopodPersonaChainWrap(host, reply)
 			gopodReporterSay(sayAs, reply, true, true)
 			return true
 		default:

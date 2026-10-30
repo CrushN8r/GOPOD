@@ -214,7 +214,12 @@ dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is o
 chain twice until the deck runs out. The dial sets the length: a chain needs `min_share` - the
 short ones (equation roast; roast, riddle, reveal; roast, ratio, riddle) from 0, the chaos calculus
 loop at 50, the full response pipeline at 80, and 11/10 (`docbs.share` 110) with the crew hype and
-the sign-off. `TestDocBSChainsByDial`.
+the sign-off. `TestDocBSChainsByDial`. **Persona chains (2026-10-30):** the same template for every chat participant
+(`persona_chains`, `gopod_probes/persona_chains/<persona>/`): a persona's answer can be one of its
+chains, its pool lines around its reply (the beats before `reply` first, the ones after it close),
+as often as its `share`. The Brobots get it through the answer-chain parts `persona_chain` /
+`persona_chain_close`, the Gomads around their answer. Empty to start: the lines are the
+operator's. DocBS stays Brobot 1's own. `TestPersonaChains`.
 
 **Public GOPOD, the top shelf**: everything 18+ is in the public repo, expletives starred
 (f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and

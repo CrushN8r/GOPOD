@@ -2,6 +2,8 @@
 package wirepod_ttr
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 	"testing"
@@ -97,5 +99,29 @@ func TestDocBSChainsByDial(t *testing.T) {
 	gopodBrobotsSettings.DocBS.Chains = nil
 	if c := gopodDocBSChainPick(); c.Name != gopodDocBSChainDefault.Name {
 		t.Errorf("no chains: the equation roast, got %q", c.Name)
+	}
+}
+
+// 2026-10-30: a persona's chain - its pools' lines around its reply, the beats
+// before "reply" first; none at share 0.
+func TestPersonaChains(t *testing.T) {
+	old := gopodBrobotsSettings
+	defer func() { gopodBrobotsSettings = old }()
+	dir := t.TempDir()
+	gopodBrobotsSettings.PersonaChains.Folder = dir
+	root := gopodPersonaChainDir("CHALK")
+	os.MkdirAll(root, 0o755)
+	os.WriteFile(filepath.Join(root, "openers.txt"), []byte("Chalk opener line.\n"), 0o644)
+	os.WriteFile(filepath.Join(root, "closers.txt"), []byte("Chalk closer line.\n"), 0o644)
+	gopodBrobotsSettings.PersonaChains.Personas = map[string]gopodPersonaChains{
+		"CHALK": {Share: 100, Chains: []gopodDocBSChain{{Name: "open-close", Beats: []string{"openers", "reply", "closers"}}}},
+	}
+	got := gopodPersonaChainWrap("CHALK", "The reply.")
+	if !strings.HasPrefix(got, "Chalk opener line.") || !strings.Contains(got, "The reply.") || !strings.HasSuffix(got, "Chalk closer line.") {
+		t.Fatalf("chain around the reply: %q", got)
+	}
+	gopodBrobotsSettings.PersonaChains.Personas = map[string]gopodPersonaChains{"CHALK": {Share: 0}}
+	if got := gopodPersonaChainWrap("CHALK", "The reply."); got != "The reply." {
+		t.Fatalf("share 0: the reply alone, got %q", got)
 	}
 }

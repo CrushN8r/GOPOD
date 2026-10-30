@@ -593,6 +593,11 @@ type gopodBrobotsSettingsFile struct {
 		// allowed from min_share of the dial up.
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
+	// 2026-10-30: every persona's chains - DocBS's template (gopod_persona_chains.go).
+	PersonaChains struct {
+		Folder   string                        `json:"folder"`
+		Personas map[string]gopodPersonaChains `json:"personas"`
+	} `json:"persona_chains"`
 	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
 	CommCheck struct {
 		Keys   []string `json:"keys"`

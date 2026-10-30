@@ -233,11 +233,11 @@
     "reminder_about": "2026-10-22 (step 4; operator: \"Every answer steers back to the money\"): the answer chain's reminder part - a free answer (no value point given, not a thank-you, not a follow-up) always ends with value_points.reminder_topics_text (\"Hey, that reminds me...\"), then no other end line."
   },
   "answer_chains": {
-    "base": {"parts": ["start_snippet", "docbs", "colour:value_point", "llm", "docbs_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
-    "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "reminder", "end_snippet"]},
+    "base": {"parts": ["start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
+    "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
     "brobots_summary": {"parts": ["golden_line", "llm", "summary_bubbles", "reminder"]},
-    "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "redirect"]},
-    "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "weather_kit", "reminder", "end_snippet"]},
+    "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
+    "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},
     "brobots_math": {"parts": ["colour:value_point", "llm", "rule", "reminder", "redirect"]},
     "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
   },
