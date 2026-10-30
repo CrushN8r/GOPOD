@@ -588,6 +588,10 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-29 (ask ahead): the colour ask - one escalated-metaphor line.
 		ColourPrompt   string `json:"colour_prompt"`
 		ColourPrompt18 string `json:"colour_prompt_18"`
+		// 2026-10-30 (the Master Library, DOCBS_LIBRARY.md): the chains - each
+		// a list of beats (a pool; "a|b" one of them; "colour" gemma's line),
+		// allowed from min_share of the dial up.
+		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
 	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
 	CommCheck struct {

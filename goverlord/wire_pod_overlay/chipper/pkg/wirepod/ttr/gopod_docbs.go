@@ -232,18 +232,69 @@ func gopodDocBSFrame(question string) string {
 			return t
 		})
 	}
+	chain := gopodDocBSChainPick()
+	logger.Println("BROBOT_DOCBS chain: " + chain.Name)
 	var beats []string
-	for _, pool := range []string{"openers", "leadins", "equations", "plugins", "breaks", "hiddens", "corrected"} {
-		if line := strings.TrimSpace(fill(gopodDocBSPick(pool))); line != "" {
+	for _, beat := range chain.Beats {
+		pools := strings.Split(beat, "|")
+		pool := strings.TrimSpace(pools[rand.Intn(len(pools))])
+		var line string
+		if pool == "colour" {
+			// gemma's colour for this one (asked ahead): the escalated metaphor.
+			line = gopodDocBSColour(question)
+		} else {
+			line = strings.TrimSpace(fill(gopodDocBSPick(pool)))
+		}
+		if line != "" {
 			beats = append(beats, line)
 		}
 	}
-	// gemma's colour for this one (asked ahead): the escalated metaphor, last before his reply.
-	if c := gopodDocBSColour(question); c != "" {
-		beats = append(beats, c)
-	}
 	return strings.Join(beats, gopodThoughtGap())
 }
+
+// gopodDocBSChain: one DocBS chain - its beats before his reply, and the dial it needs.
+type gopodDocBSChain struct {
+	Name     string   `json:"name"`
+	MinShare int      `json:"min_share"`
+	Beats    []string `json:"beats"`
+}
+
+// gopodDocBSChainDefault: the equation roast, the chain DocBS had before the chains.
+var gopodDocBSChainDefault = gopodDocBSChain{Name: "equation roast", Beats: []string{"openers", "leadins", "equations", "plugins", "breaks", "hiddens", "corrected", "colour"}}
+
+// gopodDocBSChainPick (2026-10-30, the Master Library): the next chain from a
+// shuffled deck of the chains the dial allows (min_share <= share), never the
+// same one twice until the deck runs out.
+func gopodDocBSChainPick() gopodDocBSChain {
+	share := gopodDocBSShare()
+	var allowed []gopodDocBSChain
+	for _, c := range gopodBrobotsSettings.DocBS.Chains {
+		if c.MinShare <= share && len(c.Beats) > 0 {
+			allowed = append(allowed, c)
+		}
+	}
+	if len(allowed) == 0 {
+		return gopodDocBSChainDefault
+	}
+	gopodDocBSChains.Lock()
+	defer gopodDocBSChains.Unlock()
+	if gopodDocBSChains.share != share || len(gopodDocBSChains.left) == 0 {
+		gopodDocBSChains.share = share
+		gopodDocBSChains.left = append([]gopodDocBSChain(nil), allowed...)
+		rand.Shuffle(len(gopodDocBSChains.left), func(i, j int) {
+			gopodDocBSChains.left[i], gopodDocBSChains.left[j] = gopodDocBSChains.left[j], gopodDocBSChains.left[i]
+		})
+	}
+	c := gopodDocBSChains.left[0]
+	gopodDocBSChains.left = gopodDocBSChains.left[1:]
+	return c
+}
+
+var gopodDocBSChains = struct {
+	sync.Mutex
+	share int
+	left  []gopodDocBSChain
+}{}
 
 // gopodDocBSClose: the ending line ("The math has spoken. And it's ...").
 func gopodDocBSClose() string {

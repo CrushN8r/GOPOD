@@ -177,6 +177,15 @@
   "docbs": {
     "folder": "gopod_probes/docbs",
     "share": 0,
+    "chains_about": "2026-10-30 (operator: \"the DocBS math take is funny maybe a few times, so I need like a library of ...\"; \"For DocBS when dialed up to a 11/10\"; the Master Library, gopod_probes/docbs/DOCBS_LIBRARY.md): each DocBS answer is one chain, picked from a shuffled deck, never the same chain twice until the deck runs out. A chain is its beats in order before his reply - each a pool file (\"a|b\": one of them; \"colour\": gemma's escalated-metaphor line). min_share: the dial (share) it needs, so the dial sets the length - the short chains from low, the full pipeline high, 110 (11/10) with the crew hype and the sign-off. The chains are the library's own pipelines (sections 2 and 5); its 50 chains of thought are still to come.",
+    "chains": [
+      {"name": "equation roast", "min_share": 0, "beats": ["openers", "leadins", "equations", "plugins", "breaks", "hiddens", "corrected", "colour"]},
+      {"name": "shorts: roast, riddle, reveal", "min_share": 0, "beats": ["roasts", "riddles", "corrected"]},
+      {"name": "roast, ratio, riddle", "min_share": 0, "beats": ["roasts", "equations", "riddles"]},
+      {"name": "chaos calculus loop", "min_share": 50, "beats": ["insights", "riddles|paradoxes", "corrected", "gutshots"]},
+      {"name": "the response pipeline", "min_share": 80, "beats": ["roasts", "leadins", "riddles|paradoxes", "equations", "plugins", "corrected", "gutshots"]},
+      {"name": "11/10", "min_share": 110, "beats": ["roasts", "taunts", "leadins", "riddles|paradoxes", "equations", "plugins", "breaks", "hiddens", "corrected", "colour", "gutshots", "crew", "signoffs"]}
+    ],
     "slot_prompt": "Turn this line into a pompous fake equation that mocks it. Reply with ONE line only, exactly this form, six parts split by |: Equation Name | ACRONYM | first thing | second thing | third thing | Professor nickname for the speaker. Example: Thought Quality | TQ | Confidence Level | Volume of the Claim | Brain Cells Used | Professor Overclock. The line: {question}",
     "fallback": "Thought Quality | TQ | Your Confidence | Volume of the Claim | Brain Cells Used | Professor Know-It-All",
     "num_predict": 60,

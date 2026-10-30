@@ -17,6 +17,7 @@ func TestAskAhead(t *testing.T) {
 	gopodDocBSOnFor.Range(func(k, _ any) bool { gopodDocBSOnFor.Delete(k); return true }) // a clean slate
 	gopodGivenSet(gopodBrobot1ESN, nil)
 	gopodBrobotsSettings.DocBS.Share = 100
+	gopodBrobotsSettings.DocBS.Chains = nil // the equation roast, the chain this test checks
 	asks := 0
 	gopodOllamaAsk = func(prompt string, n int, temp float64) string {
 		asks++

@@ -207,7 +207,14 @@ value point, his colour) is the kill shot; `docbs_close` ends it: "The math has 
 until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only one short line (the
 equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
 the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
-steps. `TestDocBS`.
+steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/docbs/DOCBS_LIBRARY.md`
+is Doc Squawkadoodle's library; its catchphrase bank is in pools (roasts, riddles, insights,
+dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is one **chain**
+(`docbs.chains`): its beats in order before his reply, picked from a shuffled deck, never the same
+chain twice until the deck runs out. The dial sets the length: a chain needs `min_share` - the
+short ones (equation roast; roast, riddle, reveal; roast, ratio, riddle) from 0, the chaos calculus
+loop at 50, the full response pipeline at 80, and 11/10 (`docbs.share` 110) with the crew hype and
+the sign-off. `TestDocBSChainsByDial`.
 
 **Public GOPOD, the top shelf**: everything 18+ is in the public repo, expletives starred
 (f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and
