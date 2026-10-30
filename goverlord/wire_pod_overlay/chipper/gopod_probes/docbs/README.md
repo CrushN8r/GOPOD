@@ -14,6 +14,8 @@ it's there (the zKnobs.json pattern).
 
 ## The Master Library (2026-10-30)
 
+`DOCBS.md` is the cookbook: every DocBS recipe (chain) with its beats, an example line each, and the pantry of pools.
+
 `DOCBS_LIBRARY.md` is the Doc Squawkadoodle Master Library, the operator's own: the locked profile,
 the response pipeline, the catchphrase bank, the prompts, the golden formulas and the 50 chains of
 thought. Public copy starred; the uncensored `zDOCBS_LIBRARY.md` is private and gitignored.
