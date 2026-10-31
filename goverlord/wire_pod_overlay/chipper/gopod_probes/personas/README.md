@@ -23,5 +23,5 @@ The persona's prompt looks up the sections named in `persona_profiles.sections` 
 
 **The Brobots' profiles** (`brobot-1.md`, `brobot-2.md`) have their own sections, the words their
 prompt's "WHO I AM" is built from: **Who I am** (his persona), **Role**, **My way through an answer**
-(his steps), **Signature**. The pair's banter and stereo dial stay in `host_pairs`; the shared
+(his steps), **Signature** - and a **Self** like everyone's, for the intro recipe. The pair's banter and stereo dial stay in `host_pairs`; the shared
 party-bro base stays in `wire-pod_brobots_prompt.txt`.

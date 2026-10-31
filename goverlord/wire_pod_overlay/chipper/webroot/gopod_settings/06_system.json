@@ -300,17 +300,13 @@
   "comm_check_about": "2026-10-28 (operator: \"Simulate the whole KPN 1-9 range to record those bubbles as well * same test question, Hey party animal. Who are you and what do you do?\"; \"make the 'who are you?' profile development part of this run as well * like a communication check with all chat participants, before the show starts * at bare minimum, do they all know who they are & each other? * who they are: do they all know the diff between tell me about you & tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about their interns, if I ask any chat participant about any other chat participant > Hey [chat participant], who all else is here with us?\"): system-comm-check plays the rounds in order - each round's text on each of its keys (keys, else the round's own), as if the key were held and the words spoken: the page draws the key's bubbles (hold, recording for record_seconds, transcribing), the line goes where the key goes, live (the model, the voices, the robots), and the next waits for the answer to finish (no new feed line for quiet_seconds and the page caught up; at most line_max_seconds). {name}: the one asked (his call name, or Doc / Pip). The game goes back to 0 after, so the show starts clean. Record Session keeps it all. gopod_comm_check.go.",
   "comm_check": {
     "keys": ["KP0", "KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9", "KPmul"],
-    "rounds": [
-      {"text": "Hey {name}! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"},
-      {"text": "Tell me about yourself."},
-      {"text": "Tell me all about yourself."},
-      {"text": "Hey {name}, who all else is here with us?"},
-      {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}
-    ],
+    "rounds": [{"text": "Hey {name}! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"}],
+    "rounds_later_about": "2026-10-31 (operator: \"KP TEST WHY THE REDUNDANT QUESTIONS!! * I ASKED FOR HUMAN ENGAGEMENT, NOT A SLOW DEATH!!\"): the comm check asks the operator's tester alone, one line per key; the old rounds are kept here, not asked.",
+    "rounds_later": [{"text": "Tell me about yourself."}, {"text": "Tell me all about yourself."}, {"text": "Hey {name}, who all else is here with us?"}, {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}],
     "quiet_seconds": 6,
     "line_max_seconds": 150,
     "record_seconds": 2,
-    "start_text": "Comm check: {n} lines, the whole numpad in turn - KP0 to KP9, then * for All - before the show.",
+    "start_text": "Comm check: {n} lines, the whole numpad in turn - KP0 to KP9, then * for All.",
     "done_text": "Comm check complete. {n} lines. The game is back to zero - the show can start."
   },
   "session": {

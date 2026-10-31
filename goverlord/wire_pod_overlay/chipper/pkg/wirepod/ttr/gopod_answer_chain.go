@@ -147,6 +147,12 @@ func gopodChainHas(esn, part string) bool {
 // to reveal value points"): the first answer in a line to both is
 // duo A (duo.a.chain), the next duo B (duo.b.chain), a single answer brobots.
 func gopodBrobotChainGroup(esn string) string {
+	// 2026-10-31: an intro answer is the intro, nothing stitched around it.
+	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
+		if _, ok := gopodBrobotsSettings.AnswerChains["brobots_intro"]; ok {
+			return "brobots_intro"
+		}
+	}
 	// 2026-10-22 (operator: "fractions is another example of catering the
 	// answer-chain to a particular value points reveal target * Yes build it"):
 	// an answer whose value point is a math topic's is brobots_math.
@@ -404,7 +410,11 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 			// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
 			reply = gopodPersonaChainWrap(host, reply)
 			// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
-			gopodGomadBrain(host, sayAs, "")
+			task := ""
+			if gopodIsIntro(text) {
+				task = gopodBrobotsSettings.IntroRecipe.Task
+			}
+			gopodGomadBrain(host, sayAs, task)
 			gopodReporterSay(sayAs, reply, true, true)
 			return true
 		default:

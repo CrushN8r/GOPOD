@@ -235,6 +235,7 @@
   "answer_chains": {
     "base": {"parts": ["start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
     "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
+    "brobots_intro": {"parts": ["llm"]},
     "brobots_summary": {"parts": ["golden_line", "llm", "summary_bubbles", "reminder"]},
     "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
     "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},

@@ -149,3 +149,39 @@ func TestPersonaProfiles(t *testing.T) {
 		t.Fatalf("head: %v", head)
 	}
 }
+
+// 2026-10-31: a Gomad's answer is the words said - stage notes, quote marks and
+// "I say" tags come out.
+func TestPersonaAnswerClean(t *testing.T) {
+	in := `"Intel 404 PNFT here," I say flatly, "on patrol." [The operator greets me.] Done (chuckles).`
+	got := gopodPersonaStageRE.ReplaceAllString(in, "")
+	got = gopodPersonaSayTagRE.ReplaceAllString(got, "")
+	got = strings.Join(strings.Fields(strings.NewReplacer("“", "", "”", "", "\"", "").Replace(got)), " ")
+	if got != "Intel 404 PNFT here, on patrol. Done ." && got != "Intel 404 PNFT here on patrol. Done ." {
+		t.Fatalf("clean: %q", got)
+	}
+}
+
+// 2026-10-31: the intro recipe - the operator's tester gets each participant's
+// Self points and everyone else here; any other line gets none; a Brobot's intro
+// answer is the brobots_intro chain.
+func TestIntroRecipe(t *testing.T) {
+	tester := "Hey Pip! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"
+	for _, who := range []string{"Brobot 2", "CACHE PYC", "BUTLER"} {
+		r := gopodIntroRecipe(who, tester)
+		if !strings.Contains(r, "My informal name (nickname)") || !strings.Contains(r, "Doc") && who != "Brobot 1" {
+			t.Errorf("%s's intro recipe: %q", who, r)
+		}
+		if strings.Contains(r, "{") {
+			t.Errorf("%s's intro recipe has an unfilled label: %q", who, r)
+		}
+	}
+	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {
+		t.Errorf("not an intro: %q", r)
+	}
+	gopodIntroFor.Store("zz-esn", true)
+	defer gopodIntroFor.Delete("zz-esn")
+	if g := gopodBrobotChainGroup("zz-esn"); g != "brobots_intro" {
+		t.Errorf("an intro answer's chain: %q", g)
+	}
+}

@@ -599,6 +599,12 @@ type gopodBrobotsSettingsFile struct {
 		// allowed from min_share of the dial up.
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
+	// 2026-10-31: the intro recipe, one for every participant (gopod_intro_recipe.go).
+	IntroRecipe struct {
+		Words []string `json:"words"`
+		Text  string   `json:"text"`
+		Task  string   `json:"task"`
+	} `json:"intro_recipe"`
 	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
 	PersonaProfiles struct {
 		Folder   string   `json:"folder"`

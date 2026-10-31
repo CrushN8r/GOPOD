@@ -238,6 +238,12 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 			whoIAm = line
 		}
 		smsg.Content += "\n\nWHO I AM:\n" + whoIAm
+		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
+		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)
+		gopodIntroFor.Store(esn, intro != "")
+		if intro != "" {
+			smsg.Content += "\n\n" + intro
+		}
 		if facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText)); facts != "" {
 			smsg.Content += "\n\n" + gopodBrobotsSettings.QuestionFactsHeader + "\n" + facts
 		}

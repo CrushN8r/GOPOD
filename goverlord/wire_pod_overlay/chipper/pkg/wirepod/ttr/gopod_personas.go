@@ -98,6 +98,12 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	// the Brobots' shared chat keeps their animation cues (word___), and a
 	// persona copied them; a voice persona has no animations, so they're dropped.
 	reply = strings.TrimSpace(gopodAnimationMarkerPattern.ReplaceAllString(reply, ""))
+	// 2026-10-31 (live: "[The operator, Master CrushN8r, greets me.]", "I say
+	// flatly", answers in quote marks): a voice answer is the words said - no
+	// bracketed stage notes, no quote marks around it, no "I say" tags.
+	reply = gopodPersonaStageRE.ReplaceAllString(reply, "")
+	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
+	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
 	if reply == "" {
 		return "", errors.New("the language model said nothing")
 	}
@@ -125,6 +131,11 @@ func gopodEndAtWholeSentence(reply string) string {
 	return reply
 }
 
+var (
+	gopodPersonaStageRE  = regexp.MustCompile(`\[[^\]]*\]|\([^)]*\)`)
+	gopodPersonaSayTagRE = regexp.MustCompile(`(?i),?\s*\b(I|she|he) (say|says|said|chuckle|chuckles|laugh|laughs)\b[^.!?,"\x{201d}]*[,.]?`)
+)
+
 // gopodPersonaMessages (2026-10-21, operator: "a manager is still a participant
 // in the chat, so yes to context is required, so yes to chat history access"):
 // the persona's prompt, the Brobots' shared chat (the same recent exchanges the
@@ -150,6 +161,10 @@ func gopodPersonaMessages(host, text string) []map[string]string {
 	}
 	if len(lines) > 0 {
 		msgs = append(msgs, map[string]string{"role": "user", "content": hn.ChatNote + "\n" + strings.Join(lines, "\n")})
+	}
+	// 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
+	if intro := gopodIntroRecipe(host, text); intro != "" {
+		text += "\n\n" + intro
 	}
 	return append(msgs, map[string]string{"role": "user", "content": text})
 }

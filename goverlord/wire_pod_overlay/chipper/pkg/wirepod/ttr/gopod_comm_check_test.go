@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-// TestCommCheck: the comm check holds every key KP1-KP9 for each round, plus
-// the interns question for CHALK and PLAYHEAD; each key reaches someone; the
-// page draws a "held" key's bubbles.
+// TestCommCheck (2026-10-31, operator: "KP TEST WHY THE REDUNDANT QUESTIONS!!"):
+// the comm check asks the operator's tester once per key - KP0 to KP9 and * -
+// each key reaches someone; the page draws a "held" key's bubbles.
 func TestCommCheck(t *testing.T) {
 	lines := gopodCommCheckLines()
 	keys := map[string]int{}
@@ -20,12 +20,12 @@ func TestCommCheck(t *testing.T) {
 			t.Errorf("%s: %v", l[0], err)
 		}
 	}
-	for n := 1; n <= 9; n++ {
-		if keys["KP"+string(rune('0'+n))] < 4 {
-			t.Errorf("KP%d asked %d times", n, keys["KP"+string(rune('0'+n))])
+	for n := 0; n <= 9; n++ {
+		if keys["KP"+string(rune('0'+n))] != 1 {
+			t.Errorf("KP%d asked %d times, want once", n, keys["KP"+string(rune('0'+n))])
 		}
 	}
-	if keys["KP7"] != 5 || keys["KP8"] != 5 || !strings.Contains(lines[0][1], "party animal") {
+	if keys[gopodNumpadAllKey] != 1 || !strings.Contains(lines[0][1], "party animal") {
 		t.Errorf("comm check lines: %v", keys)
 	}
 	js, _ := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "js", "gopod_brobots_chat.js"))
