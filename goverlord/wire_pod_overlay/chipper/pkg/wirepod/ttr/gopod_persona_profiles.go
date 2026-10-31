@@ -91,11 +91,30 @@ func gopodPersonaProfileSections(who string) map[string][]string {
 // is the one place a persona's name is written.
 func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 	for _, who := range gopodPersonaProfileHosts(s) {
-		head, _ := gopodPersonaProfileRead(gopodPersonaProfileFileIn(s.PersonaProfiles.Folder, who))
+		head, sections := gopodPersonaProfileRead(gopodPersonaProfileFileIn(s.PersonaProfiles.Folder, who))
 		if head == nil {
 			continue
 		}
 		hp := s.HostPersonas[who]
+		// 2026-10-30 (operator: "Commit & go on giving each a profile in the master
+		// format * pull them out of the shared prompt * so all come from one
+		// template"): a Brobot's own words - who I am, my role, my way through an
+		// answer, my signature - from his profile too.
+		if pts := sections["Who I am"]; len(pts) > 0 {
+			if s.Personas == nil {
+				s.Personas = map[string]string{}
+			}
+			s.Personas[who] = strings.Join(pts, " ")
+		}
+		if pts := sections["Role"]; len(pts) > 0 {
+			hp.Role = strings.Join(pts, " ")
+		}
+		if pts := sections["My way through an answer"]; len(pts) > 0 {
+			hp.Steps = pts
+		}
+		if pts := sections["Signature"]; len(pts) > 0 {
+			hp.Signature = pts[0]
+		}
 		if v := head["label"]; v != "" {
 			hp.Name = v
 		}
