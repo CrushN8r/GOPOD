@@ -422,8 +422,8 @@ type gopodBrobotsSettingsFile struct {
 			WhoLine   string `json:"who_line"`
 			// 2026-10-28: its bits still in the works (gopodPersonaWIP).
 			WIP []string `json:"wip"`
-			// 2026-10-30 (Butlix): the speaker whose voice and lingo it speaks with,
-			// in its own bubble - Butlix, the butler's (sign_off.system_role).
+			// 2026-10-30 (the Butler): the speaker whose voice and lingo it speaks with,
+			// in its own bubble - the Butler, the butler's (sign_off.system_role).
 			VoiceOf string `json:"voice_of"`
 		} `json:"personas"`
 		WIPText  string   `json:"wip_text"`
@@ -596,6 +596,12 @@ type gopodBrobotsSettingsFile struct {
 		// allowed from min_share of the dial up.
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
+	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
+	PersonaProfiles struct {
+		Folder   string   `json:"folder"`
+		Sections []string `json:"sections"`
+		Text     string   `json:"text"`
+	} `json:"persona_profiles"`
 	// 2026-10-30: every persona's chains - DocBS's template (gopod_persona_chains.go).
 	PersonaChains struct {
 		Folder   string                        `json:"folder"`

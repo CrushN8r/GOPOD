@@ -1502,7 +1502,7 @@
               var nickTpl = settings.reporter_voices.nickname_label || "";
               Object.keys(settings.host_personas || {}).forEach(function (h) {
                 var hp = settings.host_personas[h] || {};
-                if (nickTpl && hp.nickname) { hostLabels[h] = nickTpl.replace("{nickname}", hp.nickname).replace("{name}", hp.name || h); }
+                if (nickTpl && hp.nickname) { hostLabels[h] = nickLabels[h] = nickTpl.replace("{nickname}", hp.nickname).replace("{name}", hp.name || h); }
               });
               displayNames = settings.display_names || displayNames;
               if (settings.hourglass) { hourglassCfg = settings.hourglass; }
@@ -3216,7 +3216,11 @@
         if (!anchor || String(anchor).toUpperCase() === String(who).toUpperCase()) { return ""; }
         return " reporter-suit suit-" + String(anchor).toLowerCase().replace(/[^a-z0-9]+/g, "-");
       }
+      // 2026-10-30 (the Butler: "Keys (KEYNOTE VALE)"): a host with a nickname is
+      // headed by the nickname label - its name and nickname, the persona's labels.
+      var nickLabels = {};
       function hostHeader(who) {
+        if (nickLabels[who]) { return nickLabels[who]; }
         var np = numpadPersona(who);
         var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
         if (def && edits[def]) { return edits[def]; }
@@ -6214,7 +6218,7 @@
           if (!ev.repeat) { numpadExitTap(ev.code); }
           return;
         }
-        // 2026-10-30 (operator: "Numpad remap * KP0 hold -> Butlix (3 taps still
+        // 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
         // exit) * * hold -> all Brobots, in the order selected * / -> skip"): / is
         // skip (it was *, 2026-10-20: "obey same as 'Esc' key press").
         if (ev.code === "NumpadDivide") {
@@ -6243,7 +6247,7 @@
         }
         // 2026-10-16: 0 held all_hold_seconds is push-to-talk; a shorter press is
         // one of the exit taps, as before. 2026-10-30: held, it talks to the map's
-        // KP0 - Butlix (the All Brobots moved to *).
+        // KP0 - the Butler (the All Brobots moved to *).
         if (ev.code === "Numpad0") {
           ev.preventDefault();
           if (ev.repeat) { return; }

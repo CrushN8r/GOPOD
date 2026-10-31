@@ -95,7 +95,7 @@ menu (🔊), and turns it off and closes it (🔇).
   Clarity through confusion. Waits for the operator's go.
   KP+ and KP- turn the
   camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The **/** key skips ([6.7](03_SESSION.md#67-skip)). **\*** held is all the
-  Brobots, in the order the All menu picks; **KP0** held is Butlix, the Butler (3 quick taps still
+  Brobots, in the order the All menu picks; **KP0** held is the Butler, KEYNOTE VALE ("Keys") (3 quick taps still
   leave numpad mode) (2026-10-30).
 - Three taps of 0 (or NumLock) leave numpad mode; Goverlord says "Goverlord has released the
   numpad."

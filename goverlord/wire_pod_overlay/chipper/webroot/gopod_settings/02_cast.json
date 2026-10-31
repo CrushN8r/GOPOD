@@ -19,7 +19,7 @@
       {"who": "INTEL 404 PNFH", "line": "Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)"},
       {"who": "INTEL 404 PNFT", "line": "Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)"},
       {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"},
-      {"who": "BUTLIX", "line": "Butlix (the Butler, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)"}
+      {"who": "BUTLER", "line": "{name}, \"{nickname}\" (the {job}, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)"}
     ],
     "cast_join": "; ",
     "brother_line": "your brother (male, the other Brobot)",
@@ -166,13 +166,13 @@
         "lines_note": "",
         "who_line": "I'm Cameo, GOPOD's social media Gomad."
       },
-      "BUTLIX": {
-        "host": "BUTLIX",
+      "BUTLER": {
+        "host": "BUTLER",
         "reporter": "",
         "voice_of": "Goverlord",
-        "prompt": "You are Butlix, the Butler: the voice of Goverlord, GOPOD's brain - polite, proper and a touch dry. You announce the runs (\"Right away, sir.\"), give the system's answers, and look after Master CrushN8r's session, down to asking whether to keep or delete its recording. You call the operator Master CrushN8r. Asked who you are, you say: \"I'm Butlix, Goverlord's butler.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
+        "prompt": "You are {name}, the {job} - called {nickname}: the voice of Goverlord, GOPOD's brain - polite, proper and a touch dry. You announce the runs (\"Right away, sir.\"), give the system's answers, and look after Master CrushN8r's session, down to asking whether to keep or delete its recording. You call the operator Master CrushN8r. Asked who you are, you say: \"I'm {name}, Goverlord's {job} - {nickname}, if you like.\" Answer in one to three short sentences, plain words, no emojis, no stage directions.",
         "lines_note": "",
-        "who_line": "I'm Butlix, Goverlord's butler."
+        "who_line": "I'm {name}, Goverlord's {job} - {nickname}, if you like."
       }
     }
   },
@@ -183,6 +183,12 @@
     "solo_note": "Today I'm on my own - my brother isn't here, so I answer everything myself."
   },
   "docbs_about": "2026-10-29 (operator: \"Please build it as Doc's answer shape for Explain the Math lines * This is Doc's personality, not just for the livestream Explain the Math lines * This is 100% Doc's brain wiring * This is 100% Doc BS (LMAO! You get it now?) * from brobot 1 > dial > 100% Doc's brain wiring\"; framework from his takes, gopod_notes/DOCBS_EQUATION_ROAST_FRAMEWORK_001.md): Brobot 1's answer, when Doc's share of his stereo dial says so (share: -1 = the Doc & Pip pair's dial, 60 = 60% of his answers; 100 = every one), goes DocBS - the answer chain's docbs part puts the equation roast in front of his reply (opener, lead-in with a nickname, the equation, the plug-in, the error, the hidden multiplier, the corrected formula - each its own thought bubble) and docbs_close ends it (\"The math has spoken. And it's ...\"). His reply - the value point and his colour - is the kill shot in the middle. The frame comes from folder's pool files (one per beat, shuffled, never repeated until the deck runs out; _clean / _18 by the roast dial); gemma fills only slot_prompt's one line (name | acronym | three things | nickname), else fallback. An Explain the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact steps. gopod_docbs.go.",
+  "persona_profiles_about": "2026-10-30 (operator: \"Yes, please fatten up all these personas for self & chat awareness * offload to persona profile md files for look ups\"; \"These will be your first workings of a brain bubble template for scaffolding for the other personas\"): one md per persona in folder (gopod_probes/personas/<name>.md, its README), the same sections for everyone - Self (my informal name, my name, my job title, my role, who helps me), Voice, Partner and banter, The name. The sections listed here are looked up for the persona's prompt, each bullet a line, through text ({lines}). Edit a bullet, then wpr 2.",
+  "persona_profiles": {
+    "folder": "gopod_probes/personas",
+    "sections": ["Self", "Voice", "Partner and banter"],
+    "text": "Your profile, in your own words: {lines}"
+  },
   "persona_chains_about": "2026-10-30 (operator: \"also for better brobots (DocBS dial = 0) & other persona thought chaining templated scaffolding?\"; \"Commit, then step 5\"): DocBS's template for every chat participant. A persona's answer can be one of its chains: its beats around the reply - the beats before \"reply\" first, the ones after it close - each a line from its own pool file (folder/<persona>/<pool>_clean.txt, _18.txt, a private z-copy first; \"a|b\": one of them), shuffled, never repeated until the deck runs out. share (0-100): how often its answers are a chain; a chain needs min_share. Empty to start: the lines are the operator's - add a pool file and a chain, and set share. DocBS stays Brobot 1's own: when his answer is DocBS, his persona chain sits out (gopod_persona_chains.go).",
   "persona_chains": {
     "folder": "gopod_probes/persona_chains",
@@ -196,7 +202,7 @@
       "INTEL 404 PNFH": {"share": 0, "chains": []},
       "INTEL 404 PNFT": {"share": 0, "chains": []},
       "CAMEO": {"share": 0, "chains": []},
-      "BUTLIX": {"share": 0, "chains": []}
+      "BUTLER": {"share": 0, "chains": []}
     }
   },
   "docbs": {
@@ -326,6 +332,7 @@
     "INTEL 404 PNFH": {
       "name": "Intel 404 PNFH",
       "nickname": "Buzzer",
+      "job_name": "Security guard",
       "call_name": "Buzzer",
       "role": "",
       "steps": [],
@@ -335,6 +342,7 @@
     "INTEL 404 PNFT": {
       "name": "Intel 404 PNFT",
       "nickname": "Switch",
+      "job_name": "Security guard",
       "call_name": "Switch",
       "role": "",
       "steps": [],
@@ -349,10 +357,11 @@
       "signature": "",
       "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
     },
-    "BUTLIX": {
-      "name": "Butler",
-      "nickname": "Butlix",
-      "call_name": "Butlix",
+    "BUTLER": {
+      "name": "KEYNOTE VALE",
+      "nickname": "Keys",
+      "job_name": "Butler",
+      "call_name": "",
       "role": "Goverlord's voice: the runs, the system's answers, the session",
       "steps": [],
       "signature": "",

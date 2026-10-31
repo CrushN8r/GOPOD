@@ -381,7 +381,7 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 		switch p {
 		case "who_line":
 			// The operator's own line, word for word (managers.who_words).
-			if who := strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].WhoLine); who != "" {
+			if who := strings.TrimSpace(gopodPersonaFill(host, gopodBrobotsSettings.Managers.Personas[host].WhoLine)); who != "" {
 				if at, _ := gopodEggWord(strings.ToLower(text), gopodBrobotsSettings.Managers.WhoWords); at >= 0 {
 					logger.Println("GOPOD_PERSONA " + host + " (who): " + who)
 					gopodReporterSay(sayAs, who, true, true)

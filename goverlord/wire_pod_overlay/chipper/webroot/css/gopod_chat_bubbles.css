@@ -33,8 +33,8 @@
   --git-repo-bg: #0D1117;   --git-repo-border: #2F81F7;
   --cache-pyc-bg: #E0A800;  --cache-pyc-border: #6A0DAD;
   --cameo-bg: #D6006F;      --cameo-border: #00E5FF;
-  /* 2026-10-30 (operator: "Butlix is deep dark royal purple background & and lighter yellow gold border"). */
-  --butlix-bg: #2E0A57;     --butlix-border: #F2D675;
+  /* 2026-10-30 (operator, the Butler: "deep dark royal purple background & and lighter yellow gold border"). */
+  --butler-bg: #2E0A57;     --butler-border: #F2D675;
   --intel-404-bg: #1C3F94;  --intel-404-border: #FF2D2D;
   --white: #fff;
   --black: #000;
@@ -1361,7 +1361,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    highlighting * make it back to white"): white text, like every bubble. */
 .brobot-bubble.host-cache-pyc { background: var(--cache-pyc-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cache-pyc-border); }
 .brobot-bubble.host-cameo { background: var(--cameo-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cameo-border); }
-.brobot-bubble.host-butlix { background: var(--butlix-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--butlix-border); }
+.brobot-bubble.host-butler { background: var(--butler-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--butler-border); }
 .brobot-bubble.host-intel-404-pnfh,
 .brobot-bubble.host-intel-404-pnft { background: var(--intel-404-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--intel-404-border); }
 .brobot-bubble.is-error { box-shadow: 0 0 0 var(--bubble-border-width) var(--error-border); }
@@ -1373,7 +1373,7 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .host-git-repo .brobot-bubble-avatar, .brobot-bubble .host-git-repo .brobot-bubble-avatar { --eye-fill: var(--git-repo-border); }
 .host-cache-pyc .brobot-bubble-avatar, .brobot-bubble .host-cache-pyc .brobot-bubble-avatar { --eye-fill: var(--cache-pyc-border); }
 .host-cameo .brobot-bubble-avatar, .brobot-bubble .host-cameo .brobot-bubble-avatar { --eye-fill: var(--cameo-border); }
-.host-butlix .brobot-bubble-avatar, .brobot-bubble .host-butlix .brobot-bubble-avatar { --eye-fill: var(--butlix-border); }
+.host-butler .brobot-bubble-avatar, .brobot-bubble .host-butler .brobot-bubble-avatar { --eye-fill: var(--butler-border); }
 .host-intel-404-pnfh .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnfh .brobot-bubble-avatar,
 .host-intel-404-pnft .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnft .brobot-bubble-avatar { --eye-fill: var(--intel-404-border); }
 /* GOLDEN results template (2026-10-29, operator: "results outputs are center-aligned,

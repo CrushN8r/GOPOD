@@ -125,3 +125,21 @@ func TestPersonaChains(t *testing.T) {
 		t.Fatalf("share 0: the reply alone, got %q", got)
 	}
 }
+
+// 2026-10-30: a persona's profile is looked up for its prompt - its Self and
+// Voice lines, not The name; no profile, nothing.
+func TestPersonaProfiles(t *testing.T) {
+	old := gopodBrobotsSettings
+	defer func() { gopodBrobotsSettings = old }()
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "cache-pyc.md"), []byte("# Cache PYC\n\n## Self\n- My name: Cache PYC.\n\n## Voice\n- Sharp.\n\n## The name\n- Not said.\n"), 0o644)
+	gopodBrobotsSettings.PersonaProfiles.Folder = dir
+	gopodBrobotsSettings.PersonaProfiles.Sections = []string{"Self", "Voice"}
+	gopodBrobotsSettings.PersonaProfiles.Text = "Profile: {lines}"
+	if got := gopodPersonaProfileText("CACHE PYC"); got != "Profile: My name: Cache PYC. Sharp." {
+		t.Fatalf("profile: %q", got)
+	}
+	if got := gopodPersonaProfileText("NOBODY"); got != "" {
+		t.Fatalf("no profile: %q", got)
+	}
+}

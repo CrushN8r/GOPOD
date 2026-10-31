@@ -38,7 +38,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 |---|---|---|
 | **PLAYHEAD ZUMINTU** (KP8) | Reporter 2's voice, tape-brown bubbles | Time and place: "weather" - "I'll help you with that.", the weather line; "what time / where are we / WAWN / what's the date" - the time and place line (`time_place_text`); location QR codes. His job role is in his persona prompt (`managers.personas.PLAYHEAD.prompt`): "ph" for PLAYHEAD, a/0/b the working points to zoom in and out from, ZUMINTU = zoom into, like editing an audio file end to end. |
 | **Git Repo / Cache PYC** (KP3/KP4, Cozmo students), **Intel 404 PNFH / PNFT** (KP5/KP6, Moorebot Scout security guards), **Cameo** (KP9, the social media Gomad) | their own voices (above), the default host bubble look - Cameo's bubble is Goverlord level (`bubble_kinds`, `host-cameo`) | Scaffolding: CHALK's shape - `managers.personas` prompt and who line, no scripted lines; `host_personas`, `host_pairs` ("Git Repo & Cache PYC", "Intel 404 PNFH & PNFT"). Answers from the language model, like KP7/KP8. Intern jobs: Git Repo (ethical hacker) says the USB lines - mic and numpad missing or back (`numpad_ptt.usb_host`) - and takes "usb devices / what's plugged in / lsusb" (kind `usb`, `managers.usb_text`); Cache PYC (meme hustler) draws the search results box; Intel 404 PNFH / PNFT (security guards) warn when a Brobot's battery runs low (`battery_watch.guards`). The hand-over: a take with `via` - that Gomad says `managers.handoff_text` ("Git Repo will help you with that."), then the intern takes over (USB: via CHALK; search results: `system_search.handoff_host`, PLAYHEAD). |
-| **Butlix, the Butler** (KP0, held) | the butler's voice and lingo (`voice_of`: Goverlord), deep royal purple bubble, light gold border | Goverlord's voice in the chat: the runs, the system's answers, the session - he asks Master CrushN8r to keep or delete the recording (`managers.personas.BUTLIX`, `host_personas.BUTLIX`; 2026-10-30). |
+| **The Butler: KEYNOTE VALE, "Keys"** (KP0, held) | the butler's voice and lingo (`voice_of`: Goverlord), deep royal purple bubble, light gold border | Goverlord's voice in the chat: the runs, the system's answers, the session - he asks Master CrushN8r to keep or delete the recording (`managers.personas.BUTLER`; his labels are `host_personas.BUTLER` - name, nickname, job name - and everything else fills from them as `{name}`, `{nickname}`, `{job}`; 2026-10-30). |
 | **CHALK BORED** (KP7) | Reporter 1's voice, chalkboard bubbles | Display: QR codes, the surprise eggs (Roast Battle, Halloween, camera feeds) and the visual board, drawn on its board (`display_host`). |
 
 - **Two suits (2026-10-30):** CHALK and PLAYHEAD are the indoor news anchors: their own
@@ -48,6 +48,11 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   (`reporterSuit`, page). Live, KP7 / KP8 with **NumLock off** are CHALK and PLAYHEAD as
   reporters: same persona and voice, answering in the reporter suit (the numpad map's
   `numlock_off` layer, `"suit": "reporter"`). Locked by `TestNumpadNumlockOffReporter`.
+- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/personas/<name>.md` - CHALK,
+  PLAYHEAD, Git Repo, Cache PYC, the Butler (`butler.md`), Cameo - the same sections for everyone: **Self** (my informal name
+  (nickname), my name, my job title, my role, who helps me), **Voice**, **Partner and banter**,
+  **The name**. Its prompt looks up the sections in `persona_profiles.sections` (Self, Voice,
+  Partner and banter). The first workings of the brain bubble's template. `TestPersonaProfiles`.
 - **Talking to a manager:** KP7 or KP8 (voice only): your line, then the persona's answer from
   the language model - its identity and its reporter's scripted lines as the style - in its
   reporter voice and colour (`managers.personas`, `gopod_personas.go`). "Who are you?"

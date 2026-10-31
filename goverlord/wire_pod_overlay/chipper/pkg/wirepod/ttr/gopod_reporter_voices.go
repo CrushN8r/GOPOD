@@ -149,7 +149,7 @@ func GopodReporterVoicesStart() {
 // system role (operator 2026-10-08: "Add a third bm_george voice for system").
 func gopodReporterVoice(host string) string {
 	rv := gopodBrobotsSettings.ReporterVoices
-	// 2026-10-30 (Butlix): a persona with another speaker's voice.
+	// 2026-10-30 (the Butler): a persona with another speaker's voice.
 	if of := strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf); of != "" && of != host {
 		return gopodReporterVoice(of)
 	}

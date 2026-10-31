@@ -72,7 +72,7 @@ func gopodHereNowCast(self string) string {
 				out = append(out, hn.BrotherLine)
 			}
 		default:
-			out = append(out, strings.NewReplacer("{gender}", gopodHereNowGender(c.Who)).Replace(c.Line))
+			out = append(out, gopodPersonaFill(c.Who, strings.NewReplacer("{gender}", gopodHereNowGender(c.Who)).Replace(c.Line)))
 		}
 	}
 	return strings.Join(out, hn.CastJoin)

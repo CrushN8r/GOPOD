@@ -35,10 +35,14 @@ func gopodPersonaFor(persona string) string {
 func gopodPersonaPrompt(host string) string {
 	p := gopodBrobotsSettings.Managers.Personas[host]
 	var b strings.Builder
-	b.WriteString(p.Prompt)
+	b.WriteString(gopodPersonaFill(host, p.Prompt))
 	// 2026-10-21 (operator: "One persona shape for all four hosts"): its host
 	// persona and its pair's banter and stereo dial (gopod_brobot_personas.go).
 	if t := gopodHostPersonaText(host, p.Prompt); t != "" {
+		b.WriteString(" " + t)
+	}
+	// 2026-10-30: its profile - self, voice, banter (gopod_persona_profiles.go).
+	if t := gopodPersonaProfileText(host); t != "" {
 		b.WriteString(" " + t)
 	}
 	// 2026-10-26: who, where, when, who else, what's happening (gopod_here_now.go).
@@ -147,7 +151,7 @@ func gopodPersonaReplyAs(host, sayAs, text, how string) {
 }
 
 // gopodSpeaksAsSystem: host speaks with the butler's lingo (reporter_voices.
-// system_say_words) - the system speaker, or a persona with its voice (Butlix).
+// system_say_words) - the system speaker, or a persona with its voice (the Butler).
 func gopodSpeaksAsSystem(host string) bool {
 	sr := gopodBrobotsSettings.SignOff.SystemRole
 	if sr == "" {

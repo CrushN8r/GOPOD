@@ -65,7 +65,7 @@ func gopodVoiceRows() []gopodVoiceRow {
 			continue
 		}
 		row := gopodVoiceRow{Key: key, Persona: e.Persona}
-		// 2026-10-30: a persona with another speaker's voice (Butlix, the butler's)
+		// 2026-10-30: a persona with another speaker's voice (the Butler, the butler's)
 		// - no pick.
 		if host := gopodPersonaFor(e.Persona); host != "" && strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) != "" {
 			row.Bodied = true

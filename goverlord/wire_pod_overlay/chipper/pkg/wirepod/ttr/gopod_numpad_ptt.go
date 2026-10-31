@@ -114,9 +114,9 @@ func GopodNumpadMapJSON() ([]byte, error) {
 func gopodNumpadBrobot(key string) (string, string, error) {
 	// 2026-10-16 (operator: "a long '0' press acts as the mic version of
 	// 'keyboard's 'All' radio button option"): held, it talks to all the Brobots.
-	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> Butlix (3 taps still
+	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
 	// exit) * * hold -> all Brobots, in the order selected * / -> skip"): that is
-	// the * key now (gopodNumpadAllKey); KP0 is the map's (Butlix).
+	// the * key now (gopodNumpadAllKey); KP0 is the map's (the Butler).
 	if strings.EqualFold(key, gopodNumpadAllKey) {
 		label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.AllLabel)
 		if label == "" {

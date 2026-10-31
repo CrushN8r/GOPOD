@@ -34,6 +34,9 @@ type gopodHostPersona struct {
 	// 2026-10-28: a nickname (Buzzer, Switch) - his bubble header is
 	// reporter_voices.nickname_label (gopodApplyNicknames).
 	Nickname string `json:"nickname"`
+	// 2026-10-30 (operator: "full name [first middle last], nickname, job name"):
+	// the persona's job name - its {job} (gopodPersonaFill).
+	JobName string `json:"job_name"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`
@@ -212,7 +215,7 @@ func gopodReminderTopics(question string) string {
 // call_name, else its name, else the host.
 func gopodCallName(host string) string {
 	p := gopodBrobotsSettings.HostPersonas[host]
-	for _, n := range []string{p.CallName, p.Name, host} {
+	for _, n := range []string{p.CallName, p.Nickname, p.Name, host} {
 		if n = strings.TrimSpace(n); n != "" {
 			return n
 		}
@@ -272,6 +275,19 @@ func gopodApplyNicknames(s *gopodBrobotsSettingsFile) {
 		}
 		s.ReporterVoices.Labels[host] = strings.NewReplacer("{nickname}", hp.Nickname, "{name}", hp.Name).Replace(tpl)
 	}
+}
+
+// gopodPersonaFill (2026-10-30, operator: "If this were properly templated, there
+// should be only 2 labels to change, everything else would branch from that
+// templated persona profile"; "full name [first middle last], nickname, job
+// name"): a persona's words with its {name}, {nickname} and {job} filled from
+// host_personas - so a rename is those labels alone.
+func gopodPersonaFill(host, text string) string {
+	if !strings.Contains(text, "{") {
+		return text
+	}
+	p := gopodBrobotsSettings.HostPersonas[host]
+	return strings.NewReplacer("{name}", p.Name, "{nickname}", p.Nickname, "{job}", p.JobName).Replace(text)
 }
 
 // ## EOF
