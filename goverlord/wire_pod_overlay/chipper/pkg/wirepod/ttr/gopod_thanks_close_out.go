@@ -29,7 +29,12 @@ var gopodClosingOut atomic.Bool
 
 // gopodStopRuns asks a playing draft and a running song to stop at their next
 // safe spot. False when neither was going.
+// gopodStopSeq: one more each stop run - an answer being said stops at its next
+// piece (2026-10-30, operator: "stop run still calling brobots").
+var gopodStopSeq atomic.Int64
+
 func gopodStopRuns(why string) bool {
+	gopodStopSeq.Add(1)
 	stopped := false
 	if gopodScriptPlaying.Load() {
 		gopodScriptStop.Store(true)

@@ -1387,6 +1387,29 @@
             }
             if (settings.addressing) { addressing = settings.addressing; }
             if (settings.system_bubble && settings.system_bubble.label) { systemLabel = settings.system_bubble.label; }
+            // 2026-10-30 (operator: "replace templated this: Goverlord: GOPOD Brain,
+            // with: KEYNOTE: Butler * anything with KEYNOTE's voice, please update at
+            // the template level"): the label is filled from the persona whose voice it
+            // is (system_bubble.voice_persona) - {first} {middle} {last} {name}
+            // {nickname} {job}, its labels.
+            var vp = settings.system_bubble && settings.system_bubble.voice_persona;
+            var vpp = vp && (settings.host_personas || {})[vp];
+            if (vpp) {
+              var nameParts = String(vpp.name || "").trim().split(/\s+/);
+              systemLabel = String(systemLabel)
+                .replace("{first}", nameParts[0] || "").replace("{last}", nameParts.length > 1 ? nameParts[nameParts.length - 1] : "")
+                .replace("{middle}", nameParts.slice(1, -1).join(" ")).replace("{name}", vpp.name || "")
+                .replace("{nickname}", vpp.nickname || "").replace("{job}", vpp.job_name || "");
+            }
+            window.gopodSystemLabel = systemLabel;
+            systemVoicePersona = vp || "";
+            // Every persona is a host on the page - its own voice or another's
+            // (managers.personas, voice_of): the master list.
+            personaVoiceOf = {};
+            Object.keys(((settings.managers || {}).personas) || {}).forEach(function (k) {
+              var p = settings.managers.personas[k] || {};
+              personaVoiceOf[k] = p.voice_of || "";
+            });
             if (settings.numpad_ptt) { numpad.cfg = settings.numpad_ptt; }
             if (settings.comm_check && settings.comm_check.record_seconds) { commCheckRecordSeconds = settings.comm_check.record_seconds; }
             if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; systemMenuCopy = settings.system_menu.copy || systemMenuCopy; }
@@ -3218,8 +3241,10 @@
       }
       // 2026-10-30 (the Butler: "Keys (KEYNOTE VALE)"): a host with a nickname is
       // headed by the nickname label - its name and nickname, the persona's labels.
-      var nickLabels = {};
+      var nickLabels = {}, personaVoiceOf = {}, systemVoicePersona = "";
       function hostHeader(who) {
+        // 2026-10-30: anything in the system speaker's voice wears its label.
+        if (who === systemVoicePersona || (personaVoiceOf[who] && personaVoiceOf[who] === systemRole)) { return systemLabel; }
         if (nickLabels[who]) { return nickLabels[who]; }
         var np = numpadPersona(who);
         var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
@@ -3392,6 +3417,7 @@
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
         bubble.appendChild(line);
+        hostBrain(bubble, who);
         voiceLitLine(bubble, line, text);
         placeBubble(bubble, next, function () {
           // 2026-10-06 (operator: "ensure this timer is always 'after' all
@@ -4703,7 +4729,7 @@
         // ready"): a skipped reporter line still shows, all its words at once.
         // 2026-10-29: Goverlord's voiced lines are in the stretch too (the tour's
         // scriptures, his system lines) - shown whole, their voices skipped.
-        if ((hostNames[e.who] && !managerHosts[e.who]) || e.who === systemRole) { return false; }
+        if (((hostNames[e.who] || personaVoiceOf.hasOwnProperty(e.who)) && !managerHosts[e.who]) || e.who === systemRole) { return false; }
         skippingReporters = false;
         skipEndScroll();
         return false;
@@ -4874,7 +4900,7 @@
           var bar = e.text.indexOf("|");
           if (bar > 0 && e.text.charAt(0) === "/") { lineWaits = e.text.slice(0, bar); e.text = e.text.slice(bar + 1); }
         }
-        if (e.who !== systemRole && e.who !== scoreRole && !hostNames[e.who]) { generatingGone(); }
+        if (e.who !== systemRole && e.who !== scoreRole && !hostNames[e.who] && !personaVoiceOf.hasOwnProperty(e.who)) { generatingGone(); }
         if (e.who === countdownRole) {
           if (String(e.text).trim() === countdownEndText) { countdownHold(); }
           else { showCountdown(parseInt(e.text, 10), e.time_ms, done); return; }
@@ -4902,7 +4928,7 @@
           showPictures(String(e.text).replace(/^menu:/, ""), done);
           return;
         }
-        else if (hostNames[e.who]) { showHostLine(e.who, e.text, e.to, done); return; }
+        else if (hostNames[e.who] || personaVoiceOf.hasOwnProperty(e.who)) { showHostLine(e.who, e.text, e.to, done); return; }
         // 2026-10-08: a draft's own question shows as the reporter who reads it.
         // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
         // Brobot 1" (operator 2026-10-10: "assigned reporter bubbles fall under
@@ -5954,10 +5980,35 @@
           }, seconds * 1000 + 100);
         }, settle);
       }
+      // 2026-10-30 (operator: "NEW CORE TEMPLATE RULE: everybody gets a brain
+      // bubble"): a Gomad's brain lines wait for its own bubble, and go in at its
+      // top - the same notice part a Brobot's bubble has (hostBrain).
+      var hostBrains = {};
+      function hostBrain(bubble, who) {
+        var lines = hostBrains[who];
+        delete hostBrains[who];
+        if (!lines || !lines.length) { return; }
+        var boxes = {};
+        lines.forEach(function (n) {
+          var box = boxes[n.title];
+          if (!box) {
+            box = boxes[n.title] = nestPart("notice", "egg-summary bubble-notice", systemHead(n.title), String(n.line).indexOf("\t") >= 0 ? null : n.line, "egg-summary-text");
+            if (String(n.line).indexOf("\t") >= 0) { box.appendChild(noticeLine(n.line)); }
+            box.dataset.title = n.title;
+            nestPlace(bubble, box, true);
+          } else {
+            box.appendChild(noticeLine(n.line));
+          }
+        });
+      }
       function bubbleNotice(to, text, said) {
-        if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat) { return; }
+        if (restoringChat) { return; }
         var bar = text.indexOf("|");
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
+        if (!/^Brobot [12]$/.test(String(to || ""))) {
+          if (to) { (hostBrains[to] = hostBrains[to] || []).push({ title: title, line: line }); }
+          return;
+        }
         var shell = nestShell(to);
         // 2026-10-22 (operator: "in the same notice-bubble, if more info incoming
         // add it in underneath"): a notice with the same title takes the line.

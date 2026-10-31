@@ -76,7 +76,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	body, _ := json.Marshal(map[string]any{
 		"model": model, "stream": false,
 		"messages": gopodPersonaMessages(host, text),
-		"options":  map[string]any{"num_predict": 120},
+		"options":  map[string]any{"num_predict": gopodPersonaNumPredict()},
 	})
 	client := &http.Client{Timeout: gopodTiming("persona_answer_seconds")}
 	resp, err := client.Post(base+"/api/chat", "application/json", bytes.NewReader(body))
@@ -101,7 +101,28 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	if reply == "" {
 		return "", errors.New("the language model said nothing")
 	}
-	return reply, nil
+	return gopodEndAtWholeSentence(reply), nil
+}
+
+// gopodPersonaNumPredict: managers.answer_num_predict, else 400.
+func gopodPersonaNumPredict() int {
+	if n := gopodBrobotsSettings.Managers.AnswerNumPredict; n > 0 {
+		return n
+	}
+	return 400
+}
+
+// gopodEndAtWholeSentence: a reply that ran out mid-sentence ends at its last whole
+// one (2026-10-30, live: Keys' "Anything else I can").
+func gopodEndAtWholeSentence(reply string) string {
+	reply = strings.TrimSpace(reply)
+	if reply == "" || strings.ContainsAny(reply[len(reply)-1:], ".!?\"')") {
+		return reply
+	}
+	if at := strings.LastIndexAny(reply, ".!?"); at > 0 {
+		return strings.TrimSpace(reply[:at+1])
+	}
+	return reply
 }
 
 // gopodPersonaMessages (2026-10-21, operator: "a manager is still a participant

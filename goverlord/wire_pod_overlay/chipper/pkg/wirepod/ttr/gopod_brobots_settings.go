@@ -427,6 +427,9 @@ type gopodBrobotsSettingsFile struct {
 			VoiceOf string `json:"voice_of"`
 		} `json:"personas"`
 		WIPText  string   `json:"wip_text"`
+		// 2026-10-30 (operator: "let my personas speak!! * why the cut-off?"):
+		// a persona's answer, at most this many tokens (it was 120, written in).
+		AnswerNumPredict int `json:"answer_num_predict"`
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
@@ -652,6 +655,13 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"brobot_bubble"`
 	// 2026-10-22: what goes in each notice in a Brobot's bubble (gopod_value_points_notice.go).
 	BubbleNotices struct {
+		// 2026-10-30 (operator: "everybody gets a brain bubble"): a Gomad's
+		// brain lines (gopodGomadBrain).
+		GomadBrain struct {
+			Lines  []string `json:"lines"`
+			Asked  string   `json:"asked"`
+			NoTask string   `json:"no_task"`
+		} `json:"gomad_brain"`
 		ValuePoints struct {
 			Title   string   `json:"title"`
 			Parts   []string `json:"parts"`
@@ -995,6 +1005,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	gopodApplyChaptersFolder(&s)
 	// 2026-10-27: every run from its card (gopod_game_engine.go).
 	gopodApplyGameRuns(&s)
+	// 2026-10-30: every persona's labels from its profile (gopod_persona_profiles.go).
+	gopodApplyPersonaProfiles(&s)
 	// 2026-10-28: nickname headers (gopodApplyNicknames).
 	gopodApplyNicknames(&s)
 	var missing []string

@@ -162,6 +162,12 @@
   },
   "bubble_notices": {
     "about": "2026-10-22 (operator: \"make standard, the Notice-bubble inside a Brobot's bubble\"; \"template out what goes in a notice-bubble\"): what goes in each notice at the top of a Brobot's bubble (the bubble notice template, gopodBubbleNotice: a title, then its lines, each on its own row; a notice with the same title takes more lines underneath). value_points: every live Brobot answer - what his answer is built from, that the GOPOD reps are hired to reveal - its parts in this order: points (one per value point given: {id} topic#n, {words}), weather ({line}), search ({search}), none (no value point), got_it ({thinking_text} = chat_moves.thinking_text, added once he has said it). egg: a found egg ({title}, {summary}). native_intent: a native Wire-Pod intent ({intent}). An empty title = that notice is off; a part left out of parts isn't shown.",
+    "gomad_brain_about": "2026-10-30 (operator: \"NEW CORE TEMPLATE RULE: everybody gets a brain bubble * prepare a fat brain bubble scaffolding to refine/reshape as a template for every chat bubble * each brain bubble can now be better refined to suit both the self & chat awareness\"; \"WHERE'S MY FUCKING TEMPLATED GAME ENGINE!?!\"): a Gomad's brain bubble, at the top of its own bubble, titled like a Brobot's (value_points.title, {name} Brain). Its lines: {name} its call name, {fullname} its full name, {job} its profile's job title (else its job name), {asked} who asked, {task} its assigned task (else no_task), {cast} everyone else in the chat. A line with nothing after its label isn't shown.",
+    "gomad_brain": {
+      "lines": ["Self: {fullname} - {job}", "Asked by: {asked}", "Task: {task}", "In the chat: {cast}"],
+      "asked": "Master CrushN8r",
+      "no_task": "no assigned task - my own take"
+    },
     "value_points": {
       "title_about": "2026-10-30 (operator: \"Rename Value Points to [persona-(nick)name] Brain * Brobot 1: Brain, CHALK: Brain, etc... * NEW CORE TEMPLATE RULE: everybody gets a brain bubble\"): {name} is the persona's.",
       "title": "{name} Brain",
@@ -245,7 +251,9 @@
   },
   "system_bubble": {
     "about": "The system bubbles' header (operator 2026-10-04: \"label these timers as system messages ... [icon] Goverlord: GOPOD Brain [icon]\"): every Goverlord system bubble (the LLM warm-up, countdowns, chapters, Goverlord's lines, numpad statuses), with the grey icon at both ends. Read by the chat page only.",
-    "label": "Goverlord: GOPOD Brain"
+    "label_about": "2026-10-30 (operator: \"replace templated this: Goverlord: GOPOD Brain, with: KEYNOTE: Butler * anything with KEYNOTE's voice, please update at the template level\"; \"All should branch from single master sources\"): the header of everything said in the system speaker's voice - the system bubbles, the Butler's own answers, the weather card - filled from voice_persona's labels: {first} {middle} {last} of its full name, {name}, {nickname}, {job}.",
+    "label": "{first}: {job}",
+    "voice_persona": "BUTLER"
   },
   "extra_animations": {
     "min_sentences": 3,

@@ -47,7 +47,7 @@ func gopodPagePlayedUpTo() int {
 
 // gopodCommCheckWaitPage: until the page has played id (or max).
 func gopodCommCheckWaitPage(id int, max time.Duration) {
-	for end := time.Now().Add(max); time.Now().Before(end); time.Sleep(250 * time.Millisecond) {
+	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(250 * time.Millisecond) {
 		if gopodPagePlayedUpTo() >= id {
 			return
 		}
@@ -58,7 +58,7 @@ func gopodCommCheckWaitPage(id int, max time.Duration) {
 // page has played it all (or max).
 func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 	last, since := gopodFeedLastID(), time.Now()
-	for end := time.Now().Add(max); time.Now().Before(end); time.Sleep(500 * time.Millisecond) {
+	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(500 * time.Millisecond) {
 		if id := gopodFeedLastID(); id != last {
 			last, since = id, time.Now()
 			continue
@@ -88,7 +88,7 @@ func gopodCommCheckLines() [][2]string {
 // gopodCommCheckWaitAnswer: until a feed line after from comes from who
 // (his answer), or max.
 func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
-	for end := time.Now().Add(max); time.Now().Before(end); time.Sleep(500 * time.Millisecond) {
+	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(500 * time.Millisecond) {
 		gopodChatFeed.Lock()
 		found := false
 		for i := len(gopodChatFeed.events) - 1; i >= 0 && gopodChatFeed.events[i].ID > from; i-- {

@@ -48,6 +48,13 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   (`reporterSuit`, page). Live, KP7 / KP8 with **NumLock off** are CHALK and PLAYHEAD as
   reporters: same persona and voice, answering in the reporter suit (the numpad map's
   `numlock_off` layer, `"suit": "reporter"`). Locked by `TestNumpadNumlockOffReporter`.
+- **The master format (2026-10-30):** every persona profile is a topic-cluster md, GOPOD's one
+  format (`gopod_probes/_topic_cluster/README.md`): its head is the persona's labels - `# <full
+  name>`, `nickname`, `job` - written there and nowhere else; the settings, prompts, headers and the
+  brain bubble fill from them. Anything in the system speaker's voice is headed
+  `system_bubble.label` "{first}: {job}" from `voice_persona` (BUTLER): "KEYNOTE: Butler". Every
+  persona in `managers.personas` is a host on the page, its own voice or another's. A persona's
+  answer is at most `managers.answer_num_predict` tokens (400), ending at a whole sentence.
 - **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/personas/<name>.md` - CHALK,
   PLAYHEAD, Git Repo, Cache PYC, the Butler (`butler.md`), Cameo - the same sections for everyone: **Self** (my informal name
   (nickname), my name, my job title, my role, who helps me), **Voice**, **Partner and banter**,

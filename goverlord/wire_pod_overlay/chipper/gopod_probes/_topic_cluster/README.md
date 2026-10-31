@@ -52,3 +52,19 @@ line at the start or end of the answer).
 2. Run the build (the game sweep and `TestBrobotAsksPageMatches` check it), then write the asks
    page again: `GOPOD_WRITE_ASKS=1 deploy_overlay_build.sh`.
 3. `system-value-points lock` in the chat, then `system-check`.
+
+## The master format (2026-10-30)
+
+Operator: "I see everything as a topic-cluster md file * establish a master topic-cluster format &
+boom!"; "make the topic-cluster shape the one master format * YES!! PLEASE!!"; "All should branch
+from single master sources". The topic-cluster md is GOPOD's one format for anything the game reads:
+a `# <label>` heading, its settings as `- **key:** value` lines, a `---` line, then its content. One
+reader (`gopodTopicHeadKV`) for every kind.
+
+| Kind | Where | Its head | Its content |
+|---|---|---|---|
+| A topic | `gopod_probes/chapters/NN_*/NN_*.md` | the lines above | the value points, `1.` `2.` ... |
+| A persona profile | `gopod_probes/personas/<name>.md` | `# <full name>`, `nickname`, `job`, `words`, `ask` | `## Self`, `## Voice`, `## Partner and banter`, `## The name`, each its points `1.` `2.` ... |
+
+A persona's labels - its full name (the `# ` label), nickname and job name - are written only in its
+profile's head; everything else fills from them (`{name}`, `{nickname}`, `{job}`).

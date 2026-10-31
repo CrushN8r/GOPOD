@@ -132,14 +132,20 @@ func TestPersonaProfiles(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
 	dir := t.TempDir()
-	os.WriteFile(filepath.Join(dir, "cache-pyc.md"), []byte("# Cache PYC\n\n## Self\n- My name: Cache PYC.\n\n## Voice\n- Sharp.\n\n## The name\n- Not said.\n"), 0o644)
+	os.WriteFile(filepath.Join(dir, "cache-pyc.md"), []byte("# Cache PYC\n- **nickname:** Cachey\n\n---\n\n## Self\n1. My name: {name}.\n2. Later (to come)\n\n## Voice\n1. Sharp.\n\n## The name\n1. Not said.\n"), 0o644)
 	gopodBrobotsSettings.PersonaProfiles.Folder = dir
 	gopodBrobotsSettings.PersonaProfiles.Sections = []string{"Self", "Voice"}
 	gopodBrobotsSettings.PersonaProfiles.Text = "Profile: {lines}"
+	gopodBrobotsSettings.HostPersonas = map[string]gopodHostPersona{"CACHE PYC": {Name: "Cache PYC"}}
 	if got := gopodPersonaProfileText("CACHE PYC"); got != "Profile: My name: Cache PYC. Sharp." {
 		t.Fatalf("profile: %q", got)
 	}
 	if got := gopodPersonaProfileText("NOBODY"); got != "" {
 		t.Fatalf("no profile: %q", got)
+	}
+	// The head is the persona's labels: its full name (the label) and nickname.
+	head, _ := gopodPersonaProfileRead(gopodPersonaProfileFile("CACHE PYC"))
+	if head["label"] != "Cache PYC" || head["nickname"] != "Cachey" {
+		t.Fatalf("head: %v", head)
 	}
 }

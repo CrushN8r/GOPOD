@@ -524,6 +524,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	spokenCount := 0
 	weatherShown := false // GOPOD 2026-10-22: his weather line's picture, once
 	var interrupted bool
+	stopAt := gopodStopSeq.Load() // GOPOD 2026-10-30: a stop run since this answer began ends it
 	markRawResponseLocked := func(result gopodStreamResult) {
 		if !markerZeroSeen {
 			markerZeroSeen = true
@@ -981,7 +982,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			}
 			for _, act := range gopodAnimationsFromWords(gopodSprinkleAnimations(gopodSplitSpeechIntoSentences(acts))) {
 				streamMu.Lock()
-				stopNow := interrupted
+				stopNow := interrupted || gopodStopSeq.Load() != stopAt
 				streamMu.Unlock()
 				if stopNow {
 					break

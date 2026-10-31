@@ -403,6 +403,8 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 			logger.Println("GOPOD_PERSONA " + host + ": " + reply)
 			// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
 			reply = gopodPersonaChainWrap(host, reply)
+			// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
+			gopodGomadBrain(host, sayAs, "")
 			gopodReporterSay(sayAs, reply, true, true)
 			return true
 		default:

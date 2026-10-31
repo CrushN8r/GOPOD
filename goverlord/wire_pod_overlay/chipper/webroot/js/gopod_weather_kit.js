@@ -45,7 +45,9 @@ function card(item) {
   bubble.className = "brobot-bubble operator system-status";
   var head = document.createElement("div");
   head.className = "brobot-bubble-head system-head";
-  head.innerHTML = '<div class="brobot-bubble-avatar to-system"></div><span class="brobot-bubble-who">Goverlord: GOPOD Brain</span><div class="brobot-bubble-avatar to-system"></div>';
+  // 2026-10-30: the system label from its one template (system_bubble.label, the chat page).
+  head.innerHTML = '<div class="brobot-bubble-avatar to-system"></div><span class="brobot-bubble-who"></span><div class="brobot-bubble-avatar to-system"></div>';
+  head.querySelector(".brobot-bubble-who").textContent = window.gopodSystemLabel || "";
   bubble.appendChild(head);
   var c = document.createElement("div");
   c.className = "weather-card";
