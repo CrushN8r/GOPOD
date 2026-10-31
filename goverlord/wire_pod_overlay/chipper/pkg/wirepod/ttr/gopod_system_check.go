@@ -101,6 +101,11 @@ func gopodSystemCheckProblems() ([]string, int) {
 	if gopodTorahBehind() {
 		problems = append(problems, "GOPOD_TORAH.md is behind the system - system-torah writes it again")
 	}
+	// 2026-10-31: the source check - every participant from his master source up,
+	// layer by layer, all at once (gopod_source_check.go).
+	src, srcChecked := gopodSourceCheck()
+	checked += srcChecked
+	problems = append(problems, src...)
 	// 2026-10-28: the game engine's run cards (gopod_game_engine.go).
 	checked += len(gopodBrobotsSettings.Game.Runs)
 	problems = append(problems, gopodGameRunsCheck()...)

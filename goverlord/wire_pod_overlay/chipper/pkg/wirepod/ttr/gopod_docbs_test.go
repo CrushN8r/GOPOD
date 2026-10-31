@@ -185,3 +185,18 @@ func TestIntroRecipe(t *testing.T) {
 		t.Errorf("an intro answer's chain: %q", g)
 	}
 }
+
+// 2026-10-31: the source check finds nothing broken in GOPOD's own sources -
+// only lines the operator still has to write ("to come").
+func TestSourceCheck(t *testing.T) {
+	problems, checked := gopodSourceCheck()
+	if checked < 50 {
+		t.Errorf("only %d things checked", checked)
+	}
+	for _, p := range problems {
+		if !strings.Contains(p, "still to come") {
+			t.Errorf("source check: %s", p)
+		}
+	}
+	t.Logf("%d checked, %d to come", checked, len(problems))
+}

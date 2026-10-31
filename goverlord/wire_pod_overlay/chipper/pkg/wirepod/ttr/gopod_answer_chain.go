@@ -415,7 +415,7 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 				task = gopodBrobotsSettings.IntroRecipe.Task
 			}
 			gopodGomadBrain(host, sayAs, task)
-			gopodReporterSay(sayAs, reply, true, true)
+			gopodGomadSayChunks(sayAs, reply)
 			return true
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)
@@ -485,6 +485,60 @@ func gopodExchangeWait(esn, text string) {
 		gopodExchange.pending = 0
 		gopodExchange.waitFor = map[string]int{}
 		gopodExchange.Unlock()
+	}
+}
+
+// gopodGomadChunks: a reply as spoken chunks - whole sentences, joined up to
+// managers.chunk_words words each.
+func gopodGomadChunks(reply string) []string {
+	most := gopodBrobotsSettings.Managers.ChunkWords
+	if most <= 0 {
+		return []string{reply}
+	}
+	var out []string
+	cur, n := "", 0
+	for _, s := range gopodSentences(reply) {
+		w := len(strings.Fields(s))
+		if cur != "" && n+w > most {
+			out = append(out, cur)
+			cur, n = "", 0
+		}
+		if cur != "" {
+			cur += " "
+		}
+		cur += s
+		n += w
+	}
+	if cur != "" {
+		out = append(out, cur)
+	}
+	if len(out) == 0 {
+		return []string{reply}
+	}
+	return out
+}
+
+// gopodGomadSayChunks (2026-10-31, operator: "Faster Gomads: the idea here was
+// also to generate all at once, but as sentences or spoken chunks. As each voice
+// file is generated its played, but in order & waits for the next generating to
+// complete"): every chunk's voice is made at once, in order; each chunk is shown
+// and played the moment its voice is made, in order - the next waits for its
+// own voice - and the answer is over once the last is heard.
+func gopodGomadSayChunks(host, reply string) {
+	chunks := gopodGomadChunks(reply)
+	ready := make([]chan struct{}, len(chunks))
+	for i := range ready {
+		ready[i] = make(chan struct{})
+	}
+	go func() {
+		for i, c := range chunks {
+			gopodReporterFile(host, gopodReporterSays(c))
+			close(ready[i])
+		}
+	}()
+	for i, c := range chunks {
+		<-ready[i]
+		gopodReporterSay(host, c, true, i == len(chunks)-1)
 	}
 }
 

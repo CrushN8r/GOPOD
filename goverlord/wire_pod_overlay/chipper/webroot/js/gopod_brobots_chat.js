@@ -3365,7 +3365,9 @@
       // The line's words in its manager's bubble, a new line in it.
       function hostLineInto(who, text) {
         var at = openHostBox();
-        if (!at || at.who !== who || !managerHosts[who]) { return null; }
+        // 2026-10-31 (faster Gomads): every persona's next spoken chunk joins its
+        // own open bubble, as a manager's line does.
+        if (!at || at.who !== who || !(managerHosts[who] || personaVoiceOf.hasOwnProperty(who))) { return null; }
         var row = document.createElement("div");
         row.className = "host-line";
         var line = document.createElement("span");

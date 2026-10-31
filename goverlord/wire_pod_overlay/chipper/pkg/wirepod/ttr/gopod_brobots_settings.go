@@ -430,6 +430,10 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-30 (operator: "let my personas speak!! * why the cut-off?"):
 		// a persona's answer, at most this many tokens (it was 120, written in).
 		AnswerNumPredict int `json:"answer_num_predict"`
+		// 2026-10-31 (operator: "Faster Gomads * generate all at once, but as
+		// sentences or spoken chunks"): a spoken chunk, whole sentences up to
+		// about this many words (gopodGomadSayChunks); 0: the answer in one.
+		ChunkWords int `json:"chunk_words"`
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
@@ -603,6 +607,11 @@ type gopodBrobotsSettingsFile struct {
 		// allowed from min_share of the dial up.
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
+	// 2026-10-31: the system bubbles' header, for the source check (the page fills it).
+	SystemBubble struct {
+		Label        string `json:"label"`
+		VoicePersona string `json:"voice_persona"`
+	} `json:"system_bubble"`
 	// 2026-10-31: the intro recipe, one for every participant (gopod_intro_recipe.go).
 	IntroRecipe struct {
 		Words []string `json:"words"`

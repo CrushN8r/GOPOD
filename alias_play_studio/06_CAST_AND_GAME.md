@@ -48,6 +48,15 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   (`reporterSuit`, page). Live, KP7 / KP8 with **NumLock off** are CHALK and PLAYHEAD as
   reporters: same persona and voice, answering in the reporter suit (the numpad map's
   `numlock_off` layer, `"suit": "reporter"`). Locked by `TestNumpadNumlockOffReporter`.
+- **The source check (2026-10-31):** part of `system-check`, and at every start. For every chat
+  participant at once, from his master source up, layer by layer: 0 his profile reads, has its
+  label and every Self line of the intro (a line "to come" is named); 1 nothing filled from his
+  labels is left unfilled (profile, prompt, who-line, cast line, intro recipe); 2 a Gomad has a
+  voice; 3 he's in the cast; 4 every live numpad key reaches someone; 5 the system label fills from
+  its voice persona. `gopod_source_check.go`, `TestSourceCheck`.
+- **Faster Gomads (2026-10-31):** a Gomad's answer is said in chunks - whole sentences, up to
+  `managers.chunk_words` (24) words each: every chunk's voice is made at once, in order; each plays
+  the moment its voice is made, the next waiting for its own; the chunks are lines in its one bubble.
 - **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about
   yourself") gets the recipe: introduce yourself in your own voice, in your profile's Self order -
