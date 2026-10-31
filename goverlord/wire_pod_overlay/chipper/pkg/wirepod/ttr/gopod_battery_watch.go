@@ -27,17 +27,35 @@ import (
 // he waits for both to end. low_volts is golden rule 6's line, 3.7 V (Brobot 2's
 // crashes came at 3.61-3.62 V).
 
-// gopodBatteryLow: whether each Brobot has had his say for this drop.
+// gopodBatteryLow: whether each Brobot has had his say for this drop, and his
+// last reading (the one before this one, for a dip).
 var gopodBatteryLow = struct {
 	sync.Mutex
 	said map[string]bool
-}{said: map[string]bool{}}
+	prev map[string]float64
+}{said: map[string]bool{}, prev: map[string]float64{}}
 
 // gopodBatteryDecide: one reading -> whether to say the line now, and the new
-// said state. said: he's had his say for this drop already.
-func gopodBatteryDecide(said bool, volts float64, charging, onCharger bool) (sayNow, saidAfter bool) {
+// said state. said: he's had his say for this drop already; prev: the reading
+// before this one (0: none).
+// 2026-10-30 (operator: "Brobot 2's charger contact (3.61 V, not charging) *
+// brobots are supposed to say, hey I'm dizzy * tag previous power level reading
+// * tag current power level reading * quick compare for power level dip * if a
+// dip detected, brobot says hey I'm dizzy & Intel 404 warning"): low or a dip
+// (dip_volts or more since the last reading) - on his charger too when it isn't
+// charging (a bad contact, Brobot 2 at 3.61 V). Only charging or recover_volts
+// re-arms it.
+func gopodBatteryDecide(said bool, prev, volts float64, charging, onCharger bool) (sayNow, saidAfter bool) {
 	bw := gopodBrobotsSettings.BatteryWatch
-	if charging || onCharger || volts >= bw.RecoverVolts {
+	if charging {
+		return false, false
+	}
+	// A dip is its own warning, at any level; then the line's state goes on.
+	dip := bw.DipVolts > 0 && prev > 0 && volts > 0 && prev-volts >= bw.DipVolts
+	if dip && !said {
+		return true, true
+	}
+	if volts >= bw.RecoverVolts {
 		return false, false
 	}
 	if volts > 0 && volts < bw.LowVolts && !said {
@@ -94,8 +112,15 @@ func gopodBatteryCheck(esn string) {
 	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s volts=%.2f level=%s charging=%t on_charger=%t",
 		name, volts, strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_"), b.GetIsCharging(), b.GetIsOnChargerPlatform()))
 	gopodBatteryLow.Lock()
-	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], volts, b.GetIsCharging(), b.GetIsOnChargerPlatform())
+	prev := gopodBatteryLow.prev[esn]
+	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform())
 	gopodBatteryLow.said[esn] = said
+	if volts > 0 {
+		gopodBatteryLow.prev[esn] = volts
+	}
+	if prev > 0 && volts > 0 && prev-volts >= gopodBrobotsSettings.BatteryWatch.DipVolts && gopodBrobotsSettings.BatteryWatch.DipVolts > 0 {
+		logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s dip: %.2f V -> %.2f V", name, prev, volts))
+	}
 	gopodBatteryLow.Unlock()
 	if sayNow {
 		go gopodBatterySay(name, volts)

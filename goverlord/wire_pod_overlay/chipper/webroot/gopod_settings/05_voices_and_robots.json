@@ -104,7 +104,7 @@
       "recording"
     ],
     "answer_to": "Goverlord",
-    "ask_brobot": "Brobot 1",
+    "ask_brobot": "Goverlord",
     "ask_text": "Session over. Keep the session recording, or delete the session recording?",
     "confirm_brobot": "Brobot 2",
     "kept_text": "Session recording kept.",
@@ -121,9 +121,11 @@
   "battery_watch": {
     "about": "The battery watchdog (operator 2026-10-15: \"set up a background watchdog to monitor battery level over time? Over the course of a session run? If let's say the battery level drops below a threshold (like from a lot of use), have the brobot comment they're feeling dizzy and need help getting home, lol\"; gopod_battery_watch.go). For the whole Wire-Pod session, every interval_seconds each Brobot's battery is read and logged (GOPOD_BATTERY_WATCH). Below low_volts, off the charger, he says one of his lines with his bubble - once; again only after he's back up to recover_volts or set on his charger. Never in the middle of a reply or a run: he waits until both are over. low_volts: golden rule 6's line, 3.7 V (Brobot 2's crashes came at 3.61-3.62 V). The lines are drafts in the operator's words, to edit.",
     "enabled": true,
-    "interval_seconds": 60,
+    "interval_seconds": 15,
     "low_volts": 3.7,
     "recover_volts": 3.8,
+    "dip_about": "2026-10-30 (operator: \"Brobot 2's charger contact (3.61 V, not charging) * brobots are supposed to say, hey I'm dizzy * I think a security guard also monitors battery levels * Maybe increase monitoring cycles per second * tag previous power level reading * tag current power level reading * quick compare for power level dip * if a dip detected, brobot says hey I'm dizzy & Intel 404 warning * look it up something like this is set up already\"): each reading is compared with the one before it - a drop of dip_volts or more is a dip, and the guard warns and the Brobot says his line, as below low_volts. On his charger but not charging counts too (a bad contact); only charging or recover_volts re-arms it. interval_seconds 60 -> 15.",
+    "dip_volts": 0.15,
     "lines": {
       "Brobot 1": [
         "Whoa, bro... I'm feeling dizzy. I need help getting home."
@@ -873,7 +875,7 @@
       "foodmath": "food math",
       "LLM": "elle-ellem",
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
-      "livestreams": "lyve-streams"
+      "livestreams": "lyve-streams", "PYC": "pee-why-see", "Git Repo": "Git Ree-poe"
     },
     "say_words_2_about": "2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
     "say_words_3_about": "2026-10-26 (operator: \"gomad lingo: Gomad = \\\"Gome-add\\\"\"): the Gomads speak in the reporters' voices, so it goes in this list.",
@@ -892,7 +894,7 @@
       "lol": "laugh out loud", "live": "lyve", "livestreams": "lyve-streams",
       "Grabby": "grab-e",
       "DJ": "dee-jay",
-      "MC": "emm-see"
+      "MC": "emm-see", "PYC": "pee-why-see", "Git Repo": "Git Ree-poe"
     },
     "opening_end_text": "opening_end",
     "gate_max_seconds": 600,
@@ -958,7 +960,7 @@
     "closing": [
       {
         "host": "Brobot 4",
-        "text": "It's going to be great. Go on and GOPOD Yourself. Find out what's all about."
+        "text": "It's going to be great. Go on and GOPOD Yourself. Find out what it's all about."
       },
       {
         "host": "Brobot 3",

@@ -10,7 +10,7 @@ Something acting up? Test just that part. “system-test-list” lists the tests
 - system-test-game, every topic, value point and Easter egg found by its own words - no robots, no model
 - system-tour, the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
 - system-torah, the GOPOD Torah (GOPOD_TORAH.md, the master system reference) written again from the system as it is now
-- system-comm-check, the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns
+- system-comm-check, the pre-show comm check: the whole numpad held in turn (KP0 Butlix, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
 - system-test-admin-run, the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
 - system-audit, the full audit, no robots called - files, Go tests, web page, phone app, every test, the log (a few minutes)
 - system-test-replay, the chat page plays every egg kind, both prizes and the Operator voices - no robots (run it after any page change)

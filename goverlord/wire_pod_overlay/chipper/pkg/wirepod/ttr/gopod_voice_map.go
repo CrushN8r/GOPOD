@@ -55,7 +55,8 @@ func gopodVoiceRows() []gopodVoiceRow {
 	var rows []gopodVoiceRow
 	for n := 0; n <= 9; n++ {
 		key := "KP" + string(rune('0'+n))
-		if n == 0 {
+		e, mapped := m.NumlockOn[key]
+		if n == 0 && !mapped {
 			label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.AllLabel)
 			if label == "" {
 				label = "All"
@@ -63,8 +64,14 @@ func gopodVoiceRows() []gopodVoiceRow {
 			rows = append(rows, gopodVoiceRow{Key: key, Persona: label, Bodied: true})
 			continue
 		}
-		e := m.NumlockOn[key]
 		row := gopodVoiceRow{Key: key, Persona: e.Persona}
+		// 2026-10-30: a persona with another speaker's voice (Butlix, the butler's)
+		// - no pick.
+		if host := gopodPersonaFor(e.Persona); host != "" && strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) != "" {
+			row.Bodied = true
+			rows = append(rows, row)
+			continue
+		}
 		// 2026-10-29 (operator: "follow numpad for voices"): with robots off, a
 		// bodied Brobot's key picks the voice his says play in (gopod_robots_off.go).
 		if brobot, robot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[e.Body]; robot && GopodRobotsOff() {

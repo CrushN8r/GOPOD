@@ -354,7 +354,9 @@ func gopodNoticeTitle(esn string) string {
 	if (brobot != "Brobot 1" && brobot != "Brobot 2") || gopodScriptPlaying.Load() {
 		return ""
 	}
-	return strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title)
+	// 2026-10-30 (operator: "Rename Value Points to [persona-(nick)name] Brain"):
+	// {name} is the Brobot's.
+	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title, "{name}", brobot))
 }
 
 // gopodNoticeFlush posts the held lines once they and his "Got it!" are in.

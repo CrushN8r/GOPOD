@@ -146,7 +146,7 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool) {
 	for i, l := range keep {
 		says[i] = gopodReporterSays(l)
 		said := says[i]
-		if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+		if gopodSpeaksAsSystem(host) {
 			said = gopodSaySwap(said, rv.SystemSayWords)
 		}
 		if rv.GeneratingMarker == "" {

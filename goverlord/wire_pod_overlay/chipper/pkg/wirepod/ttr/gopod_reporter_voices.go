@@ -149,6 +149,10 @@ func GopodReporterVoicesStart() {
 // system role (operator 2026-10-08: "Add a third bm_george voice for system").
 func gopodReporterVoice(host string) string {
 	rv := gopodBrobotsSettings.ReporterVoices
+	// 2026-10-30 (Butlix): a persona with another speaker's voice.
+	if of := strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf); of != "" && of != host {
+		return gopodReporterVoice(of)
+	}
 	// 2026-10-29: robots off - a Brobot's temp voice (robots_off.voices, the
 	// numpad's KP1/KP2); none picked: the unassigned voice (gopod_robots_off.go).
 	if GopodRobotsOff() && gopodIsBodiedBrobot(host) {
@@ -189,7 +193,7 @@ func gopodSayShown(host, to, text string) (string, float64, bool) {
 	rv := gopodBrobotsSettings.ReporterVoices
 	says := gopodReporterSays(text)
 	said := says
-	if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+	if gopodSpeaksAsSystem(host) {
 		said = gopodSaySwap(said, rv.SystemSayWords)
 	}
 	_, _, made := gopodReporterCached(host, said)
@@ -225,7 +229,7 @@ func gopodSayShown(host, to, text string) (string, float64, bool) {
 // the worker isn't ready or the line couldn't be made.
 func gopodReporterFile(host, text string) (string, float64, bool) {
 	// Reporter 0 (2026-10-12): Goverlord's lines get its own phonetics too.
-	if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+	if gopodSpeaksAsSystem(host) {
 		text = gopodSaySwap(text, gopodBrobotsSettings.ReporterVoices.SystemSayWords)
 	}
 	if page, seconds, ok := gopodReporterCached(host, text); ok {
@@ -567,7 +571,7 @@ func gopodSayForShownLine(host, text string) (string, float64, bool) {
 	rv := gopodBrobotsSettings.ReporterVoices
 	says := gopodReporterSays(text)
 	said := says
-	if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+	if gopodSpeaksAsSystem(host) {
 		said = gopodSaySwap(said, rv.SystemSayWords)
 	}
 	cachedPage, _, made := gopodReporterCached(host, said)

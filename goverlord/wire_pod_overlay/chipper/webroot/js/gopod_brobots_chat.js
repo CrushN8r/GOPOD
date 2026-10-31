@@ -1649,7 +1649,7 @@
           toSystem.firstChild.classList.add("from-operator");
           return toSystem;
         }
-        var head = bubbleHead((via || "Operator") + " to " + to, true);
+        var head = bubbleHead(keyShown(via || "Operator") + " to " + to, true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
@@ -5379,8 +5379,10 @@
         // 2026-10-26: and its bubble wears the red error border (.is-error).
         if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { bubbleSound("Operator", "error"); numpad.errorNext = true; }
         var t = (numpad.cfg.texts || {})[name] || name;
-        return String(t).replace(/\{(\w+)\}/g, function (m, k) { return values && values[k] != null ? values[k] : m; });
+        return String(t).replace(/\{(\w+)\}/g, function (m, k) { return values && values[k] != null ? (k === "key" ? keyShown(values[k]) : values[k]) : m; });
       }
+      // 2026-10-30: the * key's name ("KPmul") shows as KP*.
+      function keyShown(key) { return String(key).replace(/^KPmul$/i, "KP*"); }
       // A grey Goverlord bubble that adds each new message under the last.
       // 2026-10-19 (operator: "update header as per template version to,
       // '[input] to ...' = 'Numpad to ...', to match bubble template & other
@@ -6205,17 +6207,32 @@
         // "Party" the typing line kept the focus, so every numpad key was taken
         // as typing): with Numpad? ticked, the numpad's own keys are always
         // push-to-talk, even in a text box; every other key types as usual.
-        var numpadKey = /^Numpad[0-9]$/.test(ev.code) || ev.code === "NumLock";
+        var numpadKey = /^Numpad[0-9]$/.test(ev.code) || ev.code === "NumLock" || ev.code === "NumpadMultiply" || ev.code === "NumpadDivide";
         if (!numpad.on || !numpad.map || !chatShown() || (typingInBox() && !numpadKey)) { return; }
         if (numpadKey && !ev.repeat) { numpadKeySound(); }
         if (ev.code === "NumLock") {
           if (!ev.repeat) { numpadExitTap(ev.code); }
           return;
         }
-        // 2026-10-20 (operator: "upon numpad's '*' input, obey same as 'Esc' key press").
-        if (ev.code === "NumpadMultiply" && !typingInBox()) {
+        // 2026-10-30 (operator: "Numpad remap * KP0 hold -> Butlix (3 taps still
+        // exit) * * hold -> all Brobots, in the order selected * / -> skip"): / is
+        // skip (it was *, 2026-10-20: "obey same as 'Esc' key press").
+        if (ev.code === "NumpadDivide") {
           ev.preventDefault();
-          if (!ev.repeat) { skipReporters("numpad *"); }
+          if (!ev.repeat) { skipReporters("numpad /"); }
+          return;
+        }
+        // * held: push-to-talk to all the Brobots, in the order the All menu picks.
+        if (ev.code === "NumpadMultiply") {
+          ev.preventDefault();
+          if (ev.repeat || numpad.active) { return; }
+          if (numpad.pendingUp && numpad.pendingUp.key === "KPmul") {
+            clearTimeout(numpad.pendingUp.timer);
+            numpad.pendingUp = null;
+            return;
+          }
+          if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: "*" }), 3000, "Brobots"); return; }
+          numpadStart("KPmul", numpad.targets.KPmul || numpad.cfg.all_label || "All");
           return;
         }
         // GOPOD VISUAL CONTROL (2026-10-20): KP+ next feed, KP- previous (visualTurn).
@@ -6224,11 +6241,9 @@
           if (!ev.repeat) { visualTurn(ev.code === "NumpadAdd" ? "next" : "prev"); }
           return;
         }
-        // 2026-10-16 (operator: "can you extend this detection, so a long '0'
-        // press acts as the mic version of 'keyboard's 'All' radio button
-        // option?"): 0 held all_hold_seconds is push-to-talk to all the Brobots
-        // (Brobot 1 answers, then Brobot 2, like the All button); a shorter press
-        // is one of the exit taps, as before.
+        // 2026-10-16: 0 held all_hold_seconds is push-to-talk; a shorter press is
+        // one of the exit taps, as before. 2026-10-30: held, it talks to the map's
+        // KP0 - Butlix (the All Brobots moved to *).
         if (ev.code === "Numpad0") {
           ev.preventDefault();
           if (ev.repeat) { return; }
@@ -6244,7 +6259,8 @@
               numpad.zeroDown = null;
               if (numpad.active) { return; }
               if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: "KP0" }), 3000, "Brobots"); return; }
-              numpadStart("KP0", numpad.targets.KP0 || numpad.cfg.all_label || "All");
+              if (!numpad.targets.KP0) { systemStatus(numpadText("not_live", { key: "KP0", persona: "-", body: "-" }), 3000, "KP0"); return; }
+              numpadStart("KP0", numpad.targets.KP0);
               numpad.active.at = downAt;
             }, (numpad.cfg.all_hold_seconds || 0.5) * 1000)
           };
@@ -6282,6 +6298,11 @@
         numpadStart(key, target);
       });
       document.addEventListener("keyup", function (ev) {
+        if (ev.code === "NumpadMultiply" && numpad.active && numpad.active.key === "KPmul") {
+          ev.preventDefault();
+          numpad.pendingUp = { key: "KPmul", timer: setTimeout(function () { numpad.pendingUp = null; numpadRelease(); }, 60) };
+          return;
+        }
         if (ev.code === "Numpad0" && numpad.zeroDown) {
           clearTimeout(numpad.zeroDown.timer);
           numpad.zeroDown = null;

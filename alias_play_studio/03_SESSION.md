@@ -165,7 +165,7 @@ Code: `gopod_page_presence.go`, `wait_for_page` in `run_golden_song_001.py`. Loc
 ### 6.7 Skip
 
 Skip the reporters' warm-up lines with any of: **Esc** (outside the text box), the numpad's
-**\*** key, a typed **"skip"** (never sent to the Brobots), **"skip"** said into the mic, or
+**/** key, a typed **"skip"** (never sent to the Brobots), **"skip"** said into the mic, or
 **`system-skip`** (typed or menu group 1).
 
 - It stops the reporter line being said. The rest of the reporters' lines show at once, whole
@@ -173,7 +173,7 @@ Skip the reporters' warm-up lines with any of: **Esc** (outside the text box), t
   end. Then the ready message.
 - Heard markers still pass, so Wire-Pod and the songs go on.
 - Managers and Brobots are never skipped.
-- Every skip is logged with how it came in: "skipped (Esc|numpad *|typed|menu|mic)". A spoken
+- Every skip is logged with how it came in: "skipped (Esc|numpad /|typed|menu|mic)". A spoken
   skip is a `skip:` marker (`gopod_page_controls.go`).
 - Page-only (`skipReporters`).
 
@@ -206,7 +206,7 @@ edited in `story.md`) back through the live chat (`gopod_session_replay.go`):
 2. **While recording:** every chat line and answer is written; each answer is a take for the take
    sheet.
 3. **Unticked:** it stops and keeps the session (no question). The timer goes back to 0.
-4. **Thanks, or `max_minutes`:** it stops, and a Brobot asks keep or delete. The box stays
+4. **Thanks, or `max_minutes`:** it stops, and the Butler asks keep or delete (`record_session.ask_brobot`: the system speaker, 2026-10-30). The box stays
    ticked until the answer; unticking then counts as keep; no answer in `answer_wait_minutes`
    deletes.
 5. **Keep:** the takes go on the take sheet and the folder is zipped. **Delete:** it's removed.
@@ -251,11 +251,12 @@ mic fresh when it finds none (a mic plugged in later is found).
 
 ### 6.12 Battery watchdog
 
-All session long, every minute, each Brobot's battery is read and logged
-(`GOPOD_BATTERY_WATCH`). Below 3.7 V (golden rule 6), off the charger, he says he's dizzy and
-needs help getting home (`battery_watch.lines`), with his bubble - once per drop, again only
-after 3.8 V or his charger. Live chat only, at the next safe spot: never during a reply, a run
-or a draft. The watchdog stays quiet on the charger, so look at the log. Every
+All session long, every 15 s, each Brobot's battery is read and logged
+(`GOPOD_BATTERY_WATCH`), each reading tagged with the one before it. Below 3.7 V (golden rule 6),
+or a **dip** of `dip_volts` (0.15 V) since the last reading (`GOPOD_BATTERY_WATCH ... dip`), he
+says he's dizzy and needs help getting home (`battery_watch.lines`), with his bubble - once per
+drop, again only after charging or 3.8 V. Off the charger, or on it but not charging (a bad
+contact). Live chat only, at the next safe spot: never during a reply, a run or a draft. Every
 `GOPOD_ROBOT_CMD` line ends with the Brobot's last battery reading. `battery_watch` in the
 settings, `TestBatteryWatchOncePerDrop`.
 

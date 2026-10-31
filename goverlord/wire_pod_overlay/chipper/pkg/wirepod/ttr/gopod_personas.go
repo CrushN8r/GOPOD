@@ -146,4 +146,14 @@ func gopodPersonaReplyAs(host, sayAs, text, how string) {
 	gopodGomadAnswerAs(host, sayAs, text)
 }
 
+// gopodSpeaksAsSystem: host speaks with the butler's lingo (reporter_voices.
+// system_say_words) - the system speaker, or a persona with its voice (Butlix).
+func gopodSpeaksAsSystem(host string) bool {
+	sr := gopodBrobotsSettings.SignOff.SystemRole
+	if sr == "" {
+		return false
+	}
+	return host == sr || strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) == sr
+}
+
 // ## EOF

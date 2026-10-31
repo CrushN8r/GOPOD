@@ -110,7 +110,11 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 	cut := func(text string) string {
 		return strings.Join(gopodSentences(text), gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
 	}
-	for _, want := range []string{cut(gopodBrobotsSettings.RecordSession.AskText), cut(gopodBrobotsSettings.RecordSession.KeptText), `"to":"Goverlord"`} {
+	ask := gopodBrobotsSettings.RecordSession.AskText
+	if gopodBrobotsSettings.RecordSession.AskBrobot != gopodBrobotsSettings.SignOff.SystemRole {
+		ask = cut(ask) // a Brobot's bubble, cut once into its pieces
+	}
+	for _, want := range []string{ask, gopodBrobotsSettings.RecordSession.KeptText, `"to":"Goverlord"`} {
 		if !strings.Contains(string(feed), want) {
 			t.Errorf("feed is missing %q", want)
 		}

@@ -541,6 +541,8 @@ Two data blocks the code reads. Nothing else lives here.
   "spoken_rule": "Spoken output may use phonetic forms after action syntax is separated from speakable text.",
   "content_notice": ["CONTENT NOTICE (18+)", "This list contains profane and vulgar words, each paired with the substitute word GOPOD's robots speak in its place. It is published for transparency about how robot speech is filtered, and is intended for adults (18+).", "These substitutions are the project's own good-faith approach to keeping robot speech suitable for a general audience. They have not been reviewed by a qualified professional, such as a content-standards, child-safety or legal reviewer. The project considers them sufficient for their stated purpose, while recognising that a professional may take a different view. If such a professional raises a specific, substantive concern, this list will be reviewed and revised on that basis."],
   "pronunciation_entries": [
+    {"from": "Git Repo", "to": "Git Ree-poe"},
+    {"from": "PYC", "to": "pee-why-see"},
     {"from": "GOPOD", "to": "Gowp-awd"},
     {"from": "shareable", "to": "share-abble"},
     {"from": "niche", "to": "neesh"},

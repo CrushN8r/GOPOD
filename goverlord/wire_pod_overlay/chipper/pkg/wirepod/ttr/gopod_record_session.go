@@ -336,6 +336,13 @@ func gopodRecordEndAndAsk(reason string) {
 	gopodRecord.Unlock()
 	gopodWriteRecordState()
 	s := gopodBrobotsSettings.RecordSession
+	// 2026-10-30 (operator: "Butler should be asking me this"): ask_brobot the
+	// system speaker - the Butler asks, the one voiced-line template, as he says
+	// kept or deleted.
+	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" && s.AskBrobot == role {
+		gopodReporterSay(role, s.AskText, true, true)
+		return
+	}
 	gopodRecordSay(s.AskBrobot, s.AskText)
 }
 

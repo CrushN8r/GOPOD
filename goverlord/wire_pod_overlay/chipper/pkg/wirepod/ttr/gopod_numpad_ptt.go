@@ -93,6 +93,11 @@ func GopodNumpadMapJSON() ([]byte, error) {
 		} else {
 			targets[key] = ""
 		}
+		if n == 9 {
+			if label, _, err := gopodNumpadBrobot(gopodNumpadAllKey); err == nil {
+				targets[gopodNumpadAllKey] = label
+			}
+		}
 		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
 		if label, _, err := gopodNumpadBrobot(key + gopodNumlockOffSuffix); err == nil {
 			targets[key+gopodNumlockOffSuffix] = label
@@ -108,8 +113,11 @@ func GopodNumpadMapJSON() ([]byte, error) {
 // gopodNumpadBrobot: the Brobot and ESN a live NumLock-on key talks to.
 func gopodNumpadBrobot(key string) (string, string, error) {
 	// 2026-10-16 (operator: "a long '0' press acts as the mic version of
-	// 'keyboard's 'All' radio button option"): 0 held talks to all the Brobots.
-	if key == "KP0" {
+	// 'keyboard's 'All' radio button option"): held, it talks to all the Brobots.
+	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> Butlix (3 taps still
+	// exit) * * hold -> all Brobots, in the order selected * / -> skip"): that is
+	// the * key now (gopodNumpadAllKey); KP0 is the map's (Butlix).
+	if strings.EqualFold(key, gopodNumpadAllKey) {
 		label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.AllLabel)
 		if label == "" {
 			label = "All"
@@ -121,7 +129,8 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 		return "", "", err
 	}
 	// 2026-10-30: a NumLock-off key - a live persona in its reporter suit.
-	if base, off := strings.CutSuffix(key, gopodNumlockOffSuffix); off {
+	if base, off := strings.CutSuffix(strings.ToLower(key), gopodNumlockOffSuffix); off {
+		base = strings.ToUpper(base)
 		entry, ok := m.NumlockOff[base]
 		host := gopodPersonaFor(entry.Persona)
 		if !ok || entry.Status != "live" || entry.Suit != "reporter" || host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
@@ -157,6 +166,9 @@ const gopodPersonaMark = "persona:"
 // gopodPersonaReporterMark: a numpad "ESN" that is a persona in its reporter
 // suit - it answers as its reporter (managers.personas.<host>.reporter).
 const gopodPersonaReporterMark = "persona-reporter:"
+
+// gopodNumpadAllKey: the numpad's * key held - all the Brobots, in the order selected.
+const gopodNumpadAllKey = "KPmul"
 
 // gopodNumlockOffSuffix: a key pressed with NumLock off ("KP7off").
 const gopodNumlockOffSuffix = "off"

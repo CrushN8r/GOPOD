@@ -59,12 +59,13 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 	if json.Unmarshal(data, &out) != nil {
 		t.Fatal("no targets for the page")
 	}
-	for key, want := range map[string]string{"KP0": "All", "KP1": "Brobot 1", "KP2": "Brobot 2", "KP3": "GIT REPO", "KP4": "CACHE PYC",
+	// 2026-10-30 (the numpad remap): KP0 held is Butlix, * held is All.
+	for key, want := range map[string]string{"KP0": "BUTLIX", gopodNumpadAllKey: "All", "KP1": "Brobot 1", "KP2": "Brobot 2", "KP3": "GIT REPO", "KP4": "CACHE PYC",
 		"KP5": "INTEL 404 PNFH", "KP6": "INTEL 404 PNFT", "KP7": "CHALK", "KP8": "PLAYHEAD", "KP9": "CAMEO"} {
 		if got := out.Targets[key]; got != want {
 			t.Errorf("%s -> %q, want %q", key, got, want)
 		}
-		if gopodReporterVoice(want) == "" && key != "KP0" && key != "KP1" && key != "KP2" {
+		if gopodReporterVoice(want) == "" && key != gopodNumpadAllKey && key != "KP1" && key != "KP2" {
 			t.Errorf("%s (%s) has no voice", key, want)
 		}
 	}

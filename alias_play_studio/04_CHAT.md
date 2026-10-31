@@ -94,9 +94,13 @@ menu (🔊), and turns it off and closes it (🔇).
   to slip on purpose now and then - a wrong name, a mangled word - then land the point clearly.
   Clarity through confusion. Waits for the operator's go.
   KP+ and KP- turn the
-  camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The \* key skips ([6.7](03_SESSION.md#67-skip)).
+  camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The **/** key skips ([6.7](03_SESSION.md#67-skip)). **\*** held is all the
+  Brobots, in the order the All menu picks; **KP0** held is Butlix, the Butler (3 quick taps still
+  leave numpad mode) (2026-10-30).
 - Three taps of 0 (or NumLock) leave numpad mode; Goverlord says "Goverlord has released the
   numpad."
+- **Every Operator line** - typed or the numpad's, to anyone - is one template: its header 100%,
+  its words 75% of it (2026-10-30).
 - **Its status bubble is an Operator bubble,** headed "Numpad to <who>": the status lines
   (`numpad_ptt.texts`: "KP7 to CHALK", keep holding…, Recording for CHALK, Got it -
   transcribing…), then the words, with "Generating..." and the hourglass while they're read
@@ -568,7 +572,7 @@ line:
   bubble, until its voice plays; then its words. "off" (voice failed) shows the words.
 - one Generating look everywhere - the text, then the hourglass, the text's own
   height, on its line (`.voice-wait`; `voiceWaitOn` and `slotWaiting`).
-- A skip's end (Esc, numpad *, `system-skip`) takes the chat to its bottom (`skipEndScroll`).
+- A skip's end (Esc, numpad /, `system-skip`) takes the chat to its bottom (`skipEndScroll`).
 - **One question at a time** (`line_queue`): every question - typed, numpad, a persona's, the comm
   check's - takes its turn in the order they came; the next starts only when this one is complete: a
   line from each one asked (his answer), then the page has played it all (when a page is here).
@@ -576,7 +580,7 @@ line:
   bubble of whoever it's to, so a reply still on its way keeps its own. `TestLineQueue`. The page replay
   lists each bubble kind with its parts in order - one kind built more than one way shows up there
   (BUBBLE TEMPLATE CHECK).
-- **The skip gate** (`skip_gate`): every skip (Esc, numpad *, the menu, typed or
+- **The skip gate** (`skip_gate`): every skip (Esc, numpad /, the menu, typed or
   spoken "skip") is off until the gate opens. A skip while off does
   nothing (logged: skip ignored). no words matched - Wire-Pod opens it as the opener's message
   step right after the voice files check (`wait_voices`) shows, whatever its words

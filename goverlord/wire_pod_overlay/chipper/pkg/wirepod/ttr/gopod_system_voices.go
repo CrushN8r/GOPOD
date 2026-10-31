@@ -44,7 +44,7 @@ func gopodVoicesNeeded() []string {
 	var out []string
 	check := func(host, text string) {
 		says := gopodReporterSays(text)
-		if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" && host == sr {
+		if gopodSpeaksAsSystem(host) {
 			says = gopodSaySwap(says, gopodBrobotsSettings.ReporterVoices.SystemSayWords)
 		}
 		if _, _, ok := gopodReporterCached(host, says); !ok {

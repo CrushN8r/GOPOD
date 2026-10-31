@@ -422,6 +422,9 @@ type gopodBrobotsSettingsFile struct {
 			WhoLine   string `json:"who_line"`
 			// 2026-10-28: its bits still in the works (gopodPersonaWIP).
 			WIP []string `json:"wip"`
+			// 2026-10-30 (Butlix): the speaker whose voice and lingo it speaks with,
+			// in its own bubble - Butlix, the butler's (sign_off.system_role).
+			VoiceOf string `json:"voice_of"`
 		} `json:"personas"`
 		WIPText  string   `json:"wip_text"`
 		WhoWords []string `json:"who_words"`
@@ -937,6 +940,8 @@ type gopodBrobotsSettingsFile struct {
 		IntervalSeconds float64             `json:"interval_seconds"`
 		LowVolts        float64             `json:"low_volts"`
 		RecoverVolts    float64             `json:"recover_volts"`
+		// 2026-10-30: a drop this big between two readings is a dip.
+		DipVolts float64 `json:"dip_volts"`
 		Lines           map[string][]string `json:"lines"`
 		Guards          map[string]string   `json:"guards"`
 		GuardWarning    string              `json:"guard_warning"`
@@ -1033,7 +1038,7 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	check(len(s.RecordSession.KeepWords) > 0, "record_session.keep_words")
 	check(len(s.RecordSession.DeleteWords) > 0, "record_session.delete_words")
 	check(strings.TrimSpace(s.RecordSession.AnswerTo) != "", "record_session.answer_to")
-	check(gopodBrobotESN(s.RecordSession.AskBrobot) != "", "record_session.ask_brobot")
+	check(gopodBrobotESN(s.RecordSession.AskBrobot) != "" || (s.SignOff.SystemRole != "" && s.RecordSession.AskBrobot == s.SignOff.SystemRole), "record_session.ask_brobot")
 	check(strings.TrimSpace(s.RecordSession.AskText) != "", "record_session.ask_text")
 	check(gopodBrobotESN(s.RecordSession.ConfirmBrobot) != "", "record_session.confirm_brobot")
 	check(strings.TrimSpace(s.RecordSession.KeptText) != "", "record_session.kept_text")

@@ -80,7 +80,7 @@ system commands (typed on this keyboard):
   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
   system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
   system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now
-  system-comm-check                 the pre-show comm check: KP1-KP9 held in turn, live - who they are, about vs all about, each other, the interns
+  system-comm-check                 the pre-show comm check: the whole numpad held in turn (KP0 Butlix, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
   system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)
   system-help                       this list

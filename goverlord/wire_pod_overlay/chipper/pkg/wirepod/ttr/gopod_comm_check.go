@@ -98,7 +98,10 @@ func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
 			}
 		}
 		gopodChatFeed.Unlock()
-		if found {
+		// 2026-10-30 (live 15:48:04: KP8 started while CHALK's voice was still
+		// being made - his line was on the feed, his answer wasn't over): his
+		// line on the feed, and his answer ended - made, said, heard.
+		if found && !gopodAnswerGoing([]string{who}) {
 			return
 		}
 	}
@@ -160,6 +163,15 @@ func gopodSystemCommCheck() string {
 			answerer := label
 			if strings.HasPrefix(target, gopodPersonaMark) {
 				answerer = strings.TrimPrefix(target, gopodPersonaMark)
+			}
+			// 2026-10-30 (the full numpad: * held is All): All's line is answered
+			// by both Brobots, Brobot 1 then Brobot 2 - it ends with Brobot 2's
+			// (solo, Brobot 1's).
+			if target == gopodTypedAll {
+				answerer = "Brobot 2"
+				if gopodSolo() {
+					answerer = "Brobot 1"
+				}
 			}
 			if strings.HasPrefix(target, gopodPersonaMark) {
 				host := strings.TrimPrefix(target, gopodPersonaMark)

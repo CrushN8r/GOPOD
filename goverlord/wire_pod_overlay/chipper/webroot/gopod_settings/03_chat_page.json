@@ -112,7 +112,8 @@
     "focus_dead_zone": 0.25,
     "countdown_hold_ms": 3000,
     "countdown_hold_most_ms": 20000,
-    "voice_lit_wait_ms": 15000,
+    "voice_lit_wait_ms_about": "2026-10-30 (CLOCK_AUDIT_001.md, live 15:48: CHALK's long answer's voice took 22 s to make; at 15 s his words showed whole, before his voice): a voiced line waits for its own voice - Wire-Pod says \"off\" when one fails; this is only the guard against a hang. 15000 -> 120000.",
+    "voice_lit_wait_ms": 120000,
     "marquee_spacing_px": 22,
     "marquee_inset_px": 9,
     "marquee_pattern_ms": 5000,
@@ -162,7 +163,8 @@
   "bubble_notices": {
     "about": "2026-10-22 (operator: \"make standard, the Notice-bubble inside a Brobot's bubble\"; \"template out what goes in a notice-bubble\"): what goes in each notice at the top of a Brobot's bubble (the bubble notice template, gopodBubbleNotice: a title, then its lines, each on its own row; a notice with the same title takes more lines underneath). value_points: every live Brobot answer - what his answer is built from, that the GOPOD reps are hired to reveal - its parts in this order: points (one per value point given: {id} topic#n, {words}), weather ({line}), search ({search}), none (no value point), got_it ({thinking_text} = chat_moves.thinking_text, added once he has said it). egg: a found egg ({title}, {summary}). native_intent: a native Wire-Pod intent ({intent}). An empty title = that notice is off; a part left out of parts isn't shown.",
     "value_points": {
-      "title": "Value Points",
+      "title_about": "2026-10-30 (operator: \"Rename Value Points to [persona-(nick)name] Brain * Brobot 1: Brain, CHALK: Brain, etc... * NEW CORE TEMPLATE RULE: everybody gets a brain bubble\"): {name} is the persona's.",
+      "title": "{name} Brain",
       "log_about": "2026-10-25 (operator: \"move these brobots spoken parts, out of notice-bubble, into and as part of the brobot response\"): his opener (Got it! / Nice try, ...!) is no longer a notice line - it opens his response bubble (gopodOpenerFirst); the notice still waits for it to be said. 2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
       "parts": ["plan", "points", "summary", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score"],
       "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
