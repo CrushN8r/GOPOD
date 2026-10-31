@@ -20,6 +20,7 @@ whether it's locked yet.
 | **Derailleurs** | The switches that move the chain live: `start <run>`, stop run, Esc, skip, the thanks ending, `system-` commands | [20.4](#204-the-derailleurs-shifting-live) |
 | **Chain** | The master chat queue: everything shown belongs to a turn, and turns run one at a time, each to its end | [20.5](#205-the-chain-the-master-chat-queue) |
 | **A second chainring set: the live game** | Opener → rounds (a question, its answer, value points, eggs, a reminder) → grand prizes → closer | [20.8](#208-the-live-game-gear) |
+| **The rider's memory** | The brain chain: short and long term, self and chat, and the flow | [20.9](#209-memory-short-and-long-term-self-and-chat) |
 | **Teeth** | The values in the settings folder (`webroot/gopod_settings/`) and each song's `knobs.json` | [20.6](#206-the-teeth-values-not-code) |
 
 ### 20.2 The chainrings: opener, run, closer
@@ -113,6 +114,31 @@ out. GOPOD Yourself after that.
 chat participant follows - the minimum requirement is basic chat participation awareness: who
 they're chatting with, and about what. Today only the Gomads get the who / where /
 what's-going-on line (`gopodHereNow`).
+
+### 20.9 Memory: short and long term, self and chat
+
+Big brains are code, so the language model doesn't have to think and is free to add the persona's
+style. Every participant answers from the same clean, code-made memory (2026-10-31, the brain chain,
+`gopod_brain_chain.go`, settings `brain_chain`):
+
+| Memory | What it holds | Made from | Where it shows |
+|---|---|---|---|
+| **Self, long term** | who I am: nickname, name, job title, role, who helps me; my voice and banter | my profile (the master format) | my prompt; my brain bubble's Self line |
+| **Self, short term** | what I'm asked right now, and the task | the line, the intro recipe, the take | my prompt; my brain bubble's Task line |
+| **Chat, short term** | the last few answers: who asked, who answered, the line, its kind | the brain chain's last `short_term` (4) records | every prompt; the brain bubble's "Last:" line |
+| **Chat, long term** | the session so far: the game's score, the runs Doc and Pip performed (kept until the session ends), who has spoken, who's introduced | the whole chain and the game | every prompt; the brain bubble's "Session:" line |
+| **Flow** | one or two helper lines for what comes next | the chain: an intro, the first to speak, who just spoke | every prompt; the brain bubble's "Flow:" line |
+
+- **Clean:** a record is made by code, never by the model - no earlier answer's colour is carried on.
+  The Gomads get the brain instead of the raw chat (`gomads_raw_chat` false); the Brobots keep their
+  own shared chat and get the brain on top.
+- **Kept:** the session folder keeps `brain_chain.jsonl`; the game's reset (the thanks ending, the
+  comm check's end) starts a new chain.
+- **Seen:** `GOPOD_BRAIN` lines in the journal - each record, and what each prompt was fed.
+  `system-brain` shows the chain.
+- **The KP test run** (`system-comm-check`) is the diagnostic: every key's answer is a record, every
+  prompt's brain is logged, and the run shows whether the cleanest sufficient data set reaches each
+  participant. `TestBrainChain`.
 
 ---
 

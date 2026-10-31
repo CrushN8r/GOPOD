@@ -188,55 +188,59 @@
       // * template drop down menu selection with default brobot 1/'Starting with
       // Brobot 2'"): All is a small 1/2 menu - who answers first (typed_line.all_first,
       // the same rule as "Starting with Brobot 2"); choosing it is choosing All.
+      // 2026-10-31 (operator: "new: Brobots [x] All [menu] [Type to the Brobot,
+      // press Enter] * [x] = checked checkbox for 'All' (1 or 2 as selected) * [ ] =
+      // unchecked checkbox for 0-9 * Better? Less complexity? * ensure visitor app
+      // page follows updates"): one box and one menu. All ticked: both Brobots, the
+      // menu's 1 or 2 first. Unticked: the menu's number is who the line is to - 0
+      // the system (the admin's), 1 Brobot 1, 2 Brobot 2, 3 to 9 that numpad key's
+      // persona (gopodTypedToKey). 2026-10-31 (operator: "[x] = checked, with other
+      // than 1 or 2 selected, defaults to 1 then 2"): All ticked with 0 or 3-9 picked
+      // is All, Brobot 1 first (the menu shows 1 when the box is ticked). The visitor
+      // page is this same code.
       var allFirstSelect = null;
-      Object.keys(TYPED_TARGETS).forEach(function (esn) {
+      var allBox = document.createElement("input");
+      (function () {
         var label = document.createElement("label");
-        var radio = document.createElement("input");
-        radio.type = "radio";
-        radio.name = "gopod-typed-robot";
-        radio.value = esn;
-        radio.checked = esn === savedRobot;
-        label.appendChild(radio);
-        if (esn === "all") {
-          radio.className = "gopod-all-radio";
-          label.className = "gopod-all-pick";
-          label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
-          allFirstSelect = document.createElement("select");
-          allFirstSelect.className = "gopod-all-first";
-          allFirstSelect.title = "";
-          // 2026-10-28 (operator: "Extend brobots selection drop down menu from 1
-          // to 9 * so I can communicate via keyboard to all * so app users can
-          // communicate to all as well"): 1 and 2 stay All, starting with that
-          // Brobot; 3 to 9 send the line to that numpad key's persona (KP3-KP9),
-          // as holding the key does (gopodTypedToKey).
-          // 2026-10-29 (operator: "add a 0 to the All drop down menu for system
-          // calls * bypass '0' on app visitor pages"): 0 - the system itself, the
-          // admin's only (shown once Wire-Pod says this page is the admin's).
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
-            var o = document.createElement("option");
-            o.value = n;
-            o.textContent = n;
-            if (n === "0") { o.className = "gopod-all-system"; o.hidden = true; o.disabled = true; }
-            allFirstSelect.appendChild(o);
-          });
-          allFirstSelect.value = "1";
-          ["focus", "change", "mousedown"].forEach(function (ev) {
-            allFirstSelect.addEventListener(ev, function () { radio.checked = true; });
-          });
-          label.appendChild(allFirstSelect);
-          // 2026-10-24 (operator: "In visitor brobots row ... after drop down menu add
-          // a submit button for typed text * make submit button the same smaller font
-          // size"): a visitor's Submit, after the menu (gopod_responsive.css).
-          var typedSubmit = document.createElement("button");
-          typedSubmit.type = "submit";
-          typedSubmit.className = "gopod-typed-submit";
-          typedSubmit.textContent = "";
-        } else {
-          label.appendChild(document.createTextNode(TYPED_TARGETS[esn]));
-        }
+        label.className = "gopod-all-pick";
+        allBox.type = "checkbox";
+        allBox.className = "gopod-all-box";
+        allBox.checked = savedRobot === "all";
+        label.appendChild(allBox);
+        label.appendChild(document.createTextNode(TYPED_TARGETS.all));
+        allFirstSelect = document.createElement("select");
+        allFirstSelect.className = "gopod-all-first";
+        allFirstSelect.title = "";
+        ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
+          var o = document.createElement("option");
+          o.value = n;
+          o.textContent = n;
+          if (n === "0") { o.className = "gopod-all-system"; o.hidden = true; o.disabled = true; }
+          allFirstSelect.appendChild(o);
+        });
+        allFirstSelect.value = "1";
+        allBox.addEventListener("change", function () {
+          if (allBox.checked && allFirstSelect.value !== "1" && allFirstSelect.value !== "2") { allFirstSelect.value = "1"; }
+        });
+        label.appendChild(allFirstSelect);
         typedRow.appendChild(label);
-        if (esn === "all") { typedRow.appendChild(typedSubmit); }
-      });
+        // 2026-10-24: a visitor's Submit, after the menu (gopod_responsive.css).
+        var typedSubmit = document.createElement("button");
+        typedSubmit.type = "submit";
+        typedSubmit.className = "gopod-typed-submit";
+        typedSubmit.textContent = "";
+        typedRow.appendChild(typedSubmit);
+      })();
+      // typedChoice: who the line goes to now - its serial, and who answers first.
+      function typedChoice() {
+        var n = allFirstSelect ? allFirstSelect.value : "1";
+        if (allBox.checked && (n === "1" || n === "2")) { return { serial: "all", first: n }; }
+        if (allBox.checked) { return { serial: "all", first: "1" }; }
+        if (n === "0") { return { serial: "system", first: "" }; }
+        if (n === "1") { return { serial: "ESN01", first: "" }; }
+        if (n === "2") { return { serial: "ESN02", first: "" }; }
+        return { serial: "kp:" + n, first: "" };
+      }
       // A line to All, sent with Brobot 2 first: its Operator icons in that order.
       var allSecondFirst = {};
       typedRowText("|", "gopod-typed-sep");
@@ -483,8 +487,7 @@
       typedRow.addEventListener("submit", function (ev) {
         ev.preventDefault();
         var text = typedText.value.trim();
-        var chosen = typedRow.querySelector("input[name=gopod-typed-robot]:checked");
-        if (!text || !chosen) { return; }
+        if (!text) { return; }
         typedText.value = "";
         // 2026-10-20 (operator: "Goverlord should know by context what a skip
         // command means * upon 'skip' input, obey same as 'Esc' key press"): a
@@ -493,12 +496,13 @@
         // system-numpad on|off: the numpad is this page's - switched here too.
         var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(text);
         if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
-        sendTypedLine(chosen.value, text);
+        sendTypedLine("", text);
       });
+      // serial "": the line's box and menu choose (typedChoice); "system": the system's.
       function sendTypedLine(serial, text) {
-        var first = serial === "all" && allFirstSelect ? allFirstSelect.value : "";
-        if (Number(first) >= 3) { serial = "kp:" + first; first = ""; }
-        if (first === "0") { serial = "system"; first = ""; }
+        var c = serial ? { serial: serial, first: "" } : typedChoice();
+        serial = c.serial;
+        var first = c.first;
         if (first === "2") { allSecondFirst[text] = true; }
         fetch("/api-sdk/gopod_typed_input", {
           method: "POST",
@@ -5663,8 +5667,7 @@
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
                 // 2026-10-29: a system window click is the system's, whoever is picked
                 // (a system- command typed to anyone but 0 gets Goverlord's sting).
-                var chosen = typedRow.querySelector("input[name=gopod-typed-robot]:checked");
-                sendTypedLine(/^system-/i.test(it.cmd) ? "system" : (chosen ? chosen.value : "all"), it.cmd);
+                sendTypedLine(/^system-/i.test(it.cmd) ? "system" : "", it.cmd);
               } else {
                 typedText.value = it.fill != null ? it.fill : it.cmd + " ";
                 typedText.focus();

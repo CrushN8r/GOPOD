@@ -208,10 +208,10 @@ func gopodPersonaProfileField(who, label string) string {
 // & chat awareness"): a Gomad's brain bubble, at the top of its own bubble - the
 // same title as a Brobot's ("{name} Brain"), its lines from
 // bubble_notices.gomad_brain: {name} {fullname} {job} {asked} {task} {cast}.
-func gopodGomadBrain(host, to, task string) {
+func gopodGomadBrain(host, to, task, question string) {
 	gb := gopodBrobotsSettings.BubbleNotices.GomadBrain
 	title := strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title)
-	if len(gb.Lines) == 0 || title == "" {
+	if title == "" {
 		return
 	}
 	name := gopodCallName(host)
@@ -231,7 +231,9 @@ func gopodGomadBrain(host, to, task string) {
 	fill := strings.NewReplacer("{name}", name, "{fullname}", gopodBrobotsSettings.HostPersonas[host].Name, "{job}", job,
 		"{asked}", gb.Asked, "{task}", task, "{cast}", strings.Join(cast, ", "))
 	title = strings.ReplaceAll(title, "{name}", name)
-	for _, l := range gb.Lines {
+	lines := append([]string(nil), gb.Lines...)
+	lines = append(lines, gopodBrainBubbleLines(host, question)...)
+	for _, l := range lines {
 		if line := strings.TrimSpace(fill.Replace(l)); line != "" && !strings.HasSuffix(line, ":") {
 			gopodBubbleNotice(to, title, line)
 		}

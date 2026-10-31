@@ -153,11 +153,20 @@ func TestPersonaProfiles(t *testing.T) {
 // 2026-10-31: a Gomad's answer is the words said - stage notes, quote marks and
 // "I say" tags come out.
 func TestPersonaAnswerClean(t *testing.T) {
+	// A real parenthesis stays; only stage notes go.
+	if got := gopodPersonaStageRE.ReplaceAllString("Intel 404 (Page Not Found Here) on duty (laughs).", ""); got != "Intel 404 (Page Not Found Here) on duty ." {
+		t.Errorf("stage notes: %q", got)
+	}
+	// An answer that opens with the question starts after it.
+	if got := gopodStripEcho("Hey PLAYHEAD! You party animal! Introduce yourself fully. I'm PLAYHEAD.", "Hey PLAYHEAD! You party animal! Introduce yourself fully to the chat"); got != "I'm PLAYHEAD." {
+		t.Errorf("echo: %q", got)
+	}
 	in := `"Intel 404 PNFT here," I say flatly, "on patrol." [The operator greets me.] Done (chuckles).`
 	got := gopodPersonaStageRE.ReplaceAllString(in, "")
 	got = gopodPersonaSayTagRE.ReplaceAllString(got, "")
 	got = strings.Join(strings.Fields(strings.NewReplacer("“", "", "”", "", "\"", "").Replace(got)), " ")
-	if got != "Intel 404 PNFT here, on patrol. Done ." && got != "Intel 404 PNFT here on patrol. Done ." {
+	got = gopodPersonaGapRE.ReplaceAllString(got, "$1")
+	if got != "Intel 404 PNFT here, on patrol. Done." && got != "Intel 404 PNFT here on patrol. Done." {
 		t.Fatalf("clean: %q", got)
 	}
 }
@@ -169,12 +178,19 @@ func TestIntroRecipe(t *testing.T) {
 	tester := "Hey Pip! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"
 	for _, who := range []string{"Brobot 2", "CACHE PYC", "BUTLER"} {
 		r := gopodIntroRecipe(who, tester)
-		if !strings.Contains(r, "My informal name (nickname)") || !strings.Contains(r, "Doc") && who != "Brobot 1" {
+		// 2026-10-31: the facts without their labels, and no operator in the list.
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || !strings.Contains(r, "Doc") && who != "Brobot 1" {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {
 			t.Errorf("%s's intro recipe has an unfilled label: %q", who, r)
 		}
+	}
+	if r := gopodIntroRecipe("BUTLER", tester); !strings.Contains(r, `"I'm KEYNOTE VALE, my nickname is Keys, because I hold all the keys."`) {
+		t.Errorf("the Butler's opening: %q", r)
+	}
+	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm Cameo."`) {
+		t.Errorf("Cameo's opening (no nickname, no why): %q", r)
 	}
 	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {
 		t.Errorf("not an intro: %q", r)
@@ -199,4 +215,40 @@ func TestSourceCheck(t *testing.T) {
 		}
 	}
 	t.Logf("%d checked, %d to come", checked, len(problems))
+}
+
+// 2026-10-31: the brain chain - every answer a code-made record; the prompt's
+// brain has short-term, long-term and the flow; the bubble shows them; a reset
+// starts a new chain.
+func TestBrainChain(t *testing.T) {
+	gopodBrainReset()
+	defer gopodBrainReset()
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "first to speak") {
+		t.Errorf("an empty chain's flow: %q", b)
+	}
+	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
+	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
+	b := gopodBrainText("Pip", "Hey Pip! Introduce yourself fully")
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself", "Doc just spoke"} {
+		if !strings.Contains(b, want) {
+			t.Errorf("brain has no %q:\n%s", want, b)
+		}
+	}
+	if l := gopodBrainBubbleLines("Pip", "hey"); len(l) != 3 || !strings.HasPrefix(l[0], "Last: Doc") {
+		t.Errorf("brain bubble lines: %v", l)
+	}
+	// A run the Brobots performed: in their long-term memory, kept by a game
+	// reset (the comm check's), gone with the session (the thanks ending).
+	gopodBrainPerformed("Bingo Test Live", "done")
+	if b := gopodBrainText("Doc", "hey"); !strings.Contains(b, "Performed by Doc and Pip: Bingo Test Live") {
+		t.Errorf("no performed run in the brain:\n%s", b)
+	}
+	gopodBrainReset(true)
+	if r := gopodBrainSnapshot(); len(r) != 1 || r[0].Kind != "performed" {
+		t.Errorf("a game reset keeps only the performed runs: %v", r)
+	}
+	gopodBrainReset()
+	if len(gopodBrainSnapshot()) != 0 {
+		t.Error("the reset kept the chain")
+	}
 }

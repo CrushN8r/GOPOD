@@ -58,6 +58,11 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   words - the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences),
   each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
   for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
+- **The intro presentation (2026-10-31):** each intro opens with a sentence made by code from the
+  profile - "I'm [name], my nickname is [nickname], because [why]." (formal name, informal
+  nickname, the profile head's `why`; each part left out when blank: `intro_recipe.opening`,
+  `nickname_part`, `why_part`) - then his job, role and who helps him (the interns) in his own
+  words, then who's here.
 - **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about
   yourself") gets the recipe: introduce yourself in your own voice, in your profile's Self order -
@@ -330,8 +335,11 @@ pop-up.
 Each Brobot in his own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C /
 24-hour). For a weather question with a value point the model is asked for two paragraphs:
 the weather line, then the point (`chain_prompts`). The typed line's All menu (1-9; 1/2 below) - who
-answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2"); the All radio
-stays, the menu beside it. Hand-over
+answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2"). **The typing line
+(2026-10-31):** "Brobots [x] All [menu] [Type to the Brobot, press Enter]" - All ticked: both
+Brobots, the menu's 1 or 2 first (any other number picked: 1 first, then 2); unticked: the menu's
+number is who the line is to - 0 the system (the admin's), 1 Brobot 1, 2 Brobot 2, 3-9 that key's
+persona. The visitor app page is the same code. Hand-over
 nicknames: gear-head, cranky-shaft, coolant-leak, incompatible-particulate, fumble-nuts.
 
 **Core topics, background, eggs**: seven core topics - Who we

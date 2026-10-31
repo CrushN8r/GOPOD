@@ -29,20 +29,60 @@ func gopodIsIntro(text string) bool {
 }
 
 // gopodIntroRecipe: the recipe for who, "" when the line isn't an intro.
+// 2026-10-31 (operator: "names vs nicknames = formal vs informal * I'm KEYNOTE
+// VALE, my nickname is Keys because I hold all the Keys * [name][nickname]
+// [nickname-history/why-that-nickname] * skipped if blank * > interns"): the
+// opening is made by code from his profile - his name (formal), his nickname
+// (informal) and why, each part left out when blank (intro_recipe.opening,
+// nickname_part, why_part); then his job, role and who helps him ({facts}), in
+// his own words; then who's here ({cast}).
 func gopodIntroRecipe(who, text string) string {
 	ir := gopodBrobotsSettings.IntroRecipe
 	if strings.TrimSpace(ir.Text) == "" || !gopodIsIntro(text) {
 		return ""
 	}
-	self := gopodPersonaFill(who, strings.Join(gopodPersonaProfileSections(who)["Self"], " "))
-	return strings.TrimSpace(strings.NewReplacer("{self}", self, "{cast}", gopodIntroCast(who)).Replace(ir.Text))
+	field := func(label string) string { return gopodPersonaProfileField(who, label) }
+	first := func(v string) string {
+		if at := strings.Index(v, " - "); at > 0 {
+			v = v[:at]
+		}
+		if at := strings.Index(v, ". "); at > 0 {
+			v = v[:at]
+		}
+		return strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(v), "."))
+	}
+	head, _ := gopodPersonaProfileRead(gopodPersonaProfileFile(who))
+	name := first(field("My name"))
+	if name == "" {
+		name = head["label"]
+	}
+	nick := first(field("My informal name (nickname)"))
+	opening := strings.ReplaceAll(ir.Opening, "{name}", name)
+	part := ""
+	if nick != "" && !strings.EqualFold(nick, name) {
+		part = strings.ReplaceAll(ir.NicknamePart, "{nickname}", nick)
+		if why := strings.TrimSpace(gopodPersonaFill(who, head["why"])); why != "" {
+			part += strings.ReplaceAll(ir.WhyPart, "{why}", why)
+		}
+	}
+	opening = strings.TrimSpace(strings.ReplaceAll(opening, "{nickname_part}", part))
+	var facts []string
+	for _, label := range []string{"My job title", "My role", "Who helps me"} {
+		if v := strings.TrimSuffix(strings.TrimSpace(field(label)), "."); v != "" {
+			facts = append(facts, v)
+		}
+	}
+	return strings.TrimSpace(strings.NewReplacer("{opening}", opening, "{facts}", strings.Join(facts, "; "),
+		"{self}", strings.Join(facts, "; "), "{cast}", gopodIntroCast(who)).Replace(ir.Text))
 }
 
 // gopodIntroCast: everyone else in the chat, by the names they're called.
 func gopodIntroCast(who string) string {
 	var cast []string
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
-		if c.Who != who {
+		// 2026-10-31: the operator is who's asking (brain_chain.asked), not one
+		// more name in the list (live: "Brobot 0" and "Master CrushN8r" both named).
+		if c.Who != who && c.Who != gopodBrobotsSettings.BrainChain.OperatorWho {
 			cast = append(cast, gopodCallName(c.Who))
 		}
 	}

@@ -1,6 +1,7 @@
 # Intel 404 PNFH
 - **nickname:** Buzzer
 - **job:** Security guard
+- **why:** it's my call-sign, like an entry buzzer
 - **words:** buzzer, pnfh, intel 404
 - **ask:** Tell me about yourself
 

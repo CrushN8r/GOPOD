@@ -1,6 +1,7 @@
 # Intel 404 PNFT
 - **nickname:** Switch
 - **job:** Security guard
+- **why:** it's my call-sign, like a light or system switch
 - **words:** switch, pnft, intel 404
 - **ask:** Tell me about yourself
 

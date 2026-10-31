@@ -323,6 +323,8 @@ type gopodBrobotsSettingsFile struct {
 		// said in chunks of whole sentences - one bubble, a line each, its own
 		// voice (gopodSpokenChunks, gopodSayLinesInBubble). 0: never.
 		ChunkWords int `json:"chunk_words"`
+		// 2026-10-31: a sentence shorter than this joins the next chunk.
+		ChunkMinWords int `json:"chunk_min_words"`
 		MaxWaitSeconds     float64           `json:"max_wait_seconds"`
 		HeardMarginSeconds float64           `json:"heard_margin_seconds"`
 		// 2026-10-14: "Generating..." while a shown line's voice is made (gopodSayShown: the line waits in its own bubble).
@@ -608,6 +610,25 @@ type gopodBrobotsSettingsFile struct {
 		// allowed from min_share of the dial up.
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
+	// 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
+	BrainChain struct {
+		Header        string            `json:"header"`
+		ShortHeader   string            `json:"short_header"`
+		ShortTerm     int               `json:"short_term"`
+		RecordLine    string            `json:"record_line"`
+		LongLine      string            `json:"long_line"`
+		FlowLine      string            `json:"flow_line"`
+		Flow          map[string]string `json:"flow"`
+		BubbleLines   []string          `json:"bubble_lines"`
+		Asked         string            `json:"asked"`
+		None          string            `json:"none"`
+		QuestionChars int               `json:"question_chars"`
+		GomadsRawChat bool              `json:"gomads_raw_chat"`
+		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
+		OperatorWho string `json:"operator_who"`
+		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
+		Performers string `json:"performers"`
+	} `json:"brain_chain"`
 	// 2026-10-31: the system bubbles' header, for the source check (the page fills it).
 	SystemBubble struct {
 		Label        string `json:"label"`
@@ -618,6 +639,10 @@ type gopodBrobotsSettingsFile struct {
 		Words []string `json:"words"`
 		Text  string   `json:"text"`
 		Task  string   `json:"task"`
+		// 2026-10-31: the opening, made by code: "I'm {name}{nickname_part}."
+		Opening      string `json:"opening"`
+		NicknamePart string `json:"nickname_part"`
+		WhyPart      string `json:"why_part"`
 	} `json:"intro_recipe"`
 	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
 	PersonaProfiles struct {

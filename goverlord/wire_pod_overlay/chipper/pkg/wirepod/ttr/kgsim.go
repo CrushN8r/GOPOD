@@ -241,8 +241,9 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)
 		gopodIntroFor.Store(esn, intro != "")
-		if intro != "" {
-			smsg.Content += "\n\n" + intro
+		// GOPOD 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
+		if b := gopodBrainText(gopodBrobotName(esn), transcribedText); b != "" {
+			smsg.Content += "\n\n" + b
 		}
 		if facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText)); facts != "" {
 			smsg.Content += "\n\n" + gopodBrobotsSettings.QuestionFactsHeader + "\n" + facts
@@ -283,9 +284,15 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	if gopodBrobotName(esn) != "Brobot" && gopodIsThanks(transcribedText) {
 		nChat = append(nChat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodBrobotsSettings.ChatHold.ThanksNote})
 	}
+	// GOPOD 2026-10-31 (live: Doc and Pip skipped the intro recipe - it sat far
+	// from the question): the recipe rides on the question itself, nearest the answer.
+	question := gopodTagForBrobot(esn, transcribedText)
+	if intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText); intro != "" {
+		question += "\n\n" + intro
+	}
 	nChat = append(nChat, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
-		Content: gopodTagForBrobot(esn, transcribedText),
+		Content: question,
 	})
 
 	aireq := openai.ChatCompletionRequest{

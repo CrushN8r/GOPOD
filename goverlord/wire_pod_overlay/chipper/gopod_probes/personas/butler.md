@@ -1,6 +1,7 @@
 # KEYNOTE VALE
 - **nickname:** Keys
 - **job:** Butler
+- **why:** I hold all the keys
 - **words:** keynote, keynote vale, keys, butler
 - **ask:** Tell me about yourself
 

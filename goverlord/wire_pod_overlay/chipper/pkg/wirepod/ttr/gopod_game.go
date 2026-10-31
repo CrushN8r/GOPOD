@@ -124,6 +124,9 @@ func gopodGameFill(text string) string {
 
 // gopodGameReset: a new session - the game starts at 0.
 func gopodGameReset(why string) {
+	// 2026-10-31: a new brain chain with the new game; the runs the Brobots
+	// performed stay until the session ends (the thanks ending).
+	gopodBrainReset(why != "thanks")
 	gopodCoverage.Lock()
 	gopodCoverage.revealed = map[string]int{}
 	gopodCoverage.reminded = map[string]bool{}

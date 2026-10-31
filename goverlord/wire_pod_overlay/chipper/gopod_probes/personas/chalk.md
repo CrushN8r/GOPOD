@@ -1,4 +1,5 @@
 # CHALK BORED
+- **why:** it's my name, short - and PLAYHEAD calls me CHALKRA, Chakra plus Ra, a nod to my princess side
 - **words:** chalk, chalk bored, chalkboard, chalkra
 - **ask:** Tell me about yourself
 

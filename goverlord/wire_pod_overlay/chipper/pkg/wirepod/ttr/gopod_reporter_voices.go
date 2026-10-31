@@ -1131,29 +1131,33 @@ func gopodSignOffLines() {
 	}
 }
 
-// gopodSpokenChunks: a line as spoken chunks - whole sentences, joined up to
-// reporter_voices.chunk_words words each; one chunk when it's short or off.
+// gopodSpokenChunks: a line as spoken chunks (2026-10-31, operator: "sentence
+// segmenting is off * lines of thought/subjects are overlapping"): one sentence
+// a chunk; a sentence under reporter_voices.chunk_min_words joins the next. A line
+// of chunk_words words or fewer stays one chunk; chunk_words 0: never.
 func gopodSpokenChunks(text string) []string {
-	most := gopodBrobotsSettings.ReporterVoices.ChunkWords
-	if most <= 0 || len(strings.Fields(text)) <= most {
+	rv := gopodBrobotsSettings.ReporterVoices
+	if rv.ChunkWords <= 0 || len(strings.Fields(text)) <= rv.ChunkWords {
 		return []string{text}
 	}
 	var out []string
-	cur, n := "", 0
+	cur := ""
 	for _, s := range gopodSentences(text) {
-		w := len(strings.Fields(s))
-		if cur != "" && n+w > most {
-			out = append(out, cur)
-			cur, n = "", 0
-		}
 		if cur != "" {
 			cur += " "
 		}
-		cur += s
-		n += w
+		cur += strings.TrimSpace(s)
+		if len(strings.Fields(cur)) >= rv.ChunkMinWords {
+			out = append(out, cur)
+			cur = ""
+		}
 	}
 	if cur != "" {
-		out = append(out, cur)
+		if len(out) > 0 {
+			out[len(out)-1] += " " + cur
+		} else {
+			out = append(out, cur)
+		}
 	}
 	if len(out) == 0 {
 		return []string{text}

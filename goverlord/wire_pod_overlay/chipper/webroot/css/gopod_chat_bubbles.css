@@ -1193,6 +1193,15 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .bubble-notice .egg-summary-text { display: block; }
 /* 2026-10-31 (operator: "please align-left brain bubble text, default left to right, header stays as-is"). */
 .bubble-notice .egg-summary-text, .bubble-notice .notice-score-row { text-align: left; }
+/* 2026-10-31 (operator, the new brain bubble scaffolding: "to save vertical screen space, all text
+   aligned left, left to right, no bold font, @ 50% default header size"). */
+.bubble-notice, .bubble-notice * { font-weight: normal; }
+.bubble-notice > .brobot-bubble-head { font-size: 50%; }
+/* 2026-10-31 (operator: "voice text align-left (align-centered is hard to read after a while)"):
+   every bubble's spoken text left to right; the headers stay as they are. */
+.brobot-bubble.operator > .brobot-bubble-text,
+.brobot-bubble.operator > .brobot-bubble-line,
+.brobot-bubble.operator .host-line { text-align: left; }
 /* GOLDEN raw bubble template (2026-10-21): the hidden staging area - bubbles are
    built and their pictures loaded here, outside the chat, before they show. */
 .bubble-staging { position: fixed; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }

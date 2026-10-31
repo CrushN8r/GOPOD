@@ -232,6 +232,28 @@
     "max_sentences": 4,
     "reminder_about": "2026-10-22 (step 4; operator: \"Every answer steers back to the money\"): the answer chain's reminder part - a free answer (no value point given, not a thank-you, not a follow-up) always ends with value_points.reminder_topics_text (\"Hey, that reminds me...\"), then no other end line."
   },
+  "brain_chain_about": "2026-10-31 (operator: \"go for the brain chain * brain chain should be apparent everywhere * KP test runs, should be all about mechanical diagnostics that feed the llm the cleanest sufficient data set for short-term memory & orientation, while maintaining long term memory & orientation\"; \"flow guide for short & long term, self & chat memory handling, within the live chat session\"; \"Like a chat flow guide/helper line or 2\"; \"Big Brains = code so llm doesn't think & is more free to add persona styles\"): every answer in the live chat adds one record, made by code (who asked, who answered, the line, its kind). Every participant's prompt gets header, then short-term (the last short_term records, record_line), long-term (long_line: the game's score, who has spoken, who's introduced) and the flow (flow_line from flow: intro, first, after, answer). Every brain bubble shows bubble_lines. The session folder keeps brain_chain.jsonl; the game's reset starts a new chain. gomads_raw_chat false: the Gomads get the brain instead of the raw chat. system-brain shows it; GOPOD_BRAIN in the journal.",
+  "brain_chain": {
+    "header": "BRAIN - code-made facts about this chat, all true. Use them; the style is yours:",
+    "short_header": "Short-term memory (newest last):",
+    "short_term": 4,
+    "record_line": "#{seq} {asked} to {to}: \"{question}\" ({kind})",
+    "long_line": "Long-term memory, this session: {score}. Performed by Doc and Pip: {performed}. Spoken so far: {spoken}. Introduced: {introduced}.",
+    "flow_line": "Flow: {flow}",
+    "flow": {
+      "intro": "Introduce yourself, then name who's here.",
+      "first": "You're the first to speak this session - open it up.",
+      "after": "{last_to} just spoke - build on it, don't repeat it.",
+      "answer": "Answer Master CrushN8r, then hand the floor back."
+    },
+    "bubble_lines": ["Last: {last}", "Session: {spoken_count} spoken, {introduced_count} introduced", "Flow: {flow}"],
+    "asked": "Master CrushN8r",
+    "none": "nobody yet",
+    "question_chars": 90,
+    "gomads_raw_chat": false,
+    "operator_who": "Brobot 0",
+    "performers": "Doc and Pip"
+  },
   "answer_chains": {
     "base": {"parts": ["start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
     "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},

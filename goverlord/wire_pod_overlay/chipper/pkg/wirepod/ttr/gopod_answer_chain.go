@@ -188,6 +188,12 @@ func gopodShapeBrobotAnswer(esn, question, raw string) string {
 	_, first := gopodAllFirstAnswer.Load(esn)
 	shaped := gopodShapeBrobotAnswerParts(esn, question, raw)
 	gopodAnswerShapeCheck(esn, question, shaped, first)
+	// 2026-10-31: his answer's record in the brain chain (gopod_brain_chain.go).
+	kind := "answer"
+	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
+		kind = "intro"
+	}
+	gopodBrainAdd(gopodCallName(gopodBrobotName(esn)), question, kind)
 	return shaped
 }
 
@@ -414,8 +420,13 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 			if gopodIsIntro(text) {
 				task = gopodBrobotsSettings.IntroRecipe.Task
 			}
-			gopodGomadBrain(host, sayAs, task)
+			gopodGomadBrain(host, sayAs, task, text)
 			gopodReporterSay(sayAs, reply, true, true)
+			kind := "answer"
+			if gopodIsIntro(text) {
+				kind = "intro"
+			}
+			gopodBrainAdd(gopodCallName(host), text, kind)
 			return true
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)

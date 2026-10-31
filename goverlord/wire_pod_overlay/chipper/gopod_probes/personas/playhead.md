@@ -1,4 +1,5 @@
 # PLAYHEAD ZUMINTU
+- **why:** it's my name, short - and CHALK calls me zoomy, since ZUMINTU means zoom into
 - **words:** playhead, play head, zumintu, zoomy
 - **ask:** Tell me about yourself
 

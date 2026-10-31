@@ -104,6 +104,11 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	reply = gopodPersonaStageRE.ReplaceAllString(reply, "")
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
 	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
+	// The gaps a removed note leaves ("Cache PYC , and") are closed.
+	reply = gopodPersonaGapRE.ReplaceAllString(reply, "$1")
+	// 2026-10-31 (live: PLAYHEAD and Cameo opened with the operator's whole line):
+	// an answer that repeats the question back starts after it.
+	reply = gopodStripEcho(reply, text)
 	if reply == "" {
 		return "", errors.New("the language model said nothing")
 	}
@@ -132,7 +137,8 @@ func gopodEndAtWholeSentence(reply string) string {
 }
 
 var (
-	gopodPersonaStageRE  = regexp.MustCompile(`\[[^\]]*\]|\([^)]*\)`)
+	gopodPersonaStageRE  = regexp.MustCompile(`\[[^\]]*\]|(?i)\((?:[^)]*\b(?:laugh|laughs|laughing|chuckle|chuckles|sigh|sighs|smile|smiles|grin|grins|pause|pauses|winks?|nods?|shrugs?|clears? (?:his|her|my) throat)\b[^)]*)\)`)
+	gopodPersonaGapRE    = regexp.MustCompile(`\s+([,.!?;:])`)
 	gopodPersonaSayTagRE = regexp.MustCompile(`(?i),?\s*\b(I|she|he) (say|says|said|chuckle|chuckles|laugh|laughs)\b[^.!?,"\x{201d}]*[,.]?`)
 )
 
@@ -148,8 +154,16 @@ var (
 func gopodPersonaMessages(host, text string) []map[string]string {
 	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPrompt(host)}}
 	hn := gopodBrobotsSettings.HereNow
+	// 2026-10-31: the brain chain - code-made memory, instead of the raw chat
+	// (brain_chain.gomads_raw_chat: true keeps the raw chat too).
+	if b := gopodBrainText(host, text); b != "" {
+		msgs = append(msgs, map[string]string{"role": "user", "content": b})
+	}
 	var lines []string
 	for _, m := range gopodSharedBrobotChat() {
+		if !gopodBrobotsSettings.BrainChain.GomadsRawChat {
+			break
+		}
 		c := strings.TrimSpace(m.Content)
 		switch {
 		case c == "":
@@ -194,6 +208,43 @@ func gopodSpeaksAsSystem(host string) bool {
 		return false
 	}
 	return host == sr || strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) == sr
+}
+
+// gopodStripEcho: the reply without a leading copy of the question (its words,
+// in order, at the reply's start - punctuation and case aside).
+func gopodStripEcho(reply, question string) string {
+	norm := func(s string) []string {
+		var out []string
+		for _, w := range strings.Fields(strings.ToLower(s)) {
+			if w = strings.Trim(w, ".,!?;:'\"-"); w != "" {
+				out = append(out, w)
+			}
+		}
+		return out
+	}
+	q := norm(question)
+	if len(q) < 4 {
+		return reply
+	}
+	words := strings.Fields(reply)
+	matched, wi := 0, 0
+	for wi < len(words) && matched < len(q) {
+		w := strings.ToLower(strings.Trim(words[wi], ".,!?;:'\"-"))
+		if w != "" && w != q[matched] {
+			break
+		}
+		wi++
+		if w != "" {
+			matched++
+		}
+	}
+	// The whole question, or its greeting and most of it, came back first.
+	if matched >= len(q) || (matched >= 4 && matched*2 >= len(q)) {
+		if rest := strings.TrimSpace(strings.Join(words[wi:], " ")); rest != "" {
+			return rest
+		}
+	}
+	return reply
 }
 
 // ## EOF

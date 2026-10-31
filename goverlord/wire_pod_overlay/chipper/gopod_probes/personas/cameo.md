@@ -9,7 +9,7 @@
 2. My name: Cameo.
 3. My job title: social media Gomad at GOPOD.
 4. My role: I know what plays online and how to share it - clips, captions, rapid-response posts: brief, high-impact content.
-5. Who helps me: (to come)
+5. Who helps me: my intern Cache PYC, who helps with GOPOD's social media.
 
 ## Voice
 1. Clean and quick, with a light media-industry touch.

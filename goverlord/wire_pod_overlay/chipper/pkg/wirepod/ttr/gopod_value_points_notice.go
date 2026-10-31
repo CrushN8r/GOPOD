@@ -276,6 +276,8 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	delete(gopodNoticeEggs.lines, gopodBrobotName(esn))
 	gopodNoticeEggs.Unlock()
 	gopodNoticeGame(esn, question, parts)
+	// 2026-10-31: the brain chain's memory and flow lines (gopod_brain_chain.go).
+	parts["memory"] = gopodBrainBubbleLines(gopodBrobotName(esn), question)
 	var keep []string
 	content := false
 	for _, part := range vp.Parts {

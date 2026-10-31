@@ -189,7 +189,11 @@
   "intro_recipe_about": "2026-10-31 (operator: \"Please build the intro recipe in one batch\"; his tester: \"Hey [name]! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!\" - \"Introduce yourself fully to the chat (my informal name (nickname), my name, my job title, my role, who helps me) * Name who all else is here in the chat with us (list other chat participants)\"): one recipe for every chat participant. A line with one of words gets text, {self} his profile's Self points, {cast} everyone else here. A Brobot's intro skips the value point and the reminder (answer_chains.brobots_intro); a Gomad's brain bubble's task is task.",
   "intro_recipe": {
     "words": ["introduce yourself", "tell me about yourself", "tell me all about yourself"],
-    "text": "This one is your intro, to the chat. In your own voice, introduce yourself fully, in this order: {self} Then name everyone else here in the chat with us: {cast}.",
+    "opening_about": "2026-10-31 (operator: \"names vs nicknames = formal vs informal * I'm KEYNOTE VALE, my nickname is Keys because I hold all the Keys, ... * [name][nickname][nickname-history/why-that-nickname] * I'm CAMEO, [name][nickname][nickname-history/why-that-nickname] skipped if blank, ... > interns\"): the intro's opening, made by code from the profile - {name} his formal name (Self: My name), {nickname_part} when he has a nickname (Self: My informal name), with why_part when his profile head has a why. Blank parts are left out.",
+    "opening": "I'm {name}{nickname_part}.",
+    "nickname_part": ", my nickname is {nickname}",
+    "why_part": ", because {why}",
+    "text": "This one is your intro, to the chat. Don't repeat the question. Open with exactly this sentence: \"{opening}\" Then, in your own words - never labels like \"my job title\" - say what you do and who helps you: {facts}. Then name who's here, as a short list: {cast}. About five sentences, then the names.",
     "task": "my intro, to the chat"
   },
   "persona_profiles_labels_about": "2026-10-30 (operator: \"All should branch from single master sources\"; \"make the topic-cluster shape the one master format\"): a persona with a profile has its labels there and only there - its full name (the profile's \"# \" label), nickname and job name; host_personas keeps the rest (its call name, role, hand-over).",

@@ -147,6 +147,10 @@ func GopodRunEndThen(name, reason string, then func()) {
 	// A run that ends mid warm-up lets the queued lines go.
 	gopodWarmingEnd()
 	logger.Println("GOPOD_SESSION run " + r.Name + " ended reason=" + reason + " took=" + time.Since(r.Started).Round(time.Second).String())
+	// 2026-10-31 (operator: "I'd like Doc and Pip's shared pre/post bingo
+	// experiences preserved & integrated into new updated GOPOD"): the run they
+	// performed, a clean record in the brain chain (gopod_brain_chain.go).
+	gopodBrainPerformed(r.Name, reason)
 	go gopodSessionLogRunEnd(r.Started)
 	// 2026-10-11 (operator: "check for "Run complete." after a successful run
 	// completion * so us humans know the run is over * remember to replace

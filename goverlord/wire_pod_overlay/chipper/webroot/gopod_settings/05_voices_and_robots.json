@@ -910,6 +910,8 @@
     "page_lag_seconds": 0.8,
     "chunk_words_about": "2026-10-31 (operator: \"Faster Gomads: the idea here was also to generate all at once, but as sentences or spoken chunks. As each voice file is generated its played, but in order & waits for the next generating to complete\"; \"chunks are lines in that one chat bubble * core rule: applies globally\"): a voiced line longer than this many words - anyone's: the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences, up to this many words), each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting for its own. A Brobot's answer is already said piece by piece. 0: never.",
     "chunk_words": 24,
+    "chunk_min_words_about": "2026-10-31 (operator: \"sentence segmenting is off * lines of thought/subjects are overlapping\"): a chunked line is one sentence a line; a sentence shorter than this joins the next.",
+    "chunk_min_words": 6,
     "max_wait_seconds": 15,
     "finish_wait_seconds_about": "2026-10-20 (operator: \"add a 'wait until I'm finished' flag to the chat bubble template\"; live: a long Operator voice was still playing when the flat 30 s cap ran out and GOPOD went on): every voiced line waits until the page has played it (heard) - its own length plus up to this many seconds for the page's queue; 0 = the old cap (2 x max_wait_seconds).",
     "finish_wait_seconds": 120,
