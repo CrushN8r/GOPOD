@@ -506,6 +506,10 @@ type gopodBrobotsSettingsFile struct {
 		HTTPSPort int    `json:"https_port"`
 		CertDir   string `json:"cert_dir"`
 		CAName    string `json:"ca_name"`
+		// 2026-10-31 ("CA fencing"): the names and addresses GOPOD's authority may
+		// ever vouch for, written into it (X.509 name constraints).
+		FenceDNS []string `json:"fence_dns"`
+		FenceIPs []string `json:"fence_ips"`
 	} `json:"app"`
 	// 2026-10-24: visitors and the chat sign-up (gopod_visitors.go).
 	Visitors struct {

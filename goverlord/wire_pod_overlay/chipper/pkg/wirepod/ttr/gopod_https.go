@@ -109,6 +109,17 @@ func gopodEnsureCerts() (string, string, error) {
 			}
 		}
 	}
+	// 2026-10-31 (operator: "Do/finish up * CA fencing"): an authority without its
+	// fence is replaced by a fenced one - the old one kept aside, never deleted;
+	// phones trust the new one once.
+	dnsFence, ipFence := gopodCAFence()
+	if ca != nil && (len(dnsFence) > 0 || len(ipFence) > 0) && len(ca.PermittedDNSDomains) == 0 && len(ca.PermittedIPRanges) == 0 {
+		stamp := time.Now().Format("20060102_150405")
+		os.Rename(caCrt, filepath.Join(dir, "ca_unfenced_"+stamp+".crt"))
+		os.Rename(caKey, filepath.Join(dir, "ca_unfenced_"+stamp+".key"))
+		logger.Println("GOPOD_APP the certificate authority had no fence - kept aside as ca_unfenced_" + stamp + "; a fenced one is made (phones trust /gopod_ca.crt again)")
+		ca, caPriv = nil, nil
+	}
 	if ca == nil {
 		k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
@@ -120,6 +131,8 @@ func gopodEnsureCerts() (string, string, error) {
 			NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().AddDate(10, 0, 0),
 			IsCA: true, BasicConstraintsValid: true, MaxPathLenZero: true,
 			KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
+			// The fence: it may only ever vouch for these (app.fence_dns, app.fence_ips).
+			PermittedDNSDomainsCritical: true, PermittedDNSDomains: dnsFence, PermittedIPRanges: ipFence,
 		}
 		der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &k.PublicKey, k)
 		if err != nil {
@@ -137,7 +150,14 @@ func gopodEnsureCerts() (string, string, error) {
 		os.Remove(namesFile)
 		logger.Println("GOPOD_APP made GOPOD's own certificate authority (" + name + ")")
 	}
-	names := gopodMachineNames()
+	// Only the names inside the fence go in the server certificate (a browser
+	// refuses a certificate naming anything outside it).
+	var names []string
+	for _, n := range gopodMachineNames() {
+		if gopodInsideFence(n, ca) {
+			names = append(names, n)
+		}
+	}
 	want := strings.Join(names, "\n")
 	if old, err := os.ReadFile(namesFile); err == nil && string(old) == want {
 		if der := gopodReadPEM(srvCrt); der != nil {
@@ -210,6 +230,58 @@ func init() {
 		w.Header().Set("Content-Disposition", `attachment; filename="gopod_ca.crt"`)
 		w.Write(data)
 	})
+}
+
+// gopodCAFence: the fence from the settings - app.fence_dns (and this machine's
+// own hostname), app.fence_ips as networks.
+func gopodCAFence() (dns []string, ips []*net.IPNet) {
+	a := gopodBrobotsSettings.App
+	seen := map[string]bool{}
+	add := func(d string) {
+		d = strings.ToLower(strings.TrimSpace(d))
+		if d != "" && !seen[d] {
+			seen[d] = true
+			dns = append(dns, d)
+		}
+	}
+	for _, d := range a.FenceDNS {
+		add(d)
+	}
+	if len(dns) > 0 {
+		if h, err := os.Hostname(); err == nil {
+			add(h)
+		}
+	}
+	for _, c := range a.FenceIPs {
+		if _, n, err := net.ParseCIDR(strings.TrimSpace(c)); err == nil {
+			ips = append(ips, n)
+		}
+	}
+	return dns, ips
+}
+
+// gopodInsideFence: a name or address the authority may vouch for (no fence:
+// any).
+func gopodInsideFence(name string, ca *x509.Certificate) bool {
+	if ca == nil || (len(ca.PermittedDNSDomains) == 0 && len(ca.PermittedIPRanges) == 0) {
+		return true
+	}
+	if ip := net.ParseIP(name); ip != nil {
+		for _, n := range ca.PermittedIPRanges {
+			if n.Contains(ip) {
+				return true
+			}
+		}
+		return false
+	}
+	name = strings.ToLower(name)
+	for _, d := range ca.PermittedDNSDomains {
+		d = strings.ToLower(strings.TrimPrefix(d, "."))
+		if name == d || strings.HasSuffix(name, "."+d) {
+			return true
+		}
+	}
+	return false
 }
 
 // ## EOF

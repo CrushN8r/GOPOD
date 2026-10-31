@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"encoding/json"
 	"os"
+	"crypto/x509"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -238,3 +239,32 @@ func TestGopodRecordCleanupLeftovers(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-10-31 (CA fencing): GOPOD's authority carries its fence - the local
+// network's addresses and names only - and its server certificate verifies
+// against it; an unfenced authority is kept aside and replaced.
+func TestCAFence(t *testing.T) {
+	old := gopodBrobotsSettings
+	defer func() { gopodBrobotsSettings = old }()
+	dir := t.TempDir()
+	gopodBrobotsSettings.App.CertDir = dir
+	gopodBrobotsSettings.App.FenceDNS = []string{"localhost", "local"}
+	gopodBrobotsSettings.App.FenceIPs = []string{"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}
+	srv, _, err := gopodEnsureCerts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ca, _ := x509.ParseCertificate(gopodReadPEM(filepath.Join(dir, "ca.crt")))
+	if ca == nil || len(ca.PermittedIPRanges) != 4 || !ca.PermittedDNSDomainsCritical {
+		t.Fatalf("the authority has no fence: %+v", ca)
+	}
+	leaf, _ := x509.ParseCertificate(gopodReadPEM(srv))
+	pool := x509.NewCertPool()
+	pool.AddCert(ca)
+	if _, err := leaf.Verify(x509.VerifyOptions{Roots: pool, DNSName: "localhost"}); err != nil {
+		t.Fatalf("the server certificate doesn't verify inside the fence: %v", err)
+	}
+	if gopodInsideFence("8.8.8.8", ca) || gopodInsideFence("example.com", ca) || !gopodInsideFence("brain.local", ca) {
+		t.Fatal("the fence lets a public name or address through, or a local one not")
+	}
+}
