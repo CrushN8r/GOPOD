@@ -594,6 +594,16 @@ func gopodSayForShownLine(host, text string) (string, float64, bool) {
 // gopodReporterSayTo: gopodReporterSay with its bubble's "to" - a manager's line
 // for a Brobot shows inside that Brobot's bubble (2026-10-18, gopod_managers.go).
 func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
+	// 2026-10-31 (operator: "chunks are lines in that one chat bubble * core rule:
+	// applies globally"): a shown line longer than a chunk is one bubble of chunk
+	// lines, each its own voice (the "lines:" template, gopod_system_tour.go). A
+	// manager's line inside a Brobot's bubble (to) stays one line.
+	if show && to == "" {
+		if chunks := gopodSpokenChunks(text); len(chunks) > 1 {
+			gopodSayLinesInBubble(host, chunks, wait)
+			return true
+		}
+	}
 	var page string
 	var seconds float64
 	var ok bool
@@ -1119,6 +1129,36 @@ func gopodSignOffLines() {
 			gopodRecordSay(l.Who, l.Text)
 		}
 	}
+}
+
+// gopodSpokenChunks: a line as spoken chunks - whole sentences, joined up to
+// reporter_voices.chunk_words words each; one chunk when it's short or off.
+func gopodSpokenChunks(text string) []string {
+	most := gopodBrobotsSettings.ReporterVoices.ChunkWords
+	if most <= 0 || len(strings.Fields(text)) <= most {
+		return []string{text}
+	}
+	var out []string
+	cur, n := "", 0
+	for _, s := range gopodSentences(text) {
+		w := len(strings.Fields(s))
+		if cur != "" && n+w > most {
+			out = append(out, cur)
+			cur, n = "", 0
+		}
+		if cur != "" {
+			cur += " "
+		}
+		cur += s
+		n += w
+	}
+	if cur != "" {
+		out = append(out, cur)
+	}
+	if len(out) == 0 {
+		return []string{text}
+	}
+	return out
 }
 
 // ## EOF

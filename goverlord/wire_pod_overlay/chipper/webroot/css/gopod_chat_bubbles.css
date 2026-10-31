@@ -1191,6 +1191,8 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .egg-summary .egg-summary-text { font-size: 60%; line-height: 1.4; }
 /* 2026-10-22: each line of a notice on its own row (value points, then "Got it!"). */
 .bubble-notice .egg-summary-text { display: block; }
+/* 2026-10-31 (operator: "please align-left brain bubble text, default left to right, header stays as-is"). */
+.bubble-notice .egg-summary-text, .bubble-notice .notice-score-row { text-align: left; }
 /* GOLDEN raw bubble template (2026-10-21): the hidden staging area - bubbles are
    built and their pictures loaded here, outside the chat, before they show. */
 .bubble-staging { position: fixed; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }

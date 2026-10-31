@@ -172,7 +172,14 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool) {
 		page, seconds, ok := gopodReporterFile(host, says[i])
 		ready[i] <- made{page, seconds, ok}
 	}
-	go makeOne(0)
+	// 2026-10-31 (operator: "generate all at once, but as sentences or spoken
+	// chunks. As each voice file is generated its played, but in order & waits
+	// for the next generating to complete"): every line's voice made at once, in order.
+	go func() {
+		for i := range keep {
+			makeOne(i)
+		}
+	}()
 	started := time.Now().UnixMilli()
 	for i, l := range keep {
 		m := <-ready[i]
@@ -180,9 +187,6 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool) {
 		if gopodSkippedAt.Load() >= started {
 			logger.Println("GOPOD_TOUR skipped: the rest of this bubble isn't voiced")
 			return
-		}
-		if i+1 < len(keep) {
-			go makeOne(i + 1) // the next one is made while this one plays
 		}
 		if !m.ok {
 			logger.Println("GOPOD_TOUR no voice for: " + gopodCut(l, 60))

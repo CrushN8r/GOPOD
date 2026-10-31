@@ -54,9 +54,10 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   labels is left unfilled (profile, prompt, who-line, cast line, intro recipe); 2 a Gomad has a
   voice; 3 he's in the cast; 4 every live numpad key reaches someone; 5 the system label fills from
   its voice persona. `gopod_source_check.go`, `TestSourceCheck`.
-- **Faster Gomads (2026-10-31):** a Gomad's answer is said in chunks - whole sentences, up to
-  `managers.chunk_words` (24) words each: every chunk's voice is made at once, in order; each plays
-  the moment its voice is made, the next waiting for its own; the chunks are lines in its one bubble.
+- **Chunks, globally (2026-10-31):** any voiced line longer than `reporter_voices.chunk_words` (24)
+  words - the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences),
+  each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
+  for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
 - **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about
   yourself") gets the recipe: introduce yourself in your own voice, in your profile's Self order -

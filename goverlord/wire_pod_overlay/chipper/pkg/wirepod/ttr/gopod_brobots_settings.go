@@ -318,6 +318,11 @@ type gopodBrobotsSettingsFile struct {
 		OperatorHost       string            `json:"operator_host"`
 		ReadLinesFrom      []string          `json:"read_lines_from"`
 		PageLagSeconds     float64           `json:"page_lag_seconds"`
+		// 2026-10-31 (operator: "chunks are lines in that one chat bubble * core
+		// rule: applies globally"): a voiced line longer than this many words is
+		// said in chunks of whole sentences - one bubble, a line each, its own
+		// voice (gopodSpokenChunks, gopodSayLinesInBubble). 0: never.
+		ChunkWords int `json:"chunk_words"`
 		MaxWaitSeconds     float64           `json:"max_wait_seconds"`
 		HeardMarginSeconds float64           `json:"heard_margin_seconds"`
 		// 2026-10-14: "Generating..." while a shown line's voice is made (gopodSayShown: the line waits in its own bubble).
@@ -430,10 +435,6 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-30 (operator: "let my personas speak!! * why the cut-off?"):
 		// a persona's answer, at most this many tokens (it was 120, written in).
 		AnswerNumPredict int `json:"answer_num_predict"`
-		// 2026-10-31 (operator: "Faster Gomads * generate all at once, but as
-		// sentences or spoken chunks"): a spoken chunk, whole sentences up to
-		// about this many words (gopodGomadSayChunks); 0: the answer in one.
-		ChunkWords int `json:"chunk_words"`
 		WhoWords []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).

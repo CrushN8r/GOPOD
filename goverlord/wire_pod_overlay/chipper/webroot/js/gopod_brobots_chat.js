@@ -2291,16 +2291,12 @@
       }
       // 2026-10-12 (operator: Reporter 0, "Reporter 0, Goverlord"): Goverlord's
       // own lines are headed with its reporter label (reporter_voices.labels).
-      function showScore(text, label, then) {
-        if (!restoringChat) { recordBubble(scoreRole, String(text), "score"); }
-        // On the raw bubble template (built and loaded hidden, then shown).
-        var bubble = rawBubble({ kind: "system", classes: "operator system-status score", head: systemHead(label || systemLabel) });
-        // 2026-10-29 (operator: "each scripture in its own bubble * generate audio
-        // for system tour * rather than a long wait for a single audio wav file
-        // ... send segment for processing, while the brobot speaks send next
-        // segment"): "lines:" - one bubble, one line each, every line its own voice
-        // (named ahead, so each starts dormant and lights as its voice plays).
-        if (String(text).indexOf("lines:") === 0) {
+      // GOLDEN "lines:" (2026-10-29, the tour; 2026-10-31, operator: "chunks are
+      // lines in that one chat bubble * core rule: applies globally"): one bubble,
+      // one line each, every line its own voice - named ahead, so each starts
+      // dormant and lights as its voice plays. The system's bubble and every
+      // host's (a Gomad's, a reporter's) are filled the one way.
+      function linesInto(bubble, text) {
           // 2026-10-29 (operator: "The highlighting mechanism is loose inside the
           // torah bubbles * Entire paragraph lit up before its turn * Upon ... stop
           // run ... the text didn't default to 85% solid white"): each line's words
@@ -2319,6 +2315,18 @@
             showOnItsTurn(bubble, say);
           });
           if (!restoringChat) { bubble.classList.add("voice-lit"); voiceTieAhead(); }
+      }
+      function showScore(text, label, then) {
+        if (!restoringChat) { recordBubble(scoreRole, String(text), "score"); }
+        // On the raw bubble template (built and loaded hidden, then shown).
+        var bubble = rawBubble({ kind: "system", classes: "operator system-status score", head: systemHead(label || systemLabel) });
+        // 2026-10-29 (operator: "each scripture in its own bubble * generate audio
+        // for system tour * rather than a long wait for a single audio wav file
+        // ... send segment for processing, while the brobot speaks send next
+        // segment"): "lines:" - one bubble, one line each, every line its own voice
+        // (named ahead, so each starts dormant and lights as its voice plays).
+        if (String(text).indexOf("lines:") === 0) {
+          linesInto(bubble, text);
           placeBubble(bubble, then);
           return;
         }
@@ -3365,9 +3373,7 @@
       // The line's words in its manager's bubble, a new line in it.
       function hostLineInto(who, text) {
         var at = openHostBox();
-        // 2026-10-31 (faster Gomads): every persona's next spoken chunk joins its
-        // own open bubble, as a manager's line does.
-        if (!at || at.who !== who || !(managerHosts[who] || personaVoiceOf.hasOwnProperty(who))) { return null; }
+        if (!at || at.who !== who || !managerHosts[who]) { return null; }
         var row = document.createElement("div");
         row.className = "host-line";
         var line = document.createElement("span");
@@ -3380,7 +3386,7 @@
       function showHostLine(who, text, to, then) {
         var next = function () { if (then) { then(); } };
         var hostClass = "operator system-status host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-") + reporterSuit(who);
-        if (String(text).indexOf("qr:") !== 0) {
+        if (String(text).indexOf("qr:") !== 0 && String(text).indexOf("lines:") !== 0) {
           var joined = hostLineInto(who, text);
           if (joined) {
             if (!restoringChat && !/^Brobot [12]$/.test(String(to || ""))) { recordBubble(who, String(text), "host"); }
@@ -3416,6 +3422,15 @@
           return;
         }
         if (!restoringChat) { recordBubble(who, String(text), "host"); }
+        if (String(text).indexOf("lines:") === 0) {
+          hostBrain(bubble, who);
+          linesInto(bubble, text);
+          placeBubble(bubble, next, function () {
+            if (warmupBubble && warmupBubble.isConnected) { container.appendChild(warmupBubble); }
+            else if (warmupBeforeOpening && warmupBeforeOpening.isConnected) { container.appendChild(warmupBeforeOpening); }
+          });
+          return;
+        }
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
         bubble.appendChild(line);
