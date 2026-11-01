@@ -25,6 +25,8 @@ func gopodAnswerType(esn, question string) string {
 	switch {
 	case gopodIsThanks(question):
 		return "thanks"
+	case gopodIsIntro(question):
+		return "intro"
 	case len(gopodSummaryItemsFor(esn)) > 0:
 		return "summary"
 	case gopodTopicGroupFor(esn) == "brobots_math":

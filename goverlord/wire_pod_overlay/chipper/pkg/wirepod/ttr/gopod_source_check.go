@@ -16,6 +16,7 @@ package wirepod_ttr
 //	3 the chat he's in the cast - everyone else knows he's here
 //	4 the keys every live numpad key reaches someone
 //	5 headers  the system label fills from its voice persona's labels
+//	6 roster   everyone in the chat has a line in the crew roster
 
 import (
 	"os"
@@ -67,6 +68,19 @@ func gopodSourceCheck() ([]string, int) {
 		count(n)
 	}()
 	wg.Wait()
+	// 6 roster: everyone in the chat but the operator is on the crew roster (gopodCrewRoster).
+	if strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster) != "" {
+		roster := gopodCrewRoster()
+		for _, c := range gopodBrobotsSettings.HereNow.Cast {
+			if c.Who == gopodBrobotsSettings.BrainChain.OperatorWho {
+				continue
+			}
+			count(1)
+			if roster[strings.ToLower(gopodCallName(c.Who))] == "" {
+				add("roster: " + gopodCallName(c.Who) + " has no line in " + gopodBrobotsSettings.BrainChain.Roster)
+			}
+		}
+	}
 	// 5 headers: the system label from its voice persona's labels.
 	count(1)
 	if sb := gopodBrobotsSettings.SystemBubble; strings.TrimSpace(sb.VoicePersona) != "" {

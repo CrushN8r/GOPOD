@@ -489,7 +489,11 @@ func TestValuePointCoverage(t *testing.T) {
 	// chapters with their summaries.
 	ic := gopodBrobotsSettings.InterviewChapters
 	got := gopodReminderLine("Brobot 1, who are you?")
-	if !strings.HasPrefix(got, "Hey, that reminds me") || strings.Contains(got, ic.TopicLabels["brothers"]) || strings.Contains(got, ic.TopicLabels["doc_and_pip"]) || strings.Count(got, ",")+strings.Count(got, " and ") < 2 {
+	// 2026-10-31 (operator: reminders never name eggs): "who are you?" loads no
+	// topic, so its reminder is topics from the top of the order - the brothers /
+	// doc_and_pip check here only ever passed on the egg list. It names topics.
+	_ = ic
+	if !strings.HasPrefix(got, "Hey, that reminds me") || strings.Count(got, ",")+strings.Count(got, " and ") < 2 {
 		t.Errorf("topics reminder %q", got)
 	}
 	for _, line := range gopodBrobotsSettings.ValuePoints.SayLines {
@@ -2397,7 +2401,7 @@ func TestGotItPerBrobot(t *testing.T) {
 			t.Errorf("%s has %q, want %q", gopodBrobotName(esn), g.Name, name)
 		}
 		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") ||
-			g.SearchingMinSeconds != cm.SearchingMinSeconds || g.SearchingIntervalSeconds != cm.SearchingIntervalSeconds || g.SearchingResendSeconds != cm.SearchingResendSeconds {
+			g.SearchingMinSeconds != cm.SearchingMinSeconds || g.SearchingResendSeconds != cm.SearchingResendSeconds {
 			t.Errorf("%s isn't a copy of the golden sequence: %+v", name, g)
 		}
 	}

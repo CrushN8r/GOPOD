@@ -57,19 +57,18 @@
     "nod_every": 2,
     "nod_speed": 4,
     "nod_hold_seconds": 0.18,
-    "searching_about": "2026-10-08: while a Brobot waits on his answer he plays the searching clip every searching_interval_seconds until the answer is ready, as before, and now for at least searching_min_seconds (operator: \"a required minimum run to act as a buffer against an early trigger, whether composing a response, or not\"), then one searchingGetout. A draft answer is ready at once, so it gets exactly the minimum, after \"Thinking, please wait.\"",
+    "searching_about": "2026-10-08: while a Brobot waits on his answer he plays the searching clip, one clip at a time (searching_resend_seconds), until the answer is ready, as before, and now for at least searching_min_seconds (operator: \"a required minimum run to act as a buffer against an early trigger, whether composing a response, or not\"), then one searchingGetout. A draft answer is ready at once, so it gets exactly the minimum, after \"Thinking, please wait.\"",
     "searching_min_seconds": 1,
-    "searching_resend_about": "After the first searching_min_seconds, the clip is sent again no sooner than searching_resend_seconds - one clip's length (go search V7 gesture_clip_ms 3918), the golden rule that it's never re-sent faster than it plays (SEARCHING_ANIMATION_SONG_LOCK_001.md). It still ends the moment the answer is ready.",
+    "searching_resend_about": "After the first searching_min_seconds, the clip is sent again no sooner than searching_resend_seconds - one clip's length (go search V7 gesture_clip_ms 3918), the golden rule that it's never re-sent faster than it plays (SEARCHING_ANIMATION_SONG_LOCK_001.md). It still ends the moment the answer is ready. 2026-10-31 (operator: \"searching 1 s animation loop is messy * why is this tiny mechanism messing up again\"; live: four clips in its first second, 0.35 s apart, each restarting the one before): the 1 s burst (searching_interval_seconds 0.333) is gone - one clip, re-sent no sooner than searching_resend_seconds, the song lock's rule, in the chat too.",
     "searching_resend_seconds": 3.9,
-    "searching_interval_seconds": 0.333,
     "thinking_moves_about": "Operator 2026-10-09: \"For the thinking please wait sequence * for live and scripted * start with an arm lift + nod (as visual cues to the audience) * then the rest\". Done in this order before Thinking, please wait., each back at rest before the next (arm: the phcal arm cue; nod: nod_speed / nod_hold_seconds). Empty: none.",
     "thinking_text_about": "2026-10-18 (operator: \"\\\"thinking please wait\\\" process * replace with short & sweet: \\\"Got it!\\\"\").",
     "thinking_text": "Got it!",
     "thinking_moves": ["arm", "nod"],
     "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod), his words, then his searching pace. Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
     "got_it": {
-      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_interval_seconds": 0.333, "searching_resend_seconds": 3.9},
-      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_interval_seconds": 0.333, "searching_resend_seconds": 3.9}
+      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_resend_seconds": 3.9},
+      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_resend_seconds": 3.9}
     },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
     "speech_after_animation_seconds_about": "2026-10-24 (operator: \"between spoken segments there's a 0.9s delay * can the run timings be adjusted to fire the next spoken segment 0.5s early?\"): was 0.9 (2026-10-09, playAnimationWI + 0.9s + start speech), now 0.4. Needs wpr 2.",
@@ -101,6 +100,10 @@
     "visitor_nameless": "nameless-visitor"
   },
   "chat_window": {
+    "scroll_log_about": "2026-10-31 (operator: \"Add scroll event logging * and scrolling position if possible\"): true - the main page logs every scroll decision and where the chat comes to rest to the journal (GOPOD_PAGE scroll ...: who asked, from -> to, the target rule, grows it skipped, the resting position). false - off. Page only: F5.",
+    "scroll_log": true,
+    "scroll_bar_about": "2026-10-31 (operator: \"Integrate adjustable scroll bar please * will this show up on app visitor pages?\"): the chat window's own scroll bar, on the admin, visitor and app pages alike - drag the thumb to scroll; drag either end to make it longer or shorter (a longer thumb, less travel from top to bottom); double-click for its natural size; its length is kept in that browser. width_px its width, min_thumb_px the shortest thumb, max_thumb_share the longest (share of the track), handle_px each end's grab area. on false - the browser's own bar back. Page only: F5.",
+    "scroll_bar": {"on": true, "width_px": 12, "min_thumb_px": 30, "max_thumb_share": 0.8, "handle_px": 7},
     "about": "The chat bubbles window's timings and sizes (operator 2026-10-18: \"ensure flexible data/info values/variables are in loadable files (css, js, json, md, etc...) * code is dumb flow guiding machine\"), read by the page on F5: max_bubbles/max_seen - the saved chat; baton_max_ms - the longest a bubble waits for the one above to finish; bubble_ready_max_ms - for its pictures to load; reply_delay_ms - a reply after its question; top_gap_px - space above the newest bubble; scroll_ms - one scroll; focus_dead_zone - how far the highlight may drift before the chat follows (share of the window); countdown_hold_ms / countdown_hold_most_ms - the next line after a countdown; voice_lit_wait_ms - a reporter/Goverlord line's words show anyway after this with no voice; marquee_* - the egg bulbs; narrator_fade_* - the narrator bubbles' fades (seconds); reveal_rest_ms - a reply's rest shows after this with no more highlight.",
     "max_bubbles": 3000,
     "max_seen": 6000,
@@ -162,17 +165,12 @@
   },
   "bubble_notices": {
     "about": "2026-10-22 (operator: \"make standard, the Notice-bubble inside a Brobot's bubble\"; \"template out what goes in a notice-bubble\"): what goes in each notice at the top of a Brobot's bubble (the bubble notice template, gopodBubbleNotice: a title, then its lines, each on its own row; a notice with the same title takes more lines underneath). value_points: every live Brobot answer - what his answer is built from, that the GOPOD reps are hired to reveal - its parts in this order: points (one per value point given: {id} topic#n, {words}), weather ({line}), search ({search}), none (no value point), got_it ({thinking_text} = chat_moves.thinking_text, added once he has said it). egg: a found egg ({title}, {summary}). native_intent: a native Wire-Pod intent ({intent}). An empty title = that notice is off; a part left out of parts isn't shown.",
-    "gomad_brain_about": "2026-10-30 (operator: \"NEW CORE TEMPLATE RULE: everybody gets a brain bubble * prepare a fat brain bubble scaffolding to refine/reshape as a template for every chat bubble * each brain bubble can now be better refined to suit both the self & chat awareness\"; \"WHERE'S MY FUCKING TEMPLATED GAME ENGINE!?!\"): a Gomad's brain bubble, at the top of its own bubble, titled like a Brobot's (value_points.title, {name} Brain). Its lines: {name} its call name, {fullname} its full name, {job} its profile's job title (else its job name), {asked} who asked, {task} its assigned task (else no_task), {cast} everyone else in the chat. A line with nothing after its label isn't shown.",
-    "gomad_brain": {
-      "lines": ["Self: {fullname} - {job}", "Asked by: {asked}", "Task: {task}", "In the chat: {cast}"],
-      "asked": "Master CrushN8r",
-      "no_task": "no assigned task - my own take"
-    },
+    "gomad_brain_about": "2026-10-31: a Gomad's brain bubble is the one brain template (brain_chain.lines, 01_brain.json) - the same lines as a Brobot's.",
     "value_points": {
       "title_about": "2026-10-30 (operator: \"Rename Value Points to [persona-(nick)name] Brain * Brobot 1: Brain, CHALK: Brain, etc... * NEW CORE TEMPLATE RULE: everybody gets a brain bubble\"): {name} is the persona's.",
       "title": "{name} Brain",
       "log_about": "2026-10-25 (operator: \"move these brobots spoken parts, out of notice-bubble, into and as part of the brobot response\"): his opener (Got it! / Nice try, ...!) is no longer a notice line - it opens his response bubble (gopodOpenerFirst); the notice still waits for it to be said. 2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
-      "parts": ["plan", "points", "summary", "search", "egg", "combo", "chapter", "none", "recovery", "next", "score", "memory"],
+      "parts": ["plan", "memory", "points", "summary", "search", "egg", "combo", "chapter"],
       "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
       "note": "-{note}",
       "notes_about": "2026-10-26 (operator: \"to save vertical screen space list by \\\"|\\\" separator in a single line: [good Afternoon|classroom|kids shout wordplay at us|we respond back]\"): a point's notes on one line under its title, joined with notes_join. Empty = one note per line (note).",
@@ -269,8 +267,6 @@
   },
   "photo": {
     "about": "The photo egg (operator 2026-10-14: \"Get Photo in front of you ... implement anyways\"; \"describe the image simply * Example: I see a table, chair and some book shelves, or whatever, nothing crazy * refer to text descriptions used for photos already taken * store the image to then display in a web page * return control to the normal streaming loop * keep/snapshot the 3-2-1 countdown + mirror-mode + shutter animation, then lock as a golden process\"; \"treat these as found easter eggs throughout a live chat\"). Live chat only. A line holding one of ask_phrases: the Brobot takes the photo the golden way (mirror mode, 3-2-1, shutter - Wire-Pod's own getImage), it pops up in his reply bubble (an egg, topic_pictures.max_per_session times; then a plain picture), Goverlord's congratulations, thinking please wait while vision_model (Ollama) looks at it with prompt, then answer_text with {saw}. One of recall_phrases: recall_text with what he saw last (nothing_text when he hasn't). No photo: fail_text; photo but no description: unclear_text. Photos are kept in webroot/photos (private, not in the repo). gopod_photo.go. 2026-10-14 test on this machine: SmolVLM2 2.2B ~3 s warm and good; moondream ~1.5 s but vague (\"urns ... on a couch\").",
-    "ask_phrases": ["what's in front of you", "whats in front of you", "what is in front of you", "what do you see", "what can you see", "take a photo", "take a picture"],
-    "recall_phrases": ["what you saw", "what did you see"],
     "vision_model": "moondream",
     "vision_model_about": "2026-10-16 (operator: \"Please continue with moondream for live photos\"; a test: moondream was short and less wrong than SmolVLM2, which it replaces; \"TEMPORARY RULE: No gemma4 or larger llm live switching\").",
     "prompt": "Describe what you see in one short, simple sentence, naming a few main things.",
@@ -297,7 +293,6 @@
       "pictures": true,
       "enhance": {"median": 3, "autocontrast_cutoff": 1, "brightness": 1.1, "contrast": 1.1, "sharpness": 1.6}
     },
-    "egg_name": "Get Photo",
     "quick_text": "I see {objects}.",
     "quick_none_text": "Hmm, I need a closer look.",
     "gathering_text": "Gathering details. Please wait!",

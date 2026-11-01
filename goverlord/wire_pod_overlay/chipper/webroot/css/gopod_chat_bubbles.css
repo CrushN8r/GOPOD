@@ -117,6 +117,29 @@
 #brobot-chat-bubbles-container.expanded::-webkit-scrollbar-track { background: var(--ink-111); border-radius: 16px; }
 #brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb { background: var(--ink-3a3a3a); border-radius: 8px; border: 2px solid var(--ink-111); }
 #brobot-chat-bubbles-container.expanded::-webkit-scrollbar-thumb:hover { background: var(--ink-555); }
+/* 2026-10-31 (operator: "Integrate adjustable scroll bar please"): the chat
+   window's own scroll bar (gopod_brobots_chat.js, chat_window.scroll_bar) - the
+   browser's is hidden while it's on; same colours as the browser's above. Drag
+   the thumb to scroll, drag its ends to make it longer or shorter (less or more
+   travel), double-click for its natural size. */
+html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded { scrollbar-width: none; }
+html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scrollbar { display: none; }
+.gopod-scroll-track {
+  position: fixed; display: none; z-index: 20;
+  background: var(--ink-111); border-radius: 8px;
+  touch-action: none; cursor: pointer;
+}
+.gopod-scroll-thumb {
+  position: absolute; left: 0; width: 100%; box-sizing: border-box;
+  background: var(--ink-3a3a3a); border: 2px solid var(--ink-111); border-radius: 8px;
+  cursor: grab; touch-action: none;
+}
+.gopod-scroll-thumb:hover, .gopod-scroll-thumb.dragging { background: var(--ink-555); }
+.gopod-scroll-thumb.dragging { cursor: grabbing; }
+.gopod-scroll-handle { position: absolute; left: 0; width: 100%; cursor: ns-resize; border-radius: 8px; }
+.gopod-scroll-handle.top { top: 0; }
+.gopod-scroll-handle.bottom { bottom: 0; }
+.gopod-scroll-thumb:hover .gopod-scroll-handle { background: var(--ink-888); }
 /* 2026-10-04 (operator: "add a line for keyboard input at the very left ...
    radio buttons to select robot 1 or 2. And then a text input"; then "inside
    within the robots chat bubble"): inside the chat window, on its bottom edge,
@@ -1197,11 +1220,28 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    aligned left, left to right, no bold font, @ 50% default header size"). */
 .bubble-notice, .bubble-notice * { font-weight: normal; }
 .bubble-notice > .brobot-bubble-head { font-size: 50%; }
+/* 2026-10-31 (operator: "BRAIN BUBBLES ARE NOT ALIGNED LEFT"): a brain bubble is
+   built as a system bubble, and .brobot-bubble.operator.system-status centres
+   every line's box (align-items) and the header (system-head) - so the lines'
+   own text-align: left above never showed. Here the whole brain bubble, header
+   too, runs left to right. */
+.brobot-bubble.operator.system-status.bubble-notice { align-items: stretch; text-align: left; }
+.brobot-bubble.operator.system-status.bubble-notice > .brobot-bubble-head,
+.brobot-bubble.operator.system-status.bubble-notice > .brobot-bubble-head.system-head { justify-content: flex-start; }
 /* 2026-10-31 (operator: "voice text align-left (align-centered is hard to read after a while)"):
    every bubble's spoken text left to right; the headers stay as they are. */
 .brobot-bubble.operator > .brobot-bubble-text,
 .brobot-bubble.operator > .brobot-bubble-line,
 .brobot-bubble.operator .host-line { text-align: left; }
+/* 2026-11-01 (operator: "these bubbles are not following templates/inconsistent
+   text aligns"; "Wonky text align * I'm KEYNOTE VALE..."; Git Repo too): the rule
+   above set each line's text left, but a system or host bubble centres every
+   line's box (align-items: center), so lines of different widths sat jagged.
+   Every spoken line, in every bubble - system, host, Gomad, reporter, Brobot -
+   now spans the bubble and reads left to right; headers, timers, the Generating
+   line and pictures keep their own place. */
+.brobot-bubble > .brobot-bubble-text:has(> .brobot-say),
+.brobot-bubble > .brobot-bubble-line { align-self: stretch; text-align: left; }
 /* GOLDEN raw bubble template (2026-10-21): the hidden staging area - bubbles are
    built and their pictures loaded here, outside the chat, before they show. */
 .bubble-staging { position: fixed; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }

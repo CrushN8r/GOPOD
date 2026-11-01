@@ -18,8 +18,11 @@ package wirepod_ttr
 //	             introduced themselves
 //	flow         one or two helper lines for what comes next
 //
-// Every participant's prompt gets them (brain_chain.header first - the facts
-// are true, the style is theirs); every brain bubble shows them; the session
+// One brain template (brain_chain.lines, the operator's 2026-10-31 scaffolding:
+// Self, Asked by, In the chat, Session, Guided Task Flow): every brain bubble
+// shows its lines, and every participant's prompt gets the same lines (after
+// brain_chain.header - the facts are true, the style is theirs), then the recent
+// chat and the long-term line; the session
 // keeps them (brain_chain.jsonl in its folder); the thanks ending starts a new
 // chain. GOPOD_BRAIN lines in the journal; system-brain shows the chain.
 
@@ -133,11 +136,6 @@ func gopodBrainFacts(self, question string) map[string]string {
 		}
 	}
 	none := bc.None
-	last, lastTo := none, ""
-	if len(recs) > 0 {
-		r := recs[len(recs)-1]
-		last, lastTo = r.To+" - "+r.Kind, r.To
-	}
 	score, _ := gopodCoverageScoreText()
 	join := func(l []string) string {
 		if len(l) == 0 {
@@ -145,32 +143,104 @@ func gopodBrainFacts(self, question string) map[string]string {
 		}
 		return strings.Join(l, ", ")
 	}
-	// The flow: what comes next, from what the chain shows.
+	// The flow: what comes next, from what the chain shows - an intro's task, then
+	// the first to speak, or the recent chat (flow.recent; 2026-10-31, operator:
+	// "Guided Task Flow: Does the recent chat help me answer the question asked").
 	var flow []string
 	if gopodIsIntro(question) {
 		flow = append(flow, bc.Flow["intro"])
-	} else {
-		flow = append(flow, bc.Flow["answer"])
 	}
-	switch {
-	case len(recs) == 0:
+	if len(recs) == 0 {
 		flow = append(flow, bc.Flow["first"])
-	case lastTo != "" && lastTo != gopodCallName(self):
-		flow = append(flow, strings.ReplaceAll(bc.Flow["after"], "{last_to}", lastTo))
+	} else {
+		flow = append(flow, strings.ReplaceAll(bc.Flow["recent"], "{asked}", bc.Asked))
 	}
+	// Self (2026-10-31, operator: "I am Pip (Brobot 2), a party-bro GOPOD sales rep.
+	// I'm clueless & happy. Brobot 1 & I are robot brothers."): his call name, his
+	// name when it's another, then his profile's "In short" (else his job title).
 	self0 := gopodCallName(self)
-	if job := gopodPersonaProfileField(self, "My job title"); job != "" {
-		self0 += " - " + strings.TrimSuffix(job, ".")
+	if name := strings.TrimSuffix(gopodPersonaProfileField(self, "My name"), "."); name != "" && !strings.EqualFold(name, self0) {
+		self0 += " (" + name + ")"
 	}
-	if role := gopodPersonaProfileField(self, "My role"); role != "" {
-		self0 += "; " + role
+	if short := gopodBrainDescription(self, true); short != "" {
+		self0 += ", " + short
+	}
+	// In the chat (operator: "In the chat: Doc [description from md] (me), Pip
+	// [description from md], ..."): everyone here but the operator, in cast order,
+	// each with his profile's job title (brain_chain.cast_item); he is "(me)".
+	var described []string
+	for _, c := range gopodBrobotsSettings.HereNow.Cast {
+		if c.Who == bc.OperatorWho {
+			continue
+		}
+		me := ""
+		if c.Who == self || gopodCallName(c.Who) == gopodCallName(self) {
+			me = bc.CastMe
+		}
+		described = append(described, strings.TrimSpace(strings.NewReplacer("{name}", gopodCallName(c.Who),
+			"{description}", gopodBrainDescription(c.Who, false), "{me}", me).Replace(bc.CastItem)))
+	}
+	// Reminders: the topics his reminder names this answer (gopodBrainReminders).
+	reminders := ""
+	if v, ok := gopodBrainReminders.Load(self); ok {
+		if names := v.([]string); len(names) > 0 {
+			reminders = strings.ReplaceAll(bc.RemindersPart, "{reminders}", gopodBrainList(names))
+		}
 	}
 	return map[string]string{
-		"{self}": self0, "{cast}": gopodIntroCast(self),
-		"{last}": last, "{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
+		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": strings.Join(described, ", "), "{reminders_part}": reminders,
+		"{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
 	}
+}
+
+// gopodBrainReminders: the reminder topics of each Brobot's answer now (his name -> []string).
+var gopodBrainReminders sync.Map
+
+// gopodBrainDescription: who's description - "In short" from his profile when
+// self (and he has one); else his line in the crew roster (gopodCrewRoster),
+// else his profile's job title, its last full stop off.
+func gopodBrainDescription(who string, self bool) string {
+	if self {
+		if v := strings.TrimSpace(gopodPersonaProfileField(who, "In short")); v != "" {
+			return v
+		}
+	}
+	if v := gopodCrewRoster()[strings.ToLower(gopodCallName(who))]; v != "" {
+		return v
+	}
+	return strings.TrimSuffix(strings.TrimSpace(gopodPersonaProfileField(who, "My job title")), ".")
+}
+
+// gopodCrewRoster (2026-10-31, operator: "This can be a full GOPOD crew roster
+// (sub) topic-cluster? * Crew roster please"): the crew roster - one topic-cluster
+// in the master format (brain_chain.roster, its "## Crew" points "Name:
+// description") - call name (small letters) -> description.
+func gopodCrewRoster() map[string]string {
+	out := map[string]string{}
+	path := strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster)
+	if path == "" {
+		return out
+	}
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(gopodChipperRoot(), path)
+	}
+	_, sections := gopodPersonaProfileRead(path)
+	for _, line := range sections["Crew"] {
+		if at := strings.Index(line, ":"); at > 0 {
+			out[strings.ToLower(strings.TrimSpace(line[:at]))] = strings.TrimSuffix(strings.TrimSpace(line[at+1:]), ".")
+		}
+	}
+	return out
+}
+
+// gopodBrainList: "a, b, c, & d" (operator: "Reminders: [], [], [], & []").
+func gopodBrainList(names []string) string {
+	if len(names) < 2 {
+		return strings.Join(names, "")
+	}
+	return strings.Join(names[:len(names)-1], ", ") + ", & " + names[len(names)-1]
 }
 
 func gopodBrainFill(tmpl string, facts map[string]string) string {
@@ -180,14 +250,29 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 	return strings.TrimSpace(tmpl)
 }
 
-// gopodBrainText: the brain for self's prompt - short-term, long-term, flow.
+// gopodBrainLines: the brain template's lines for self (brain_chain.lines) - the
+// one template every brain bubble shows and every prompt gets. A line with
+// nothing after its label isn't kept.
+func gopodBrainLines(self, question string) []string {
+	facts := gopodBrainFacts(self, question)
+	var out []string
+	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
+		if line := gopodBrainFill(l, facts); line != "" && !strings.HasSuffix(line, ":") {
+			out = append(out, line)
+		}
+	}
+	return out
+}
+
+// gopodBrainText: the brain for self's prompt - the header, the brain template's
+// lines (the same as his brain bubble), the recent chat, the long-term line.
 func gopodBrainText(self, question string) string {
 	bc := gopodBrobotsSettings.BrainChain
 	if strings.TrimSpace(bc.Header) == "" {
 		return ""
 	}
 	facts := gopodBrainFacts(self, question)
-	lines := []string{bc.Header}
+	lines := append([]string{bc.Header}, gopodBrainLines(self, question)...)
 	recs := gopodBrainSnapshot()
 	if n := bc.ShortTerm; n > 0 && len(recs) > n {
 		recs = recs[len(recs)-n:]
@@ -199,22 +284,10 @@ func gopodBrainText(self, question string) string {
 				"{question}", r.Question, "{kind}", r.Kind).Replace(bc.RecordLine))
 		}
 	}
-	lines = append(lines, gopodBrainFill(bc.LongLine, facts), gopodBrainFill(bc.FlowLine, facts))
+	lines = append(lines, gopodBrainFill(bc.LongLine, facts))
 	text := strings.Join(lines, "\n")
 	logger.Println("GOPOD_BRAIN fed " + gopodCallName(self) + ": " + strconv.Itoa(len(recs)) + " short-term, " + strconv.Itoa(len(text)) + " chars")
 	return text
-}
-
-// gopodBrainBubbleLines: the brain bubble's memory lines (brain_chain.bubble_lines).
-func gopodBrainBubbleLines(self, question string) []string {
-	facts := gopodBrainFacts(self, question)
-	var out []string
-	for _, l := range gopodBrobotsSettings.BrainChain.BubbleLines {
-		if line := gopodBrainFill(l, facts); line != "" {
-			out = append(out, line)
-		}
-	}
-	return out
 }
 
 // gopodSystemBrain: system-brain - the chain as it is now.

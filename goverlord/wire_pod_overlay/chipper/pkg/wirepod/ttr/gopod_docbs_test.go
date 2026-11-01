@@ -179,7 +179,8 @@ func TestIntroRecipe(t *testing.T) {
 	for _, who := range []string{"Brobot 2", "CACHE PYC", "BUTLER"} {
 		r := gopodIntroRecipe(who, tester)
 		// 2026-10-31: the facts without their labels, and no operator in the list.
-		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || !strings.Contains(r, "Doc") && who != "Brobot 1" {
+		// The cast is the code's line now (gopodIntroCastLine), not the model's.
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || strings.Contains(gopodIntroCastLine(who), "Brobot 0") || !strings.Contains(gopodIntroCastLine(who), "Doc") && who != "Brobot 1" {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {
@@ -228,14 +229,24 @@ func TestBrainChain(t *testing.T) {
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
-	b := gopodBrainText("Pip", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself", "Doc just spoke"} {
+	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself. Name who's in the chat right now.", "Does the recent chat help me answer the question asked.", "I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD host - a party-bro GOPOD rep], Pip [GOPOD host - a party-bro GOPOD rep] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
 	}
-	if l := gopodBrainBubbleLines("Pip", "hey"); len(l) != 3 || !strings.HasPrefix(l[0], "Last: Doc") {
-		t.Errorf("brain bubble lines: %v", l)
+	// The operator's brain scaffold, the same in the bubble and the prompt; no
+	// "Last:", no "Asked by:"; his reminders when his answer named some.
+	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
+	l := gopodBrainLines("Brobot 2", "hey")
+	gopodBrainReminders.Delete("Brobot 2")
+	if len(l) != 3 || !strings.HasPrefix(l[0], "I am Pip") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") {
+		t.Errorf("brain scaffold lines: %q", l)
+	}
+	for _, line := range append(l, b) {
+		if strings.Contains(line, "Last:") || strings.Contains(line, "Asked by:") {
+			t.Errorf("off the scaffold: %q", line)
+		}
 	}
 	// A run the Brobots performed: in their long-term memory, kept by a game
 	// reset (the comm check's), gone with the session (the thanks ending).

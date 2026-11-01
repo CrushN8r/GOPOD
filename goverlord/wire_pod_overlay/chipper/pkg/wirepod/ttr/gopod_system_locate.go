@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"sort"
@@ -48,10 +49,61 @@ func gopodSystemLocate(text string) string {
 			found = append(found, out)
 		}
 	}
+	// 2026-10-31: the topic-clusters hold settings too (gopod_topic_clusters.go).
+	found = append(found, gopodLocateClusterWord(word)...)
 	if len(found) == 0 {
 		return gopodSystemText("system_locate.nothing_named_in_the_settings", "word", word)
 	}
 	return strings.Join(found, "\n")
+}
+
+// gopodLocateClusterWord: the topic-cluster points whose key holds the word -
+// "file, word:" then "line: place.key = value" (the value when it's short).
+func gopodLocateClusterWord(word string) []string {
+	data, _ := gopodSettingsMerged()
+	var all map[string]json.RawMessage
+	_ = json.Unmarshal(data, &all)
+	files, _ := filepath.Glob(filepath.Join(gopodClustersFolder(all), "*.md"))
+	sort.Strings(files)
+	var out []string
+	for _, f := range files {
+		raw, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		var hits []string
+		place := ""
+		for n, line := range strings.Split(string(raw), "\n") {
+			t := strings.TrimSpace(line)
+			if strings.HasPrefix(t, "## ") {
+				place = ""
+				if o, c := strings.LastIndex(t, "("), strings.LastIndex(t, ")"); o >= 0 && c > o {
+					place = t[o+1 : c]
+				}
+				continue
+			}
+			dot := strings.Index(t, ". ")
+			if place == "" || dot <= 0 || strings.Trim(t[:dot], "0123456789") != "" {
+				continue
+			}
+			pt := t[dot+2:]
+			at := strings.Index(pt, ": ")
+			if at <= 0 || !strings.Contains(strings.ToLower(pt[:at]), word) {
+				continue
+			}
+			value := strings.TrimSpace(pt[at+2:])
+			if len(value) > 40 {
+				value = ""
+			} else {
+				value = " = " + value
+			}
+			hits = append(hits, "  "+strconv.Itoa(n+1)+": "+place+"."+pt[:at]+value)
+		}
+		if len(hits) > 0 {
+			out = append(out, gopodLocateShow(f)+", \""+word+"\":\n"+strings.Join(hits, "\n"))
+		}
+	}
+	return out
 }
 
 // gopodLocateShow: a file as the repo names it (goverlord/...).

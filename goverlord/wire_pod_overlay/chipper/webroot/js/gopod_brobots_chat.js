@@ -1108,7 +1108,9 @@
         var replyHeads = first.classList.contains("popup-wrap") ? first.querySelectorAll(":scope > .popup-system ~ .brobot-bubble-head") : [];
         var replyHead = replyHeads.length ? replyHeads[replyHeads.length - 1] : null;
         var top = contentY(replyHead || first);
-        if (contentY(last) + last.offsetHeight - top <= room) { return chatContentEnd(); }
+        var tall = contentY(last) + last.offsetHeight - top;
+        if (tall <= room) { scrollLog("target: fits (" + Math.round(tall) + " of " + Math.round(room) + ") - its bottom at the window's bottom"); return chatContentEnd(); }
+        scrollLog("target: taller than the window (" + Math.round(tall) + " of " + Math.round(room) + ") - its top at the window's top");
         return top - CHAT_TOP_GAP_PX;
       }
       // Calls then once every picture in the bubbles has loaded and each one's
@@ -1189,10 +1191,12 @@
           var h = Math.round(entry.contentRect.height);
           var was = b._seenHeight || 0;
           b._seenHeight = h;
-          if (!was || h <= was || !b.isConnected || b.style.visibility === "hidden" || pendingReveal.length) { return; }
-          if (b !== container.lastElementChild && b !== warmupBubble) { return; }
+          if (!was || h <= was || !b.isConnected || b.style.visibility === "hidden") { return; }
+          if (pendingReveal.length) { scrollLog("grow skipped: " + scrollWho(b) + " (+" + (h - was) + "), " + pendingReveal.length + " bubbles waiting"); return; }
+          if (b !== container.lastElementChild && b !== warmupBubble) { scrollLog("grow skipped: " + scrollWho(b) + " (+" + (h - was) + "), not the newest"); return; }
           var top = contentY(b) - container.scrollTop;
-          if (top > chatViewHeight() || top + h < 0) { return; }
+          if (top > chatViewHeight() || top + h < 0) { scrollLog("grow skipped: " + scrollWho(b) + " (+" + (h - was) + "), out of view"); return; }
+          scrollLog("grow: " + scrollWho(b) + " (+" + (h - was) + ")");
           scrollChatTo(bubbleTarget(b));
         });
       }) : null;
@@ -1276,13 +1280,160 @@
         var rect = el.getBoundingClientRect();
         return rect.top - box.top + container.scrollTop;
       }
+      // 2026-10-31 (operator: "CORE SCROLLING NOT WORKING!! WHY?" then "Add scroll
+      // event logging"): every scroll decision goes to Wire-Pod's journal as
+      // "GOPOD_PAGE scroll ..." (chat_window.scroll_log) - the main page only, so a
+      // run shows who moved the chat, from where to where, and what it skipped.
+      var SCROLL_LOG = false;
+      var scrollLogLast = "", scrollLogAt = 0;
+      function scrollLog(what) {
+        if (!SCROLL_LOG || restoringChat || (pageRoleKnown && !isMainPage)) { return; }
+        var line = "scroll " + what;
+        if (line === scrollLogLast && Date.now() - scrollLogAt < 1000) { return; }
+        scrollLogLast = line; scrollLogAt = Date.now();
+        var body = new URLSearchParams();
+        body.set("note", line.slice(0, 200));
+        fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () {});
+      }
+      // The function that asked for a move (its name, from the call stack).
+      function scrollCaller() {
+        var lines = String(new Error().stack || "").split("\n");
+        for (var i = 3; i < lines.length; i++) {
+          var m = /at (?:Object\.)?([A-Za-z0-9_$]+)/.exec(lines[i]) || /^([A-Za-z0-9_$]+)@/.exec(lines[i]);
+          if (m && m[1] !== "scrollChatTo") { return m[1]; }
+        }
+        return "?";
+      }
+      // The newest bubble on screen, named for the log (its kind and first words).
+      function scrollWho(el) {
+        if (!el) { return "none"; }
+        var head = el.querySelector(".brobot-bubble-head");
+        var name = head ? head.textContent.trim().slice(0, 24) : (el.dataset.kind || el.className.split(" ")[1] || "?");
+        return name + (el.style.visibility === "hidden" ? " (hidden)" : "") + " h=" + el.offsetHeight;
+      }
+      // 2026-10-31 (operator: "Integrate adjustable scroll bar please * will this
+      // show up on app visitor pages?"): the chat window's own scroll bar - the
+      // browser's is hidden (gopod_chat_bubbles.css), wheel, touch and keys still
+      // scroll as before. Drag the thumb to scroll; drag either end of it to make
+      // it longer or shorter - a longer thumb, less travel from top to bottom (the
+      // chat itself is unchanged); double-click it for its natural size. Its
+      // length is kept in this browser. Same on the admin, visitor and app pages.
+      // Values: chat_window.scroll_bar.
+      var scrollBar = { on: true, width_px: 12, min_thumb_px: 30, max_thumb_share: 0.8, handle_px: 7 };
+      var sbTrack = null, sbThumb = null, sbThumbPx = 0, sbDrag = null;
+      function sbKept() { try { return parseFloat(localStorage.getItem("gopod_scroll_thumb_px")) || 0; } catch (e) { return 0; } }
+      function sbKeep(px) { try { if (px) { localStorage.setItem("gopod_scroll_thumb_px", String(Math.round(px))); } else { localStorage.removeItem("gopod_scroll_thumb_px"); } } catch (e) {} }
+      function sbBuild() {
+        if (sbTrack || !scrollBar.on) { return; }
+        sbTrack = document.createElement("div");
+        sbTrack.className = "gopod-scroll-track";
+        sbThumb = document.createElement("div");
+        sbThumb.className = "gopod-scroll-thumb";
+        ["top", "bottom"].forEach(function (end) {
+          var h = document.createElement("div");
+          h.className = "gopod-scroll-handle " + end;
+          h.dataset.end = end;
+          sbThumb.appendChild(h);
+        });
+        sbTrack.appendChild(sbThumb);
+        document.body.appendChild(sbTrack);
+        document.documentElement.classList.add("gopod-own-scrollbar");
+        sbThumbPx = sbKept();
+        sbThumb.addEventListener("pointerdown", function (ev) {
+          var end = ev.target.dataset ? ev.target.dataset.end : "";
+          sbDrag = { end: end || "", y: ev.clientY, top: parseFloat(sbThumb.style.top) || 0, len: sbThumb.offsetHeight };
+          // The viewer has the chat: the chat's own move stops.
+          if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
+          try { sbThumb.setPointerCapture(ev.pointerId); } catch (e) {}
+          sbThumb.classList.add("dragging");
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
+        sbThumb.addEventListener("pointermove", function (ev) {
+          if (!sbDrag) { return; }
+          var d = ev.clientY - sbDrag.y, track = sbTrack.clientHeight;
+          if (sbDrag.end === "bottom") {
+            sbThumbPx = Math.min(track - sbDrag.top, sbDrag.len + d);
+          } else if (sbDrag.end === "top") {
+            sbThumbPx = Math.min(sbDrag.top + sbDrag.len, sbDrag.len - d);
+          } else {
+            var travel = Math.max(1, track - sbThumb.offsetHeight);
+            container.scrollTop = Math.max(0, Math.min(1, (sbDrag.top + d) / travel)) * chatMaxScroll();
+          }
+          sbUpdate();
+        });
+        var done = function () {
+          if (!sbDrag) { return; }
+          if (sbDrag.end) { sbKeep(sbThumbPx); }
+          sbDrag = null;
+          sbThumb.classList.remove("dragging");
+        };
+        sbThumb.addEventListener("pointerup", done);
+        sbThumb.addEventListener("pointercancel", done);
+        sbThumb.addEventListener("dblclick", function () { sbThumbPx = 0; sbKeep(0); sbUpdate(); });
+        // A click on the track: a page up or down.
+        sbTrack.addEventListener("pointerdown", function (ev) {
+          if (ev.target !== sbTrack) { return; }
+          var above = ev.clientY < sbThumb.getBoundingClientRect().top;
+          if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
+          container.scrollTop += (above ? -1 : 1) * chatViewHeight() * 0.9;
+        });
+        container.addEventListener("scroll", sbUpdate, { passive: true });
+        window.addEventListener("resize", sbUpdate);
+        window.addEventListener("scroll", sbUpdate, { passive: true });
+        if (typeof ResizeObserver === "function") { new ResizeObserver(sbUpdate).observe(container); }
+        if (typeof MutationObserver === "function") { new MutationObserver(sbUpdate).observe(container, { childList: true, subtree: true }); }
+      }
+      function sbUpdate() {
+        if (!sbTrack) { return; }
+        var box = container.getBoundingClientRect();
+        var max = chatMaxScroll();
+        if (!scrollBar.on || box.height < 40 || max <= 0 || !container.classList.contains("expanded")) { sbTrack.style.display = "none"; return; }
+        var inset = 10;
+        sbTrack.style.display = "block";
+        sbTrack.style.left = (box.right - scrollBar.width_px - 4) + "px";
+        sbTrack.style.top = (box.top + inset) + "px";
+        sbTrack.style.width = scrollBar.width_px + "px";
+        sbTrack.style.height = Math.max(20, box.height - 2 * inset) + "px";
+        var track = sbTrack.clientHeight;
+        var natural = track * container.clientHeight / container.scrollHeight;
+        var len = Math.max(scrollBar.min_thumb_px, Math.min(track * scrollBar.max_thumb_share, sbThumbPx || natural));
+        if (len > track) { len = track; }
+        var top = (track - len) * container.scrollTop / max;
+        sbThumb.style.height = len + "px";
+        sbThumb.style.top = top + "px";
+        Array.prototype.forEach.call(sbThumb.children, function (h) { h.style.height = scrollBar.handle_px + "px"; });
+      }
+      // The scroll position (operator: "and scrolling position if possible"): once
+      // the chat stops moving (300 ms quiet), where it rests - its top, the most it
+      // can go, how far from the bottom - and whether code or a hand moved it.
+      var scrollRestTimer = null, scrollByCode = false, chatMovedAt = 0;
+      container.addEventListener("scroll", function () {
+        if (!SCROLL_LOG) { return; }
+        if (chatMove || Date.now() - chatMovedAt < 500) { scrollByCode = true; }
+        clearTimeout(scrollRestTimer);
+        scrollRestTimer = setTimeout(function () {
+          var max = chatMaxScroll(), at = container.scrollTop, end = chatContentEnd();
+          scrollLog("position: " + Math.round(at) + " of max " + Math.round(max) +
+            (max - at < 2 ? " (at the bottom)" : ", " + Math.round(max - at) + " px above the bottom") +
+            ", newest bubble's end " + Math.round(end - at) + " px " + (end - at > 0 ? "below" : "in") + " view" +
+            (scrollByCode ? ", moved by the chat" : ", moved by hand"));
+          scrollByCode = false;
+        }, 300);
+      }, { passive: true });
       function scrollChatTo(top) {
         var target = Math.max(0, Math.min(top, chatMaxScroll()));
+        if (SCROLL_LOG) {
+          scrollLog("by " + scrollCaller() + ": " + Math.round(container.scrollTop) + " -> " + Math.round(target) +
+            (target !== top ? " (asked " + Math.round(top) + ")" : "") + " of max " + Math.round(chatMaxScroll()) +
+            ", view " + Math.round(chatViewHeight()) + ", newest " + scrollWho(lastPlacedChild()) + (pendingReveal.length ? ", " + pendingReveal.length + " waiting" : ""));
+        }
         var reduce = false;
         try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
         if (reduce) {
           if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
           container.scrollTop = target;
+          chatMovedAt = Date.now();
           return;
         }
         var now = performance.now();
@@ -1302,10 +1453,12 @@
         var at = chatMoveAt(now);
         if (at.t >= 1) {
           container.scrollTop = Math.min(chatMove.to, chatMaxScroll());
+          chatMovedAt = Date.now();
           chatMove = null;
           return;
         }
         container.scrollTop = Math.max(0, Math.min(at.pos, chatMaxScroll()));
+        chatMovedAt = Date.now();
         chatMove.frame = requestAnimationFrame(chatMoveStep);
       }
       // The spoken sentence: once it is below the middle of the chat window, the
@@ -1328,6 +1481,7 @@
         var view = chatViewHeight();
         var below = middle - (container.scrollTop + view / 2);
         if (below < view * FOCUS_DEAD_ZONE && !chatMove) { return; }
+        scrollLog("highlight: lit line " + Math.round(below) + " px below the middle");
         var target = middle - view / 2;
         // It stops at the chat's end.
         target = Math.min(target, chatContentEnd());
@@ -1442,6 +1596,12 @@
               if (typeof cw.reply_delay_ms === "number") { CHAT_REPLY_DELAY_MS = cw.reply_delay_ms; }
               if (typeof cw.top_gap_px === "number") { CHAT_TOP_GAP_PX = cw.top_gap_px; }
               if (typeof cw.scroll_ms === "number") { CHAT_SCROLL_MS = cw.scroll_ms; }
+              if (typeof cw.scroll_log === "boolean") { SCROLL_LOG = cw.scroll_log; }
+              if (cw.scroll_bar && typeof cw.scroll_bar === "object") {
+                Object.keys(scrollBar).forEach(function (k) { if (typeof cw.scroll_bar[k] === typeof scrollBar[k]) { scrollBar[k] = cw.scroll_bar[k]; } });
+                sbBuild();
+                sbUpdate();
+              }
               if (typeof cw.focus_dead_zone === "number") { FOCUS_DEAD_ZONE = cw.focus_dead_zone; }
               if (typeof cw.countdown_hold_ms === "number") { COUNTDOWN_HOLD_MS = cw.countdown_hold_ms; }
               if (typeof cw.countdown_hold_most_ms === "number") { COUNTDOWN_HOLD_MOST_MS = cw.countdown_hold_most_ms; }
@@ -5009,6 +5169,13 @@
         if (!bubble) { return; }
         var all = span.closest(".nested-host") ? span.closest(".nested-host").querySelectorAll(".brobot-say") : ownSays(bubble);
         for (var i = 0; i < all.length && all[i] !== span; i++) { all[i].classList.add("spoken"); }
+        // 2026-10-31 (operator: "A tall bubble holds at its top, until higher
+        // priority highlighted text reaches the lower threshold to scroll further,
+        // like how brobot bubbles scroll * all this should be inherently built in";
+        // scroll log: Cameo's 968 px bubble held at its top, 326 px below the
+        // window, while her lines were said - only the Brobots' live lines called
+        // the highlight scroll): every lit line, every bubble, follows it here.
+        focusSpeaking(span);
       }
       // 2026-10-15 (operator: "as 142857 is spoken as a sequence of single
       // numbers, each number highlights sequentially * not precisely timed with
@@ -5331,7 +5498,7 @@
             // number - light exactly that one, no guessing.
             if (typeof now.piece === "number" && now.piece >= 0) {
               // 2026-10-25: a piece said after an animation starts later (word_reveal.lead_in_start_seconds).
-              if (spans[now.piece]) { spans[now.piece].dataset.leadIn = leadInText && String(now.text || "").trim().indexOf(leadInText) === 0 ? "1" : ""; lightSpan(spans[now.piece]); focusSpeaking(spans[now.piece]); }
+              if (spans[now.piece]) { spans[now.piece].dataset.leadIn = leadInText && String(now.text || "").trim().indexOf(leadInText) === 0 ? "1" : ""; lightSpan(spans[now.piece]); }
               return;
             }
             var spokenList = sayWords(now.text);

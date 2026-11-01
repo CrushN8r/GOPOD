@@ -113,9 +113,7 @@
     "say_line_temperature": 1,
     "temperature_about": "2026-10-07 (operator: \"a brobots creativity-temperature (as-is = default setting) ... for segments requiring a say-it-flat like scripted stuff\"): the Brobots' creativity per reply - temperature (1, Wire-Pod's as-is) for a normal question, say_line_temperature for a question whose value point has a scripted line (value_points.say_lines). The scripted line itself is said by the code, flat; this only steadies the LLM's talk around it, where facts were invented. One temperature per reply: it can't change partway through.",
     "song_warmup_min_seconds": 5,
-    "ready_text": "Language Model Loaded, Master CrushN8r. Your move. (music)",
     "run_ready_text_about": "2026-10-14 (operator: \"part 1 standard * keep it in settings file once * each song gives only part 2\"): a run's LLM Ready message is this, then the run's own part 2 - a song's knobs.json llm_ready_text, the interview's interview_script.llm_ready_text (\"We here, are Fart Joke Ready\"). One bubble, one spoken line. Wire-Pod's own start keeps ready_text + warmup_done_text.",
-    "run_ready_text": "Language Model Loaded, Master CrushN8r.",
     "no_required_about": "2026-10-17 (operator: \"keep for future songs like Baby Brobots * add: fallbacks to system messages: \\\"No Voice Generation Required\\\" or voice generation check * \\\"No Language Model Required\\\" of language model loading/loaded * to skip in-between messages, a single in-between message = \\\"\\\" = the indication to skip\"): a song whose knobs.json says \"voices_required\": false shows no_voices_text in place of the voice files part of its warming message; \"llm_required\": false shows no_llm_text in place of the language model part and of run_ready_text, and calls no model. A warmup_lines line with no words is skipped; in an LLM warm song (00_llm_warming), a reporter_lines step with an empty TEXT is skipped (\"opening\" plays the reporters' opening).",
     "no_voices_text": "No Voice Generation Required",
     "no_llm_text": "No Language Model Required",
@@ -182,10 +180,6 @@
     "weather_lead_next": "First one short line following up your brother's weather comment. Then:"
   },
   "golden_answers_about": "2026-10-23 (operator: \"What is AI wordplay? * the fun challenges humans input to the brobots (future live hosts, Doc & Pip) * What is Explain the MAth? * the hilarity that ensues afterwards\"; his answer: notes + golden answers): a question asking one of these gets its line word for word, first (the answer chain's golden_line part); the rest of the answer follows its type (the summary, for these).",
-  "golden_answers": [
-    {"queries": ["what is ai wordplay", "what's ai wordplay"], "line": "AI wordplay: the fun challenges humans throw at the Brobots - Doc & Pip, the future live hosts."},
-    {"queries": ["what is explain the math", "what's explain the math"], "line": "Explain the MAth!: the hilarity that ensues afterwards."}
-  ],
   "session_memory": {
     "about": "2026-10-23 (template sweep): how each earlier exchange is told to the Brobots ({who} {asked} {answered}; scenario {scenario}); empty_text when a line has no words left.",
     "line": "* User asked {who} about {asked}; {who} answered {answered}.",
@@ -210,6 +204,7 @@
       "free": ["llm", "reminder"],
       "math": ["say_line", "llm?", "rule?", "reminder"],
       "thanks": ["llm"],
+      "intro": ["llm"],
       "summary": ["summary", "llm?", "reminder"]
     },
     "marks": {
@@ -235,18 +230,23 @@
   "brain_chain_about": "2026-10-31 (operator: \"go for the brain chain * brain chain should be apparent everywhere * KP test runs, should be all about mechanical diagnostics that feed the llm the cleanest sufficient data set for short-term memory & orientation, while maintaining long term memory & orientation\"; \"flow guide for short & long term, self & chat memory handling, within the live chat session\"; \"Like a chat flow guide/helper line or 2\"; \"Big Brains = code so llm doesn't think & is more free to add persona styles\"): every answer in the live chat adds one record, made by code (who asked, who answered, the line, its kind). Every participant's prompt gets header, then short-term (the last short_term records, record_line), long-term (long_line: the game's score, who has spoken, who's introduced) and the flow (flow_line from flow: intro, first, after, answer). Every brain bubble shows bubble_lines. The session folder keeps brain_chain.jsonl; the game's reset starts a new chain. gomads_raw_chat false: the Gomads get the brain instead of the raw chat. system-brain shows it; GOPOD_BRAIN in the journal.",
   "brain_chain": {
     "header": "BRAIN - code-made facts about this chat, all true. Use them; the style is yours:",
-    "short_header": "Short-term memory (newest last):",
+    "lines_about": "2026-10-31 (operator's brain bubble scaffold: \"Response-chain: Brobot 2, then Brobot 1 - answer 1 of 2 * I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers. * In the chat: Doc [description from md] (me), Pip [description from md], CHALK [description from md], ... Keys [description from md] * So far: 1 have spoken, 0 introduced themselves. Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: [], [], [], & [] * remove: Asked by: [name]\"): the one brain template - every brain bubble (Brobots under their Response-chain line, and Gomads) shows these lines, and every prompt gets the same lines after header, then the recent chat (short_header, record_line) and long_line. {self}: his call name (his name), then his profile's Self \"In short:\" (else his job title). {cast_described}: everyone here but the operator, in cast order, each cast_item - his profile's job title; cast_me marks himself. {reminders_part}: reminders_part with the topics his reminder names (a Brobot's answer), else nothing. A line with nothing after its label isn't shown.",
+    "lines": ["I am {self}", "In the chat: {cast_described}", "So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}"],
+    "roster_about": "2026-10-31 (operator: \"This can be a full GOPOD crew roster (sub) topic-cluster? * Crew roster please\"): the crew roster, one topic-cluster in the master format - its ## Crew points (Name: description) give In the chat its descriptions (himself: his profile's In short). system-check names anyone in the chat without a line.",
+    "roster": "gopod_probes/personas/crew_roster.md",
+    "cast_item": "{name} [{description}]{me}",
+    "cast_me": " (me)",
+    "reminders_part": " Reminders: {reminders}",
+    "short_header": "Recent chat (newest last):",
     "short_term": 4,
     "record_line": "#{seq} {asked} to {to}: \"{question}\" ({kind})",
     "long_line": "Long-term memory, this session: {score}. Performed by Doc and Pip: {performed}. Spoken so far: {spoken}. Introduced: {introduced}.",
-    "flow_line": "Flow: {flow}",
+    "flow_about": "Guided Task Flow, made by code: intro (the line asks for one), then first (nobody has spoken yet) or recent (there's recent chat; 2026-10-31, operator: \"remove: [chat participant] just spoke - build on it, don't repeat it\", then \"Guided Task Flow: Does the recent chat help me answer the question asked.\").",
     "flow": {
-      "intro": "Introduce yourself, then name who's here.",
+      "intro": "Introduce yourself. Name who's in the chat right now.",
       "first": "You're the first to speak this session - open it up.",
-      "after": "{last_to} just spoke - build on it, don't repeat it.",
-      "answer": "Answer Master CrushN8r, then hand the floor back."
+      "recent": "Does the recent chat help me answer the question asked."
     },
-    "bubble_lines": ["Last: {last}", "Session: {spoken_count} spoken, {introduced_count} introduced", "Flow: {flow}"],
     "asked": "Master CrushN8r",
     "none": "nobody yet",
     "question_chars": 90,
@@ -257,7 +257,7 @@
   "answer_chains": {
     "base": {"parts": ["start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
     "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
-    "brobots_intro": {"parts": ["llm"]},
+    "brobots_intro": {"parts": ["llm", "intro_wrap"]},
     "brobots_summary": {"parts": ["golden_line", "llm", "summary_bubbles", "reminder"]},
     "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
     "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},

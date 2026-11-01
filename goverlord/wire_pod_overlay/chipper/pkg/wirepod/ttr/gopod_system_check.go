@@ -101,6 +101,10 @@ func gopodSystemCheckProblems() ([]string, int) {
 	if gopodTorahBehind() {
 		problems = append(problems, "GOPOD_TORAH.md is behind the system - system-torah writes it again")
 	}
+	// 2026-10-31: the topic-clusters - every point lands in the settings (gopod_topic_clusters.go).
+	cl, clChecked := gopodClustersCheck()
+	problems = append(problems, cl...)
+	checked += clChecked
 	// 2026-10-31: the source check - every participant from his master source up,
 	// layer by layer, all at once (gopod_source_check.go).
 	src, srcChecked := gopodSourceCheck()

@@ -120,6 +120,14 @@ func gopodTightenReply(reply, question, esn string) string {
 		}
 		body = regexp.MustCompile(`(?i)`+re).ReplaceAllString(body, w.To)
 	}
+	// 2026-10-31 (operator: "FULLY REVIEW EVERYTHING!! PUNCTUATION"; live: Doc's
+	// "symphony!\"" and "What is, \" Is that ..."): quote marks that don't pair up
+	// are the model's slip, never speech - an odd count drops them all.
+	if strings.Count(body, "\"")+strings.Count(body, "“")+strings.Count(body, "”") > 0 &&
+		(strings.Count(body, "\"")%2 == 1 || strings.Count(body, "“") != strings.Count(body, "”")) {
+		body = strings.NewReplacer("\"", "", "“", "", "”", "").Replace(body)
+		body = gopodPersonaGapRE.ReplaceAllString(body, "$1")
+	}
 	body = strings.Join(strings.Fields(body), " ")
 	if strings.TrimFunc(body, func(r rune) bool { return !unicode.IsLetter(r) }) == "" {
 		// All list or stage direction: keep the words, flattened.

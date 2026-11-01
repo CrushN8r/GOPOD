@@ -419,6 +419,9 @@ func gopodPackPointCounts() ([]string, map[string]int) {
 //
 // Neither points at the next reminder_skip_next_topics topics: the interview is
 // about to ask those.
+// gopodReminderNames: the topics the last reminder for a line named (line -> []string).
+var gopodReminderNames sync.Map
+
 func gopodReminderLine(userMessage string) string {
 	vp, ic := gopodBrobotsSettings.ValuePoints, gopodBrobotsSettings.InterviewChapters
 	var order []string
@@ -443,24 +446,11 @@ func gopodReminderLine(userMessage string) string {
 			last = i
 		}
 	}
-	// 2026-10-17 (the egg list, gopod_egg_list.go): with no topic in the
-	// question, the reply still ends by naming eggs still to find.
-	eggWant := vp.ReminderEggCount
-	if eggWant <= 0 {
-		eggWant = 2
-	}
-	if last < 0 {
-		if gopodIsThanks(userMessage) || vp.ReminderTopicsText == "" {
-			return ""
-		}
-		var names []string
-		for _, e := range gopodEggsToMention(eggWant, loaded) {
-			names = append(names, e.Label)
-		}
-		if len(names) == 0 {
-			return ""
-		}
-		return strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(names))
+	// 2026-10-31 (operator: "Should the reminders name eggs? * no, but GOPOD easter
+	// eggs should still work"): with no topic in the question, the reminder names
+	// open topics from the top of the order - never eggs.
+	if last < 0 && (gopodIsThanks(userMessage) || vp.ReminderTopicsText == "") {
+		return ""
 	}
 	_, counts := gopodPackPointCounts()
 	// A topic whose egg was found is off the list too.
@@ -489,8 +479,11 @@ func gopodReminderLine(userMessage string) string {
 	if !fresh {
 		gopodRemindAgain()
 	}
-	current := order[last]
-	if lastOfChapter[current] && vp.ReminderChaptersText != "" {
+	current := ""
+	if last >= 0 {
+		current = order[last]
+	}
+	if current != "" && lastOfChapter[current] && vp.ReminderChaptersText != "" {
 		// The next chapter with its summary, then the one after by title only
 		// (2026-10-07: two summaries were long out loud); a chapter once named
 		// isn't named again.
@@ -557,22 +550,6 @@ func gopodReminderLine(userMessage string) string {
 		chainTopics = append(chainTopics, best)
 		from = best
 	}
-	// The egg list: the reminder names at least one egg still to find - in
-	// place of the chain's last topic when none of them is one.
-	hasEgg := false
-	for t := range used {
-		if t != current && eggTopic[t] {
-			hasEgg = true
-		}
-	}
-	if !hasEgg {
-		if eggs := gopodEggsToMention(1, used); len(eggs) > 0 {
-			if len(chain) >= want && len(chain) > 0 {
-				chain = chain[:len(chain)-1]
-			}
-			chain = append(chain, eggs[0].Label)
-		}
-	}
 	if len(chain) == 0 {
 		return ""
 	}
@@ -581,6 +558,8 @@ func gopodReminderLine(userMessage string) string {
 			gopodRemind(t)
 		}
 	}
+	// 2026-10-31: the names, for the brain bubble's Reminders (gopodReminderNames).
+	gopodReminderNames.Store(userMessage, append([]string(nil), chain...))
 	line := strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
 	// 2026-10-29 (operator: "then reps' reminders to prep for accessmath demo";
 	// "go reminders"): the reminder invites with one of Ron's probers for the

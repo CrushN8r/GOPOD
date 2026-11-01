@@ -358,6 +358,9 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			logger.Println("BROBOT_CLOSING " + gopodBrobotName(esn) + ": " + line)
 			return strings.TrimSpace(gopodDropSnippetCopy(line, raw)) + " " + line
 		}
+	case "intro_wrap":
+		// 2026-10-31: an intro - the code's opening and cast line around his words.
+		return gopodIntroWrap(gopodBrobotName(esn), raw)
 	case "llm":
 	default:
 		logger.Println("GOPOD_CHECK answer_chains: no part named " + part)
@@ -407,20 +410,29 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 				return true
 			}
 		case "llm":
+			// 2026-11-01 (live: the comm check stopped while Git Repo's answer was
+			// being made; it came 2 minutes later and played): a stop run while the
+			// answer is made drops it.
+			seq := gopodStopSeq.Load()
 			reply, err := gopodPersonaAsk(host, text)
+			if gopodStopSeq.Load() != seq {
+				logger.Println("GOPOD_PERSONA " + host + ": answer dropped - stop run while it was made")
+				return true
+			}
 			if err != nil {
 				logger.Println("GOPOD_PERSONA " + host + ": " + err.Error())
 				return false
+			}
+			// 2026-10-31: an intro is the template - the code's opening and cast line
+			// around the model's middle part (gopodIntroWrap).
+			if gopodIsIntro(text) {
+				reply = gopodIntroWrap(host, reply)
 			}
 			logger.Println("GOPOD_PERSONA " + host + ": " + reply)
 			// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
 			reply = gopodPersonaChainWrap(host, reply)
 			// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
-			task := ""
-			if gopodIsIntro(text) {
-				task = gopodBrobotsSettings.IntroRecipe.Task
-			}
-			gopodGomadBrain(host, sayAs, task, text)
+			gopodGomadBrain(host, sayAs, text)
 			gopodReporterSay(sayAs, reply, true, true)
 			kind := "answer"
 			if gopodIsIntro(text) {

@@ -100,7 +100,8 @@ func GopodSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
 	// 2026-10-30: each persona's labels from its profile, the one master source.
-	w.Write(gopodPersonaProfileLabelsJSON(data))
+	// 2026-10-31: the topic-clusters laid over them (gopod_topic_clusters.go).
+	w.Write(gopodPersonaProfileLabelsJSON(gopodClustersOverlay(data)))
 }
 
 // gopodSettingsShow: a settings file as system-locate shows it.

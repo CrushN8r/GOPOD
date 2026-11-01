@@ -1142,7 +1142,11 @@ func gopodSpokenChunks(text string) []string {
 	}
 	var out []string
 	cur := ""
-	for _, s := range gopodSentences(text) {
+	// 2026-11-01 (operator: "update weird [chunking to sentences to commas] splits *
+	// try to keep sentences generated whole, then play out the pauses"):
+	// gopodSentences is the comma pieces (the highlight's) - a chunk is whole
+	// sentences, each made as one voice; its comma pauses play inside it.
+	for _, s := range gopodWholeSentences(strings.TrimSpace(text)) {
 		if cur != "" {
 			cur += " "
 		}

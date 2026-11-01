@@ -268,16 +268,25 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 // (gopodQuestionFactsFor); "got_it" is where his "Got it!" goes.
 func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
-	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && len(parts["summary"]) == 0 && !gopodIsThanks(question) {
+	// 2026-10-31: an intro's brain is the brain template alone - no value points game.
+	intro := gopodIsIntro(question)
+	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && len(parts["summary"]) == 0 && !gopodIsThanks(question) && !intro {
 		parts["none"] = []string{vp.None}
 	}
 	gopodNoticeEggs.Lock()
 	parts["egg"] = append(parts["egg"], gopodNoticeEggs.lines[gopodBrobotName(esn)]...)
 	delete(gopodNoticeEggs.lines, gopodBrobotName(esn))
 	gopodNoticeEggs.Unlock()
-	gopodNoticeGame(esn, question, parts)
-	// 2026-10-31: the brain chain's memory and flow lines (gopod_brain_chain.go).
-	parts["memory"] = gopodBrainBubbleLines(gopodBrobotName(esn), question)
+	if !intro {
+		gopodNoticeGame(esn, question, parts)
+	}
+	// 2026-10-31: his reminders, for the brain's Reminders (the names the reminder named).
+	gopodBrainReminders.Delete(gopodBrobotName(esn))
+	if v, ok := gopodReminderNames.LoadAndDelete(question); ok && !intro && !gopodIsThanks(question) {
+		gopodBrainReminders.Store(gopodBrobotName(esn), v)
+	}
+	// 2026-10-31: the brain template's lines (gopod_brain_chain.go, brain_chain.lines).
+	parts["memory"] = gopodBrainLines(gopodBrobotName(esn), question)
 	var keep []string
 	content := false
 	for _, part := range vp.Parts {

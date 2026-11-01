@@ -635,6 +635,11 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 		gopodSummaryGivenSet(esn, summaryGiven)
 		gopodNoticeSet(esn, userMessage, notice)
 	}()
+	// 2026-10-31 (live: Doc's and Pip's intros got the doc_and_pip value point and
+	// came back as a topic answer): an intro is his intro - no value point.
+	if gopodIsIntro(userMessage) {
+		return ""
+	}
 	// 2026-10-23: a golden query gets the summary across the core topics, in
 	// place of one value point (gopod_summary_answer.go).
 	if sf := gopodSummaryFacts(esn, userMessage); sf != "" {

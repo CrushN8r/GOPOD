@@ -62,10 +62,6 @@
     "mic_usb_ids": ["3302:12e9"],
     "numpad_usb_ids": ["1a2c:4324"],
     "usb_watch_seconds": 3,
-    "mic_missing_text": "Master CrushN8r, the USB mic is missing. The numpad still works, without the mic, until it's plugged back in.",
-    "mic_found_text": "Master CrushN8r, the USB mic is detected and wired in.",
-    "numpad_missing_text": "Master CrushN8r, the USB numpad is missing.",
-    "numpad_found_text": "Master CrushN8r, the USB numpad is detected and wired in.",
     "usb_host_about": "2026-10-26 (Pass 2, the Gomad intern jobs): who says and shows the USB lines above - Git Repo, the ethical hacker intern, in his voice and bubble. Empty = Goverlord.",
     "usb_host": "GIT REPO",
     "mic_disabled_seconds": 1.2,
@@ -79,11 +75,9 @@
       "mic_disabled": "🎙 Mic disabled - no USB mic",
       "no_mic": "🎙 No USB mic found - check the mic's plug",
       "not_ready": "⏳ Not ready yet - wait for LLM Ready",
-      "wait_message": "⏳ Wait - Goverlord is still giving the mic's message",
       "error": "Push-to-talk failed: {error}",
       "numlock_off": "NumLock is off - {key} needs NumLock on",
       "not_live": "{key} is {persona} ({body}) - not live yet",
-      "exit": "Goverlord has released the numpad.",
       "on": "Numpad is mapped and ready to use."
     }
   },

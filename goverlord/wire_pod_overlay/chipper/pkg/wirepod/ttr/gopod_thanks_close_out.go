@@ -135,6 +135,9 @@ func gopodStopRunCommand(text string) bool {
 		if w != "" && gopodHasWholeWords(lower, strings.ToLower(w)) {
 			if !gopodStopRuns("stop run") {
 				logger.Println("GOPOD_STOP_RUN nothing running")
+				// 2026-11-01 (live: Git Repo's late answer went on playing after a
+				// second stop run): voices still playing on the page stop anyway.
+				gopodChatFeedAddTurn(0, gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+"stop run")
 				// 2026-10-10 (operator: "stop run was heard, no system message"):
 				// a stop with nothing to stop still gets an answer.
 				gopodSessionSay(gopodBrobotsSettings.Session.NoRunText)

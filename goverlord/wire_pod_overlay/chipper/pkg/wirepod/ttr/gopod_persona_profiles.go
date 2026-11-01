@@ -204,39 +204,17 @@ func gopodPersonaProfileField(who, label string) string {
 }
 
 // gopodGomadBrain (2026-10-30, operator: "NEW CORE TEMPLATE RULE: everybody gets a
-// brain bubble * each brain bubble can now be better refined to suit both the self
-// & chat awareness"): a Gomad's brain bubble, at the top of its own bubble - the
-// same title as a Brobot's ("{name} Brain"), its lines from
-// bubble_notices.gomad_brain: {name} {fullname} {job} {asked} {task} {cast}.
-func gopodGomadBrain(host, to, task, question string) {
-	gb := gopodBrobotsSettings.BubbleNotices.GomadBrain
+// brain bubble"): a Gomad's brain bubble, at the top of its own bubble - the same
+// title as a Brobot's ("{name} Brain") and the same lines, the one brain template
+// (brain_chain.lines, gopodBrainLines).
+func gopodGomadBrain(host, to, question string) {
 	title := strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title)
 	if title == "" {
 		return
 	}
-	name := gopodCallName(host)
-	job := gopodPersonaProfileField(host, "My job title")
-	if job == "" {
-		job = gopodBrobotsSettings.HostPersonas[host].JobName
-	}
-	if task == "" {
-		task = gb.NoTask
-	}
-	var cast []string
-	for _, c := range gopodBrobotsSettings.HereNow.Cast {
-		if c.Who != host {
-			cast = append(cast, gopodCallName(c.Who))
-		}
-	}
-	fill := strings.NewReplacer("{name}", name, "{fullname}", gopodBrobotsSettings.HostPersonas[host].Name, "{job}", job,
-		"{asked}", gb.Asked, "{task}", task, "{cast}", strings.Join(cast, ", "))
-	title = strings.ReplaceAll(title, "{name}", name)
-	lines := append([]string(nil), gb.Lines...)
-	lines = append(lines, gopodBrainBubbleLines(host, question)...)
-	for _, l := range lines {
-		if line := strings.TrimSpace(fill.Replace(l)); line != "" && !strings.HasSuffix(line, ":") {
-			gopodBubbleNotice(to, title, line)
-		}
+	title = strings.ReplaceAll(title, "{name}", gopodCallName(host))
+	for _, line := range gopodBrainLines(host, question) {
+		gopodBubbleNotice(to, title, line)
 	}
 }
 

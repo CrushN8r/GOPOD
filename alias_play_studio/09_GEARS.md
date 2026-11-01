@@ -124,11 +124,43 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
 | Memory | What it holds | Made from | Where it shows |
 |---|---|---|---|
 | **Self, long term** | who I am: nickname, name, job title, role, who helps me; my voice and banter | my profile (the master format) | my prompt; my brain bubble's Self line |
-| **Self, short term** | what I'm asked right now, and the task | the line, the intro recipe, the take | my prompt; my brain bubble's Task line |
-| **Chat, short term** | the last few answers: who asked, who answered, the line, its kind | the brain chain's last `short_term` (4) records | every prompt; the brain bubble's "Last:" line |
+| **Self, short term** | what I'm asked right now, and the task | the line, the intro recipe, the take | my prompt; the Guided Task Flow line |
+| **Chat, short term** | the last few answers: who asked, who answered, the line, its kind | the brain chain's last `short_term` (4) records | every prompt ("Recent chat"); not in the bubble (no "Last:") |
 | **Chat, long term** | the session so far: the game's score, the runs Doc and Pip performed (kept until the session ends), who has spoken, who's introduced | the whole chain and the game | every prompt; the brain bubble's "Session:" line |
-| **Flow** | one or two helper lines for what comes next | the chain: an intro, the first to speak, who just spoke | every prompt; the brain bubble's "Flow:" line |
+| **Flow** | one or two helper lines for what comes next | the chain: an intro or an answer, then the first to speak or "Does recent chat help me answer this question asked by: Master CrushN8r?" | every prompt; the brain bubble's "Guided Task Flow:" line |
 
+- **One brain template** (2026-10-31, the operator's scaffold; settings `brain_chain.lines`): under a
+  Brobot's `Response-chain:` line - `I am Pip (Brobot 2), <his profile's "In short">`; `In the chat:` every
+  member but the operator with his profile's job title in brackets, `(me)` for himself; `So far: N have
+  spoken, N introduced themselves. Guided Task Flow: Does the recent chat help me answer the question
+  asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`, no score lines. Every brain bubble (Brobots
+  and Gomads) shows it - left to right, header too - and every prompt gets the same lines.
+- **The crew roster** (2026-10-31): `gopod_probes/personas/crew_roster.md`, a topic-cluster in the
+  master format (`## Crew`, one `Name: description` point each). "In the chat" reads it; system-check
+  names anyone in the chat without a line (`TestCrewRoster`).
+- **Topic-clusters for settings** (2026-10-31): `gopod_probes/clusters/` - `easter_eggs.md`,
+  `golden_answers.md`, `butler_lines.md`, `nicknames.md`, in the master format. Each section names the
+  settings place it fills in brackets (`## Run lines (session)`); each point is `key: value` (a list
+  split on ` | `). They are the one source - the settings files no longer hold those values; Wire-Pod
+  lays them over at its start and for the page. system-check names any point that lands nowhere;
+  system-locate finds their keys. Edit the md, then wpr (`TestTopicClusters`).
+- **Every lit line scrolls the chat** (2026-10-31): the highlight's scroll rule is part of lighting a
+  line, so a tall bubble of any kind (Gomads too) moves on as its lines are said.
+- **The chat's own scroll bar** (2026-10-31, `chat_window.scroll_bar`): drag the thumb to scroll,
+  drag either end to make it longer or shorter (less or more travel), double-click for its natural
+  size; its length is kept per browser. Admin, visitor and app pages alike; wheel, touch and keys
+  scroll as before.
+- **Chunks are whole sentences** (2026-11-01): a long voiced line is made sentence by sentence
+  (short ones join the next), each one voice; its comma pauses play inside it - never cut at a comma
+  (`TestChunksAreWholeSentences`).
+- **Every spoken line reads left to right** (2026-11-01): one rule, every bubble kind - each line
+  spans the bubble, so lines never sit jagged in a centred bubble.
+- **Stop run drops what's still being made** (2026-11-01): a Gomad's answer still being written when
+  stop run comes is dropped; a stop with nothing running still cuts voices playing on the page.
+- **Reminders name topics, never eggs** (2026-10-31); the eggs still work on their own phrases.
+- **The intro template:** code says the opening (`I'm {name}, my nickname is {nickname}, because
+  {why}.`) and the cast line (`intro_recipe.cast_line`), once; the model writes only the middle
+  (`gopodIntroWrap`, `TestIntroTemplate`). An intro gets no value point and is its own answer type.
 - **Clean:** a record is made by code, never by the model - no earlier answer's colour is carried on.
   The Gomads get the brain instead of the raw chat (`gomads_raw_chat` false); the Brobots keep their
   own shared chat and get the brain on top.

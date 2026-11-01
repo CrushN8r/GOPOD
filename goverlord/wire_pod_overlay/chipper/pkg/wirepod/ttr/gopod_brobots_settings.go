@@ -145,9 +145,8 @@ type gopodBrobotsSettingsFile struct {
 		NodSpeed       float64 `json:"nod_speed"`
 		NodHoldSeconds float64 `json:"nod_hold_seconds"`
 		// 2026-10-08: searching while a Brobot waits - at least this long.
-		SearchingMinSeconds      float64 `json:"searching_min_seconds"`
-		SearchingResendSeconds   float64 `json:"searching_resend_seconds"`
-		SearchingIntervalSeconds float64 `json:"searching_interval_seconds"`
+		SearchingMinSeconds    float64 `json:"searching_min_seconds"`
+		SearchingResendSeconds float64 `json:"searching_resend_seconds"`
 		// 2026-10-10: the words said while the model works on a reply.
 		ThinkingText string `json:"thinking_text"`
 		// 2026-10-09: the moves before "Thinking, please wait." ("arm", "nod").
@@ -302,31 +301,31 @@ type gopodBrobotsSettingsFile struct {
 		DescribeDoneText    string              `json:"describe_done_text"`
 	} `json:"topic_pictures"`
 	ReporterVoices struct {
-		Role               string            `json:"role"`
-		Python             string            `json:"python"`
-		Worker             string            `json:"worker"`
-		AudioFolder        string            `json:"audio_folder"`
-		Hosts              map[string]string `json:"hosts"`
-		SystemVoice        string            `json:"system_voice"`
-		Speed              float64           `json:"speed"`
-		HFHome             string            `json:"hf_home"`
-		SystemSayRole      string            `json:"system_say_role"`
-		SongAudioRole      string            `json:"song_audio_role"`
-		NarratorRole       string            `json:"narrator_role"`
-		NarratorLead       float64           `json:"narrator_lead_seconds"`
-		HeardMarker        string            `json:"heard_marker"`
-		OperatorHost       string            `json:"operator_host"`
-		ReadLinesFrom      []string          `json:"read_lines_from"`
-		PageLagSeconds     float64           `json:"page_lag_seconds"`
+		Role           string            `json:"role"`
+		Python         string            `json:"python"`
+		Worker         string            `json:"worker"`
+		AudioFolder    string            `json:"audio_folder"`
+		Hosts          map[string]string `json:"hosts"`
+		SystemVoice    string            `json:"system_voice"`
+		Speed          float64           `json:"speed"`
+		HFHome         string            `json:"hf_home"`
+		SystemSayRole  string            `json:"system_say_role"`
+		SongAudioRole  string            `json:"song_audio_role"`
+		NarratorRole   string            `json:"narrator_role"`
+		NarratorLead   float64           `json:"narrator_lead_seconds"`
+		HeardMarker    string            `json:"heard_marker"`
+		OperatorHost   string            `json:"operator_host"`
+		ReadLinesFrom  []string          `json:"read_lines_from"`
+		PageLagSeconds float64           `json:"page_lag_seconds"`
 		// 2026-10-31 (operator: "chunks are lines in that one chat bubble * core
 		// rule: applies globally"): a voiced line longer than this many words is
 		// said in chunks of whole sentences - one bubble, a line each, its own
 		// voice (gopodSpokenChunks, gopodSayLinesInBubble). 0: never.
 		ChunkWords int `json:"chunk_words"`
 		// 2026-10-31: a sentence shorter than this joins the next chunk.
-		ChunkMinWords int `json:"chunk_min_words"`
-		MaxWaitSeconds     float64           `json:"max_wait_seconds"`
-		HeardMarginSeconds float64           `json:"heard_margin_seconds"`
+		ChunkMinWords      int     `json:"chunk_min_words"`
+		MaxWaitSeconds     float64 `json:"max_wait_seconds"`
+		HeardMarginSeconds float64 `json:"heard_margin_seconds"`
 		// 2026-10-14: "Generating..." while a shown line's voice is made (gopodSayShown: the line waits in its own bubble).
 		GeneratingMarker string  `json:"generating_marker"`
 		StartWaitSeconds float64 `json:"start_wait_seconds"`
@@ -433,11 +432,11 @@ type gopodBrobotsSettingsFile struct {
 			// in its own bubble - the Butler, the butler's (sign_off.system_role).
 			VoiceOf string `json:"voice_of"`
 		} `json:"personas"`
-		WIPText  string   `json:"wip_text"`
+		WIPText string `json:"wip_text"`
 		// 2026-10-30 (operator: "let my personas speak!! * why the cut-off?"):
 		// a persona's answer, at most this many tokens (it was 120, written in).
-		AnswerNumPredict int `json:"answer_num_predict"`
-		WhoWords []string `json:"who_words"`
+		AnswerNumPredict int      `json:"answer_num_predict"`
+		WhoWords         []string `json:"who_words"`
 	} `json:"managers"`
 	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
 	// 2026-10-22: after his weather line, its picture and sound, then a pause.
@@ -619,7 +618,11 @@ type gopodBrobotsSettingsFile struct {
 		LongLine      string            `json:"long_line"`
 		FlowLine      string            `json:"flow_line"`
 		Flow          map[string]string `json:"flow"`
-		BubbleLines   []string          `json:"bubble_lines"`
+		Lines         []string          `json:"lines"`
+		CastItem      string            `json:"cast_item"`
+		Roster        string            `json:"roster"`
+		CastMe        string            `json:"cast_me"`
+		RemindersPart string            `json:"reminders_part"`
 		Asked         string            `json:"asked"`
 		None          string            `json:"none"`
 		QuestionChars int               `json:"question_chars"`
@@ -638,8 +641,9 @@ type gopodBrobotsSettingsFile struct {
 	IntroRecipe struct {
 		Words []string `json:"words"`
 		Text  string   `json:"text"`
-		Task  string   `json:"task"`
-		// 2026-10-31: the opening, made by code: "I'm {name}{nickname_part}."
+		// 2026-10-31: the opening and the cast line, said by code around the
+		// model's middle part: "I'm {name}{nickname_part}." ... cast_line.
+		CastLine     string `json:"cast_line"`
 		Opening      string `json:"opening"`
 		NicknamePart string `json:"nickname_part"`
 		WhyPart      string `json:"why_part"`
@@ -702,11 +706,6 @@ type gopodBrobotsSettingsFile struct {
 	BubbleNotices struct {
 		// 2026-10-30 (operator: "everybody gets a brain bubble"): a Gomad's
 		// brain lines (gopodGomadBrain).
-		GomadBrain struct {
-			Lines  []string `json:"lines"`
-			Asked  string   `json:"asked"`
-			NoTask string   `json:"no_task"`
-		} `json:"gomad_brain"`
 		ValuePoints struct {
 			Title   string   `json:"title"`
 			Parts   []string `json:"parts"`
@@ -754,7 +753,7 @@ type gopodBrobotsSettingsFile struct {
 		OrderMargin float64 `json:"order_margin"`
 	} `json:"lightning"`
 	RobotsOff struct {
-		On          bool   `json:"on"`
+		On          bool              `json:"on"`
 		CaptureFile string            `json:"capture_file"`
 		Voices      map[string]string `json:"voices"`
 	} `json:"robots_off"`
@@ -997,17 +996,17 @@ type gopodBrobotsSettingsFile struct {
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`
 	BatteryWatch struct {
-		Enabled         bool                `json:"enabled"`
-		IntervalSeconds float64             `json:"interval_seconds"`
-		LowVolts        float64             `json:"low_volts"`
-		RecoverVolts    float64             `json:"recover_volts"`
+		Enabled         bool    `json:"enabled"`
+		IntervalSeconds float64 `json:"interval_seconds"`
+		LowVolts        float64 `json:"low_volts"`
+		RecoverVolts    float64 `json:"recover_volts"`
 		// 2026-10-30: a drop this big between two readings is a dip.
-		DipVolts float64 `json:"dip_volts"`
-		Lines           map[string][]string `json:"lines"`
-		Guards          map[string]string   `json:"guards"`
-		GuardWarning    string              `json:"guard_warning"`
-		GuardHandover   string              `json:"guard_handover"`
-		Reply           string              `json:"reply"`
+		DipVolts      float64             `json:"dip_volts"`
+		Lines         map[string][]string `json:"lines"`
+		Guards        map[string]string   `json:"guards"`
+		GuardWarning  string              `json:"guard_warning"`
+		GuardHandover string              `json:"guard_handover"`
+		Reply         string              `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {
@@ -1043,6 +1042,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	if err != nil {
 		panic("GOPOD Brobots settings missing at " + gopodSettingsDir + ": " + err.Error())
 	}
+	// 2026-10-31: the topic-clusters laid over them (gopod_topic_clusters.go).
+	data = gopodClustersOverlay(data)
 	if err := json.Unmarshal(data, &s); err != nil {
 		panic("GOPOD Brobots settings unreadable at " + gopodSettingsDir + ": " + err.Error())
 	}

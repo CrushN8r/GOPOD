@@ -32,7 +32,6 @@ type gopodGotIt struct {
 	Text                     string   `json:"text"`
 	Moves                    []string `json:"moves"`
 	SearchingMinSeconds      float64  `json:"searching_min_seconds"`
-	SearchingIntervalSeconds float64  `json:"searching_interval_seconds"`
 	SearchingResendSeconds   float64  `json:"searching_resend_seconds"`
 }
 
@@ -51,9 +50,6 @@ func gopodGotItFor(esn string) gopodGotIt {
 	}
 	if g.SearchingMinSeconds == 0 {
 		g.SearchingMinSeconds = cm.SearchingMinSeconds
-	}
-	if g.SearchingIntervalSeconds == 0 {
-		g.SearchingIntervalSeconds = cm.SearchingIntervalSeconds
 	}
 	if g.SearchingResendSeconds == 0 {
 		g.SearchingResendSeconds = cm.SearchingResendSeconds
@@ -139,9 +135,7 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	// the response is ready like before"): searching every
 	// searching_interval_seconds until the answer is ready, and for at least
 	// searching_min_seconds, then one searchingGetout. The pace is the golden
-	// one, so the robot isn't hit with commands: in the first
-	// searching_min_seconds a clip every searching_interval_seconds (go search
-	// V4's 1 s burst), then never faster than one clip,
+	// one, so the robot isn't hit with commands: never faster than one clip,
 	// searching_resend_seconds (the song lock,
 	// SEARCHING_ANIMATION_SONG_LOCK_001.md) - a clip that comes back at once
 	// (Brobot 2, ~80 ms, live 2026-10-08 12:02) no longer means another send
@@ -178,10 +172,10 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 			Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_01"},
 			Loops:     1,
 		})
-		gap := gopodSecondsToDuration(cm.SearchingIntervalSeconds)
-		if time.Since(searchStart) >= minRun {
-			gap = gopodSecondsToDuration(cm.SearchingResendSeconds)
-		}
+		// 2026-10-31 (operator: "searching 1 s animation loop is messy"): one clip,
+		// never re-sent sooner than one clip's length - the song lock's rule
+		// (SEARCHING_ANIMATION_SONG_LOCK_001.md), in the first second too.
+		gap := gopodSecondsToDuration(cm.SearchingResendSeconds)
 		for !done() && !gopodManagerBusy.Load() && time.Since(sent) < gap {
 			time.Sleep(50 * time.Millisecond)
 		}
