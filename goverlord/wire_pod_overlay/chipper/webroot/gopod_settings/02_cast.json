@@ -103,7 +103,6 @@
     "time_place_text": "{place}, {weekday}, {date}, {clock}.",
     "display_host": "CHALK",
     "handoff_text_about": "2026-10-26 (operator: \"Managers must have at least one cool thing/feature they do, or they're fired, lol * as Gomads, they can offload stuff to the interns * where a Gomad stepped in and said, I can help you with that ... * Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): a take with via - that Gomad says this ({intern}: the intern's host_personas name), then the intern says take_text and does the job.",
-    "handoff_text": "{intern} will help you with that.",
     "usb_text_about": "2026-10-26 (Pass 2, the Gomad intern jobs): Git Repo's usb take - {count} USB devices; {mic} and {numpad} are \"plugged in\" or \"missing\".",
     "usb_text": "I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.",
     "qr_note_about": "2026-10-18 (operator: \"QR codes are brobot N's bubble * thought bubble * brobot can say refer to QR codes below\"): the Brobot's prompt while PLAYHEAD's QR ({url}) is in his bubble. url_qr (a take): a web address in a line - PLAYHEAD says take_text and shows a QR made for it (webroot/qr/made). A line to Brobot N: the managers' lines go inside his bubble - PLAYHEAD's at the top, before his reply; CHALK's QR codes at the bottom, after it.",
@@ -295,12 +294,8 @@
   },
   "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {title} and {nickname} from nicknames (his own titles/nicknames here when he has them) - 2026-10-25, operator: \"I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
   "host_personas": {
-    "Brobot 1": {
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
-    },
-    "Brobot 2": {
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
-    },
+    "Brobot 1": {},
+    "Brobot 2": {},
     "CHALK": {
       "call_name": "CHALK",
       "role": "",

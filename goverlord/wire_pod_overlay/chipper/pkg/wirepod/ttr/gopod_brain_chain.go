@@ -325,10 +325,77 @@ func gopodCastGrouped(self string) string {
 			parts = append(parts, g.Label+": "+strings.Join(items, ", "))
 		}
 	}
+	// The approved visitors talking now (participation ON, box ticked).
+	if names := gopodVisitorsTalking(); len(names) > 0 {
+		label := strings.TrimSpace(bc.VisitorsLabel)
+		if label == "" {
+			label = "Visitors in the chat"
+		}
+		parts = append(parts, label+": "+strings.Join(names, ", "))
+	}
 	if len(parts) == 0 {
 		return ""
 	}
 	return strings.Join(parts, ". ") + "."
+}
+
+// gopodBrainBubbleLines: the brain template's lines as a brain bubble shows them -
+// without the lines starting with brain_chain.bubble_hide (the swarm list is
+// PLAYHEAD's to say; every prompt still gets it, gopodBrainText).
+func gopodBrainBubbleLines(self, question string) []string {
+	var out []string
+	for _, l := range gopodBrainLines(self, question) {
+		hide := false
+		for _, h := range gopodBrobotsSettings.BrainChain.BubbleHide {
+			if h = strings.TrimSpace(h); h != "" && strings.HasPrefix(l, h) {
+				hide = true
+				break
+			}
+		}
+		if !hide {
+			out = append(out, l)
+		}
+	}
+	return out
+}
+
+// gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the
+// names they're called, then the talking visitors by their approved names.
+func gopodWhosHere() []string {
+	var names []string
+	for _, n := range strings.Split(gopodIntroCast(""), ", ") {
+		if n = strings.TrimSpace(n); n != "" {
+			names = append(names, n)
+		}
+	}
+	return append(names, gopodVisitorsTalking()...)
+}
+
+var gopodWhosHereLast struct {
+	sync.Mutex
+	line string
+}
+
+// gopodWhosHereAnnounce (2026-11-02, operator: "PLAYHEAD Gomad generates a dynamic
+// In the chat list as participants join/leave"): whos_here_host says who's here,
+// when it's changed since he last said it; wait: until it's been heard.
+func gopodWhosHereAnnounce(reason string, wait bool) {
+	bc := gopodBrobotsSettings.BrainChain
+	host, text := strings.TrimSpace(bc.WhosHereHost), strings.TrimSpace(bc.WhosHereText)
+	names := gopodWhosHere()
+	if host == "" || text == "" || len(names) == 0 {
+		return
+	}
+	line := strings.ReplaceAll(text, "{names}", gopodBrainList(names))
+	gopodWhosHereLast.Lock()
+	same := line == gopodWhosHereLast.line
+	gopodWhosHereLast.line = line
+	gopodWhosHereLast.Unlock()
+	if same {
+		return
+	}
+	logger.Println("GOPOD_WHOS_HERE (" + reason + ") " + host + ": " + line)
+	gopodReporterSayTo(host, "", line, true, wait)
 }
 
 // gopodBrainList: "a, b, c, & d" (operator: "Reminders: [], [], [], & []").

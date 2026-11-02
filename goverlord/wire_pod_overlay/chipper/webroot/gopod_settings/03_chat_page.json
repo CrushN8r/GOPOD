@@ -201,7 +201,6 @@
       "search": "Web search: {search}",
       "template_2_about": "2026-10-25 (operator: \"NEW TEMPLATE: Response-chain ... * No value point - a quick take, then back on track: * [topics] * Topics [score line] * Value Points [score line] * Easter Eggs [score line] * score lines vertically aligned\"): none ends with the lead-in, recovery is the topics alone on the next line, score is three lines - each label, a tab, its bar (the page lines the bars up).",
  "none": "No value point - a quick take, then back on track:",
-      "got_it_again": "Thanks for your help, {helper}.",
       "helper_from_about": "2026-10-27: call_name first - host_personas.<host>.call_name, the name others call him by (\"Thanks for your help, Cache PYC.\"). 2026-10-22 (operator: \"Use gomad name ('Thanks for your help, PLAYHEAD.') * if no name available, fallback to brobot N * template this\"): where {helper} comes from, first that has one: name (the manager's own name, PLAYHEAD / CHALK), brobot (its Brobot, managers.personas reporter: Brobot 4 / Brobot 3).",
       "helper_from": ["call_name", "name", "brobot"],
       "second_got_it": "after_manager"

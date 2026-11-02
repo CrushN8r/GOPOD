@@ -3473,9 +3473,28 @@
         if (notice) {
           box.classList.add("in-notice");
           notice.appendChild(box);
+          brainInView(notice);
           return box;
         }
         return nestPlace(shell, box, atTop);
+      }
+      // 2026-11-02 (operator: "Upon: PLAYHEAD Cache PYC will help you with that.
+      // Thanks for your help, Cache PYC. * scroll down so the bottom of the brain
+      // bubble is above the bottom of the display area"): when a line lands in a
+      // brain bubble, the chat scrolls just enough to show its bottom - checked
+      // again once the line's words have filled in.
+      function brainInView(el) {
+        function keep() {
+          if (!el || !container.contains(el)) { return; }
+          var bottom = contentY(el) + el.getBoundingClientRect().height;
+          var over = bottom - (container.scrollTop + chatViewHeight()) + 8;
+          if (over > 0) {
+            scrollLog("brain bubble's bottom kept in view: +" + Math.round(over));
+            scrollChatTo(Math.min(container.scrollTop + over, chatContentEnd()));
+          }
+        }
+        setTimeout(keep, 80);
+        setTimeout(keep, 600);
       }
       // PLAYHEAD's QR ("qr:<picture>|<url>"): the code and its address, shown, not said.
       function hostQr(box, text) {
@@ -6233,6 +6252,7 @@
         var same = Array.prototype.filter.call(shell.querySelectorAll(":scope > .bubble-notice"), function (n) { return n.dataset.title === title; })[0];
         if (same) {
           same.appendChild(noticeLine(line, said));
+          brainInView(same);
           return;
         }
         var box = nestPart("notice", "egg-summary bubble-notice", systemHead(title), String(line).indexOf("\t") >= 0 ? null : line, "egg-summary-text");

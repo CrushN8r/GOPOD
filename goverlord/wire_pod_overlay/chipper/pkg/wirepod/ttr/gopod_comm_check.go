@@ -139,6 +139,8 @@ func gopodSystemCommCheck() string {
 			}
 			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
 		}
+		// 2026-11-02: PLAYHEAD says who's here before the first key.
+		gopodWhosHereAnnounce("comm check", true)
 		for i, l := range lines {
 			if gopodCommCheckStop.Load() {
 				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")

@@ -305,7 +305,7 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 		gopodBrainReminders.Store(gopodBrobotName(esn), v)
 	}
 	// 2026-10-31: the brain template's lines (gopod_brain_chain.go, brain_chain.lines).
-	parts["memory"] = gopodBrainLines(gopodBrobotName(esn), question)
+	parts["memory"] = gopodBrainBubbleLines(gopodBrobotName(esn), question)
 	// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
 	// rows, every answer - an intro's too.
 	parts["score"] = gopodBrainScoreRows()

@@ -611,6 +611,16 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"docbs"`
 	// 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
 	BrainChain struct {
+		// 2026-11-02 (operator: "swarm level awareness * something Goverlord would
+		// assign to PLAYHEAD Gomad * a dynamic In the chat list as participants
+		// join/leave * include accepted visitors"): the brain bubble leaves out the
+		// lines starting with bubble_hide (the prompt keeps them); whos_here_host
+		// says whos_here_text when the chat's people change; visitors_label heads
+		// the approved visitors in In the chat.
+		BubbleHide    []string          `json:"bubble_hide"`
+		WhosHereHost  string            `json:"whos_here_host"`
+		WhosHereText  string            `json:"whos_here_text"`
+		VisitorsLabel string            `json:"visitors_label"`
 		Header        string            `json:"header"`
 		ShortHeader   string            `json:"short_header"`
 		ShortTerm     int               `json:"short_term"`
