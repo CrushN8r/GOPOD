@@ -3,11 +3,12 @@
 > You saw two Vectors put on a show. Here's how to put yours on stage.
 > One guide, start to finish. Hand it to your AI helper too - it's written for both of you.
 
-GOPOD is a thank-you back to the Wire-Pod community: the people who kept Vector alive. Take
-what you like. Make it yours. Then show us what you made.
+**This is my gift back to the community** - the Wire-Pod people who kept Vector alive. Take what
+you like. Make it yours. Then show us what you made.
 
-**GOPOD is tested on one machine: the author's.** Back up your stuff first. Everything below that
-hasn't been tried on another set-up says so.
+**GOPOD is tested on one machine: mine.** This guide covers what I know. Otherwise: research,
+back up your stuff, and test at your own risk. Everything below that hasn't been tried on another
+set-up says so.
 
 ---
 

@@ -235,6 +235,10 @@ spoken line, the numpad's voice personas, and Record Session's untick path.
 - Known stubs, kept on purpose: the DAG anchor check (`verifyGOPODDAGAnchor`) is a no-op;
   `selectGOPODContactBeat` has no caller.
 
+**Pinned, coming soon:**
+- A "how do I get GOPOD?" topic in the game, so the Brobots can point a curious room to
+  [GOPOD_YOURSELF.md](GOPOD_YOURSELF.md). Not in the game yet.
+
 ---
 
 > From Doctrine Barfallonyou
