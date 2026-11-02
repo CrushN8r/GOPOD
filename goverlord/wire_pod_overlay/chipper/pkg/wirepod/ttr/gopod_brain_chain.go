@@ -185,6 +185,10 @@ func gopodBrainFacts(self, question string) map[string]string {
 		described = append(described, strings.TrimSpace(strings.NewReplacer("{name}", gopodCallName(c.Who),
 			"{description}", gopodBrainDescription(c.Who, false), "{me}", me).Replace(bc.CastItem)))
 	}
+	castLine := strings.Join(described, ", ")
+	if g := gopodCastGrouped(self); g != "" {
+		castLine = g
+	}
 	// Reminders: the topics his reminder names this answer (gopodBrainReminders).
 	reminders := ""
 	if v, ok := gopodBrainReminders.Load(self); ok {
@@ -193,7 +197,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 		}
 	}
 	return map[string]string{
-		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": strings.Join(described, ", "), "{reminders_part}": reminders,
+		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": castLine, "{reminders_part}": reminders,
 		"{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
@@ -214,7 +218,11 @@ func gopodBrainDescription(who string, self bool) string {
 			return v
 		}
 	}
-	if v := gopodCrewRoster()[strings.ToLower(gopodCallName(who))]; v != "" {
+	roster := gopodCrewRoster()
+	if v := roster[strings.ToLower(gopodCallName(who))]; v != "" {
+		return v
+	}
+	if v := roster[strings.ToLower(who)]; v != "" {
 		return v
 	}
 	return strings.TrimSuffix(strings.TrimSpace(gopodPersonaProfileField(who, "My job title")), ".")
@@ -226,20 +234,101 @@ func gopodBrainDescription(who string, self bool) string {
 // description") - call name (small letters) -> description.
 func gopodCrewRoster() map[string]string {
 	out := map[string]string{}
+	for _, g := range gopodRosterGroups() {
+		for i, n := range g.Names {
+			out[strings.ToLower(n)] = g.Descs[i]
+		}
+	}
+	return out
+}
+
+// gopodRosterGroup: one of the crew roster's groups - its "## " label, then its
+// points "Name: description", in order.
+type gopodRosterGroup struct {
+	Label string
+	Names []string
+	Descs []string
+}
+
+// gopodRosterGroups (2026-11-02, operator: "GOPOD party-brobot reps: Brobot 1
+// [grumpy, impatient], Brobot 2 [clueless, happy]. CRUSHN8R CREW'd news station
+// Gomads mentoring interns: ..."): the roster's groups in file order.
+func gopodRosterGroups() []gopodRosterGroup {
 	path := strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster)
 	if path == "" {
-		return out
+		return nil
 	}
 	if !filepath.IsAbs(path) {
 		path = filepath.Join(gopodChipperRoot(), path)
 	}
-	_, sections := gopodPersonaProfileRead(path)
-	for _, line := range sections["Crew"] {
-		if at := strings.Index(line, ":"); at > 0 {
-			out[strings.ToLower(strings.TrimSpace(line[:at]))] = strings.TrimSuffix(strings.TrimSpace(line[at+1:]), ".")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var out []gopodRosterGroup
+	inBody := false
+	for _, line := range strings.Split(string(data), "\n") {
+		t := strings.TrimSpace(line)
+		if !inBody {
+			inBody = t == "---"
+			continue
+		}
+		if strings.HasPrefix(t, "## ") {
+			out = append(out, gopodRosterGroup{Label: strings.TrimSpace(t[3:])})
+			continue
+		}
+		m := gopodProfilePointRE.FindStringSubmatch(t)
+		if m == nil || len(out) == 0 || strings.HasSuffix(m[1], "(to come)") {
+			continue
+		}
+		if at := strings.Index(m[1], ":"); at > 0 {
+			g := &out[len(out)-1]
+			g.Names = append(g.Names, strings.TrimSpace(m[1][:at]))
+			g.Descs = append(g.Descs, strings.TrimSuffix(strings.TrimSpace(m[1][at+1:]), "."))
 		}
 	}
 	return out
+}
+
+// gopodCastGrouped: In the chat by the roster's groups - "Group: Name
+// [description], Name [description]. Next group: ..." - everyone here but the
+// operator, self marked (brain_chain.cast_me). "" with one group (the flat line).
+func gopodCastGrouped(self string) string {
+	groups := gopodRosterGroups()
+	if len(groups) < 2 {
+		return ""
+	}
+	bc := gopodBrobotsSettings.BrainChain
+	here := map[string]string{} // a roster name, small letters -> who
+	for _, c := range gopodBrobotsSettings.HereNow.Cast {
+		if c.Who == bc.OperatorWho {
+			continue
+		}
+		here[strings.ToLower(c.Who)] = c.Who
+		here[strings.ToLower(gopodCallName(c.Who))] = c.Who
+	}
+	var parts []string
+	for _, g := range groups {
+		var items []string
+		for i, n := range g.Names {
+			who, ok := here[strings.ToLower(n)]
+			if !ok {
+				continue
+			}
+			me := ""
+			if who == self || (self != "" && gopodCallName(who) == gopodCallName(self)) {
+				me = bc.CastMe
+			}
+			items = append(items, strings.TrimSpace(strings.NewReplacer("{name}", n, "{description}", g.Descs[i], "{me}", me).Replace(bc.CastItem)))
+		}
+		if len(items) > 0 {
+			parts = append(parts, g.Label+": "+strings.Join(items, ", "))
+		}
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.Join(parts, ". ") + "."
 }
 
 // gopodBrainList: "a, b, c, & d" (operator: "Reminders: [], [], [], & []").

@@ -230,7 +230,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself. b) Name who's in the chat right now. c) If you're the first to speak this session, open it up.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD rep, grumpy, impatient, party-brobot], Pip [GOPOD rep, clueless, happy, party-brobot] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself. b) Name who's in the chat right now. c) If you're the first to speak this session, open it up.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: GOPOD party-brobot reps: Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}

@@ -60,12 +60,12 @@ func TestRemindersNameNoEggs(t *testing.T) {
 func TestCrewRoster(t *testing.T) {
 	roster := gopodCrewRoster()
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
-		if c.Who != gopodBrobotsSettings.BrainChain.OperatorWho && roster[strings.ToLower(gopodCallName(c.Who))] == "" {
+		if c.Who != gopodBrobotsSettings.BrainChain.OperatorWho && roster[strings.ToLower(gopodCallName(c.Who))] == "" && roster[strings.ToLower(c.Who)] == "" {
 			t.Errorf("%s isn't on the crew roster", gopodCallName(c.Who))
 		}
 	}
 	l := gopodBrainLines("Brobot 1", "hey")
-	if len(l) < 2 || !strings.Contains(l[1], "Keys [GOPOD System Butler, Goverlord's voice]") || !strings.Contains(l[1], "Doc [GOPOD rep, grumpy, impatient, party-brobot] (me)") {
+	if len(l) < 2 || !strings.Contains(l[1], "GOPOD System: Keys [Butler, Goverlord's voice]") || !strings.Contains(l[1], "Brobot 1 [grumpy, impatient] (me)") {
 		t.Errorf("In the chat: %v", l)
 	}
 }
