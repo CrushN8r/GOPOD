@@ -633,6 +633,11 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
   #section-log .gopod-log-button { min-width: 0; width: 100%; padding: 6px 8px; }
   #section-log #chat-display-handler { height: auto; }
   #brobot-chat-bubbles-container.expanded {
+    /* 2026-11-02 (operator, visitor page: "don't account for the scroll bar when
+       it appears"): room for the scroll bar is kept, so it never covers a bubble. */
+    scrollbar-gutter: stable;
+    box-sizing: border-box;
+    overflow-x: hidden;
     height: 72vh;
     padding: 10px;
     gap: 10px;
