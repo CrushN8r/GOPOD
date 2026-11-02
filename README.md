@@ -2,10 +2,13 @@
 
 Now that you're here, you can GOPOD Yourself! Lol
 
+> **AI Wordplay! Explain the MAth!**
+>
+> Talking to an AI is a challenge and a response. So is a comedy room, a classroom, a contest, a
+> pitch - pretty much everything going on in the world right now. GOPOD turns that loop into a show.
+
 Two rescued Vector robots, Brobot 1 and Brobot 2, running on Wire-Pod and talking out loud
 with a local AI. No cloud.
-
-> AI Wordplay! Explain the Math!
 
 Wire-Pod is the open-source local server that keeps Anki Vector robots running without the
 original cloud. GOPOD runs two of them, Brobot 1 and Brobot 2, on one Jetson: one shared
@@ -15,6 +18,63 @@ build.
 **Watch:** [VIDEO PLACEHOLDER — `start bingo test` run]
 
 ![Under construction](goverlord/wire_pod_overlay/chipper/webroot/pictures/under-construction.jpg)
+
+## I want this!
+
+- **Two real robots, live, with a room.** Not a video, not an avatar: two Vectors holding one
+  conversation with whoever's in front of them - and roasting each other while they're at it.
+- **The crowd joins from their phones.** Join the rig's Wi-Fi, open the chat, get a username, talk
+  to the Brobots from your seat.
+- **No internet, no monthly bill.** The brain, the voices and the ears all run on the rig. A
+  basement, a park, a moving van: it works.
+- **A show you can script.** Generate it, keep the best takes, replay it the same way every time -
+  ready to record.
+- **A whole cast on a numpad.** Reporters, a news crew, security guards, students, a social media
+  manager: each a voice, each a key.
+- **Change anything without code.** One menu on the chat page: every setting, song, voice and test.
+- **Free and open.** MIT licensed, built on Wire-Pod, and Wire-Pod itself stays untouched.
+
+**[Get it: GOPOD_YOURSELF.md](GOPOD_YOURSELF.md)**
+
+## What GOPOD really is
+
+**A platform, not a game.** It started as a demo of a demo of a demo. That led to one question:
+*how do I show everyone everything about GOPOD?* The answer was a game - a 20-Questions-style
+engine where the room asks, the Brobots answer one point at a time, and every answer scores. That
+grew into one templated GOPOD engine: chapters, topics, songs and personas, all built from the same
+templates. What's left is minor bugs and a few template adjustments.
+
+The game in this repo is the test bench: it's how live and scripted Brobot chat gets engaged and
+tested. It isn't *the* game to play. It's an example of how a game and chat platform got made -
+for the community to take further.
+
+## Build it with me
+
+I can't do it all alone - it's too expensive and too time-consuming for one person. That's where
+the Wire-Pod community comes in. Open lanes, ready for you:
+
+| Build | Start from |
+|---|---|
+| **Your own game** - your chapters, your topics, your scoring | the topic template, [`gopod_probes/_topic_cluster/`](goverlord/wire_pod_overlay/chipper/gopod_probes/_topic_cluster/README.md) |
+| **Your own songs and scripted shows** | `goverlord/runtime/songs/_new_song/`, and [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) |
+| **Your own cast** - new personas, new voices | [`gopod_probes/personas/`](goverlord/wire_pod_overlay/chipper/gopod_probes/personas/README.md) |
+| **Bodies for the voice-only cast** - the Cozmo students, the Moorebot Scout guards | not wired yet: wide open |
+| **More robots on stage** - GOPOD casts two Vectors today | [GOPOD_YOURSELF.md, how many robots](GOPOD_YOURSELF.md#how-many-robots) |
+| **Other machines** - a PC, a Pi, a TV box | not tested yet: tell us what works |
+| **Bugs and template tweaks** | the list in [WIRED-POD.md, "Where this stands"](WIRED-POD.md#6-where-this-stands) |
+
+Made something? Fork it, send a pull request, or tell me about it: contact@crushn8r.ca.
+
+## Where it leads
+
+GOPOD is the build behind a lot of doors. These are the ones I'm chasing - the same build works
+for yours:
+
+- **Local gigs** - birthdays and BBQs to start, paid and volunteer: [BOOKING.md](BOOKING.md).
+- **The livestream and its contest** - "AI Wordplay! Explain the MAth!", the benchmark to reach for:
+  [LIVESTREAM.md](LIVESTREAM.md).
+- **The niche pillar sites** - foodmath, accessmath, mathaftermath and more, each a pillar waiting
+  to be grown, Pinterest first: [where it lands](LIVESTREAM.md#where-it-lands).
 
 ## Want one? Start here
 

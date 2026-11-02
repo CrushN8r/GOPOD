@@ -256,6 +256,10 @@ How GOPOD is played: the Alias Play Studio.
 - **The cockpit.** `pha0b` (pick a song, play a range of it, live or dry) and `phcal` (tune one
   arm, nod, cube light or animation and save it). Set-up: WIRED-POD.md,
   [Part 1](WIRED-POD.md#part-1-the-alias-play-studio).
+- **Make your own game.** The game in this repo is a test bench for live and scripted chat, not
+  the game to play - an example of how to build one. Copy the topic template
+  (`goverlord/wire_pod_overlay/chipper/gopod_probes/_topic_cluster/`) into `chapters/` and write
+  your own: your topics, your asks, your scoring.
 - **The cast.** Each persona is one file in
   `goverlord/wire_pod_overlay/chipper/gopod_probes/personas/`. Rewrite them; make your own.
 - **Every rule, every note.** [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) - start with

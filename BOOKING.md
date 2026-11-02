@@ -3,6 +3,9 @@
 Gigs to book with Brobot 1 and Brobot 2. Every one is live or scripted, and catered to that room's
 GOPOD game session: the Brobots play the topics the room cares about, and the room plays the game.
 
+**Paid and volunteer.** Paid rooms keep the lights on; volunteer rooms give back - birthdays and
+BBQs are where it starts.
+
 **The way in:** contact@crushn8r.ca. For a birthday video, the request page on crushn8r.ca. The
 CRUSHN8R CREW'd newsletter hears first about live events. Every price comes by reply, in CAD.
 
