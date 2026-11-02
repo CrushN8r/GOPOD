@@ -28,11 +28,11 @@ func gopodThinkingLineSpoken() string {
 // gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words,
 // his moves before them, and his searching pace after.
 type gopodGotIt struct {
-	Name                     string   `json:"name"`
-	Text                     string   `json:"text"`
-	Moves                    []string `json:"moves"`
-	SearchingMinSeconds      float64  `json:"searching_min_seconds"`
-	SearchingResendSeconds   float64  `json:"searching_resend_seconds"`
+	Name                   string   `json:"name"`
+	Text                   string   `json:"text"`
+	Moves                  []string `json:"moves"`
+	SearchingMinSeconds    float64  `json:"searching_min_seconds"`
+	SearchingResendSeconds float64  `json:"searching_resend_seconds"`
 }
 
 // gopodGotItFor (2026-10-24, operator: "Separate out the already established,
@@ -83,7 +83,9 @@ func gopodSayWords(robot *vector.Vector, esn, text string) {
 		resp, err := gopodLogSayText(robot, context.Background(), &vectorpb.SayTextRequest{
 			DurationScalar: 1,
 			UseVectorVoice: true,
-			Text:           text,
+			// 2026-11-02 (live: "Thanks for your help, Cache PYC." said wrong): his
+			// short lines go through the pronunciation list too.
+			Text: gopodReplaceWholeWords(text, loadedGOPODPronunciations),
 		})
 		state := "no reply"
 		if resp != nil {
