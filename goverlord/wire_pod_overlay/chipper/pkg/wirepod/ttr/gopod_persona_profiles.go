@@ -213,7 +213,7 @@ func gopodGomadBrain(host, to, question string) {
 		return
 	}
 	title = strings.ReplaceAll(title, "{name}", gopodCallName(host))
-	for _, line := range gopodBrainLines(host, question) {
+	for _, line := range append(gopodBrainLines(host, question), gopodBrainScoreRows()...) {
 		gopodBubbleNotice(to, title, line)
 	}
 }

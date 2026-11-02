@@ -133,7 +133,7 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
   Brobot's `Response-chain:` line - `I am Pip (Brobot 2), <his profile's "In short">`; `In the chat:` every
   member but the operator with his profile's job title in brackets, `(me)` for himself; `So far: N have
   spoken, N introduced themselves. Guided Task Flow: Does the recent chat help me answer the question
-  asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`, no score lines. Every brain bubble (Brobots
+  asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`; the score rows (topics, value points, eggs) under them, every bubble (2026-11-02). Every brain bubble (Brobots
   and Gomads) shows it - left to right, header too - and every prompt gets the same lines.
 - **The crew roster** (2026-10-31): `gopod_probes/personas/crew_roster.md`, a topic-cluster in the
   master format (`## Crew`, one `Name: description` point each). "In the chat" reads it; system-check
@@ -153,6 +153,9 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
 - **Chunks are whole sentences** (2026-11-01): a long voiced line is made sentence by sentence
   (short ones join the next), each one voice; its comma pauses play inside it - never cut at a comma
   (`TestChunksAreWholeSentences`).
+  The runner reads each sentence file's own word times (`.words.json`, heard by Vosk) for the
+  highlight and its pauses (operator 2026-11-02: "the whole generated sentence file is then read by
+  Goverlord/runner to pause").
 - **Every spoken line reads left to right** (2026-11-01): one rule, every bubble kind - each line
   spans the bubble, so lines never sit jagged in a centred bubble.
 - **Stop run drops what's still being made** (2026-11-01): a Gomad's answer still being written when

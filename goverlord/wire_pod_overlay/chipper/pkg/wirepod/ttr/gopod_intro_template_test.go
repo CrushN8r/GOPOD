@@ -28,10 +28,10 @@ func TestIntroTemplate(t *testing.T) {
 		}
 	}
 	// An intro line: no value point, its own type, the brobots_intro chain wraps it.
-	if gopodQuestionFactsFor("0dd1b9e9", "Hey Doc! You party animal! Introduce yourself fully to the chat") != "" {
+	if gopodQuestionFactsFor("ESN01", "Hey Doc! You party animal! Introduce yourself fully to the chat") != "" {
 		t.Error("an intro got value point facts")
 	}
-	if typ := gopodAnswerType("0dd1b9e9", "Hey Doc! Introduce yourself fully"); typ != "intro" {
+	if typ := gopodAnswerType("ESN01", "Hey Doc! Introduce yourself fully"); typ != "intro" {
 		t.Errorf("intro answer type: %q", typ)
 	}
 	if p := gopodAnswerChain("brobots_intro"); len(p) != 2 || p[1] != "intro_wrap" {
@@ -109,5 +109,19 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	}
 	if said {
 		t.Error("a dropped answer was said")
+	}
+}
+
+// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
+// rows - topics, value points, eggs, each label then its bar.
+func TestBrainScoreRows(t *testing.T) {
+	rows := gopodBrainScoreRows()
+	if len(rows) != 3 || !strings.HasPrefix(rows[0], "Topics ") || !strings.HasPrefix(rows[2], "Easter Eggs ") {
+		t.Fatalf("score rows: %q", rows)
+	}
+	for _, r := range rows {
+		if !strings.Contains(r, "\t") || strings.Contains(r, "{") {
+			t.Errorf("score row not filled or not a row: %q", r)
+		}
 	}
 }

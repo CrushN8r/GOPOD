@@ -264,6 +264,25 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 	}
 }
 
+// gopodBrainScoreRows (2026-11-02, operator: "Add in the score in every brain
+// bubble"): the game's score rows (value_points.score - topics, value points,
+// eggs, each with its bar), for every brain bubble, a Brobot's or a Gomad's.
+func gopodBrainScoreRows() []string {
+	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
+	if strings.TrimSpace(vp.Score) == "" {
+		return nil
+	}
+	filled, _ := gopodCoverageScoreWith(vp.Score)
+	score, _ := gopodCoverageScoreText()
+	var out []string
+	for _, row := range strings.Split(gopodNoticeFill(filled, map[string]string{"score": score}), "\n") {
+		if strings.TrimSpace(row) != "" {
+			out = append(out, row)
+		}
+	}
+	return out
+}
+
 // gopodNoticeSet keeps this answer's lines, in value_points.parts order
 // (gopodQuestionFactsFor); "got_it" is where his "Got it!" goes.
 func gopodNoticeSet(esn, question string, parts map[string][]string) {
@@ -287,6 +306,9 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	}
 	// 2026-10-31: the brain template's lines (gopod_brain_chain.go, brain_chain.lines).
 	parts["memory"] = gopodBrainLines(gopodBrobotName(esn), question)
+	// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
+	// rows, every answer - an intro's too.
+	parts["score"] = gopodBrainScoreRows()
 	var keep []string
 	content := false
 	for _, part := range vp.Parts {
