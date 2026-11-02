@@ -231,13 +231,37 @@ How GOPOD is put together as a mobile performance station.
   and keep the driver out of it.
 - **The crowd joins the chat.** The GOPOD app (its home is
   [accessmath.crushn8r.net](ACCESSMATH.md)) is how people at a live gig join in from their phones:
-  1. They join the rig's Wi-Fi and open `https://<the rig's address>:8443/?app` (a QR code on the
-     table helps). The first time, the phone trusts GOPOD's own certificate from `/gopod_ca.crt`.
-  2. "Add to home screen" makes it an app that opens straight into the chat.
+  1. They join the rig's Wi-Fi and open the chat (a QR code on the table helps). Quick way, in the
+     browser: `http://<the rig's address>:8080`. App way: `https://<the rig's address>:8443/?app`,
+     after trusting GOPOD's certificate once (*The certificate*, below).
+  2. "Add to home screen" (Android: "Install app") makes it an app that opens straight into the chat.
   3. Their first line is the username they want. You approve it in the system window's
      "Local network visitors" slot, and switch participation **on** when you're ready.
   4. Approved, they talk to the Brobots under their name. Visitors only ever see the chat:
      Wire-Pod's settings, logs and GOPOD's commands are closed to them.
+- **The certificate: why and how.**
+  - *Why the secure page matters.* A phone only offers "install as app" on a secure (`https://`)
+    page, and the secure page scrambles each visitor's lines on the shared Wi-Fi. Certificate
+    companies don't issue certificates for a local network, so GOPOD makes its own: a local
+    authority called **GOPOD local** (made once, kept in `~/.gopod_https`, never in the repo) and a
+    certificate for the rig's own names and addresses (made again when they change).
+  - *Why it's safe to trust.* GOPOD's authority is fenced (`app.fence_dns`, `app.fence_ips` in
+    `06_system.json`): it can only vouch for local names (`localhost`, `*.local`, `*.lan`,
+    `*.home.arpa`) and private addresses (`192.168.x.x`, `10.x.x.x` and the like) - never a public
+    website. Its private key stays on the rig.
+  - *Install it, once per phone.* On the rig's Wi-Fi, open
+    `https://<the rig's address>:8443/gopod_ca.crt`.
+    - Android: Settings > Security > Encryption & credentials > Install a certificate >
+      CA certificate > `gopod_ca.crt`.
+    - iPhone/iPad: allow the download, then Settings > General > VPN & Device Management >
+      GOPOD local > Install; then Settings > General > About > Certificate Trust Settings >
+      switch GOPOD local on.
+    - Then close the browser completely and open it again. Menu names vary by phone and version.
+  - *Remove it after.* Android: Encryption & credentials > User credentials. iPhone: VPN & Device
+    Management > GOPOD local > Remove.
+  - *Two things that make phones trust it again:* an authority made before the fence existed is
+    set aside and a fenced one made at the next start, and a new `cert_dir` means a new authority.
+    Either way, phones install `/gopod_ca.crt` once more.
 - **Record the session.** Tick one box: the chat, Wire-Pod's log and the room mic are saved together
   - raw material for clips.
 - **Gigs.** The rooms, birthdays, BBQs, videos: [BOOKING.md](BOOKING.md).
@@ -256,6 +280,10 @@ How GOPOD is played: the Alias Play Studio.
 - **The cockpit.** `pha0b` (pick a song, play a range of it, live or dry) and `phcal` (tune one
   arm, nod, cube light or animation and save it). Set-up: WIRED-POD.md,
   [Part 1](WIRED-POD.md#part-1-the-alias-play-studio).
+- **Make your own game.** The game in this repo is a test bench for live and scripted chat, not
+  the game to play - an example of how to build one. Copy the topic template
+  (`goverlord/wire_pod_overlay/chipper/gopod_probes/_topic_cluster/`) into `chapters/` and write
+  your own: your topics, your asks, your scoring.
 - **The cast.** Each persona is one file in
   `goverlord/wire_pod_overlay/chipper/gopod_probes/personas/`. Rewrite them; make your own.
 - **Every rule, every note.** [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) - start with
