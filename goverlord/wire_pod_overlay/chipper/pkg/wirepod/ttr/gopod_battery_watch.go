@@ -85,6 +85,33 @@ func gopodBatteryWatch() {
 	}
 }
 
+type gopodBatteryLogged struct {
+	volts              float64
+	level              string
+	charging, onCharge bool
+}
+
+// gopodBatteryLogLast: each robot's last logged battery line (esn -> gopodBatteryLogged).
+var gopodBatteryLogLast sync.Map
+
+// gopodBatteryLogChanged: true when this check is worth a log line (the first
+// check, a new level, charging or charger state, or 0.05 V or more of change).
+func gopodBatteryLogChanged(esn string, volts float64, level string, charging, onCharger bool) bool {
+	now := gopodBatteryLogged{volts, level, charging, onCharger}
+	if v, ok := gopodBatteryLogLast.Load(esn); ok {
+		last := v.(gopodBatteryLogged)
+		diff := volts - last.volts
+		if diff < 0 {
+			diff = -diff
+		}
+		if last.level == level && last.charging == charging && last.onCharge == onCharger && diff < 0.05 {
+			return false
+		}
+	}
+	gopodBatteryLogLast.Store(esn, now)
+	return true
+}
+
 func gopodBatteryCheck(esn string) {
 	var robot *vector.Vector
 	for _, bot := range vars.BotInfo.Robots {
@@ -109,8 +136,14 @@ func gopodBatteryCheck(esn string) {
 	volts := float64(b.GetBatteryVolts())
 	gopodBatteryRemember(esn, fmt.Sprintf("%.2f V, %s%s", volts, strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_"),
 		map[bool]string{true: ", on the charger", false: ""}[b.GetIsOnChargerPlatform()]+map[bool]string{true: ", charging", false: ""}[b.GetIsCharging()]))
-	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s volts=%.2f level=%s charging=%t on_charger=%t",
-		name, volts, strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_"), b.GetIsCharging(), b.GetIsOnChargerPlatform()))
+	// 2026-11-02 (operator: "fix charger log spam"): a line only when the level,
+	// charging or the charger changes, or the volts move 0.05 V or more since the
+	// last line - not every check.
+	level := strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_")
+	if gopodBatteryLogChanged(esn, volts, level, b.GetIsCharging(), b.GetIsOnChargerPlatform()) {
+		logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s volts=%.2f level=%s charging=%t on_charger=%t",
+			name, volts, level, b.GetIsCharging(), b.GetIsOnChargerPlatform()))
+	}
 	gopodBatteryLow.Lock()
 	prev := gopodBatteryLow.prev[esn]
 	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform())

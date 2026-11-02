@@ -107,6 +107,17 @@ def heard_times(wav, words):
         if rec.AcceptWaveform(pcm[i:i + 8000]):
             heard += json.loads(rec.Result()).get("result", [])
     heard += json.loads(rec.FinalResult()).get("result", [])
+    return align_heard(words, heard)
+
+
+def align_heard(words, heard):
+    """Kokoro's words with Vosk's heard times (heard: Vosk's result list).
+    2026-11-02 (live: CHALK's "...and PLAYHEAD ZUMINTU and I have been..." lit
+    back at its start): a word Vosk didn't catch kept Kokoro's own time, and
+    Kokoro's clock isn't Vosk's - "I" landed at 2.61 s after "and" ended at
+    5.4 s. A word not heard now starts where the last one ended, never earlier,
+    so the times only go forward."""
+    import re
     norm = lambda t: re.sub(r"[^a-z0-9]+", "", str(t).lower())
     out, at, last_end = [], 0, 0.0
     for w in words:
@@ -121,8 +132,10 @@ def heard_times(wav, words):
                 hit = j
                 break
         if hit is None:
-            out.append(w)
-            last_end = w["e"]
+            s = max(float(w["s"]), last_end)
+            e = round(s + max(float(w["e"]) - float(w["s"]), 0.05), 3)
+            out.append({"t": w["t"], "s": round(s, 3), "e": e})
+            last_end = e
             continue
         s, e = round(float(heard[hit]["start"]), 3), round(float(heard[hit]["end"]), 3)
         out.append({"t": w["t"], "s": s, "e": e})
