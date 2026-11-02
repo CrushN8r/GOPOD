@@ -5,8 +5,8 @@
 ---
 
 ## Crew
-1. Doc: GOPOD host - a party-bro GOPOD rep
-2. Pip: GOPOD host - a party-bro GOPOD rep
+1. Doc: GOPOD host, Brobot 1 - the grumpy, impatient brother who delivers the point
+2. Pip: GOPOD host, Brobot 2 - the clueless, happy brother who carries the room
 3. CHALK: display manager and indoor news anchor at the CRUSHN8R CREW'd news station
 4. PLAYHEAD: session manager and indoor news anchor at the CRUSHN8R CREW'd news station
 5. Git Repo: intern at the CRUSHN8R CREW'd news station - ethical hacker in training (white hat)

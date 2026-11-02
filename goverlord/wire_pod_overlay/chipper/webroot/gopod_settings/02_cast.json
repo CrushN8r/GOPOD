@@ -304,56 +304,56 @@
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "PLAYHEAD": {
       "call_name": "PLAYHEAD",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "GIT REPO": {
       "call_name": "Git Repo",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "CACHE PYC": {
       "call_name": "Cache PYC",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "INTEL 404 PNFH": {
       "call_name": "Buzzer",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "INTEL 404 PNFT": {
       "call_name": "Switch",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "CAMEO": {
       "call_name": "Cameo",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "BUTLER": {
       "call_name": "",
       "role": "Goverlord's voice: the runs, the system's answers, the session",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     }
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",

@@ -230,7 +230,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself. Name who's in the chat right now.", "Does the recent chat help me answer the question asked.", "I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD host - a party-bro GOPOD rep], Pip [GOPOD host - a party-bro GOPOD rep] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself. Name who's in the chat right now.", "Does the recent chat help me answer the question asked.", "I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD host, Brobot 1 - the grumpy, impatient brother who delivers the point], Pip [GOPOD host, Brobot 2 - the clueless, happy brother who carries the room] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
