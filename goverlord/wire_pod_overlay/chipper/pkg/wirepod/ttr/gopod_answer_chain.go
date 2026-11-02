@@ -360,7 +360,7 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		}
 	case "intro_wrap":
 		// 2026-10-31: an intro - the code's opening and cast line around his words.
-		return gopodIntroWrap(gopodBrobotName(esn), raw)
+		return gopodIntroWrap(gopodBrobotName(esn), raw, true)
 	case "llm":
 	default:
 		logger.Println("GOPOD_CHECK answer_chains: no part named " + part)

@@ -718,7 +718,9 @@ func gopodRecordSay(brobot, text string) {
 	// bubble is cut once, its pieces joined with the segment marker, as a song's
 	// line is - the page lights each piece by its number and never re-splits.
 	if marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker; marker != "" && !strings.Contains(text, marker) {
-		text = strings.Join(gopodSentences(text), marker)
+		// 2026-11-02 (live: "Whoa,⁣bro...⁣I'm feeling dizzy."): the pieces keep
+		// the space between them, the marker after it - as a live answer's bubble.
+		text = strings.Join(gopodSentences(text), " "+marker)
 	}
 	GopodChatFeedAddLive(esn, text)
 	var robot *vector.Vector

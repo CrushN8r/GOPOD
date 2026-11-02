@@ -150,6 +150,11 @@ func gopodSystemCommCheck() string {
 			} else if h := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[label].Name); h != "" {
 				name = h
 			}
+			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
+			// back): the line to both is to the Brobots (comm_check.all_name).
+			if n := strings.TrimSpace(cc.AllName); n != "" && strings.EqualFold(label, "All") {
+				name = n
+			}
 			text := gopodSpellNames(strings.ReplaceAll(l[1], "{name}", name))
 			logger.Println("GOPOD_COMM_CHECK " + strconv.Itoa(i+1) + "/" + strconv.Itoa(len(lines)) + " " + key + " -> " + label + ": " + text)
 			// The page draws the key's bubbles, as if it were held.

@@ -696,7 +696,9 @@ func TestTightenReply(t *testing.T) {
 	if got := gopodTightenReply("happy___ Nah, bro, we test them. The response reflects each part of a great answer.", "", ""); strings.Contains(got, "response") {
 		t.Errorf("the LLM's talk about its answer was kept: %q", got)
 	}
-	want := "happy___ Dude, the rig is lit! Ah... so Dr. Doc runs it at crushn8r.ca all night. We got: It's *so* local, bro! 🚀"
+	// 2026-11-02 (operator's list, 8: "Strip markdown from answers: *make*"): a
+	// one-word emphasis keeps its word, not its stars.
+	want := "happy___ Dude, the rig is lit! Ah... so Dr. Doc runs it at crushn8r.ca all night. We got: It's so local, bro! 🚀"
 	if got != want {
 		t.Errorf("got  %q\nwant %q", got, want)
 	}

@@ -70,6 +70,8 @@ var gopodBracketPlaceholderPattern = regexp.MustCompile(`[ \t]*\[[^\[\]\n]*\]`)
 // to the question's budget. After a point's scripted line (gopodSayLine) the
 // LLM's part gets say_line_sentences instead (2026-10-07: its talk after the
 // line argued with it - "No time for that right now" after the websites line).
+var gopodEmphasisPattern = regexp.MustCompile(`\*([^*\s]+)\*`)
+
 func gopodTightenReply(reply, question, esn string) string {
 	t := gopodBrobotsSettings.ReplyTighten
 	cue, body := "", reply
@@ -105,6 +107,9 @@ func gopodTightenReply(reply, question, esn string) string {
 			body = regexp.MustCompile(`(?m)^[ \t]*`+regexp.QuoteMeta(e)+`.*$`).ReplaceAllString(body, "")
 		}
 	}
+	// 2026-11-02 (live: Pip's "you can't exactly *make* someone"): a one-word
+	// emphasis left after the stage directions is markdown - its word, no stars.
+	body = gopodEmphasisPattern.ReplaceAllString(body, "$1")
 	// 2026-10-09 (operator: "every 'robot' possible = 'brobot' ... for
 	// branding"): brand_words, whole words, any case.
 	for _, w := range t.BrandWords {

@@ -671,6 +671,8 @@ type gopodBrobotsSettingsFile struct {
 		RecordSeconds  float64 `json:"record_seconds"`
 		StartText      string  `json:"start_text"`
 		DoneText       string  `json:"done_text"`
+		// 2026-11-02: {name} for the line to All ("Hey Brobots!").
+		AllName string `json:"all_name"`
 	} `json:"comm_check"`
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {

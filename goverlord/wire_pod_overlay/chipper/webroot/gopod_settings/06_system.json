@@ -304,6 +304,8 @@
     "rounds": [{"text": "Hey {name}! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"}],
     "rounds_later_about": "2026-10-31 (operator: \"KP TEST WHY THE REDUNDANT QUESTIONS!! * I ASKED FOR HUMAN ENGAGEMENT, NOT A SLOW DEATH!!\"): the comm check asks the operator's tester alone, one line per key; the old rounds are kept here, not asked.",
     "rounds_later": [{"text": "Tell me about yourself."}, {"text": "Tell me all about yourself."}, {"text": "Hey {name}, who all else is here with us?"}, {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}],
+    "all_name_about": "2026-11-02 (live: \"Hey All! You party animal!\" - Pip said \"Hey All!\" back): {name} in the line to All.",
+    "all_name": "Brobots",
     "quiet_seconds": 6,
     "line_max_seconds": 150,
     "record_seconds": 2

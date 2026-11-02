@@ -13,8 +13,10 @@ package wirepod_ttr
 // intro, a Brobot's or a Gomad's, is wrapped the same way (gopodIntroWrap).
 
 import (
+	"sort"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 // gopodIsIntro: the line asks for an intro.
@@ -52,7 +54,10 @@ func gopodIntroRecipe(who, text string) string {
 
 // gopodIntroOpening: "I'm {name}{nickname_part}." from his profile - his name
 // (formal), his nickname (informal) and why; each part left out when blank.
-func gopodIntroOpening(who string) string {
+func gopodIntroOpening(who string) string { return gopodIntroOpeningWith(who, true) }
+
+// gopodIntroOpeningWith: the opening, with or without its why.
+func gopodIntroOpeningWith(who string, withWhy bool) string {
 	ir := gopodBrobotsSettings.IntroRecipe
 	field := func(label string) string { return gopodPersonaProfileField(who, label) }
 	first := func(v string) string {
@@ -73,7 +78,7 @@ func gopodIntroOpening(who string) string {
 	part := ""
 	if nick != "" && !strings.EqualFold(nick, name) {
 		part = strings.ReplaceAll(ir.NicknamePart, "{nickname}", nick)
-		if why := strings.TrimSpace(gopodPersonaFill(who, head["why"])); why != "" {
+		if why := strings.TrimSpace(gopodPersonaFill(who, head["why"])); why != "" && withWhy {
 			part += strings.ReplaceAll(ir.WhyPart, "{why}", why)
 		}
 	}
@@ -93,15 +98,54 @@ func gopodIntroCastLine(who string) string {
 // the cast line after it. A copy of the opening the model said anyway is dropped,
 // and so is any sentence of his that lists the cast (three or more of its names) -
 // the cast line says them once.
-func gopodIntroWrap(who, middle string) string {
+// 2026-11-02 (live: Pip's KP2 intro said only its opening; Doc's and Pip's All
+// intros skipped their first thought): a Brobot's answer is cut into spoken
+// chunks at its line breaks, one animation cue each - the opening joined to his
+// answer with a space put two cues in one chunk, and everything after the second
+// was never said. A Brobot's opening and cast line go in the way every code line
+// does (gopodStitchSnippet / gopodStitchEndSnippet: after his cue, on its own
+// line); a Gomad's (one voice, chunked by sentence) stay joined by spaces.
+func gopodIntroWrap(who, middle string, brobot ...bool) string {
 	opening := gopodIntroOpening(who)
 	middle = strings.TrimSpace(gopodStripEcho(middle, opening))
 	if opening != "" {
 		middle = strings.TrimSpace(strings.Replace(middle, opening, "", 1))
 	}
 	names := strings.Split(gopodIntroCast(who), ", ")
+	selfNames := gopodIntroSelfNames(who)
+	core := gopodIntroOpeningWith(who, false)
 	var keep []string
+	carry := "" // a dropped sentence's animation cue, kept for the next one
 	for _, sentence := range gopodIntroSentences(middle) {
+		if carry != "" {
+			sentence, carry = carry+" "+strings.TrimSpace(sentence), ""
+		}
+		cue := ""
+		if loc := gopodAnimationMarkerPattern.FindStringIndex(sentence); loc != nil && strings.TrimSpace(sentence[:loc[0]]) == "" {
+			cue = strings.TrimSpace(sentence[:loc[1]])
+		}
+		bare := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(sentence), cue))
+		// 2026-11-02 (live: CHALK's opening twice, "-" then "–"; "I'm Cache PYC.
+		// I'm Cache PYC, and I'm hustling"; "I'm Brobot 2, and hey!"; "I'm Doc,
+		// Brobot 1, which means..."): his own "I'm <name>" again is dropped -
+		// the whole sentence when it's the opening again (dashes, punctuation and
+		// case aside), else just its "I'm <name>," start.
+		if opening != "" && gopodIsOpeningAgain(bare, opening, core) {
+			carry = cue
+			continue
+		}
+		sentence = gopodDropSelfIntro(sentence, selfNames)
+		if strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(sentence), cue)) == "" {
+			carry = cue
+			continue
+		}
+		// 2026-11-02 (live: Doc's "Here in the chat: all our brothers are rocking
+		// it, including Pip" before the code's cast line): his own "here in the
+		// chat" sentence goes too - the cast line says it.
+		if strings.Contains(strings.ToLower(sentence), "in the chat") {
+			carry = cue
+			continue
+		}
 		n := 0
 		for _, name := range names {
 			if name != "" && strings.Contains(strings.ToLower(sentence), strings.ToLower(name)) {
@@ -110,7 +154,19 @@ func gopodIntroWrap(who, middle string) string {
 		}
 		if n < 3 {
 			keep = append(keep, sentence)
+		} else {
+			carry = cue
 		}
+	}
+	if len(brobot) > 0 && brobot[0] {
+		out := strings.Join(keep, " ")
+		if opening != "" {
+			out = gopodStitchSnippet(opening, out)
+		}
+		if cast := gopodIntroCastLine(who); cast != "" {
+			out = gopodStitchEndSnippet(cast, out)
+		}
+		return strings.TrimSpace(out)
 	}
 	out := []string{opening, strings.Join(keep, " "), gopodIntroCastLine(who)}
 	var parts []string
@@ -120,6 +176,95 @@ func gopodIntroWrap(who, middle string) string {
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+// gopodLooseWords: text as its words only - small letters, no dashes or marks.
+func gopodLooseWords(text string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(text) {
+		switch {
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
+			b.WriteRune(r)
+		case b.Len() > 0 && !strings.HasSuffix(b.String(), " "):
+			b.WriteByte(' ')
+		}
+	}
+	return strings.TrimSpace(b.String())
+}
+
+// gopodIsOpeningAgain: the sentence is the opening said again - it starts with
+// the opening's core ("I'm <name>, my nickname is <nick>"), and what follows is
+// nothing or more of the opening's own words ("- because it's my name").
+func gopodIsOpeningAgain(sentence, opening, core string) bool {
+	s, c := gopodLooseWords(sentence), gopodLooseWords(core)
+	if c == "" || (s != c && !strings.HasPrefix(s, c+" ")) {
+		return false
+	}
+	rest := strings.TrimSpace(strings.TrimPrefix(s, c))
+	return rest == "" || strings.Contains(gopodLooseWords(opening), rest)
+}
+
+// gopodIntroSelfNames: the names who goes by - his call name, his name, his nickname.
+func gopodIntroSelfNames(who string) []string {
+	first := func(v string) string {
+		if at := strings.Index(v, " - "); at > 0 {
+			v = v[:at]
+		}
+		return strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(v), "."))
+	}
+	var out []string
+	for _, n := range []string{gopodCallName(who), first(gopodPersonaProfileField(who, "My name")), first(gopodPersonaProfileField(who, "My informal name (nickname)"))} {
+		if n != "" {
+			out = append(out, n)
+		}
+	}
+	// The longest first ("CHALK BORED" before "CHALK").
+	sort.Slice(out, func(a, b int) bool { return len(out[a]) > len(out[b]) })
+	return out
+}
+
+// gopodDropSelfIntro: the sentence without a starting "I'm <his name>[, <his
+// name>]," - what follows starts the sentence ("and hey!" -> "And hey!").
+func gopodDropSelfIntro(sentence string, names []string) string {
+	lead := ""
+	if loc := gopodAnimationMarkerPattern.FindStringIndex(sentence); loc != nil && loc[0] == 0 {
+		lead, sentence = sentence[:loc[1]]+" ", strings.TrimSpace(sentence[loc[1]:])
+	}
+	low := strings.ToLower(strings.TrimSpace(sentence))
+	rest := ""
+	for _, prefix := range []string{"i'm ", "i\u2019m ", "i am "} {
+		if strings.HasPrefix(low, prefix) {
+			rest = strings.TrimSpace(sentence)[len(prefix):]
+			break
+		}
+	}
+	if rest == "" {
+		return lead + sentence
+	}
+	matched := false
+	for again := true; again; {
+		again = false
+		for _, n := range names {
+			if len(rest) >= len(n) && strings.EqualFold(rest[:len(n)], n) && (len(rest) == len(n) || strings.ContainsRune(" ,.!;-", rune(rest[len(n)]))) {
+				rest = strings.TrimLeft(rest[len(n):], " ,;-")
+				matched, again = true, true
+			}
+		}
+	}
+	if !matched {
+		return lead + sentence
+	}
+	rest = strings.TrimSpace(strings.TrimPrefix(strings.TrimLeft(rest, ".!"), " "))
+	low = strings.ToLower(rest)
+	if strings.HasPrefix(low, "and ") {
+		rest = rest[4:]
+	}
+	if rest == "" || strings.Trim(rest, ".!?, ") == "" {
+		return ""
+	}
+	r := []rune(rest)
+	r[0] = unicode.ToUpper(r[0])
+	return lead + string(r)
 }
 
 // gopodIntroSentences: text cut after each . ! or ? that ends a word.
