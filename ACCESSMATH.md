@@ -8,6 +8,11 @@ anyone who was told they were bad at it.
 
 ## The app, access built in
 
+**The app is how people at a live gig join in.** Join the rig's Wi-Fi, open the chat, ask for a
+username. Once it's approved, you're in the conversation with the Brobots - under your own name, on
+your own phone, from your seat. Set-up for your own gigs:
+[GOPOD_YOURSELF.md](GOPOD_YOURSELF.md#perform-take-it-on-the-road).
+
 - **The Brobots chat on your phone** - add it to your home screen; it opens straight into the chat.
 - **Speak, type, or press one key** - talk into the room mic, type a line, or hold a big numpad key.
 - **Watch, listen, or both** - every line lights up word by word as it's said, and the voices read

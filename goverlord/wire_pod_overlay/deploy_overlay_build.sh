@@ -23,7 +23,8 @@
 set -euo pipefail
 
 OVERLAY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LIVE_BIN="/home/goverlord/wire-pod/chipper/chipper"
+WIREPOD_DIR="${GOPOD_WIREPOD_DIR:-/home/goverlord/wire-pod}"  # yours: GOPOD_YOURSELF.md, step 6
+LIVE_BIN="${WIREPOD_DIR}/chipper/chipper"
 TS="$(date +%Y%m%d_%H%M%S)"
 TMP_OUT="/tmp/chipper_overlay_deploy_${TS}"
 mkdir -p "${OVERLAY_DIR}/chipper_backups"
@@ -33,7 +34,7 @@ BACKUP="${OVERLAY_DIR}/chipper_backups/chipper.bak_${TS}_pre_overlay_deploy"  # 
 # patch work approach"): the Brobots' tests first - including the highlight
 # check on every kept reply (TestHighlightCorpus) - and no deploy if one fails.
 echo "DEPLOY_STEP testing the Brobots chat..."
-if ! GOPOD_OVERLAY_CHIPPER="${OVERLAY_DIR}/chipper" go -C /home/goverlord/wire-pod/chipper test -count=1 -tags nolibopusfile \
+if ! GOPOD_OVERLAY_CHIPPER="${OVERLAY_DIR}/chipper" "${GOPOD_GO:-go}" -C "${WIREPOD_DIR}/chipper" test -count=1 -tags nolibopusfile \
     -overlay="${OVERLAY_DIR}/overlay.json" ./pkg/wirepod/ttr/ > "/tmp/chipper_overlay_tests_${TS}.log" 2>&1; then
   grep -E "^(--- FAIL|FAIL)|_test.go:" "/tmp/chipper_overlay_tests_${TS}.log" | head -20 >&2
   echo "DEPLOY_FAILED tests failed - nothing deployed (full log: /tmp/chipper_overlay_tests_${TS}.log)" >&2

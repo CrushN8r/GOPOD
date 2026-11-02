@@ -16,6 +16,22 @@ build.
 
 ![Under construction](goverlord/wire_pod_overlay/chipper/webroot/pictures/under-construction.jpg)
 
+## Want one? Start here
+
+**[GOPOD_YOURSELF.md](GOPOD_YOURSELF.md)** - the whole set-up, start to finish, with a check after
+every step. Written so you can hand it to your AI helper too. One Vector, two, or a whole shelf of
+them.
+
+Pick your lane:
+
+- **PERFORM** - how GOPOD is put together as a mobile performance station: a rig that rolls into a
+  room, runs offline, and lets the crowd join the chat from their phones. Made for paying gigs
+  and for making content on the move.
+- **COMPOSE** - how GOPOD is played, with the Alias Play Studio: songs, scripted runs, a cast of
+  voices, and a menu to change it all without code.
+
+Both lanes lead out to the websites, the socials and the contest - and to what *you* make with it.
+
 ## How to play, not what to play
 
 GOPOD's game isn't *what* to play. It's *how* to play - that's the teaching tool: "This is how I
@@ -52,8 +68,10 @@ it - is the gift back.
   test, grouped in order, answered in the same window. Edit GOPOD without a terminal.
 - **Camera feeds.** Each Brobot's camera in the chat, with the Edge TPU's object boxes.
   KP+ / KP- switch feeds.
-- **The app.** Visitors open the chat on their phone as an app: the Brobots chat alone, the
-  same bubbles and highlight, nothing of Wire-Pod's own pages.
+- **The app: the crowd joins in.** At a live gig, people join the rig's Wi-Fi and open the chat
+  on their phone as an app. They ask for a username, you approve it, and they talk to the Brobots
+  under their own name - the same bubbles and highlight, nothing of Wire-Pod's own pages. Its
+  home: [accessmath.crushn8r.net](ACCESSMATH.md).
 - **A cast on the numpad.** KP1/KP2 talk to the Brobots, KP0 to both. KP7 CHALK and KP8
   PLAYHEAD (the news crew), KP3/KP4 the Cozmo students Git Repo and Cache PYC, KP5/KP6 the
   Moorebot Scout security guards Intel 404 PNFH and PNFT, KP9 Cameo (social media): each a
@@ -69,6 +87,9 @@ it - is the gift back.
 
 ## Take it home
 
+Start with [GOPOD_YOURSELF.md](GOPOD_YOURSELF.md): the set-up in order, one check per step, and
+one script (`goverlord/gopod_paths.sh`) that points GOPOD's files at your machine.
+
 [WIRED-POD.md](WIRED-POD.md) is the Take Out: a thank-you back to the Wire-Pod community in
 three parts. Part 1 is the alias play studio, part 2 the chat page, part 3 the offline LLM.
 Each part lists what you need, what to copy, what to change, and how to know it works. How songs are built, note by
@@ -76,7 +97,7 @@ note, is in [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md).
 
 **GOPOD not tested on other devices or set ups. Back up your stuff and attempt at your own risk.**
 
-### With one Vector
+### With one Vector, or five
 
 Most Wire-Pod owners have one robot, and GOPOD works with one. At start, the Brobots are the robots
 Wire-Pod knows; one robot alone is Brobot 1, solo:
@@ -86,6 +107,10 @@ Wire-Pod knows; one robot alone is Brobot 1, solo:
 - **Scripted runs:** Brobot 2's lines are said on the computer's speaker.
 
 To pick which robot is which, set `brobots_setup.brobot_1` / `brobot_2` (an ESN) in the settings file.
+
+**Three or more Vectors:** pick two to be the Brobots, the same way. The rest stay ordinary Wire-Pod
+Vectors - working as always, just not in the cast, the shared chat or the songs. Swap who's on stage
+by changing the pick and restarting. Not live-tested with more than two connected.
 
 GOPOD names the robots by label everywhere public - ESN01 is Brobot 1's robot, ESN02 Brobot 2's.
 Your own robots' serials go in a private file in your home, `~/.gopod_esns.json`
@@ -127,7 +152,7 @@ About $1K to $3K CDN.
 
 Live-tested: the Brobots chat, the scripted interview, the Bingo test song, numpad
 push-to-talk, the numpad's voice personas. Not yet, and said plainly: see "Where this stands" in
-[WIRED-POD.md](WIRED-POD.md#where-this-stands). The websites are under construction; some
+[WIRED-POD.md](WIRED-POD.md#6-where-this-stands). The websites are under construction; some
 work well enough to demo.
 
 ## More
@@ -157,6 +182,8 @@ What GOPOD's sessions turn into outside the room: the contest, its clips, and th
   (every group, command, test and run), written by GOPOD itself so it always matches.
 - [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
   networking and power modes, and the photos.
+- [GOPOD_YOURSELF.md](GOPOD_YOURSELF.md): set it up yourself, start to finish - and the prompt to
+  hand your AI helper.
 - [WIRED-POD.md](WIRED-POD.md): what GOPOD adds on top of Wire-Pod, and how to take it home.
 - [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md): GOPOD's own documentation - songs, the chat page,
   every rule and command.
