@@ -647,6 +647,11 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
   }
   .brobot-bubble {
     max-width: 92%;
+    /* 2026-11-02 (operator, an older Asus Zenfone: "bubbles in visitor page
+       slightly wide of screen"): padding inside the width, long words wrap. */
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    min-width: 0;
     font-size: 20px;
     padding: 8px 10px;
     border-radius: 14px;
