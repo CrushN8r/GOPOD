@@ -200,8 +200,8 @@ Everything in [What's new for Wire-Pod owners](#1-whats-new-for-wire-pod-owners)
 The Brobots think with a small local model: no cloud, no monthly bill, no internet needed.
 
 - **Tested on:** an NVIDIA Jetson Orin NX 16GB (Ubuntu) with Ollama and `gemma2:2b`. A cold
-  load takes 35 seconds to 2 minutes; then the model stays loaded and a typical answer comes
-  back in 3 to 6 seconds. Other hardware isn't tested: anything that runs Ollama and
+  load takes 35 seconds to 2 minutes; then the model stays loaded: a Brobot starts talking about 8 to 10
+  seconds after a question, the numpad voice cast 20 to 25 seconds. Other hardware isn't tested: anything that runs Ollama and
   `gemma2:2b` comfortably should do.
 - **Set up:** install Ollama, `ollama pull gemma2:2b`. In Wire-Pod's settings, set the
   knowledge provider to `custom` with your Ollama's OpenAI-style endpoint and the model

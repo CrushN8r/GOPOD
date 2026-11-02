@@ -42,13 +42,14 @@ GOPOD rides on top of Wire-Pod, so it runs where Wire-Pod is **built from source
 | Windows, macOS, Wire-Pod's Android app | No. GOPOD's build and scripts need Linux (bash, systemd, Go). |
 
 Rough sizes: Ollama with `gemma2:2b` needs about 3 GB of free memory; the Kokoro voices about 1 GB
-more. A typical answer takes 3 to 6 seconds on the Jetson.
+more. On the Jetson, a Brobot starts talking about 8 to 10 seconds after a question; the numpad
+voice cast takes 20 to 25 seconds.
 
 ### How many robots
 
 | You have | What GOPOD does |
 |---|---|
-| **1 Vector** | He's Brobot 1, solo. Lines for Brobot 2 play on the computer's speaker. |
+| **1 Vector** | He's Brobot 1, solo. In the live chat, anything meant for Brobot 2 (or for both) goes to him. In scripted runs, Brobot 2's lines play on the computer's speaker. |
 | **2 Vectors** | Brobot 1 and Brobot 2: one shared chat, brother banter, the full show. |
 | **3 or more** | **You pick two** to be the Brobots ([step 4](#step-4-name-your-brobots)). The rest stay ordinary Wire-Pod Vectors: they keep working the way they always have, just not in the Brobots' cast, shared chat or songs. Swap who's on stage by changing the pick and restarting. Not live-tested with more than two robots connected. |
 
