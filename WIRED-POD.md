@@ -11,7 +11,9 @@ in three parts. The full show standard (songs, the chat page, every rule and com
 - **Brobots Wire-Pod (this document):** two Vectors, Brobot 1 and Brobot 2, talking through
   Wire-Pod with GOPOD on top. Everything runs locally: a small LLM, no cloud.
 
-Paths like `/home/goverlord/...` are the author's machine. Change them to yours.
+Paths like `/home/goverlord/...` are the author's machine. `goverlord/gopod_paths.sh` changes them to
+yours in one go. Setting it up for the first time? [GOPOD_YOURSELF.md](GOPOD_YOURSELF.md) walks the
+whole way, in order.
 
 **GOPOD not tested on other devices or set ups. Back up your stuff and attempt at your own risk.**
 
@@ -161,7 +163,8 @@ when).
   find it.
 - **Load:** in `~/.bash_aliases`, source `brobots.sh` (pha0b, phcal, score, gobingo),
   `llm.sh` and `wirepod_logs.sh` from `~/.gopod_alias_lib/`.
-- **Change:** copy `phcal_config.example.json` to `phcal_config.json`,
+- **Change:** run `goverlord/gopod_paths.sh --apply` first (Part 2), then copy
+  `phcal_config.example.json` to `phcal_config.json`,
   `gopod_audio_config.example.sh` to your own, and
   `goverlord/runtime/data_gomad/configs/endpoints.example.json` to `endpoints.json`; put in
   your robots' serials, your Wire-Pod address and your paths.
@@ -177,10 +180,11 @@ Everything in [What's new for Wire-Pod owners](#1-whats-new-for-wire-pod-owners)
   without them. Any Kokoro voice (`.pt`) in its Hugging Face cache shows in `system-voices`; the
   guards' pitch needs `sox`. For numpad push-to-talk and Record Session: a USB mic.
 - **Copy:** clone this repo. The overlay is `goverlord/wire_pod_overlay/`.
-- **Change:** your robots' serials (`gopodBrobot1ESN` / `gopodBrobot2ESN` in
-  `gopod_session_memory.go`); the absolute paths in `overlay.json`, `customIntents.json`,
-  `build_with_overlay.sh` and `gopod_env.sh`. Add the `source` line to
-  `~/wire-pod/chipper/source.sh`.
+- **Change:** run `goverlord/gopod_paths.sh --apply` (every author path, in every file, at once).
+  Pick your Brobots in the settings file (`brobots_setup.brobot_1` / `brobot_2` in
+  `02_cast.json`; empty takes Wire-Pod's first two robots) - never in the code. Add the `source`
+  line to `~/wire-pod/chipper/source.sh`. Vosk or Wire-Pod somewhere else: `GOPOD_VOSK_LIB`,
+  `GOPOD_VOSK_INC`, `GOPOD_WIREPOD_DIR` ([GOPOD_YOURSELF.md, step 6](GOPOD_YOURSELF.md#step-6-hook-gopod-into-wire-pod)).
 - **Build:** `goverlord/wire_pod_overlay/deploy_overlay_build.sh`, then restart
   `wire-pod.service`.
 - **Works when:** on Wire-Pod's web page, click **Log**. The Brobots chat opens, the reporters

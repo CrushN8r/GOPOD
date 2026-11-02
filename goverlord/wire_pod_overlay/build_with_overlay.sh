@@ -19,12 +19,16 @@
 set -euo pipefail
 
 OVERLAY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WIREPOD_CHIPPER_DIR="/home/goverlord/wire-pod/chipper"
+# Your own machine: set these in the shell instead of editing them here
+# (GOPOD_YOURSELF.md, step 6). Unset, they are the author's machine.
+WIREPOD_DIR="${GOPOD_WIREPOD_DIR:-/home/goverlord/wire-pod}"
+WIREPOD_CHIPPER_DIR="${WIREPOD_DIR}/chipper"
 OUT="${1:-/tmp/chipper_overlay_build}"
 
-VOSK_LIB="/home/goverlord/.local/lib/python3.10/site-packages/vosk"
-VOSK_INC="/home/goverlord/go/pkg/mod/github.com/kercre123/vosk-api@v1.0.1/src"
-COMMIT_HASH="$(cd /home/goverlord/wire-pod && git rev-parse --short HEAD)"
+VOSK_LIB="${GOPOD_VOSK_LIB:-/home/goverlord/.local/lib/python3.10/site-packages/vosk}"
+VOSK_INC="${GOPOD_VOSK_INC:-/home/goverlord/go/pkg/mod/github.com/kercre123/vosk-api@v1.0.1/src}"
+GO_BIN="${GOPOD_GO:-/usr/local/go/bin/go}"
+COMMIT_HASH="$(cd "$WIREPOD_DIR" && git rev-parse --short HEAD)"
 GOTAGS="nolibopusfile"
 GOLDFLAGS="-X 'github.com/kercre123/wire-pod/chipper/pkg/vars.CommitSHA=${COMMIT_HASH}'"
 # GOPOD 2026-10-02: Wire-Pod reads GOPOD's files only from this overlay's chipper
@@ -37,7 +41,7 @@ CGO_CFLAGS="-I${VOSK_INC}" \
 CGO_CPPFLAGS="-I${VOSK_INC}" \
 CGO_LDFLAGS="-L${VOSK_LIB} -lvosk -ldl -lpthread" \
 LD_LIBRARY_PATH="${VOSK_LIB}:$LD_LIBRARY_PATH" \
-/usr/local/go/bin/go build -tags "$GOTAGS" -ldflags="${GOLDFLAGS}" \
+"$GO_BIN" build -tags "$GOTAGS" -ldflags="${GOLDFLAGS}" \
   -overlay="${OVERLAY_DIR}/overlay.json" \
   -o "$OUT" cmd/vosk/main.go
 
