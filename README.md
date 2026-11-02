@@ -21,6 +21,11 @@ build.
 
 ## I want this!
 
+<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="420" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers and a LEGO party stage">
+
+*LLM Ready. The chat on the big screen, the same chat in the app on a phone - and the Brobots,
+waiting for you.*
+
 - **Two real robots, live, with a room.** Not a video, not an avatar: two Vectors holding one
   conversation with whoever's in front of them - and roasting each other while they're at it.
 - **The crowd joins from their phones.** Join the rig's Wi-Fi, open the chat, get a username, talk

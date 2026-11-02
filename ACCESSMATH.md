@@ -10,7 +10,9 @@ anyone who was told they were bad at it.
 
 **The app is how people at a live gig join in.** Join the rig's Wi-Fi, open the chat, ask for a
 username. Once it's approved, you're in the conversation with the Brobots - under your own name, on
-your own phone, from your seat. Set-up for your own gigs:
+your own phone, from your seat. Want it as an app on your home screen? Trust GOPOD's certificate once
+(it's fenced to the local network, so it can never vouch for a public website). Set-up and the why,
+for your own gigs:
 [GOPOD_YOURSELF.md](GOPOD_YOURSELF.md#perform-take-it-on-the-road).
 
 - **The Brobots chat on your phone** - add it to your home screen; it opens straight into the chat.
