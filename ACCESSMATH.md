@@ -8,6 +8,10 @@ anyone who was told they were bad at it.
 
 ## The app, access built in
 
+<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="420" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers">
+
+*LLM Ready. The chat on the big screen, the same chat in the app on a phone.*
+
 **The app is how people at a live gig join in.** Join the rig's Wi-Fi, open the chat, ask for a
 username. Once it's approved, you're in the conversation with the Brobots - under your own name, on
 your own phone, from your seat. Want it as an app on your home screen? Trust GOPOD's certificate once
