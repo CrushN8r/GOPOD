@@ -307,7 +307,7 @@
     "all_name_about": "2026-11-02 (live: \"Hey All! You party animal!\" - Pip said \"Hey All!\" back): {name} in the line to All.",
     "all_name": "Brobots",
     "quiet_seconds": 6,
-    "line_max_seconds": 150,
+    "line_max_seconds": 300,
     "record_seconds": 2
   },
   "session": {

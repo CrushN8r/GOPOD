@@ -193,7 +193,7 @@
     "opening": "I'm {name}{nickname_part}.",
     "nickname_part": ", my nickname is {nickname}",
     "why_part": ", because {why}",
-    "text": "This one is your intro, to the chat. Don't repeat the question. Your first sentence is said for you: \"{opening}\" - go on from it, never say it again. Then, in your own words - never labels like \"my job title\" - say what you do and who helps you: {facts}. About four sentences. Don't list who's here - that's said for you after.",
+    "text": "This one is your intro, to the chat. Don't repeat the question. Your first sentence is said for you: \"{opening}\" - go on from it, never say it again. Then, in your own words - never labels like \"my job title\" - say what you do and who helps you, naming them: {facts}. Four sentences at most. Speak only as yourself, out loud: no quote marks, no stage directions, no describing yourself (like \"I grin\"), no name label in front. Your nickname and why are already said - don't explain them again. Don't list who's here - that's said for you after.",
     "cast_line_about": "2026-10-31 (operator: \"FIX IT CORRECT & PROPER\"; live: Git Repo, CHALK and PLAYHEAD named the cast twice): every intro is a template - code says the opening, the model the middle (text), code the cast line, once (gopodIntroWrap; a sentence of the model's that names three or more of the cast is dropped).",
     "cast_line": "Here in the chat with us: {cast}."
   },
