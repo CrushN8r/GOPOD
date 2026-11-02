@@ -19,3 +19,9 @@
 
 ## The name
 1. In film and television a cameo is a short, distinctive appearance; on social platforms, brief high-impact content.
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)

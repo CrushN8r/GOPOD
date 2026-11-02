@@ -218,4 +218,50 @@ func gopodGomadBrain(host, to, question string) {
 	}
 }
 
+// The two lanes of a persona's profile (2026-11-02, operator: "relationship &
+// lingo are 2 separate lanes * lingo is how words are pronounced * personal/
+// working relationship connections, past & present, hence persona history").
+
+// gopodLingoWords: how words are said by the reporter voices - the shared list
+// (reporter_voices.say_words) plus each persona's own "## Lingo" points
+// ("CHALK = chock"), his own words winning. The voice only: never in a prompt.
+func gopodLingoWords() map[string]string {
+	out := map[string]string{}
+	for k, v := range gopodBrobotsSettings.ReporterVoices.SayWords {
+		out[k] = v
+	}
+	for _, c := range gopodBrobotsSettings.HereNow.Cast {
+		for _, point := range gopodPersonaProfileSections(c.Who)["Lingo"] {
+			if word, said, ok := strings.Cut(point, " = "); ok && strings.TrimSpace(word) != "" {
+				out[strings.TrimSpace(word)] = strings.TrimSuffix(strings.TrimSpace(said), ".")
+			}
+		}
+	}
+	return out
+}
+
+// gopodBrainRelationships: who's relationships for his brain - his profile's
+// "## Relationships" points; until those are written, what's there already:
+// his "Who helps me" and his "Partner and banter".
+func gopodBrainRelationships(who string) string {
+	sections := gopodPersonaProfileSections(who)
+	points := sections["Relationships"]
+	if len(points) == 0 {
+		if v := gopodPersonaProfileField(who, "Who helps me"); v != "" {
+			points = append(points, v)
+		}
+		points = append(points, sections["Partner and banter"]...)
+	}
+	var out []string
+	for _, p := range points {
+		if p = strings.TrimSuffix(strings.TrimSpace(gopodPersonaFill(who, p)), "."); p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return ""
+	}
+	return strings.Join(out, "; ") + "."
+}
+
 // ## EOF

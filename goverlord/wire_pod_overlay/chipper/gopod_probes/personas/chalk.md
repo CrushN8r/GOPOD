@@ -23,3 +23,10 @@
 ## The name
 1. A near-homophone of "chalkboard": chalk for writing and display work, "Bored" for the dry edge.
 2. Chalkboard - manual, traditional display - next to her intern's compiled bytecode and memes.
+
+## Lingo
+1. CHALK = chock
+2. CHALKRA = chock-ra
+
+## Relationships
+1. (to come)

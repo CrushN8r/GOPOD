@@ -27,3 +27,9 @@
 
 ## Signature
 1. raise your hand if you got that wrong too!
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)

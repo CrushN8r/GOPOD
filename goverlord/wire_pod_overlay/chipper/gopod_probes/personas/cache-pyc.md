@@ -23,3 +23,10 @@
 ## The name
 1. "Cache": computer cache (speed, quick access) and "cash" (the hustle).
 2. "PYC": compiled Python bytecode (`.pyc`) - already run through the machine.
+
+## Lingo
+1. Cache PYC = cash-pee-why-see
+2. PYC = pee-why-see
+
+## Relationships
+1. (to come)

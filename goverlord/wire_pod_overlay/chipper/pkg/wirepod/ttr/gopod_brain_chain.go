@@ -192,6 +192,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
+		"{relationships}": gopodBrainRelationships(self),
 	}
 }
 

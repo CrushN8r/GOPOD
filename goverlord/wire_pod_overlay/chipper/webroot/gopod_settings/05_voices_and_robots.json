@@ -871,13 +871,11 @@
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
       "livestreams": "lyve-streams", "PYC": "pee-why-see", "Git Repo": "Git Ree-poe", "memester": "meem-stir"
     },
-    "say_words_2_about": "2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
+    "say_words_2_about": "2026-11-02: a persona's own names (PLAYHEAD, ZUMINTU, Cache PYC, Git Repo, CHALK) moved to his profile's ## Lingo (gopod_probes/personas/); this list keeps the shared words. Before: 2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
     "say_words_3_about": "2026-10-26 (operator: \"gomad lingo: Gomad = \\\"Gome-add\\\"\"): the Gomads speak in the reporters' voices, so it goes in this list.",
     "say_words": {
       "Gomad": "Gome-add",
       "Gomads": "Gome-adds",
-      "PLAYHEAD": "playhead",
-      "ZUMINTU": "zoom-into",
       "lifetime": "life-time",
       "niche": "neesh",
       "thx": "thanks",
@@ -888,7 +886,7 @@
       "lol": "laugh out loud", "live": "lyve", "livestreams": "lyve-streams",
       "Grabby": "grab-e",
       "DJ": "dee-jay",
-      "MC": "emm-see", "PYC": "pee-why-see", "Git Repo": "Git Ree-poe", "memester": "meem-stir"
+      "MC": "emm-see", "memester": "meem-stir"
     },
     "opening_end_text": "opening_end",
     "gate_max_seconds": 600,

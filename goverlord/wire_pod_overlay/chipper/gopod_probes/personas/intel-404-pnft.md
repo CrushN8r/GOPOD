@@ -26,3 +26,9 @@
 1. "Intel 404": an official-sounding intelligence system that can't find the target - the 404 error code.
 2. "PNFT": Page Not Found There. Paired with PNFH, Page Not Found Here.
 3. "Switch": a short call-sign for security work - light or system switches.
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)

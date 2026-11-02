@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -979,12 +980,26 @@ func gopodReporterSays(text string) string {
 	// right after its country isn't said again (gopodSpeakFlags).
 	// The same rules as the Brobots' speech for a time: "1405 Hours Military
 	// Time" said "fourteen oh five hours military time" (gopodSpeakMilitaryTime).
-	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakFlags(text)), gopodBrobotsSettings.ReporterVoices.SayWords)
+	// 2026-11-02: the shared lingo list plus every persona's own (gopodLingoWords).
+	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakFlags(text)), gopodLingoWords())
 }
 
-// gopodSaySwap: each whole word in words (any case) said as its value.
+// gopodSaySwap: each whole word in words (any case) said as its value. The
+// longest first (2026-11-02), so "Cache PYC" is said its own way before "PYC"
+// alone - and the same way every time, not in a map's random order.
 func gopodSaySwap(text string, words map[string]string) string {
-	for from, to := range words {
+	keys := make([]string, 0, len(words))
+	for from := range words {
+		keys = append(keys, from)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		if len(keys[i]) != len(keys[j]) {
+			return len(keys[i]) > len(keys[j])
+		}
+		return keys[i] < keys[j]
+	})
+	for _, from := range keys {
+		to := words[from]
 		if strings.TrimSpace(from) == "" {
 			continue
 		}

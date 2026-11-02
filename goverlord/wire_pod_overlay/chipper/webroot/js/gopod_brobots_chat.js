@@ -5367,15 +5367,26 @@
         // voice with its word times (the voice worker's .words.json) reveals
         // each word when it's said, and its marks when that word ends.
         var aligned = span._spokenWords ? alignUnits(units, span._spokenWords) : null;
+        // 2026-11-02 (operator: per-character highlight): each unit's start first,
+        // so each word knows how long it's said for (to the next unit's start; the
+        // last, to the voice's last word end) - gopod_char_highlight.js turns its
+        // letters 85% in turn within it.
+        var starts = [];
         units.forEach(function (u, i) {
+          starts.push(aligned ? aligned[i] : at);
+          at += (u._seqWeight || 0) * scale;
+        });
+        if (aligned) { at = Math.max(at, aligned[aligned.length - 1] || 0); }
+        var voiceEnd = aligned && span._spokenWords.length ? +span._spokenWords[span._spokenWords.length - 1].e || at : at;
+        units.forEach(function (u, i) {
+          var said = Math.max(0, (i + 1 < starts.length ? starts[i + 1] : Math.max(voiceEnd, at)) - starts[i]);
           setTimeout(function () {
             if (!span.classList.contains("speaking")) { return; }
             if (i > 0) { units[i - 1].classList.remove("now"); units[i - 1].classList.add("said"); }
             u.classList.add("now");
-          }, (aligned ? aligned[i] : at) * 1000);
-          at += (u._seqWeight || 0) * scale;
+            if (window.GopodCharHighlight) { window.GopodCharHighlight.play(u, said); }
+          }, starts[i] * 1000);
         });
-        if (aligned) { at = Math.max(at, aligned[aligned.length - 1] || 0); }
         setTimeout(function () {
           units.forEach(function (u) { u.classList.remove("now"); u.classList.add("said"); });
         }, at * 1000);

@@ -26,3 +26,9 @@
 1. "Intel 404": an official-sounding intelligence system that can't find the target - the 404 error code.
 2. "PNFH": Page Not Found Here. Paired with PNFT, Page Not Found There.
 3. "Buzzer": a short call-sign for security work - entry buzzers.
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)

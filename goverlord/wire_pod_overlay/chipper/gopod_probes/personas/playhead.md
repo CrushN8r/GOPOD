@@ -23,3 +23,10 @@
 ## The name
 1. "Playhead": the movable marker on a video or audio timeline - the current position.
 2. "ZUMINTU": a stylized "zoom into" - zooming in on details, framing shots. The source of "zoomy".
+
+## Lingo
+1. PLAYHEAD = playhead
+2. ZUMINTU = zoom-into
+
+## Relationships
+1. (to come)

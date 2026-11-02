@@ -24,3 +24,9 @@
 ## The name
 1. "Keynote": the formal, central address - authority, timing, polished delivery; he sets the key for how information is presented.
 2. "Vale": a quiet, established English surname. "Keys" is his nickname.
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)
