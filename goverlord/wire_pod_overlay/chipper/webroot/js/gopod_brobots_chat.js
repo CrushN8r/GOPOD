@@ -1868,7 +1868,10 @@
         avatar.className = "brobot-bubble-avatar";
         var name = document.createElement("span");
         name.className = "brobot-bubble-who";
-        name.textContent = noColon ? who : who + ":";
+        // 2026-11-02 (operator: "bubble's name should say Doc: instead of Brobot 1"):
+        // a Brobot's bubble wears his persona's name (display_names.brobots).
+        var shown = ((displayNames || {}).brobots || {})[who] || who;
+        name.textContent = noColon ? shown : shown + ":";
         head.appendChild(avatar);
         head.appendChild(name);
         return head;
