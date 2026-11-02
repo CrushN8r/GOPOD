@@ -58,11 +58,23 @@ def synthesize(announcer, pipeline, text, voice, out_wav, speed):
     sf.write(str(out_wav), np.concatenate(parts), announcer.SAMPLE_RATE)
     if out_wav.stat().st_size <= 44:
         raise RuntimeError(f"empty voice WAV: {out_wav}")
-    # 2026-10-18 (operator: "Your approach seems to look better than kokoro * can
-    # GOPOD redo voices as per your timings?"): the words as heard in the made
-    # voice - Vosk (Wire-Pod's speech model) listens to it, and each word takes
-    # the heard word's times; a word Vosk didn't catch keeps Kokoro's; a mark
-    # sits where the word before it ends.
+    # 2026-11-02: the words are timed later, on the finished file (finish_voice).
+    return words
+
+
+def finish_voice(out_wav, words):
+    """2026-11-02 (operator: "timing is off for newly generated voice files * they
+    should all go through a signal/volume leveling & vosk for timings"): every
+    new voice, after its pitch and robot effect, is levelled (sox norm -3), then
+    timed by ear on that finished file - Vosk (Wire-Pod's speech model) listens,
+    each word takes the heard word's times (align_heard). Before, the timing ran
+    on Kokoro's raw voice, before the effects and with no levelling."""
+    try:
+        levelled = out_wav.with_name(out_wav.stem + ".level.wav")
+        subprocess.run(["sox", str(out_wav), str(levelled), "norm", "-3"], check=True, capture_output=True)
+        levelled.replace(out_wav)
+    except Exception:  # noqa: BLE001 - no sox: the voice as made.
+        pass
     aligner = "kokoro"
     if VOSK.get("model") is not None:
         try:
@@ -70,7 +82,7 @@ def synthesize(announcer, pipeline, text, voice, out_wav, speed):
             aligner = "vosk"
         except Exception:  # noqa: BLE001 - Kokoro's times then.
             pass
-    out_wav.with_suffix(".words.json").write_text(json.dumps({"aligner": aligner, "words": words}))
+    out_wav.with_suffix(".words.json").write_text(json.dumps({"aligner": aligner, "levelled": True, "words": words}))
 
 
 # Vosk, loaded once (gopod_align_captions_001.py's way, the same model Wire-Pod hears with).
@@ -188,7 +200,7 @@ def main() -> int:
                 print(json.dumps({"ok": True, "seconds": announcer.wav_duration_seconds(wav)}), flush=True)
                 continue
             out = Path(job["out"])
-            synthesize(announcer, pipeline, job["text"], job["voice"], out, float(job.get("speed") or 1.03))
+            words = synthesize(announcer, pipeline, job["text"], job["voice"], out, float(job.get("speed") or 1.03))
             # 2026-10-26 (operator: "use sox for slight but noticable pitch
             # shift"): a host's pitch_cents (voice_tweaks) - sox's pitch keeps
             # the length, so the word times still fit.
@@ -209,6 +221,7 @@ def main() -> int:
                 subprocess.run(["sox", "-m", "-v", f"{max(0.0, 1 - wet):.2f}", str(out), "-v", f"{min(wet, 1.0):.2f}", str(fx), str(mixed), "norm", "-3"], check=True, capture_output=True)
                 fx.unlink(missing_ok=True)
                 mixed.replace(out)
+            finish_voice(out, words)
             seconds = announcer.wav_duration_seconds(out)
             print(json.dumps({"ok": True, "seconds": seconds}), flush=True)
         except Exception as exc:  # noqa: BLE001 - never leave Wire-Pod waiting.

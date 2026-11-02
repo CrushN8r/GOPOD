@@ -511,6 +511,11 @@ func gopodReporterCached(host, text string) (string, float64, bool) {
 	if ok {
 		if b, err := os.ReadFile(strings.TrimSuffix(file, ".wav") + ".words.json"); err != nil || !strings.Contains(string(b), `"aligner"`) {
 			ok = false
+		} else if !strings.Contains(string(b), `"levelled": true`) {
+			// 2026-11-02 (operator: "they should all go through a signal/volume
+			// leveling & vosk for timings"): made before the levelling and the
+			// timing on the finished file - made again, the next time it's said.
+			ok = false
 		} else if !strings.Contains(string(b), `"aligner": "vosk"`) && gopodFileExists(gopodHomePath("~/wire-pod/vosk/models/en-US/model")) {
 			// 2026-10-18 (operator: "forced highlighting (CHALK & PLAYHEAD) ...
 			// not in sync like the other highlightings"): timed by Kokoro's

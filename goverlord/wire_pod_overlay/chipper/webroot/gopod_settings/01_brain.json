@@ -231,7 +231,7 @@
   "brain_chain": {
     "header": "BRAIN - code-made facts about this chat, all true. Use them; the style is yours:",
     "lines_about": "2026-11-02: a 4th line, My relationships - his profile's ## Relationships, or until written his Who helps me and Partner and banter (gopodBrainRelationships). 2026-10-31 (operator's brain bubble scaffold: \"Response-chain: Brobot 2, then Brobot 1 - answer 1 of 2 * I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers. * In the chat: Doc [description from md] (me), Pip [description from md], CHALK [description from md], ... Keys [description from md] * So far: 1 have spoken, 0 introduced themselves. Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: [], [], [], & [] * remove: Asked by: [name]\"): the one brain template - every brain bubble (Brobots under their Response-chain line, and Gomads) shows these lines, and every prompt gets the same lines after header, then the recent chat (short_header, record_line) and long_line. {self}: his call name (his name), then his profile's Self \"In short:\" (else his job title). {cast_described}: everyone here but the operator, in cast order, each cast_item - his profile's job title; cast_me marks himself. {reminders_part}: reminders_part with the topics his reminder names (a Brobot's answer), else nothing. A line with nothing after its label isn't shown.",
-    "lines": ["I am {self}", "In the chat: {cast_described}", "So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}", "My relationships: {relationships}"],
+    "lines": ["{full_self}", "In the chat: {cast_described}", "So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}", "My relationships: {relationships}"],
     "roster_about": "2026-10-31 (operator: \"This can be a full GOPOD crew roster (sub) topic-cluster? * Crew roster please\"): the crew roster, one topic-cluster in the master format - its ## Crew points (Name: description) give In the chat its descriptions (himself: his profile's In short). system-check names anyone in the chat without a line.",
     "roster": "gopod_probes/personas/crew_roster.md",
     "cast_item": "{name} [{description}]{me}",
@@ -243,7 +243,7 @@
     "long_line": "Long-term memory, this session: {score}. Performed by Doc and Pip: {performed}. Spoken so far: {spoken}. Introduced: {introduced}.",
     "flow_about": "Guided Task Flow, made by code: intro (the line asks for one), then first (nobody has spoken yet) or recent (there's recent chat; 2026-10-31, operator: \"remove: [chat participant] just spoke - build on it, don't repeat it\", then \"Guided Task Flow: Does the recent chat help me answer the question asked.\").",
     "flow": {
-      "intro": "Introduce yourself. Name who's in the chat right now.",
+      "intro": "a) Introduce yourself. b) Name who's in the chat right now. c) If you're the first to speak this session, open it up.",
       "first": "You're the first to speak this session - open it up.",
       "recent": "Does the recent chat help me answer the question asked."
     },

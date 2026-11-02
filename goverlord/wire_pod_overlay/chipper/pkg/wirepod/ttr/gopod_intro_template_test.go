@@ -65,7 +65,7 @@ func TestCrewRoster(t *testing.T) {
 		}
 	}
 	l := gopodBrainLines("Brobot 1", "hey")
-	if len(l) < 2 || !strings.Contains(l[1], "Keys [Butler - Goverlord's voice at GOPOD]") || !strings.Contains(l[1], "Doc [GOPOD host, Brobot 1 - the grumpy, impatient brother who delivers the point] (me)") {
+	if len(l) < 2 || !strings.Contains(l[1], "Keys [GOPOD System Butler, Goverlord's voice]") || !strings.Contains(l[1], "Doc [GOPOD rep, grumpy, impatient, party-brobot] (me)") {
 		t.Errorf("In the chat: %v", l)
 	}
 }

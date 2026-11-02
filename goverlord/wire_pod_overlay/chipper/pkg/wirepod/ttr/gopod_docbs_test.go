@@ -230,7 +230,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Introduce yourself. Name who's in the chat right now.", "Does the recent chat help me answer the question asked.", "I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD host, Brobot 1 - the grumpy, impatient brother who delivers the point], Pip [GOPOD host, Brobot 2 - the clueless, happy brother who carries the room] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself. b) Name who's in the chat right now. c) If you're the first to speak this session, open it up.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: Doc [GOPOD rep, grumpy, impatient, party-brobot], Pip [GOPOD rep, clueless, happy, party-brobot] (me), ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -240,7 +240,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
-	if len(l) != 4 || !strings.HasPrefix(l[0], "I am Pip") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: my brother Doc, Brobot 1." {
+	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is Brobot 2") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: my brother Doc, Brobot 1." {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {
