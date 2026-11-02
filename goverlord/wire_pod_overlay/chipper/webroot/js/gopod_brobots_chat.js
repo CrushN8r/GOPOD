@@ -5403,8 +5403,9 @@
         var norm = function (t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); };
         var toks = words.map(function (w) { return { n: norm(w.t), s: +w.s || 0, e: +w.e || 0, used: 0 }; });
         var times = [], at = 0, lastEnd = 0;
-        units.forEach(function (u) {
-          var n = norm(u.tagName === "IMG" ? "" : u.textContent);
+        var unitText = function (v) { return v ? norm(v.tagName === "IMG" ? "" : v.textContent) : ""; };
+        units.forEach(function (u, ui) {
+          var n = unitText(u);
           if (!n) { times.push(lastEnd > 0 ? lastEnd : null); return; }
           var hit = null, part = 0;
           for (var j = at; j < Math.min(at + 6, toks.length); j++) {
@@ -5415,6 +5416,22 @@
               hit = j; part = t.used / t.n.length;
               t.used = Math.min(t.n.length, t.used + n.length);
               break;
+            }
+          }
+          // 2026-11-02 (live: PLAYHEAD's "ZUMINTU" lit before it was said - the
+          // voice says it "zoom-into"): a word said another way takes the next
+          // unused spoken word, when the word after it matches the spoken word
+          // after that - one shown word, one spoken word.
+          if (hit === null) {
+            var k = at;
+            while (k < toks.length && (!toks[k].n || toks[k].used)) { k++; }
+            var k2 = k + 1;
+            while (k2 < toks.length && !toks[k2].n) { k2++; }
+            var nextN = "";
+            for (var q = ui + 1; q < units.length && !nextN; q++) { nextN = unitText(units[q]); }
+            if (k < toks.length && (!nextN || (k2 < toks.length && toks[k2].n.indexOf(nextN) === 0))) {
+              hit = k; part = 0;
+              toks[k].used = toks[k].n.length;
             }
           }
           if (hit === null) { times.push(null); return; }
