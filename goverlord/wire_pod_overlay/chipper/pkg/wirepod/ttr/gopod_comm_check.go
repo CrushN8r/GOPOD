@@ -129,6 +129,16 @@ func gopodSystemCommCheck() string {
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
 		gopodCommCheckStop.Store(false)
+		// 2026-11-02 (live 16:38-16:41: KP0's answer was over, but the check sat
+		// still - the voice library was still being made at start, and every
+		// answer counts as going while any voice is being made): it starts once
+		// the library is ready (at most ten minutes).
+		if gopodVoicesAtStart.Load() {
+			logger.Println("GOPOD_COMM_CHECK waiting for the voice library to be ready")
+			for end := time.Now().Add(10 * time.Minute); gopodVoicesAtStart.Load() && time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(time.Second) {
+			}
+			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
+		}
 		for i, l := range lines {
 			if gopodCommCheckStop.Load() {
 				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")
