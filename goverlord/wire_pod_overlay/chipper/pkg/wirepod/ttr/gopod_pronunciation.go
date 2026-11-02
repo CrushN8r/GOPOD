@@ -112,7 +112,28 @@ func gopodIsWordRune(r rune) bool {
 // gopodApplyPronunciations replaces whole-word matches, like the Python side's
 // (?<!\w)...(?!\w) pattern.
 func gopodApplyPronunciations(text string) string {
-	return gopodSplitMergedWords(gopodReplaceWholeWords(gopodSayStretchedWords(gopodSayDegrees(text)), loadedGOPODPronunciations))
+	return gopodSplitMergedWords(gopodReplaceWholeWords(gopodSayStretchedWords(gopodSayDegrees(text)), gopodBrobotPronunciations()))
+}
+
+// gopodBrobotPronunciations (2026-11-02, operator: "brobots should pick that up
+// direct or indirect from her topic-cluster md persona profile"): the Brobots'
+// pronunciation list plus every persona's profile Lingo (gopodProfileLingo) -
+// a persona's names are written once, in their profile, and every voice says
+// them that way. The list's own entry wins on the same word; longest first.
+func gopodBrobotPronunciations() []gopodPronunciationEntry {
+	out := append([]gopodPronunciationEntry(nil), loadedGOPODPronunciations...)
+	have := map[string]bool{}
+	for _, e := range out {
+		have[strings.ToLower(e.From)] = true
+	}
+	for word, said := range gopodProfileLingo() {
+		if have[strings.ToLower(word)] || strings.TrimSpace(said) == "" {
+			continue
+		}
+		out = append(out, gopodPronunciationEntry{From: word, To: said, pattern: regexp.MustCompile("(?i)" + regexp.QuoteMeta(word))})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return len(out[i].From) > len(out[j].From) })
+	return out
 }
 
 // gopodSayDegrees (2026-10-12, operator: "rich display = robot safe say * ° =

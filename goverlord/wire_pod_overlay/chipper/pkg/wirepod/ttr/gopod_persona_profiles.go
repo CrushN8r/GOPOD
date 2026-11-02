@@ -230,6 +230,17 @@ func gopodLingoWords() map[string]string {
 	for k, v := range gopodBrobotsSettings.ReporterVoices.SayWords {
 		out[k] = v
 	}
+	for k, v := range gopodProfileLingo() {
+		out[k] = v
+	}
+	return out
+}
+
+// gopodProfileLingo: every persona's own "## Lingo" points ("CHALK = chock") -
+// the one source for how a persona's names are said, by every voice (the
+// reporter voices here, the Brobots' robots in gopodBrobotPronunciations).
+func gopodProfileLingo() map[string]string {
+	out := map[string]string{}
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
 		for _, point := range gopodPersonaProfileSections(c.Who)["Lingo"] {
 			if word, said, ok := strings.Cut(point, " = "); ok && strings.TrimSpace(word) != "" {

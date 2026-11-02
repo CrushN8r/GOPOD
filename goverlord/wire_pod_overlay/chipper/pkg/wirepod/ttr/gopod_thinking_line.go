@@ -85,7 +85,7 @@ func gopodSayWords(robot *vector.Vector, esn, text string) {
 			UseVectorVoice: true,
 			// 2026-11-02 (live: "Thanks for your help, Cache PYC." said wrong): his
 			// short lines go through the pronunciation list too.
-			Text: gopodReplaceWholeWords(text, loadedGOPODPronunciations),
+			Text: gopodReplaceWholeWords(text, gopodBrobotPronunciations()),
 		})
 		state := "no reply"
 		if resp != nil {
