@@ -186,6 +186,16 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	if country != "" && city == "" {
 		city = gopodBrobotsSettings.CleanPolitics.Capitals[country]
 	}
+	// 2026-11-03 (live: "the weather of Oz in Kansas, USA" got Kansas, Alabama;
+	// operator: "Its capital"): a state or province alone - or "<somewhere> in
+	// <state>" - is looked up at its capital, in that state.
+	if state, capital := gopodStateCapital(city); capital != "" {
+		tries = append([]string{capital + ", " + state}, tries...)
+		if country != "" {
+			tries = append([]string{capital + ",," + country}, tries...)
+		}
+		city = ""
+	}
 	if country != "" && city != "" {
 		tries = append([]string{city + ",," + country, city + "," + country}, tries...)
 	}
@@ -251,6 +261,24 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	}
 	gopodWeatherCache.places[cacheKey] = gopodWeatherCached{facts: facts, at: time.Now()}
 	return facts, nil
+}
+
+// gopodStateCapital: the state (or province) a place is, alone or as
+// "<somewhere> in <state>", and its capital (clean_politics.state_capitals);
+// "", "" for any other place. The longest state name wins (West Virginia).
+func gopodStateCapital(place string) (string, string) {
+	lc := strings.ToLower(strings.Join(strings.Fields(strings.ReplaceAll(place, ",", " ")), " "))
+	if lc == "" {
+		return "", ""
+	}
+	best, capital := "", ""
+	for state, c := range gopodBrobotsSettings.CleanPolitics.StateCapitals {
+		s := strings.ToLower(strings.TrimSpace(state))
+		if s != "" && (lc == s || strings.HasSuffix(lc, " in "+s)) && len(s) > len(best) {
+			best, capital = state, strings.TrimSpace(c)
+		}
+	}
+	return best, capital
 }
 
 // gopodWeatherCountry: the place without a country named in it, and that

@@ -992,8 +992,11 @@ type gopodBrobotsSettingsFile struct {
 		Words         []string          `json:"words"`
 		Countries     map[string]string `json:"countries"`
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
-		Capitals   map[string]string `json:"capitals"`
-		Continents []string          `json:"continents"`
+		Capitals map[string]string `json:"capitals"`
+		// 2026-11-03: a US state or Canadian province alone is its capital
+		// (gopod_probes/clusters/state_capitals.md, gopodStateCapital).
+		StateCapitals map[string]string `json:"state_capitals"`
+		Continents    []string          `json:"continents"`
 	} `json:"clean_politics"`
 	// 2026-10-15: the battery watchdog (gopod_battery_watch.go).
 	// 2026-10-26: the here-and-now note (gopod_here_now.go).

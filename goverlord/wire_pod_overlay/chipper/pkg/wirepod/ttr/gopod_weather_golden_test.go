@@ -54,3 +54,71 @@ func TestWeatherGoldenLock(t *testing.T) {
 		}
 	}
 }
+
+// 2026-11-03 (live: "the weather of Oz in Kansas, USA" got Kansas, Alabama;
+// operator: "Its capital"): a state or province alone is its capital.
+func TestStateCapital(t *testing.T) {
+	for place, want := range map[string]string{
+		"Kansas":           "Topeka",
+		"Oz in Kansas":     "Topeka",
+		"kansas":           "Topeka",
+		"in West Virginia": "",
+		"West Virginia":    "Charleston",
+		"Ontario":          "Toronto",
+		"toronto ontario":  "",
+		"Honolulu Hawaii":  "",
+		"Kansas City":      "",
+		"New York":         "",
+	} {
+		if _, got := gopodStateCapital(place); got != want {
+			t.Errorf("%q: %q, want %q", place, got, want)
+		}
+	}
+}
+
+// LOCKED 2026-11-03 (operator: "Add the brain part of the duo weather run to
+// the deploy lock (A: PLAYHEAD > Cache PYC > thanks; B: Cache PYC only)" - "Yes,
+// lock it"): Brobot A's brain gets PLAYHEAD's hand-off, then Cache PYC's ready
+// line, then he thanks her; Brobot B's gets Cache PYC's ready line only.
+func TestWeatherBrainLock(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set (the deploy sets it)")
+	}
+	s := gopodBrobotsSettings
+	var take gopodManagerTake
+	for _, tk := range s.Managers.Takes {
+		if tk.Kind == "weather" {
+			take = tk
+		}
+	}
+	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || !take.BrobotSays {
+		t.Errorf("LOCKED: the weather take isn't PLAYHEAD handing to Cache PYC: %+v", take)
+	}
+	if s.Managers.HandoffText != "{intern} will help you with that." ||
+		s.WeatherLines["intern_ready"] != "Weather info received from Git repo. Ready when you are Bro!" ||
+		s.BubbleNotices.ValuePoints.GotItAgain != "Thanks for your help, {helper}." {
+		t.Errorf("LOCKED: a brain line of the weather run changed: %q / %q / %q", s.Managers.HandoffText, s.WeatherLines["intern_ready"], s.BubbleNotices.ValuePoints.GotItAgain)
+	}
+	if gopodWeatherInternFor("what's the weather in Tampa?") != "CACHE PYC" {
+		t.Error("LOCKED: a weather line doesn't call Cache PYC in")
+	}
+	read := func(name string) string {
+		b, err := os.ReadFile(filepath.Join(root, "pkg", "wirepod", "ttr", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(b)
+	}
+	// A: the hand-off, then the intern's line (the thanks follows, once the manager is done).
+	m := read("gopod_managers.go")
+	do := m[strings.Index(m, "func gopodManagerDoFor("):]
+	if h, r := strings.Index(do, "gopodHandoff("), strings.Index(do, "gopodWeatherInternReady("); h < 0 || r < h {
+		t.Error("LOCKED: Brobot A's brain isn't PLAYHEAD, then Cache PYC")
+	}
+	// B: no manager, the intern's line only.
+	n := read("gopod_value_points_notice.go")
+	if b := strings.Index(n, "r.NoManager"); b < 0 || !strings.Contains(n[b:b+600], "gopodWeatherInternReady(") {
+		t.Error("LOCKED: Brobot B's brain doesn't get Cache PYC's line")
+	}
+}
