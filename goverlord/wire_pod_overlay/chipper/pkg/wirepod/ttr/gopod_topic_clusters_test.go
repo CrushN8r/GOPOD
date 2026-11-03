@@ -147,3 +147,16 @@ func TestSystemSetNamesTheCluster(t *testing.T) {
 		t.Errorf("system-set on a cluster value: %q", out)
 	}
 }
+
+// 2026-11-03 (step 6: the game, pictures, math, photo, notices): their words
+// come from game-words.md, topic-pictures.md, math.md, photo.md and
+// bubble-notices.md - a card keeps its line break, "• " its space.
+func TestOtherWordsFromClusters(t *testing.T) {
+	s := gopodBrobotsSettings
+	if s.Math.Bullet != "• " || !strings.Contains(s.TopicPictures.Cards["roast_battle"], "\n") {
+		t.Errorf("math bullet or a card's line break lost: %q %q", s.Math.Bullet, s.TopicPictures.Cards["roast_battle"])
+	}
+	if s.Game.WinText == "" || len(s.Photo.StallLines) == 0 || s.BubbleNotices.ValuePoints.Score == "" {
+		t.Error("game, photo or the notice's score line not read from its file")
+	}
+}
