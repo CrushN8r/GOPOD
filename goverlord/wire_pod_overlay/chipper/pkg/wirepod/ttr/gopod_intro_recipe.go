@@ -17,6 +17,8 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
 // gopodIsIntro: the line asks for an intro.
@@ -29,6 +31,16 @@ func gopodIsIntro(text string) bool {
 	}
 	return false
 }
+
+// gopodIntroWeather (2026-11-03, operator: "Hey [name], intro & weather > duo
+// intro run"): the line asks for an intro and the weather - his intro first,
+// then his weather (group-chat-intro.md, then weather_run.md).
+func gopodIntroWeather(text string) bool {
+	return gopodIsIntro(text) && gopodHasWholeWords(strings.ToLower(text), "weather")
+}
+
+// gopodIntroWeatherFor: a Brobot's answer now is an intro + weather (brobots_intro_weather).
+var gopodIntroWeatherFor sync.Map // esn -> bool
 
 // gopodIntroRecipe: the recipe for who, "" when the line isn't an intro.
 // 2026-10-31 (operator: "names vs nicknames = formal vs informal * I'm KEYNOTE
@@ -48,8 +60,21 @@ func gopodIntroRecipe(who, text string) string {
 			facts = append(facts, v)
 		}
 	}
+	text2 := ir.Text
+	// A Brobot's intro + weather: his take on the report after his one line.
+	if (who == "Brobot 1" || who == "Brobot 2") && gopodIntroWeather(text) {
+		esn := gopodBrobot1ESN
+		if who == "Brobot 2" {
+			esn = gopodBrobot2ESN
+		}
+		take := ir.WeatherText
+		if gopodIsFollowingUp(esn) {
+			take = ir.WeatherTextNext
+		}
+		text2 = strings.TrimSpace(text2 + " " + take)
+	}
 	return strings.TrimSpace(strings.NewReplacer("{opening}", gopodIntroOpening(who), "{facts}", strings.Join(facts, "; "),
-		"{self}", strings.Join(facts, "; "), "{cast}", gopodIntroCast(who)).Replace(ir.Text))
+		"{self}", strings.Join(facts, "; "), "{cast}", gopodIntroCast(who)).Replace(text2))
 }
 
 // gopodIntroOpening: "I'm {name}{nickname_part}." from his profile - his name
@@ -294,6 +319,26 @@ func gopodIntroCast(who string) string {
 		}
 	}
 	return strings.Join(cast, ", ")
+}
+
+// gopodIntroThenWeather: a Brobot's intro + weather answer - his intro (the
+// opening, his first line, the cast line), then the weather report or
+// "Confirmed." (gopodScriptedSnippet), then his take (the rest of his words).
+func gopodIntroThenWeather(esn, question, raw string) string {
+	who := gopodBrobotName(esn)
+	intro, take := strings.TrimSpace(raw), ""
+	if at := strings.Index(intro, "\n"); at > 0 {
+		intro, take = strings.TrimSpace(intro[:at]), strings.TrimSpace(intro[at+1:])
+	}
+	out := gopodIntroWrap(who, intro, true)
+	if line := gopodScriptedSnippet(esn, question, "start", ""); line != "" {
+		logger.Println("BROBOT_SCRIPTED_SNIPPET=" + line)
+		out = gopodStitchEndSnippet(line, out)
+	}
+	if take != "" {
+		out = strings.TrimSpace(out) + gopodThoughtGap() + take
+	}
+	return strings.TrimSpace(out)
 }
 
 // gopodIntroFor: a Brobot's answer now is an intro (its chain is brobots_intro).

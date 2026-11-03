@@ -627,15 +627,18 @@ type gopodBrobotsSettingsFile struct {
 		LongLine      string            `json:"long_line"`
 		FlowLine      string            `json:"flow_line"`
 		Flow          map[string]string `json:"flow"`
-		Lines         []string          `json:"lines"`
-		CastItem      string            `json:"cast_item"`
-		Roster        string            `json:"roster"`
-		CastMe        string            `json:"cast_me"`
-		RemindersPart string            `json:"reminders_part"`
-		Asked         string            `json:"asked"`
-		None          string            `json:"none"`
-		QuestionChars int               `json:"question_chars"`
-		GomadsRawChat bool              `json:"gomads_raw_chat"`
+		// 2026-11-03 (operator: "c) Keys will be the first to speak, to open up
+		// the session"): his call name; his own intro flow is flow.intro_first.
+		IntroOpener   string   `json:"intro_opener"`
+		Lines         []string `json:"lines"`
+		CastItem      string   `json:"cast_item"`
+		Roster        string   `json:"roster"`
+		CastMe        string   `json:"cast_me"`
+		RemindersPart string   `json:"reminders_part"`
+		Asked         string   `json:"asked"`
+		None          string   `json:"none"`
+		QuestionChars int      `json:"question_chars"`
+		GomadsRawChat bool     `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
@@ -656,6 +659,11 @@ type gopodBrobotsSettingsFile struct {
 		Opening      string `json:"opening"`
 		NicknamePart string `json:"nickname_part"`
 		WhyPart      string `json:"why_part"`
+		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
+		// md, then weather topic cluster md"): his take on the weather, after his
+		// intro (gopod_probes/clusters/group-chat-intro.md).
+		WeatherText     string `json:"weather_text"`
+		WeatherTextNext string `json:"weather_text_next"`
 	} `json:"intro_recipe"`
 	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
 	PersonaProfiles struct {

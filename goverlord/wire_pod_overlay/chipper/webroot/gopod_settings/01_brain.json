@@ -236,7 +236,6 @@
     "long_line": "Long-term memory, this session: {score}. Performed by Doc and Pip: {performed}. Spoken so far: {spoken}. Introduced: {introduced}.",
     "flow_about": "Guided Task Flow, made by code: intro (the line asks for one), then first (nobody has spoken yet) or recent (there's recent chat; 2026-10-31, operator: \"remove: [chat participant] just spoke - build on it, don't repeat it\", then \"Guided Task Flow: Does the recent chat help me answer the question asked.\").",
     "flow": {
-      "intro": "a) Introduce yourself. b) Name who's in the chat right now. c) If you're the first to speak this session, open it up.",
       "first": "You're the first to speak this session - open it up.",
       "recent": "Does the recent chat help me answer the question asked."
     },

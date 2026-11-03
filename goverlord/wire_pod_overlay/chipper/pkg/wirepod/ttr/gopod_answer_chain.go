@@ -52,6 +52,10 @@ func gopodAnswerChain(group string) []string {
 // following his brother's (next), then a new paragraph on the point
 // (chain_prompts). "" when nothing applies.
 func gopodChainPrompt(esn, question string) string {
+	// 2026-11-03: an intro's prompt is the intro recipe's (its weather take too).
+	if gopodIsIntro(question) {
+		return ""
+	}
 	weather := gopodHasWholeWords(strings.ToLower(question), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", question)
 	// 2026-10-23: a point with notes - the point bubbles' lines (point_bubbles.prompt),
 	// after one weather line when it's a weather question.
@@ -160,6 +164,12 @@ func gopodChainHas(esn, part string) bool {
 func gopodBrobotChainGroup(esn string) string {
 	// 2026-10-31: an intro answer is the intro, nothing stitched around it.
 	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
+		// 2026-11-03: an intro + weather - his intro, then his weather.
+		if w, ok := gopodIntroWeatherFor.Load(esn); ok && w.(bool) {
+			if _, ok := gopodBrobotsSettings.AnswerChains["brobots_intro_weather"]; ok {
+				return "brobots_intro_weather"
+			}
+		}
 		if _, ok := gopodBrobotsSettings.AnswerChains["brobots_intro"]; ok {
 			return "brobots_intro"
 		}
@@ -372,6 +382,11 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 	case "intro_wrap":
 		// 2026-10-31: an intro - the code's opening and cast line around his words.
 		return gopodIntroWrap(gopodBrobotName(esn), raw, true)
+	case "intro_weather":
+		// 2026-11-03 (operator: "Intro, then weather"): his intro - the code's
+		// opening, his first line, the code's cast line - then the weather report
+		// (or "Confirmed."), then the rest of his words, his take.
+		return gopodIntroThenWeather(esn, question, raw)
 	case "llm":
 	default:
 		logger.Println("GOPOD_CHECK answer_chains: no part named " + part)

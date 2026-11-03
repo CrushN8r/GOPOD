@@ -241,6 +241,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)
 		gopodIntroFor.Store(esn, intro != "")
+		gopodIntroWeatherFor.Store(esn, intro != "" && gopodIntroWeather(transcribedText))
 		// GOPOD 2026-10-31: his facts are worked out first - they set his reminders,
 		// which his brain names; then the brain chain (gopod_brain_chain.go), then the facts.
 		facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText))

@@ -154,7 +154,13 @@ func gopodBrainFacts(self, question string) map[string]string {
 	var flow []string
 	switch {
 	case gopodIsIntro(question):
-		flow = append(flow, bc.Flow["intro"])
+		// 2026-11-03 (operator's group chat intro: "c) Keys will be the first to
+		// speak, to open up the session"; Keys's own: "You're first - open it").
+		if o := strings.TrimSpace(bc.IntroOpener); o != "" && strings.EqualFold(gopodCallName(self), o) && bc.Flow["intro_first"] != "" {
+			flow = append(flow, bc.Flow["intro_first"])
+		} else {
+			flow = append(flow, bc.Flow["intro"])
+		}
 	case len(recs) == 0:
 		flow = append(flow, bc.Flow["first"])
 	default:
