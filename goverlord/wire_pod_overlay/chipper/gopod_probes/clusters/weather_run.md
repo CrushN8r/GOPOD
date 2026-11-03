@@ -32,6 +32,9 @@
 ## The hand-over, Brobot 2 to Brobot 1 (host_personas.Brobot 2.handover)
 1. line: {partner}, what say you on this, {title} {nickname}?
 
+## Step 5's sound: the weather sound plays as this lights up (weather_card)
+1. sound_at: Brobot Weather Report
+
 ## Step 11: the Weather Kit link (live_weather)
 1. follow_up_kit_line: Want to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).
 

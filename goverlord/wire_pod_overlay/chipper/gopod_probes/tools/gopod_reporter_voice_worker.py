@@ -132,7 +132,7 @@ def align_heard(words, heard):
     import re
     norm = lambda t: re.sub(r"[^a-z0-9]+", "", str(t).lower())
     out, at, last_end = [], 0, 0.0
-    for w in words:
+    for wi, w in enumerate(words):
         n = norm(w["t"])
         if not n:
             out.append({"t": w["t"], "s": last_end, "e": last_end})
@@ -143,6 +143,17 @@ def align_heard(words, heard):
             if h and (h == n or h.startswith(n) or n.startswith(h)):
                 hit = j
                 break
+        # 2026-11-03 (operator: "a highlight glitch on CHALKRA & Chalkra * both ran
+        # at the same time"; Vosk heard "chakra" twice, for "chock-ra" and
+        # "Chakra" - the first took the second's time): a word said another way
+        # takes the next heard word, when the word after it matches the heard
+        # word after that - one shown word, one spoken word (the page's ZUMINTU rule).
+        if hit is None and at < len(heard):
+            nxt = next((norm(x["t"]) for x in words[wi + 1:] if norm(x["t"])), "")
+            if nxt and at + 1 < len(heard):
+                h2 = norm(heard[at + 1]["word"])
+                if h2 and (h2 == nxt or h2.startswith(nxt) or nxt.startswith(h2)):
+                    hit = at
         if hit is None:
             s = max(float(w["s"]), last_end)
             e = round(s + max(float(w["e"]) - float(w["s"]), 0.05), 3)

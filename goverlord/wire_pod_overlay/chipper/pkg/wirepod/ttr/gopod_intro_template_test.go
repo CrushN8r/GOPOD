@@ -113,6 +113,40 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	}
 }
 
+// 2026-11-03 (operator: "there is too much time between exchanges"; his OK: the
+// answer made while the question is read out): a Gomad's answer started early
+// is asked for once, before the read-out ends, and that answer is the one said.
+func TestGomadAnswerMadeEarly(t *testing.T) {
+	ask := gopodPersonaAsk
+	defer func() { gopodPersonaAsk = ask }()
+	asks := 0
+	gopodPersonaAsk = func(host, text string) (string, error) {
+		asks++
+		return "I'm Git Repo. Made early.", nil
+	}
+	var said []string
+	dry := gopodDryVoice
+	defer func() { gopodDryVoice = dry }()
+	gopodDryVoice = func(host, text string, show bool) { said = append(said, text) }
+	early := gopodGomadAnswerStart("GIT REPO", "GIT REPO", "tell me a joke")
+	if early == nil {
+		t.Fatal("the llm part's answer wasn't started early")
+	}
+	<-early.done // made while the line is read out
+	if asks != 1 {
+		t.Fatalf("asked %d times before the read-out ended, want 1", asks)
+	}
+	if !gopodGomadAnswerEarly("GIT REPO", "GIT REPO", "tell me a joke", early) {
+		t.Fatal("the llm part didn't take the line")
+	}
+	if asks != 1 {
+		t.Errorf("asked again after the read-out (%d asks)", asks)
+	}
+	if !strings.Contains(strings.Join(said, " "), "Made early.") {
+		t.Errorf("the early answer wasn't said: %q", said)
+	}
+}
+
 // 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
 // rows - topics, value points, eggs, each label then its bar.
 func TestBrainScoreRows(t *testing.T) {

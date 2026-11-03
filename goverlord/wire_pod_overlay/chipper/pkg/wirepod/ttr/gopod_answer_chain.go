@@ -411,9 +411,24 @@ func gopodGomadAnswering(host string) bool {
 
 // gopodGomadAnswerAs: the gomad_persona chain for host, its lines said as sayAs.
 func gopodGomadAnswerAs(host, sayAs, text string) bool {
-	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(host)), &atomic.Int32{})
-	n.(*atomic.Int32).Add(1)
-	defer n.(*atomic.Int32).Add(-1)
+	return gopodGomadAnswerEarly(host, sayAs, text, nil)
+}
+
+// The early answer (2026-11-03, operator: "there is too much time between
+// exchanges, why? ... doable to lessen the time gap?"; his OK: "the next answer
+// is written and its first voice made while the question is still being read
+// out"): a Gomad's answer is asked for, wrapped, and its first spoken chunk's
+// voice made while the Operator's line is read out; once it's heard, the answer
+// shows and plays as before (its brain first). Bubbles keep their order.
+type gopodGomadEarlyAnswer struct {
+	done  chan struct{}
+	reply string
+	err   error
+	seq   int64
+}
+
+// gopodGomadPartFor: the gomad_persona chain's part that answers text ("" none).
+func gopodGomadPartFor(host, text string) string {
 	parts := gopodAnswerChain("gomad_persona")
 	if len(parts) == 0 {
 		parts = []string{"who_line", "manager_take", "llm"}
@@ -424,51 +439,110 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 			// The operator's own line, word for word (managers.who_words).
 			if who := strings.TrimSpace(gopodPersonaFill(host, gopodBrobotsSettings.Managers.Personas[host].WhoLine)); who != "" {
 				if at, _ := gopodEggWord(strings.ToLower(text), gopodBrobotsSettings.Managers.WhoWords); at >= 0 {
-					logger.Println("GOPOD_PERSONA " + host + " (who): " + who)
-					gopodReporterSay(sayAs, who, true, true)
-					return true
+					return p
 				}
 			}
 		case "manager_take":
 			// A take's words (the weather, the time and place) - its manager does the job.
-			if take, _, ok := gopodManagerTakes(strings.ToLower(text)); ok {
-				gopodManagerDo(take, text)
-				return true
+			if _, _, ok := gopodManagerTakes(strings.ToLower(text)); ok {
+				return p
 			}
 		case "llm":
-			// 2026-11-01 (live: the comm check stopped while Git Repo's answer was
-			// being made; it came 2 minutes later and played): a stop run while the
-			// answer is made drops it.
-			seq := gopodStopSeq.Load()
-			reply, err := gopodPersonaAsk(host, text)
-			if gopodStopSeq.Load() != seq {
-				logger.Println("GOPOD_PERSONA " + host + ": answer dropped - stop run while it was made")
-				return true
-			}
-			if err != nil {
-				logger.Println("GOPOD_PERSONA " + host + ": " + err.Error())
-				return false
-			}
-			// 2026-10-31: an intro is the template - the code's opening and cast line
-			// around the model's middle part (gopodIntroWrap).
-			if gopodIsIntro(text) {
-				reply = gopodIntroWrap(host, reply)
-			}
-			logger.Println("GOPOD_PERSONA " + host + ": " + reply)
-			// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
-			reply = gopodPersonaChainWrap(host, reply)
-			// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
-			gopodGomadBrain(host, sayAs, text)
-			gopodReporterSay(sayAs, reply, true, true)
-			kind := "answer"
-			if gopodIsIntro(text) {
-				kind = "intro"
-			}
-			gopodBrainAdd(gopodCallName(host), text, kind)
-			return true
+			return p
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)
 		}
+	}
+	return ""
+}
+
+// gopodGomadAnswerStart starts host's answer to text now, when the model makes
+// it (nil otherwise): asked, wrapped (intro, chain), its first chunk voiced.
+func gopodGomadAnswerStart(host, sayAs, text string) *gopodGomadEarlyAnswer {
+	if gopodGomadPartFor(host, text) != "llm" {
+		return nil
+	}
+	e := &gopodGomadEarlyAnswer{done: make(chan struct{}), seq: gopodStopSeq.Load()}
+	go func() {
+		defer close(e.done)
+		e.reply, e.err = gopodGomadReplyMade(host, text)
+		if e.err != nil || gopodStopSeq.Load() != e.seq {
+			return
+		}
+		first := e.reply
+		if chunks := gopodSpokenChunks(e.reply); len(chunks) > 0 {
+			first = chunks[0]
+		}
+		if first = strings.TrimSpace(first); first != "" {
+			gopodReporterFile(sayAs, gopodReporterSays(first))
+		}
+	}()
+	return e
+}
+
+// gopodGomadReplyMade: host's answer to text from the model, wrapped - the
+// intro template, then its chain.
+func gopodGomadReplyMade(host, text string) (string, error) {
+	reply, err := gopodPersonaAsk(host, text)
+	if err != nil {
+		return "", err
+	}
+	// 2026-10-31: an intro is the template - the code's opening and cast line
+	// around the model's middle part (gopodIntroWrap).
+	if gopodIsIntro(text) {
+		reply = gopodIntroWrap(host, reply)
+	}
+	logger.Println("GOPOD_PERSONA " + host + ": " + reply)
+	// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
+	return gopodPersonaChainWrap(host, reply), nil
+}
+
+// gopodGomadAnswerEarly: host's answer, said and shown as sayAs; early, when
+// given, is its answer already started (gopodGomadAnswerStart).
+func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswer) bool {
+	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(host)), &atomic.Int32{})
+	n.(*atomic.Int32).Add(1)
+	defer n.(*atomic.Int32).Add(-1)
+	switch gopodGomadPartFor(host, text) {
+	case "who_line":
+		who := strings.TrimSpace(gopodPersonaFill(host, gopodBrobotsSettings.Managers.Personas[host].WhoLine))
+		logger.Println("GOPOD_PERSONA " + host + " (who): " + who)
+		gopodReporterSay(sayAs, who, true, true)
+		return true
+	case "manager_take":
+		take, _, _ := gopodManagerTakes(strings.ToLower(text))
+		gopodManagerDo(take, text)
+		return true
+	case "llm":
+		// 2026-11-01 (live: the comm check stopped while Git Repo's answer was
+		// being made; it came 2 minutes later and played): a stop run while the
+		// answer is made drops it.
+		var reply string
+		var err error
+		seq := gopodStopSeq.Load()
+		if early != nil {
+			<-early.done
+			reply, err, seq = early.reply, early.err, early.seq
+		} else {
+			reply, err = gopodGomadReplyMade(host, text)
+		}
+		if gopodStopSeq.Load() != seq {
+			logger.Println("GOPOD_PERSONA " + host + ": answer dropped - stop run while it was made")
+			return true
+		}
+		if err != nil {
+			logger.Println("GOPOD_PERSONA " + host + ": " + err.Error())
+			return false
+		}
+		// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
+		gopodGomadBrain(host, sayAs, text)
+		gopodReporterSay(sayAs, reply, true, true)
+		kind := "answer"
+		if gopodIsIntro(text) {
+			kind = "intro"
+		}
+		gopodBrainAdd(gopodCallName(host), text, kind)
+		return true
 	}
 	return false
 }

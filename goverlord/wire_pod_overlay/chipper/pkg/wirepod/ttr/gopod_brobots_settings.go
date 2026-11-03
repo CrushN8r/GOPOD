@@ -369,6 +369,7 @@ type gopodBrobotsSettingsFile struct {
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
 		ScriptedKeepDays  float64 `json:"scripted_keep_days"`
 		LiveKeepDays      float64 `json:"live_keep_days"`
+		LiveOnceKeepDays  float64 `json:"live_once_keep_days"`
 		PopularUses       int     `json:"popular_uses"`
 		PopularKeepDays   float64 `json:"popular_keep_days"`
 		// 2026-10-13: the sting before a system line (gopodSystemSting).
@@ -1023,12 +1024,17 @@ type gopodBrobotsSettingsFile struct {
 		LowVolts        float64 `json:"low_volts"`
 		RecoverVolts    float64 `json:"recover_volts"`
 		// 2026-10-30: a drop this big between two readings is a dip.
-		DipVolts      float64             `json:"dip_volts"`
-		Lines         map[string][]string `json:"lines"`
-		Guards        map[string]string   `json:"guards"`
-		GuardWarning  string              `json:"guard_warning"`
-		GuardHandover string              `json:"guard_handover"`
-		Reply         string              `json:"reply"`
+		DipVolts float64             `json:"dip_volts"`
+		Lines    map[string][]string `json:"lines"`
+		// 2026-11-03 (dizzy-brobots.md): said after his line off the charger only;
+		// his line once he's back from a freeze or a reboot; the misses in a row that are one.
+		HomeLines       map[string]string `json:"home_lines"`
+		BackLines       map[string]string `json:"back_lines"`
+		BackAfterMisses int               `json:"back_after_misses"`
+		Guards          map[string]string `json:"guards"`
+		GuardWarning    string            `json:"guard_warning"`
+		GuardHandover   string            `json:"guard_handover"`
+		Reply           string            `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {

@@ -198,6 +198,11 @@ func gopodVoicesArchive() {
 			}
 		}
 		days := keep[kind]
+		// 2026-11-03 (operator: "please have the system do a better check & sweep"):
+		// a live one-off (played fewer than 2 times) keeps live_once_keep_days.
+		if kind == "live" && rv.LiveOnceKeepDays > 0 && uses[name] < 2 {
+			days = rv.LiveOnceKeepDays
+		}
 		// 2026-10-27 (operator: "Finish the voice archiver limits"; the voice
 		// report: how many plays make a file "popular"): a popular file
 		// (popular_uses plays or more) keeps popular_keep_days, if longer.

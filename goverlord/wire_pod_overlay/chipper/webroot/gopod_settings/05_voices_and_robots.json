@@ -121,19 +121,10 @@
     "recover_volts": 3.8,
     "dip_about": "2026-10-30 (operator: \"Brobot 2's charger contact (3.61 V, not charging) * brobots are supposed to say, hey I'm dizzy * I think a security guard also monitors battery levels * Maybe increase monitoring cycles per second * tag previous power level reading * tag current power level reading * quick compare for power level dip * if a dip detected, brobot says hey I'm dizzy & Intel 404 warning * look it up something like this is set up already\"): each reading is compared with the one before it - a drop of dip_volts or more is a dip, and the guard warns and the Brobot says his line, as below low_volts. On his charger but not charging counts too (a bad contact); only charging or recover_volts re-arms it. interval_seconds 60 -> 15.",
     "dip_volts": 0.15,
-    "lines": {
-      "Brobot 1": [
-        "Whoa, bro... I'm feeling dizzy. I need help getting home."
-      ],
-      "Brobot 2": [
-        "Bro, I'm feeling dizzy... can someone help me get home?"
-      ]
-    },
+    "lines_about": "2026-11-03 (operator: \"make this topic-cluster a dizzy-brobots.md & pull it out of code\"): lines, home_lines, back_lines, guard_warning, guard_handover and reply are in gopod_probes/clusters/dizzy-brobots.md. back_after_misses: a Brobot is back from a freeze or a reboot when a reading works after this many in a row didn't (he was read before, this Wire-Pod session).",
+    "back_after_misses": 2,
     "guards_about": "2026-10-26 (operator: \"Do the security guards (Intel 404 PNFH/PNFT) get a job too * at least this one: brobots battery levels * at the next safe spot, Intel can interject * use the duo response-chain template, Intel 404 to brobot N * a warning message, then what say you? * Brobot N, Nice try ..., yeah, I feel dizzy, etc...\"): each Brobot's guard. At the next safe spot the guard says guard_warning ({brobot}, {volts}) and guard_handover ({title} {nickname} filled the hand-over way), in his own bubble; then the Brobot says reply - {comeback} (openers.comeback) and {line} (one of his lines). No guard, or his voice not made: the Brobot says his line alone, as before.",
-    "guards": {"Brobot 1": "INTEL 404 PNFH", "Brobot 2": "INTEL 404 PNFT"},
-    "guard_warning": "Security warning: {brobot}'s battery is running low.",
-    "guard_handover": "{brobot}, what say you on this, {title} {nickname}?",
-    "reply": "{comeback} Yeah... {line}"
+    "guards": {"Brobot 1": "INTEL 404 PNFH", "Brobot 2": "INTEL 404 PNFT"}
   },
   "sleep_beats": {
     "about": "The sleep beats (operator 2026-10-19: \"how doable is it now, to add in all the 100+ sleep commands? If doable add please\"; \"in gopod_notes, look for an md file related to the nap song * sleep, snore, warbles, sounds, etc\"): the 126 candidates from gopod_notes/older_notes/SLEEP_BENCH_ALIASES_001.md (each verified there against the robot's animation triggers and clips), by family. system-robot beat <alias|name> [1|2|both] plays one; system-robot beats [family] lists them.",
@@ -794,6 +785,8 @@
     "keep_days_about": "2026-10-18 (operator: \"no auto-deletes * delete backup upon successful new playable voice wav file * operator_keep_days for system lines * scripted_keep_days for scripted lines (reporter/narrator/etc) * live_keep_days for live lines * I think we already have an archiving process, use that to start from\"): at each start, a voice not in use and not said for its kind's days moves to sessions/archives/voices (never deleted). Kinds: system = Goverlord's voice (operator_keep_days); scripted = made by the start's check or a playing script (scripted_keep_days); live = the Operator's lines and the managers' live answers (live_keep_days). gopod_system_voices.go.",
     "scripted_keep_days": 90,
     "live_keep_days": 30,
+    "live_once_keep_days_about": "2026-11-03 (operator: \"That's too many files * please have the system do a better check & sweep * I didn't realize there's nearly 1k files\"; 851 voices, 601 of them live and played once or never; his pick: 1 day): a live voice played fewer than 2 times moves to the archive after this many days (live_keep_days for the rest).",
+    "live_once_keep_days": 1,
     "popular_about": "2026-10-27 (operator: \"Finish the voice archiver limits\"; system-voices-report month, plays counted since 2026-10-26: played 1x 68, 2-3x 3, 4-9x 11, 10x+ 11 - the jump is at 4): a voice file played popular_uses times or more is popular and keeps popular_keep_days (if longer than its kind's). Retune both once a month of plays is in the report.",
     "popular_uses": 4,
     "popular_keep_days": 180,

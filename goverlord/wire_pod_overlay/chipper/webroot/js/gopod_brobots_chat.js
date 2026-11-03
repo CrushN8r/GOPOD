@@ -3252,6 +3252,32 @@
         }, 60000);
         return audio;
       }
+      // 2026-11-03 (operator: "In the template, make the weather audio play upon:
+      // \"Brobot Weather Report ... \""): the sound waits for his piece holding
+      // weather_card.sound_at (the weather template, weather_run.md) to light;
+      // with no such piece, as the bubble shows. Already said: no sound.
+      function weatherSoundOnLit(bubble, textEl, sound) {
+        var at = String(weatherCard.sound_at || "").toLowerCase().trim();
+        var piece = !at ? null : Array.prototype.filter.call(textEl.querySelectorAll(".brobot-say"), function (x) {
+          return !x.closest(".nested-host") && String(x.textContent || "").toLowerCase().indexOf(at) >= 0;
+        })[0];
+        if (!piece) { return weatherSoundOnShow(bubble, sound); }
+        if (restoringChat || !sound || piece.classList.contains("spoken")) { return null; }
+        var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
+        audio.preload = "auto";
+        try { audio.load(); } catch (err) { /* no audio */ }
+        function play() {
+          audio.volume = chatLevel(volumeShare(weatherCard.volume));
+          audio.play().catch(function () { /* the page hasn't been clicked yet */ });
+        }
+        if (piece.classList.contains("speaking")) { play(); return audio; }
+        var watch = new MutationObserver(function () {
+          if (piece.classList.contains("speaking")) { watch.disconnect(); play(); }
+          else if (piece.classList.contains("spoken") || !piece.isConnected) { watch.disconnect(); }
+        });
+        watch.observe(piece, { attributes: true, attributeFilter: ["class"] });
+        return audio;
+      }
       // A Brobot bubble with the weather line, during a run: the face in its
       // corner. 2026-10-14 (operator: "during live, can you treat 'weather'
       // requests like live pop-up bubbles?"): in the live chat the weather is
@@ -3281,7 +3307,7 @@
         // played"): with weather_card.picture off, only its sound, once, as the
         // bubble shows.
         if (weatherCard.picture === false) {
-          if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnShow(bubble, face.sound); }
+          if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnLit(bubble, textEl, face.sound); }
           return;
         }
         // 2026-10-22 (operator: "current position isn't a good spot for it * add
