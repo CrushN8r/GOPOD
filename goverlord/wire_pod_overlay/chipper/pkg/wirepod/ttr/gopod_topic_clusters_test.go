@@ -101,3 +101,19 @@ func TestBrainFromClusters(t *testing.T) {
 		t.Errorf("reply rules or the summary's line break lost")
 	}
 }
+
+// 2026-11-03 (step 4: spice, here and now, host pairs): spice.md,
+// here-and-now.md and host-pairs.md fill them; each pair's dial stays in the
+// settings, laid under its words; "; " keeps its space.
+func TestCastWordsFromClusters(t *testing.T) {
+	if len(gopodBrobotsSettings.Spice.Exclamations) == 0 || gopodBrobotsSettings.Spice.Text == "" {
+		t.Error("spice not read from spice.md")
+	}
+	if gopodBrobotsSettings.HereNow.CastJoin != "; " || gopodBrobotsSettings.HereNow.Genders["Brobot 1"] == "" {
+		t.Errorf("here and now: %q %q", gopodBrobotsSettings.HereNow.CastJoin, gopodBrobotsSettings.HereNow.Genders)
+	}
+	p := gopodBrobotsSettings.HostPairs["Doc & Pip"]
+	if len(p.Hosts) != 2 || p.Banter == "" || p.Dial == 0 {
+		t.Errorf("Doc & Pip's pair (words and dial): %+v", p)
+	}
+}

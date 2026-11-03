@@ -1,11 +1,7 @@
 {
   "here_now": {
     "about": "Brobots: the same pieces as tokens in prebuild_context.lines. 2026-10-26 (operator: \"all chat participants should be aware of themselves & others in the chat, in spacetime (time & location)\"); 2026-10-27 (operator: \"rather than the llm asses all that * pre-generate all that for the llm, instead * Time is [time]. You are [name], located in [Windsor Ontario Canada]. You're chatting with friends, [list chat participants]. Check recent chat history for context\"; \"GOPOD recognizes sex = gender = male or female\"): all worked out in code (gopod_here_now.go), for every Gomad's prompt and before every Brobot's question. {time} clock_format, {self} his name, {gender} genders, else his voice's second letter (Kokoro af_/am_: voice_genders), {place} the live place, else place, {cast} everyone but him (cast, joined with cast_join; to a Brobot his brother is brother_line, never named), {batteries} battery_note - only for a battery guard (battery_watch.guards). Empty text = off.",
-    "text": "Time is {time}. You are {self} ({gender}), located in {place}. You're chatting with friends: {cast}. {batteries} Check recent chat history for context.",
-    "place": "Windsor Ontario Canada",
     "clock_format": "3:04 PM, Monday, January 2, 2006",
-    "genders": {"Brobot 0": "male", "Brobot 1": "male", "Brobot 2": "male"},
-    "voice_genders": {"f": "female", "m": "male"},
     "cast_about": "One entry per participant (who: his host or Brobot name), {gender} filled the same way.",
     "cast_mentors_about": "2026-10-29 (operator: \"Yes: add CHALK's intern and PLAYHEAD's intern to the cast list * interns work with/for both, but male/male female/female * CHALK mentors Cache PYC (display pizzazz/wow stuff) * PLAYHEAD mentors Git Repo (more tech helper)\"): the managers' and interns' cast lines say who mentors whom.",
     "cast": [
@@ -21,13 +17,7 @@
       {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"},
       {"who": "BUTLER", "line": "{name}, \"{nickname}\" (the {job}, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)"}
     ],
-    "cast_join": "; ",
-    "brother_line": "your brother (male, the other Brobot)",
-    "chat_note_about": "2026-10-27 (live: every Gomad's \"tell me all about yourself\" came back as the Brobots' own answer): a Gomad gets the recent chat as one note of other people's lines - chat_note, then each line, a Brobot's answer as chat_answer - never as its own replies.",
-    "chat_note": "Recent chat, for context only - these are other people's lines, not yours:",
-    "chat_answer": "A Brobot answered: {line}",
-    "battery_note": "The Brobots' batteries right now: {batteries}.",
-    "battery_text": "{brobot} {reading}"
+    "chat_note_about": "2026-10-27 (live: every Gomad's \"tell me all about yourself\" came back as the Brobots' own answer): a Gomad gets the recent chat as one note of other people's lines - chat_note, then each line, a Brobot's answer as chat_answer - never as its own replies."
   },
   "brothers": {
     "about": "The brothers' awareness of each other (operator 2026-10-03). Before a chat answer, when the other brother's newest Wire-Pod log line is being told to sleep (\"zzz\"), asleep_note is added right before the question. What the Brobots know by topic - who we are, the brothers, party, background, GOPOD - is in the scenario packs (gopod_probes/scenario_packs/registry.json), each loaded only when the question holds one of its trigger words.",
@@ -189,13 +179,9 @@
   },
   "spice_about": "2026-10-28 (operator: \"Robot swear list = make it a human swear list, lol (people pay good money for this type of comedy)\"; \"Exclamations\"; \"no 'spice per-reply-limit' = aim to not repeat, or try to vary a repeat\"; AAAGGAMER1_GOLD_SIFT_003.md): his pre-build context's {spice} line - a fresh pick each answer: pick swears (robot_swears, plus the human swear list when the roast level allows - the private, uncensored z-copy (human_swears_private, in GOPOD's overlay chipper folder, gitignored, never served - the zKnobs.json pattern) when it's there, else human_swears, vowels starred, the public copy) and pick_exclamations exclamations. No limit per reply; text asks him not to repeat, or to vary a repeat. None for a sensitive topic.",
   "spice": {
-    "text": "Spice I can use, my way: {swears}. Exclamations: {exclamations}. I never repeat one I've used - or I vary it.",
     "pick": 6,
     "pick_exclamations": 2,
-    "robot_swears": ["bleeping glitch", "segfaulting", "bricked the firmware", "fluxed up the motherboard assembly", "flux off", "Alt+F4 yourself", "route that to /dev/null", "what the firmware", "what the flux", "stack-trace circus", "debug fog", "404-brain", "null-pointer tourist", "single-threaded thinking", "grinds my gears", "byte me", "that bytes", "reboot yourself", "mute your mic", "kernel panic", "spaghetti code", "garbage-collected it", "blue-screened", "deprecated", "battery at 1%", "fan noise at 9000 RPM", "CPU pegged at 100%", "cache-missed", "return 410 Gone", "your byte isn't even a bit", "one more byte and your stack tips over", "gear teeth are confetti", "overclockedly", "checksum-certain"],
-    "human_swears_private": "zgopod_human_swears.json",
-    "human_swears": ["f*ck", "f*ck*ng", "sh*t", "b*llsh*t", "d*mn", "g*dd*mn", "h*ll", "*ss", "*ssh*l*", "d*mb*ss", "j*ck*ss", "b*tch", "s*n *f * b*tch", "b*st*rd", "d*ck", "p*ss *ff", "cr*p", "m*th*rf*ck*r"],
-    "exclamations": ["Kernel panic!", "404 on common sense!", "Beep-beep - logic buffer overflow!", "Stack overflow in aisle three!", "Holy guacamole, Batman!"]
+    "human_swears_private": "zgopod_human_swears.json"
   },
   "display_names": {
     "about": "2026-10-22 (operator: \"base = robot by ESN * wired-pod = brobots (Brobot N) * GOPOD = persona-name and chat participant\"; \"Look at the numpad mapping as a temporary source of golden truth * brobots 3/4 should really be brobots 7/8, as per numpad\"; \"a bubble's header in a scripted run should have what values? default (CHALK), fallback (Brobot 7), remembered edits (CHALK BORED)? * editable\"): the header template for the reporters' and managers' bubbles in the chat - edits (a remembered edit, by its default name: system-add display_names.edits CHALK = CHALK BORED), else default (the GOPOD persona), else fallback ({n} = the numpad key whose persona it is: KP7 CHALK = Brobot 7), else reporter_voices.labels. Scripts keep their own names (Reporter 1/2); the chat shows these. Page only: F5.",
@@ -292,38 +278,10 @@
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",
   "host_pairs": {
-    "Doc & Pip": {
-      "hosts": ["Brobot 1", "Brobot 2"],
-      "left": "party-bro GOPOD demo rep",
-      "dial": 60,
-      "voice": "I",
-      "partner_as": "my brother",
-      "banter": "I rib {partner} like brothers do: a quick jab, then back to the point."
-    },
-    "CHALK & PLAYHEAD": {
-      "hosts": ["CHALK", "PLAYHEAD"],
-      "left": "scripted reporter",
-      "dial": 60,
-      "voice": "you",
-      "partner_as": "",
-      "banter": "You and {partner} keep a side banter going, like long-time on-location news partners: a quick tease between you, the Brobots in on the joke, then back to the job."
-    },
-    "Git Repo & Cache PYC": {
-      "hosts": ["GIT REPO", "CACHE PYC"],
-      "left": "Cozmo student",
-      "dial": 60,
-      "voice": "you",
-      "partner_as": "your study buddy",
-      "banter": "You and {partner} keep a side banter going, like study buddies: a quick tease between you, then back to the job."
-    },
-    "Intel 404 PNFH & PNFT": {
-      "hosts": ["INTEL 404 PNFH", "INTEL 404 PNFT"],
-      "left": "Moorebot Scout security guard",
-      "dial": 60,
-      "voice": "you",
-      "partner_as": "your partner",
-      "banter": "You and {partner} keep a side banter going, like two goofy security guards on the same shift: a quick tease between you, then back to the job."
-    }
+    "Doc & Pip": {"dial": 60},
+    "CHALK & PLAYHEAD": {"dial": 60},
+    "Git Repo & Cache PYC": {"dial": 60},
+    "Intel 404 PNFH & PNFT": {"dial": 60}
   },
   "personas_about": "2026-10-30 (operator: \"go on giving each a profile in the master format * pull them out of the shared prompt * so all come from one template\"): each Brobot's own words - who I am, his role, his way through an answer, his signature, his name - are in his profile (gopod_probes/personas/brobot-1.md, brobot-2.md, the master format), not here.",
   "personas": {}
