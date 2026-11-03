@@ -58,6 +58,26 @@ func gopodHandoff(via, intern, to string) {
 	gopodReporterSayTo(via, to, strings.ReplaceAll(text, "{intern}", gopodCallName(intern)), true, true)
 }
 
+// gopodWeatherInternReady (2026-11-03, operator's flow: "Cache PYC * Weather
+// info received from Git repo. Ready when you are Bro!" in both brain bubbles;
+// "Said and shown"): the intern's ready line (weather_lines.intern_ready, the
+// golden weather run), in her voice, in to's bubble.
+func gopodWeatherInternReady(intern, to string) {
+	line := strings.TrimSpace(gopodBrobotsSettings.WeatherLines["intern_ready"])
+	if intern == "" || line == "" {
+		return
+	}
+	gopodReporterSayTo(intern, to, line, true, true)
+}
+
+// gopodWeatherInternFor: the intern of the weather take this line asks for, "" for none.
+func gopodWeatherInternFor(question string) string {
+	if t, _, ok := gopodManagerTakes(strings.ToLower(question)); ok && t.Kind == "weather" && t.BrobotSays {
+		return t.Host
+	}
+	return ""
+}
+
 // gopodManagerTakes: the take this line asks for (the first word in the line), live only.
 func gopodManagerTakes(lower string) (gopodManagerTake, int, bool) {
 	m := gopodBrobotsSettings.Managers
@@ -205,6 +225,7 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 		// 2026-10-22 (operator: "no weather voice generation or display, weather
 		// spoken by brobot"): his reply opens with the golden weather line.
 		if t.BrobotSays {
+			gopodWeatherInternReady(t.Host, to)
 			return
 		}
 		line, _ := gopodWeatherSayAt(gopodBrobot1ESN, place)

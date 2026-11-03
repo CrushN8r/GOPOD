@@ -434,7 +434,13 @@ func gopodNoticeFlushed(esn string, lines []string, asked string, ok bool) {
 	}
 	gopodNoticePostLines(esn, lines)
 	if r, ok := gopodDuoRule(esn); ok && r.NoManager {
-		return // duo B: his brother's manager already helped (duo.b.no_manager)
+		// duo B: his brother's manager already helped (duo.b.no_manager) - but
+		// 2026-11-03 (operator: "Cache PYC in both brain bubbles (PLAYHEAD take
+		// over not required, intern is there)"): the intern's ready line in his.
+		if intern := gopodWeatherInternFor(asked); intern != "" && !gopodScriptPlaying.Load() {
+			go gopodWeatherInternReady(intern, gopodBrobotName(esn))
+		}
+		return
 	}
 	if b := gopodBrobotName(esn); gopodBubbleStep("manager") && (b == "Brobot 1" || b == "Brobot 2") && !gopodScriptPlaying.Load() && strings.TrimSpace(asked) != "" {
 		go gopodManagerStepIn(b, asked)

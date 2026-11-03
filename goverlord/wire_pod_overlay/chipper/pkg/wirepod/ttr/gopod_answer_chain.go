@@ -67,8 +67,19 @@ func gopodChainPrompt(esn, question string) string {
 			return pp
 		}
 	}
-	if !weather || len(gopodGivenPoints(esn)) == 0 {
+	if !weather {
 		return ""
+	}
+	// 2026-11-03 (live: with no value point the model got no weather line at
+	// all, only the report - and said its own second, wrong one): his take on
+	// the report, never the report again (chain_prompts.weather_take, the
+	// golden weather run).
+	if len(gopodGivenPoints(esn)) == 0 {
+		key := "weather_take"
+		if gopodIsFollowingUp(esn) {
+			key = "weather_take_next"
+		}
+		return strings.TrimSpace(gopodBrobotsSettings.ChainPrompts[key])
 	}
 	key := "weather_point_first"
 	if gopodIsFollowingUp(esn) {
