@@ -25,14 +25,13 @@ func gopodThinkingLineSpoken() string {
 	return gopodSystemText("thinking_line.thinking_please_wait")
 }
 
-// gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words,
-// his moves before them, and his searching pace after.
+// gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words
+// and his moves before them. 2026-11-03: the searching pace after them is the
+// golden note's only (gopodSearchingGolden).
 type gopodGotIt struct {
-	Name                   string   `json:"name"`
-	Text                   string   `json:"text"`
-	Moves                  []string `json:"moves"`
-	SearchingMinSeconds    float64  `json:"searching_min_seconds"`
-	SearchingResendSeconds float64  `json:"searching_resend_seconds"`
+	Name  string   `json:"name"`
+	Text  string   `json:"text"`
+	Moves []string `json:"moves"`
 }
 
 // gopodGotItFor (2026-10-24, operator: "Separate out the already established,
@@ -47,12 +46,6 @@ func gopodGotItFor(esn string) gopodGotIt {
 	}
 	if g.Moves == nil {
 		g.Moves = cm.ThinkingMoves
-	}
-	if g.SearchingMinSeconds == 0 {
-		g.SearchingMinSeconds = cm.SearchingMinSeconds
-	}
-	if g.SearchingResendSeconds == 0 {
-		g.SearchingResendSeconds = cm.SearchingResendSeconds
 	}
 	return g
 }
@@ -142,9 +135,12 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	// SEARCHING_ANIMATION_SONG_LOCK_001.md) - a clip that comes back at once
 	// (Brobot 2, ~80 ms, live 2026-10-08 12:02) no longer means another send
 	// every ~0.4 s.
-	cm := gopodGotItFor(esn) // his own copy of the sequence's pace
+	// 2026-11-03 (operator: "isolate into a robust golden note and fucking lock
+	// it and refer only to it"): the clips and pace are the golden note's
+	// (gopod_probes/locks/searching_golden.md), read here and nowhere else.
+	sg := gopodSearchingGolden()
 	searchStart := time.Now()
-	minRun := gopodSecondsToDuration(cm.SearchingMinSeconds)
+	minRun := gopodSecondsToDuration(sg.MinSeconds)
 	done := func() bool { return ready() && time.Since(searchStart) >= minRun }
 	paused, hadManager := false, false
 	// A manager still talking keeps him waiting, even with his answer ready.
@@ -157,10 +153,7 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 			if !paused {
 				paused, hadManager = true, true
 				logger.Println("GOPOD_THINKING " + gopodBrobotName(esn) + " searching paused (a manager has the floor)")
-				gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
-					Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_getout_01"},
-					Loops:     1,
-				})
+				gopodSearchingPlay(robot, ctx, sg, sg.Getout)
 			}
 			time.Sleep(100 * time.Millisecond)
 			continue
@@ -170,22 +163,19 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 			logger.Println("GOPOD_THINKING " + gopodBrobotName(esn) + " searching again")
 		}
 		sent := time.Now()
-		gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
-			Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_01"},
-			Loops:     1,
-		})
-		// 2026-10-31 (operator: "searching 1 s animation loop is messy"): one clip,
-		// never re-sent sooner than one clip's length - the song lock's rule
-		// (SEARCHING_ANIMATION_SONG_LOCK_001.md), in the first second too.
-		gap := gopodSecondsToDuration(cm.SearchingResendSeconds)
+		gopodSearchingPlay(robot, ctx, sg, sg.Clip)
+		// 2026-11-03 (operator: "Back-to-back"): the clip call returns once the
+		// robot reports it done, so the next goes at once - unless it came back
+		// sooner than the note's floor (not played), then the floor first.
+		gap := gopodSecondsToDuration(sg.FloorSeconds)
+		if !sg.OK {
+			gap = 100 * time.Millisecond // no note: no clips, just the wait
+		}
 		for !done() && !gopodManagerBusy.Load() && time.Since(sent) < gap {
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
-	gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
-		Animation: &vectorpb.Animation{Name: "anim_knowledgegraph_searching_getout_01"},
-		Loops:     1,
-	})
+	gopodSearchingPlay(robot, ctx, sg, sg.Getout)
 	// 2026-10-22 (the notice log's 4th line): the floor is back to him - "Got
 	// it!" again, said after a manager had the floor.
 	if brobot {

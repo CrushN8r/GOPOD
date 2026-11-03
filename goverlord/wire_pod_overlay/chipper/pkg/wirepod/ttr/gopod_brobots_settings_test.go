@@ -2402,8 +2402,7 @@ func TestGotItPerBrobot(t *testing.T) {
 		if g.Name != name {
 			t.Errorf("%s has %q, want %q", gopodBrobotName(esn), g.Name, name)
 		}
-		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") ||
-			g.SearchingMinSeconds != cm.SearchingMinSeconds || g.SearchingResendSeconds != cm.SearchingResendSeconds {
+		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") {
 			t.Errorf("%s isn't a copy of the golden sequence: %+v", name, g)
 		}
 	}

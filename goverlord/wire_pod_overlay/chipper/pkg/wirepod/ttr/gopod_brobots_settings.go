@@ -144,9 +144,8 @@ type gopodBrobotsSettingsFile struct {
 		NodEvery       int     `json:"nod_every"`
 		NodSpeed       float64 `json:"nod_speed"`
 		NodHoldSeconds float64 `json:"nod_hold_seconds"`
-		// 2026-10-08: searching while a Brobot waits - at least this long.
-		SearchingMinSeconds    float64 `json:"searching_min_seconds"`
-		SearchingResendSeconds float64 `json:"searching_resend_seconds"`
+		// 2026-11-03: the searching pace is the golden note's only
+		// (gopod_probes/locks/searching_golden.md, gopodSearchingGolden).
 		// 2026-10-10: the words said while the model works on a reply.
 		ThinkingText string `json:"thinking_text"`
 		// 2026-10-09: the moves before "Thinking, please wait." ("arm", "nod").
