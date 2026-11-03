@@ -2,6 +2,7 @@
 - **words:** nickname, nicknames, mr, mrs
 - **ask:** What do the Brobots call each other?
 
+- **see also:** dizzy-brobots, weather_run, group-chat-intro (where the nicknames are said)
 ---
 
 ## Titles and nicknames (nicknames)

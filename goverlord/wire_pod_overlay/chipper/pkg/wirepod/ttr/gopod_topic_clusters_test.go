@@ -43,3 +43,27 @@ func TestTopicClusters(t *testing.T) {
 		t.Error("a cluster's value is still in the settings files")
 	}
 }
+
+// 2026-11-03 (step 1 of the clusters plan: the shell window's words): the system
+// texts and the help list come from system-texts.md and system-help.md - a
+// status line keeps its leading spaces, "\n" is a break, " | " stays words, and
+// the help keeps its columns.
+func TestSystemTextsFromClusters(t *testing.T) {
+	st := gopodBrobotsSettings.SystemText
+	if len(st) < 150 {
+		t.Fatalf("system texts: %d, want the cluster's ~168", len(st))
+	}
+	if v := st["system_status.page_here"]; !strings.HasPrefix(v, "  chat page") {
+		t.Errorf("status line lost its column: %q", v)
+	}
+	if v := st["system_robots.system_brobot_beat_alias_1"]; !strings.Contains(v, "\n{out2}") {
+		t.Errorf("line break lost: %q", v)
+	}
+	if v := st["system_edit.system_topic_topic_words_add"]; !strings.Contains(v, " | words ") {
+		t.Errorf("\" | \" not kept as words: %q", v)
+	}
+	help := gopodBrobotsSettings.SystemHelp.Lines
+	if len(help) < 50 || !strings.HasPrefix(help[1], "  system-set ") {
+		t.Errorf("help list or its columns lost: %d lines, %q", len(help), help)
+	}
+}

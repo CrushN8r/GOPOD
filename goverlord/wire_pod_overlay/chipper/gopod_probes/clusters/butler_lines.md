@@ -2,6 +2,7 @@
 - **words:** butler, keys, keynote, goverlord says
 - **ask:** What does the Butler say?
 
+- **see also:** system-texts (the system window), golden_answers, nicknames
 ---
 
 ## Run lines (session)

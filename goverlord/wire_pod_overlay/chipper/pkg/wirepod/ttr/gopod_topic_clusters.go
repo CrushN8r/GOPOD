@@ -14,6 +14,9 @@ package wirepod_ttr
 //	a pair list   "math: Explain the Math"            (reminder_eggs: key, label)
 //	              "what is ai wordplay | what's ai wordplay: AI wordplay: ..."
 //	                                                  (golden_answers: queries, line)
+//	a text place  "page_here:   chat page: here"      (gopodClusterTexts: " | " is
+//	                                                  words, "\n" a break, spaces kept)
+//	a line list   "3.   system-add ..."               (gopodClusterLines: one line each)
 //
 // The cluster is the one source: its values are laid over the settings at
 // Wire-Pod's start and for the chat page (gopodClustersOverlay), and the
@@ -36,6 +39,20 @@ const gopodClustersDefaultFolder = "gopod_probes/clusters"
 var gopodClusterPairs = map[string][2]string{
 	"value_points.reminder_eggs": {"key", "label"},
 	"golden_answers":             {"queries", "line"},
+}
+
+// 2026-11-03 (operator: "the whole GOPOD system can be that ... let's do that as
+// a planned group of steps"; step 1, the shell window's words):
+// gopodClusterTexts: a place whose points are always texts - " | " in one is
+// its words (system-help's "<brobots | reporters>"), never a list.
+var gopodClusterTexts = map[string]bool{
+	"system_text": true,
+}
+
+// gopodClusterLines: a list of lines a section fills - each point one line, as
+// written after its number (its leading spaces kept: the help's columns).
+var gopodClusterLines = map[string]bool{
+	"system_help.lines": true,
 }
 
 type gopodClusterSection struct {
@@ -90,7 +107,8 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 				cur = &out[len(out)-1]
 			case cur != nil && t != "":
 				if dot := strings.Index(t, ". "); dot > 0 && strings.Trim(t[:dot], "0123456789") == "" {
-					cur.Points = append(cur.Points, strings.TrimSpace(t[dot+2:]))
+					// Leading spaces after the number stay (gopodClusterLines).
+					cur.Points = append(cur.Points, strings.TrimRight(strings.TrimLeft(line, " \t")[dot+2:], " \t\r"))
 				}
 			}
 		}
@@ -159,6 +177,18 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 			parent, key = m, parts[len(parts)-1]
 			node = m[key]
 		}
+		if gopodClusterLines[s.Path] {
+			var list []any
+			for _, pt := range s.Points {
+				list = append(list, pt)
+			}
+			if parent != nil {
+				parent[key] = list
+			} else {
+				blocks[top] = list
+			}
+			continue
+		}
 		if pair, ok := gopodClusterPairs[s.Path]; ok {
 			var list []any
 			for _, pt := range s.Points {
@@ -207,7 +237,12 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				continue
 			}
 			k, v := strings.TrimSpace(pt[:at]), strings.TrimSpace(pt[at+2:])
-			if old, isList := m[k].([]any); isList || (old == nil && (strings.Contains(v, " | ") || strings.HasSuffix(v, " |"))) {
+			// A text place keeps its leading spaces (the status lines' column) and
+			// reads "\n" as a line break.
+			if gopodClusterTexts[s.Path] {
+				v = strings.ReplaceAll(pt[at+2:], `\n`, "\n")
+			}
+			if old, isList := m[k].([]any); !gopodClusterTexts[s.Path] && (isList || (old == nil && (strings.Contains(v, " | ") || strings.HasSuffix(v, " |")))) {
 				var items []any
 				for _, it := range strings.Split(strings.TrimSuffix(v, " |"), " | ") {
 					if it = strings.TrimSpace(it); it != "" {
