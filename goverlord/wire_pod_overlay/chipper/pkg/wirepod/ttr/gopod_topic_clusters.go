@@ -17,6 +17,8 @@ package wirepod_ttr
 //	a text place  "page_here:   chat page: here"      (gopodClusterTexts: " | " is
 //	                                                  words, "\n" a break, spaces kept)
 //	a line list   "3.   system-add ..."               (gopodClusterLines: one line each)
+//	an exact text "cast_me: ` (me)`"                  (in backticks: spaces kept,
+//	                                                  " | " words, "\n" a break)
 //
 // The cluster is the one source: its values are laid over the settings at
 // Wire-Pod's start and for the chat page (gopodClustersOverlay), and the
@@ -52,7 +54,9 @@ var gopodClusterTexts = map[string]bool{
 // gopodClusterLines: a list of lines a section fills - each point one line, as
 // written after its number (its leading spaces kept: the help's columns).
 var gopodClusterLines = map[string]bool{
-	"system_help.lines": true,
+	"system_help.lines":      true,
+	"brain_chain.lines":      true, // step 3: the brain's template, a line each
+	"prebuild_context.lines": true,
 }
 
 type gopodClusterSection struct {
@@ -268,6 +272,13 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 			// reads "\n" as a line break.
 			if gopodClusterTexts[s.Path] {
 				v = strings.ReplaceAll(pt[at+2:], `\n`, "\n")
+			}
+			// 2026-11-03 (step 3: the brain's " (me)" and " Reminders: ..."): a
+			// value in backticks is that text exactly - its spaces, " | " as words,
+			// "\n" a break.
+			if len(v) >= 2 && strings.HasPrefix(v, "`") && strings.HasSuffix(v, "`") {
+				m[k] = strings.ReplaceAll(v[1:len(v)-1], `\n`, "\n")
+				continue
 			}
 			if old, isList := m[k].([]any); !gopodClusterTexts[s.Path] && (isList || (old == nil && (strings.Contains(v, " | ") || strings.HasSuffix(v, " |")))) {
 				var items []any

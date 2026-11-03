@@ -85,3 +85,19 @@ func TestPersonaSettingsFromProfiles(t *testing.T) {
 		t.Errorf("the settings section leaked into CHALK's profile lines: %q", v)
 	}
 }
+
+// 2026-11-03 (step 3: the Brobots' brain and reply rules): brobot-brain.md,
+// reply-rules.md and big-picture.md fill the brain - a backticked value keeps its
+// leading space, the brain's lines are a line each, "\n" stays a break.
+func TestBrainFromClusters(t *testing.T) {
+	bc := gopodBrobotsSettings.BrainChain
+	if bc.CastMe != " (me)" || !strings.HasPrefix(bc.RemindersPart, " Reminders:") {
+		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
+	}
+	if len(bc.Lines) < 3 || bc.Lines[0] != "{full_self}" {
+		t.Errorf("brain lines: %q", bc.Lines)
+	}
+	if len(gopodBrobotsSettings.ReplyTighten.NotSentenceEnds) == 0 || !strings.Contains(gopodBrobotsSettings.Summary.FactsNote, "\n") {
+		t.Errorf("reply rules or the summary's line break lost")
+	}
+}
