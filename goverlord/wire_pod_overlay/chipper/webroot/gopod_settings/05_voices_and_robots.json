@@ -1008,7 +1008,7 @@
     "cache_seconds": 120,
     "military_label": "Hours Military Time",
     "follow_up_kit_line_about": "2026-10-15 (operator: \"can you add in brobot 2 follow up, the link to the weather kit web page? * somewhere before the, hey that reminds me...\"): Brobot 2's follow-up to a weather question (All) gets this line after his own words, before his 'Hey, that reminds me...'. The bubble shows the link; he says its words.",
-    "follow_up_kit_line": "Want to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).",
+    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/clusters/weather_run.md (the golden weather run, locked).",
     "offline_text": "It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!"
   }
 }

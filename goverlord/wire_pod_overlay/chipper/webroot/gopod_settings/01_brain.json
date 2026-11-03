@@ -80,8 +80,8 @@
   "animation_lead_in": "...",
   "spoken_symbols": {
     "about": "How a symbol is said (operator 2026-10-08: \"add the missing symbols, the old 'times' and 'divided by', and the LaTeX cleanup to the speech cleanup\"; \"$\" = \"dollars\"). Speech only - the bubble keeps the symbol. \"$5\" is said \"5 dollars\". LaTeX math (\\frac{1}{2}, \\overline{3}, \\( \\)) is cleaned first: a fraction becomes 1/2, an overline \"3 repeating\" (gopod_spoken_symbols.go).",
-    "show_as_said_about": "2026-10-27 (operator: \"2026 * should be observed as 20 26 * spoken & heard, highlights follow 20 26 spoken/heard pattern\"): spoken forms a Brobot's bubble shows the way they're said - years: a date's year as its two halves (October 27, 20 26), like gopodSpeakYears says it.",
-    "show_as_said": ["years"],
+    "show_as_said_about": "2026-10-27 (operator: \"2026 * should be observed as 20 26 * spoken & heard, highlights follow 20 26 spoken/heard pattern\"): spoken forms a Brobot's bubble shows the way they're said - years: a date's year as its two halves (October 27, 20 26), like gopodSpeakYears says it. 2026-11-03 (operator: \"Show 2026\"): off - the bubble shows 2026; the robot still says it in two halves (gopodSpeakYears) and the page lights the halves in turn.",
+    "show_as_said": [],
     "repeating_word": "repeating",
     "hmm_said": "hmm-m-m", "negative_word": "negative",
     "words": {
@@ -171,10 +171,7 @@
   "multiple_responses_about": "2026-10-22 (operator: \"Multiple Responses Template * no reminders in 1st brobot response * this is how I see answer-chains handling different queries * cater answer-chains to handle known/expected/desired prompts to reveal value points\"): a line to both - the first Brobot: weather report (weather_lines.report), weather comment, his value point, the hand-over (answer_chains.brobots_all_first, no reminders); the next: weather confirmed (weather_lines.confirm), comment following his brother's, his value point, the Weather Kit, the reminders (brobots_follow_up). A single answer: report, comment, value point, reminders (brobots). Each Brobot's own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C / 24-hour). The model's parts: chain_prompts.",
   "weather_lines": {},
   "chain_prompts": {
-    "weather_point_first": "Write two short paragraphs: first one line about this weather; then, on a new line, party on your value point above, your way.",
-    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way.",
-    "weather_lead": "First one short line about this weather. Then:",
-    "weather_lead_next": "First one short line following up your brother's weather comment. Then:"
+    "weather_lead_about": "2026-11-03: weather_point_first, weather_point_next, weather_lead and weather_lead_next live in gopod_probes/clusters/weather_run.md (the golden weather run, locked)."
   },
   "golden_answers_about": "2026-10-23 (operator: \"What is AI wordplay? * the fun challenges humans input to the brobots (future live hosts, Doc & Pip) * What is Explain the MAth? * the hilarity that ensues afterwards\"; his answer: notes + golden answers): a question asking one of these gets its line word for word, first (the answer chain's golden_line part); the rest of the answer follows its type (the summary, for these).",
   "session_memory": {
@@ -195,8 +192,6 @@
   "answer_shapes_about": "2026-10-23 (FINISH_PLAN_001.md step A2; operator: \"the flow of output in the responses isn't consistent * I need a templated answer-chain mechanism\"): GOLDEN - one shape per answer type, the order of his thought bubbles. Every answer is checked as it's made (BROBOT_SHAPE in the log: ok, or DRIFT and the shape it wanted) and every type is run through the real answer chain at deploy (TestAnswerShapesHold). A shape is marks in order: llm = his own words; point = his value point's title line (its notes follow as his words); say_line = a point's exact line; the others are found by their text (marks, checked in mark_order). ? = may be missing; a|b = either. In a line to both, the first answer's reminder is the hand-over (math: reminder, then hand-over).",
   "answer_shapes": {
     "shapes": {
-      "weather": ["weather_report", "llm?", "point?", "llm?", "reminder"],
-      "weather_next": ["weather_confirm", "llm?", "point?", "llm?", "weather_kit", "reminder"],
       "topic": ["point|say_line", "llm?", "reminder"],
       "free": ["llm", "reminder"],
       "math": ["say_line", "llm?", "rule?", "reminder"],
@@ -205,12 +200,8 @@
       "summary": ["summary", "llm?", "reminder"]
     },
     "marks": {
-      "weather_report": "Brobot Weather Report",
-      "weather_confirm": "Confirmed. Temperature",
-      "weather_kit": "Weather Kit",
       "reminder": "that reminds me",
       "rule": "Doc's Rule",
-      "handover": "what say you on this",
       "golden": "the fun challenges humans throw at the Brobots|the hilarity that ensues afterwards"
     },
     "mark_order": ["golden", "weather_report", "weather_confirm", "weather_kit", "reminder", "rule", "handover"]
