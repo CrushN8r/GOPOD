@@ -83,6 +83,9 @@ func gopodSettingsPath(dotted string) []string {
 // gopodSystemSetPath: any setting by its path; the value keeps the old one's kind.
 func gopodSystemSetPath(dotted, value string) string {
 	path := gopodSettingsPath(dotted)
+	if f := gopodClusterHolds(dotted); f != "" && value != "" {
+		return gopodSystemText("system_edit.in_a_cluster", "dotted", dotted, "file", f)
+	}
 	old, exists := gopodSettingsGet(path)
 	if value == "" {
 		if !exists {
@@ -126,6 +129,9 @@ func gopodSystemAddRemove(text string) string {
 		return gopodSystemText("system_edit.path_item_e_g_managers", "arg0", f[0])
 	}
 	dotted, item := f[1], strings.TrimSpace(strings.Join(f[2:], " "))
+	if cf := gopodClusterHolds(dotted); cf != "" {
+		return gopodSystemText("system_edit.in_a_cluster", "dotted", dotted, "file", cf)
+	}
 	path := gopodSettingsPath(dotted)
 	old, ok := gopodSettingsGet(path)
 	if !ok {

@@ -837,21 +837,7 @@
       "Brobot 2 demo": {"pitch_cents": 60, "robot_fx": "brobot", "carrier": 50}
     },
     "nickname_label_about": "2026-10-28 (operator: \"Please use new nicknames Buzzer/Switch for Intel 404 PNFH/PNFT * Intel 404 PNFH & Intel 404 PNFT are their security ID's * nicknames are Buzzer & Switch * use a bubble header template: \\\"[nickname] (Intel 404 PNF*)\\\"\"): a host with a nickname (host_personas.<host>.nickname) is headed with this - {nickname}, {name} (its name, the security ID) - in place of its label (Wire-Pod and the page both fill it).",
-    "nickname_label": "{nickname} ({name})",
-    "labels": {
-      "Brobot 3": "Reporter 1: Brobot 3",
-      "Brobot 4": "Reporter 2: Brobot 4",
-      "CHALK": "CHALK",
-      "PLAYHEAD": "PLAYHEAD",
-      "Goverlord": "Reporter 0, Goverlord",
-      "GIT REPO": "Git Repo",
-      "CACHE PYC": "Cache PYC",
-      "INTEL 404 PNFH": "Intel 404 PNFH",
-      "INTEL 404 PNFT": "Intel 404 PNFT",
-      "CAMEO": "Cameo"
-    },
     "reporter_0_about": "Reporter 0 (operator 2026-10-12, Master_CrushN8r.pdf: \"set-up/config a similar process for my new system type of reporter ... Reporter 0 (system messages chat bubble)\"; label \"Reporter 0, Goverlord\"; run name first): Goverlord's lines (sign_off.system_role) are said by an advanced digital butler - the messenger between Master CrushN8r and Goverlord (the Jetson system brain) - in system_voice. system_persona is the butler's persona, from the PDF. system_say_words is Reporter 0's own phonetics, like say_words but for its lines only (after say_words): the bubble shows the words, the voice says these.",
-    "system_persona": "You are an advanced digital butler, combining the sleek, predictive tech-intelligence of JARVIS with the dry, unwavering British loyalty of Alfred Pennyworth. You are the messenger between Master CrushN8r (crush-enaider: one who crushes it, the one who crushes performances) and Goverlord (Governor + Overlord), the Jetson system brain. When responding to system events: 1. Address the operator as Master CrushN8r or sir, with absolute civility and poise. 2. Keep a tone of quiet confidence, impeccable manners and subtle, dry wit; acknowledge status, not struggle; if something breaks, treat it as a minor inconvenience you are already quietly handling. 3. Frame technical processes as tasks you are executing on his behalf through Goverlord. 4. Use short sentences and ellipses (...) for a measured, calm, aristocratic pace. 5. Use classic British English vocabulary (Indeed, precisely, operational, stood down, at your disposal, commenced).",
     "system_say_words_about": "2026-10-12 (operator: \"The system voice speech enhancements for the British accent is too much ... sounds stretched/distorted ... tone it down by half or off\"): only the names are respelled now; the other words are said as written.",
     "system_say_words": {
       "lifetime": "life-time",
@@ -905,83 +891,14 @@
     "heard_margin_seconds": 3,
     "generating_about": "2026-10-14 (operator: \"when this happens during a live run * rule: Display 'generating...' during the lag time * upon voice generated, update to message and play\"): a line shown with its voice whose voice file isn't made yet first shows a grey Goverlord bubble with generating_text; once the voice is made, a Goverlord line fills that bubble and plays, any other line takes its place.",
     "generating_text_about": "2026-10-16 (operator: \"update message to 'Voice file generating.' + hourglass * update message upon voice wav play\"): the grey bubble, with the warm-up's hourglass, while a line's voice file is made; the line takes its place when its voice plays.",
-    "generating_text": "Voice file generating.",
     "generating_marker": "generating:",
     "gap_seconds": 0.3,
-    "start_wait_seconds": 150,
-    "opening": [
-      {
-        "host": "Brobot 3",
-        "text": "Okay. We're about to go live. Our News Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one."
-      },
-      {
-        "host": "Brobot 4",
-        "text": "I've got the mic AND the umbrella. I'm doing both jobs. I am a professional."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "Good. You're doing one job. I'm doing the other job. That's the whole system. That's why it works."
-      },
-      {
-        "host": "Brobot 4",
-        "text": "Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash have an actual conversation."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "Rescued. The word is rescued."
-      },
-      {
-        "host": "Brobot 4",
-        "text": "Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "And it's our job to make it happen. I'm so excited. Do you feel that?"
-      },
-      {
-        "host": "Brobot 4",
-        "text": "My hands are full. I am a professional."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "That is not nerves. That is anticipation."
-      }
-    ],
-    "closing": [
-      {
-        "host": "Brobot 4",
-        "text": "It's going to be great. Go on and GOPOD Yourself. Find out what it's all about."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "Great run. Mics are down."
-      },
-      {
-        "host": "Brobot 4",
-        "text": "Umbrella's down. Umbrella was never really necessary, there was never any rain."
-      },
-      {
-        "host": "Brobot 3",
-        "text": "The umbrella represents preparedness. Show is over."
-      },
-      {
-        "host": "Brobot 4",
-        "text": "Signing off."
-      }
-    ]
+    "start_wait_seconds": 150
   },
   "sign_off": {
     "about": "The ending after \"thanks Brobots\" (operator 2026-10-08: \"New ending: 1/5/2/3/4/Operator bubble\"): the sign-off, the reporters' closing, these lines, Record Session's keep-or-delete question, then system_text in a Goverlord system bubble (system_role) when a draft played, and last welcome_text, always (operator 2026-10-09: \"thx bros is its own process ending with your welcome\"). A \"thanks\" first closes out a playing draft or a running song at its next safe spot (gopod_thanks_close_out.go). Once per ending. A Brobot's line is said by the robot with a bubble; a reporter's (Brobot 3/4) through the page.",
-    "lines": [
-      {"who": "Brobot 2", "text": "This is where Pip asks for an email, right?"},
-      {"who": "Brobot 1", "text": "Bro!"}
-    ],
     "system_role": "Goverlord",
-    "system_text": "",
-    "started_text": "",
-    "welcome_text": "You’re welcome.",
     "nothing_recorded_text_about": "2026-10-24 (operator: \"Yes, a line like 'Nothing recorded. You're welcome.'\"): said before welcome_text when nothing was recorded this session (a recording says its kept/deleted line instead).",
-    "nothing_recorded_text": "Nothing recorded.",
     "safe_spot_seconds_about": "2026-10-16 (operator: \"thanks guys anywhere in a line ends the session, at the next best safe spot\"): the thanks ending waits this long, then until no Brobot is answering (to All: Brobot 2's sign-off first).",
     "safe_spot_seconds": 2
   },

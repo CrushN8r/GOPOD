@@ -28,27 +28,6 @@
   "chat_hold": {
     "about": "The Brobots stay in place while chatting (operator 2026-10-04: \"Hold both Brobots between answers\", \"I should have a thanks brobots cue to re-engage\"). After a chat answer both Brobots are held under behavior control (DEFAULT priority, the songs' own hold) so they don't wander; each is let go while he answers or defers. \"Thanks Brobots\" (said or typed; any of thanks_phrases, whole words) gets a party-bro sign-off from the Brobot that answers (thanks_note is added before the question), then ends the hold and both go back to free play (operator 2026-10-04: \"Can the brobots give me a party-brobot response, that also triggers the release\"); so does idle_minutes with no question. A song or alias that assumes a robot's control through Wire-Pod takes over from the hold.",
     "idle_minutes": 10,
-    "thanks_phrases": [
-      "thanks brobots",
-      "thanks bro bots",
-      "thanks bro bought",
-      "thanks bro but",
-      "thank you brobots",
-      "thank you bro bots",
-      "thank you bro bought",
-      "thanks robots",
-      "thank you robots",
-      "thanks guys",
-      "thanks bros",
-      "thank you guys",
-      "thank you bros",
-      "thx brobots",
-      "thx bro bots",
-      "thx robots",
-      "thx guys",
-      "thx bros"
-    ],
-    "thanks_note": "[Not a question - Brobot 0 is thanking the Brobots and wrapping up the chat. Give a short, fun party-bro sign-off, and don't ask anything back.]",
     "stuck_seconds": 30,
     "stuck_about": "A Brobot that drops off mid-answer (froze, rebooted, out of Wi-Fi) left his answer waiting forever, so after he came back nothing he wrote was spoken (operator 2026-10-06: \"clear stuck brobot state to reconnect ... like upon a rebooted brobot\"). Now one sentence or move that takes longer than stuck_seconds ends that answer: the chat page drops its outline, the hold and Record Session carry on, and his next question works without wpr 2. Log line: GOPOD_STUCK_REPLY."
   },
@@ -81,20 +60,7 @@
   "page_sound_files_about": "2026-10-10: a song's own soundtrack (its knobs.json \"audio\") is now found by the song and copied without being listed here (gopod_song_folders.go). This list is for any other sound. Extra sound files Wire-Pod copies into the page's voice folder at its start, beside sounds/*.wav (relative to the overlay's chipper folder): a song's private soundtrack. A missing file is logged and skipped (the media isn't in the public repo).",
   "page_sound_files": [],
   "page_text": {
-    "about": "2026-10-29 (operator: \"sweep for all flexible data, variables, names, labels, etc and export to external files ... then code blindly runs templates from loaded files\"): the chat page's own words - its typing row, the system window's panels. {placeholders} are filled by the page.",
-    "typed_placeholder": "Type to the Brobot, press Enter",
-    "submit": "Submit",
-    "all_first_title": "All: who answers first",
-    "drag_title": "Drag to resize",
-    "voices_title": "Numpad voices:",
-    "voices_unassigned": "unassigned ({host}'s voice)",
-    "usb_title": "USB devices",
-    "no_answer": "{what}: Wire-Pod didn't answer",
-    "visitors_title": "Local network visitors",
-    "visitors_count": "Local network visitors ({n})",
-    "visitors_none": "No visitors.",
-    "visitor_asks": "asks for: {name}",
-    "visitor_nameless": "nameless-visitor"
+    "about": "2026-10-29 (operator: \"sweep for all flexible data, variables, names, labels, etc and export to external files ... then code blindly runs templates from loaded files\"): the chat page's own words - its typing row, the system window's panels. {placeholders} are filled by the page."
   },
   "chat_window": {
     "scroll_log_about": "2026-10-31 (operator: \"Add scroll event logging * and scrolling position if possible\"): true - the main page logs every scroll decision and where the chat comes to rest to the journal (GOPOD_PAGE scroll ...: who asked, from -> to, the target rule, grows it skipped, the resting position). false - off. Page only: F5.",

@@ -43,6 +43,7 @@
 23. system_edit.system_numpad_on_off_the: system-numpad on|off - the numpad keys as push-to-talk; alone: each key.
 24. system_edit.system_score_song: system-score <song> - {names}
 25. system_edit.system_topic_topic_words_add: system-topic <topic> [words add|remove <word> | words <a, b, c> | point <text> | point <n> <text> | point <n> remove | label|reminder|pictures <text>]\ntopics: {names}
+26. system_edit.in_a_cluster: {dotted} is in the topic-cluster {file} now - edit it there, then system-restart.
 topics: {names}
 26. system_edit.system_topic_words_point_label: system-topic {arg1} words | point | label | reminder | pictures ...
 27. system_edit.words: {arg1} words: {words}

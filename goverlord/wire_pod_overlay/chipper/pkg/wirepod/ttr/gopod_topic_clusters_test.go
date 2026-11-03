@@ -117,3 +117,33 @@ func TestCastWordsFromClusters(t *testing.T) {
 		t.Errorf("Doc & Pip's pair (words and dial): %+v", p)
 	}
 }
+
+// 2026-11-03 (step 5: the Goverlord level): the reporters' opening and closing
+// and the sign-off are "who: line" points in preshow.md, in order; the page's
+// words and the Butler's own persona text come from their files.
+func TestPreshowFromClusters(t *testing.T) {
+	rv := gopodBrobotsSettings.ReporterVoices
+	if len(rv.Opening) < 5 || rv.Opening[0].Host != "Brobot 3" || !strings.HasPrefix(rv.Opening[0].Text, "Okay. We're about to go live.") {
+		t.Errorf("opening: %+v", rv.Opening)
+	}
+	if len(rv.Closing) == 0 || len(gopodBrobotsSettings.SignOff.Lines) == 0 || rv.SystemPersona == "" {
+		t.Error("closing, sign-off or the Butler's persona not read from their files")
+	}
+}
+
+// 2026-11-03: system-set on a value a cluster fills says which file to edit -
+// it never writes the settings file the cluster would win over.
+func TestSystemSetNamesTheCluster(t *testing.T) {
+	if f := gopodClusterHolds("spice.exclamations"); f != "spice.md" {
+		t.Errorf("spice.exclamations: %q, want spice.md", f)
+	}
+	if f := gopodClusterHolds("managers.personas.CHALK.prompt"); f != "chalk.md" {
+		t.Errorf("CHALK's prompt: %q, want chalk.md", f)
+	}
+	if f := gopodClusterHolds("spice.pick"); f != "" {
+		t.Errorf("spice.pick is in the settings, not %q", f)
+	}
+	if out := gopodSystemSetPath("spice.text", "x"); !strings.Contains(out, "spice.md") {
+		t.Errorf("system-set on a cluster value: %q", out)
+	}
+}

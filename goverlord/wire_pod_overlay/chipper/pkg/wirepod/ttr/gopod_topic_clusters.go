@@ -41,6 +41,10 @@ const gopodClustersDefaultFolder = "gopod_probes/clusters"
 var gopodClusterPairs = map[string][2]string{
 	"value_points.reminder_eggs": {"key", "label"},
 	"golden_answers":             {"queries", "line"},
+	// 2026-11-03 (step 5): the pre-show's bookends and the sign-off, a line each.
+	"reporter_voices.opening": {"host", "text"},
+	"reporter_voices.closing": {"host", "text"},
+	"sign_off.lines":          {"who", "text"},
 }
 
 // 2026-11-03 (operator: "the whole GOPOD system can be that ... let's do that as
@@ -142,6 +146,46 @@ func gopodProfileSettingsSections(all map[string]json.RawMessage) []gopodCluster
 		}
 	}
 	return out
+}
+
+// gopodClusterHolds (2026-11-03, the clusters plan: system-set wrote the settings
+// file while a cluster's value won, so an edit did nothing): the cluster file that
+// fills dotted, or a part of it ("" none).
+func gopodClusterHolds(dotted string) string {
+	data, err := gopodSettingsMerged()
+	if err != nil {
+		return ""
+	}
+	var all map[string]json.RawMessage
+	if json.Unmarshal(data, &all) != nil {
+		return ""
+	}
+	dotted = strings.Trim(dotted, ".")
+	sections := append(gopodClusterSections(gopodClustersFolder(all)), gopodProfileSettingsSections(all)...)
+	for _, s := range sections {
+		if s.Path == "" {
+			continue
+		}
+		if dotted == s.Path || strings.HasPrefix(s.Path, dotted+".") {
+			return s.File
+		}
+		if !strings.HasPrefix(dotted, s.Path+".") {
+			continue
+		}
+		if gopodClusterLines[s.Path] {
+			return s.File
+		}
+		rest := dotted[len(s.Path)+1:]
+		for _, pt := range s.Points {
+			if at := strings.Index(pt, ": "); at > 0 {
+				k := strings.TrimSpace(pt[:at])
+				if rest == k || strings.HasPrefix(rest, k+".") {
+					return s.File
+				}
+			}
+		}
+	}
+	return ""
 }
 
 // gopodClustersApply lays the clusters over the merged settings; the problems
