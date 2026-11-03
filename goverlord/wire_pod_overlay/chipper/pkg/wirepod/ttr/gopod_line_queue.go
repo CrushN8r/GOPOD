@@ -78,24 +78,22 @@ func gopodLineRun(j gopodLineJob) {
 	}
 	idle := gopodSecondsToDuration(lq.IdleSeconds)
 	// 2026-11-03 (live: a duo's turn ended at 180 s while Brobot B was still
-	// speaking; operator: "Do 2 180 cap watchdogs"): one answer_max_seconds
-	// watchdog per answerer - each starts over when his answer starts, so
-	// Brobot B gets his own 180 s after Brobot A's.
+	// speaking; operator: "Do 2 180 cap watchdogs * 180 s, finished? No,
+	// another 180 s"): at answer_max_seconds, a line not finished (an answer
+	// still to come or still going) gets one more; then the turn ends.
 	most := gopodSecondsToDuration(lq.AnswerMaxSeconds)
 	end := time.Now().Add(most)
-	started := map[string]bool{}
+	extended := false
 	last, since := gopodFeedLastID(), time.Now()
-	for time.Now().Before(end) {
-		for _, w := range j.answerers {
-			if started[w] {
-				continue
+	for {
+		if !time.Now().Before(end) {
+			// Finished lines leave the loop below; still here = not finished.
+			if extended {
+				break
 			}
-			esn := gopodBrobotESN(w)
-			if (esn != "" && gopodReplyGoing(esn)) || gopodGomadAnswering(w) || gopodLineAnswered(from, []string{w}) {
-				started[w] = true
-				end = time.Now().Add(most)
-				logger.Println("GOPOD_LINE_QUEUE " + w + "'s answer started - his " + most.String() + " watchdog")
-			}
+			extended = true
+			end = time.Now().Add(most)
+			logger.Println("GOPOD_LINE_QUEUE " + most.String() + ", not finished - another " + most.String() + " for " + gopodCut(j.text, 60))
 		}
 		// CLOCK_AUDIT_001.md B (2026-10-30): answered once every answerer's
 		// bubble is on the feed and his answer has ended - said, not just posted.
