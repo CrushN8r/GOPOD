@@ -67,3 +67,21 @@ func TestSystemTextsFromClusters(t *testing.T) {
 		t.Errorf("help list or its columns lost: %d lines, %q", len(help), help)
 	}
 }
+
+// 2026-11-03 (operator: "one CHALK file"; step 2): each persona's settings come
+// from its own profile's "## My settings (managers.personas.<HOST>)" - and the
+// profile's own sections stay out of the settings.
+func TestPersonaSettingsFromProfiles(t *testing.T) {
+	per := gopodBrobotsSettings.Managers.Personas
+	for _, host := range []string{"CHALK", "PLAYHEAD", "GIT REPO", "CACHE PYC", "INTEL 404 PNFH", "INTEL 404 PNFT", "CAMEO", "BUTLER"} {
+		if p, ok := per[host]; !ok || p.Host != host || p.Prompt == "" || p.WhoLine == "" {
+			t.Errorf("%s: settings not read from its profile: %+v", host, p)
+		}
+	}
+	if len(per["PLAYHEAD"].WIP) != 1 || per["BUTLER"].VoiceOf != "Goverlord" {
+		t.Errorf("PLAYHEAD's wip list or the Butler's voice_of lost: %q %q", per["PLAYHEAD"].WIP, per["BUTLER"].VoiceOf)
+	}
+	if v := gopodPersonaProfileText("CHALK"); strings.Contains(v, "who_line:") {
+		t.Errorf("the settings section leaked into CHALK's profile lines: %q", v)
+	}
+}

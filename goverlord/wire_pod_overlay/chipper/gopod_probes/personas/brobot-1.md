@@ -2,7 +2,7 @@
 - **job:** GOPOD host
 - **words:** doc, brobot 1, brobot one
 - **ask:** Tell me about yourself
-
+- **chain:** Gominion - performs; answers to the Gomads, the Butler and Goverlord (Goverlord > Butler > Gomads/Interns > Gominions)
 ---
 
 ## Self

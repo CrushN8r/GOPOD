@@ -116,6 +116,30 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 	return out
 }
 
+// gopodProfileSettingsSections: the persona profiles' sections that fill a
+// settings place ("## My settings (managers.personas.CHALK)"); the profile's own
+// sections (Self, Voice, ...) have no place and are left to it.
+func gopodProfileSettingsSections(all map[string]json.RawMessage) []gopodClusterSection {
+	var pp struct {
+		Folder string `json:"folder"`
+	}
+	_ = json.Unmarshal(all["persona_profiles"], &pp)
+	folder := strings.TrimSpace(pp.Folder)
+	if folder == "" {
+		return nil
+	}
+	if !filepath.IsAbs(folder) {
+		folder = filepath.Join(gopodChipperRoot(), folder)
+	}
+	var out []gopodClusterSection
+	for _, s := range gopodClusterSections(folder) {
+		if s.Path != "" {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
 // gopodClustersApply lays the clusters over the merged settings; the problems
 // are the points that land nowhere.
 func gopodClustersApply(data []byte) ([]byte, []string) {
@@ -124,6 +148,9 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 		return data, nil
 	}
 	sections := gopodClusterSections(gopodClustersFolder(all))
+	// 2026-11-03 (operator: "one CHALK file"; step 2): a persona's settings lines
+	// are in his own profile - its sections with a settings place in brackets.
+	sections = append(sections, gopodProfileSettingsSections(all)...)
 	if len(sections) == 0 {
 		return data, nil
 	}

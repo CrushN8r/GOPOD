@@ -138,7 +138,7 @@
       {"kind": "operator", "has": ["[own]"]},
       {"kind": "gominion", "has": ["brobot-1", "brobot-2"]},
       {"kind": "other", "has": ["narrator", "countdown", "chapter", "pictures", "popup-winner", "egg"]},
-      {"kind": "goverlord", "has": ["host-cameo"], "why": "2026-10-26 (operator: \"KP9 Cameo voice = Goverlord level bubble\")"},
+      {"kind": "goverlord", "has": ["host-butler"], "why": "2026-11-03 (operator: \"Goverlord > Butler > Gomads/Interns > Gominions\"; \"Butler shares system bubble + butler colours\"; \"Cameo at Gomad level * only voice\"): the Butler's bubble is Goverlord level in his own colours; Cameo's own bubbles are Gomad level (her voice alone speaks the unassigned lines, reporter_voices.unassigned_voice_host)"},
       {"kind": "gomad", "has": ["host", "search-results", "chalk-qr"]},
       {"kind": "goverlord", "has": ["score", "terminal", "warmup", "system-menu-host", "system-status"]}
     ]
