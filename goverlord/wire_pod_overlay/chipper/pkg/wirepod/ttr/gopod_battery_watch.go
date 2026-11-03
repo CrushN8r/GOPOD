@@ -31,9 +31,31 @@ import (
 // last reading (the one before this one, for a dip).
 var gopodBatteryLow = struct {
 	sync.Mutex
-	said map[string]bool
-	prev map[string]float64
-}{said: map[string]bool{}, prev: map[string]float64{}}
+	said   map[string]bool
+	prev   map[string]float64
+	seen   map[string]bool // read at least once this Wire-Pod session
+	misses map[string]int  // readings in a row that didn't work
+}{said: map[string]bool{}, prev: map[string]float64{}, seen: map[string]bool{}, misses: map[string]int{}}
+
+// gopodBatteryBack (2026-11-03, operator: "after freeze/reboot response: Yeah...
+// Whoa, bro... I felt dizzy. Then, Bam!"; "after a freeze or reboot or battery
+// drain"; dizzy-brobots.md): a reading -> whether
+// he's just back (a freeze, a reboot, a drained battery) - read before this session, then
+// back_after_misses readings in a row that didn't work, and now one that does.
+func gopodBatteryBack(esn string, ok bool) bool {
+	n := gopodBrobotsSettings.BatteryWatch.BackAfterMisses
+	gopodBatteryLow.Lock()
+	defer gopodBatteryLow.Unlock()
+	if !ok {
+		if gopodBatteryLow.seen[esn] {
+			gopodBatteryLow.misses[esn]++
+		}
+		return false
+	}
+	back := n > 0 && gopodBatteryLow.seen[esn] && gopodBatteryLow.misses[esn] >= n
+	gopodBatteryLow.seen[esn], gopodBatteryLow.misses[esn] = true, 0
+	return back
+}
 
 // gopodBatteryDecide: one reading -> whether to say the line now, and the new
 // said state. said: he's had his say for this drop already; prev: the reading
@@ -85,6 +107,33 @@ func gopodBatteryWatch() {
 	}
 }
 
+type gopodBatteryLogged struct {
+	volts              float64
+	level              string
+	charging, onCharge bool
+}
+
+// gopodBatteryLogLast: each robot's last logged battery line (esn -> gopodBatteryLogged).
+var gopodBatteryLogLast sync.Map
+
+// gopodBatteryLogChanged: true when this check is worth a log line (the first
+// check, a new level, charging or charger state, or 0.05 V or more of change).
+func gopodBatteryLogChanged(esn string, volts float64, level string, charging, onCharger bool) bool {
+	now := gopodBatteryLogged{volts, level, charging, onCharger}
+	if v, ok := gopodBatteryLogLast.Load(esn); ok {
+		last := v.(gopodBatteryLogged)
+		diff := volts - last.volts
+		if diff < 0 {
+			diff = -diff
+		}
+		if last.level == level && last.charging == charging && last.onCharge == onCharger && diff < 0.05 {
+			return false
+		}
+	}
+	gopodBatteryLogLast.Store(esn, now)
+	return true
+}
+
 func gopodBatteryCheck(esn string) {
 	var robot *vector.Vector
 	for _, bot := range vars.BotInfo.Robots {
@@ -104,13 +153,26 @@ func gopodBatteryCheck(esn string) {
 	if err != nil {
 		logger.Println("GOPOD_BATTERY_WATCH " + name + " unknown: " + err.Error())
 		gopodBatteryRemember(esn, "unknown: "+err.Error())
+		gopodBatteryBack(esn, false)
 		return
+	}
+	if gopodBatteryBack(esn, true) {
+		if line := strings.TrimSpace(gopodBrobotsSettings.BatteryWatch.BackLines[name]); line != "" {
+			logger.Println("GOPOD_BATTERY_WATCH " + name + " back (freeze, reboot or drained battery): " + line)
+			go gopodBatterySafeSay(name, line)
+		}
 	}
 	volts := float64(b.GetBatteryVolts())
 	gopodBatteryRemember(esn, fmt.Sprintf("%.2f V, %s%s", volts, strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_"),
 		map[bool]string{true: ", on the charger", false: ""}[b.GetIsOnChargerPlatform()]+map[bool]string{true: ", charging", false: ""}[b.GetIsCharging()]))
-	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s volts=%.2f level=%s charging=%t on_charger=%t",
-		name, volts, strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_"), b.GetIsCharging(), b.GetIsOnChargerPlatform()))
+	// 2026-11-02 (operator: "fix charger log spam"): a line only when the level,
+	// charging or the charger changes, or the volts move 0.05 V or more since the
+	// last line - not every check.
+	level := strings.TrimPrefix(b.GetBatteryLevel().String(), "BATTERY_LEVEL_")
+	if gopodBatteryLogChanged(esn, volts, level, b.GetIsCharging(), b.GetIsOnChargerPlatform()) {
+		logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s volts=%.2f level=%s charging=%t on_charger=%t",
+			name, volts, level, b.GetIsCharging(), b.GetIsOnChargerPlatform()))
+	}
 	gopodBatteryLow.Lock()
 	prev := gopodBatteryLow.prev[esn]
 	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform())
@@ -123,7 +185,7 @@ func gopodBatteryCheck(esn string) {
 	}
 	gopodBatteryLow.Unlock()
 	if sayNow {
-		go gopodBatterySay(name, volts)
+		go gopodBatterySay(name, volts, b.GetIsOnChargerPlatform())
 	}
 }
 
@@ -142,18 +204,18 @@ func gopodBatteryRemember(esn, text string) {
 
 // gopodBatterySay: once no reply and no run is going, the Brobot says one of his
 // lines (gopodRecordSay: his bubble and his voice).
-func gopodBatterySay(name string, volts float64) {
+func gopodBatterySay(name string, volts float64, onCharger bool) {
 	lines := gopodBrobotsSettings.BatteryWatch.Lines[name]
 	if len(lines) == 0 {
 		return
 	}
-	// 2026-10-15 (operator: "This type of interjection would happen at the next
-	// safe spot to interrupt * during live, not scripted runs"): live chat only,
-	// between replies - never while a reply, a run or a draft is going.
-	for gopodReplyBusy() || gopodRunActive() || gopodScriptPlaying.Load() {
-		time.Sleep(2 * time.Second)
+	gopodBatterySafeSpot()
+	said := lines[rand.Intn(len(lines))]
+	// 2026-11-03 (operator: "[I need help getting home.] only if not on charger").
+	if home := strings.TrimSpace(gopodBrobotsSettings.BatteryWatch.HomeLines[name]); home != "" && !onCharger {
+		said = strings.TrimSpace(said) + " " + home
 	}
-	guard, warning, reply, line := gopodBatteryLines(name, volts, lines[rand.Intn(len(lines))])
+	guard, warning, reply, line := gopodBatteryLines(name, volts, said)
 	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s low (%.2f V): %s", name, volts, line))
 	// 2026-10-26 (operator: "at the next safe spot, Intel can interject * use
 	// the duo response-chain template, Intel 404 to brobot N * a warning
@@ -163,6 +225,21 @@ func gopodBatterySay(name string, volts float64) {
 	if guard != "" && gopodReporterSayTo(guard, "", warning, true, true) {
 		line = reply
 	}
+	gopodRecordSay(name, line)
+}
+
+// gopodBatterySafeSpot: 2026-10-15 (operator: "This type of interjection would
+// happen at the next safe spot to interrupt * during live, not scripted runs"):
+// live chat only, between replies - never while a reply, a run or a draft is going.
+func gopodBatterySafeSpot() {
+	for gopodReplyBusy() || gopodRunActive() || gopodScriptPlaying.Load() {
+		time.Sleep(2 * time.Second)
+	}
+}
+
+// gopodBatterySafeSay: his line alone, his bubble and voice, at the next safe spot.
+func gopodBatterySafeSay(name, line string) {
+	gopodBatterySafeSpot()
 	gopodRecordSay(name, line)
 }
 

@@ -77,9 +77,24 @@ func gopodLineRun(j gopodLineJob) {
 		return
 	}
 	idle := gopodSecondsToDuration(lq.IdleSeconds)
-	end := time.Now().Add(gopodSecondsToDuration(lq.AnswerMaxSeconds))
+	// 2026-11-03 (live: a duo's turn ended at 180 s while Brobot B was still
+	// speaking; operator: "Do 2 180 cap watchdogs * 180 s, finished? No,
+	// another 180 s"): at answer_max_seconds, a line not finished (an answer
+	// still to come or still going) gets one more; then the turn ends.
+	most := gopodSecondsToDuration(lq.AnswerMaxSeconds)
+	end := time.Now().Add(most)
+	extended := false
 	last, since := gopodFeedLastID(), time.Now()
-	for time.Now().Before(end) {
+	for {
+		if !time.Now().Before(end) {
+			// Finished lines leave the loop below; still here = not finished.
+			if extended {
+				break
+			}
+			extended = true
+			end = time.Now().Add(most)
+			logger.Println("GOPOD_LINE_QUEUE " + most.String() + ", not finished - another " + most.String() + " for " + gopodCut(j.text, 60))
+		}
 		// CLOCK_AUDIT_001.md B (2026-10-30): answered once every answerer's
 		// bubble is on the feed and his answer has ended - said, not just posted.
 		if gopodLineAnswered(from, j.answerers) && !gopodAnswerGoing(j.answerers) {
@@ -95,6 +110,9 @@ func gopodLineRun(j gopodLineJob) {
 			break
 		}
 		time.Sleep(300 * time.Millisecond)
+	}
+	if !time.Now().Before(end) {
+		logger.Println("GOPOD_LINE_QUEUE answer time ran out (" + most.String() + ") for " + gopodCut(j.text, 60))
 	}
 	// The page shows it all - when a page is here to show it (gopodPageHere).
 	if gopodPageHere() {

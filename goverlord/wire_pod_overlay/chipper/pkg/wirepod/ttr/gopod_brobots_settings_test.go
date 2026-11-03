@@ -696,7 +696,9 @@ func TestTightenReply(t *testing.T) {
 	if got := gopodTightenReply("happy___ Nah, bro, we test them. The response reflects each part of a great answer.", "", ""); strings.Contains(got, "response") {
 		t.Errorf("the LLM's talk about its answer was kept: %q", got)
 	}
-	want := "happy___ Dude, the rig is lit! Ah... so Dr. Doc runs it at crushn8r.ca all night. We got: It's *so* local, bro! 🚀"
+	// 2026-11-02 (operator's list, 8: "Strip markdown from answers: *make*"): a
+	// one-word emphasis keeps its word, not its stars.
+	want := "happy___ Dude, the rig is lit! Ah... so Dr. Doc runs it at crushn8r.ca all night. We got: It's so local, bro! 🚀"
 	if got != want {
 		t.Errorf("got  %q\nwant %q", got, want)
 	}
@@ -2400,8 +2402,7 @@ func TestGotItPerBrobot(t *testing.T) {
 		if g.Name != name {
 			t.Errorf("%s has %q, want %q", gopodBrobotName(esn), g.Name, name)
 		}
-		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") ||
-			g.SearchingMinSeconds != cm.SearchingMinSeconds || g.SearchingResendSeconds != cm.SearchingResendSeconds {
+		if g.Text != cm.ThinkingText || strings.Join(g.Moves, ",") != strings.Join(cm.ThinkingMoves, ",") {
 			t.Errorf("%s isn't a copy of the golden sequence: %+v", name, g)
 		}
 	}
@@ -2413,7 +2414,7 @@ func TestGotItPerBrobot(t *testing.T) {
 	// 2026-10-25: he says his opener (response-chain template), made from his own copy.
 	chains, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_response_chains.go"))
 	src = append(src, chains...)
-	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "cm := gopodGotItFor(esn)"} {
+	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "sg := gopodSearchingGolden()"} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("the sequence doesn't use his own copy: %s", want)
 		}

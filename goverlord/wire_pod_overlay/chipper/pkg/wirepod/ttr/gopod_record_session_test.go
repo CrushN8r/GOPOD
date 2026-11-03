@@ -109,7 +109,7 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 	feed, _ := os.ReadFile(gopodChatFeedPath)
 	// The question is a Brobot bubble, cut once into its pieces (gopodRecordSay).
 	cut := func(text string) string {
-		return strings.Join(gopodSentences(text), gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
+		return strings.Join(gopodSentences(text), " "+gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
 	}
 	ask := gopodBrobotsSettings.RecordSession.AskText
 	if gopodBrobotsSettings.RecordSession.AskBrobot != gopodBrobotsSettings.SignOff.SystemRole {

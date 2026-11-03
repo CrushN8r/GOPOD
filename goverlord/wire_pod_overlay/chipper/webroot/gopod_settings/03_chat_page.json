@@ -57,18 +57,15 @@
     "nod_every": 2,
     "nod_speed": 4,
     "nod_hold_seconds": 0.18,
-    "searching_about": "2026-10-08: while a Brobot waits on his answer he plays the searching clip, one clip at a time (searching_resend_seconds), until the answer is ready, as before, and now for at least searching_min_seconds (operator: \"a required minimum run to act as a buffer against an early trigger, whether composing a response, or not\"), then one searchingGetout. A draft answer is ready at once, so it gets exactly the minimum, after \"Thinking, please wait.\"",
-    "searching_min_seconds": 1,
-    "searching_resend_about": "After the first searching_min_seconds, the clip is sent again no sooner than searching_resend_seconds - one clip's length (go search V7 gesture_clip_ms 3918), the golden rule that it's never re-sent faster than it plays (SEARCHING_ANIMATION_SONG_LOCK_001.md). It still ends the moment the answer is ready. 2026-10-31 (operator: \"searching 1 s animation loop is messy * why is this tiny mechanism messing up again\"; live: four clips in its first second, 0.35 s apart, each restarting the one before): the 1 s burst (searching_interval_seconds 0.333) is gone - one clip, re-sent no sooner than searching_resend_seconds, the song lock's rule, in the chat too.",
-    "searching_resend_seconds": 3.9,
+    "searching_about": "2026-11-03 (operator: \"isolate into a robust golden note and fucking lock it and refer only to it\"): the searching clips and pace live only in gopod_probes/locks/searching_golden.md (locked by TestSearchingGoldenLock).",
     "thinking_moves_about": "Operator 2026-10-09: \"For the thinking please wait sequence * for live and scripted * start with an arm lift + nod (as visual cues to the audience) * then the rest\". Done in this order before Thinking, please wait., each back at rest before the next (arm: the phcal arm cue; nod: nod_speed / nod_hold_seconds). Empty: none.",
     "thinking_text_about": "2026-10-18 (operator: \"\\\"thinking please wait\\\" process * replace with short & sweet: \\\"Got it!\\\"\").",
     "thinking_text": "Got it!",
     "thinking_moves": ["arm", "nod"],
-    "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod), his words, then his searching pace. Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
+    "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod) and his words (2026-11-03: his searching pace is the golden note's only, gopod_probes/locks/searching_golden.md). Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
     "got_it": {
-      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_resend_seconds": 3.9},
-      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"], "searching_min_seconds": 1, "searching_resend_seconds": 3.9}
+      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"]},
+      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"]}
     },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
     "speech_after_animation_seconds_about": "2026-10-24 (operator: \"between spoken segments there's a 0.9s delay * can the run timings be adjusted to fire the next spoken segment 0.5s early?\"): was 0.9 (2026-10-09, playAnimationWI + 0.9s + start speech), now 0.4. Needs wpr 2.",
@@ -201,7 +198,6 @@
       "search": "Web search: {search}",
       "template_2_about": "2026-10-25 (operator: \"NEW TEMPLATE: Response-chain ... * No value point - a quick take, then back on track: * [topics] * Topics [score line] * Value Points [score line] * Easter Eggs [score line] * score lines vertically aligned\"): none ends with the lead-in, recovery is the topics alone on the next line, score is three lines - each label, a tab, its bar (the page lines the bars up).",
  "none": "No value point - a quick take, then back on track:",
-      "got_it_again": "Thanks for your help, {helper}.",
       "helper_from_about": "2026-10-27: call_name first - host_personas.<host>.call_name, the name others call him by (\"Thanks for your help, Cache PYC.\"). 2026-10-22 (operator: \"Use gomad name ('Thanks for your help, PLAYHEAD.') * if no name available, fallback to brobot N * template this\"): where {helper} comes from, first that has one: name (the manager's own name, PLAYHEAD / CHALK), brobot (its Brobot, managers.personas reporter: Brobot 4 / Brobot 3).",
       "helper_from": ["call_name", "name", "brobot"],
       "second_got_it": "after_manager"
@@ -397,6 +393,7 @@
     "pause_seconds": 3,
     "picture_about": "2026-10-22 (operator: \"pin weather image for later * remove weather image from response for now, too much complexity * keep the 1st weather audio played\"): false - no picture in the reply, only its sound once as the bubble shows, and no pause; true puts the picture back under the weather line (with pause_seconds).",
     "picture": false,
+    "sound_at_about": "2026-11-03 (operator: \"In the template, make the weather audio play upon: ...\" - the weather report's first words): with picture off, the weather sound plays once his piece holding sound_at lights (its words are in the weather template, gopod_probes/clusters/weather_run.md); a bubble without it plays the sound as it shows.",
     "volume_about": "2026-10-14 (operator: \"Weather audio too loud, lol * play @ 10% volume in the background while brobot is speaking * increase weather animation size from 50% to 100%\"): the weather sound's own level (0-1), not a share of chat_audio.volume, like the background loop. The face shows at Vector's own size, 184x96. 2026-10-17 (the master): a percentage of chat_audio.volume now, like every volume knob - 0.1 on its own was 29% of 0.35.",
     "volume": "29%",
     "night_from": 20,

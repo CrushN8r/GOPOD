@@ -1,0 +1,7 @@
+/* goverlord/wire_pod_overlay/chipper/webroot/css/gopod_char_highlight.css
+   The per-character highlight (js/gopod_char_highlight.js): in the word being
+   said (100% solid, .seq-unit.now), each letter turns the 85% of a said word
+   (--chat-text-white) in turn. Once the word is said, the whole word is 85% as
+   before. */
+.brobot-say.speaking .seq-unit.now .ch-said { color: var(--chat-text-white); }
+/* ## EOF */

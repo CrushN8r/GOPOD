@@ -21,7 +21,7 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_04
 
-> TEXT: Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash, have an actual conversation.
+> TEXT: Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash have an actual conversation.
 
 ## STEP line_05
 
@@ -29,11 +29,11 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_06
 
-> TEXT: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is, truly an event of a lifetime.
+> TEXT: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime.
 
 ## STEP line_07
 
-> TEXT: And its our job to make it happen. I'm so excited. Feel that. Do you feel that?
+> TEXT: And it's our job to make it happen. I'm so excited. Feel that. Do you feel that?
 
 ## STEP line_08
 

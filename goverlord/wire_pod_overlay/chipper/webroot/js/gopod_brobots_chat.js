@@ -15,6 +15,35 @@
         tmp.remove();
     }
 
+    // visibleChatText: the text a person sees in el, line by line - hidden parts
+    // (not shown, see-through, or not yet placed) left out, invisible marks gone.
+    function visibleChatText(el) {
+        var out = [];
+        var line = "";
+        function flush() {
+            var t = line.replace(/[\u2063\u200b\u00ad]/g, "").replace(/[ \t]+/g, " ").trim();
+            if (t) { out.push(t); }
+            line = "";
+        }
+        function walk(node) {
+            if (node.nodeType === 3) { line += node.nodeValue; return; }
+            if (node.nodeType !== 1) { return; }
+            var cs = window.getComputedStyle(node);
+            if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) === 0 || node.dataset.staged === "1" || node.getAttribute("aria-hidden") === "true") { return; }
+            // The typing row (Brobots / All / 0-9 / Record? / clock) isn't the chat.
+            if (node.tagName === "FORM" || node.classList.contains("gopod-typed-input") || /^(SELECT|BUTTON|INPUT|TEXTAREA)$/.test(node.tagName)) { return; }
+            if (node.tagName === "BR") { flush(); return; }
+            if (node.tagName === "IMG") { if (node.alt && /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(node.alt)) { line += node.alt; } return; }
+            var block = !/^inline/.test(cs.display);
+            if (block) { flush(); }
+            for (var c = node.firstChild; c; c = c.nextSibling) { walk(c); }
+            if (block) { flush(); }
+        }
+        walk(el);
+        flush();
+        return out.join("\n");
+    }
+
     function copyToClipboard(all) {
         // 2026-10-01 (operator: "fast track the copy to all logs"): Copy All Logs
         // copies Wire-Pod's full log (the "Show all logs" one, /api/get_debug_logs)
@@ -34,10 +63,11 @@
         // whichever of the three displays is on screen: Logs, all logs, or bubbles.
         const bubbles = document.getElementById("brobot-chat-bubbles-container");
         if (bubbles && bubbles.classList.contains("expanded")) {
-            const text = Array.prototype.map.call(
-                bubbles.querySelectorAll(".brobot-bubble-text"),
-                function (el) { return el.dataset.raw || el.textContent; }
-            ).join("\n");
+            // 2026-11-03 (operator: "Copy Window Button not copying correctly"):
+            // the chat as it's seen - every header, notice and line, links as
+            // their words - not each bubble's raw text (that left out "Doc:",
+            // "Got it!", the brain titles, and kept the invisible marks).
+            const text = visibleChatText(bubbles);
             copyText(text);
             alert("Copied the text: " + text);
             return;
@@ -1868,7 +1898,10 @@
         avatar.className = "brobot-bubble-avatar";
         var name = document.createElement("span");
         name.className = "brobot-bubble-who";
-        name.textContent = noColon ? who : who + ":";
+        // 2026-11-02 (operator: "bubble's name should say Doc: instead of Brobot 1"):
+        // a Brobot's bubble wears his persona's name (display_names.brobots).
+        var shown = ((displayNames || {}).brobots || {})[who] || who;
+        name.textContent = noColon ? shown : shown + ":";
         head.appendChild(avatar);
         head.appendChild(name);
         return head;
@@ -3219,6 +3252,32 @@
         }, 60000);
         return audio;
       }
+      // 2026-11-03 (operator: "In the template, make the weather audio play upon:
+      // \"Brobot Weather Report ... \""): the sound waits for his piece holding
+      // weather_card.sound_at (the weather template, weather_run.md) to light;
+      // with no such piece, as the bubble shows. Already said: no sound.
+      function weatherSoundOnLit(bubble, textEl, sound) {
+        var at = String(weatherCard.sound_at || "").toLowerCase().trim();
+        var piece = !at ? null : Array.prototype.filter.call(textEl.querySelectorAll(".brobot-say"), function (x) {
+          return !x.closest(".nested-host") && String(x.textContent || "").toLowerCase().indexOf(at) >= 0;
+        })[0];
+        if (!piece) { return weatherSoundOnShow(bubble, sound); }
+        if (restoringChat || !sound || piece.classList.contains("spoken")) { return null; }
+        var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
+        audio.preload = "auto";
+        try { audio.load(); } catch (err) { /* no audio */ }
+        function play() {
+          audio.volume = chatLevel(volumeShare(weatherCard.volume));
+          audio.play().catch(function () { /* the page hasn't been clicked yet */ });
+        }
+        if (piece.classList.contains("speaking")) { play(); return audio; }
+        var watch = new MutationObserver(function () {
+          if (piece.classList.contains("speaking")) { watch.disconnect(); play(); }
+          else if (piece.classList.contains("spoken") || !piece.isConnected) { watch.disconnect(); }
+        });
+        watch.observe(piece, { attributes: true, attributeFilter: ["class"] });
+        return audio;
+      }
       // A Brobot bubble with the weather line, during a run: the face in its
       // corner. 2026-10-14 (operator: "during live, can you treat 'weather'
       // requests like live pop-up bubbles?"): in the live chat the weather is
@@ -3248,7 +3307,7 @@
         // played"): with weather_card.picture off, only its sound, once, as the
         // bubble shows.
         if (weatherCard.picture === false) {
-          if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnShow(bubble, face.sound); }
+          if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnLit(bubble, textEl, face.sound); }
           return;
         }
         // 2026-10-22 (operator: "current position isn't a good spot for it * add
@@ -3470,9 +3529,28 @@
         if (notice) {
           box.classList.add("in-notice");
           notice.appendChild(box);
+          brainInView(notice);
           return box;
         }
         return nestPlace(shell, box, atTop);
+      }
+      // 2026-11-02 (operator: "Upon: PLAYHEAD Cache PYC will help you with that.
+      // Thanks for your help, Cache PYC. * scroll down so the bottom of the brain
+      // bubble is above the bottom of the display area"): when a line lands in a
+      // brain bubble, the chat scrolls just enough to show its bottom - checked
+      // again once the line's words have filled in.
+      function brainInView(el) {
+        function keep() {
+          if (!el || !container.contains(el)) { return; }
+          var bottom = contentY(el) + el.getBoundingClientRect().height;
+          var over = bottom - (container.scrollTop + chatViewHeight()) + 8;
+          if (over > 0) {
+            scrollLog("brain bubble's bottom kept in view: +" + Math.round(over));
+            scrollChatTo(Math.min(container.scrollTop + over, chatContentEnd()));
+          }
+        }
+        setTimeout(keep, 80);
+        setTimeout(keep, 600);
       }
       // PLAYHEAD's QR ("qr:<picture>|<url>"): the code and its address, shown, not said.
       function hostQr(box, text) {
@@ -5367,15 +5445,26 @@
         // voice with its word times (the voice worker's .words.json) reveals
         // each word when it's said, and its marks when that word ends.
         var aligned = span._spokenWords ? alignUnits(units, span._spokenWords) : null;
+        // 2026-11-02 (operator: per-character highlight): each unit's start first,
+        // so each word knows how long it's said for (to the next unit's start; the
+        // last, to the voice's last word end) - gopod_char_highlight.js turns its
+        // letters 85% in turn within it.
+        var starts = [];
         units.forEach(function (u, i) {
+          starts.push(aligned ? aligned[i] : at);
+          at += (u._seqWeight || 0) * scale;
+        });
+        if (aligned) { at = Math.max(at, aligned[aligned.length - 1] || 0); }
+        var voiceEnd = aligned && span._spokenWords.length ? +span._spokenWords[span._spokenWords.length - 1].e || at : at;
+        units.forEach(function (u, i) {
+          var said = Math.max(0, (i + 1 < starts.length ? starts[i + 1] : Math.max(voiceEnd, at)) - starts[i]);
           setTimeout(function () {
             if (!span.classList.contains("speaking")) { return; }
             if (i > 0) { units[i - 1].classList.remove("now"); units[i - 1].classList.add("said"); }
             u.classList.add("now");
-          }, (aligned ? aligned[i] : at) * 1000);
-          at += (u._seqWeight || 0) * scale;
+            if (window.GopodCharHighlight) { window.GopodCharHighlight.play(u, said); }
+          }, starts[i] * 1000);
         });
-        if (aligned) { at = Math.max(at, aligned[aligned.length - 1] || 0); }
         setTimeout(function () {
           units.forEach(function (u) { u.classList.remove("now"); u.classList.add("said"); });
         }, at * 1000);
@@ -5389,8 +5478,9 @@
         var norm = function (t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); };
         var toks = words.map(function (w) { return { n: norm(w.t), s: +w.s || 0, e: +w.e || 0, used: 0 }; });
         var times = [], at = 0, lastEnd = 0;
-        units.forEach(function (u) {
-          var n = norm(u.tagName === "IMG" ? "" : u.textContent);
+        var unitText = function (v) { return v ? norm(v.tagName === "IMG" ? "" : v.textContent) : ""; };
+        units.forEach(function (u, ui) {
+          var n = unitText(u);
           if (!n) { times.push(lastEnd > 0 ? lastEnd : null); return; }
           var hit = null, part = 0;
           for (var j = at; j < Math.min(at + 6, toks.length); j++) {
@@ -5401,6 +5491,22 @@
               hit = j; part = t.used / t.n.length;
               t.used = Math.min(t.n.length, t.used + n.length);
               break;
+            }
+          }
+          // 2026-11-02 (live: PLAYHEAD's "ZUMINTU" lit before it was said - the
+          // voice says it "zoom-into"): a word said another way takes the next
+          // unused spoken word, when the word after it matches the spoken word
+          // after that - one shown word, one spoken word.
+          if (hit === null) {
+            var k = at;
+            while (k < toks.length && (!toks[k].n || toks[k].used)) { k++; }
+            var k2 = k + 1;
+            while (k2 < toks.length && !toks[k2].n) { k2++; }
+            var nextN = "";
+            for (var q = ui + 1; q < units.length && !nextN; q++) { nextN = unitText(units[q]); }
+            if (k < toks.length && (!nextN || (k2 < toks.length && toks[k2].n.indexOf(nextN) === 0))) {
+              hit = k; part = 0;
+              toks[k].used = toks[k].n.length;
             }
           }
           if (hit === null) { times.push(null); return; }
@@ -6202,6 +6308,7 @@
         var same = Array.prototype.filter.call(shell.querySelectorAll(":scope > .bubble-notice"), function (n) { return n.dataset.title === title; })[0];
         if (same) {
           same.appendChild(noticeLine(line, said));
+          brainInView(same);
           return;
         }
         var box = nestPart("notice", "egg-summary bubble-notice", systemHead(title), String(line).indexOf("\t") >= 0 ? null : line, "egg-summary-text");

@@ -221,6 +221,26 @@ func gopodVisitorOn() bool {
 	return gopodVisitors.on
 }
 
+// gopodVisitorsTalking (2026-11-02): the approved visitors talking now - their
+// approved names, when participation is ON and their box is ticked - for In the
+// chat and PLAYHEAD's who's here.
+func gopodVisitorsTalking() []string {
+	gopodVisitors.Lock()
+	defer gopodVisitors.Unlock()
+	gopodVisitorsLoad()
+	if !gopodVisitorOn() {
+		return nil
+	}
+	var names []string
+	for _, v := range gopodVisitors.byAddr {
+		if v.Name != "" && v.Approved && v.Allowed {
+			names = append(names, v.Name)
+		}
+	}
+	sort.Strings(names)
+	return names
+}
+
 // gopodVisitorKey: the device's key - its browser ID, else its address.
 func gopodVisitorKey(remoteAddr, id string) string {
 	if id = strings.TrimSpace(id); id != "" && len(id) <= 64 {
@@ -425,6 +445,7 @@ func gopodVisitorAct(action, addr string, on bool) bool {
 	if action == "participation" {
 		gopodVisitors.on, gopodVisitors.set = on, true
 		logger.Println("GOPOD_VISITOR participation " + map[bool]string{true: "ON", false: "OFF"}[on])
+		go gopodWhosHereAnnounce("participation", false)
 		return true
 	}
 	v := gopodVisitors.byAddr[addr]
@@ -446,6 +467,8 @@ func gopodVisitorAct(action, addr string, on bool) bool {
 	}
 	logger.Println("GOPOD_VISITOR " + action + " " + v.Addr + " (" + v.Name + ")")
 	gopodVisitorsSave()
+	// 2026-11-02: PLAYHEAD says who's here when a visitor joins or leaves the chat.
+	go gopodWhosHereAnnounce("visitor "+action, false)
 	return true
 }
 

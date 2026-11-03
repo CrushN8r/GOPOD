@@ -1,7 +1,10 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_battery_watch_test.go
 package wirepod_ttr
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // The battery watchdog says its line once per drop - below low_volts, or a dip
 // of dip_volts since the last reading - off the charger or on it not charging
@@ -35,5 +38,33 @@ func TestBatteryWatchOncePerDrop(t *testing.T) {
 		if say != s.want {
 			t.Errorf("step %d (%.2f V charging=%v charger=%v): said=%v, want %v", i, s.volts, s.charging, s.charger, say, s.want)
 		}
+	}
+}
+
+// 2026-11-03 (operator: "after freeze/reboot response ... Then, Bam!";
+// dizzy-brobots.md): he's back after back_after_misses failed readings in a row,
+// only when he was read before; and the lines come from the cluster.
+func TestBatteryBackAfterFreeze(t *testing.T) {
+	bw := &gopodBrobotsSettings.BatteryWatch
+	old := bw.BackAfterMisses
+	defer func() { bw.BackAfterMisses = old }()
+	bw.BackAfterMisses = 2
+	esn := "ESN01"
+	if gopodBatteryBack(esn, false) || gopodBatteryBack(esn, false) || gopodBatteryBack(esn, true) {
+		t.Error("back before he was ever read (Wire-Pod start, robot asleep)")
+	}
+	if gopodBatteryBack(esn, false) || gopodBatteryBack(esn, true) {
+		t.Error("one missed reading is not a freeze")
+	}
+	gopodBatteryBack(esn, false)
+	gopodBatteryBack(esn, false)
+	if !gopodBatteryBack(esn, true) {
+		t.Error("not back after two missed readings")
+	}
+	if gopodBatteryBack(esn, true) {
+		t.Error("back twice for one freeze")
+	}
+	if len(bw.Lines["Brobot 1"]) == 0 || bw.HomeLines["Brobot 1"] == "" || !strings.Contains(bw.BackLines["Brobot 1"], "Then, Bam!") {
+		t.Errorf("dizzy-brobots.md not laid over the settings: %q %q %q", bw.Lines, bw.HomeLines, bw.BackLines)
 	}
 }

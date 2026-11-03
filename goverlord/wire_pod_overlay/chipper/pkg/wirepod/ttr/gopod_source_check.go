@@ -76,7 +76,7 @@ func gopodSourceCheck() ([]string, int) {
 				continue
 			}
 			count(1)
-			if roster[strings.ToLower(gopodCallName(c.Who))] == "" {
+			if roster[strings.ToLower(gopodCallName(c.Who))] == "" && roster[strings.ToLower(c.Who)] == "" {
 				add("roster: " + gopodCallName(c.Who) + " has no line in " + gopodBrobotsSettings.BrainChain.Roster)
 			}
 		}

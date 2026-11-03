@@ -80,8 +80,8 @@
   "animation_lead_in": "...",
   "spoken_symbols": {
     "about": "How a symbol is said (operator 2026-10-08: \"add the missing symbols, the old 'times' and 'divided by', and the LaTeX cleanup to the speech cleanup\"; \"$\" = \"dollars\"). Speech only - the bubble keeps the symbol. \"$5\" is said \"5 dollars\". LaTeX math (\\frac{1}{2}, \\overline{3}, \\( \\)) is cleaned first: a fraction becomes 1/2, an overline \"3 repeating\" (gopod_spoken_symbols.go).",
-    "show_as_said_about": "2026-10-27 (operator: \"2026 * should be observed as 20 26 * spoken & heard, highlights follow 20 26 spoken/heard pattern\"): spoken forms a Brobot's bubble shows the way they're said - years: a date's year as its two halves (October 27, 20 26), like gopodSpeakYears says it.",
-    "show_as_said": ["years"],
+    "show_as_said_about": "2026-10-27 (operator: \"2026 * should be observed as 20 26 * spoken & heard, highlights follow 20 26 spoken/heard pattern\"): spoken forms a Brobot's bubble shows the way they're said - years: a date's year as its two halves (October 27, 20 26), like gopodSpeakYears says it. 2026-11-03 (operator: \"Show 2026\"): off - the bubble shows 2026; the robot still says it in two halves (gopodSpeakYears) and the page lights the halves in turn.",
+    "show_as_said": [],
     "repeating_word": "repeating",
     "hmm_said": "hmm-m-m", "negative_word": "negative",
     "words": {
@@ -169,15 +169,9 @@
   },
   "answer_chains_about": "GOLDEN thought bubbles template - the answer chain (operator 2026-10-21: \"build the thought bubbles boilerplate template * start with a base scaffolding for answer chain * copy scaffolding template & cater to different response groups * you can now apply to gomad responses, and some system responses\"). base is the scaffold; each group is {\"from\": \"base\"} (a copy) or its own parts. Stitch parts add to the answer - start_snippet (before), weather_kit, end_snippet, redirect (after), in order around llm. Answer parts are the answer and end the chain when they apply - who_line, manager_take, llm. A part that doesn't apply this time is skipped. Groups: brobots (a Brobot's answer), brobots_follow_up (the second Brobot in a line to both), gomad_persona (a line to CHALK or PLAYHEAD). gopod_answer_chain.go.",
   "multiple_responses_about": "2026-10-22 (operator: \"Multiple Responses Template * no reminders in 1st brobot response * this is how I see answer-chains handling different queries * cater answer-chains to handle known/expected/desired prompts to reveal value points\"): a line to both - the first Brobot: weather report (weather_lines.report), weather comment, his value point, the hand-over (answer_chains.brobots_all_first, no reminders); the next: weather confirmed (weather_lines.confirm), comment following his brother's, his value point, the Weather Kit, the reminders (brobots_follow_up). A single answer: report, comment, value point, reminders (brobots). Each Brobot's own unit and clock (his robot settings: Brobot 2 F / 12-hour, Brobot 1 C / 24-hour). The model's parts: chain_prompts.",
-  "weather_lines": {
-    "report": "Brobot Weather Report for {place}, {date}. Temperature is {temp} and {sky} as of {time}.",
-    "confirm": "Confirmed. Temperature is {temp} at {time}."
-  },
+  "weather_lines": {},
   "chain_prompts": {
-    "weather_point_first": "Write two short paragraphs: first one line about this weather; then, on a new line, party on your value point above, your way.",
-    "weather_point_next": "Write two short paragraphs: first one line following up your brother's weather comment; then, on a new line, party on your value point above, your way.",
-    "weather_lead": "First one short line about this weather. Then:",
-    "weather_lead_next": "First one short line following up your brother's weather comment. Then:"
+    "weather_lead_about": "2026-11-03: weather_point_first, weather_point_next, weather_lead and weather_lead_next live in gopod_probes/clusters/weather_run.md (the golden weather run, locked)."
   },
   "golden_answers_about": "2026-10-23 (operator: \"What is AI wordplay? * the fun challenges humans input to the brobots (future live hosts, Doc & Pip) * What is Explain the MAth? * the hilarity that ensues afterwards\"; his answer: notes + golden answers): a question asking one of these gets its line word for word, first (the answer chain's golden_line part); the rest of the answer follows its type (the summary, for these).",
   "session_memory": {
@@ -198,8 +192,6 @@
   "answer_shapes_about": "2026-10-23 (FINISH_PLAN_001.md step A2; operator: \"the flow of output in the responses isn't consistent * I need a templated answer-chain mechanism\"): GOLDEN - one shape per answer type, the order of his thought bubbles. Every answer is checked as it's made (BROBOT_SHAPE in the log: ok, or DRIFT and the shape it wanted) and every type is run through the real answer chain at deploy (TestAnswerShapesHold). A shape is marks in order: llm = his own words; point = his value point's title line (its notes follow as his words); say_line = a point's exact line; the others are found by their text (marks, checked in mark_order). ? = may be missing; a|b = either. In a line to both, the first answer's reminder is the hand-over (math: reminder, then hand-over).",
   "answer_shapes": {
     "shapes": {
-      "weather": ["weather_report", "llm?", "point?", "llm?", "reminder"],
-      "weather_next": ["weather_confirm", "llm?", "point?", "llm?", "weather_kit", "reminder"],
       "topic": ["point|say_line", "llm?", "reminder"],
       "free": ["llm", "reminder"],
       "math": ["say_line", "llm?", "rule?", "reminder"],
@@ -208,12 +200,8 @@
       "summary": ["summary", "llm?", "reminder"]
     },
     "marks": {
-      "weather_report": "Brobot Weather Report",
-      "weather_confirm": "Confirmed. Temperature",
-      "weather_kit": "Weather Kit",
       "reminder": "that reminds me",
       "rule": "Doc's Rule",
-      "handover": "what say you on this",
       "golden": "the fun challenges humans throw at the Brobots|the hilarity that ensues afterwards"
     },
     "mark_order": ["golden", "weather_report", "weather_confirm", "weather_kit", "reminder", "rule", "handover"]
@@ -229,9 +217,14 @@
   },
   "brain_chain_about": "2026-10-31 (operator: \"go for the brain chain * brain chain should be apparent everywhere * KP test runs, should be all about mechanical diagnostics that feed the llm the cleanest sufficient data set for short-term memory & orientation, while maintaining long term memory & orientation\"; \"flow guide for short & long term, self & chat memory handling, within the live chat session\"; \"Like a chat flow guide/helper line or 2\"; \"Big Brains = code so llm doesn't think & is more free to add persona styles\"): every answer in the live chat adds one record, made by code (who asked, who answered, the line, its kind). Every participant's prompt gets header, then short-term (the last short_term records, record_line), long-term (long_line: the game's score, who has spoken, who's introduced) and the flow (flow_line from flow: intro, first, after, answer). Every brain bubble shows bubble_lines. The session folder keeps brain_chain.jsonl; the game's reset starts a new chain. gomads_raw_chat false: the Gomads get the brain instead of the raw chat. system-brain shows it; GOPOD_BRAIN in the journal.",
   "brain_chain": {
+    "swarm_about": "2026-11-02 (operator: \"swarm level awareness * something Goverlord would assign to PLAYHEAD Gomad * PLAYHEAD Gomad generates a dynamic In the chat list as participants join/leave * include accepted visitors by their accepted names\"): the brain bubble leaves out lines starting with bubble_hide - the prompt still gets them; whos_here_host says whos_here_text ({names}) at the comm check's start and whenever the chat's people change (a visitor approved, muted, cleared, participation ON/OFF); visitors_label heads the talking visitors in In the chat.",
+    "bubble_hide": ["In the chat:"],
+    "whos_here_host": "PLAYHEAD",
+    "whos_here_text": "Who's here in the chat: {names}.",
+    "visitors_label": "Visitors in the chat",
     "header": "BRAIN - code-made facts about this chat, all true. Use them; the style is yours:",
-    "lines_about": "2026-10-31 (operator's brain bubble scaffold: \"Response-chain: Brobot 2, then Brobot 1 - answer 1 of 2 * I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers. * In the chat: Doc [description from md] (me), Pip [description from md], CHALK [description from md], ... Keys [description from md] * So far: 1 have spoken, 0 introduced themselves. Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: [], [], [], & [] * remove: Asked by: [name]\"): the one brain template - every brain bubble (Brobots under their Response-chain line, and Gomads) shows these lines, and every prompt gets the same lines after header, then the recent chat (short_header, record_line) and long_line. {self}: his call name (his name), then his profile's Self \"In short:\" (else his job title). {cast_described}: everyone here but the operator, in cast order, each cast_item - his profile's job title; cast_me marks himself. {reminders_part}: reminders_part with the topics his reminder names (a Brobot's answer), else nothing. A line with nothing after its label isn't shown.",
-    "lines": ["I am {self}", "In the chat: {cast_described}", "So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}"],
+    "lines_about": "2026-11-02: a 4th line, My relationships - his profile's ## Relationships, or until written his Who helps me and Partner and banter (gopodBrainRelationships). 2026-10-31 (operator's brain bubble scaffold: \"Response-chain: Brobot 2, then Brobot 1 - answer 1 of 2 * I am Pip (Brobot 2), a party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers. * In the chat: Doc [description from md] (me), Pip [description from md], CHALK [description from md], ... Keys [description from md] * So far: 1 have spoken, 0 introduced themselves. Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: [], [], [], & [] * remove: Asked by: [name]\"): the one brain template - every brain bubble (Brobots under their Response-chain line, and Gomads) shows these lines, and every prompt gets the same lines after header, then the recent chat (short_header, record_line) and long_line. {self}: his call name (his name), then his profile's Self \"In short:\" (else his job title). {cast_described}: everyone here but the operator, in cast order, each cast_item - his profile's job title; cast_me marks himself. {reminders_part}: reminders_part with the topics his reminder names (a Brobot's answer), else nothing. A line with nothing after its label isn't shown.",
+    "lines": ["{full_self}", "In the chat: {cast_described}", "So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}", "My relationships: {relationships}"],
     "roster_about": "2026-10-31 (operator: \"This can be a full GOPOD crew roster (sub) topic-cluster? * Crew roster please\"): the crew roster, one topic-cluster in the master format - its ## Crew points (Name: description) give In the chat its descriptions (himself: his profile's In short). system-check names anyone in the chat without a line.",
     "roster": "gopod_probes/personas/crew_roster.md",
     "cast_item": "{name} [{description}]{me}",
@@ -243,7 +236,6 @@
     "long_line": "Long-term memory, this session: {score}. Performed by Doc and Pip: {performed}. Spoken so far: {spoken}. Introduced: {introduced}.",
     "flow_about": "Guided Task Flow, made by code: intro (the line asks for one), then first (nobody has spoken yet) or recent (there's recent chat; 2026-10-31, operator: \"remove: [chat participant] just spoke - build on it, don't repeat it\", then \"Guided Task Flow: Does the recent chat help me answer the question asked.\").",
     "flow": {
-      "intro": "Introduce yourself. Name who's in the chat right now.",
       "first": "You're the first to speak this session - open it up.",
       "recent": "Does the recent chat help me answer the question asked."
     },

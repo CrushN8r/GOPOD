@@ -144,9 +144,8 @@ type gopodBrobotsSettingsFile struct {
 		NodEvery       int     `json:"nod_every"`
 		NodSpeed       float64 `json:"nod_speed"`
 		NodHoldSeconds float64 `json:"nod_hold_seconds"`
-		// 2026-10-08: searching while a Brobot waits - at least this long.
-		SearchingMinSeconds    float64 `json:"searching_min_seconds"`
-		SearchingResendSeconds float64 `json:"searching_resend_seconds"`
+		// 2026-11-03: the searching pace is the golden note's only
+		// (gopod_probes/locks/searching_golden.md, gopodSearchingGolden).
 		// 2026-10-10: the words said while the model works on a reply.
 		ThinkingText string `json:"thinking_text"`
 		// 2026-10-09: the moves before "Thinking, please wait." ("arm", "nod").
@@ -370,6 +369,7 @@ type gopodBrobotsSettingsFile struct {
 		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
 		ScriptedKeepDays  float64 `json:"scripted_keep_days"`
 		LiveKeepDays      float64 `json:"live_keep_days"`
+		LiveOnceKeepDays  float64 `json:"live_once_keep_days"`
 		PopularUses       int     `json:"popular_uses"`
 		PopularKeepDays   float64 `json:"popular_keep_days"`
 		// 2026-10-13: the sting before a system line (gopodSystemSting).
@@ -611,6 +611,16 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"docbs"`
 	// 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
 	BrainChain struct {
+		// 2026-11-02 (operator: "swarm level awareness * something Goverlord would
+		// assign to PLAYHEAD Gomad * a dynamic In the chat list as participants
+		// join/leave * include accepted visitors"): the brain bubble leaves out the
+		// lines starting with bubble_hide (the prompt keeps them); whos_here_host
+		// says whos_here_text when the chat's people change; visitors_label heads
+		// the approved visitors in In the chat.
+		BubbleHide    []string          `json:"bubble_hide"`
+		WhosHereHost  string            `json:"whos_here_host"`
+		WhosHereText  string            `json:"whos_here_text"`
+		VisitorsLabel string            `json:"visitors_label"`
 		Header        string            `json:"header"`
 		ShortHeader   string            `json:"short_header"`
 		ShortTerm     int               `json:"short_term"`
@@ -618,15 +628,18 @@ type gopodBrobotsSettingsFile struct {
 		LongLine      string            `json:"long_line"`
 		FlowLine      string            `json:"flow_line"`
 		Flow          map[string]string `json:"flow"`
-		Lines         []string          `json:"lines"`
-		CastItem      string            `json:"cast_item"`
-		Roster        string            `json:"roster"`
-		CastMe        string            `json:"cast_me"`
-		RemindersPart string            `json:"reminders_part"`
-		Asked         string            `json:"asked"`
-		None          string            `json:"none"`
-		QuestionChars int               `json:"question_chars"`
-		GomadsRawChat bool              `json:"gomads_raw_chat"`
+		// 2026-11-03 (operator: "c) Keys will be the first to speak, to open up
+		// the session"): his call name; his own intro flow is flow.intro_first.
+		IntroOpener   string   `json:"intro_opener"`
+		Lines         []string `json:"lines"`
+		CastItem      string   `json:"cast_item"`
+		Roster        string   `json:"roster"`
+		CastMe        string   `json:"cast_me"`
+		RemindersPart string   `json:"reminders_part"`
+		Asked         string   `json:"asked"`
+		None          string   `json:"none"`
+		QuestionChars int      `json:"question_chars"`
+		GomadsRawChat bool     `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
@@ -647,6 +660,11 @@ type gopodBrobotsSettingsFile struct {
 		Opening      string `json:"opening"`
 		NicknamePart string `json:"nickname_part"`
 		WhyPart      string `json:"why_part"`
+		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
+		// md, then weather topic cluster md"): his take on the weather, after his
+		// intro (gopod_probes/clusters/group-chat-intro.md).
+		WeatherText     string `json:"weather_text"`
+		WeatherTextNext string `json:"weather_text_next"`
 	} `json:"intro_recipe"`
 	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
 	PersonaProfiles struct {
@@ -671,6 +689,8 @@ type gopodBrobotsSettingsFile struct {
 		RecordSeconds  float64 `json:"record_seconds"`
 		StartText      string  `json:"start_text"`
 		DoneText       string  `json:"done_text"`
+		// 2026-11-02: {name} for the line to All ("Hey Brobots!").
+		AllName string `json:"all_name"`
 	} `json:"comm_check"`
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {
@@ -973,8 +993,11 @@ type gopodBrobotsSettingsFile struct {
 		Words         []string          `json:"words"`
 		Countries     map[string]string `json:"countries"`
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
-		Capitals   map[string]string `json:"capitals"`
-		Continents []string          `json:"continents"`
+		Capitals map[string]string `json:"capitals"`
+		// 2026-11-03: a US state or Canadian province alone is its capital
+		// (gopod_probes/clusters/state_capitals.md, gopodStateCapital).
+		StateCapitals map[string]string `json:"state_capitals"`
+		Continents    []string          `json:"continents"`
 	} `json:"clean_politics"`
 	// 2026-10-15: the battery watchdog (gopod_battery_watch.go).
 	// 2026-10-26: the here-and-now note (gopod_here_now.go).
@@ -1001,12 +1024,17 @@ type gopodBrobotsSettingsFile struct {
 		LowVolts        float64 `json:"low_volts"`
 		RecoverVolts    float64 `json:"recover_volts"`
 		// 2026-10-30: a drop this big between two readings is a dip.
-		DipVolts      float64             `json:"dip_volts"`
-		Lines         map[string][]string `json:"lines"`
-		Guards        map[string]string   `json:"guards"`
-		GuardWarning  string              `json:"guard_warning"`
-		GuardHandover string              `json:"guard_handover"`
-		Reply         string              `json:"reply"`
+		DipVolts float64             `json:"dip_volts"`
+		Lines    map[string][]string `json:"lines"`
+		// 2026-11-03 (dizzy-brobots.md): said after his line off the charger only;
+		// his line once he's back from a freeze or a reboot; the misses in a row that are one.
+		HomeLines       map[string]string `json:"home_lines"`
+		BackLines       map[string]string `json:"back_lines"`
+		BackAfterMisses int               `json:"back_after_misses"`
+		Guards          map[string]string `json:"guards"`
+		GuardWarning    string            `json:"guard_warning"`
+		GuardHandover   string            `json:"guard_handover"`
+		Reply           string            `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {

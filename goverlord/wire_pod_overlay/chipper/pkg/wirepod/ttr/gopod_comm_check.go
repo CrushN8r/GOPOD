@@ -129,6 +129,18 @@ func gopodSystemCommCheck() string {
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
 		gopodCommCheckStop.Store(false)
+		// 2026-11-02 (live 16:38-16:41: KP0's answer was over, but the check sat
+		// still - the voice library was still being made at start, and every
+		// answer counts as going while any voice is being made): it starts once
+		// the library is ready (at most ten minutes).
+		if gopodVoicesAtStart.Load() {
+			logger.Println("GOPOD_COMM_CHECK waiting for the voice library to be ready")
+			for end := time.Now().Add(10 * time.Minute); gopodVoicesAtStart.Load() && time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(time.Second) {
+			}
+			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
+		}
+		// 2026-11-02: PLAYHEAD says who's here before the first key.
+		gopodWhosHereAnnounce("comm check", true)
 		for i, l := range lines {
 			if gopodCommCheckStop.Load() {
 				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")
@@ -149,6 +161,11 @@ func gopodSystemCommCheck() string {
 				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaMark))
 			} else if h := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[label].Name); h != "" {
 				name = h
+			}
+			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
+			// back): the line to both is to the Brobots (comm_check.all_name).
+			if n := strings.TrimSpace(cc.AllName); n != "" && strings.EqualFold(label, "All") {
+				name = n
 			}
 			text := gopodSpellNames(strings.ReplaceAll(l[1], "{name}", name))
 			logger.Println("GOPOD_COMM_CHECK " + strconv.Itoa(i+1) + "/" + strconv.Itoa(len(lines)) + " " + key + " -> " + label + ": " + text)

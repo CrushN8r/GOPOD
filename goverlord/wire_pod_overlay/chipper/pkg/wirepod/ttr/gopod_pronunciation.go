@@ -112,7 +112,28 @@ func gopodIsWordRune(r rune) bool {
 // gopodApplyPronunciations replaces whole-word matches, like the Python side's
 // (?<!\w)...(?!\w) pattern.
 func gopodApplyPronunciations(text string) string {
-	return gopodSplitMergedWords(gopodReplaceWholeWords(gopodSayStretchedWords(gopodSayDegrees(text)), loadedGOPODPronunciations))
+	return gopodSplitMergedWords(gopodReplaceWholeWords(gopodSayStretchedWords(gopodSayDegrees(text)), gopodBrobotPronunciations()))
+}
+
+// gopodBrobotPronunciations (2026-11-02, operator: "brobots should pick that up
+// direct or indirect from her topic-cluster md persona profile"): the Brobots'
+// pronunciation list plus every persona's profile Lingo (gopodProfileLingo) -
+// a persona's names are written once, in their profile, and every voice says
+// them that way. The list's own entry wins on the same word; longest first.
+func gopodBrobotPronunciations() []gopodPronunciationEntry {
+	out := append([]gopodPronunciationEntry(nil), loadedGOPODPronunciations...)
+	have := map[string]bool{}
+	for _, e := range out {
+		have[strings.ToLower(e.From)] = true
+	}
+	for word, said := range gopodProfileLingo() {
+		if have[strings.ToLower(word)] || strings.TrimSpace(said) == "" {
+			continue
+		}
+		out = append(out, gopodPronunciationEntry{From: word, To: said, pattern: regexp.MustCompile("(?i)" + regexp.QuoteMeta(word))})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return len(out[i].From) > len(out[j].From) })
+	return out
 }
 
 // gopodSayDegrees (2026-10-12, operator: "rich display = robot safe say * ° =
@@ -289,11 +310,28 @@ func gopodStrikeExpletives(text string) string {
 	return text
 }
 
+// 2026-11-03 (deploy test TestBrobotLingoChoco: "chocoyum" -> "chock-o-yum"):
+// a word already respelled is left alone by the entries after it - "choco"
+// becomes "chalk-o-", and CHALK's Lingo ("CHALK = chock") doesn't touch it.
 func gopodReplaceWholeWords(text string, list []gopodPronunciationEntry) string {
+	var done [][2]int // the respelled parts, by byte
 	for _, e := range list {
 		var b strings.Builder
 		last := 0
+		var nextDone [][2]int
+		keep := func(upto int) {
+			shift := b.Len() - last
+			for _, s := range done {
+				if s[0] >= last && s[1] <= upto {
+					nextDone = append(nextDone, [2]int{s[0] + shift, s[1] + shift})
+				}
+			}
+			b.WriteString(text[last:upto])
+		}
 		for _, m := range e.pattern.FindAllStringIndex(text, -1) {
+			if m[0] < last || gopodOverlapsDone(done, m) {
+				continue
+			}
 			before, after := []rune(text[:m[0]]), []rune(text[m[1]:])
 			if len(before) > 0 && gopodIsWordRune(before[len(before)-1]) {
 				continue
@@ -307,14 +345,29 @@ func gopodReplaceWholeWords(text string, list []gopodPronunciationEntry) string 
 			if e.WordStart && gopodPronunciationExcept(e, text[m[0]:]) {
 				continue
 			}
-			b.WriteString(text[last:m[0]])
+			keep(m[0])
+			start := b.Len()
 			b.WriteString(e.To)
+			// Only a word that changed is held: "MAth" -> "math" leaves "math"
+			// as it was, so "math" -> "madth" still takes it.
+			if e.To != text[m[0]:m[1]] {
+				nextDone = append(nextDone, [2]int{start, b.Len()})
+			}
 			last = m[1]
 		}
-		b.WriteString(text[last:])
-		text = b.String()
+		keep(len(text))
+		text, done = b.String(), nextDone
 	}
 	return text
+}
+
+func gopodOverlapsDone(done [][2]int, m []int) bool {
+	for _, s := range done {
+		if s[0] < m[1] && m[0] < s[1] {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodPronunciationExcept: the word starting here is one of e.Except.

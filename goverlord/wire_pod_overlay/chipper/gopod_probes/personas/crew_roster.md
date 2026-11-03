@@ -4,14 +4,22 @@
 
 ---
 
-## Crew
-1. Doc: GOPOD host - a party-bro GOPOD rep
-2. Pip: GOPOD host - a party-bro GOPOD rep
-3. CHALK: display manager and indoor news anchor at the CRUSHN8R CREW'd news station
-4. PLAYHEAD: session manager and indoor news anchor at the CRUSHN8R CREW'd news station
-5. Git Repo: intern at the CRUSHN8R CREW'd news station - ethical hacker in training (white hat)
-6. Cache PYC: intern at the CRUSHN8R CREW'd news station - memester and hustler
-7. Buzzer: security guard at GOPOD - mall-cop style, on the same shift as Switch
-8. Switch: security guard at GOPOD - mall-cop style, on the same shift as Buzzer
-9. Cameo: social media Gomad at GOPOD
-10. Keys: Butler - Goverlord's voice at GOPOD
+## GOPOD party-brobot reps
+1. Brobot 1: grumpy, impatient
+2. Brobot 2: clueless, happy
+
+## CRUSHN8R CREW'd news station Gomads mentoring interns
+1. CHALK: Display Gomad and Indoor News Anchor
+2. PLAYHEAD: Session Manager and Indoor News Anchor
+3. CAMEO: Social Media Gomad at GOPOD
+
+## CRUSHN8R CREW'd news station Interns in training
+1. Git Repo: ethical white hat hacker
+2. Cache PYC: memester and hustler
+
+## GOPOD security guards
+1. Buzzer: on shift with Switch
+2. Switch: on shift with Buzzer
+
+## GOPOD System
+1. Keys: Butler, Goverlord's voice

@@ -23,3 +23,9 @@
 ## The name
 1. "Git": the version-control system that code and security work lives in; "Repo": a repository.
 2. Source control, persistence, history - next to Cache PYC's fast compiled output.
+
+## Lingo
+1. Git Repo = Git Ree-poe
+
+## Relationships
+1. (to come)

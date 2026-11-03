@@ -146,13 +146,24 @@ func gopodBrainFacts(self, question string) map[string]string {
 	// The flow: what comes next, from what the chain shows - an intro's task, then
 	// the first to speak, or the recent chat (flow.recent; 2026-10-31, operator:
 	// "Guided Task Flow: Does the recent chat help me answer the question asked").
+	// 2026-11-02 (operator's brain bubble: "Guided Task Flow: a) Introduce
+	// yourself. b) Name who's in the chat right now. c) If you're the first to
+	// speak this session, open it up."; live: Doc's intro to All went to the
+	// weather, steered by "Does the recent chat help..."): an intro's flow is the
+	// intro task alone.
 	var flow []string
-	if gopodIsIntro(question) {
-		flow = append(flow, bc.Flow["intro"])
-	}
-	if len(recs) == 0 {
+	switch {
+	case gopodIsIntro(question):
+		// 2026-11-03 (operator's group chat intro: "c) Keys will be the first to
+		// speak, to open up the session"; Keys's own: "You're first - open it").
+		if o := strings.TrimSpace(bc.IntroOpener); o != "" && strings.EqualFold(gopodCallName(self), o) && bc.Flow["intro_first"] != "" {
+			flow = append(flow, bc.Flow["intro_first"])
+		} else {
+			flow = append(flow, bc.Flow["intro"])
+		}
+	case len(recs) == 0:
 		flow = append(flow, bc.Flow["first"])
-	} else {
+	default:
 		flow = append(flow, strings.ReplaceAll(bc.Flow["recent"], "{asked}", bc.Asked))
 	}
 	// Self (2026-10-31, operator: "I am Pip (Brobot 2), a party-bro GOPOD sales rep.
@@ -180,6 +191,10 @@ func gopodBrainFacts(self, question string) map[string]string {
 		described = append(described, strings.TrimSpace(strings.NewReplacer("{name}", gopodCallName(c.Who),
 			"{description}", gopodBrainDescription(c.Who, false), "{me}", me).Replace(bc.CastItem)))
 	}
+	castLine := strings.Join(described, ", ")
+	if g := gopodCastGrouped(self); g != "" {
+		castLine = g
+	}
 	// Reminders: the topics his reminder names this answer (gopodBrainReminders).
 	reminders := ""
 	if v, ok := gopodBrainReminders.Load(self); ok {
@@ -188,10 +203,12 @@ func gopodBrainFacts(self, question string) map[string]string {
 		}
 	}
 	return map[string]string{
-		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": strings.Join(described, ", "), "{reminders_part}": reminders,
+		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": castLine, "{reminders_part}": reminders,
 		"{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
+		"{relationships}": gopodBrainRelationships(self),
+		"{full_self}":     gopodBrainFullSelf(self),
 	}
 }
 
@@ -207,7 +224,11 @@ func gopodBrainDescription(who string, self bool) string {
 			return v
 		}
 	}
-	if v := gopodCrewRoster()[strings.ToLower(gopodCallName(who))]; v != "" {
+	roster := gopodCrewRoster()
+	if v := roster[strings.ToLower(gopodCallName(who))]; v != "" {
+		return v
+	}
+	if v := roster[strings.ToLower(who)]; v != "" {
 		return v
 	}
 	return strings.TrimSuffix(strings.TrimSpace(gopodPersonaProfileField(who, "My job title")), ".")
@@ -219,20 +240,168 @@ func gopodBrainDescription(who string, self bool) string {
 // description") - call name (small letters) -> description.
 func gopodCrewRoster() map[string]string {
 	out := map[string]string{}
+	for _, g := range gopodRosterGroups() {
+		for i, n := range g.Names {
+			out[strings.ToLower(n)] = g.Descs[i]
+		}
+	}
+	return out
+}
+
+// gopodRosterGroup: one of the crew roster's groups - its "## " label, then its
+// points "Name: description", in order.
+type gopodRosterGroup struct {
+	Label string
+	Names []string
+	Descs []string
+}
+
+// gopodRosterGroups (2026-11-02, operator: "GOPOD party-brobot reps: Brobot 1
+// [grumpy, impatient], Brobot 2 [clueless, happy]. CRUSHN8R CREW'd news station
+// Gomads mentoring interns: ..."): the roster's groups in file order.
+func gopodRosterGroups() []gopodRosterGroup {
 	path := strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster)
 	if path == "" {
-		return out
+		return nil
 	}
 	if !filepath.IsAbs(path) {
 		path = filepath.Join(gopodChipperRoot(), path)
 	}
-	_, sections := gopodPersonaProfileRead(path)
-	for _, line := range sections["Crew"] {
-		if at := strings.Index(line, ":"); at > 0 {
-			out[strings.ToLower(strings.TrimSpace(line[:at]))] = strings.TrimSuffix(strings.TrimSpace(line[at+1:]), ".")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var out []gopodRosterGroup
+	inBody := false
+	for _, line := range strings.Split(string(data), "\n") {
+		t := strings.TrimSpace(line)
+		if !inBody {
+			inBody = t == "---"
+			continue
+		}
+		if strings.HasPrefix(t, "## ") {
+			out = append(out, gopodRosterGroup{Label: strings.TrimSpace(t[3:])})
+			continue
+		}
+		m := gopodProfilePointRE.FindStringSubmatch(t)
+		if m == nil || len(out) == 0 || strings.HasSuffix(m[1], "(to come)") {
+			continue
+		}
+		if at := strings.Index(m[1], ":"); at > 0 {
+			g := &out[len(out)-1]
+			g.Names = append(g.Names, strings.TrimSpace(m[1][:at]))
+			g.Descs = append(g.Descs, strings.TrimSuffix(strings.TrimSpace(m[1][at+1:]), "."))
 		}
 	}
 	return out
+}
+
+// gopodCastGrouped: In the chat by the roster's groups - "Group: Name
+// [description], Name [description]. Next group: ..." - everyone here but the
+// operator, self marked (brain_chain.cast_me). "" with one group (the flat line).
+func gopodCastGrouped(self string) string {
+	groups := gopodRosterGroups()
+	if len(groups) < 2 {
+		return ""
+	}
+	bc := gopodBrobotsSettings.BrainChain
+	here := map[string]string{} // a roster name, small letters -> who
+	for _, c := range gopodBrobotsSettings.HereNow.Cast {
+		if c.Who == bc.OperatorWho {
+			continue
+		}
+		here[strings.ToLower(c.Who)] = c.Who
+		here[strings.ToLower(gopodCallName(c.Who))] = c.Who
+	}
+	var parts []string
+	for _, g := range groups {
+		var items []string
+		for i, n := range g.Names {
+			who, ok := here[strings.ToLower(n)]
+			if !ok {
+				continue
+			}
+			me := ""
+			if who == self || (self != "" && gopodCallName(who) == gopodCallName(self)) {
+				me = bc.CastMe
+			}
+			items = append(items, strings.TrimSpace(strings.NewReplacer("{name}", n, "{description}", g.Descs[i], "{me}", me).Replace(bc.CastItem)))
+		}
+		if len(items) > 0 {
+			parts = append(parts, g.Label+": "+strings.Join(items, ", "))
+		}
+	}
+	// The approved visitors talking now (participation ON, box ticked).
+	if names := gopodVisitorsTalking(); len(names) > 0 {
+		label := strings.TrimSpace(bc.VisitorsLabel)
+		if label == "" {
+			label = "Visitors in the chat"
+		}
+		parts = append(parts, label+": "+strings.Join(names, ", "))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.Join(parts, ". ") + "."
+}
+
+// gopodBrainBubbleLines: the brain template's lines as a brain bubble shows them -
+// without the lines starting with brain_chain.bubble_hide (the swarm list is
+// PLAYHEAD's to say; every prompt still gets it, gopodBrainText).
+func gopodBrainBubbleLines(self, question string) []string {
+	var out []string
+	for _, l := range gopodBrainLines(self, question) {
+		hide := false
+		for _, h := range gopodBrobotsSettings.BrainChain.BubbleHide {
+			if h = strings.TrimSpace(h); h != "" && strings.HasPrefix(l, h) {
+				hide = true
+				break
+			}
+		}
+		if !hide {
+			out = append(out, l)
+		}
+	}
+	return out
+}
+
+// gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the
+// names they're called, then the talking visitors by their approved names.
+func gopodWhosHere() []string {
+	var names []string
+	for _, n := range strings.Split(gopodIntroCast(""), ", ") {
+		if n = strings.TrimSpace(n); n != "" {
+			names = append(names, n)
+		}
+	}
+	return append(names, gopodVisitorsTalking()...)
+}
+
+var gopodWhosHereLast struct {
+	sync.Mutex
+	line string
+}
+
+// gopodWhosHereAnnounce (2026-11-02, operator: "PLAYHEAD Gomad generates a dynamic
+// In the chat list as participants join/leave"): whos_here_host says who's here,
+// when it's changed since he last said it; wait: until it's been heard.
+func gopodWhosHereAnnounce(reason string, wait bool) {
+	bc := gopodBrobotsSettings.BrainChain
+	host, text := strings.TrimSpace(bc.WhosHereHost), strings.TrimSpace(bc.WhosHereText)
+	names := gopodWhosHere()
+	if host == "" || text == "" || len(names) == 0 {
+		return
+	}
+	line := strings.ReplaceAll(text, "{names}", gopodBrainList(names))
+	gopodWhosHereLast.Lock()
+	same := line == gopodWhosHereLast.line
+	gopodWhosHereLast.line = line
+	gopodWhosHereLast.Unlock()
+	if same {
+		return
+	}
+	logger.Println("GOPOD_WHOS_HERE (" + reason + ") " + host + ": " + line)
+	gopodReporterSayTo(host, "", line, true, wait)
 }
 
 // gopodBrainList: "a, b, c, & d" (operator: "Reminders: [], [], [], & []").
@@ -300,6 +469,55 @@ func gopodSystemBrain() string {
 	}
 	out = append(out, gopodBrainFill(gopodBrobotsSettings.BrainChain.LongLine, facts))
 	return gopodJoinLines(out)
+}
+
+// gopodBrainFullSelf (2026-11-02, operator's brain bubble: "My full name is
+// KEYNOTE VALE, known at GOPOD as 'Keys' the Butler ..."): his full name, his
+// nickname and job from his profile, then his profile's "In short".
+func gopodBrainFullSelf(who string) string {
+	if strings.TrimSpace(who) == "" {
+		return ""
+	}
+	first := func(v string) string {
+		if at := strings.Index(v, " - "); at > 0 {
+			v = v[:at]
+		}
+		if at := strings.Index(v, ". "); at > 0 {
+			v = v[:at]
+		}
+		return strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(v), "."))
+	}
+	head, _ := gopodPersonaProfileRead(gopodPersonaProfileFile(who))
+	name := first(gopodPersonaProfileField(who, "My name"))
+	if name == "" && head != nil {
+		name = head["label"]
+	}
+	if name == "" {
+		name = gopodCallName(who)
+	}
+	nick := first(gopodPersonaProfileField(who, "My informal name (nickname)"))
+	job := ""
+	if head != nil {
+		job = strings.TrimSpace(gopodPersonaFill(who, head["job"]))
+	}
+	out := "My full name is " + name
+	switch {
+	case nick != "" && !strings.EqualFold(nick, name) && job != "":
+		out += ", known at GOPOD as '" + nick + "' the " + job
+	case nick != "" && !strings.EqualFold(nick, name):
+		out += ", known at GOPOD as '" + nick + "'"
+	case job != "":
+		out += ", the " + job
+	}
+	out += "."
+	if short := strings.TrimSpace(gopodPersonaProfileField(who, "In short")); short != "" {
+		short = strings.ToUpper(short[:1]) + short[1:]
+		if !strings.HasSuffix(short, ".") {
+			short += "."
+		}
+		out += " " + short
+	}
+	return out
 }
 
 // ## EOF

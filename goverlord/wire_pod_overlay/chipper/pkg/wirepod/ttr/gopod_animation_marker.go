@@ -281,7 +281,25 @@ func gopodTidyLines(text string) string {
 	return strings.Join(kept, "\n")
 }
 
+// gopodJoinSplitCues (2026-11-03, live: Doc's bubble showed "darting Eyes...
+// Here's my take" - the robot played dartingEyes, the bubble kept the words): a
+// two-word cue name split by a space ("darting Eyes", "very happy") is joined
+// back into its token when a cue marker, dots or a colon follow it.
+func gopodJoinSplitCues(text string) string {
+	for _, anim := range animationMap {
+		name := anim[0]
+		cut := strings.IndexFunc(name, func(r rune) bool { return r >= 'A' && r <= 'Z' })
+		if cut <= 0 {
+			continue
+		}
+		re := regexp.MustCompile(`(?i)(^|[\s|*(])(` + regexp.QuoteMeta(name[:cut]) + `)[ \t]+(` + regexp.QuoteMeta(name[cut:]) + `)([ \t]*(?:_{2,}|\.{2,}|\x{2026}|:))`)
+		text = re.ReplaceAllString(text, "${1}"+name+"${4}")
+	}
+	return text
+}
+
 func gopodPrepareReply(text string) string {
+	text = gopodJoinSplitCues(text)
 	// 2026-10-17 (live: "--- (Wait for Brobot 0 before replying)" was shown and
 	// said): a "(wait ...)" stage note, and a "---" at a line's end, are dropped.
 	text = gopodWaitNotePattern.ReplaceAllString(text, "")

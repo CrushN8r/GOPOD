@@ -567,7 +567,9 @@ func gopodReminderLine(userMessage string) string {
 	if t := strings.TrimSpace(vp.ReminderProberText); t != "" {
 		for _, topic := range chainTopics {
 			if pr := gopodProberFor(topic); pr != "" {
-				line += " " + strings.ReplaceAll(t, "{prober}", pr)
+				// 2026-11-03 (operator: "start \"Try asking: ... \" on a new
+				// line"): its own line under the reminder.
+				line += gopodThoughtGap() + strings.ReplaceAll(t, "{prober}", pr)
 				break
 			}
 		}

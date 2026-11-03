@@ -305,7 +305,7 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 		gopodBrainReminders.Store(gopodBrobotName(esn), v)
 	}
 	// 2026-10-31: the brain template's lines (gopod_brain_chain.go, brain_chain.lines).
-	parts["memory"] = gopodBrainLines(gopodBrobotName(esn), question)
+	parts["memory"] = gopodBrainBubbleLines(gopodBrobotName(esn), question)
 	// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
 	// rows, every answer - an intro's too.
 	parts["score"] = gopodBrainScoreRows()
@@ -434,7 +434,13 @@ func gopodNoticeFlushed(esn string, lines []string, asked string, ok bool) {
 	}
 	gopodNoticePostLines(esn, lines)
 	if r, ok := gopodDuoRule(esn); ok && r.NoManager {
-		return // duo B: his brother's manager already helped (duo.b.no_manager)
+		// duo B: his brother's manager already helped (duo.b.no_manager) - but
+		// 2026-11-03 (operator: "Cache PYC in both brain bubbles (PLAYHEAD take
+		// over not required, intern is there)"): the intern's ready line in his.
+		if intern := gopodWeatherInternFor(asked); intern != "" && !gopodScriptPlaying.Load() {
+			go gopodWeatherInternReady(intern, gopodBrobotName(esn))
+		}
+		return
 	}
 	if b := gopodBrobotName(esn); gopodBubbleStep("manager") && (b == "Brobot 1" || b == "Brobot 2") && !gopodScriptPlaying.Load() && strings.TrimSpace(asked) != "" {
 		go gopodManagerStepIn(b, asked)

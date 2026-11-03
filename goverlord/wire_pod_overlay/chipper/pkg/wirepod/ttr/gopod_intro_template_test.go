@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"context"
 	"strings"
 	"testing"
 )
@@ -59,12 +60,12 @@ func TestRemindersNameNoEggs(t *testing.T) {
 func TestCrewRoster(t *testing.T) {
 	roster := gopodCrewRoster()
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
-		if c.Who != gopodBrobotsSettings.BrainChain.OperatorWho && roster[strings.ToLower(gopodCallName(c.Who))] == "" {
+		if c.Who != gopodBrobotsSettings.BrainChain.OperatorWho && roster[strings.ToLower(gopodCallName(c.Who))] == "" && roster[strings.ToLower(c.Who)] == "" {
 			t.Errorf("%s isn't on the crew roster", gopodCallName(c.Who))
 		}
 	}
 	l := gopodBrainLines("Brobot 1", "hey")
-	if len(l) < 2 || !strings.Contains(l[1], "Keys [Butler - Goverlord's voice at GOPOD]") || !strings.Contains(l[1], "Doc [GOPOD host - a party-bro GOPOD rep] (me)") {
+	if len(l) < 2 || !strings.Contains(l[1], "GOPOD System: Keys [Butler, Goverlord's voice]") || !strings.Contains(l[1], "Brobot 1 [grumpy, impatient] (me)") {
 		t.Errorf("In the chat: %v", l)
 	}
 }
@@ -112,6 +113,40 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	}
 }
 
+// 2026-11-03 (operator: "there is too much time between exchanges"; his OK: the
+// answer made while the question is read out): a Gomad's answer started early
+// is asked for once, before the read-out ends, and that answer is the one said.
+func TestGomadAnswerMadeEarly(t *testing.T) {
+	ask := gopodPersonaAsk
+	defer func() { gopodPersonaAsk = ask }()
+	asks := 0
+	gopodPersonaAsk = func(host, text string) (string, error) {
+		asks++
+		return "I'm Git Repo. Made early.", nil
+	}
+	var said []string
+	dry := gopodDryVoice
+	defer func() { gopodDryVoice = dry }()
+	gopodDryVoice = func(host, text string, show bool) { said = append(said, text) }
+	early := gopodGomadAnswerStart("GIT REPO", "GIT REPO", "tell me a joke")
+	if early == nil {
+		t.Fatal("the llm part's answer wasn't started early")
+	}
+	<-early.done // made while the line is read out
+	if asks != 1 {
+		t.Fatalf("asked %d times before the read-out ended, want 1", asks)
+	}
+	if !gopodGomadAnswerEarly("GIT REPO", "GIT REPO", "tell me a joke", early) {
+		t.Fatal("the llm part didn't take the line")
+	}
+	if asks != 1 {
+		t.Errorf("asked again after the read-out (%d asks)", asks)
+	}
+	if !strings.Contains(strings.Join(said, " "), "Made early.") {
+		t.Errorf("the early answer wasn't said: %q", said)
+	}
+}
+
 // 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
 // rows - topics, value points, eggs, each label then its bar.
 func TestBrainScoreRows(t *testing.T) {
@@ -122,6 +157,50 @@ func TestBrainScoreRows(t *testing.T) {
 	for _, r := range rows {
 		if !strings.Contains(r, "\t") || strings.Contains(r, "{") {
 			t.Errorf("score row not filled or not a row: %q", r)
+		}
+	}
+}
+
+// 2026-11-02 (live: Pip's KP2 intro said only "I'm Brobot 2, my nickname is
+// Pip."; Doc's and Pip's All intros skipped their first thought): every part of a
+// Brobot's templated intro is spoken - the opening, each of his thoughts, the cast.
+func TestBrobotIntroAllSpoken(t *testing.T) {
+	m := gopodAnimationMarker
+	for _, middle := range []string{
+		"thinking" + m + " Let me tell you a little something about myself! You know the party's on.",
+		"Okay, so long story short, I'm the party guy! 😜\nhappy" + m + " Our gig? We help folks get it.",
+	} {
+		wrapped := gopodIntroWrap("Brobot 2", middle, true)
+		r := buildGOPODStreamResultWithRepair(context.Background(), gopodAnimationMarkerToInternal(wrapped), "test", nil)
+		said := strings.Join(gopodSpokenPieceTexts(r.AudibleChunks), " ")
+		for _, want := range []string{"my nickname is Pip", "Here in the chat with us"} {
+			if !strings.Contains(said, want) {
+				t.Errorf("not said %q:\n%s\n(wrapped %q)", want, said, wrapped)
+			}
+		}
+		for _, w := range strings.Fields(strings.NewReplacer("thinking"+m, "", "happy"+m, "", "😜", "").Replace(middle)) {
+			if !strings.Contains(said, strings.Trim(w, ".,!?")) {
+				t.Errorf("his word %q not said:\n%s", w, said)
+				break
+			}
+		}
+	}
+}
+
+// 2026-11-02 (live): the opening is never said twice, however the model
+// repeats it, and the model's own "here in the chat" sentence goes.
+func TestIntroOpeningOnce(t *testing.T) {
+	m := gopodAnimationMarker
+	cases := []struct{ who, middle, gone, kept string }{
+		{"CHALK", "I'm CHALK BORED, my nickname is CHALK – because it's my name. I run the display.", "my nickname is CHALK –", "I run the display."},
+		{"CACHE PYC", "I'm Cache PYC. I'm Cache PYC, and I'm hustling every day.", "I'm Cache PYC, and", "I'm hustling every day."},
+		{"Brobot 2", "thinking" + m + " I'm Brobot 2, and hey! You know the party's on.", "I'm Brobot 2, and", "Hey!"},
+		{"Brobot 1", "I'm Doc, Brobot 1, which means I get to be the party guy. Here in the chat: all our brothers are rocking it, including Pip.", "all our brothers", "Which means I get to be the party guy."},
+	}
+	for _, c := range cases {
+		got := gopodIntroWrap(c.who, c.middle, c.who == "Brobot 1" || c.who == "Brobot 2")
+		if strings.Count(gopodLooseWords(got), gopodLooseWords(gopodIntroOpening(c.who))) != 1 || strings.Contains(got, c.gone) || !strings.Contains(got, c.kept) {
+			t.Errorf("%s: %q", c.who, got)
 		}
 	}
 }

@@ -103,7 +103,6 @@
     "time_place_text": "{place}, {weekday}, {date}, {clock}.",
     "display_host": "CHALK",
     "handoff_text_about": "2026-10-26 (operator: \"Managers must have at least one cool thing/feature they do, or they're fired, lol * as Gomads, they can offload stuff to the interns * where a Gomad stepped in and said, I can help you with that ... * Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): a take with via - that Gomad says this ({intern}: the intern's host_personas name), then the intern says take_text and does the job.",
-    "handoff_text": "{intern} will help you with that.",
     "usb_text_about": "2026-10-26 (Pass 2, the Gomad intern jobs): Git Repo's usb take - {count} USB devices; {mic} and {numpad} are \"plugged in\" or \"missing\".",
     "usb_text": "I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.",
     "qr_note_about": "2026-10-18 (operator: \"QR codes are brobot N's bubble * thought bubble * brobot can say refer to QR codes below\"): the Brobot's prompt while PLAYHEAD's QR ({url}) is in his bubble. url_qr (a take): a web address in a line - PLAYHEAD says take_text and shows a QR made for it (webroot/qr/made). A line to Brobot N: the managers' lines go inside his bubble - PLAYHEAD's at the top, before his reply; CHALK's QR codes at the bottom, after it.",
@@ -188,14 +187,9 @@
   "persona_profiles_about": "2026-10-30 (operator: \"Yes, please fatten up all these personas for self & chat awareness * offload to persona profile md files for look ups\"; \"These will be your first workings of a brain bubble template for scaffolding for the other personas\"): one md per persona in folder (gopod_probes/personas/<name>.md, its README), the same sections for everyone - Self (my informal name, my name, my job title, my role, who helps me), Voice, Partner and banter, The name. The sections listed here are looked up for the persona's prompt, each bullet a line, through text ({lines}). Edit a bullet, then wpr 2.",
   "intro_recipe_about": "2026-10-31 (operator: \"Please build the intro recipe in one batch\"; his tester: \"Hey [name]! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!\" - \"Introduce yourself fully to the chat (my informal name (nickname), my name, my job title, my role, who helps me) * Name who all else is here in the chat with us (list other chat participants)\"): one recipe for every chat participant. A line with one of words gets text, {self} his profile's Self points, {cast} everyone else here. A Brobot's intro skips the value point and the reminder (answer_chains.brobots_intro); a Gomad's brain bubble's task is task.",
   "intro_recipe": {
-    "words": ["introduce yourself", "tell me about yourself", "tell me all about yourself"],
+    "where": "2026-11-03: the intro recipe lives in gopod_probes/clusters/group-chat-intro.md (the group chat intro, locked).",
     "opening_about": "2026-10-31 (operator: \"names vs nicknames = formal vs informal * I'm KEYNOTE VALE, my nickname is Keys because I hold all the Keys, ... * [name][nickname][nickname-history/why-that-nickname] * I'm CAMEO, [name][nickname][nickname-history/why-that-nickname] skipped if blank, ... > interns\"): the intro's opening, made by code from the profile - {name} his formal name (Self: My name), {nickname_part} when he has a nickname (Self: My informal name), with why_part when his profile head has a why. Blank parts are left out.",
-    "opening": "I'm {name}{nickname_part}.",
-    "nickname_part": ", my nickname is {nickname}",
-    "why_part": ", because {why}",
-    "text": "This one is your intro, to the chat. Don't repeat the question. Your first sentence is said for you: \"{opening}\" - go on from it, never say it again. Then, in your own words - never labels like \"my job title\" - say what you do and who helps you: {facts}. About four sentences. Don't list who's here - that's said for you after.",
-    "cast_line_about": "2026-10-31 (operator: \"FIX IT CORRECT & PROPER\"; live: Git Repo, CHALK and PLAYHEAD named the cast twice): every intro is a template - code says the opening, the model the middle (text), code the cast line, once (gopodIntroWrap; a sentence of the model's that names three or more of the cast is dropped).",
-    "cast_line": "Here in the chat with us: {cast}."
+    "cast_line_about": "2026-10-31 (operator: \"FIX IT CORRECT & PROPER\"; live: Git Repo, CHALK and PLAYHEAD named the cast twice): every intro is a template - code says the opening, the model the middle (text), code the cast line, once (gopodIntroWrap; a sentence of the model's that names three or more of the cast is dropped)."
   },
   "persona_profiles_labels_about": "2026-10-30 (operator: \"All should branch from single master sources\"; \"make the topic-cluster shape the one master format\"): a persona with a profile has its labels there and only there - its full name (the profile's \"# \" label), nickname and job name; host_personas keeps the rest (its call name, role, hand-over).",
   "persona_profiles": {
@@ -266,7 +260,9 @@
     "default_about": "2026-10-22 (operator: \"numpad mapping sounds like a good template to form from\"): left empty, the default comes from the numpad map (~/.gopod_alias_lib/numpad_persona_map_001.json) - its persona for that voice (managers.personas reporter links Brobot 3 -> CHALK, Brobot 4 -> PLAYHEAD). A name here overrides it.",
     "default": {},
     "fallback": "Brobot {n}",
-    "edits": {}
+    "edits": {},
+    "brobots_about": "2026-11-02 (operator: \"bubble's name should say Doc: instead of Brobot 1\"): a Brobot bubble's header - his persona's name (KP1 Doc, KP2 Pip). Empty: Brobot N. Page only: F5.",
+    "brobots": {"Brobot 1": "Doc", "Brobot 2": "Pip"}
   },
   "nicknames_about": "2026-10-25 (operator: \"funny banter between party-bros * taking personal jabs at each other's mechanics * I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"): one list for every opener and hand-over - a random title, a random nickname, never the same nickname twice running.",
   "host_persona_frames": {
@@ -293,67 +289,63 @@
   },
   "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {title} and {nickname} from nicknames (his own titles/nicknames here when he has them) - 2026-10-25, operator: \"I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
   "host_personas": {
-    "Brobot 1": {
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
-    },
-    "Brobot 2": {
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
-    },
+    "Brobot 1": {},
+    "Brobot 2": {},
     "CHALK": {
       "call_name": "CHALK",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "PLAYHEAD": {
       "call_name": "PLAYHEAD",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "GIT REPO": {
       "call_name": "Git Repo",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "CACHE PYC": {
       "call_name": "Cache PYC",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "INTEL 404 PNFH": {
       "call_name": "Buzzer",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "INTEL 404 PNFT": {
       "call_name": "Switch",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "CAMEO": {
       "call_name": "Cameo",
       "role": "",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     },
     "BUTLER": {
       "call_name": "",
       "role": "Goverlord's voice: the runs, the system's answers, the session",
       "steps": [],
       "signature": "",
-      "handover": {"line": "{partner}, what say you on this, {title} {nickname}?"}
+      "handover": {"line": ""}
     }
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",

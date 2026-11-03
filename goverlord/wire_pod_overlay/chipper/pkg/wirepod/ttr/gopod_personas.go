@@ -192,12 +192,15 @@ func gopodPersonaReply(host, text, how string) {
 // for the reporter suit (2026-10-30, NumLock-off KP7/KP8).
 func gopodPersonaReplyAs(host, sayAs, text, how string) {
 	gopodOperatorShow(host, text, how)
+	// 2026-11-03 (operator: "doable to lessen the time gap?"): the answer is
+	// made while the line is read out (gopodGomadAnswerStart).
+	early := gopodGomadAnswerStart(host, sayAs, text)
 	// 2026-10-18 (operator: "KP7 to CHALK ... ["Generating..." + hourglass]/
 	// [transcription]"): read in the Operator voice, like a line to the Brobots.
 	gopodOperatorRead(host, text, how)
 	// 2026-10-21: the gomad_persona answer chain (gopod_answer_chain.go) - the
 	// who line, a manager's take, the persona's answer, in its order.
-	gopodGomadAnswerAs(host, sayAs, text)
+	gopodGomadAnswerEarly(host, sayAs, text, early)
 }
 
 // gopodSpeaksAsSystem: host speaks with the butler's lingo (reporter_voices.

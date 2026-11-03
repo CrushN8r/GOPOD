@@ -638,6 +638,15 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	// 2026-10-31 (live: Doc's and Pip's intros got the doc_and_pip value point and
 	// came back as a topic answer): an intro is his intro - no value point.
 	if gopodIsIntro(userMessage) {
+		// 2026-11-03: an intro + weather gets the report too - his take reacts to it.
+		if gopodIntroWeather(userMessage) {
+			if note := gopodBrobotsSettings.LiveWeatherNote; note != "" {
+				if line, _ := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
+					notice["weather"] = append(notice["weather"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Weather, map[string]string{"line": line}))
+					return note + " " + line
+				}
+			}
+		}
 		return ""
 	}
 	// 2026-10-23: a golden query gets the summary across the core topics, in

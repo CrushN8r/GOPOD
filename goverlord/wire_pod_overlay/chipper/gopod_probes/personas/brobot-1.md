@@ -27,3 +27,9 @@
 
 ## Signature
 1. (to come)
+
+## Lingo
+1. (to come)
+
+## Relationships
+1. (to come)

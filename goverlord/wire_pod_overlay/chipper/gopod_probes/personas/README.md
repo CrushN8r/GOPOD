@@ -16,6 +16,12 @@ Every profile is a topic-cluster md, GOPOD's master format (`../_topic_cluster/R
 - **Voice** - how I talk.
 - **Partner and banter** - my partner, and what we call each other.
 - **The name** - what it means and how it's said (for reading, not said in answers).
+- **Lingo** - how my names are said: `word = said` (`CHALK = chock`). The reporter voices only,
+  never in a prompt - added to the shared list (`reporter_voices.say_words`), mine winning, the
+  longest word first. The Brobots speak on their robots, so theirs stay in the pronunciation list.
+- **Relationships** - my working and personal connections, past and present: my history in the
+  group. Shown in every brain bubble as "My relationships:". Until it's written, the bubble shows
+  my **Who helps me** and **Partner and banter**.
 
 Each section's points are numbered `1.` `2.` ... A point ending "(to come)" is never said.
 The persona's prompt looks up the sections named in `persona_profiles.sections` (settings)

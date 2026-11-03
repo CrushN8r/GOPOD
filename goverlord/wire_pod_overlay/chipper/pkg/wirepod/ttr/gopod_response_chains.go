@@ -72,6 +72,9 @@ var gopodNicknameAt = struct {
 	last map[string]int
 }{last: map[string]int{}}
 
+// gopodNicknameSaid: each host's last nickname, as said (host -> string).
+var gopodNicknameSaid sync.Map
+
 // gopodNicknameFill fills {title} and {nickname} in line for host: a random
 // title (nicknames.titles) and a random nickname, never his last one
 // (host_personas.<host>.handover.nicknames when he has his own, else
@@ -90,13 +93,23 @@ func gopodNicknameFill(host, line string) string {
 	if len(list) > 0 {
 		gopodNicknameAt.Lock()
 		last, seen := gopodNicknameAt.last[host]
+		// 2026-11-03 (live: Pip called Doc "Mrs incompatible-particulate" and
+		// Doc's "Nice try" threw the same one back): never his brother's last
+		// nickname either.
+		brotherNick := ""
+		if b := map[string]string{"Brobot 1": "Brobot 2", "Brobot 2": "Brobot 1"}[host]; b != "" {
+			if v, ok := gopodNicknameSaid.Load(b); ok {
+				brotherNick = v.(string)
+			}
+		}
 		n := rand.Intn(len(list))
-		for seen && len(list) > 1 && n == last {
+		for tries := 0; len(list) > 1 && tries < 50 && ((seen && n == last) || (brotherNick != "" && strings.TrimSpace(list[n]) == brotherNick)); tries++ {
 			n = rand.Intn(len(list))
 		}
 		gopodNicknameAt.last[host] = n
 		gopodNicknameAt.Unlock()
 		nick = strings.TrimSpace(list[n])
+		gopodNicknameSaid.Store(host, nick)
 	}
 	if len(titles) > 0 {
 		title = strings.TrimSpace(titles[rand.Intn(len(titles))])
