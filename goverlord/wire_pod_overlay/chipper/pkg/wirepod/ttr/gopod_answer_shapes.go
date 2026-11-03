@@ -108,6 +108,10 @@ func gopodShapeLabels(esn, answer string) []string {
 		if label == "llm" && say != "" && strings.Contains(b, strings.TrimSpace(say)) {
 			label = "say_line"
 		}
+		// 2026-11-03: the reminder's "Try asking: ..." on its own line is still the reminder.
+		if label == "llm" && len(labels) > 0 && labels[len(labels)-1] == "reminder" && gopodIsProberLine(b) {
+			continue
+		}
 		// A summary's bubbles name their core topics' titles: one "summary".
 		if label == "llm" {
 			for _, it := range gopodSummaryItemsFor(esn) {
@@ -160,6 +164,21 @@ func gopodHasLabel(labels []string, l string) bool {
 		}
 	}
 	return false
+}
+
+// gopodIsProberLine: the reminder's "Try asking: ..." line (value_points.reminder_prober_text).
+func gopodIsProberLine(b string) bool {
+	t := gopodBrobotsSettings.ValuePoints.ReminderProberText
+	if at := strings.Index(t, "{prober}"); at >= 0 {
+		t = t[:at]
+	}
+	t = strings.TrimSpace(t)
+	b = strings.TrimSpace(b)
+	// past his cue at the start ("thinking___ Try asking: ...")
+	if loc := gopodAnimationMarkerPattern.FindStringIndex(b); loc != nil && loc[0] < 20 {
+		b = strings.TrimSpace(b[loc[1]:])
+	}
+	return t != "" && strings.HasPrefix(strings.TrimLeft(b, ". "), t)
 }
 
 // gopodShapeMatches: labels follow shape ("?" may be missing, "a|b" either).

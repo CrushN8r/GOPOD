@@ -15,6 +15,33 @@
         tmp.remove();
     }
 
+    // visibleChatText: the text a person sees in el, line by line - hidden parts
+    // (not shown, see-through, or not yet placed) left out, invisible marks gone.
+    function visibleChatText(el) {
+        var out = [];
+        var line = "";
+        function flush() {
+            var t = line.replace(/[\u2063\u200b\u00ad]/g, "").replace(/[ \t]+/g, " ").trim();
+            if (t) { out.push(t); }
+            line = "";
+        }
+        function walk(node) {
+            if (node.nodeType === 3) { line += node.nodeValue; return; }
+            if (node.nodeType !== 1) { return; }
+            var cs = window.getComputedStyle(node);
+            if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) === 0 || node.dataset.staged === "1" || node.getAttribute("aria-hidden") === "true") { return; }
+            if (node.tagName === "BR") { flush(); return; }
+            if (node.tagName === "IMG") { if (node.alt && /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(node.alt)) { line += node.alt; } return; }
+            var block = !/^inline/.test(cs.display);
+            if (block) { flush(); }
+            for (var c = node.firstChild; c; c = c.nextSibling) { walk(c); }
+            if (block) { flush(); }
+        }
+        walk(el);
+        flush();
+        return out.join("\n");
+    }
+
     function copyToClipboard(all) {
         // 2026-10-01 (operator: "fast track the copy to all logs"): Copy All Logs
         // copies Wire-Pod's full log (the "Show all logs" one, /api/get_debug_logs)
@@ -34,10 +61,11 @@
         // whichever of the three displays is on screen: Logs, all logs, or bubbles.
         const bubbles = document.getElementById("brobot-chat-bubbles-container");
         if (bubbles && bubbles.classList.contains("expanded")) {
-            const text = Array.prototype.map.call(
-                bubbles.querySelectorAll(".brobot-bubble-text"),
-                function (el) { return el.dataset.raw || el.textContent; }
-            ).join("\n");
+            // 2026-11-03 (operator: "Copy Window Button not copying correctly"):
+            // the chat as it's seen - every header, notice and line, links as
+            // their words - not each bubble's raw text (that left out "Doc:",
+            // "Got it!", the brain titles, and kept the invisible marks).
+            const text = visibleChatText(bubbles);
             copyText(text);
             alert("Copied the text: " + text);
             return;
