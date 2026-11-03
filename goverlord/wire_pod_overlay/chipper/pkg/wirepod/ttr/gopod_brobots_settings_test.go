@@ -2414,7 +2414,7 @@ func TestGotItPerBrobot(t *testing.T) {
 	// 2026-10-25: he says his opener (response-chain template), made from his own copy.
 	chains, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_response_chains.go"))
 	src = append(src, chains...)
-	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "cm := gopodGotItFor(esn)"} {
+	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "sg := gopodSearchingGolden()"} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("the sequence doesn't use his own copy: %s", want)
 		}

@@ -348,7 +348,11 @@ func gopodReplaceWholeWords(text string, list []gopodPronunciationEntry) string 
 			keep(m[0])
 			start := b.Len()
 			b.WriteString(e.To)
-			nextDone = append(nextDone, [2]int{start, b.Len()})
+			// Only a word that changed is held: "MAth" -> "math" leaves "math"
+			// as it was, so "math" -> "madth" still takes it.
+			if e.To != text[m[0]:m[1]] {
+				nextDone = append(nextDone, [2]int{start, b.Len()})
+			}
 			last = m[1]
 		}
 		keep(len(text))
