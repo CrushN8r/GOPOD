@@ -30,6 +30,8 @@
             if (node.nodeType !== 1) { return; }
             var cs = window.getComputedStyle(node);
             if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) === 0 || node.dataset.staged === "1" || node.getAttribute("aria-hidden") === "true") { return; }
+            // The typing row (Brobots / All / 0-9 / Record? / clock) isn't the chat.
+            if (node.tagName === "FORM" || node.classList.contains("gopod-typed-input") || /^(SELECT|BUTTON|INPUT|TEXTAREA)$/.test(node.tagName)) { return; }
             if (node.tagName === "BR") { flush(); return; }
             if (node.tagName === "IMG") { if (node.alt && /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(node.alt)) { line += node.alt; } return; }
             var block = !/^inline/.test(cs.display);

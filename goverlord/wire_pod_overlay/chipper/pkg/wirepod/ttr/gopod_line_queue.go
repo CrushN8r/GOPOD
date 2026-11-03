@@ -77,7 +77,14 @@ func gopodLineRun(j gopodLineJob) {
 		return
 	}
 	idle := gopodSecondsToDuration(lq.IdleSeconds)
-	end := time.Now().Add(gopodSecondsToDuration(lq.AnswerMaxSeconds))
+	// 2026-11-03 (live: a duo's turn ended at 180 s while Brobot B was still
+	// speaking): answer_max_seconds for each answerer - a line to both, twice.
+	n := len(j.answerers)
+	if n < 1 {
+		n = 1
+	}
+	most := gopodSecondsToDuration(lq.AnswerMaxSeconds) * time.Duration(n)
+	end := time.Now().Add(most)
 	last, since := gopodFeedLastID(), time.Now()
 	for time.Now().Before(end) {
 		// CLOCK_AUDIT_001.md B (2026-10-30): answered once every answerer's
@@ -95,6 +102,9 @@ func gopodLineRun(j gopodLineJob) {
 			break
 		}
 		time.Sleep(300 * time.Millisecond)
+	}
+	if !time.Now().Before(end) {
+		logger.Println("GOPOD_LINE_QUEUE answer time ran out (" + most.String() + ") for " + gopodCut(j.text, 60))
 	}
 	// The page shows it all - when a page is here to show it (gopodPageHere).
 	if gopodPageHere() {
