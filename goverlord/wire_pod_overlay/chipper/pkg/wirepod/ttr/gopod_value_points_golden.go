@@ -33,7 +33,7 @@ type gopodGoldenPoint struct {
 }
 
 func gopodValuePointsGoldenPath() string {
-	return filepath.Join(gopodChipperRoot(), "gopod_probes", "chapters", "value_points_golden.json")
+	return filepath.Join(gopodChaptersDir(), "value_points_golden.json")
 }
 
 func gopodPointSum(words string) string {

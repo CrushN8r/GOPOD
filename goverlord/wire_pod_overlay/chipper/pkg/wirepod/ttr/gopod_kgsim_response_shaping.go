@@ -22,7 +22,7 @@ import (
 var canonicalBrobotResponsePromptPath = gopodPathWithEnvOverride("GOPOD_BROBOT_RESPONSE_PROMPT_PATH", "wire-pod_response_prompt.txt")
 
 // The shared Brobots prompt is clusters/brobots.md now (gopodBrobotsPromptBytes); this names it in the log.
-var canonicalBrobotIdentityPromptPath = "gopod_probes/clusters/brobots.md"
+var canonicalBrobotIdentityPromptPath = "gopod_probes/topic_clusters/show/brobots.md"
 var canonicalGOPODCorePromptPath = gopodPathWithEnvOverride("GOPOD_CORE_PROMPT_PATH", "gopod_probes/foundation_packs/gopod_core.txt")
 
 // defaultPrompt is derived from system_speech_content.json - see
@@ -617,7 +617,7 @@ func gopodReplyShapeSection(brobot string) string {
 }
 
 // gopodQuestionFacts is what this question needs to know: the topic packs its
-// words trigger (gopod_probes/chapters/) and the Bingo note. 2026-10-05:
+// words trigger (gopod_probes/topic_clusters/chapters/) and the Bingo note. 2026-10-05:
 // it sits nearest the question, after "who I am" and before the reply shape
 // (CreateAIReq); placed earlier, gemma2:2b often answered past it
 // (SOCIAL_DEMO_REPLAY_001.md: 44% of answers landed their value point, 66% with
@@ -940,7 +940,7 @@ func gopodBrobotsPromptBytes() ([]byte, error) {
 		blocks = append(blocks, strings.Join(b, "\n"))
 	}
 	if len(blocks) == 0 {
-		return nil, errors.New("brobots_prompt has no blocks (gopod_probes/clusters/brobots.md)")
+		return nil, errors.New("brobots_prompt has no blocks (gopod_probes/topic_clusters/show/brobots.md)")
 	}
 	return []byte(strings.Join(blocks, "\n\n") + "\n"), nil
 }

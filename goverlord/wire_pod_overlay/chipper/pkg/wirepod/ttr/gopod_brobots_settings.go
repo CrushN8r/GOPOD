@@ -107,6 +107,8 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"mic_service"`
 	NumpadPTT struct {
 		MapFile string `json:"map_file"`
+		// 2026-11-04: which numpad_maps layout the numpad uses ("usb", "pc").
+		Layout string `json:"layout"`
 		// 2026-10-20: the mic's USB id, and what Goverlord says when it's missing.
 		MicUSBIDs      []string `json:"mic_usb_ids"`
 		MicMissingText string   `json:"mic_missing_text"`
@@ -662,7 +664,7 @@ type gopodBrobotsSettingsFile struct {
 		WhyPart      string `json:"why_part"`
 		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
 		// md, then weather topic cluster md"): his take on the weather, after his
-		// intro (gopod_probes/clusters/group-chat-intro.md).
+		// intro (gopod_probes/topic_clusters/show/group-chat-intro.md).
 		WeatherText     string `json:"weather_text"`
 		WeatherTextNext string `json:"weather_text_next"`
 	} `json:"intro_recipe"`
@@ -995,7 +997,7 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
 		Capitals map[string]string `json:"capitals"`
 		// 2026-11-03: a US state or Canadian province alone is its capital
-		// (gopod_probes/clusters/state_capitals.md, gopodStateCapital).
+		// (gopod_probes/topic_clusters/show/state_capitals.md, gopodStateCapital).
 		StateCapitals map[string]string `json:"state_capitals"`
 		Continents    []string          `json:"continents"`
 	} `json:"clean_politics"`
@@ -1020,6 +1022,21 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"here_now"`
 	// 2026-11-04 (operator: "The shared Brobots persona * go on its own
 	// topic-cluster file"): the shared Brobots prompt, block by block (clusters/brobots.md).
+	// 2026-11-04 (operator: "build numpad-mapper.md as the one source"): the numpad
+	// map, both NumLock layers and the fixed lanes (clusters/gopod-system/numpad-mapper.md).
+	// 2026-11-04: the one folder of every topic-cluster file (topic_clusters.folder).
+	// 2026-11-04 (operator: "The root docs are the source"): root_docs - the repo-root
+	// docs holding game cards (gopodTopicDocCards, gopod_chapters_folder.go).
+	TopicClusters struct {
+		Folder   string   `json:"folder"`
+		RootDocs []string `json:"root_docs"`
+	} `json:"topic_clusters"`
+	NumpadMap json.RawMessage `json:"numpad_map"`
+	// 2026-11-04 (operator: "I have 2 keyboards * my PC keyboard ... the connected
+	// USB numpad * can you add a keyboard-numpad mapping selector for the 2 numpad
+	// configs?"; "Two key layouts"): one map per keyboard (usb, pc) - numpad_ptt.layout
+	// picks one (system-numpad-layout).
+	NumpadMaps    map[string]json.RawMessage `json:"numpad_maps"`
 	BrobotsPrompt struct {
 		Blocks [][]string `json:"blocks"`
 	} `json:"brobots_prompt"`
@@ -1128,7 +1145,7 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	check(strings.TrimSpace(s.RecordSession.SessionsDir) != "", "record_session.sessions_dir")
 	check(strings.TrimSpace(s.RecordSession.FolderSuffix) != "", "record_session.folder_suffix")
 	check(strings.TrimSpace(s.MicService.Script) != "", "mic_service.script")
-	check(strings.TrimSpace(s.NumpadPTT.MapFile) != "", "numpad_ptt.map_file")
+	check(len(s.NumpadMaps[strings.TrimSpace(s.NumpadPTT.Layout)]) > 2, "numpad_maps."+s.NumpadPTT.Layout+" (clusters/gopod-system/numpad-mapper.md, numpad_ptt.layout)")
 	check(len(s.NumpadPTT.BodyToBrobot) > 0, "numpad_ptt.body_to_brobot")
 	check(s.RecordSession.MaxMinutes > 0, "record_session.max_minutes")
 	check(s.RecordSession.AnswerWaitMinutes > 0, "record_session.answer_wait_minutes")

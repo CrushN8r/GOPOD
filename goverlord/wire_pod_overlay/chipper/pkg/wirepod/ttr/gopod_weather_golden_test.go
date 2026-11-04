@@ -12,7 +12,7 @@ import (
 // LOCKED 2026-11-03 (operator: "Look at the tampa run. that is a near perfect
 // example of a golden locked run * golden guts scaffolding = topic-cluster md";
 // "Lock order + code lines"; "Doc then Pip (Tampa)"): the golden weather run is
-// gopod_probes/clusters/weather_run.md and only that. The deploy fails when it
+// gopod_probes/topic_clusters/show/weather_run.md and only that. The deploy fails when it
 // changed without the operator's relock (GOPOD_RELOCK=1 saves its fingerprint,
 // gopod_probes/locks/weather_golden.lock), when its order or lines aren't the
 // ones in use, or when a settings file holds a copy. The order itself - Doc's
@@ -22,7 +22,7 @@ func TestWeatherGoldenLock(t *testing.T) {
 	if root == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set (the deploy sets it)")
 	}
-	note, err := os.ReadFile(filepath.Join(root, "gopod_probes", "clusters", "weather_run.md"))
+	note, err := os.ReadFile(gopodTopicTreeFind("weather_run.md"))
 	if err != nil {
 		t.Fatalf("LOCKED: the golden weather run is missing: %v", err)
 	}

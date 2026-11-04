@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -22,7 +23,7 @@ import (
 // key goes down and stop when it comes up. The mic service records (golden mic
 // pick, 48 kHz master per capture, 16 kHz Vosk) and the words go to the key's
 // Brobot like a typed line. Which key is which Brobot comes from the golden
-// persona map (numpad_ptt.map_file, ~/.gopod_alias_lib/numpad_persona_map_001.json):
+// persona map (clusters/gopod-system/numpad-mapper.md, the settings numpad_map; was ~/.gopod_alias_lib/numpad_persona_map_001.json):
 // NumLock-on keys with status "live", their body named in numpad_ptt.body_to_brobot.
 
 const gopodPTTStopWait = time.Minute // the release tail + Vosk on up to max_hold_seconds of audio
@@ -56,22 +57,106 @@ func gopodNumpadMapPath() string {
 	return path
 }
 
+// gopodNumpadLayoutNow: the layout system-numpad-layout chose since this start
+// ("" - the settings' numpad_ptt.layout).
+var gopodNumpadLayoutNow atomic.Value
+
+// gopodNumpadLayoutPicked: the layout the chat page sent with its newest key
+// press or map read (2026-11-04, operator: "duplicate existing 'All' drop down
+// menu * assign PC numpad mapping to menu-1 * assign USB-numpad mapping to
+// menu-2 * and visitor app page") - each page picks its own keyboard's layout.
+var gopodNumpadLayoutPicked atomic.Value
+
+// GopodNumpadLayoutPick: the page's layout pick for this press ("" or unknown: none).
+func GopodNumpadLayoutPick(layout string) {
+	layout = strings.ToLower(strings.TrimSpace(layout))
+	if _, ok := gopodBrobotsSettings.NumpadMaps[layout]; ok {
+		gopodNumpadLayoutPicked.Store(layout)
+	}
+}
+
+// gopodNumpadLayout: the numpad_maps layout in use - the page's pick, else
+// system-numpad-layout's, else numpad_ptt.layout, else "usb".
+func gopodNumpadLayout() string {
+	if v, _ := gopodNumpadLayoutPicked.Load().(string); v != "" {
+		return v
+	}
+	if v, _ := gopodNumpadLayoutNow.Load().(string); v != "" {
+		return v
+	}
+	if l := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.Layout); l != "" {
+		return l
+	}
+	return "usb"
+}
+
+// gopodSystemNumpadLayout: "system-numpad-layout [name]" - the layouts and the one
+// in use, or switch to one (kept in numpad_ptt.layout; the chat page takes it on F5).
+func gopodSystemNumpadLayout(text string) string {
+	var names []string
+	for k := range gopodBrobotsSettings.NumpadMaps {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	f := strings.Fields(strings.ToLower(text))
+	if len(f) < 2 {
+		return gopodSystemText("system_extras.numpad_layout_now", "layout", gopodNumpadLayout(), "names", strings.Join(names, "|"))
+	}
+	if _, ok := gopodBrobotsSettings.NumpadMaps[f[1]]; !ok {
+		return gopodSystemText("system_extras.numpad_layout_names", "names", strings.Join(names, "|"))
+	}
+	if _, err := gopodSettingsWrite([]string{"numpad_ptt"}, func(file string) (string, error) {
+		return gopodJSONFileSet(file, []string{"numpad_ptt", "layout"}, `"`+f[1]+`"`)
+	}); err != nil {
+		return gopodSystemText("system_edit.not_changed", "dotted", "numpad_ptt.layout", "error", err.Error())
+	}
+	gopodNumpadLayoutNow.Store(f[1])
+	return gopodSystemText("system_extras.numpad_layout_set", "layout", f[1])
+}
+
 func gopodNumpadMap() (gopodNumpadMapFile, []byte, error) {
+	return gopodNumpadMapIn(gopodNumpadLayout())
+}
+
+// gopodNumpadMapIn: one layout's map (numpad_maps.<layout>).
+func gopodNumpadMapIn(layout string) (gopodNumpadMapFile, []byte, error) {
 	var m gopodNumpadMapFile
-	data, err := os.ReadFile(gopodNumpadMapPath())
-	if err != nil {
-		return m, nil, err
+	// 2026-11-04 (operator: "build numpad-mapper.md as the one source"): the map is
+	// the settings' numpad_map (clusters/gopod-system/numpad-mapper.md); the old
+	// map_file only when there's none.
+	data := []byte(gopodBrobotsSettings.NumpadMaps[layout])
+	if len(data) <= 2 {
+		data = []byte(gopodBrobotsSettings.NumpadMap)
+	}
+	if len(data) <= 2 {
+		var err error
+		if data, err = os.ReadFile(gopodNumpadMapPath()); err != nil {
+			return m, nil, err
+		}
 	}
 	return m, data, json.Unmarshal(data, &m)
 }
 
 // GopodNumpadMapJSON is what the page reads: the golden map as it is, plus
 // which body is which Brobot.
-func GopodNumpadMapJSON() ([]byte, error) {
-	_, raw, err := gopodNumpadMap()
+func GopodNumpadMapJSON() ([]byte, error) { return GopodNumpadMapJSONFor("") }
+
+// GopodNumpadMapJSONFor: the map and targets in one layout (the page's pick; "" -
+// the one in use), with the layout and the layouts there are.
+func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
+	layout = strings.ToLower(strings.TrimSpace(layout))
+	if _, ok := gopodBrobotsSettings.NumpadMaps[layout]; !ok {
+		layout = gopodNumpadLayout()
+	}
+	_, raw, err := gopodNumpadMapIn(layout)
 	if err != nil {
 		return nil, err
 	}
+	var layouts []string
+	for k := range gopodBrobotsSettings.NumpadMaps {
+		layouts = append(layouts, k)
+	}
+	sort.Strings(layouts)
 	// 2026-10-22 (operator: "numpad mapping sounds like a good template to form
 	// from"): each scripted voice's persona ("Brobot 3" -> CHALK), for the page's
 	// header template - the numpad map's names are the source.
@@ -88,18 +173,18 @@ func GopodNumpadMapJSON() ([]byte, error) {
 	targets := map[string]string{}
 	for n := 0; n <= 9; n++ {
 		key := "KP" + strconv.Itoa(n)
-		if label, _, err := gopodNumpadBrobot(key); err == nil {
+		if label, _, err := gopodNumpadBrobotIn(layout, key); err == nil {
 			targets[key] = label
 		} else {
 			targets[key] = ""
 		}
 		if n == 9 {
-			if label, _, err := gopodNumpadBrobot(gopodNumpadAllKey); err == nil {
+			if label, _, err := gopodNumpadBrobotIn(layout, gopodNumpadAllKey); err == nil {
 				targets[gopodNumpadAllKey] = label
 			}
 		}
 		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
-		if label, _, err := gopodNumpadBrobot(key + gopodNumlockOffSuffix); err == nil {
+		if label, _, err := gopodNumpadBrobotIn(layout, key+gopodNumlockOffSuffix); err == nil {
 			targets[key+gopodNumlockOffSuffix] = label
 		}
 	}
@@ -107,11 +192,18 @@ func GopodNumpadMapJSON() ([]byte, error) {
 		"map":               json.RawMessage(raw),
 		"targets":           targets,
 		"persona_reporters": reporters,
+		"layout":            layout,
+		"layouts":           layouts,
 	})
 }
 
 // gopodNumpadBrobot: the Brobot and ESN a live NumLock-on key talks to.
 func gopodNumpadBrobot(key string) (string, string, error) {
+	return gopodNumpadBrobotIn(gopodNumpadLayout(), key)
+}
+
+// gopodNumpadBrobotIn: gopodNumpadBrobot in one layout.
+func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 	// 2026-10-16 (operator: "a long '0' press acts as the mic version of
 	// 'keyboard's 'All' radio button option"): held, it talks to all the Brobots.
 	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
@@ -124,7 +216,7 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 		}
 		return label, gopodTypedAll, nil
 	}
-	m, _, err := gopodNumpadMap()
+	m, _, err := gopodNumpadMapIn(layout)
 	if err != nil {
 		return "", "", err
 	}

@@ -229,6 +229,9 @@
       // is All, Brobot 1 first (the menu shows 1 when the box is ticked). The visitor
       // page is this same code.
       var allFirstSelect = null;
+      var numpadLayoutSelect = null, NUMPAD_LAYOUT_KEY = "gopod_numpad_layout", numpadMapLoad = null;
+      // The layout this page uses: its menu's pick ("" until it has one - the one in use).
+      function numpadLayoutNow() { return numpadLayoutSelect && numpadLayoutSelect.dataset.picked === "1" ? numpadLayoutSelect.value : ""; }
       var allBox = document.createElement("input");
       (function () {
         var label = document.createElement("label");
@@ -254,6 +257,30 @@
         });
         label.appendChild(allFirstSelect);
         typedRow.appendChild(label);
+        // 2026-11-04 (operator: "duplicate existing 'All' drop down menu * assign PC
+        // numpad mapping to menu-1 * assign USB-numpad mapping to menu-2"; "no
+        // visitor page - they use their text input"): the numpad's key layout, the All
+        // menu's look - 1 the PC keyboard's numpad, 2 the USB numpad; this page's own
+        // pick, kept, sent with every key press (numpad-mapper.md). Not on a visitor page.
+        numpadLayoutSelect = document.createElement("select");
+        numpadLayoutSelect.className = "gopod-all-first gopod-numpad-layout";
+        numpadLayoutSelect.title = "";
+        [["1", "pc"], ["2", "usb"]].forEach(function (p) {
+          var o = document.createElement("option");
+          o.value = p[1];
+          o.textContent = p[0];
+          numpadLayoutSelect.appendChild(o);
+        });
+        try { var keptLayout = window.localStorage.getItem(NUMPAD_LAYOUT_KEY); if (keptLayout) { numpadLayoutSelect.value = keptLayout; numpadLayoutSelect.dataset.picked = "1"; } } catch (e) { /* no storage */ }
+        numpadLayoutSelect.addEventListener("change", function () {
+          numpadLayoutSelect.dataset.picked = "1";
+          try { window.localStorage.setItem(NUMPAD_LAYOUT_KEY, numpadLayoutSelect.value); } catch (e) { /* no storage */ }
+          if (typeof numpadMapLoad === "function") { numpadMapLoad(); }
+        });
+        var layoutPick = document.createElement("label");
+        layoutPick.className = "gopod-layout-pick";
+        layoutPick.appendChild(numpadLayoutSelect);
+        typedRow.appendChild(layoutPick);
         // 2026-10-24: a visitor's Submit, after the menu (gopod_responsive.css).
         var typedSubmit = document.createElement("button");
         typedSubmit.type = "submit";
@@ -1562,6 +1589,7 @@
             if (!typedText.value && !typedText.classList.contains("gopod-typed-note")) { typedText.placeholder = typedPlaceholder; }
             var allFirst = typedRow.querySelector(".gopod-all-first");
             if (allFirst) { allFirst.title = pageText("all_first_title"); }
+            if (numpadLayoutSelect) { numpadLayoutSelect.title = pageText("numpad_layout_title"); }
             var submit = typedRow.querySelector(".gopod-typed-submit");
             if (submit) { submit.textContent = pageText("submit"); }
             if (settings.chat_window && typeof settings.chat_window.hourglass_sprites === "number") { HOURGLASS_SPRITES = settings.chat_window.hourglass_sprites; }
@@ -5695,11 +5723,17 @@
         on: (function () { try { return window.localStorage.getItem(NUMPAD_KEY) === "1"; } catch (e) { return false; } })(), map: null, targets: {}, active: null, pendingUp: null, taps: { Numpad0: [], NumLock: [] },
         cfg: { min_hold_seconds: 1, max_hold_seconds: 30, exit_taps: 3, exit_window_seconds: 2, texts: {} }
       };
-      fetch("/api-sdk/gopod_numpad_map", { cache: "no-store" })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-          if (data && data.map) { numpad.map = data.map; numpad.targets = data.targets || {}; numpad.personaReporters = data.persona_reporters || {}; }
-        }).catch(function () { /* no map - push-to-talk stays quiet */ });
+      // 2026-11-04: the map in this page's keyboard layout (the layout menu); its
+      // menu shows the layout in use until the page picks one.
+      numpadMapLoad = function () {
+        fetch("/api-sdk/gopod_numpad_map?layout=" + encodeURIComponent(numpadLayoutNow()), { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.map) { numpad.map = data.map; numpad.targets = data.targets || {}; numpad.personaReporters = data.persona_reporters || {}; }
+            if (data && data.layout && numpadLayoutSelect && !numpadLayoutNow()) { numpadLayoutSelect.value = data.layout; }
+          }).catch(function () { /* no map - push-to-talk stays quiet */ });
+      };
+      numpadMapLoad();
       // 2026-10-18 (operator: "live KPN = no grunge audio as this is not an error *
       // \"Too short - hold KP1 for at least 1 s\" = error = grunge audio plays * not
       // live yet key press = error = grunge audio plays"): a numpad error message
@@ -6443,7 +6477,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key) + (allFirstSelect && Number(allFirstSelect.value) >= 1 && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + "&layout=" + encodeURIComponent(numpadLayoutNow()) + (allFirstSelect && Number(allFirstSelect.value) >= 1 && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }

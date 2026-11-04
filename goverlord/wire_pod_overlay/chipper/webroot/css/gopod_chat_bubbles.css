@@ -1304,6 +1304,12 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    menu, like a font size smaller? * menu green border too intense, match to
    text field green") is now the one look, the admin's too - a smaller font and
    a thin border in the text field's colour, no outline. */
+/* 2026-11-04 (operator: "duplicate existing 'All' drop down menu * assign PC numpad
+   mapping to menu-1 * assign USB-numpad mapping to menu-2"; "no visitor page -
+   they use their text input"): the numpad layout menu, the All menu's look
+   (.gopod-all-first), right after it; not on a visitor page. */
+.gopod-layout-pick { margin-left: 4px; }
+body.gopod-visitor .gopod-layout-pick, body.gopod-visitor-page .gopod-layout-pick { display: none; }
 .gopod-all-first {
   font: inherit;
   font-size: 0.8em;

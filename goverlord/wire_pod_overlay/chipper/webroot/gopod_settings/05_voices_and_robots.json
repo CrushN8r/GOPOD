@@ -36,7 +36,6 @@
   },
   "numpad_ptt": {
     "about": "Numpad push-to-talk from the Brobots chat page (operator 2026-10-04: \"please get it to work\"), the golden numpad's rules from any keyboard the page sees (the Jetson's own numpad, a PC's through NoMachine): with NumLock on, hold a live key from map_file (KP1 Brobot 1, KP2 Brobot 2) - recording counts after min_hold_seconds, keeps release_tail_seconds after the key comes up, stops at max_hold_seconds - and the words go to that Brobot like a typed line. Other keys show their assigned persona. exit_taps taps of 000 (KP0) or of NumLock within exit_window_seconds turn it off (the Numpad? box unticks). 2026-10-08: on only while the Numpad? box on the typing line is ticked (operator: \"a checked Numpad box indicates takeover of the usb keyboard numpad mapping\"). Only while the chat window is open. Before LLM Ready a key records nothing and shows not_ready (operator 2026-10-09: \"LLM not ready? Too bad!! Wait!!\"). The status texts show in grey Goverlord system bubbles; {key} {brobot} {persona} {body} {min} {error} {how} are filled in. 2026-10-09 (operator: \"upon numpad checked, I cannot type normally * I have a keyboard + numpad in one\"): while a text box has the focus, every key types as usual. 2026-10-10 (live: \"numpad checkbox didn't work\" after typing): with Numpad? ticked, the numpad's own keys are always push-to-talk, even in a text box; every other key types. Esc still leaves the box.",
-    "map_file": "~/.gopod_alias_lib/numpad_persona_map_001.json",
     "body_to_brobot": {
       "Vector 1": "Brobot 1",
       "Vector 2": "Brobot 2"
@@ -57,6 +56,8 @@
     "usb_watch_about": "2026-10-21 (operator: \"mic not ready voice came through, no message bubble * no 'mic deteced and wired in' * same applies to the original numpad-keyboard * if 2 numpads detected, both can work, but only one at a time * if 2 mics detected, same thing\"): after the warm-up, every usb_watch_seconds lsusb is looked at; when the mic (any of mic_usb_ids) or the numpad (any of numpad_usb_ids) goes missing or comes back, Goverlord says the line and shows its bubble. Two numpads: both work, one key at a time (the page takes one held key). Two mics: the first one found records; one at a time.",
     "mic_usb_ids": ["3302:12e9"],
     "numpad_usb_ids": ["1a2c:4324"],
+    "layout_about": "2026-11-04 (operator: \"keyboard-numpad mapping selector for the 2 numpad configs\"; \"Two key layouts\"): which numpad_maps layout the numpad uses - usb or pc (clusters/gopod-system/numpad-mapper.md); system-numpad-layout switches it, then F5 the chat page.",
+    "layout": "usb",
     "usb_watch_seconds": 3,
     "usb_host_about": "2026-10-26 (Pass 2, the Gomad intern jobs): who says and shows the USB lines above - Git Repo, the ethical hacker intern, in his voice and bubble. Empty = Goverlord.",
     "usb_host": "GIT REPO",
@@ -99,7 +100,7 @@
     "recover_volts": 3.8,
     "dip_about": "2026-10-30 (operator: \"Brobot 2's charger contact (3.61 V, not charging) * brobots are supposed to say, hey I'm dizzy * I think a security guard also monitors battery levels * Maybe increase monitoring cycles per second * tag previous power level reading * tag current power level reading * quick compare for power level dip * if a dip detected, brobot says hey I'm dizzy & Intel 404 warning * look it up something like this is set up already\"): each reading is compared with the one before it - a drop of dip_volts or more is a dip, and the guard warns and the Brobot says his line, as below low_volts. On his charger but not charging counts too (a bad contact); only charging or recover_volts re-arms it. interval_seconds 60 -> 15.",
     "dip_volts": 0.15,
-    "lines_about": "2026-11-03 (operator: \"make this topic-cluster a dizzy-brobots.md & pull it out of code\"): lines, home_lines, back_lines, guard_warning, guard_handover and reply are in gopod_probes/clusters/dizzy-brobots.md. back_after_misses: a Brobot is back from a freeze or a reboot when a reading works after this many in a row didn't (he was read before, this Wire-Pod session).",
+    "lines_about": "2026-11-03 (operator: \"make this topic-cluster a dizzy-brobots.md & pull it out of code\"): lines, home_lines, back_lines, guard_warning, guard_handover and reply are in gopod_probes/topic_clusters/show/dizzy-brobots.md. back_after_misses: a Brobot is back from a freeze or a reboot when a reading works after this many in a row didn't (he was read before, this Wire-Pod session).",
     "back_after_misses": 2,
     "guards_about": "2026-10-26 (operator: \"Do the security guards (Intel 404 PNFH/PNFT) get a job too * at least this one: brobots battery levels * at the next safe spot, Intel can interject * use the duo response-chain template, Intel 404 to brobot N * a warning message, then what say you? * Brobot N, Nice try ..., yeah, I feel dizzy, etc...\"): each Brobot's guard. At the next safe spot the guard says guard_warning ({brobot}, {volts}) and guard_handover ({title} {nickname} filled the hand-over way), in his own bubble; then the Brobot says reply - {comeback} (openers.comeback) and {line} (one of his lines). No guard, or his voice not made: the Brobot says his line alone, as before.",
     "guards": {"Brobot 1": "INTEL 404 PNFH", "Brobot 2": "INTEL 404 PNFT"}
@@ -829,7 +830,7 @@
       "Goverlord": "[Guverlord](/ɡˈʌvəɹlˌɔɹd/)",
       "livestreams": "lyve-streams", "PYC": "pee-why-see", "Git Repo": "Git Ree-poe", "memester": "meem-stir"
     },
-    "say_words_2_about": "2026-11-02: a persona's own names (PLAYHEAD, ZUMINTU, Cache PYC, Git Repo, CHALK) moved to his profile's ## Lingo (gopod_probes/personas/); this list keeps the shared words. Before: 2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
+    "say_words_2_about": "2026-11-02: a persona's own names (PLAYHEAD, ZUMINTU, Cache PYC, Git Repo, CHALK) moved to his profile's ## Lingo (gopod_probes/topic_clusters/personas/); this list keeps the shared words. Before: 2026-10-26 (operator: \"CHALK BORED & PLAYHEAD ZUMINTU * spoken-per-character PLAYHEAD = \u201cPLAYHEAD\u201d * ZUMINTU = \u201cZUMINTU\u201d, spoken as zoom-into\"): said as words, not letter by letter (the reporters' lingo - CHALK and PLAYHEAD speak in the reporters' voices).",
     "say_words_3_about": "2026-10-26 (operator: \"gomad lingo: Gomad = \\\"Gome-add\\\"\"): the Gomads speak in the reporters' voices, so it goes in this list.",
     "say_words": {
       "Gomad": "Gome-add",
@@ -888,6 +889,6 @@
     "location": "Windsor,ON,CA",
     "cache_seconds": 120,
     "follow_up_kit_line_about": "2026-10-15 (operator: \"can you add in brobot 2 follow up, the link to the weather kit web page? * somewhere before the, hey that reminds me...\"): Brobot 2's follow-up to a weather question (All) gets this line after his own words, before his 'Hey, that reminds me...'. The bubble shows the link; he says its words.",
-    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/clusters/weather_run.md (the golden weather run, locked)."
+    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/topic_clusters/show/weather_run.md (the golden weather run, locked)."
   }
 }

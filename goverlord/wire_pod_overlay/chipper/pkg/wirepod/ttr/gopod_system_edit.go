@@ -524,7 +524,7 @@ func gopodSystemTopic(text string) string {
 	if !ok {
 		return gopodSystemText("system_edit.no_topic_system_topic_lists", "arg1", f[1])
 	}
-	data, err := os.ReadFile(file)
+	data, err := gopodTopicFileRead(file)
 	if err != nil {
 		return err.Error()
 	}
@@ -658,7 +658,7 @@ func gopodSystemTopic(text string) string {
 	default:
 		return gopodSystemText("system_edit.system_topic_words_point_label", "arg1", f[1])
 	}
-	if err := gopodWriteFileSafe(file, []byte(strings.Join(lines, "\n"))); err != nil {
+	if err := gopodTopicFileWrite(file, []byte(strings.Join(lines, "\n"))); err != nil {
 		return "system-topic: " + err.Error()
 	}
 	return f[1] + " " + answer + gopodAfterRestart

@@ -289,3 +289,23 @@ func TestBrobotsPromptFromCluster(t *testing.T) {
 		t.Errorf("the shared Brobots prompt isn't built as it was: %q ... %q", s[:40], s[len(s)-60:])
 	}
 }
+
+// 2026-11-04 (operator: "keyboard-numpad mapping selector for the 2 numpad
+// configs"; "Two key layouts"): numpad-mapper.md holds a usb and a pc layout;
+// numpad_ptt.layout picks one, usb unless named; the map read is that layout's.
+func TestNumpadLayouts(t *testing.T) {
+	m := gopodBrobotsSettings.NumpadMaps
+	if len(m["usb"]) <= 2 || len(m["pc"]) <= 2 {
+		t.Fatalf("numpad_maps: usb %d bytes, pc %d bytes", len(m["usb"]), len(m["pc"]))
+	}
+	if gopodNumpadLayout() != "usb" {
+		t.Errorf("layout in use: %q, want usb", gopodNumpadLayout())
+	}
+	nm, _, err := gopodNumpadMap()
+	if err != nil || nm.NumlockOn["KP1"].Persona != "Doc" || nm.NumlockOff["KP7"].Suit != "reporter" {
+		t.Errorf("the usb layout's keys: %+v %v", nm.NumlockOn["KP1"], err)
+	}
+	if out := gopodSystemNumpadLayout("system-numpad-layout nope"); !strings.Contains(out, "pc") || !strings.Contains(out, "usb") {
+		t.Errorf("an unknown layout names the layouts: %q", out)
+	}
+}

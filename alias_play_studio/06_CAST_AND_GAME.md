@@ -72,16 +72,16 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 - **The Brobots' profiles (2026-10-30):** `brobot-1.md` (Doc) and `brobot-2.md` (Pip), the master
   format - each Brobot's own words for his "WHO I AM" (Who I am, Role, My way through an answer,
   Signature) live there, out of the settings; his prompt reads them, word for word as before. The
-  shared party-bro base stays in `gopod_probes/clusters/brobots.md` (the shared Brobots persona), the pair's banter and dial in
+  shared party-bro base stays in `gopod_probes/topic_clusters/show/brobots.md` (the shared Brobots persona), the pair's banter and dial in
   `host_pairs`.
 - **The master format (2026-10-30):** every persona profile is a topic-cluster md, GOPOD's one
-  format (`gopod_probes/_topic_cluster/README.md`): its head is the persona's labels - `# <full
+  format (`gopod_probes/topic_clusters/_topic_cluster/README.md`): its head is the persona's labels - `# <full
   name>`, `nickname`, `job` - written there and nowhere else; the settings, prompts, headers and the
   brain bubble fill from them. Anything in the system speaker's voice is headed
   `system_bubble.label` "{first}: {job}" from `voice_persona` (BUTLER): "KEYNOTE: Butler". Every
   persona in `managers.personas` is a host on the page, its own voice or another's. A persona's
   answer is at most `managers.answer_num_predict` tokens (400), ending at a whole sentence.
-- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/personas/<name>.md` - CHALK,
+- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/topic_clusters/personas/<name>.md` - CHALK,
   PLAYHEAD, Git Repo, Cache PYC, the Butler (`butler.md`), Cameo - the same sections for everyone: **Self** (my informal name
   (nickname), my name, my job title, my role, who helps me), **Voice**, **Partner and banter**,
   **The name**. Its prompt looks up the sections in `persona_profiles.sections` (Self, Voice,
@@ -242,11 +242,11 @@ roast around his reply: the `docbs` part puts the frame in front - an opener, a 
 nickname, the equation (A × B) ÷ (C), the plug-in with meme numbers, the ERROR, the hidden multiplier
 ("currently sitting at 69,420"), the corrected formula - each its own thought bubble; his reply (the
 value point, his colour) is the kill shot; `docbs_close` ends it: "The math has spoken. And it's
-...". The frame comes from `gopod_probes/docbs/` - one pool file per beat, shuffled, never repeated
+...". The frame comes from `gopod_probes/topic_clusters/personas/docbs/` - one pool file per beat, shuffled, never repeated
 until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only one short line (the
 equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
 the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
-steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/docbs/DOCBS_LIBRARY.md`
+steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/topic_clusters/personas/docbs/DOCBS_LIBRARY.md`
 is Doc Squawkadoodle's library; its catchphrase bank is in pools (roasts, riddles, insights,
 dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is one **chain**
 (`docbs.chains`): its beats in order before his reply, picked from a shuffled deck, never the same
@@ -254,7 +254,7 @@ chain twice until the deck runs out. The dial sets the length: a chain needs `mi
 short ones (equation roast; roast, riddle, reveal; roast, ratio, riddle) from 0, the chaos calculus
 loop at 50, the full response pipeline at 80, and 11/10 (`docbs.share` 110) with the crew hype and
 the sign-off. `TestDocBSChainsByDial`. **Persona chains (2026-10-30):** the same template for every chat participant
-(`persona_chains`, `gopod_probes/persona_chains/<persona>/`): a persona's answer can be one of its
+(`persona_chains`, `gopod_probes/topic_clusters/personas/persona_chains/<persona>/`): a persona's answer can be one of its
 chains, its pool lines around its reply (the beats before `reply` first, the ones after it close),
 as often as its `share`. The Brobots get it through the answer-chain parts `persona_chain` /
 `persona_chain_close`, the Gomads around their answer. Empty to start: the lines are the
@@ -262,7 +262,7 @@ operator's. DocBS stays Brobot 1's own. `TestPersonaChains`.
 
 **Public GOPOD, the top shelf**: everything 18+ is in the public repo, expletives starred
 (f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and
-gitignored (`zgopod_human_swears.json`, `gopod_probes/docbs/z*.txt`, the zKnobs.json pattern) and used
+gitignored (`zgopod_human_swears.json`, `gopod_probes/topic_clusters/personas/docbs/z*.txt`, the zKnobs.json pattern) and used
 when there. Quotes in comments and setting descriptions are starred too.
 The working lists are starred the same way and still work: a pronunciation entry keeps its
 vowels in order (`"from": "sh*t", "vowels": "i"`), so it matches the word said and the word written
@@ -311,7 +311,7 @@ line. (`gopodEggSummaryPost`; the bubble notice template: `gopodBubbleNotice`, p
 Value points are what GOPOD sells; chapter > topics > value points. A value point is each numbered
 line (`1. ...`) after a topic file's `---`, or - for a topic with none - its whole text as one point.
 Each has an id, `<topic>#<n>` (e.g. `bingo#1`). Their words are locked in
-`gopod_probes/chapters/value_points_golden.json` with a checksum (written the first time Wire-Pod
+`gopod_probes/topic_clusters/chapters/value_points_golden.json` with a checksum (written the first time Wire-Pod
 starts without one). `system-check` flags a point whose words changed, a new point not locked yet,
 and a locked point that's gone. `system-value-points` shows the state, `system-value-points
 <topic>` lists a topic's points, `system-value-points lock` locks changes on purpose
@@ -596,9 +596,9 @@ Wordplay! Explain the MAth!** (the contest, the nine themes, the channel), sourc
 crushn8r.net the network hub, mathaftermath the news channel, foodmath Pinterest content unique in
 a pool of AI slop (the game assumes it's there), personalitymath the made-up example that shows the
 trick - not a real website. Neither chapter is an easter egg (`topic_pictures.not_eggs`). A new
-cluster starts from `gopod_probes/_topic_cluster/`.
+cluster starts from `gopod_probes/topic_clusters/_topic_cluster/`.
 
-**Topic clusters are md files.** Every topic and chapter file is a readable markdown topic-cluster file: the label as its `# heading` (no heading = never named in a reminder), each setting a `- **key:** value` line, a `---` line with a blank line on both sides, then the facts and their numbered value points. A chapter is `chapter.md` (`# title`, `- **summary:**`). One reader and one writer (`gopodTopicHeadKV`, `gopodTopicHeadLine`, `gopod_chapters_folder.go`) serve the game, `system-topic` and every check; `TestTopicClusterFormat` locks every file, the template folder (`gopod_probes/_topic_cluster/`) included.
+**Topic clusters are md files.** Every topic and chapter file is a readable markdown topic-cluster file: the label as its `# heading` (no heading = never named in a reminder), each setting a `- **key:** value` line, a `---` line with a blank line on both sides, then the facts and their numbered value points. A chapter is `chapter.md` (`# title`, `- **summary:**`). One reader and one writer (`gopodTopicHeadKV`, `gopodTopicHeadLine`, `gopod_chapters_folder.go`) serve the game, `system-topic` and every check; `TestTopicClusterFormat` locks every file, the template folder (`gopod_probes/topic_clusters/_topic_cluster/`) included.
 
 **The probe maker.** `system-probers-make` runs a templated chain of how-to-probe thought bubbles for every core value point and writes `gopod_probes/probers_list/probers_made_001.txt` (the probers list's format), to mic-record for the app demo: the topic (the game's order), the point (its notes: {title}, {note}), a shape (`probers_make.shapes` - the ways Ron probes: a scene, a challenge, real talk, walk a real day, nice try, and the wrong greeting - a time-of-day greeting wrong for when it's made (`probers_make.wrong_greeting`), then the probe: clarity through confusion - turn by turn), the fill ({word}: the topic's label when that alone finds it, else its word), the check (the game takes it to that topic and that point; else the next shape) (`gopod_probers_make.go`).
 

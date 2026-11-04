@@ -229,7 +229,7 @@
     "pause_seconds": 3,
     "picture_about": "2026-10-22 (operator: \"pin weather image for later * remove weather image from response for now, too much complexity * keep the 1st weather audio played\"): false - no picture in the reply, only its sound once as the bubble shows, and no pause; true puts the picture back under the weather line (with pause_seconds).",
     "picture": false,
-    "sound_at_about": "2026-11-03 (operator: \"In the template, make the weather audio play upon: ...\" - the weather report's first words): with picture off, the weather sound plays once his piece holding sound_at lights (its words are in the weather template, gopod_probes/clusters/weather_run.md); a bubble without it plays the sound as it shows.",
+    "sound_at_about": "2026-11-03 (operator: \"In the template, make the weather audio play upon: ...\" - the weather report's first words): with picture off, the weather sound plays once his piece holding sound_at lights (its words are in the weather template, gopod_probes/topic_clusters/show/weather_run.md); a bubble without it plays the sound as it shows.",
     "volume_about": "2026-10-14 (operator: \"Weather audio too loud, lol * play @ 10% volume in the background while brobot is speaking * increase weather animation size from 50% to 100%\"): the weather sound's own level (0-1), not a share of chat_audio.volume, like the background loop. The face shows at Vector's own size, 184x96. 2026-10-17 (the master): a percentage of chat_audio.volume now, like every volume knob - 0.1 on its own was 29% of 0.35.",
     "volume": "29%",
     "night_from": 20,

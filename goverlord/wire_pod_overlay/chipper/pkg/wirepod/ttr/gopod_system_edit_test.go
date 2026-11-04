@@ -88,9 +88,9 @@ func TestTopicClusterFormat(t *testing.T) {
 	if gopodTopicHeadLine("label", "BBQs") != "# BBQs" || gopodTopicHeadLine("say 1", "Hi") != "- **say 1:** Hi" {
 		t.Error("the format writer changed")
 	}
-	files, _ := filepath.Glob(filepath.Join(canonicalChaptersDir, "*", "*"))
-	// The template folder too (gopod_probes/_topic_cluster/).
-	tpl, _ := filepath.Glob(filepath.Join(filepath.Dir(canonicalChaptersDir), "_topic_cluster", "*.md"))
+	files, _ := filepath.Glob(filepath.Join(gopodChaptersDir(), "*", "*"))
+	// The template folder too (gopod_probes/topic_clusters/_topic_cluster/).
+	tpl, _ := filepath.Glob(filepath.Join(filepath.Dir(gopodChaptersDir()), "_topic_cluster", "*.md"))
 	for _, f := range tpl {
 		if filepath.Base(f) != "README.md" {
 			files = append(files, f)

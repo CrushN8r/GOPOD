@@ -4,7 +4,7 @@ package wirepod_ttr
 // Topic-clusters for settings (2026-10-31, operator: "What else now, can be
 // topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The
 // Butler's lines * Nicknames"). A cluster is one md file in the master format
-// (gopod_probes/clusters/*.md): "# <title>", its head, "---", then sections. Each
+// (gopod_probes/topic_clusters/show/*.md): "# <title>", its head, "---", then sections. Each
 // section's heading ends with the settings place it fills, in brackets -
 // "## Run lines (session)" - and each point is "key: value":
 //
@@ -27,16 +27,20 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 )
 
 // gopodClustersDefaultFolder: where the clusters live (topic_clusters.folder overrides).
-const gopodClustersDefaultFolder = "gopod_probes/clusters"
+const gopodClustersDefaultFolder = "gopod_probes/topic_clusters"
 
 // gopodClusterPairs: a list of two-field objects a point fills - its fields, left
 // of the first ": " and right of it (the left one a list when it's "queries").
@@ -90,10 +94,111 @@ func gopodClustersFolder(all map[string]json.RawMessage) string {
 	return folder
 }
 
+// gopodTopicRoot (2026-11-04, operator: "make the code search the whole
+// topic_clusters/ tree"): topic_clusters.folder - every topic-cluster file's one folder.
+func gopodTopicRoot() string {
+	f, _ := gopodTopicRootSetting.Load().(string)
+	if f = strings.TrimSpace(f); f == "" {
+		f = gopodClustersDefaultFolder
+	}
+	if !filepath.IsAbs(f) {
+		f = filepath.Join(gopodChipperRoot(), f)
+	}
+	return f
+}
+
+// gopodTopicRootSetting: topic_clusters.folder, kept once the settings are loaded
+// (the chapters are read while they load - the default folder until then).
+var gopodTopicRootSetting atomic.Value
+
+// gopodTopicRootDocsSetting: topic_clusters.root_docs, kept the same way.
+var gopodTopicRootDocsSetting atomic.Value
+
+func init() {
+	gopodTopicRootSetting.Store(gopodBrobotsSettings.TopicClusters.Folder)
+	gopodTopicRootDocsSetting.Store(gopodBrobotsSettings.TopicClusters.RootDocs)
+}
+
+// gopodTopicIndex: every file and folder under topic_clusters/ by name, rebuilt
+// at most every few seconds (files can be moved while Wire-Pod runs).
+var gopodTopicIndex = struct {
+	sync.Mutex
+	at     time.Time
+	root   string
+	byName map[string]string
+}{}
+
+// gopodTopicTreeFind (operator: "a persona found by its file name wherever it sits";
+// "DocBS pools found by folder name"): a file or folder by its name anywhere
+// under topic_clusters/ - the first in path order; "" when there's none. A "_"
+// folder (the template) is found itself, not looked into.
+func gopodTopicTreeFind(name string) string {
+	root := gopodTopicRoot()
+	gopodTopicIndex.Lock()
+	defer gopodTopicIndex.Unlock()
+	if gopodTopicIndex.byName == nil || gopodTopicIndex.root != root || time.Since(gopodTopicIndex.at) > 5*time.Second {
+		idx := map[string]string{}
+		_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+			if err != nil || path == root {
+				return nil
+			}
+			if _, seen := idx[strings.ToLower(d.Name())]; !seen {
+				idx[strings.ToLower(d.Name())] = path
+			}
+			if d.IsDir() && strings.HasPrefix(d.Name(), "_") {
+				return fs.SkipDir
+			}
+			return nil
+		})
+		gopodTopicIndex.byName, gopodTopicIndex.root, gopodTopicIndex.at = idx, root, time.Now()
+	}
+	return gopodTopicIndex.byName[strings.ToLower(strings.TrimSpace(name))]
+}
+
+// gopodTopicPath: a settings path where it is; moved, found by its last name
+// under topic_clusters/; neither, the path as written.
+func gopodTopicPath(rel string) string {
+	p := strings.TrimSpace(rel)
+	if p == "" {
+		return ""
+	}
+	if !filepath.IsAbs(p) {
+		p = filepath.Join(gopodChipperRoot(), p)
+	}
+	if _, err := os.Stat(p); err == nil {
+		return p
+	}
+	if f := gopodTopicTreeFind(filepath.Base(p)); f != "" {
+		return f
+	}
+	return p
+}
+
+// gopodClusterFiles (2026-11-04, operator: "Build clusters/gopod-system/ as the
+// one gopod-system topic clusters source folder"): every cluster md in folder and
+// its sub-folders (clusters/gopod-system/), in path order.
+func gopodClusterFiles(folder string) []string {
+	var files []string
+	_ = filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {
+		// A folder whose name starts with "_" (the _topic_cluster template) isn't read.
+		if err == nil && d.IsDir() && strings.HasPrefix(d.Name(), "_") && path != folder {
+			return fs.SkipDir
+		}
+		if err == nil && !d.IsDir() && strings.HasSuffix(path, ".md") && !strings.EqualFold(d.Name(), "README.md") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	sort.Strings(files)
+	return files
+}
+
+// gopodClusterPathRE: a settings place - "." or a lower-case name, then its parts.
+var gopodClusterPathRE = regexp.MustCompile(`^(\.|[a-z][a-z0-9_]*(\.[^()]+)?)(\[\])?$`)
+
 // gopodClusterSections: every section of every cluster, in file then section order.
 func gopodClusterSections(folder string) []gopodClusterSection {
-	files, _ := filepath.Glob(filepath.Join(folder, "*.md"))
-	sort.Strings(files)
+	files := gopodClusterFiles(folder)
 	var out []gopodClusterSection
 	for _, f := range files {
 		if strings.EqualFold(filepath.Base(f), "README.md") {
@@ -116,6 +221,12 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 				path := ""
 				if open, close := strings.LastIndex(head, "("), strings.LastIndex(head, ")"); open >= 0 && close > open {
 					path = strings.TrimSpace(head[open+1 : close])
+				}
+				// 2026-11-04 (the whole topic_clusters/ tree is read): brackets are a
+				// settings place only when they look like one - "." or a name like
+				// docbs.chains.0 - never ordinary words ("(mandatory order)", a date).
+				if path != "" && !gopodClusterPathRE.MatchString(path) {
+					path = ""
 				}
 				out = append(out, gopodClusterSection{File: filepath.Base(f), Title: head, Path: path})
 				cur = &out[len(out)-1]
@@ -167,7 +278,7 @@ func gopodClusterHolds(dotted string) string {
 		return ""
 	}
 	dotted = strings.Trim(dotted, ".")
-	sections := append(gopodClusterSections(gopodClustersFolder(all)), gopodProfileSettingsSections(all)...)
+	sections := gopodClusterSections(gopodClustersFolder(all))
 	for _, s := range sections {
 		if s.Path == "" {
 			continue
@@ -227,7 +338,10 @@ func gopodClusterPlace(blocks map[string]any, top string, parts []string) (any, 
 	node := blocks[top]
 	set := func(v any) { blocks[top] = v }
 	for i, p := range parts {
-		if n, err := strconv.Atoi(p); err == nil && n >= 0 {
+		// A number is a list's entry - unless the place is already a group, where
+		// it's a key like any other (the numpad's "000" lane).
+		_, inGroup := node.(map[string]any)
+		if n, err := strconv.Atoi(p); err == nil && n >= 0 && !inGroup {
 			list, ok := node.([]any)
 			if node != nil && !ok {
 				return nil, nil, strings.Join(parts[:i], ".") + " isn't a list"
@@ -356,10 +470,10 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 	if json.Unmarshal(data, &all) != nil {
 		return data, nil
 	}
+	// 2026-11-04 (operator: "make the code search the whole topic_clusters/ tree"):
+	// every md under topic_clusters/ - the clusters, the persona files (their
+	// "## My settings (...)" sections) and all - wherever it sits.
 	sections := gopodClusterSections(gopodClustersFolder(all))
-	// 2026-11-03 (operator: "one CHALK file"; step 2): a persona's settings lines
-	// are in his own profile - its sections with a settings place in brackets.
-	sections = append(sections, gopodProfileSettingsSections(all)...)
 	if len(sections) == 0 {
 		return data, nil
 	}
@@ -369,8 +483,9 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 	}
 	blocks := map[string]any{}
 	for _, s := range sections {
+		// A section without a settings place is the file's own (a persona's Self,
+		// a company note) - not a setting.
 		if s.Path == "" {
-			bad(s, "no settings place in brackets")
 			continue
 		}
 		// 2026-11-03 (step 8b): "(.)" is the settings' top level - each point a
@@ -578,6 +693,9 @@ func gopodClustersCheck() ([]string, int) {
 	_ = json.Unmarshal(data, &all)
 	n := 0
 	for _, s := range gopodClusterSections(gopodClustersFolder(all)) {
+		if s.Path == "" {
+			continue // a note section (a persona's Self, a reference doc), not a setting
+		}
 		n += len(s.Points)
 		if len(s.Points) == 0 {
 			problems = append(problems, "cluster "+s.File+" \""+s.Title+"\": no points")
