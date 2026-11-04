@@ -278,6 +278,7 @@ func gopodWordsLeft() (left []string, allowed int) {
 		Allowed  int      `json:"words_left_allowed"`
 		NotStart []string `json:"words_left_not"`
 		NotWords []string `json:"words_left_not_words"`
+		NotPaths []string `json:"words_left_not_paths"`
 	}
 	if raw, err := json.Marshal(all["topic_clusters"]); err == nil {
 		_ = json.Unmarshal(raw, &cfg)
@@ -311,12 +312,16 @@ func gopodWordsLeft() (left []string, allowed int) {
 			}
 			sort.Strings(keys)
 			for _, k := range keys {
-				if k == "about" || k == "why" || strings.HasSuffix(k, "_about") {
+				// A note is no spoken line: about, why, where ("intro_recipe.where"), about_2.
+				if k == "about" || k == "why" || k == "where" || strings.HasSuffix(k, "_about") || strings.HasSuffix(k, "_where") || strings.HasPrefix(k, "about_") {
 					continue
 				}
 				p := k
 				if path != "" {
 					p = path + "." + k
+				}
+				if gopodWordsLeftKept(cfg.NotPaths, p) {
+					continue
 				}
 				walk(p, x[k])
 			}
@@ -332,6 +337,16 @@ func gopodWordsLeft() (left []string, allowed int) {
 	}
 	walk("", all)
 	return left, cfg.Allowed
+}
+
+// gopodWordsLeftKept: path is one the settings keep on purpose (words_left_not_paths), or inside one.
+func gopodWordsLeftKept(kept []string, path string) bool {
+	for _, k := range kept {
+		if path == k || strings.HasPrefix(path, k+".") {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodClustersApply lays the clusters over the merged settings; the problems
@@ -356,6 +371,37 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 	for _, s := range sections {
 		if s.Path == "" {
 			bad(s, "no settings place in brackets")
+			continue
+		}
+		// 2026-11-03 (step 8b): "(.)" is the settings' top level - each point a
+		// top-level text, number or list ("off_topic_note: ...").
+		if s.Path == "." {
+			for _, pt := range s.Points {
+				at := strings.Index(pt, ": ")
+				if at <= 0 {
+					bad(s, "\""+pt+"\" has no \": \"")
+					continue
+				}
+				k, v := strings.TrimSpace(pt[:at]), strings.TrimSpace(pt[at+2:])
+				switch {
+				case len(v) >= 2 && strings.HasPrefix(v, "`") && strings.HasSuffix(v, "`"):
+					blocks[k] = strings.ReplaceAll(v[1:len(v)-1], `\n`, "\n")
+				case strings.Contains(v, " | ") || strings.HasSuffix(v, " |"):
+					var items []any
+					for _, it := range strings.Split(strings.TrimSuffix(v, " |"), " | ") {
+						if it = strings.TrimSpace(it); it != "" {
+							items = append(items, it)
+						}
+					}
+					blocks[k] = items
+				default:
+					if typed, ok := gopodClusterTyped(v); ok {
+						blocks[k] = typed
+					} else {
+						blocks[k] = v
+					}
+				}
+			}
 			continue
 		}
 		// 2026-11-03 (step 7, the format step): "(a.b[])" is a line list, a
@@ -497,6 +543,22 @@ func gopodSettingsFull() ([]byte, error) {
 		return nil, err
 	}
 	return gopodClustersOverlay(data), nil
+}
+
+// gopodSettingsSnapshotFile: the settings Wire-Pod runs on, written at its start
+// (the settings folder with the topic-clusters laid over) - for the song engine
+// (run_golden_song_001.py) and any tool that reads the settings itself, so none
+// of them misses a line that lives in a topic-cluster. Generated, not tracked.
+const gopodSettingsSnapshotFile = "webroot/gopod_settings_full.json"
+
+// It's written at Wire-Pod's start, once the settings are loaded - not in a test run.
+func init() {
+	if strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+	if full, err := gopodSettingsFull(); err == nil {
+		_ = gopodWriteFile(filepath.Join(gopodChipperRoot(), gopodSettingsSnapshotFile), gopodPersonaProfileLabelsJSON(full), 0o644)
+	}
 }
 
 // gopodClustersOverlay: the merged settings with the clusters laid over them.

@@ -8,6 +8,7 @@ chipper/webroot/gopod_chat_feed.json
 chipper/webroot/gopod_speaking_now.json
 chipper/webroot/gopod_llm_warmup.json
 chipper/webroot/gopod_audio_levels.json
+chipper/webroot/gopod_settings_full.json
 chipper/gopod_system_undo.json
 chipper/gopod_page_hidden
 chipper/webroot/gopod_record_session.json

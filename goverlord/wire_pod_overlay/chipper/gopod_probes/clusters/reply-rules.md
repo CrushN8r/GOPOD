@@ -16,3 +16,43 @@
 2. robot: Brobot
 3. AI Wordplay! Explain the Math!: AI Wordplay! Explain the MAth!
 4. Explain the Math!: Explain the MAth!
+
+## Clean politics (clean_politics)
+1. continents: africa | europe | asia | south america | north america | oceania | the middle east
+
+## clean_politics words (clean_politics.words[])
+1. zionist
+2. zionism
+3. hamas
+4. hezbollah
+5. intifada
+6. free palestine
+7. from the river to the sea
+8. genocide
+9. apartheid
+10. occupation
+11. occupied
+12. maga
+13. woke
+14. antifa
+15. trump
+16. biden
+17. kamala
+18. netanyahu
+19. putin
+20. democrat
+21. democrats
+22. republican
+23. republicans
+24. liberals
+25. conservatives
+26. left-wing
+27. right-wing
+28. election
+29. elections
+30. abortion
+31. pro-life
+32. pro-choice
+33. communist
+34. fascist
+35. nazi

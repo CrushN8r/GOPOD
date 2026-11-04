@@ -1,22 +1,15 @@
 {
   "topic_clusters_about": "2026-10-31 (operator: \"What else now, can be topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The Butler's lines * Nicknames\"): settings kept as topic-clusters - md files in the master format in folder (easter_eggs.md, golden_answers.md, butler_lines.md, nicknames.md). Each section names the settings place it fills in brackets, each point is key: value (a list split on \" | \"; a one-item list ends with \" |\"). The clusters are the one source: these settings files no longer hold their values; Wire-Pod lays them over at its start and for the chat page (gopod_topic_clusters.go). system-check names any point that lands nowhere. Edit the md, then wpr.",
   "topic_clusters": {"folder": "gopod_probes/clusters",
-    "words_left_about": "2026-11-03 (step 8 of GOPOD_CLUSTERS_PLAN_002.md; operator: \"the whole GOPOD system can be that, correct?\"): system-check counts the texts still in the settings files (three words or more, a note's about/why aside, not starting with words_left_not, holding none of words_left_not_words). More than words_left_allowed is a problem - lower it as the rest moves into topic-clusters; never raise it.",
-    "words_left_allowed": 135,
+    "words_left_about": "2026-11-03 (step 8 of GOPOD_CLUSTERS_PLAN_002.md; operator: \"the whole GOPOD system can be that, correct?\"): system-check counts the texts still in the settings files (three words or more, a note's about/why aside, not starting with words_left_not, holding none of words_left_not_words). More than words_left_allowed is a problem - lower it as the rest moves into topic-clusters; never raise it. 2026-11-03 (step 8b): 0 - every spoken line is in a topic-cluster.",
+    "words_left_allowed": 0,
     "words_left_not": ["/", "~", "http", "#", "radial-gradient", "linear-gradient", "repeating-"],
-    "words_left_not_words": ["highpass", "lowpass", "overdrive", "echo"]},
+    "words_left_not_words": ["highpass", "lowpass", "overdrive", "echo"],
+    "words_left_not_paths_about": "2026-11-03 (step 8b): kept in the settings on purpose - the clock's layout code, the menu's look and themes (the design: two signatures), and the reporters' lingo (system-lingo edits it in the settings file).",
+    "words_left_not_paths": ["here_now.clock_format", "system_menu.look", "system_menu.themes", "reporter_voices.say_words", "reporter_voices.system_say_words"]},
   "probers_make": {
     "about": "2026-10-29 (operator: \"Look at how I thought to get those probes * set up a templated chain of how-to-probe thought-bubbles * the whole point is to automate anyways * I can always go in after and mic record whatever probes are generated, for the app demo\"): system-probers-make - for every value point, the chain: the topic, the point (its notes: {title}, {note}), a shape (turn by turn), the fill ({word}: the topic's own word, {label}: its label), the check (the game takes it to that topic and that point; else the next shape). shapes: the ways Ron probes - a scene, a challenge, real talk, walk a real day, nice try, the wrong greeting (clarity through confusion). file: where the made probers go (the probers list's format).",
     "file": "gopod_probes/probers_list/probers_made_001.txt",
-    "shapes": [
-      "Hold on. {title}? What's the deal with {word}?",
-      "Someone just walked in. What's {title}, and why should they care about {word}?",
-      "Real talk. {note} - is that true about {word}?",
-      "Walk a real day. Where does {title} fit in with {word}?",
-      "Nice try. And {word}? Tell me about {title}.",
-      "Hey party animal, {word} - what's the deal with {title}?",
-      "{wrong_greeting}, Brobots! What's {title}, and why should they care about {word}?"
-    ],
     "wrong_greeting_about": "2026-10-29 (operator: \"[incorrect time-of-day greeting], [probing GOPOD 'party'] * test the incorrect, clarity through confusion\"): {wrong_greeting} - the greeting wrong for the time the probers are made: made in the morning, the evening's; in the afternoon or evening, the morning's.",
     "wrong_greeting": {"morning": "Good evening", "afternoon": "Good morning", "evening": "Good morning"}
   },
@@ -30,51 +23,7 @@
     "order_margin": 3.0
   },
   "scripted_snippets": {
-    "about": "Flavour lists: exact lines the code says for a Brobot, word for word, stitched to the LLM's reply (operator 2026-10-05: \"scripted snippets to stitch together\"; 2026-10-06: \"the brobots can each build up a flavoured personality from a list of shared and specific party-brobot responses\"). Each entry: when - a topic pack name from gopod_probes/scenario_packs/registry.json, bingo_not_played (a Bingo question while the Bingo-played flag is 0), thanks (a thank-you: chat_hold.thanks_phrases; operator 2026-10-06: \"Brobots as GOPOD reps > scripted snippets (CTA's) / remember to GOPOD Yourself / subscribe to newsletter\"), reply_mentions (the LLM's reply holds one of words), or any (every reply); chance - 0 to 1, how often a matching entry is used (left out = always; operator 2026-10-06: CTA reminders through the chat, \"wanna know more? get CREW'd ... and if you ever feel the urge, just GOPOD Yourself!\"); brobot - \"Brobot 1\" or \"Brobot 2\" for his own line, left out for both; at - \"start\" (after the cue word, the default) or \"end\"; lines - one is picked each time, never the same one twice in a row. Per Brobot, list his own entry before the shared one. The first matching entry wins: at most one start line and one end line per reply. The LLM is not told the lines; if it says one anyway, that copy is dropped. They show in the bubble, are spoken in that Brobot's voice, and are remembered with his reply. when \"reminder\": the \"Hey, that reminds me...\" line the value-point list picks (value_points.reminders).",
-    "lines": [
-      {
-        "when": "thanks",
-        "at": "end",
-        "lines": [
-          "Remember to GOPOD Yourself!",
-          "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
-        ]
-      },
-      {
-        "when": "reply_mentions",
-        "words": [
-          "beer"
-        ],
-        "at": "end",
-        "lines": [
-          "Chocolate Bingo is fun for kids and adult kids too!"
-        ]
-      },
-      {
-        "when": "reply_mentions",
-        "words": [
-          "pizza"
-        ],
-        "at": "end",
-        "lines": [
-          "Chocolate Bingo is fun for kids of all ages!"
-        ]
-      },
-      {
-        "when": "reminder",
-        "at": "end",
-        "why": "2026-10-22 (operator, on the random end lines: \"see my comment about generating answer-chains\" - value points generate the answer chains): no dice - a topic answer always ends steering to the next points."
-      },
-      {
-        "when": "newsletter",
-        "at": "end",
-        "why": "2026-10-22: was any + a 25% chance; now the newsletter topic's own end (value points, not dice).",
-        "lines": [
-          "Wanna know more? Get CREW'd by subscribing to our newsletter!",
-          "And if you ever feel the urge, just GOPOD Yourself!"
-        ]
-      }
-    ]
+    "about": "Flavour lists: exact lines the code says for a Brobot, word for word, stitched to the LLM's reply (operator 2026-10-05: \"scripted snippets to stitch together\"; 2026-10-06: \"the brobots can each build up a flavoured personality from a list of shared and specific party-brobot responses\"). Each entry: when - a topic pack name from gopod_probes/scenario_packs/registry.json, bingo_not_played (a Bingo question while the Bingo-played flag is 0), thanks (a thank-you: chat_hold.thanks_phrases; operator 2026-10-06: \"Brobots as GOPOD reps > scripted snippets (CTA's) / remember to GOPOD Yourself / subscribe to newsletter\"), reply_mentions (the LLM's reply holds one of words), or any (every reply); chance - 0 to 1, how often a matching entry is used (left out = always; operator 2026-10-06: CTA reminders through the chat, \"wanna know more? get CREW'd ... and if you ever feel the urge, just GOPOD Yourself!\"); brobot - \"Brobot 1\" or \"Brobot 2\" for his own line, left out for both; at - \"start\" (after the cue word, the default) or \"end\"; lines - one is picked each time, never the same one twice in a row. Per Brobot, list his own entry before the shared one. The first matching entry wins: at most one start line and one end line per reply. The LLM is not told the lines; if it says one anyway, that copy is dropped. They show in the bubble, are spoken in that Brobot's voice, and are remembered with his reply. when \"reminder\": the \"Hey, that reminds me...\" line the value-point list picks (value_points.reminders)."
   },
   "topic_asks": {
     "about": "2026-10-26 (operator: \"Tell me about yourself = a summary response * Tell me all about yourself = a detailed response * [topic]? = summary response * [more]? = detailed response * so always summarize first\"; \"go for \u201ctell me about\u201d vs \"tell me all about\" * aim for all topics * for notice-bubbles, update/reshape existing value points section into a summary for the summary ask, to ease the llm from summarizing. Summary is in the notice-bubble, just riff on it * as GOPOD evolves, topics will come and go * so as I update the repo, I want the game to match the repo\"; \"Template it out please\"): the topic ask template (gopod_topic_asks.go). A question that loads a topic is a summary ask: the topic file's summary: line shows in the notice bubble (summary_notice) and is the Brobot's only fact (summary_facts) - he riffs on it; no value point is given. A question with one of detail_words is a detail ask: the value points, as before; with no topic named (\"tell me more\") it's about the last topic asked. A topic with no summary: line yet is always a detail ask. A topic's source: line names the repo file it tells; system-check flags it when that file changed after the topic. Wire-Pod restart.",
@@ -88,14 +37,6 @@
   "experience_moves_about": "2026-10-26 (operator: \"what similar lines have been replaced? * recover & add a few more to a list of 5, to randomly choose from * no \u201cHey! ...\u201d * Template this to apply to all song-run pre/post experiences\"): said in the 2nd answer of a line to both, before and after the run, whoever gives it - the closing_remark part, before the reminder; one picked at random each time. {run} = the experience's run_name.",
   "experience_moves_2_about": "2026-10-26 (operator: \"start fresh from: \u201cIf you're watching, tell Goverlord to start\"; then \"Keep your 5 lines\"): every line starts that way.",
   "closing_riff_text_about": "2026-10-27: asks for the riff on an experience's closing_riff (gopodExperienceClosingTurn); {line} = his base line.",
-  "closing_riff_text": "End your answer riffing on this base line, your own words, same joke: {line}",
-  "experience_moves": [
-    "If you're watching, tell Goverlord to start {run}!",
-    "If you're watching, tell Goverlord to start {run}, and see for yourself!",
-    "If you're watching, tell Goverlord to start {run} - we're ready when you are!",
-    "If you're watching, tell Goverlord to start {run}. Go on, we'll wait!",
-    "If you're watching, tell Goverlord to start {run}. You won't regret it!"
-  ],
   "interview_chapters": {
     "about": "The chat as a long interview video, segmented with chapters (operator 2026-10-06: \"think of it like a long interview video on youtube, segmented with chapters ... or a video playlist of topics, then within each segment, ordered value points are revealed\"). Each chapter lists its topic packs (gopod_probes/scenario_packs/registry.json) in the interview's order. When a question's first topic is in a different chapter than the last one shown, the title shows in the chat as its own line (role), before the reply. 2026-10-09 (operator: \"disabled until 'start draft' * disabled again upon draft run complete\"): titles show only while a draft plays, from its first question again each run. The \"Hey, that reminds me...\" end lines (scripted_snippets) lead from topic to topic in this same order. Needs wpr 2.",
     "summary_about": "Drafted 2026-10-07 for the operator to approve or edit (operator: \"per chapter summary of topics ... then like a master summary of chapters, what's being covered in today's run\"). No value points in them. Used by the reminders and by \"what else can we talk about?\"; later, the reporters' opener and breaks between chapters (not built).",
@@ -104,10 +45,6 @@
   },
   "topic_groups_about": "2026-10-22 (operator: \"fractions is another example of catering the answer-chain to a particular value points reveal target * Yes build it\"; \"topics like math group are what I'm looking for\"): a value point from one of a group's topics gets that group's answer chain (answer_chains.<group>). brobots_math: the exact math line (its say line), the worked steps (the model), the rule line (Doc's Rule), the next points, the hand-over in a line to both. New groups: one entry here and one chain.",
   "topic_groups": {
-    "brobots_math": {
-      "topics": ["fractions_and_decimals"],
-      "rule_line": "Doc's Rule: no credit for close."
-    }
   },
   "game": {
     "about": "2026-10-23 (A3; operator: \"session score, yes, game rules * AI wordplay is a game * aim to reveal all value points as the grand prize\"): the game's rules - one line, given to the Brobots in their pre-build context ({game}), next to the session score (value_points.score_text).",
@@ -119,8 +56,7 @@
   "interview_build": {
     "about": "2026-10-23 (FINISH_PLAN_001.md A5): the interview song is built from the game - one chapter per core topic (summary.topic_order), one question and answer per value point; the answer is his notes read as sentences, said by the Brobot the point's golden question is to, with his cue here; the closer stays the song's own. Rebuild after changing points: system-interview-rebuild (undo: system-undo).",
     "cues": {"Brobot 1": "thinking", "Brobot 2": "happy"},
-    "reporters": ["Reporter 1", "Reporter 2"],
-    "default_ask": "Tell us about {topic}."
+    "reporters": ["Reporter 1", "Reporter 2"]
   },
   "topic_pictures": {
     "about": "Pictures in the chat (operator 2026-10-06: \"Pictures in the chat: ~/crushn8r_git/gopod_notes/oct2026/live\"; the Gangster Granny picture isn't a real person). A topic's pictures (files in webroot/folder) show after the reply, once per Wire-Pod start. The copies are web-sized, with the camera data taken out. 2026-10-07 (operator: \"add Chocolate Bingo or Math Aftermath pictures\"): bingo and foodmath_recipes show pages of the Chocolate Bingo kit (songs/01b_brobots_bingo_game/GOPOD CHOCOLATE BINGO DRAFT.pdf: cover, card 1, recipe pack; not the adults-only page), doc_and_pip_workbook pages of the Doc & Pip Math Workbook (gopod_notes DOCS_MATH_AFTERMATH.pdf: cover, Doc's answer key). Needs wpr 2.",
@@ -192,12 +128,6 @@
     "bookends_about": "2026-10-08 (the record cut's script): with bookends_from_draft on, the reporters' opening (at Wire-Pod start) and closing (after Thanks Brobots) come from the newest draft's own opening/closing lines when it has them, instead of reporter_voices.opening/closing. A draft question's before lines by a reporter are said before it; its read_by names its reporter; an answer by the other Brobot is his handoff, said after the answer.",
     "bookends_from_draft": false,
     "start_lines_about": "2026-10-08 (operator: \"apply\", DRAFT_COOL_LINES_001.md): the reporters' handoff into question 1, said after Goverlord's \"Draft run started.\" (lines from the archived interview vamp's m4).",
-    "llm_ready_text_about": "2026-10-12 (operator: \"Upon wpr & all start songs * look at the opener. that's your golden templated example * all songs must have this same golden templated process\"): the interview starts like the opener - the LLM warm-up bubble while start_lines play, then this ready line in Goverlord's voice.",
-    "llm_ready_text": "We here, are Interview Ready",
-    "start_lines": [
-      {"who": "Brobot 4", "text": "Alright. Backstage just gave us the nod— it's that time."},
-      {"who": "Brobot 3", "text": "The whole thing's written. It's ready. It's happening."},
-      {"who": "Brobot 4", "text": "Interview... starts... now."}
-    ]
+    "llm_ready_text_about": "2026-10-12 (operator: \"Upon wpr & all start songs * look at the opener. that's your golden templated example * all songs must have this same golden templated process\"): the interview starts like the opener - the LLM warm-up bubble while start_lines play, then this ready line in Goverlord's voice."
   }
 }

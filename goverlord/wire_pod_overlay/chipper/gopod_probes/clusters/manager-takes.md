@@ -33,3 +33,11 @@
 2. kind: time_place
 3. words: what time | time is it | where are we | wawn | what day is it | what's the date | what is the date | today's date
 4. take_text: I'll help you with that.
+
+## Managers (managers)
+1. qr_display_text: I can help with that. QR code displayed.
+2. qr_note: A QR code for {url} is shown in your bubble - you can tell them to scan the QR code.
+3. time_place_text: {place}, {weekday}, {date}, {clock}.
+4. usb_text: I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.
+5. who_words: who are you | who r u | who is this | your name
+6. wip_text: Bits you're still working on - try one only when the moment fits, never in place of your job: {bits}.

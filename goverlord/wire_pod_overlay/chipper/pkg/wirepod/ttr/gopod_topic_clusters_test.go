@@ -250,10 +250,28 @@ func TestNestedGroupsFromClusters(t *testing.T) {
 // deploy, so a new spoken line goes into a topic-cluster, not the settings.
 func TestWordsLeftOnlyComeDown(t *testing.T) {
 	left, allowed := gopodWordsLeft()
-	if allowed <= 0 {
-		t.Fatal("topic_clusters.words_left_allowed isn't set")
-	}
 	if len(left) > allowed {
 		t.Errorf("%d texts in the settings files, %d allowed - put the new ones in a topic-cluster: %q", len(left), allowed, left)
+	}
+}
+
+// 2026-11-03 (step 8b: the words left moved; none are in the settings files now):
+// "(.)" fills the settings' top level - its lines come back as they were.
+func TestTopLevelFromClusters(t *testing.T) {
+	merged, _ := gopodSettingsFull()
+	var top map[string]any
+	if err := json.Unmarshal(merged, &top); err != nil {
+		t.Fatal(err)
+	}
+	if _, bad := top[""]; bad {
+		t.Error("an empty top-level key")
+	}
+	for _, k := range []string{"off_topic_note", "closing_riff_text", "final_output_check", "live_weather_note"} {
+		if v, _ := top[k].(string); v == "" {
+			t.Errorf("%s not read from brobot-answers.md", k)
+		}
+	}
+	if moves, _ := top["experience_moves"].([]any); len(moves) == 0 {
+		t.Error("experience_moves not read from interview.md")
 	}
 }

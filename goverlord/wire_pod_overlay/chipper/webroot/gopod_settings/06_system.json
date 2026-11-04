@@ -4,8 +4,6 @@
     "url": "http://localhost:8055/search",
     "results": 3,
     "timeout_seconds": 6,
-    "note": "A web search for \"{search}\" (GOPOD's own search) found these. Use only these facts, said simply in your own style:",
-    "none_note": "A web search for \"{search}\" found nothing. Say so, then give a quick take.",
     "line": "{sentence}",
     "results_role_about": "2026-10-17 (operator: \"Don't speak or highlight search results * put a centered rounded-rectangle bubble around the search results * search results font @ 50% size * do a fast character by character reveal * then brobot responses\"): the results show once in their own centered bubble (this role), small text, typed in a character at a time (reveal_ms_per_char, never longer than reveal_max_seconds); the Brobots answer after, never saying them. Empty = the old way (line opens the reply).",
     "results_role": "Search Results",
@@ -55,27 +53,20 @@
   "system_tour_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah\"; \"Yes to: a recorded tour of the system window: every menu item played in order, the way the admin run plays the game, with the restart left out\"): system-tour - Goverlord says the Torah's opening, then each scripture, each commandment and the scripture's next line (torah's words); a commandment on run is run too and its answer shown, the rest only said - the restart, anything that moves a robot, flips a switch, ends the session, takes long (system-test-all, the audit, the replay) or waits for your words. quiet_seconds: the quiet after each line before the next. system-tour again stops it; Record Session keeps it. gopod_system_tour.go.",
   "system_tour": {
     "run": ["system-status", "system-check", "system-set-list", "system-locate-list", "system-version", "system-usb", "system-voices", "system-test-list", "system-test-game", "system-test-admin-run", "system-help"],
-    "quiet_seconds": 2,
-    "start_text": "The Torah tour: {n} scriptures, Goverlord reading - system-tour again stops it.",
-    "end_text": "And so ends the Torah. Now GOPOD Yourself!"
+    "quiet_seconds": 2
   },
   "tour_paragraphs_about": "2026-10-29 (operator: \"Scripture tours >> human friendly easy to read paragraph\" - his Scripture 2 paragraph, word for word): each system window group's tour - plain paragraphs the tour reads (system-tour, one voice a paragraph) and the Torah shows under its scripture.",
   "torah_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah * Goverlord's Torah: In the beginning there was a great restart. * Scripture 1, Restart and check * system-restart, a forced restart, like wpr 2 - speaker and mic set; the page reloads itself (Enter to confirm) ... * All PASS? Go to scripture 2 to play, or 3 to edit.\"; \"Click a commandment to run it, or it waits in the text box for your words (press Enter).\"): the Torah's words - GOPOD_TORAH.md and the system window tour (system-tour) both read them: opening; scripture ({n}, {title} - a group's title without its number); commandment ({cmd}, {about}); next_from / next_to (a group's next line, \"Go to 2\" said \"Go to scripture 2\").",
   "torah": {
-    "opening": "Goverlord's Torah: In the beginning there was a great restart.",
-    "scripture": "Scripture {n}, {title}",
     "commandment": "{cmd}, {about}",
-    "next_from": "Go to ",
-    "next_to": "Go to scripture "
+    "next_from": "Go to "
   },
   "line_queue_about": "2026-10-29 (operator: \"even if a few requests come in together, they still must each get processed until completion before another bubbles starts\"; live 05:13: KP2's line came before Brobot 1's reply, and the replies landed among KP3's bubbles): every question - typed, numpad, a persona's, the comm check's - takes its turn, one at a time, in the order they came. The next starts only when this one is complete: a line on the feed from each one asked (his answer; at most answer_max_seconds, or idle_seconds with nothing new at all), then the page has played it all (at most page_max_seconds). Commands (system-, stop run, thanks, skip, start ...) never wait. on false: every question runs at once, as before. gopod_line_queue.go.",
   "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90},
   "comm_check_about": "2026-10-28 (operator: \"Simulate the whole KPN 1-9 range to record those bubbles as well * same test question, Hey party animal. Who are you and what do you do?\"; \"make the 'who are you?' profile development part of this run as well * like a communication check with all chat participants, before the show starts * at bare minimum, do they all know who they are & each other? * who they are: do they all know the diff between tell me about you & tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about their interns, if I ask any chat participant about any other chat participant > Hey [chat participant], who all else is here with us?\"): system-comm-check plays the rounds in order - each round's text on each of its keys (keys, else the round's own), as if the key were held and the words spoken: the page draws the key's bubbles (hold, recording for record_seconds, transcribing), the line goes where the key goes, live (the model, the voices, the robots), and the next waits for the answer to finish (no new feed line for quiet_seconds and the page caught up; at most line_max_seconds). {name}: the one asked (his call name, or Doc / Pip). The game goes back to 0 after, so the show starts clean. Record Session keeps it all. gopod_comm_check.go.",
   "comm_check": {
     "keys": ["KP0", "KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9", "KPmul"],
-    "rounds": [{"text": "Hey {name}! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!", "keys": ["KP0", "KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9"]}, {"text": "Hey {name}! You party animals! Introduce yourself fully to the chat, name who all else is here in the chat with us & what's the weather like today?", "keys": ["KPmul"]}],
     "rounds_later_about": "2026-10-31 (operator: \"KP TEST WHY THE REDUNDANT QUESTIONS!! * I ASKED FOR HUMAN ENGAGEMENT, NOT A SLOW DEATH!!\"): the comm check asks the operator's tester alone, one line per key; the old rounds are kept here, not asked.",
-    "rounds_later": [{"text": "Tell me about yourself."}, {"text": "Tell me all about yourself."}, {"text": "Hey {name}, who all else is here with us?"}, {"text": "Tell me about your interns.", "keys": ["KP7", "KP8"]}],
     "all_name_about": "2026-11-02 (live: \"Hey All! You party animal!\" - Pip said \"Hey All!\" back): {name} in the line to All.",
     "all_name": "Brobots",
     "quiet_seconds_about": "2026-11-03 (operator: \"there is too much time between exchanges\"; his OK: 6 s -> 2 s): the wait after an answer has ended (made, said, heard) before the next key.",
@@ -113,7 +104,6 @@
     "profiles_file": "~/.gopod_visitors.json",
     "seen_seconds": 30,
     "name_max": 20,
-    "waiting_text": "Waiting for approval",
     "muted_text": "Muted",
     "approved_text_about": "2026-10-24 (operator: \"Upon Approval * text toggles from 'Waiting for approval' to 'Username Approved', then clears & continues like before\"; \"Visitor chat participation OFF * 'Waiting for approval' or 'Username Approved' * is remembered across ON/OFF\"): shown in the visitor's text field when approved (for approved_show_ms, then the field clears), and as the answer to a line sent while participation is OFF.",
     "approved_text": "Username Approved",
@@ -158,9 +148,7 @@
     "look_about": "2026-10-19 (operator: \"Make [menu system- bubble] font size 50% for more room below\"; \"<code>system-restart</code> background contrast is too harsh * darken to make it easier on the eyes * where would I find this setting to edit/set within the menu?\"): the menu's look - system-set system_menu.look.<name> <value>, then F5.",
     "look": {"font_size": "50%", "background": "#15110d", "code_background": "#0d0a07", "code_color": "#e2c16b", "results_background": "#120e0a", "texture": "radial-gradient(ellipse at 30% 20%, rgba(255,240,210,0.05), transparent 60%), repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px), linear-gradient(160deg, #1d1712, #0e0b08)", "border": "3px double #c9a24a", "accent": "#d8b65a", "rule": "rgba(192,196,200,0.35)"},
     "about": "The system menu (operator 2026-10-19: \"New system- commands drop-down-menu system * start from system-restart? * then group & order by semantic relevance * arrange in drop-down-menu bubble * 🔇 opens it * 🔊 closes it * menu system should lead me like a tour guide * like after restart, where do I start? what's next? * how are these commands arranged for me to find what I need fast to make edits?\"). The speaker icon opens it (and the background loop) and closes it. Groups in tour order, one open at a time: title, guide (when to use it), items, next (where to go after). An item with run: true runs on click; the rest go in the text box to finish (fill: the text put there, else cmd and a space). Edit freely - the page reads it at F5.",
-    "copy_about": "2026-10-29 (operator: \"in the results window, can you add a, click to copy results to clipboard button/icon\"): each answer in the system window's results has a copy button - its command and its answer, as plain text. icon: the button; title: its tip; copied: what it says once copied, for copied_ms. all: the copy-all button at the top of the results (operator: \"At the very top ... first add a similar, but 'copy all results' button, before the results\") - every command and answer in the window.",
-    "copy": {"icon": "📋", "title": "Copy this result", "copied": "Copied", "copied_ms": 1500, "all": {"icon": "📋 Copy all results", "title": "Copy every result in this window", "copied": "Copied all", "copied_ms": 1500}},
-    "intro": "Goverlord's Torah: In the beginning there was a great restart. Click a commandment to run it, or it waits in the text box for your words (press Enter)."
+    "copy_about": "2026-10-29 (operator: \"in the results window, can you add a, click to copy results to clipboard button/icon\"): each answer in the system window's results has a copy button - its command and its answer, as plain text. icon: the button; title: its tip; copied: what it says once copied, for copied_ms. all: the copy-all button at the top of the results (operator: \"At the very top ... first add a similar, but 'copy all results' button, before the results\") - every command and answer in the window."
   },
   "system_tests": {
     "about": "system-test-* (operator 2026-10-18: \"build a full set of system-[test-commands] to test individually, like weather offline, etc... * and be able to chain system-[test-commands] into a comprehensive audit/checklist run\"): system-test-list, system-test-<name>, several in a row, or system-test-all - the audit, in this order. Each checks one thing, nothing said or moved; PASS/FAIL with what it saw. gopod_system_tests.go.",

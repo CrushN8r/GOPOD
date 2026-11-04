@@ -42,10 +42,6 @@
     "thinking_text": "Got it!",
     "thinking_moves": ["arm", "nod"],
     "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod) and his words (2026-11-03: his searching pace is the golden note's only, gopod_probes/locks/searching_golden.md). Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
-    "got_it": {
-      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"]},
-      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"]}
-    },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
     "speech_after_animation_seconds_about": "2026-10-24 (operator: \"between spoken segments there's a 0.9s delay * can the run timings be adjusted to fire the next spoken segment 0.5s early?\"): was 0.9 (2026-10-09, playAnimationWI + 0.9s + start speech), now 0.4. Needs wpr 2.",
     "speech_after_animation_seconds": 0.4,
@@ -149,7 +145,6 @@
     "feed_max_about": "2026-10-24 (the root-to-leaf pass, link 2): the chat feed - the one line everything the page shows comes from, numbered - keeps its newest this many lines.",
     "feed_max": 300,
     "second_admin_text_about": "2026-10-29 (operator: \"I should only have one admin page open, correct? * add a check for one admin controller page * visitor pages are multiple\"): shown in a second admin page's text field - it stays a silent viewer; Wire-Pod logs it (GOPOD_PAGE second admin page) and system-status counts the admin pages open.",
-    "second_admin_text": "Another admin page is open - this one only watches. Keep one admin page.",
     "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
     "item_max_ms_about": "2026-10-24 (live: the chat stopped after a reply until F5): a feed line that hasn't handed on after this long is logged (GOPOD_PAGE error stuck ...) and passed. F5.",
     "item_max_ms": 90000,
@@ -270,23 +265,15 @@
       { "words": ["newsletter", "crushn8r.ca/subscribe"], "url": "https://crushn8r.ca/subscribe", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" },
       { "words": ["nightlife", "mississauga"], "url": "https://flare4.com", "image": "qr/flare4_com.png", "title": "flare4.com", "about": "2026-10-18 (operator: \"For 'crushn8r' easter egg in response bubble talking about ron's past, add a QR to flare4.com\"): the Brobot 0 topic's past (\"Ron used to make the nightlife look good on camera ... Mississauga and the GTA\")." }
     ],
-    "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right.",
-    "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
+    "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right."
   },
   "point_bubbles": {
     "about": "2026-10-23 (operator: \"thought bubbles are not reiterating their respective value points * brobots to reiterate their value points brobot party style * I need a templated answer-chain mechanism * either the machine (game-mechanism) f*ck*ng works or it doesn't, regardless of the editable data\"): the answer chain's point_bubbles part - a value point with notes (title | note | note) becomes his thought bubbles, in order: a hype line for its title, then one party line per note. The model is asked for exactly that (prompt: {title} {notes} {count} {numbered}); a line it misses, or one that shares no word with its note, is made from the note (fallback: {title}, {note}, {Note}; hype: a Brobot's own interjection after a made title line). keep_lead_lines: his own lines before the point's (the weather comment) kept first.",
-    "prompt": "Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: a hype line naming {title}; then one line for each - {numbered}. Each line uses its own words from that note, said your way.",
     "fallback": {"title": "{title}!", "note": "{Note}."},
-    "hype": {"Brobot 1": ["NGL, bro!", "Real talk, bro."], "Brobot 2": ["Woo, bro!", "Oh yeah!"]},
     "keep_lead_lines": 1
   },
   "visual_sources": {
-    "about": "GOPOD VISUAL CONTROL - the TPU +/- rotation (operator 2026-10-20: \"Focus on adding the tpu +/- rotation\"; the retired 8011 demo's VISUAL_SOURCE_RING): KP+ next, KP- previous, wrapping; each turn grabs a frame from the source (a Brobot's camera, or the USB webcam's device) and runs the Edge TPU on it. gopod_visual.go.",
-    "ring": [
-      {"id": "doc_robot", "label": "Doc (Brobot 1)", "robot": "Brobot 1"},
-      {"id": "pip_robot", "label": "Pip (Brobot 2)", "robot": "Brobot 2"},
-      {"id": "usb_c920", "label": "Logitech C920", "device": "/dev/video0"}
-    ]
+    "about": "GOPOD VISUAL CONTROL - the TPU +/- rotation (operator 2026-10-20: \"Focus on adding the tpu +/- rotation\"; the retired 8011 demo's VISUAL_SOURCE_RING): KP+ next, KP- previous, wrapping; each turn grabs a frame from the source (a Brobot's camera, or the USB webcam's device) and runs the Edge TPU on it. gopod_visual.go."
   },
   "bubble_sounds_about": "2026-10-25 (operator: \"Operator & Manager Bubbles TEMPLATE!! * add in an inherent play audio by default + mute option * default audio fallback = djent wav * if none found, skip/move on * then set all to mute * does not apply to (music)\"; \"Operator Bubbles TEMPLATE!! * add in an optional error label (stings?) = play grunge instead * if none found, skip/move on\"): each bubble kind's sound when it shows - file (empty = default_file, djent), volume (its share of chat_audio.volume), mute (true = none). error: the Operator bubble's error label (numpad_ptt.error_texts) - played even when muted. A file not found is skipped. \"(music)\" is its own rule (the system sting).",
   "bubble_sounds": {

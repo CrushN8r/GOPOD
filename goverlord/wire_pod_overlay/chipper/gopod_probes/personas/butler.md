@@ -69,3 +69,12 @@
 ## Numpad lines (numpad_ptt.texts)
 1. exit: Goverlord has released the numpad.
 2. wait_message: ⏳ Wait - Goverlord is still giving the mic's message
+
+## host_personas BUTLER (host_personas.BUTLER)
+1. call_name: ``
+2. role: Goverlord's voice: the runs, the system's answers, the session
+3. steps: []
+4. signature: ``
+
+## host_personas BUTLER - handover (host_personas.BUTLER.handover)
+1. line: ``

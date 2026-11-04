@@ -12,10 +12,6 @@
   "gopod_yourself": {
     "about": "The wake phrase in the Brobots layer (operator 2026-10-09: \"GOPOD Yourself > GOPOD layer (isn't built yet) ... tie in to brobot 1 CTA > newsletter ... brobot 2 CTA > crushn8r.ca\"; gopod_yourself.go). A typed, numpad or spoken line that is one of phrases (after \"hey vector\" or a Brobot's name) gets that Brobot's line here; to both Brobots, Brobot 1 then Brobot 2. The GOPOD_YOURSELF voice command hands a spoken one to the chat for both, and the same phrase again within repeat_seconds (the other robot heard it too) is dropped. A question about it (\"what is GOPOD Yourself?\") still goes to the chat. When the GOPOD layer is built, the phrase points there instead.",
     "phrases": ["GOPOD Yourself"],
-    "lines": {
-      "Brobot 1": "Join the CRUSHN8R CREW'd newsletter. You're joining the crew, not a list!",
-      "Brobot 2": "Head to crushn8r.ca, bro!"
-    },
     "repeat_seconds": 10
   },
   "song_stop": {
@@ -34,7 +30,6 @@
   },
   "live_weather_note_about": "Operator 2026-10-10: \"At the start I asked live, about the weather * brobot did not check actual weather (Windsor ON, CA is default fallback location) like in scripted interview\". A live question with the word weather gets the real weather (the same line as the scripted interview's {weather}) after this note.",
   "live_weather_note_about": "2026-11-03 (live: Doc said his own wrong second report - \"a brisk 7\u00b0 Celsius\" - after the real one): was \"... Say it as is:\"; the report is said for him, so he only reacts to it.",
-  "live_weather_note": "The weather report your answer opens with - it is said for you; react to it, never repeat it:",
   "mic_service": {
     "about": "One process owns the Jetson's USB room mic for both Record Session's master and the numpad push-to-talk (the mic can only be opened once). Started by Wire-Pod on first use, as the desktop user. It reuses the golden \"Is That You\" PTT writer's mic pick, timings, 48 kHz / 16 kHz resample and Vosk model (gopod_mic_service_001.py).",
     "script": "gopod_probes/tools/gopod_mic_service_001.py"
@@ -66,21 +61,7 @@
     "usb_host_about": "2026-10-26 (Pass 2, the Gomad intern jobs): who says and shows the USB lines above - Git Repo, the ethical hacker intern, in his voice and bubble. Empty = Goverlord.",
     "usb_host": "GIT REPO",
     "mic_disabled_seconds": 1.2,
-    "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "wait_message", "error", "numlock_off", "not_live"],
-    "texts": {
-      "hold": "🎙 {key} → {brobot}: keep holding…",
-      "recording": "🔴 Recording for {brobot} - talk, then let go",
-      "transcribing": "📝 Got it - transcribing…",
-      "too_short": "Too short - hold {key} for at least {min} s",
-      "nothing_heard": "🤷 Didn't catch that - try again",
-      "mic_disabled": "🎙 Mic disabled - no USB mic",
-      "no_mic": "🎙 No USB mic found - check the mic's plug",
-      "not_ready": "⏳ Not ready yet - wait for LLM Ready",
-      "error": "Push-to-talk failed: {error}",
-      "numlock_off": "NumLock is off - {key} needs NumLock on",
-      "not_live": "{key} is {persona} ({body}) - not live yet",
-      "on": "Numpad is mapped and ready to use."
-    }
+    "error_texts": ["too_short", "nothing_heard", "no_mic", "not_ready", "wait_message", "error", "numlock_off", "not_live"]
   },
   "record_session": {
     "about": "Record Session (operator 2026-10-04, gopod_notes/RECORD_SESSION_SPEC_003.md): the box on the chat window's typed-input line. Ticked: recording starts at the next safe point (no Brobot reply in progress) into sessions_dir/<date>/<time><folder_suffix>/ - the Jetson USB room mic (through mic_service, the golden PTT writer's mic pick, 48 kHz master), every chat line (chat.jsonl), every Wire-Pod log line (wirepod.log), and chat.html at stop. Unticked: stops, zips the folder, keeps the zip, deletes the loose files. \"Thanks Brobots\" while recording, or max_minutes reached: stops, then ask_brobot asks; a typed or spoken line with all keep_words keeps (zip), with all delete_words deletes; no answer in answer_wait_minutes deletes. The answer shows as Operator to answer_to; confirm_brobot says kept_text or deleted_text and the box unticks. A Wire-Pod restart deletes a folder still waiting for an answer and zips one that was cut off mid-recording.",
@@ -100,10 +81,7 @@
     ],
     "answer_to": "Goverlord",
     "ask_brobot": "Goverlord",
-    "ask_text": "Session over. Keep the session recording, or delete the session recording?",
     "confirm_brobot": "Brobot 2",
-    "kept_text": "Session recording kept.",
-    "deleted_text": "Session recording deleted.",
     "take_sheet": "~/gopod_tts/sessions/harvest/take_sheet.json",
     "take_sheet_about": "Keep also adds the session's answers to the take sheet as takes (operator 2026-10-06: \"keep this session take?\"), one per Brobot answer, filed under the value points it was given; delete adds nothing. Empty: no takes."
   },
@@ -903,23 +881,13 @@
     "safe_spot_seconds": 2
   },
   "native_cube": {
-    "about": "Typed and numpad cube commands run the robot's own native cube behavior, as a spoken one does (operator 2026-10-08: \"backpack vocal cube command should respond as native 'cube' command by default\"; gopod_native_cube.go). A line holding one of these phrases is sent to the chosen Brobot as the intent (to All: both); first match wins. Spoken lines are matched by Wire-Pod itself (intent-data/en-US.json), not this list. Needs wpr 2.",
-    "intents": [
-      {"intent": "intent_play_pickupcube", "phrases": ["pick up your cube", "pickup your cube", "lift your cube", "pick up the cube", "lift the cube"]},
-      {"intent": "intent_imperative_fetchcube", "phrases": ["fetch your cube", "fetch the cube", "bring me your cube", "bring me the cube"]},
-      {"intent": "intent_play_rollcube", "phrases": ["roll your cube", "roll the cube"]},
-      {"intent": "intent_play_popawheelie", "phrases": ["pop a wheelie", "do a wheelie"]},
-      {"intent": "intent_play_keepaway", "phrases": ["play keepaway", "play keep away", "keepaway"]},
-      {"intent": "intent_imperative_findcube", "phrases": ["find your cube", "find the cube", "where is your cube", "where's your cube", "where is the cube", "where's the cube"]}
-    ]
+    "about": "Typed and numpad cube commands run the robot's own native cube behavior, as a spoken one does (operator 2026-10-08: \"backpack vocal cube command should respond as native 'cube' command by default\"; gopod_native_cube.go). A line holding one of these phrases is sent to the chosen Brobot as the intent (to All: both); first match wins. Spoken lines are matched by Wire-Pod itself (intent-data/en-US.json), not this list. Needs wpr 2."
   },
   "live_weather": {
     "about": "The live weather a draft answer says where it has {weather} (operator 2026-10-08: the Awaken line, \"a live real-time weather check here ... if online is detected\"; gopod_live_weather.go). Ported from the golden Awaken weather (gopod_weather_fetch_001.py): one OpenWeatherMap fetch with Wire-Pod's own weather key, said with location and date, both units and both clocks, the robot's own first (his RobotSettings: Brobot 1 Celsius/24-hour, Brobot 2 Fahrenheit/12-hour). A fetch is reused for cache_seconds, so Brobot 2 checks the same reading. Offline, offline_text is said in place of {weather} (operator 2026-10-09); left empty, the sentence with {weather} is left out. 2026-10-14: the bubble shows ° (said \"degrees\") and the 24-hour time as military time, four digits: \"1814 Hours Military Time\" (military_label), said \"eighteen fourteen hours military time\"; a named province/state/country picks the place (Windsor Ontario, not Windsor England)",
     "location": "Windsor,ON,CA",
     "cache_seconds": 120,
-    "military_label": "Hours Military Time",
     "follow_up_kit_line_about": "2026-10-15 (operator: \"can you add in brobot 2 follow up, the link to the weather kit web page? * somewhere before the, hey that reminds me...\"): Brobot 2's follow-up to a weather question (All) gets this line after his own words, before his 'Hey, that reminds me...'. The bubble shows the link; he says its words.",
-    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/clusters/weather_run.md (the golden weather run, locked).",
-    "offline_text": "It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!"
+    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/clusters/weather_run.md (the golden weather run, locked)."
   }
 }

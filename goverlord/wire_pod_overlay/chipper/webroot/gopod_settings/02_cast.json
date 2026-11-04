@@ -7,8 +7,7 @@
     "chat_note_about": "2026-10-27 (live: every Gomad's \"tell me all about yourself\" came back as the Brobots' own answer): a Gomad gets the recent chat as one note of other people's lines - chat_note, then each line, a Brobot's answer as chat_answer - never as its own replies."
   },
   "brothers": {
-    "about": "The brothers' awareness of each other (operator 2026-10-03). Before a chat answer, when the other brother's newest Wire-Pod log line is being told to sleep (\"zzz\"), asleep_note is added right before the question. What the Brobots know by topic - who we are, the brothers, party, background, GOPOD - is in the scenario packs (gopod_probes/scenario_packs/registry.json), each loaded only when the question holds one of its trigger words.",
-    "asleep_note": "[Not a question - your brother is asleep right now: he was told to sleep and said \"zzz\". If he comes up, say he's asleep.]"
+    "about": "The brothers' awareness of each other (operator 2026-10-03). Before a chat answer, when the other brother's newest Wire-Pod log line is being told to sleep (\"zzz\"), asleep_note is added right before the question. What the Brobots know by topic - who we are, the brothers, party, background, GOPOD - is in the scenario packs (gopod_probes/scenario_packs/registry.json), each loaded only when the question holds one of its trigger words."
   },
   "addressing": {
     "redirect_text_about": "2026-10-21 (operator: \"when 'All' is selected ... applies to 'starting with brobot 2' * whichever brobot answers first, add a final thought bubble as a redirect to the other brobot, like brobot N, what say you on this, gear brain?\"): the first answer in a line to both ends with this, its own thought; {brother} = the other Brobot. Empty = none.",
@@ -24,30 +23,23 @@
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
     "about": "CHALK and PLAYHEAD, the managers (operator 2026-10-18: \"CHALK & PLAYHEAD can take over system commands * KP1, what's the weather * 'weather' detected * CHALK says, I'll help you with that, and takes over the request * after I can still ask the brobots about the weather and other system results in the chat * they get the same thought bubbles\"; then \"PLAYHEAD * he now takes over 'time & location' stuff * WAWN, where are we now? * weather * his bubble background is tape ribbon color of vintage video tape cassettes\"; \"CHALK (display) now is to take ownership of: search-results box (same smaller size, no audio) * system-status and the other system bubbles * hidden/surprise egg cards\"). takes: in the live chat, a line with one of a take's words - its host (a reporter_voices host, its own colour) says take_text, then does its kind: weather (the weather line; no egg since 2026-10-18) or time_place (time_place_text: {place} {weekday} {date} {clock}). The Brobots still get the facts in their prompt, but don't open their reply with the weather for release_seconds. display_host: CHALK draws the search results, the system bubbles (system-* answers, Wire-Pod intent, numpad status) and the surprise eggs on its chalkboard. gopod_managers.go.",
     "release_seconds": 120,
-    "time_place_text": "{place}, {weekday}, {date}, {clock}.",
     "display_host": "CHALK",
     "handoff_text_about": "2026-10-26 (operator: \"Managers must have at least one cool thing/feature they do, or they're fired, lol * as Gomads, they can offload stuff to the interns * where a Gomad stepped in and said, I can help you with that ... * Gomad can now 'also' say [intern] will help you with that ... & intern takes over\"): a take with via - that Gomad says this ({intern}: the intern's host_personas name), then the intern says take_text and does the job.",
     "usb_text_about": "2026-10-26 (Pass 2, the Gomad intern jobs): Git Repo's usb take - {count} USB devices; {mic} and {numpad} are \"plugged in\" or \"missing\".",
-    "usb_text": "I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.",
     "qr_note_about": "2026-10-18 (operator: \"QR codes are brobot N's bubble * thought bubble * brobot can say refer to QR codes below\"): the Brobot's prompt while PLAYHEAD's QR ({url}) is in his bubble. url_qr (a take): a web address in a line - PLAYHEAD says take_text and shows a QR made for it (webroot/qr/made). A line to Brobot N: the managers' lines go inside his bubble - PLAYHEAD's at the top, before his reply; CHALK's QR codes at the bottom, after it.",
     "qr_display_text_about": "2026-10-18 (operator: \"CHALK BUBBLE === I can help with that. QR code displayed. [live generated QR for url]\"): after the Brobot's answer, CHALK (display_host) says this and shows PLAYHEAD's QR - at the bottom of his bubble for a line to him, in her own bubble otherwise.",
-    "qr_display_text": "I can help with that. QR code displayed.",
-    "qr_note": "A QR code for {url} is shown in your bubble - you can tell them to scan the QR code.",
     "wip_text_about": "2026-10-28 (operator: \"I'd rather it be an existing thought-bubble-WIP, lol, so every persona has a chance to develop themselves without interfering with performance duties * thought-bubble-WIPs can be tested when a situation comes up\"; \"I just made that up now, lol\"): a persona's bits still in the works (personas.<host>.wip), told in its prompt as wip_text ({bits}) - tried only when the moment fits. PLAYHEAD's first: \"Chalkboard of Doom\", his playful banter with CHALK (AAAGGAMER1_GOLD_SIFT_003.md).",
     "answer_num_predict_about": "2026-10-30 (operator: \"let my personas speak!! * remove your safe-guarding * they don't need to respond with 50k paragraphs, but why the cut-off?\"): a persona's answer, at most this many tokens - it was 120, written into the code, and cut Keys mid-sentence; an answer that still runs out ends at its last whole sentence.",
     "answer_num_predict": 400,
-    "wip_text": "Bits you're still working on - try one only when the moment fits, never in place of your job: {bits}.",
     "personas_about": "The reporters' live personas (operator 2026-10-18: \"Shared reporters persona = scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD live chat personas\"; \"KP7/8, Who are you?\" - his words, in each prompt). A voice-only key in the persona map (KP7, KP8) talks to its persona: the operator's line, then the persona's answer from the language model - prompt, then lines_note and its reporter's scripted lines (reporter_voices opening/closing) as the style - said in host's voice, in host's bubble. gopod_personas.go. 2026-10-21: their banter and stereo dial are in host_pairs, their persona shape in host_personas.",
     "who_words_about": "A line to a persona with one of these gets its who_line, word for word (the operator's own words), not the language model's.",
-    "who_words": ["who are you", "who r u", "who is this", "your name"],
     "personas_2_about": "2026-10-26 (operator: \"For the following personas, to add to these as chat new chat particpants: Git Repo (Cozmo), Cache PYC (Cozmo), Intel 404 PNFH (Moorebot Scout), Intel 404 PNFT (Moorebot Scout) * All would be manager bubbles * the cozmo students * the 2 security guards * if a KPN is voice assigned, make it chat ready * add scaffolding personas to start with * KP9 Cameo is the social media Gomad\"): scaffolding personas, CHALK's shape (prompt, who_line), no scripted lines yet (reporter \"\"). Each talks through its numpad key (numpad_persona_map: live) and answers with the language model, in its own voice (reporter_voices.hosts, voice_tweaks).",
     "personas_in_profiles_about": "2026-11-03 (operator: \"one CHALK file\"; step 2 of GOPOD_CLUSTERS_PLAN_002.md): each persona's settings (host, reporter, prompt, lines_note, who_line, wip, voice_of) are in its own profile, gopod_probes/personas/<name>.md, \"## My settings (managers.personas.<HOST>)\"."
   },
   "brobots_setup_about": "2026-10-29 (operator: \"Yes, a single-bot GOPOD path * more realistic on-ramp for most Wire-Pod users * does GOPOD detect a single brobot and still work? * how to handle shared brobots persona? * how to handle 'All' selected? * how to handle scripted runs for 2 brobots?\"; \"Finish 7 (the single-bot setup)\"): at Wire-Pod's start the Brobots are the robots Wire-Pod knows - brobot_1 / brobot_2 (an ESN) when set; else GOPOD's own two when they're there; else Wire-Pod's robots in order. One robot alone is Brobot 1 and GOPOD runs solo: a line to All (typed, the menu, KP0) goes to him alone, Brobot 2's key goes to him, his prompt drops his brother (the cast, the brother banter) and gets solo_note ({solo} in the pre-build context). No robot known: nothing changes. gopod_brobots_setup.go.",
   "brobots_setup": {
     "brobot_1": "",
-    "brobot_2": "",
-    "solo_note": "Today I'm on my own - my brother isn't here, so I answer everything myself."
+    "brobot_2": ""
   },
   "docbs_about": "2026-10-29 (operator: \"Please build it as Doc's answer shape for Explain the Math lines * This is Doc's personality, not just for the livestream Explain the Math lines * This is 100% Doc's brain wiring * This is 100% Doc BS (LMAO! You get it now?) * from brobot 1 > dial > 100% Doc's brain wiring\"; framework from his takes, gopod_notes/DOCBS_EQUATION_ROAST_FRAMEWORK_001.md): Brobot 1's answer, when Doc's share of his stereo dial says so (share: -1 = the Doc & Pip pair's dial, 60 = 60% of his answers; 100 = every one), goes DocBS - the answer chain's docbs part puts the equation roast in front of his reply (opener, lead-in with a nickname, the equation, the plug-in, the error, the hidden multiplier, the corrected formula - each its own thought bubble) and docbs_close ends it (\"The math has spoken. And it's ...\"). His reply - the value point and his colour - is the kill shot in the middle. The frame comes from folder's pool files (one per beat, shuffled, never repeated until the deck runs out; _clean / _18 by the roast dial); gemma fills only slot_prompt's one line (name | acronym | three things | nickname), else fallback. An Explain the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact steps. gopod_docbs.go.",
   "persona_profiles_about": "2026-10-30 (operator: \"Yes, please fatten up all these personas for self & chat awareness * offload to persona profile md files for look ups\"; \"These will be your first workings of a brain bubble template for scaffolding for the other personas\"): one md per persona in folder (gopod_probes/personas/<name>.md, its README), the same sections for everyone - Self (my informal name, my name, my job title, my role, who helps me), Voice, Partner and banter, The name. The sections listed here are looked up for the persona's prompt, each bullet a line, through text ({lines}). Edit a bullet, then wpr 2.",
@@ -59,9 +51,7 @@
   },
   "persona_profiles_labels_about": "2026-10-30 (operator: \"All should branch from single master sources\"; \"make the topic-cluster shape the one master format\"): a persona with a profile has its labels there and only there - its full name (the profile's \"# \" label), nickname and job name; host_personas keeps the rest (its call name, role, hand-over).",
   "persona_profiles": {
-    "folder": "gopod_probes/personas",
-    "sections": ["Self", "Voice", "Partner and banter"],
-    "text": "Your profile, in your own words: {lines}"
+    "folder": "gopod_probes/personas"
   },
   "persona_chains_about": "2026-10-30 (operator: \"also for better brobots (DocBS dial = 0) & other persona thought chaining templated scaffolding?\"; \"Commit, then step 5\"): DocBS's template for every chat participant. A persona's answer can be one of its chains: its beats around the reply - the beats before \"reply\" first, the ones after it close - each a line from its own pool file (folder/<persona>/<pool>_clean.txt, _18.txt, a private z-copy first; \"a|b\": one of them), shuffled, never repeated until the deck runs out. share (0-100): how often its answers are a chain; a chain needs min_share. Empty to start: the lines are the operator's - add a pool file and a chain, and set share. DocBS stays Brobot 1's own: when his answer is DocBS, his persona chain sits out (gopod_persona_chains.go).",
   "persona_chains": {
@@ -106,11 +96,7 @@
   },
   "nicknames_about": "2026-10-25 (operator: \"funny banter between party-bros * taking personal jabs at each other's mechanics * I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"): one list for every opener and hand-over - a random title, a random nickname, never the same nickname twice running.",
   "host_persona_frames": {
-    "about": "2026-10-23 (template sweep): the sentences a host persona is told in ({i} = I or you, {my} = My or Your, per host_pairs voice). name {name}, steps {steps}, signature {signature}, dial {left_pct} {left} {right_pct} {name}.",
-    "name": "As a GOPOD host {i} go by {name}.",
-    "steps": "{my} way through an answer: {steps}.",
-    "signature": "When it fits, {i} say: \"{signature}\"",
-    "dial": "{my} stereo dial: {left_pct}% {left}, {right_pct}% {name}."
+    "about": "2026-10-23 (template sweep): the sentences a host persona is told in ({i} = I or you, {my} = My or Your, per host_pairs voice). name {name}, steps {steps}, signature {signature}, dial {left_pct} {left} {right_pct} {name}."
   },
   "brother_repeat": {
     "about": "2026-10-23 (template sweep): words that carry no meaning of their own - a follow-up sentence made only of these and his brother's words is a repeat, dropped.",
@@ -123,9 +109,7 @@
       {"name": "afternoon", "from": 12, "to": 17},
       {"name": "evening", "from": 17, "to": 22},
       {"name": "night", "from": 22, "to": 5}
-    ],
-    "right_text": "Good {part} to you too!",
-    "wrong_text": "Good {said}? It's {time} here - good {part}!"
+    ]
   },
   "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {title} and {nickname} from nicknames (his own titles/nicknames here when he has them) - 2026-10-25, operator: \"I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
   "host_personas": {
@@ -176,13 +160,6 @@
     "CAMEO": {
       "call_name": "Cameo",
       "role": "",
-      "steps": [],
-      "signature": "",
-      "handover": {"line": ""}
-    },
-    "BUTLER": {
-      "call_name": "",
-      "role": "Goverlord's voice: the runs, the system's answers, the session",
       "steps": [],
       "signature": "",
       "handover": {"line": ""}
