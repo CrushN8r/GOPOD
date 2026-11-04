@@ -2,6 +2,7 @@ package wirepod_ttr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -19,7 +20,9 @@ import (
 // the chipper/ tree, or relocating just one of these files, no longer
 // requires a hand-edit here.
 var canonicalBrobotResponsePromptPath = gopodPathWithEnvOverride("GOPOD_BROBOT_RESPONSE_PROMPT_PATH", "wire-pod_response_prompt.txt")
-var canonicalBrobotIdentityPromptPath = gopodPathWithEnvOverride("GOPOD_BROBOT_IDENTITY_PROMPT_PATH", "wire-pod_brobots_prompt.txt")
+
+// The shared Brobots prompt is clusters/brobots.md now (gopodBrobotsPromptBytes); this names it in the log.
+var canonicalBrobotIdentityPromptPath = "gopod_probes/clusters/brobots.md"
 var canonicalGOPODCorePromptPath = gopodPathWithEnvOverride("GOPOD_CORE_PROMPT_PATH", "gopod_probes/foundation_packs/gopod_core.txt")
 
 // defaultPrompt is derived from system_speech_content.json - see
@@ -928,9 +931,23 @@ func gopodDropWebLinks(text string) string {
 	return regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(out, " ")
 }
 
+// gopodBrobotsPromptBytes (2026-11-04, operator: "The shared Brobots persona * go
+// on its own topic-cluster file"): the shared Brobots prompt - clusters/brobots.md,
+// its blocks joined with a blank line between them (the old prompt file, byte for byte).
+func gopodBrobotsPromptBytes() ([]byte, error) {
+	var blocks []string
+	for _, b := range gopodBrobotsSettings.BrobotsPrompt.Blocks {
+		blocks = append(blocks, strings.Join(b, "\n"))
+	}
+	if len(blocks) == 0 {
+		return nil, errors.New("brobots_prompt has no blocks (gopod_probes/clusters/brobots.md)")
+	}
+	return []byte(strings.Join(blocks, "\n\n") + "\n"), nil
+}
+
 func loadCanonicalBrobotPrompt(userMessage string) (string, int, bool) {
 	responsePromptBytes, responseErr := os.ReadFile(canonicalBrobotResponsePromptPath)
-	identityPromptBytes, identityErr := os.ReadFile(canonicalBrobotIdentityPromptPath)
+	identityPromptBytes, identityErr := gopodBrobotsPromptBytes()
 	corePromptBytes, coreErr := os.ReadFile(canonicalGOPODCorePromptPath)
 	if responseErr == nil && identityErr == nil && coreErr == nil {
 		promptBytes := make([]byte, 0, len(responsePromptBytes)+1+len(identityPromptBytes)+1+len(corePromptBytes))

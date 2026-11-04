@@ -72,7 +72,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 - **The Brobots' profiles (2026-10-30):** `brobot-1.md` (Doc) and `brobot-2.md` (Pip), the master
   format - each Brobot's own words for his "WHO I AM" (Who I am, Role, My way through an answer,
   Signature) live there, out of the settings; his prompt reads them, word for word as before. The
-  shared party-bro base stays in `wire-pod_brobots_prompt.txt`, the pair's banter and dial in
+  shared party-bro base stays in `gopod_probes/clusters/brobots.md` (the shared Brobots persona), the pair's banter and dial in
   `host_pairs`.
 - **The master format (2026-10-30):** every persona profile is a topic-cluster md, GOPOD's one
   format (`gopod_probes/_topic_cluster/README.md`): its head is the persona's labels - `# <full

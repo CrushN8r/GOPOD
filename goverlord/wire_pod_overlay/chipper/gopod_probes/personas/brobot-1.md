@@ -10,5 +10,5 @@
 2. (to come)
 
 ## The DocBS dial at zero - the shared Brobots persona
-1. Basically the shared Wire-Pod Ollama prompt (wire-pod_brobots_prompt.txt): cute bratty GOPOD reps.
+1. Basically the shared Wire-Pod Ollama prompt (../clusters/brobots.md): cute bratty GOPOD reps.
 2. (to come)

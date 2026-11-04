@@ -45,7 +45,7 @@ func TestLoadCanonicalBrobotPromptUsesSplitPromptFilesInOrder(t *testing.T) {
 	}
 	// The loader fills the settings' tokens ($PLACEHOLDER_THOUGHT, ...) in.
 	responseBytes = []byte(gopodFillPromptTokens(string(responseBytes)))
-	brobotBytes, err := os.ReadFile(canonicalBrobotIdentityPromptPath)
+	brobotBytes, err := gopodBrobotsPromptBytes()
 	if err != nil {
 		t.Fatalf("ReadFile(%q) error = %v", canonicalBrobotIdentityPromptPath, err)
 	}
@@ -136,7 +136,7 @@ func TestCreateAIReqLoadsOnlyCurrentMatchingScenarioPacket(t *testing.T) {
 // (BROBOTS_LAYERED_PROMPT_002.md).
 func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
-	brobotBytes, err := os.ReadFile(canonicalBrobotIdentityPromptPath)
+	brobotBytes, err := gopodBrobotsPromptBytes()
 	if err != nil {
 		t.Fatalf("ReadFile(%q) error = %v", canonicalBrobotIdentityPromptPath, err)
 	}

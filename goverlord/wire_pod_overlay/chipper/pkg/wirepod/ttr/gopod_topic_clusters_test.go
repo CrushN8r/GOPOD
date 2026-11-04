@@ -275,3 +275,17 @@ func TestTopLevelFromClusters(t *testing.T) {
 		t.Error("experience_moves not read from interview.md")
 	}
 }
+
+// 2026-11-04 (operator: "The shared Brobots persona * go on its own topic-cluster
+// file"): the shared Brobots prompt is built from clusters/brobots.md, its blocks
+// a blank line apart - the old wire-pod_brobots_prompt.txt, byte for byte.
+func TestBrobotsPromptFromCluster(t *testing.T) {
+	got, err := gopodBrobotsPromptBytes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(got)
+	if !strings.HasPrefix(s, "BRO! BOTS:\n\nWHO WE ARE:\n") || !strings.Contains(s, "\n\nOVERALL:\n\nNow be the best GOPOD Bro! Bot rep ever.") || !strings.HasSuffix(s, "Lol\n") {
+		t.Errorf("the shared Brobots prompt isn't built as it was: %q ... %q", s[:40], s[len(s)-60:])
+	}
+}

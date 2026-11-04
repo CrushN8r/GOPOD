@@ -9,7 +9,7 @@ import (
 
 // Each brother's own persona line, added after "Current robot ESN: ..." in the
 // Wire-Pod chat request. Both keep the shared bratty party-bro traits
-// (wire-pod_brobots_prompt.txt), with a slight twist each - the seeds of the
+// (gopod_probes/clusters/brobots.md), with a slight twist each - the seeds of the
 // GOPOD layer's Doc and Pip. Operator 2026-10-01: "Brobot 1 slightly on the
 // grumpy/impatient side", "Brobot 2 happily gets something a little wrong", and
 // Doc's sarcastic take "at least attempted". "Up to 10" sentences, per the

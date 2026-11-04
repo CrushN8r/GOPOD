@@ -1018,6 +1018,11 @@ type gopodBrobotsSettingsFile struct {
 		Genders      map[string]string `json:"genders"`
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`
+	// 2026-11-04 (operator: "The shared Brobots persona * go on its own
+	// topic-cluster file"): the shared Brobots prompt, block by block (clusters/brobots.md).
+	BrobotsPrompt struct {
+		Blocks [][]string `json:"blocks"`
+	} `json:"brobots_prompt"`
 	BatteryWatch struct {
 		Enabled         bool    `json:"enabled"`
 		IntervalSeconds float64 `json:"interval_seconds"`
