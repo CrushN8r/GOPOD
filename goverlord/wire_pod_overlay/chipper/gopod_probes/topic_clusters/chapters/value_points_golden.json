@@ -25,6 +25,18 @@
    "words": "Maths for anyone who was told they were bad at it - and it all runs locally, no internet needed.",
    "sum": "20ad3caf5f48"
   },
+  "almost_doc_approved#1": {
+   "words": "Doc's award for a near miss: someone does something clever, useful or funny, Doc judges it - \"Almost Doc Approved.\"",
+   "sum": "fc58f3cb37d0"
+  },
+  "almost_doc_approved#2": {
+   "words": "\"You were almost right. That's good enough.\" Not a winner-or-loser call - a playful near miss, so any round can end in a laugh.",
+   "sum": "1dc8a630a387"
+  },
+  "almost_doc_approved#3": {
+   "words": "Planned keepsakes: a sticker, a badge, a certificate, and one day a trophy - none of them made yet.",
+   "sum": "427c2e2ed19d"
+  },
   "background#1": {
    "words": "He didn't give up. He came back, and he built us - two Brobots who actually hear you, think it over, and answer out loud, live, right here.",
    "sum": "974fb3a88acd"
@@ -149,6 +161,18 @@
    "words": "Two lanes: community (trust) and paid - bars and comedy clubs, 18+. The room is adult, the material isn't. Gambling is never raised.",
    "sum": "e6b269689e86"
   },
+  "contest_season#1": {
+   "words": "It's a season, not a one-off stream - like a sports league. A year opener sets the theme, the rules and the prize ladder.",
+   "sum": "59fe06077c7d"
+  },
+  "contest_season#2": {
+   "words": "Every week a livestream challenge: the room sends its explanations, Doc takes them live, the room votes, and the winner gets a small badge or a shout-out.",
+   "sum": "82273c763ee0"
+  },
+  "contest_season#3": {
+   "words": "Every month a best-of recap and the top clips, every quarter the front-runners face off, and the year ends with a championship and a recap.",
+   "sum": "a3ac2a15216c"
+  },
   "doc_and_pip#1": {
    "words": "Doc's full name is Doctrine Barfallonyou Squawkadoodle - \"Doc\" for short, DocBS for shorter: gruff, rapid-fire, sure of himself. Never punches down on people - punches hard at delay theater, committee brain, and fake caution.",
    "sum": "a343a3846c27"
@@ -265,9 +289,33 @@
    "words": "Borrowing a stage: someone with no platform of their own can stand in that light for a minute.",
    "sum": "59d3b563ad6f"
   },
+  "how_a_round_plays#1": {
+   "words": "The room sends Doc its submissions, SuperChat-style - \"Explain my math\", \"Explain this graph\", \"Doc, roast this confusion\".",
+   "sum": "d74a38c059f5"
+  },
+  "how_a_round_plays#2": {
+   "words": "Doc is the host: he takes them live and answers. Pip is his assistant and sidekick, the silent pied piper who leads the room along. Whatever happens live is the show - and the room votes.",
+   "sum": "805b6ab20136"
+  },
+  "how_a_round_plays#3": {
+   "words": "Seven ways to win: funniest, clearest, smartest, most surprising, best analogy, best visual, and best AI collaboration - a human and an AI, together.",
+   "sum": "72b9e6f44964"
+  },
   "how_the_chat_works#1": {
    "words": "How this chat works - say it your way, all local, no cloud:\n- Two Brobots, one conversation: both Brobots share one chat memory and know which brother is which.\n- Call one by name and only he answers; his brother glances and goes back to idle.\n- \"Thinking, please wait\" and a searching animation while the brain thinks; no cold start, the brain stays loaded.\n- A reply is said piece by piece, and the chat window lights the piece being said.\n- Each answer opens with an animation and a small arm move or head nod.\n- Touch a Brobot and he stops at the end of the piece he's on.\n- Brobot 0 can type a question, or hold a numpad key and talk - KP1 and KP2 to us, KP0 to both, and the rest of the cast on the other keys, each with their own voice.\n- Ask about one of our songs before it plays and we tease it; after, we tell it our way.\n- \"Thanks Brobots\" signs off, and a recorded session asks keep or delete.",
    "sum": "3ce022e420e6"
+  },
+  "laugh_first#1": {
+   "words": "Not \"Learn algebra.\" \"Look what happened on tonight's livestream.\"",
+   "sum": "896e99c8567a"
+  },
+  "laugh_first#2": {
+   "words": "Funny, then interesting, then joining in, then learning - and then confidence.",
+   "sum": "dd1940fec903"
+  },
+  "laugh_first#3": {
+   "words": "Low shame: a wrong answer is part of the show, so confusion turns into the next laugh.",
+   "sum": "dc6e4ce5969c"
   },
   "legacy#1": {
    "words": "Teach how to think, not what to think. Content propagates as answers. Process propagates as capacity - fish versus fishing.",
@@ -374,8 +422,8 @@
    "sum": "869142030d5d"
   },
   "printables_and_affiliates#2": {
-   "words": "Print-shop merch from a gig: bingo cards, signs, winner photos and posters, through Mission Promotional Products.",
-   "sum": "188529221152"
+   "words": "Gig merch, ordered locally: bingo cards, signs, winner photos, posters, cakes and balloons - through local bakeries, print shops and party supply stores. In Windsor: The Party Warehouse, Party City, Pretty Little Party Co. and Balloons By Us.",
+   "sum": "3bcbc24ebb1d"
   },
   "printables_and_affiliates#3": {
    "words": "Affiliates: recipe links on foodmath - planned, not live yet.",
@@ -448,6 +496,18 @@
   "what_else#1": {
    "words": "What else can we talk about: you're the GOPOD pros - you know what's left to cover in this interview. Suggest these, in your own words:",
    "sum": "1ac117cff582"
+  },
+  "what_gets_explained#1": {
+   "words": "Not your opinion, not who's right - the math. \"Can you explain why these numbers behave this way?\"",
+   "sum": "f71bdb22b219"
+  },
+  "what_gets_explained#2": {
+   "words": "Headlines, graphs, memes, sports stats, prices, surveys, viral charts - anything with a number that doesn't sit right.",
+   "sum": "b61305aafc54"
+  },
+  "what_gets_explained#3": {
+   "words": "Comedy without cruelty: laugh at bad logic, misleading stats and confusing explanations - never at people.",
+   "sum": "7ee70b3f0ec1"
   },
   "where_we_teach#1": {
    "words": "Classrooms, public libraries, after-school programs, community centres, seniors' residences and day programs, adult literacy and ESL classes.",
