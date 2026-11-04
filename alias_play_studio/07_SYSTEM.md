@@ -284,9 +284,9 @@ chat keyboard: it looks for every file the settings, chapters and songs name, an
 | To... | Do this | Then |
 |---|---|---|
 | **Change a setting** (volume, waits, texts) | `system-set <setting> <value>` on the chat keyboard, or edit `webroot/gopod_settings/` (`system-locate <word>` finds it) | page: F5; Wire-Pod: `wpr 2` |
-| **Add a picture to an egg** | put it in `webroot/pictures/`, add its name to the topic file's `- **pictures:**` line (`gopod_probes/chapters/<chapter>/<topic>.md`) | `wpr 2` |
-| **Add a topic** (new egg words, value points) | a new `NN_name.md` topic-cluster file in its chapter folder, from the template (`gopod_probes/_topic_cluster/`): `# label`, then `- **words:**`, `- **pictures:**` (optional), `- **reminder:**`, `- **say 1:**` ..., then `---` and its reveal text | `wpr 2` |
-| **Add a chapter** (a new egg) | a new folder `NN_name/` in `gopod_probes/chapters/` with `chapter.md` (`# title` = the egg's title, `- **summary:**`) and its topic files; the number sets its order | `wpr 2` |
+| **Add a picture to an egg** | put it in `webroot/pictures/`, add its name to the topic file's `- **pictures:**` line (`gopod_probes/topic_clusters/chapters/<chapter>/<topic>.md`) | `wpr 2` |
+| **Add a topic** (new egg words, value points) | a new `NN_name.md` topic-cluster file in its chapter folder, from the template (`gopod_probes/topic_clusters/_topic_cluster/`): `# label`, then `- **words:**`, `- **pictures:**` (optional), `- **reminder:**`, `- **say 1:**` ..., then `---` and its reveal text | `wpr 2` |
+| **Add a chapter** (a new egg) | a new folder `NN_name/` in `gopod_probes/topic_clusters/chapters/` with `chapter.md` (`# title` = the egg's title, `- **summary:**`) and its topic files; the number sets its order | `wpr 2` |
 | **Change a song line** | its `## STEP` / `> TEXT:` in the song's `story.md`, or `system-set <song> <step> text <words>` | next run |
 | **Add a song step** | a `## STEP <id>` + `> TEXT:` in `story.md` **and** a step with the same `step_id` in `knobs.json` (`system-check` says if one is missing) | next run |
 | **Add a sound** (sting, song sound, soundtrack) | put the `.wav` in `webroot/gopod_reporter_audio/`; name it in the settings (a sting) or a song's `knobs.json` | evened to the loudness rule by itself |

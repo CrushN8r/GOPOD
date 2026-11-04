@@ -99,7 +99,7 @@ opener, rounds, closer.
 | **Closer** | "thanks brobots": the thanks ending - the score, the reporters' closing, the Brobots' sign-off, Record Session's keep-or-delete, "You're welcome." | [6.10](03_SESSION.md#610-the-thanks-ending) |
 | **Reset** | The thanks ending resets the game: score, points said, reminders, eggs found back to 0 | `gopodGameReset` |
 
-The teeth of the game: the chapters, topics and value points (`gopod_probes/chapters/`, locked in
+The teeth of the game: the chapters, topics and value points (`gopod_probes/topic_clusters/chapters/`, locked in
 `value_points_golden.json`), the probers (`probers_list_001.txt`), and the settings blocks
 `lightning`, `value_points`, `topic_pictures`, `game`.
 
