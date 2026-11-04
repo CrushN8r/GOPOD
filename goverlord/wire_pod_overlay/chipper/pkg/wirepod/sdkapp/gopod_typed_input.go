@@ -291,7 +291,8 @@ func gopodPageNoteHandler(w http.ResponseWriter, r *http.Request) {
 // gopodNumpadMapHandler: GET - the golden numpad persona map for the chat page's
 // push-to-talk (wirepod_ttr.GopodNumpadMapJSON).
 func gopodNumpadMapHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := wirepod_ttr.GopodNumpadMapJSON()
+	// 2026-11-04: the page's own keyboard layout (its layout menu), if it names one.
+	data, err := wirepod_ttr.GopodNumpadMapJSONFor(r.FormValue("layout"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -330,6 +331,9 @@ func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {
 	if first := r.FormValue("first"); first != "" {
 		wirepod_ttr.GopodAllFirstPick("", first)
 	}
+	// 2026-11-04 (operator: "assign PC numpad mapping to menu-1 * assign USB-numpad
+	// mapping to menu-2"): the page's keyboard layout comes with every press.
+	wirepod_ttr.GopodNumpadLayoutPick(r.FormValue("layout"))
 	switch r.FormValue("action") {
 	case "start":
 		out = wirepod_ttr.GopodNumpadPTTStart(r.FormValue("key"))

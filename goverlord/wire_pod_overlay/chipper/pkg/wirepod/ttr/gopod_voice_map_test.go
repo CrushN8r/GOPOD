@@ -2,7 +2,6 @@
 package wirepod_ttr
 
 import (
-	"os"
 	"testing"
 )
 
@@ -10,8 +9,9 @@ import (
 // to KP9: KPN-TEMPLATE ... KP7 to KP9, Operator: KPN-TEMPLATE"): robot-bodied
 // keys need no voice; the rest have a persona host and its voice; the Operator last.
 func TestVoiceMapRows(t *testing.T) {
-	if _, err := os.Stat(gopodNumpadMapPath()); err != nil {
-		t.Skip("no golden map on this machine")
+	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
+		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
 	}
 	rows := gopodVoiceRows()
 	if len(rows) != 11 || rows[10].Key != "Operator" {

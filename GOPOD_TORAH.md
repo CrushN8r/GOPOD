@@ -61,6 +61,7 @@ system commands (typed on this keyboard):
   system-version                    Wire-Pod's commit, the newest, what an update touches
   system-native [on|off]            Wire-Pod's own voice answers (was the Native? box)
   system-numpad on|off              the numpad keys as push-to-talk (was the Numpad? box)
+  system-numpad-layout [usb|pc]     the numpad's key layout - USB numpad or PC keyboard (then F5)
   system-set <song> <step> <field> <value>   change one step (volume, text, timing)
   system-set <song> [step]          a song's steps, or one step
   system-set-list                   every setting, song and step field

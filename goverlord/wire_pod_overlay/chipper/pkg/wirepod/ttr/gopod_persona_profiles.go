@@ -32,7 +32,15 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 		folder = filepath.Join(gopodChipperRoot(), folder)
 	}
 	slug := strings.Trim(gopodPersonaChainSlugRE.ReplaceAllString(strings.ToLower(who), "-"), "-")
-	return filepath.Join(folder, slug+".md")
+	// 2026-11-04 (operator: "a persona found by its file name wherever it sits"):
+	// moved, it's found by its name anywhere under topic_clusters/.
+	p := filepath.Join(folder, slug+".md")
+	if _, err := os.Stat(p); err != nil {
+		if f := gopodTopicTreeFind(slug + ".md"); f != "" {
+			return f
+		}
+	}
+	return p
 }
 
 // gopodPersonaProfileRead (2026-10-30, operator: "make the topic-cluster shape the
@@ -41,6 +49,33 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 // "- **nickname:**", "- **job:**", "- **words:**", "- **ask:**" - then "---", then
 // its sections ("## Self", ...), each its points ("1. ...").
 func gopodPersonaProfileRead(path string) (head map[string]string, sections map[string][]string) {
+	head, sections = gopodPersonaProfileReadOne(path)
+	// 2026-11-04 (operator: "Pull all Doc & Pip from brobots md files"; "Doc is
+	// not Brobot 1. Doc is the persona hosted by Brobot 1"): a robot's file names
+	// the persona it hosts ("- **hosts:** doc.md"); the persona's head lines win,
+	// and its sections follow the robot's.
+	if host := strings.TrimSpace(head["hosts"]); host != "" {
+		hosted := filepath.Join(filepath.Dir(path), host)
+		if _, err := os.Stat(hosted); err != nil {
+			if f := gopodTopicTreeFind(host); f != "" {
+				hosted = f
+			}
+		}
+		ph, ps := gopodPersonaProfileReadOne(hosted)
+		for k, v := range ph {
+			if k != "hosts" {
+				head[k] = v
+			}
+		}
+		for k, pts := range ps {
+			sections[k] = append(sections[k], pts...)
+		}
+	}
+	return head, sections
+}
+
+// gopodPersonaProfileReadOne: one profile file's head and sections.
+func gopodPersonaProfileReadOne(path string) (head map[string]string, sections map[string][]string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil

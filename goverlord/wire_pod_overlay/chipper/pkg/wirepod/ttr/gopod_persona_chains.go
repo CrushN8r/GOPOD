@@ -40,9 +40,7 @@ func gopodPersonaChainDir(who string) string {
 		return ""
 	}
 	slug := strings.Trim(gopodPersonaChainSlugRE.ReplaceAllString(strings.ToLower(who), "-"), "-")
-	if !filepath.IsAbs(folder) {
-		folder = filepath.Join(gopodChipperRoot(), folder)
-	}
+	folder = gopodTopicPath(folder) // moved, found by its folder name
 	return filepath.Join(folder, slug)
 }
 

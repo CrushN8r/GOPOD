@@ -2101,7 +2101,14 @@ func TestHeardLineAndFreeCap(t *testing.T) {
 	gopodChatFeed.Unlock()
 	gopodHeardLine(gopodBrobot1ESN, "Brobot 2, good afternoon")
 	gopodChatFeed.Lock()
-	events := append([]gopodChatFeedEvent(nil), gopodChatFeed.events[before:]...)
+	// 2026-11-04 (flaky twice: another test's background voice line,
+	// "generating:off", landed in the window): only the Operator's lines count.
+	var events []gopodChatFeedEvent
+	for _, e := range gopodChatFeed.events[before:] {
+		if e.Who == "Operator" {
+			events = append(events, e)
+		}
+	}
 	gopodChatFeed.Unlock()
 	if len(events) != 1 || events[0].Who != "Operator" || events[0].To != "Brobot 2" || events[0].Via != "Backpack" {
 		t.Errorf("heard line: %+v", events)

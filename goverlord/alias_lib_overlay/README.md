@@ -19,8 +19,8 @@ the alias play studio home (WIRED-POD.md, "Take Out", part 1).
 - **`llm.sh`** — `llm-status`, `llm-models`, `llm-test-*`.
 - **`wirepod_logs.sh`** — `wirepodlogs`, `wirepoddebuglogs`, `wirepodlogsave`.
 - **Python tools** — `phcal_isolate_001.py`, `phcal_apply_001.py`, `robot_pick_001.py`,
-  `tempo_set_001.py`, plus `numpad_persona_map_001.json` (the chat page's numpad keys and
-  who each one talks to) and the example configs.
+  `tempo_set_001.py`, and the example configs. The chat page's numpad keys (who each one
+  talks to) are in the repo now: `gopod_probes/topic_clusters/gopod-system/numpad-mapper.md`.
 - **`wpr` / `wps` / `wpq`** (restart and check Wire-Pod) live in `~/.bash_aliases`, not here.
 
 **Retired:**

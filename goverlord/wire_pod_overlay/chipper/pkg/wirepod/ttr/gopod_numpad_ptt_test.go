@@ -3,21 +3,18 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
 // The live NumLock-on keys of the golden persona map talk to their Brobot; an
 // assigned key does not.
 func TestGopodNumpadBrobot(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "map.json")
-	os.WriteFile(path, []byte(`{"numlock_on": {
+	old := gopodBrobotsSettings
+	// 2026-11-04: a test map in the settings' numpad_map (numpad-mapper.md's place).
+	gopodBrobotsSettings.NumpadMaps = map[string]json.RawMessage{"usb": json.RawMessage(`{"numlock_on": {
 		"KP1": {"persona": "Doc", "body": "Vector 1", "status": "live"},
 		"KP2": {"persona": "Pip", "body": "Vector 2", "status": "live"},
-		"KP3": {"persona": "Git Repo", "body": "Cozmo", "status": "assigned"}}}`), 0o644)
-	old := gopodBrobotsSettings
-	gopodBrobotsSettings.NumpadPTT.MapFile = path
+		"KP3": {"persona": "Git Repo", "body": "Cozmo", "status": "assigned"}}}`)}
 	defer func() { gopodBrobotsSettings = old }()
 	for key, want := range map[string]string{"KP1": gopodBrobot1ESN, "KP2": gopodBrobot2ESN} {
 		if _, esn, err := gopodNumpadBrobot(key); err != nil || esn != want {
@@ -34,8 +31,9 @@ func TestGopodNumpadBrobot(t *testing.T) {
 
 // The real golden map file, as the page will get it.
 func TestGopodNumpadRealMap(t *testing.T) {
-	if _, err := os.Stat(gopodNumpadMapPath()); err != nil {
-		t.Skip("no golden map on this machine")
+	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
+		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
 	}
 	if _, esn, err := gopodNumpadBrobot("KP1"); err != nil || esn != gopodBrobot1ESN {
 		t.Fatalf("KP1 -> %q, %v", esn, err)
@@ -46,8 +44,9 @@ func TestGopodNumpadRealMap(t *testing.T) {
 // everything goes through 1 place"; "if a KPN is voice assigned, make it chat
 // ready"): the page's targets come from gopodNumpadBrobot - every live key one.
 func TestGopodNumpadTargetsOnePlace(t *testing.T) {
-	if _, err := os.Stat(gopodNumpadMapPath()); err != nil {
-		t.Skip("no golden map on this machine")
+	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
+		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
 	}
 	data, err := GopodNumpadMapJSON()
 	if err != nil {
@@ -78,11 +77,8 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 func TestNumpadNumlockOffReporter(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
-	dir := t.TempDir()
-	path := filepath.Join(dir, "map.json")
-	os.WriteFile(path, []byte(`{"numlock_on":{"KP7":{"persona":"CHALK","body":"voice-only","status":"live"}},
-"numlock_off":{"KP7":{"persona":"CHALK","body":"voice-only","suit":"reporter","status":"live"},"KP8":{"persona":"-","body":"-","status":"reserved"}}}`), 0o644)
-	gopodBrobotsSettings.NumpadPTT.MapFile = path
+	gopodBrobotsSettings.NumpadMaps = map[string]json.RawMessage{"usb": json.RawMessage(`{"numlock_on":{"KP7":{"persona":"CHALK","body":"voice-only","status":"live"}},
+"numlock_off":{"KP7":{"persona":"CHALK","body":"voice-only","suit":"reporter","status":"live"},"KP8":{"persona":"-","body":"-","status":"reserved"}}}`)}
 	host := gopodPersonaFor("CHALK")
 	if host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
 		t.Skip("no CHALK persona with a reporter in the settings")

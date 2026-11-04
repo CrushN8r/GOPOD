@@ -36,7 +36,7 @@ func TestLightningMeasure(t *testing.T) {
 		Questions []struct{ Topic, Ask string } `json:"questions"`
 	}
 	json.Unmarshal(qdata, &qs)
-	gdata, _ := os.ReadFile(filepath.Join(root, "gopod_probes/chapters/value_points_golden.json"))
+	gdata, _ := os.ReadFile(filepath.Join(gopodChaptersDir(), "value_points_golden.json"))
 	var golden struct {
 		Points map[string]struct{ Words string } `json:"points"`
 	}

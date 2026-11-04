@@ -60,9 +60,9 @@ the Wire-Pod community comes in. Open lanes, ready for you:
 
 | Build | Start from |
 |---|---|
-| **Your own game** - your chapters, your topics, your scoring | the topic template, [`gopod_probes/_topic_cluster/`](goverlord/wire_pod_overlay/chipper/gopod_probes/_topic_cluster/README.md) |
+| **Your own game** - your chapters, your topics, your scoring | the topic template, [`gopod_probes/topic_clusters/_topic_cluster/`](goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/_topic_cluster/README.md) |
 | **Your own songs and scripted shows** | `goverlord/runtime/songs/_new_song/`, and [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) |
-| **Your own cast** - new personas, new voices | [`gopod_probes/personas/`](goverlord/wire_pod_overlay/chipper/gopod_probes/personas/README.md) |
+| **Your own cast** - new personas, new voices | [`gopod_probes/topic_clusters/personas/`](goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/README.md) |
 | **Bodies for the voice-only cast** - the Cozmo students, the Moorebot Scout guards | not wired yet: wide open |
 | **More robots on stage** - GOPOD casts two Vectors today | [GOPOD_YOURSELF.md, how many robots](GOPOD_YOURSELF.md#how-many-robots) |
 | **Other machines** - a PC, a Pi, a TV box | not tested yet: tell us what works |
@@ -126,6 +126,30 @@ it - is the gift back.
   and the result is a plain script you can edit and replay.
 - **Native Wire-Pod stays stock.** GOPOD changes nine Wire-Pod files through Go's overlay
   build and keeps everything else in its own folder.
+
+<details><summary>Game card: the rest of the cast</summary>
+<!-- gopod topic: 03_future_cast -->
+
+# the rest of the cast
+- **chapter:** Show and tell
+
+- **words:** other robots, more robots, cozmo, cozmos, reporter, reporters, brobot 3, brobot 4, brobot three, brobot four, chalk, playhead, git repo, cache pyc, pnfh, pnft, intel 404, who else is here, who else is coming, six robots, the cast, moorebot, scout, scouts, intern, interns
+- **pictures:** gear/crate_2_display.jpg
+- **reminder:** Hey, that reminds me... There's a whole cast on the numpad.
+- **notes 1:** CHALK and PLAYHEAD | the news crew | KP7 and KP8 | live
+- **notes 2:** the Cozmo students | Git Repo and Cache PYC | KP3 and KP4 | voices now, robot bodies coming
+- **notes 3:** the security guards | Intel 404 PNFH and PNFT, on Moorebot Scouts | KP5 and KP6 | voices now, robot bodies coming
+- **summary:** CHALK and PLAYHEAD: the news crew, live | the Cozmo students Git Repo and Cache PYC: voices now, bodies coming | the guards Intel 404 PNFH and PNFT: voices now, bodies coming
+- **source:** README.md
+
+---
+
+The rest of the cast - each one a voice in the chat, on a numpad key. Reveal these, in order, in your own words:
+1. CHALK BORED and PLAYHEAD ZUMINTU, the news crew - CHALK the display manager on KP7, PLAYHEAD the session manager on KP8 - live in the chat, with the reporters' voices.
+2. The Cozmo students: Git Repo, the ethical hacker in training, and Cache PYC, the meme hustler - KP3 and KP4. Their voices are live now; their Cozmo robot bodies are coming.
+3. The security guards: Intel 404 PNFH and Intel 404 PNFT, two goofy guards on Moorebot Scouts - KP5 and KP6. Voices live now, robot bodies coming. And Cameo, the social media Gomad, is on KP9.
+
+</details>
 
 ## What's new
 

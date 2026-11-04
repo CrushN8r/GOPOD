@@ -237,7 +237,7 @@ func gopodAsksPage() string {
 	var b strings.Builder
 	b.WriteString("# Brobot Asks\n\n")
 	b.WriteString("The basic asks Brobot 1 and Brobot 2 know how to answer - type them in the chat, or hold a numpad key and say them. ")
-	b.WriteString("This page is made from the game's own topics (`goverlord/wire_pod_overlay/chipper/gopod_probes/chapters/`), so it changes when they do.\n\n")
+	b.WriteString("This page is made from the game's own topics - the folded game cards in the repo docs among them - so it changes when they do.\n\n")
 	b.WriteString("## Three ways to ask\n\n")
 	b.WriteString("| Ask | Example | You get |\n|---|---|---|\n")
 	b.WriteString("| A topic on its own, or " + quote(ta.SummaryWords, 1) + " a topic | \"Mobile gear?\" · \"Tell me about the rig\" | The summary, riffed on - it shows in the Brobot's notice bubble. |\n")

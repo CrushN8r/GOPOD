@@ -135,7 +135,8 @@ def align_heard(words, heard):
     for wi, w in enumerate(words):
         n = norm(w["t"])
         if not n:
-            out.append({"t": w["t"], "s": last_end, "e": last_end})
+            # A mark ("," "."): at the end of the word before it (filled below when that word wasn't heard).
+            out.append({"t": w["t"], "s": None if out and out[-1]["s"] is None else last_end, "e": None if out and out[-1]["s"] is None else last_end})
             continue
         hit = None
         for j in range(at, min(at + 4, len(heard))):
@@ -155,14 +156,47 @@ def align_heard(words, heard):
                 if h2 and (h2 == nxt or h2.startswith(nxt) or nxt.startswith(h2)):
                     hit = at
         if hit is None:
-            s = max(float(w["s"]), last_end)
-            e = round(s + max(float(w["e"]) - float(w["s"]), 0.05), 3)
-            out.append({"t": w["t"], "s": round(s, 3), "e": e})
-            last_end = e
+            # Not heard: timed below, between the words around it.
+            out.append({"t": w["t"], "s": None, "e": None, "k": max(float(w["e"]) - float(w["s"]), 0.05)})
             continue
         s, e = round(float(heard[hit]["start"]), 3), round(float(heard[hit]["end"]), 3)
         out.append({"t": w["t"], "s": s, "e": e})
         last_end, at = e, hit + 1
+    return _fill_unheard(out, norm)
+
+
+def _fill_unheard(out, norm):
+    """2026-11-04 (operator: "highlight glitch" on CHALK's and PLAYHEAD's "CREW'd"
+    lines - Vosk didn't catch "CREW'd", it kept Kokoro's own time, 1.5 s late, and
+    the words after it lit back in time): a word Vosk didn't catch - and the marks
+    with it - shares the gap between the heard words around it, in order; with no
+    heard word after it, its own length (Kokoro's) after the last one. Kokoro's
+    clock is never mixed with Vosk's."""
+    i = 0
+    while i < len(out):
+        if out[i]["s"] is not None:
+            i += 1
+            continue
+        j = i
+        while j < len(out) and out[j]["s"] is None:
+            j += 1
+        start = out[i - 1]["e"] if i > 0 else 0.0
+        words = [k for k in range(i, j) if norm(out[k]["t"])]
+        if j < len(out):
+            end = max(start, out[j]["s"])
+        else:
+            end = start + sum(out[k].get("k", 0.05) for k in words)
+        step = (end - start) / len(words) if words else 0
+        at = start
+        for k in range(i, j):
+            if norm(out[k]["t"]):
+                out[k]["s"], out[k]["e"] = round(at, 3), round(at + step, 3)
+                at += step
+            else:
+                out[k]["s"] = out[k]["e"] = round(at, 3)
+        i = j
+    for w in out:
+        w.pop("k", None)
     return out
 
 

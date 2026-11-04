@@ -74,6 +74,31 @@ whole way, in order.
 
 ---
 
+<details><summary>Game card: how this chat works</summary>
+<!-- gopod topic: 01_how_the_chat_works -->
+
+# how this chat works
+- **chapter:** Show and tell
+
+- **words:** how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
+- **reminder:** Hey, that reminds me... Two Brobots, one conversation.
+- **source:** WIRED-POD.md
+
+---
+
+How this chat works - say it your way, all local, no cloud:
+- Two Brobots, one conversation: both Brobots share one chat memory and know which brother is which.
+- Call one by name and only he answers; his brother glances and goes back to idle.
+- "Thinking, please wait" and a searching animation while the brain thinks; no cold start, the brain stays loaded.
+- A reply is said piece by piece, and the chat window lights the piece being said.
+- Each answer opens with an animation and a small arm move or head nod.
+- Touch a Brobot and he stops at the end of the piece he's on.
+- Brobot 0 can type a question, or hold a numpad key and talk - KP1 and KP2 to us, KP0 to both, and the rest of the cast on the other keys, each with their own voice.
+- Ask about one of our songs before it plays and we tease it; after, we tell it our way.
+- "Thanks Brobots" signs off, and a recorded session asks keep or delete.
+
+</details>
+
 ## 2. Stay thin: how GOPOD touches Wire-Pod
 
 `~/wire-pod` stays byte-for-byte upstream (commit `dc6ae0c`). GOPOD reaches it only two ways:
@@ -158,9 +183,9 @@ when).
 
 - **You need:** Part 2's Wire-Pod (the studio drives the robots through its `/api-sdk/*`
   endpoints), Python 3, bash.
-- **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/` - the numpad's key map
-  (`numpad_persona_map_001.json`) too. The songs folder stays in the repo, where the aliases
-  find it.
+- **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/`. The numpad's key map
+  stays in the repo (`gopod_probes/topic_clusters/gopod-system/numpad-mapper.md`), and so does the
+  songs folder, where the aliases find it.
 - **Load:** in `~/.bash_aliases`, source `brobots.sh` (pha0b, phcal, score, gobingo),
   `llm.sh` and `wirepod_logs.sh` from `~/.gopod_alias_lib/`.
 - **Change:** run `goverlord/gopod_paths.sh --apply` first (Part 2), then copy
@@ -212,6 +237,30 @@ The Brobots think with a small local model: no cloud, no monthly bill, no intern
   "Hey Vector, who are you?" gets a Brobot answer.
 
 ---
+
+<details><summary>Game card: our local brain</summary>
+<!-- gopod topic: 02_local_ai -->
+
+# our local brain
+- **chapter:** The brain and the rig
+
+- **words:** cloud, internet, brain, your brain, ai, local, offline, what brain, run on, who built you, who made you, under the hood, wifi, wi-fi, wi fi, no cloud, monthly, monthly bill, bill, plug, plugged in
+- **reminder:** Hey, that reminds me... No cloud, no wifi, no monthly bill.
+- **say 2:** I've worked out of a basement with zero signal and out of the back seat of a moving car.
+- **notes 2:** anywhere | basement, back seat | does not matter
+- **notes 1:** local brain | brobots can party offline | plug in and go
+- **ask:** Tell me about your local brain
+- **summary:** local brain: brobots can party offline, plug in and go | anywhere: basement, back seat, does not matter
+- **source:** WIRED-POD.md
+
+---
+
+Your brain: a local AI running on Brobot 0's own computer, right here in the room - no cloud, no ChatGPT, no subscription, nothing sent away. You run on Wire-Pod, the free community server that brought Vector Brobots back to life after their company's cloud shut down. Rescued Brobots, a home-grown brain: that's the trick.
+If you're asked about no cloud, no wifi or no monthly bill, reveal these, in order, in your own words:
+1. No cloud, no wifi, no monthly bill - just plug me into a wall and I'm already running.
+2. I've worked out of a basement with zero signal and out of the back seat of a moving car. Doesn't matter.
+
+</details>
 
 ## 6. Where this stands
 

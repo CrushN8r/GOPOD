@@ -15,7 +15,7 @@ import (
 // 'chapters' folder of chapters, each chapter folder contains editable topic
 // files ... topic files are to be loaded for the run"):
 //
-//	gopod_probes/chapters/
+//	gopod_probes/topic_clusters/chapters/
 //	  summary.txt                 the whole interview in one line
 //	  _always/01_what_else.md     topics that belong to no chapter
 //	  01_warm_up/chapter.md       "# <title>" and "- **summary:** ..."
@@ -45,13 +45,16 @@ import (
 //	---
 //	The rig: ... Reveal these, in order: 1. ... 2. ...
 //
-// The template: gopod_probes/_topic_cluster/ (README.md, an example chapter and topic).
+// The template: gopod_probes/topic_clusters/_topic_cluster/ (README.md, an example chapter and topic).
 // One reader and one writer for the format (gopodTopicHeadKV, gopodTopicHeadLine):
 // the game, system-topic and every check go through them.
 //
 // The facts are read from the folder each time a question comes in; the rest is
 // read once, when Wire-Pod starts.
-var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/chapters")
+var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/topic_clusters/chapters")
+
+// gopodChaptersDir: the chapters folder - moved, found by its name under topic_clusters/.
+func gopodChaptersDir() string { return gopodTopicPath(canonicalChaptersDir) }
 
 // gopodTopicExt / gopodChapterFile: a topic-cluster file, and a chapter's own file.
 const (
@@ -130,22 +133,17 @@ var gopodTopicNumberPrefix = regexp.MustCompile(`^\d+_`)
 // gopodReadChaptersFolder reads every chapter folder in order, and the topics
 // that belong to no chapter (folders starting with "_", read first).
 func gopodReadChaptersFolder() (chapters []gopodChapterFolder, always []gopodTopicFile, summary string) {
-	if data, err := os.ReadFile(filepath.Join(canonicalChaptersDir, "summary.txt")); err == nil {
+	if data, err := os.ReadFile(filepath.Join(gopodChaptersDir(), "summary.txt")); err == nil {
 		summary = strings.TrimSpace(string(data))
 	}
-	entries, _ := os.ReadDir(canonicalChaptersDir)
+	entries, _ := os.ReadDir(gopodChaptersDir())
 	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
 	for _, e := range entries {
 		if !e.IsDir() {
 			continue
 		}
-		dir := filepath.Join(canonicalChaptersDir, e.Name())
-		topics := gopodReadTopicFiles(dir)
-		if strings.HasPrefix(e.Name(), "_") {
-			always = append(always, topics...)
-			continue
-		}
-		c := gopodChapterFolder{Topics: topics}
+		dir := filepath.Join(gopodChaptersDir(), e.Name())
+		c := gopodChapterFolder{}
 		if data, err := os.ReadFile(filepath.Join(dir, gopodChapterFile)); err == nil {
 			head, _ := gopodSplitTopicFile(string(data))
 			for _, kv := range head {
@@ -157,26 +155,43 @@ func gopodReadChaptersFolder() (chapters []gopodChapterFolder, always []gopodTop
 				}
 			}
 		}
+		c.Topics = gopodReadTopicFiles(dir, c.Title)
+		if strings.HasPrefix(e.Name(), "_") {
+			always = append(always, c.Topics...)
+			continue
+		}
 		chapters = append(chapters, c)
 	}
 	return chapters, always, summary
 }
 
-func gopodReadTopicFiles(dir string) []gopodTopicFile {
+func gopodReadTopicFiles(dir, chapter string) []gopodTopicFile {
 	entries, _ := os.ReadDir(dir)
-	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
-	var out []gopodTopicFile
+	type file struct{ name, path string }
+	var files []file
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), gopodTopicExt) || e.Name() == gopodChapterFile {
 			continue
 		}
-		path := filepath.Join(dir, e.Name())
-		data, err := os.ReadFile(path)
+		files = append(files, file{e.Name(), filepath.Join(dir, e.Name())})
+	}
+	// 2026-11-04: the game cards the root docs hold for this chapter (by its title;
+	// a card naming no chapter is always on), in among its files.
+	for _, c := range gopodTopicDocCardsAll() {
+		if strings.EqualFold(c.Chapter, chapter) {
+			files = append(files, file{c.File, c.Path})
+		}
+	}
+	sort.Slice(files, func(i, j int) bool { return files[i].name < files[j].name })
+	var out []gopodTopicFile
+	for _, e := range files {
+		path := e.path
+		data, err := gopodTopicFileRead(path)
 		if err != nil {
 			continue
 		}
 		t := gopodTopicFile{
-			Name:     gopodTopicNumberPrefix.ReplaceAllString(strings.TrimSuffix(e.Name(), gopodTopicExt), ""),
+			Name:     gopodTopicNumberPrefix.ReplaceAllString(strings.TrimSuffix(e.name, gopodTopicExt), ""),
 			Path:     path,
 			SayLines: map[int]string{},
 			Notes:    map[int]string{},
@@ -228,6 +243,111 @@ func gopodReadTopicFiles(dir string) []gopodTopicFile {
 	return out
 }
 
+// 2026-11-04 (operator: "The root docs are the source"; "Make the md files
+// compatible"; "Start with booking"; "ignore chapters"): a repo-root doc
+// (topic_clusters.root_docs) holds the game's topics as folded game cards -
+// the topic's text, whole, between its mark and </details>; its chapter line
+// names the chapter by title, its mark orders it there:
+//
+//	<details><summary>Game card: booking us</summary>
+//	<!-- gopod topic: 01_booking -->
+//
+//	# booking us
+//	- **chapter:** Booking
+//	...
+//	</details>
+//
+// The game reads it as one of that chapter's topics; its path is "<doc>#<mark>",
+// read and written by gopodTopicFileRead/Write (system-topic edits the doc).
+const gopodTopicDocMark = "<!-- gopod topic: "
+
+type gopodTopicDocCard struct {
+	Chapter, File, Path, Text string
+	From, To                  int // the card's lines: after the mark, up to </details>
+}
+
+func gopodTopicDocCards(doc string) []gopodTopicDocCard {
+	data, err := os.ReadFile(doc)
+	if err != nil {
+		return nil
+	}
+	lines := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
+	var out []gopodTopicDocCard
+	for i, l := range lines {
+		t := strings.TrimSpace(l)
+		if !strings.HasPrefix(t, gopodTopicDocMark) || !strings.HasSuffix(t, "-->") {
+			continue
+		}
+		slot := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(t, gopodTopicDocMark), "-->"))
+		end := i + 1
+		for end < len(lines) && strings.TrimSpace(lines[end]) != "</details>" {
+			end++
+		}
+		c := gopodTopicDocCard{File: slot + gopodTopicExt, Path: doc + "#" + slot,
+			Text: strings.Trim(strings.Join(lines[i+1:end], "\n"), "\n") + "\n", From: i + 1, To: end}
+		head, _ := gopodSplitTopicFile(c.Text)
+		for _, kv := range head {
+			if kv[0] == "chapter" {
+				c.Chapter = kv[1]
+			}
+		}
+		out = append(out, c)
+	}
+	return out
+}
+
+func gopodTopicDocCardsAll() []gopodTopicDocCard {
+	var out []gopodTopicDocCard
+	docs, _ := gopodTopicRootDocsSetting.Load().([]string)
+	for _, d := range docs {
+		out = append(out, gopodTopicDocCards(filepath.Join(gopodRepoRoot(), d))...)
+	}
+	return out
+}
+
+// gopodTopicDocCardAt: the card a "<doc>#<mark>" path names.
+func gopodTopicDocCardAt(path string) (gopodTopicDocCard, bool) {
+	doc, slot, ok := strings.Cut(path, gopodTopicExt+"#")
+	if !ok {
+		return gopodTopicDocCard{}, false
+	}
+	for _, c := range gopodTopicDocCards(doc + gopodTopicExt) {
+		if c.Path == doc+gopodTopicExt+"#"+slot {
+			return c, true
+		}
+	}
+	return gopodTopicDocCard{}, false
+}
+
+// gopodTopicFileRead: a topic file, or a root doc's game card.
+func gopodTopicFileRead(path string) ([]byte, error) {
+	if strings.Contains(path, gopodTopicExt+"#") {
+		c, ok := gopodTopicDocCardAt(path)
+		if !ok {
+			return nil, os.ErrNotExist
+		}
+		return []byte(c.Text), nil
+	}
+	return os.ReadFile(path)
+}
+
+// gopodTopicFileWrite: a topic file, or the game card inside its root doc.
+func gopodTopicFileWrite(path string, data []byte) error {
+	c, ok := gopodTopicDocCardAt(path)
+	if !ok {
+		return gopodWriteFileSafe(path, data)
+	}
+	doc := path[:strings.Index(path, "#")]
+	raw, err := os.ReadFile(doc)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(strings.ReplaceAll(string(raw), "\r\n", "\n"), "\n")
+	card := append([]string{""}, strings.Split(strings.Trim(string(data), "\n"), "\n")...)
+	out := append(append(append([]string{}, lines[:c.From]...), append(card, "")...), lines[c.To:]...)
+	return gopodWriteFileSafe(doc, []byte(strings.Join(out, "\n")))
+}
+
 // gopodSplitTopicFile splits a file into its settings lines (gopodTopicHeadKV) (before a "---"
 // line) and the facts (after it). A file with no "---" is all settings.
 func gopodSplitTopicFile(text string) (head [][2]string, body string) {
@@ -275,7 +395,7 @@ func gopodTopicRegistry() []scenarioPacketEntry {
 
 // gopodReadTopicFacts returns the facts part of a topic file (after "---").
 func gopodReadTopicFacts(path string) ([]byte, error) {
-	data, err := os.ReadFile(path)
+	data, err := gopodTopicFileRead(path)
 	if err != nil {
 		return nil, err
 	}
@@ -287,6 +407,7 @@ func gopodReadTopicFacts(path string) ([]byte, error) {
 // chapters and labels, the pictures, the say-lines and reminders, the sentence
 // budgets, and the topics' scripted lines (ahead of the settings' own lines).
 func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
+	gopodTopicRootDocsSetting.Store(s.TopicClusters.RootDocs) // the game cards, while the settings load
 	chapters, always, summary := gopodReadChaptersFolder()
 	if len(chapters) == 0 && len(always) == 0 {
 		return

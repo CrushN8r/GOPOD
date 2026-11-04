@@ -1350,7 +1350,7 @@ BROBOTS_SETTINGS_DIR = (
 
 # 2026-11-03 (the clusters plan, step 8b): the settings Wire-Pod runs on - the
 # settings folder with the topic-clusters laid over (the warm-up's lines live in
-# gopod_probes/clusters/preshow.md) - written by Wire-Pod at each start.
+# gopod_probes/topic_clusters/show/preshow.md) - written by Wire-Pod at each start.
 BROBOTS_SETTINGS_FULL = BROBOTS_SETTINGS_DIR.parent / "gopod_settings_full.json"
 
 

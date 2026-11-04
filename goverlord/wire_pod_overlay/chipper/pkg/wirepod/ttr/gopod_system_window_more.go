@@ -7,7 +7,7 @@ package wirepod_ttr
 // and the chains within, etc... * most of what I'm asking for is done, just check
 // during your sweep"). The sweep's two missing commandments:
 //   system-record on|off                      Record Session (the page's box, from the keyboard)
-//   system-docbs [<pool> [add|remove <line>]] DocBS's pool files (gopod_probes/docbs): list, show, edit
+//   system-docbs [<pool> [add|remove <line>]] DocBS's pool files (gopod_probes/topic_clusters/personas/docbs): list, show, edit
 
 import (
 	"os"
@@ -34,7 +34,7 @@ var gopodDocBSVowelRE = regexp.MustCompile(`[aeiouAEIOU]`)
 // An _18 pool's line goes uncensored into its private z-copy (when there) and
 // starred into the public file.
 func gopodSystemDocBS(text string) string {
-	dir := filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.DocBS.Folder)
+	dir := gopodTopicPath(gopodBrobotsSettings.DocBS.Folder) // moved, found by its folder name
 	f := strings.Fields(text)
 	if len(f) < 2 {
 		names, _ := filepath.Glob(filepath.Join(dir, "*.txt"))

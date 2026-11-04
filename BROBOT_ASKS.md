@@ -1,6 +1,6 @@
 # Brobot Asks
 
-The basic asks Brobot 1 and Brobot 2 know how to answer - type them in the chat, or hold a numpad key and say them. This page is made from the game's own topics (`goverlord/wire_pod_overlay/chipper/gopod_probes/chapters/`), so it changes when they do.
+The basic asks Brobot 1 and Brobot 2 know how to answer - type them in the chat, or hold a numpad key and say them. This page is made from the game's own topics - the folded game cards in the repo docs among them - so it changes when they do.
 
 ## Three ways to ask
 

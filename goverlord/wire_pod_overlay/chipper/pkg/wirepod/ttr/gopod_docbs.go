@@ -76,7 +76,7 @@ func gopodDocBSPick(pool string) string {
 // store used to handle adult magazines"; the zKnobs.json pattern), else the
 // public one, expletives starred.
 func gopodDocBSFile(name string) string {
-	dir := filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.DocBS.Folder)
+	dir := gopodTopicPath(gopodBrobotsSettings.DocBS.Folder) // moved, found by its folder name
 	if z := filepath.Join(dir, "z"+name+".txt"); gopodFileExists(z) {
 		return z
 	}
