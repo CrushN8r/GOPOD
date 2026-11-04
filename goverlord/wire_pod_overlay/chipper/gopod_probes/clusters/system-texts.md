@@ -200,6 +200,7 @@ topics: {names}
 ## System check (system_text)
 1. system_check.all_good: system-check: all good - {checked} things checked (settings, chapters, songs).
 2. system_check.to_fix: system-check: {problems} to fix ({checked} things checked):
+3. system_check.words_left: {n} texts in the settings files, {allowed} allowed - put the new ones in a topic-cluster: {paths}
 
 ## System status (system_text)
 1. system_status.admin_pages:   admin pages: {n} open - keep one (visitor pages can be many)

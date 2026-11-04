@@ -113,6 +113,10 @@ func gopodSystemCheckProblems() ([]string, int) {
 	// 2026-10-28: the game engine's run cards (gopod_game_engine.go).
 	checked += len(gopodBrobotsSettings.Game.Runs)
 	problems = append(problems, gopodGameRunsCheck()...)
+	// 2026-11-03 (step 8 of the clusters plan): words left in the settings files.
+	if left, allowed := gopodWordsLeft(); len(left) > allowed {
+		problems = append(problems, gopodSystemText("system_check.words_left", "n", strconv.Itoa(len(left)), "allowed", strconv.Itoa(allowed), "paths", strings.Join(left[:min3(len(left), 5)], ", ")))
+	}
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
 	// 1. The settings: every file they name.
@@ -347,6 +351,14 @@ func gopodSystemCheckAtStart() {
 		logger.Println("GOPOD_CHECK " + p)
 	}
 	logger.Println(fmt.Sprintf("GOPOD_CHECK %d things checked, %d to fix", checked, len(problems)))
+}
+
+// min3: the smaller of a and b.
+func min3(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // ## EOF

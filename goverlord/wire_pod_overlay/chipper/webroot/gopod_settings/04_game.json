@@ -1,6 +1,10 @@
 {
   "topic_clusters_about": "2026-10-31 (operator: \"What else now, can be topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The Butler's lines * Nicknames\"): settings kept as topic-clusters - md files in the master format in folder (easter_eggs.md, golden_answers.md, butler_lines.md, nicknames.md). Each section names the settings place it fills in brackets, each point is key: value (a list split on \" | \"; a one-item list ends with \" |\"). The clusters are the one source: these settings files no longer hold their values; Wire-Pod lays them over at its start and for the chat page (gopod_topic_clusters.go). system-check names any point that lands nowhere. Edit the md, then wpr.",
-  "topic_clusters": {"folder": "gopod_probes/clusters"},
+  "topic_clusters": {"folder": "gopod_probes/clusters",
+    "words_left_about": "2026-11-03 (step 8 of GOPOD_CLUSTERS_PLAN_002.md; operator: \"the whole GOPOD system can be that, correct?\"): system-check counts the texts still in the settings files (three words or more, a note's about/why aside, not starting with words_left_not, holding none of words_left_not_words). More than words_left_allowed is a problem - lower it as the rest moves into topic-clusters; never raise it.",
+    "words_left_allowed": 135,
+    "words_left_not": ["/", "~", "http", "#", "radial-gradient", "linear-gradient", "repeating-"],
+    "words_left_not_words": ["highpass", "lowpass", "overdrive", "echo"]},
   "probers_make": {
     "about": "2026-10-29 (operator: \"Look at how I thought to get those probes * set up a templated chain of how-to-probe thought-bubbles * the whole point is to automate anyways * I can always go in after and mic record whatever probes are generated, for the app demo\"): system-probers-make - for every value point, the chain: the topic, the point (its notes: {title}, {note}), a shape (turn by turn), the fill ({word}: the topic's own word, {label}: its label), the check (the game takes it to that topic and that point; else the next shape). shapes: the ways Ron probes - a scene, a challenge, real talk, walk a real day, nice try, the wrong greeting (clarity through confusion). file: where the made probers go (the probers list's format).",
     "file": "gopod_probes/probers_list/probers_made_001.txt",

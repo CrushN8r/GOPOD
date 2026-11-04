@@ -259,6 +259,81 @@ func gopodClusterPlace(blocks map[string]any, top string, parts []string) (any, 
 	return node, set, ""
 }
 
+// gopodWordsLeft (2026-11-03, step 8 of GOPOD_CLUSTERS_PLAN_002.md, operator: "the
+// whole GOPOD system can be that"): the texts still in the settings files, not in
+// a topic-cluster - every text of three words or more (a note's about/why aside),
+// but those topic_clusters.words_left_not starts or words_left_not_words name (a
+// path, a colour, a sound chain). system-check names them; more than
+// topic_clusters.words_left_allowed is a problem, so the number only comes down.
+func gopodWordsLeft() (left []string, allowed int) {
+	data, err := gopodSettingsMerged()
+	if err != nil {
+		return nil, 0
+	}
+	var all map[string]any
+	if json.Unmarshal(data, &all) != nil {
+		return nil, 0
+	}
+	var cfg struct {
+		Allowed  int      `json:"words_left_allowed"`
+		NotStart []string `json:"words_left_not"`
+		NotWords []string `json:"words_left_not_words"`
+	}
+	if raw, err := json.Marshal(all["topic_clusters"]); err == nil {
+		_ = json.Unmarshal(raw, &cfg)
+	}
+	isWords := func(v string) bool {
+		f := strings.Fields(v)
+		if len(f) < 3 || strings.IndexFunc(v, func(r rune) bool { return r >= 'a' && r <= 'z' }) < 0 {
+			return false
+		}
+		for _, p := range cfg.NotStart {
+			if strings.HasPrefix(v, p) {
+				return false
+			}
+		}
+		for _, w := range f {
+			for _, n := range cfg.NotWords {
+				if w == n {
+					return false
+				}
+			}
+		}
+		return true
+	}
+	var walk func(path string, v any)
+	walk = func(path string, v any) {
+		switch x := v.(type) {
+		case map[string]any:
+			keys := make([]string, 0, len(x))
+			for k := range x {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				if k == "about" || k == "why" || strings.HasSuffix(k, "_about") {
+					continue
+				}
+				p := k
+				if path != "" {
+					p = path + "." + k
+				}
+				walk(p, x[k])
+			}
+		case []any:
+			for i, it := range x {
+				walk(path+"."+strconv.Itoa(i), it)
+			}
+		case string:
+			if isWords(x) {
+				left = append(left, path)
+			}
+		}
+	}
+	walk("", all)
+	return left, cfg.Allowed
+}
+
 // gopodClustersApply lays the clusters over the merged settings; the problems
 // are the points that land nowhere.
 func gopodClustersApply(data []byte) ([]byte, []string) {

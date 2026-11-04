@@ -244,3 +244,16 @@ func TestNestedGroupsFromClusters(t *testing.T) {
 		t.Error("DocBS, the roast dial, addressing or the brand words not read from their files")
 	}
 }
+
+// 2026-11-03 (step 8 of the clusters plan): the texts left in the settings
+// files only come down - more than topic_clusters.words_left_allowed fails the
+// deploy, so a new spoken line goes into a topic-cluster, not the settings.
+func TestWordsLeftOnlyComeDown(t *testing.T) {
+	left, allowed := gopodWordsLeft()
+	if allowed <= 0 {
+		t.Fatal("topic_clusters.words_left_allowed isn't set")
+	}
+	if len(left) > allowed {
+		t.Errorf("%d texts in the settings files, %d allowed - put the new ones in a topic-cluster: %q", len(left), allowed, left)
+	}
+}
