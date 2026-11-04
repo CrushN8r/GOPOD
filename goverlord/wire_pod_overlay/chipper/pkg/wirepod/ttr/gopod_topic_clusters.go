@@ -49,6 +49,8 @@ var gopodClusterPairs = map[string][2]string{
 	"sign_off.lines":          {"who", "text"},
 	// 2026-11-03 (step 7): the cast the here-and-now line names, "who: line".
 	"here_now.cast": {"who", "line"},
+	// 2026-11-03 (step 7b): the brand words, "from: to".
+	"reply_tighten.brand_words": {"from", "to"},
 }
 
 // 2026-11-03 (operator: "the whole GOPOD system can be that ... let's do that as
@@ -192,7 +194,7 @@ func gopodClusterHolds(dotted string) string {
 	return ""
 }
 
-// gopodClusterTyped: a bare number, true, false, null or [] (an empty list), as its value.
+// gopodClusterTyped: a bare number, true, false, null, [] (an empty list) or {} (an empty group), as its value.
 func gopodClusterTyped(v string) (any, bool) {
 	switch v {
 	case "true":
@@ -203,6 +205,8 @@ func gopodClusterTyped(v string) (any, bool) {
 		return nil, true
 	case "[]":
 		return []any{}, true // an empty list
+	case "{}":
+		return map[string]any{}, true // an empty group
 	}
 	if !gopodClusterNumberRE.MatchString(v) {
 		return nil, false

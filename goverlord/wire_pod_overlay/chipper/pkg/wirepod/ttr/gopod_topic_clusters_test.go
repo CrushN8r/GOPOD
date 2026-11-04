@@ -215,3 +215,32 @@ func TestClusterFormatNestedAndTyped(t *testing.T) {
 		t.Error("takes or the cast not read from their files")
 	}
 }
+
+// 2026-11-03 (step 7b, the remaining groups): the run cards, the topics' map,
+// DocBS, the roast dial, addressing and the brand words come from their files -
+// an empty list or group ("[]", "{}") stays one.
+func TestNestedGroupsFromClusters(t *testing.T) {
+	merged, _ := gopodSettingsFull()
+	var s struct {
+		Game struct {
+			Runs []map[string]any `json:"runs"`
+		} `json:"game"`
+		ValuePoints struct {
+			Funnels    [][]string          `json:"funnels"`
+			CoreTopics map[string][]string `json:"core_topics"`
+		} `json:"value_points"`
+	}
+	if err := json.Unmarshal(merged, &s); err != nil {
+		t.Fatal(err)
+	}
+	if len(s.Game.Runs) != 4 || len(s.ValuePoints.Funnels) != 3 || len(s.ValuePoints.CoreTopics) == 0 {
+		t.Errorf("runs %d, funnels %d, core topics %d", len(s.Game.Runs), len(s.ValuePoints.Funnels), len(s.ValuePoints.CoreTopics))
+	}
+	if exp, _ := s.Game.Runs[0]["experience"].(map[string]any); exp == nil || exp["takes"] == nil {
+		t.Errorf("an empty group was lost: %v", exp)
+	}
+	bs := gopodBrobotsSettings
+	if len(bs.DocBS.Chains) == 0 || len(bs.RoastDial.Levels) != 4 || len(bs.Addressing.Names["Brobot 1"]) == 0 || len(bs.ReplyTighten.BrandWords) != 4 {
+		t.Error("DocBS, the roast dial, addressing or the brand words not read from their files")
+	}
+}

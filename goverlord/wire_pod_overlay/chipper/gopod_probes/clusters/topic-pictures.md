@@ -20,3 +20,6 @@
 ## Topic pictures: cards (topic_pictures.cards)
 1. roast_battle: `🔥 Roast Battle 🔥\nParty Brobots vs Any and All takers`
 2. halloween: `🎃👻 Happy Halloween 👻🎃\n🦇 Trick or treat, from the Party Brobots 🍬`
+
+## Looked at when asked (topic_pictures.describe_on_ask)
+1. chocolate: chocolate_bingo/chocolate_bingo_kit.jpg | chocolate_bingo/chocolate_bingo_card.jpg

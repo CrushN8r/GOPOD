@@ -222,7 +222,6 @@
     "drop_lists": true,
     "drop_stage_directions": true,
     "brand_words_about": "Branding (operator 2026-10-09: \"every 'robot' possible = 'brobot' ... 'brobot' for branding\"): in the LLM's part of a live reply, each from word becomes its to word (whole words, any case), before the bubble and the speech are made.",
-    "brand_words_about": "Every way the model writes a brand, said and shown one way (any case, whole words). 2026-10-23 (operator: \"Keep exact test string: 'MAth', like Toys R Us * If I say Keep 'MAth' update the template\"): AI Wordplay! Explain the MAth!",
-    "brand_words": [{"from": "robots", "to": "Brobots"}, {"from": "robot", "to": "Brobot"}, {"from": "AI Wordplay! Explain the Math!", "to": "AI Wordplay! Explain the MAth!"}, {"from": "Explain the Math!", "to": "Explain the MAth!"}]
+    "brand_words_about": "Every way the model writes a brand, said and shown one way (any case, whole words). 2026-10-23 (operator: \"Keep exact test string: 'MAth', like Toys R Us * If I say Keep 'MAth' update the template\"): AI Wordplay! Explain the MAth!"
   }
 }

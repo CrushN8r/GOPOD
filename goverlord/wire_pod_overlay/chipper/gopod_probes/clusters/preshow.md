@@ -2,7 +2,7 @@
 - **words:** pre-show, opening, closing, warm-up, sign-off, reporters
 - **ask:** What do the reporters say before the show and after it?
 - **chain:** Goverlord - the system's own lines: the reporters' bookends, the warm-up, the sign-off, the session
-- **see also:** butler_lines (the run lines), personas/butler.md, system-texts, chat-page-words
+- **see also:** personas/butler.md (his lines and the run lines), system-texts, chat-page-words
 - **about:** 2026-11-03 (step 5 of GOPOD_CLUSTERS_PLAN_002.md): from 05_voices_and_robots.json reporter_voices and sign_off, 01_brain.json llm and 06_system.json session. Each opening, closing and sign-off point is "who: line", in order. A value in backticks is that text exactly ( is empty: nothing said). The voices, timings and switches stay in the settings.
 ---
 

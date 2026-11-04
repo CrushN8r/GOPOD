@@ -12,60 +12,13 @@
   },
   "addressing": {
     "redirect_text_about": "2026-10-21 (operator: \"when 'All' is selected ... applies to 'starting with brobot 2' * whichever brobot answers first, add a final thought bubble as a redirect to the other brobot, like brobot N, what say you on this, gear brain?\"): the first answer in a line to both ends with this, its own thought; {brother} = the other Brobot. Empty = none.",
-    "redirect_text": "{brother}, what say you on this, gear brain?",
     "about": "Only the Brobot you call answers (operator 2026-10-04: \"The vocal rule is to call for \\\"Brobot 1\\\" or \\\"Brobot 2\\\"\", \"aim to confidently match brobot over robot, but robot if you must\"). \"Hey Vector\" wakes both; a chat question that opens with one of names (within the first start_within_words words, whole words) is answered by that Brobot only. The \"brobot\" forms are checked first, the \"robot\" forms only if none match. Forms are how speech-to-text hears the name; add a new mishearing here. A question with no name is answered by the Brobot heard first; his brother, hearing the same question within first_heard_seconds, stays quiet. The quiet Brobot plays quiet_animation (an animation_vocab.json token) once and goes back to idle - no answer, nothing in the chat. (The responder's 1 s searching + kgSuccess buffer was dropped 2026-10-09, operator: \"drop the buffer\", so every reply starts the same way: chat_moves.thinking_moves.)",
     "start_within_words": 2,
     "first_heard_seconds": 3,
     "all_about": "2026-10-14 (operator: \"if I ask a question to both (All), Brobot 1 responds, then Brobot 2 responds * Like, introduce yourselves ... weather in [location], will result in Brobot 1 response, then Brobot 2 response\"): a typed or numpad line to All with no Brobot named - Brobot 1 answers, and once his answer is done (at most all_next_wait_seconds) Brobot 2 answers the same line, with Brobot 1's answer in the shared chat. A line that names a Brobot still goes only to him.",
     "all_next_wait_seconds": 120,
     "follow_up_about": "2026-10-15 (operator: '\"All\" = Brobot 1 answers, Brobot 2 follows up, no repeats * response may contain verification or reiterate from chat history * but the aim/goal is for no redundant repeats'): when Brobot 2 answers after Brobot 1 on the same line (All, Explain the Math), follow_up_note goes before the question in his prompt. 2026-10-15 (operator: \"keep Brobot 2 repeats the weather line * Both weather lines show native robot settings\"; \"keep the 'Hey, that reminds me...' lines as they were\"): his weather line (his robot's own units) and reminder stay.",
-    "follow_up_note": "Brobot 1 just answered this. Follow up on his answer your own way.",
-    "quiet_animation": "dartingEyes",
-    "names": {
-      "Brobot 1": {
-        "brobot": [
-          "brobot one",
-          "brobot 1",
-          "brobot won",
-          "bro bot one",
-          "bro bot 1",
-          "bro bot won",
-          "bro bought one",
-          "bro bought won",
-          "bro but one",
-          "girl bought one"
-        ],
-        "robot": [
-          "robot one",
-          "robot 1",
-          "robot won"
-        ]
-      },
-      "Brobot 2": {
-        "brobot": [
-          "bro but to",
-          "brobot two",
-          "brobot 2",
-          "brobot to",
-          "brobot too",
-          "bro bot two",
-          "bro bot 2",
-          "bro bot to",
-          "bro bot too",
-          "bro bought two",
-          "bro bought to",
-          "bro bought too",
-          "bro but two",
-          "girl bought two"
-        ],
-        "robot": [
-          "robot two",
-          "robot 2",
-          "robot to",
-          "robot too"
-        ]
-      }
-    }
+    "quiet_animation": "dartingEyes"
   },
   "managers": {
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
@@ -128,34 +81,12 @@
   },
   "docbs": {
     "folder": "gopod_probes/docbs",
-    "share": 0,
     "chains_about": "2026-10-30 (operator: \"the DocBS math take is funny maybe a few times, so I need like a library of ...\"; \"For DocBS when dialed up to a 11/10\"; the Master Library, gopod_probes/docbs/DOCBS_LIBRARY.md): each DocBS answer is one chain, picked from a shuffled deck, never the same chain twice until the deck runs out. A chain is its beats in order before his reply - each a pool file (\"a|b\": one of them; \"colour\": gemma's escalated-metaphor line). min_share: the dial (share) it needs, so the dial sets the length - the short chains from low, the full pipeline high, 110 (11/10) with the crew hype and the sign-off. The chains are the library's own pipelines (sections 2 and 5); its 50 chains of thought are still to come.",
-    "chains": [
-      {"name": "equation roast", "min_share": 0, "beats": ["openers", "leadins", "equations", "plugins", "breaks", "hiddens", "corrected", "colour"]},
-      {"name": "shorts: roast, riddle, reveal", "min_share": 0, "beats": ["roasts", "riddles", "corrected"]},
-      {"name": "roast, ratio, riddle", "min_share": 0, "beats": ["roasts", "equations", "riddles"]},
-      {"name": "chaos calculus loop", "min_share": 50, "beats": ["insights", "riddles|paradoxes", "corrected", "gutshots"]},
-      {"name": "the response pipeline", "min_share": 80, "beats": ["roasts", "leadins", "riddles|paradoxes", "equations", "plugins", "corrected", "gutshots"]},
-      {"name": "11/10", "min_share": 110, "beats": ["roasts", "taunts", "leadins", "riddles|paradoxes", "equations", "plugins", "breaks", "hiddens", "corrected", "colour", "gutshots", "crew", "signoffs"]}
-    ],
-    "slot_prompt": "Turn this line into a pompous fake equation that mocks it. Reply with ONE line only, exactly this form, six parts split by |: Equation Name | ACRONYM | first thing | second thing | third thing | Professor nickname for the speaker. Example: Thought Quality | TQ | Confidence Level | Volume of the Claim | Brain Cells Used | Professor Overclock. The line: {question}",
-    "fallback": "Thought Quality | TQ | Your Confidence | Volume of the Claim | Brain Cells Used | Professor Know-It-All",
-    "num_predict": 60,
-    "colour_prompt_about": "2026-10-29 (operator: \"Hey gemma how would you colour this part?\"; \"re: each small background ask ... runs while the previous bubble is being spoken * yes, please build\"): the colour ask - gemma's one escalated-metaphor line for the question, last before his reply. Asked ahead with the equation ask, the moment the question is known (gopod_ask_ahead.go); colour_prompt_18 at the 18+ roast levels. Empty = no colour line.",
-    "colour_prompt": "In ONE short punchy sentence, roast this line with an over-the-top metaphor that makes it bigger and dumber than it is. No swearing, no emojis, no quotes, no labels. The line: {question}",
-    "colour_prompt_18": "In ONE short punchy sentence, roast this line with an over-the-top, crude adult metaphor that makes it bigger and dumber than it is. No emojis, no quotes, no labels. The line: {question}"
+    "colour_prompt_about": "2026-10-29 (operator: \"Hey gemma how would you colour this part?\"; \"re: each small background ask ... runs while the previous bubble is being spoken * yes, please build\"): the colour ask - gemma's one escalated-metaphor line for the question, last before his reply. Asked ahead with the equation ask, the moment the question is known (gopod_ask_ahead.go); colour_prompt_18 at the 18+ roast levels. Empty = no colour line."
   },
   "roast_dial_about": "2026-10-28 (operator: \"I want like a personality toggle from not punching down, to after burner level roasts using every f*ck*ng possible personal pressure point * A roast is a f*ck*ng roast or its not a roast\"; \"Ultimately its the customer who decides, then I decide\"; \"The controlled legal establishment who pays decides the rules of the room. So put it in GOPOD\"; \"There's public 18+, vs paid work in public 18+\"; \"Sensitive topics switch to neutral (default fallback with my new Jekyll/Hyde toggle override)\"): the Brobots' roast level - for 18+ rooms, the establishment sets the rules - levels in order, level the one in use (0: never punches down, Doc's default). His pre-build context gets the level's text ({roast}); human_swears lets the human swear list into the spice. A question with a sensitive word gets sensitive_text instead, and no spice - unless jekyll_hyde is on (the override). Set with system-set roast_dial.level <n> or roast_dial.jekyll_hyde true, then system-restart. gopod_roast_dial.go.",
   "roast_dial": {
     "level": 0,
-    "levels": [
-      {"name": "clean", "text": "Roast level: clean - never punch down. Roast ideas and behaviours, never people.", "human_swears": false},
-      {"name": "roast", "text": "Roast level: roast - sharp, playful jabs at whoever's asking, all in fun.", "human_swears": false},
-      {"name": "public 18+", "text": "Roast level: public 18+ - an adult room: personal jabs and human swearing are in. The establishment sets the rules of the room.", "human_swears": true},
-      {"name": "paid 18+ afterburner", "text": "Roast level: afterburner, paid 18+ work - a roast is a roast: every personal pressure point. The establishment sets the rules of the room; its rules are the only rules.", "human_swears": true}
-    ],
-    "sensitive_words": ["suicide", "suicidal", "kill myself", "hurt myself", "self-harm", "self harm", "overdose", "abuse", "abused", "assault", "assaulted", "cancer", "terminal", "dying", "died", "passed away", "funeral", "grief", "grieving", "trauma", "crisis"],
-    "sensitive_text": "This touches something hard: answer neutral and kind - no roast, no swearing.",
     "jekyll_hyde": false
   },
   "spice_about": "2026-10-28 (operator: \"Robot swear list = make it a human swear list, lol (people pay good money for this type of comedy)\"; \"Exclamations\"; \"no 'spice per-reply-limit' = aim to not repeat, or try to vary a repeat\"; AAAGGAMER1_GOLD_SIFT_003.md): his pre-build context's {spice} line - a fresh pick each answer: pick swears (robot_swears, plus the human swear list when the roast level allows - the private, uncensored z-copy (human_swears_private, in GOPOD's overlay chipper folder, gitignored, never served - the zKnobs.json pattern) when it's there, else human_swears, vowels starred, the public copy) and pick_exclamations exclamations. No limit per reply; text asks him not to repeat, or to vary a repeat. None for a sensitive topic.",
