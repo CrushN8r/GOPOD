@@ -107,7 +107,14 @@ func gopodIntroOpeningWith(who string, withWhy bool) string {
 			part += strings.ReplaceAll(ir.WhyPart, "{why}", why)
 		}
 	}
-	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(ir.Opening, "{name}", name), "{nickname_part}", part))
+	out := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(ir.Opening, "{name}", name), "{nickname_part}", part))
+	// 2026-11-04 (Git Repo's why ends "... 'Git yer butt in gear!!'"): the
+	// opening's own full stop is dropped when the why already ends its sentence,
+	// a closing quote aside - "!!'" not "!!'.".
+	if body := strings.TrimRight(strings.TrimSuffix(out, "."), "'\"’”"); strings.HasSuffix(out, ".") && body != strings.TrimSuffix(out, ".") && strings.ContainsAny(body[len(body)-1:], ".!?") {
+		out = strings.TrimSuffix(out, ".")
+	}
+	return out
 }
 
 // gopodIntroCastLine: intro_recipe.cast_line with everyone else here.

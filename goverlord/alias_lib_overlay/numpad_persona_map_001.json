@@ -8,12 +8,29 @@
       "status": "live"
     },
     "KP0": {
-      "action": "Guest-mic chat participant (2nd operator / invited guest)",
+      "action": "the Butler (press/hold) - see numlock_on.KP0; 3 quick taps still exit",
       "gesture": "press/hold",
-      "status": "decided_not_built"
+      "status": "live",
+      "_was": "Guest-mic chat participant (2nd operator / invited guest), decided_not_built"
+    },
+    "*": {
+      "action": "All Brobots - push-to-talk, in the order the All menu picks",
+      "gesture": "press/hold",
+      "status": "live"
+    },
+    "/": {
+      "action": "Skip (what * did until 2026-10-30)",
+      "gesture": "tap",
+      "status": "live"
     }
   },
   "numlock_on": {
+    "KP0": {
+      "persona": "Butler",
+      "body": "voice-only",
+      "status": "live",
+      "_note": "2026-10-30 (operator: \"KP0 hold -> Butlix (3 taps still exit)\"; renamed: \"Yes everywhere: KEYNOTE VALE (nickname \"Keys\")\"): the Butler - persona ID BUTLER (his job name); his name and nickname are host_personas.BUTLER. Press and hold; he speaks with the butler's voice (managers.personas.BUTLER.voice_of)"
+    },
     "KP1": {
       "persona": "Doc",
       "body": "Vector 1",
@@ -61,7 +78,7 @@
       "_note": "2026-10-18: live - PLAYHEAD ZUMINTU, Reporter 2's voice (managers.personas)"
     },
     "KP9": {
-      "persona": "Cameo",
+      "persona": "CAMEO",
       "body": "voice-only",
       "status": "live",
       "_note": "2026-10-26: live - Cameo, a voice-assigned chat persona (managers.personas, reporter_voices.hosts); operator: \"if a KPN is voice assigned, make it chat ready\""
@@ -69,14 +86,18 @@
   },
   "numlock_off": {
     "KP1": {
-      "persona": "-",
-      "body": "-",
-      "status": "reserved"
+      "persona": "Brobot 1",
+      "body": "Vector 1",
+      "suit": "robot",
+      "status": "reserved",
+      "_note": "2026-11-04 (operator: \"reserve KP1/2 numlock OFF for brobots?\"): Brobot 1 at the DocBS dial at zero - the shared Brobots persona, no Doc (personas/brobot-1.md); KP1 with NumLock on is Doc. Reserved, not built."
     },
     "KP2": {
-      "persona": "-",
-      "body": "-",
-      "status": "reserved"
+      "persona": "Brobot 2",
+      "body": "Vector 2",
+      "suit": "robot",
+      "status": "reserved",
+      "_note": "2026-11-04 (operator: \"reserve KP1/2 numlock OFF for brobots?\"): Brobot 2 at the PipTA dial at zero - the shared Brobots persona, no Pip (personas/brobot-2.md); KP2 with NumLock on is Pip. Reserved, not built."
     },
     "KP3": {
       "persona": "-",
@@ -99,14 +120,18 @@
       "status": "reserved"
     },
     "KP7": {
-      "persona": "-",
-      "body": "-",
-      "status": "reserved"
+      "persona": "CHALK",
+      "body": "voice-only",
+      "suit": "reporter",
+      "status": "live",
+      "_note": "2026-10-30: CHALK in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.CHALK.reporter); operator: \"CHALK/PLAYHEAD = same mapping, 2 suits (indoor/outdoor)\""
     },
     "KP8": {
-      "persona": "-",
-      "body": "-",
-      "status": "reserved"
+      "persona": "PLAYHEAD",
+      "body": "voice-only",
+      "suit": "reporter",
+      "status": "live",
+      "_note": "2026-10-30: PLAYHEAD in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.PLAYHEAD.reporter)"
     },
     "KP9": {
       "persona": "-",

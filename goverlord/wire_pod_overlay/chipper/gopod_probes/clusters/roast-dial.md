@@ -2,7 +2,7 @@
 - **words:** roast, roast level, sensitive, clean
 - **ask:** How hard do the Brobots roast?
 - **chain:** Gominions - the roast levels; the room decides the level
-- **see also:** docbs, spice
+- **see also:** personas/doc.md (DocBS), spice
 - **about:** 2026-11-03 (step 7b of GOPOD_CLUSTERS_PLAN_002.md): 02_cast.json roast_dial, but the level and jekyll_hyde switches. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list.
 ---
 

@@ -20,6 +20,7 @@ package wirepod_ttr
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -165,6 +166,10 @@ func gopodPersonaProfileRawSelf(who string) map[string]string {
 	out := map[string]string{}
 	path := gopodPersonaProfileFile(who)
 	data := gopodReadFileString(path)
+	// 2026-11-04: a robot's file and the persona it hosts (gopodPersonaProfileRead).
+	if head, _ := gopodPersonaProfileReadOne(path); strings.TrimSpace(head["hosts"]) != "" {
+		data += "\n" + gopodReadFileString(filepath.Join(filepath.Dir(path), strings.TrimSpace(head["hosts"])))
+	}
 	inSelf := false
 	for _, line := range strings.Split(data, "\n") {
 		t := strings.TrimSpace(line)

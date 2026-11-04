@@ -41,6 +41,27 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 // "- **nickname:**", "- **job:**", "- **words:**", "- **ask:**" - then "---", then
 // its sections ("## Self", ...), each its points ("1. ...").
 func gopodPersonaProfileRead(path string) (head map[string]string, sections map[string][]string) {
+	head, sections = gopodPersonaProfileReadOne(path)
+	// 2026-11-04 (operator: "Pull all Doc & Pip from brobots md files"; "Doc is
+	// not Brobot 1. Doc is the persona hosted by Brobot 1"): a robot's file names
+	// the persona it hosts ("- **hosts:** doc.md"); the persona's head lines win,
+	// and its sections follow the robot's.
+	if host := strings.TrimSpace(head["hosts"]); host != "" {
+		ph, ps := gopodPersonaProfileReadOne(filepath.Join(filepath.Dir(path), host))
+		for k, v := range ph {
+			if k != "hosts" {
+				head[k] = v
+			}
+		}
+		for k, pts := range ps {
+			sections[k] = append(sections[k], pts...)
+		}
+	}
+	return head, sections
+}
+
+// gopodPersonaProfileReadOne: one profile file's head and sections.
+func gopodPersonaProfileReadOne(path string) (head map[string]string, sections map[string][]string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil
