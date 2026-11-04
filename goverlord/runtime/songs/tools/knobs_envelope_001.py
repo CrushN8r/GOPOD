@@ -19,18 +19,46 @@ import json
 import shutil
 from pathlib import Path
 
+from knobs_md_001 import knobs_from_md, md_from_knobs
+
 
 def resolve_active_knobs_path(song_dir):
     """knobs.json, the clean copy (operator 2026-10-11: "go for knobs.json
     (clean version of dirty zKnobs) * if no clean knobs, create a knobs file
     from zKnobs and then go for knobs.json again"). Before 2026-10-11 a
-    zKnobs.json won when present."""
+    zKnobs.json won when present.
+
+    2026-11-04 (operator: "zKnobs.md is the one source"; step 9 of
+    GOPOD_CLUSTERS_PLAN_002.md): with a zKnobs.md, knobs.json is built from it
+    first - written only when its knobs differ, so an unchanged song leaves
+    knobs.json as it is (knobs_md_001.py)."""
     song_dir = Path(song_dir)
     clean_path = song_dir / "knobs.json"
+    md_path = song_dir / "zKnobs.md"
     dirty_path = song_dir / "zKnobs.json"
+    if md_path.exists():
+        built = knobs_from_md(md_path.read_text(encoding="utf-8"))
+        try:
+            same = json.loads(clean_path.read_text(encoding="utf-8")) == built
+        except (OSError, ValueError):
+            same = False
+        if not same:
+            clean_path.write_text(json.dumps(built, indent=2) + "\n", encoding="utf-8")
+        return clean_path
     if not clean_path.exists() and dirty_path.exists():
         shutil.copyfile(dirty_path, clean_path)
     return clean_path
+
+
+def save_knobs_envelope(knobs_path, envelope):
+    """2026-11-04 (step 9): a tool's knobs written back - knobs.json, and the
+    song's zKnobs.md when it has one, so the one source holds the change too
+    (phcal apply, tempo-set, robot pick)."""
+    knobs_path = Path(knobs_path)
+    knobs_path.write_text(json.dumps(envelope, indent=2) + "\n", encoding="utf-8")
+    md_path = knobs_path.parent / "zKnobs.md"
+    if md_path.exists():
+        md_path.write_text(md_from_knobs(envelope, knobs_path.parent.name), encoding="utf-8")
 
 
 # The global knobs (2026-10-29, operator: "global knobs > [zKnobs > knobs]"): every

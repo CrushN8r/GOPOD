@@ -224,6 +224,7 @@ func gopodSystemSetTempo(dir, value string) string {
 	if v, err := strconv.ParseFloat(value, 64); err != nil || v < 0 {
 		return gopodSystemText("system_set.system_set_song_tempo_seconds")
 	}
+	gopodKnobsMDBuild(dir)
 	var out []string
 	for _, name := range []string{"knobs.json", "zKnobs.json"} {
 		path := filepath.Join(dir, name)
@@ -236,6 +237,7 @@ func gopodSystemSetTempo(dir, value string) string {
 		}
 		out = append(out, name+" "+old+" -> "+value)
 	}
+	gopodKnobsMDSync(dir)
 	return gopodSystemText("system_set.tempo_the_next_run_of", "dir", filepath.Base(dir), "out", strings.Join(out, ", "))
 }
 
@@ -495,6 +497,7 @@ func gopodSystemSetStepWrite(dir, id, field, value string) string {
 	if err != nil {
 		return where + ": " + err.Error()
 	}
+	gopodKnobsMDBuild(dir)
 	var changed []string
 	old := ""
 	for _, name := range []string{"knobs.json", "zKnobs.json"} {
@@ -528,6 +531,7 @@ func gopodSystemSetStepWrite(dir, id, field, value string) string {
 		}
 		changed = append(changed, name)
 	}
+	gopodKnobsMDSync(dir)
 	return where + ": " + old + " -> " + raw + " (" + strings.Join(changed, ", ") + "; " + gopodSystemSetWhen(dir) + ")"
 }
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -255,6 +256,14 @@ func gopodSystemCheckProblems() ([]string, int) {
 				if !zhave[s.StepID] {
 					problems = append(problems, "song "+song+": knobs.json step "+s.StepID+" isn't in zKnobs.json")
 				}
+			}
+		}
+		// 2026-11-04 (step 9): zKnobs.md, the one source, builds knobs.json as it is.
+		if gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
+			checked++
+			tool := filepath.Join(gopodSongsDir(), "tools", "knobs_md_001.py")
+			if out, err := gopodAsOperator(exec.Command("python3", "-I", tool, "check", dir)).CombinedOutput(); err != nil {
+				problems = append(problems, "song "+song+": zKnobs.md and knobs.json differ ("+strings.TrimSpace(string(out))+") - the next run builds knobs.json from zKnobs.md")
 			}
 		}
 		if story, err := os.ReadFile(filepath.Join(dir, "story.md")); err == nil {

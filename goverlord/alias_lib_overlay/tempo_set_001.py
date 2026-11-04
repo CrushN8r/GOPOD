@@ -44,7 +44,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools")
-from knobs_envelope_001 import load_knobs_envelope
+from knobs_envelope_001 import load_knobs_envelope, save_knobs_envelope
 
 GLOBAL_TEMPO_MIN = 0.0
 GLOBAL_TEMPO_MAX = 9.9
@@ -116,7 +116,7 @@ def cmd_set_global(argv):
         return 0
 
     envelope["global_tempo"] = value
-    KNOBS_PATH.write_text(json.dumps(envelope, indent=2) + "\n", encoding="utf-8")
+    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nTEMPO_SET_WRITTEN global_tempo={value} written to {KNOBS_PATH}")
     return 0
 
@@ -179,7 +179,7 @@ def cmd_set_buffer(argv):
     step["tempo_factor"] = factor
     if comment is not None:
         step["tempo_comment"] = comment
-    KNOBS_PATH.write_text(json.dumps(envelope, indent=2) + "\n", encoding="utf-8")
+    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nTEMPO_SET_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")
     return 0
 

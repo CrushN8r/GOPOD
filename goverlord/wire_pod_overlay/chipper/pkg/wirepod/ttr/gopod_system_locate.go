@@ -156,7 +156,7 @@ func gopodLocateJSON(file string, path []string) string {
 }
 
 func gopodLocateSong(dir string, args []string) string {
-	files := []string{"knobs.json", "zKnobs.json", "story.md"}
+	files := []string{"zKnobs.md", "knobs.json", "zKnobs.json", "story.md"}
 	if len(args) == 0 {
 		var out []string
 		for _, f := range files {

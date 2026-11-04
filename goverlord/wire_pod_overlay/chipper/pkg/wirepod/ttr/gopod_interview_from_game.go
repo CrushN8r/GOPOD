@@ -160,6 +160,7 @@ func gopodInterviewRebuild() string {
 			return "system-interview-rebuild: " + err.Error()
 		}
 	}
+	gopodKnobsMDSync(dir)
 	logger.Println("GOPOD_INTERVIEW rebuilt from the game: " + strconv.Itoa(len(d.Questions)) + " questions")
 	return gopodSystemText("interview_from_game.interview_rebuilt_from_the_game", "questions", strconv.Itoa(len(d.Questions)), "core_topics", strconv.Itoa(len(gopodBrobotsSettings.ValuePoints.CoreTopics)))
 }

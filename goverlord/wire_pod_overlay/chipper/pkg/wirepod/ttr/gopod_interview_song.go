@@ -127,6 +127,7 @@ func gopodInterviewSongDraft(dir string) (gopodDraft, error) {
 	// 2026-10-11 (operator: "go for knobs.json (clean version of dirty zKnobs)
 	// * if no clean knobs, create a knobs file from zKnobs"): knobs.json plays.
 	knobsPath := filepath.Join(dir, "knobs.json")
+	gopodKnobsMDBuild(dir) // 2026-11-04: zKnobs.md, the one source, first
 	if _, err := os.Stat(knobsPath); err != nil {
 		if data, rerr := os.ReadFile(filepath.Join(dir, "zKnobs.json")); rerr == nil {
 			_ = gopodWriteFile(knobsPath, data, 0o644)
