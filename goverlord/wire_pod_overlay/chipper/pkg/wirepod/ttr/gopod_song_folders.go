@@ -6,9 +6,12 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
 // GOLDEN - a song is found by its name, never its folder (operator 2026-10-10:
@@ -20,6 +23,34 @@ import (
 // gopodSongsDir: goverlord/runtime/songs, beside the overlay.
 func gopodSongsDir() string {
 	return filepath.Join(gopodChipperRoot(), "..", "..", "runtime", "songs")
+}
+
+// gopodKnobsMDSync (2026-11-04, operator: "zKnobs.md is the one source"; step 9 of
+// GOPOD_CLUSTERS_PLAN_002.md): after Wire-Pod edits a song's knobs.json, its
+// zKnobs.md is written from it - the song tools' one writer
+// (runtime/songs/tools/knobs_md_001.py write), so a run, which builds knobs.json
+// from zKnobs.md, keeps the edit. Nothing for a song without a zKnobs.md.
+func gopodKnobsMDSync(dir string) {
+	if !gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
+		return
+	}
+	tool := filepath.Join(gopodSongsDir(), "tools", "knobs_md_001.py")
+	if out, err := gopodAsOperator(exec.Command("python3", "-I", tool, "write", dir)).CombinedOutput(); err != nil {
+		logger.Println("GOPOD_KNOBS zKnobs.md not written for " + filepath.Base(dir) + ": " + err.Error() + " " + strings.TrimSpace(string(out)))
+	}
+}
+
+// gopodKnobsMDBuild: before Wire-Pod reads or edits a song's knobs.json, it's
+// built from the song's zKnobs.md (knobs_md_001.py build) - so an edit in
+// zKnobs.md is never played stale or written over.
+func gopodKnobsMDBuild(dir string) {
+	if !gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
+		return
+	}
+	tool := filepath.Join(gopodSongsDir(), "tools", "knobs_md_001.py")
+	if out, err := gopodAsOperator(exec.Command("python3", "-I", tool, "build", dir)).CombinedOutput(); err != nil {
+		logger.Println("GOPOD_KNOBS knobs.json not built from zKnobs.md for " + filepath.Base(dir) + ": " + err.Error() + " " + strings.TrimSpace(string(out)))
+	}
 }
 
 type gopodSongKnobsTop struct {

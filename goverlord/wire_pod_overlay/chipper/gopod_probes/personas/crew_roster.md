@@ -1,6 +1,7 @@
 # GOPOD crew roster
 - **words:** crew, roster, who's here, the crew
 - **ask:** Who's in the chat?
+- **chain:** Goverlord > Butler > Gomads/Interns > Gominions (operator 2026-11-03): Goverlord orchestrates; the Butler (Keys) is its voice; the Gomads and their interns think and manage; the Gominions (Doc and Pip) perform. Each persona file says where it sits.
 
 ---
 

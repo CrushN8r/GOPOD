@@ -2,6 +2,7 @@
 - **words:** easter egg, easter eggs, eggs
 - **ask:** What Easter eggs are there?
 
+- **see also:** golden_answers, group-chat-intro
 ---
 
 ## The eggs (topic_pictures)

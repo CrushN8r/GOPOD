@@ -65,7 +65,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools")
-from knobs_envelope_001 import load_knobs_envelope
+from knobs_envelope_001 import load_knobs_envelope, save_knobs_envelope
 
 LAST_PATH = Path("/home/goverlord/.gopod_alias_lib/phcal_last.json")
 DEFAULT_KNOBS_PATH = Path(
@@ -198,7 +198,7 @@ def main():
     # inside envelope["steps"], mutated above, so this dump already carries
     # the change. Every other step's own field order/values are untouched -
     # only the identity of the mutated dict differs from what was loaded.
-    KNOBS_PATH.write_text(json.dumps(envelope, indent=2) + "\n", encoding="utf-8")
+    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nPHCAL_APPLY_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")
     return 0
 

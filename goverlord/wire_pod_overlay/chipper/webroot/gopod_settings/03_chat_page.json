@@ -28,27 +28,6 @@
   "chat_hold": {
     "about": "The Brobots stay in place while chatting (operator 2026-10-04: \"Hold both Brobots between answers\", \"I should have a thanks brobots cue to re-engage\"). After a chat answer both Brobots are held under behavior control (DEFAULT priority, the songs' own hold) so they don't wander; each is let go while he answers or defers. \"Thanks Brobots\" (said or typed; any of thanks_phrases, whole words) gets a party-bro sign-off from the Brobot that answers (thanks_note is added before the question), then ends the hold and both go back to free play (operator 2026-10-04: \"Can the brobots give me a party-brobot response, that also triggers the release\"); so does idle_minutes with no question. A song or alias that assumes a robot's control through Wire-Pod takes over from the hold.",
     "idle_minutes": 10,
-    "thanks_phrases": [
-      "thanks brobots",
-      "thanks bro bots",
-      "thanks bro bought",
-      "thanks bro but",
-      "thank you brobots",
-      "thank you bro bots",
-      "thank you bro bought",
-      "thanks robots",
-      "thank you robots",
-      "thanks guys",
-      "thanks bros",
-      "thank you guys",
-      "thank you bros",
-      "thx brobots",
-      "thx bro bots",
-      "thx robots",
-      "thx guys",
-      "thx bros"
-    ],
-    "thanks_note": "[Not a question - Brobot 0 is thanking the Brobots and wrapping up the chat. Give a short, fun party-bro sign-off, and don't ask anything back.]",
     "stuck_seconds": 30,
     "stuck_about": "A Brobot that drops off mid-answer (froze, rebooted, out of Wi-Fi) left his answer waiting forever, so after he came back nothing he wrote was spoken (operator 2026-10-06: \"clear stuck brobot state to reconnect ... like upon a rebooted brobot\"). Now one sentence or move that takes longer than stuck_seconds ends that answer: the chat page drops its outline, the hold and Record Session carry on, and his next question works without wpr 2. Log line: GOPOD_STUCK_REPLY."
   },
@@ -63,10 +42,6 @@
     "thinking_text": "Got it!",
     "thinking_moves": ["arm", "nod"],
     "got_it_about": "2026-10-24 (operator: \"Separate out the already established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 * assign Got it 2 to brobot 2\"): each Brobot's own copy of the golden sequence - his moves (arm, nod) and his words (2026-11-03: his searching pace is the golden note's only, gopod_probes/locks/searching_golden.md). Both start as exact copies of the golden values above; a part left out takes the golden one. Needs wpr 2.",
-    "got_it": {
-      "Brobot 1": {"name": "Got it 1", "text": "Got it!", "moves": ["arm", "nod"]},
-      "Brobot 2": {"name": "Got it 2", "text": "Got it!", "moves": ["arm", "nod"]}
-    },
     "animation_timing_about": "Operator 2026-10-09: \"Use playAnimationWI + 0.9s + start speech * no new animations until enough time has lapsed for playAnimationWI run completion, or a 'done' message is received\". In a reply (live and scripted), the speech after a playAnimationWI starts speech_after_animation_seconds after the animation was sent; the next animation waits until the robot reports the one before it done, never longer than animation_done_most_seconds.",
     "speech_after_animation_seconds_about": "2026-10-24 (operator: \"between spoken segments there's a 0.9s delay * can the run timings be adjusted to fire the next spoken segment 0.5s early?\"): was 0.9 (2026-10-09, playAnimationWI + 0.9s + start speech), now 0.4. Needs wpr 2.",
     "speech_after_animation_seconds": 0.4,
@@ -81,20 +56,7 @@
   "page_sound_files_about": "2026-10-10: a song's own soundtrack (its knobs.json \"audio\") is now found by the song and copied without being listed here (gopod_song_folders.go). This list is for any other sound. Extra sound files Wire-Pod copies into the page's voice folder at its start, beside sounds/*.wav (relative to the overlay's chipper folder): a song's private soundtrack. A missing file is logged and skipped (the media isn't in the public repo).",
   "page_sound_files": [],
   "page_text": {
-    "about": "2026-10-29 (operator: \"sweep for all flexible data, variables, names, labels, etc and export to external files ... then code blindly runs templates from loaded files\"): the chat page's own words - its typing row, the system window's panels. {placeholders} are filled by the page.",
-    "typed_placeholder": "Type to the Brobot, press Enter",
-    "submit": "Submit",
-    "all_first_title": "All: who answers first",
-    "drag_title": "Drag to resize",
-    "voices_title": "Numpad voices:",
-    "voices_unassigned": "unassigned ({host}'s voice)",
-    "usb_title": "USB devices",
-    "no_answer": "{what}: Wire-Pod didn't answer",
-    "visitors_title": "Local network visitors",
-    "visitors_count": "Local network visitors ({n})",
-    "visitors_none": "No visitors.",
-    "visitor_asks": "asks for: {name}",
-    "visitor_nameless": "nameless-visitor"
+    "about": "2026-10-29 (operator: \"sweep for all flexible data, variables, names, labels, etc and export to external files ... then code blindly runs templates from loaded files\"): the chat page's own words - its typing row, the system window's panels. {placeholders} are filled by the page."
   },
   "chat_window": {
     "scroll_log_about": "2026-10-31 (operator: \"Add scroll event logging * and scrolling position if possible\"): true - the main page logs every scroll decision and where the chat comes to rest to the journal (GOPOD_PAGE scroll ...: who asked, from -> to, the target rule, grows it skipped, the resting position). false - off. Page only: F5.",
@@ -138,7 +100,7 @@
       {"kind": "operator", "has": ["[own]"]},
       {"kind": "gominion", "has": ["brobot-1", "brobot-2"]},
       {"kind": "other", "has": ["narrator", "countdown", "chapter", "pictures", "popup-winner", "egg"]},
-      {"kind": "goverlord", "has": ["host-cameo"], "why": "2026-10-26 (operator: \"KP9 Cameo voice = Goverlord level bubble\")"},
+      {"kind": "goverlord", "has": ["host-butler"], "why": "2026-11-03 (operator: \"Goverlord > Butler > Gomads/Interns > Gominions\"; \"Butler shares system bubble + butler colours\"; \"Cameo at Gomad level * only voice\"): the Butler's bubble is Goverlord level in his own colours; Cameo's own bubbles are Gomad level (her voice alone speaks the unassigned lines, reporter_voices.unassigned_voice_host)"},
       {"kind": "gomad", "has": ["host", "search-results", "chalk-qr"]},
       {"kind": "goverlord", "has": ["score", "terminal", "warmup", "system-menu-host", "system-status"]}
     ]
@@ -165,45 +127,14 @@
     "gomad_brain_about": "2026-10-31: a Gomad's brain bubble is the one brain template (brain_chain.lines, 01_brain.json) - the same lines as a Brobot's.",
     "value_points": {
       "title_about": "2026-10-30 (operator: \"Rename Value Points to [persona-(nick)name] Brain * Brobot 1: Brain, CHALK: Brain, etc... * NEW CORE TEMPLATE RULE: everybody gets a brain bubble\"): {name} is the persona's.",
-      "title": "{name} Brain",
       "log_about": "2026-10-25 (operator: \"move these brobots spoken parts, out of notice-bubble, into and as part of the brobot response\"): his opener (Got it! / Nice try, ...!) is no longer a notice line - it opens his response bubble (gopodOpenerFirst); the notice still waits for it to be said. 2026-10-22 (operator's notice log): 1. got_it - \"Got it!\" as he says it (the communication received); 2. points (y) or none (n), with search when there was one; 3. (optional) a manager's part - its header and line on one row, then its Generating line; while it talks the Brobot's searching waits; 4. got_it_again - when the floor comes back to him after a manager's part, he says and shows it (2026-10-22, operator: \"instead, brobot says 'Thanks for you help, [Brobot N].'\"; {helper} from helper_from); second_got_it after_manager, or off. Then his answer-chained reply below the notice.",
-      "parts": ["plan", "memory", "score", "points", "summary", "search", "egg", "combo", "chapter"],
       "game_about": "2026-10-22 (operator: \"Game survey: 1-4\"; GAME_FEEL_SURVEY_001.md - a game of query for value points, nothing outrageous): combo (points from two topics in one answer), chapter (a chapter's points all said - once), recovery (a free answer: the next points on the list), score (points said of them all). egg: one notice per bubble - an egg found for his line is a line here, not a notice of its own. note: a point's notes (its topic's notes N: line), each on its own line. Empty text = off.",
-      "note": "-{note}",
       "notes_about": "2026-10-26 (operator: \"to save vertical screen space list by \\\"|\\\" separator in a single line: [good Afternoon|classroom|kids shout wordplay at us|we respond back]\"): a point's notes on one line under its title, joined with notes_join. Empty = one note per line (note).",
       "guide_about": "2026-10-27 (operator: \"Pretend everytime a notice-bubble appears in a brobot's response bubble, what would you tell my brobots to do at each call in the chat? * Or if you entered a GOPOD chat, how would you self-aware yourself, follow the chat and respond accordingly? * Set up a templated format like that?\"; \"Do as per example 'Next up' -> 'don't reveal these yet'\"): for each notice line this answer shows, what he's told to do about it - in his pre-build context ({notice}, prebuild_context.lines), in parts order. {line} is the notice's own line. Empty or missing = not told (plan and score are their own pre-build lines; the point itself is in his facts).",
-      "guide": {
-        "summary": "{line} - give it as a short summary, your way.",
-        "search": "{line} - the results show with your answer: use them, never read them out.",
-        "egg": "{line} - react to the find.",
-        "combo": "{line} - tie them together in one answer.",
-        "chapter": "{line} - celebrate it.",
-        "none": "{line} - one or two sentences, then bridge back to GOPOD.",
-        "recovery": "Back on track with: {line} - pick one, don't reveal them all.",
-        "next": "{line} - don't reveal these yet."
-      },
-      "notes": "[{notes}]",
-      "notes_join": "|",
-      "egg": "Easter Egg '{title}': {summary}",
-      "combo": "Combo: {topics}",
-      "chapter": "Chapter cleared: {chapter}",
-      "recovery": "{topics}",
-      "next": "Next up: {topics}",
-      "summary": "Summary: {topics}",
-      "score": "Topics {topics} of {topics_total}:\t{topics_bar}\nValue Points {points} of {points_total}:\t{points_bar}\nEaster Eggs {eggs} of {eggs_total}:\t{eggs_bar}",
-      "got_it": "{thinking_text}",
       "points_about": "2026-10-23 (operator: \"should read as; a day of parties #3 of 3: Evening * expand to: #3 of 3 (template #[N] of [N])\"): {total} = the topic's points.",
-      "points": "{topic} #{n} of {total}: {words}",
-      "weather": "Weather: {line}",
-      "search": "Web search: {search}",
       "template_2_about": "2026-10-25 (operator: \"NEW TEMPLATE: Response-chain ... * No value point - a quick take, then back on track: * [topics] * Topics [score line] * Value Points [score line] * Easter Eggs [score line] * score lines vertically aligned\"): none ends with the lead-in, recovery is the topics alone on the next line, score is three lines - each label, a tab, its bar (the page lines the bars up).",
- "none": "No value point - a quick take, then back on track:",
-      "helper_from_about": "2026-10-27: call_name first - host_personas.<host>.call_name, the name others call him by (\"Thanks for your help, Cache PYC.\"). 2026-10-22 (operator: \"Use gomad name ('Thanks for your help, PLAYHEAD.') * if no name available, fallback to brobot N * template this\"): where {helper} comes from, first that has one: name (the manager's own name, PLAYHEAD / CHALK), brobot (its Brobot, managers.personas reporter: Brobot 4 / Brobot 3).",
-      "helper_from": ["call_name", "name", "brobot"],
-      "second_got_it": "after_manager"
-    },
-    "egg": {"title": "Easter Egg '{title}'", "line": "{summary}"},
-    "native_intent": {"title": "Native Wire-Pod Intent Detected", "line": "{intent}"}
+      "helper_from_about": "2026-10-27: call_name first - host_personas.<host>.call_name, the name others call him by (\"Thanks for your help, Cache PYC.\"). 2026-10-22 (operator: \"Use gomad name ('Thanks for your help, PLAYHEAD.') * if no name available, fallback to brobot N * template this\"): where {helper} comes from, first that has one: name (the manager's own name, PLAYHEAD / CHALK), brobot (its Brobot, managers.personas reporter: Brobot 4 / Brobot 3)."
+    }
   },
   "page_sync": {
     "about": "Step 3, the engine conducts (operator 2026-10-18: \"Finish Step 3\"; the plan: \"Wire-Pod decides order and timing. The page shows what it's told and answers shown, played and heard ... terminal and page run the same show, line for line\"). reply_wait_seconds: a Brobot's reply goes on the feed, then he waits up to this long for the page to show his bubble before he speaks, so he never talks over a line the page is still playing (a page that's away isn't waited for; GOPOD_SYNC lines say when he waited or the page was behind). held_log_seconds: a line the page held longer than this before showing it (the bubble above, a countdown, the warm-up) is written to the journal (GOPOD_PAGE held). gopod_page_sync.go.",
@@ -214,7 +145,6 @@
     "feed_max_about": "2026-10-24 (the root-to-leaf pass, link 2): the chat feed - the one line everything the page shows comes from, numbered - keeps its newest this many lines.",
     "feed_max": 300,
     "second_admin_text_about": "2026-10-29 (operator: \"I should only have one admin page open, correct? * add a check for one admin controller page * visitor pages are multiple\"): shown in a second admin page's text field - it stays a silent viewer; Wire-Pod logs it (GOPOD_PAGE second admin page) and system-status counts the admin pages open.",
-    "second_admin_text": "Another admin page is open - this one only watches. Keep one admin page.",
     "display_about": "2026-10-24 (operator: \"the visitor page does no thinking * visitor page zombie follows regardless of a nuclear war going on next door * visitor page zombie follows GOPOD admin feed\"): the main page sends what it shows - its newest display_bubbles bubbles as drawn and where it's scrolled - at most every display_ms; every other page only paints that.",
     "item_max_ms_about": "2026-10-24 (live: the chat stopped after a reply until F5): a feed line that hasn't handed on after this long is logged (GOPOD_PAGE error stuck ...) and passed. F5.",
     "item_max_ms": 90000,
@@ -265,40 +195,13 @@
     "about": "The photo egg (operator 2026-10-14: \"Get Photo in front of you ... implement anyways\"; \"describe the image simply * Example: I see a table, chair and some book shelves, or whatever, nothing crazy * refer to text descriptions used for photos already taken * store the image to then display in a web page * return control to the normal streaming loop * keep/snapshot the 3-2-1 countdown + mirror-mode + shutter animation, then lock as a golden process\"; \"treat these as found easter eggs throughout a live chat\"). Live chat only. A line holding one of ask_phrases: the Brobot takes the photo the golden way (mirror mode, 3-2-1, shutter - Wire-Pod's own getImage), it pops up in his reply bubble (an egg, topic_pictures.max_per_session times; then a plain picture), Goverlord's congratulations, thinking please wait while vision_model (Ollama) looks at it with prompt, then answer_text with {saw}. One of recall_phrases: recall_text with what he saw last (nothing_text when he hasn't). No photo: fail_text; photo but no description: unclear_text. Photos are kept in webroot/photos (private, not in the repo). gopod_photo.go. 2026-10-14 test on this machine: SmolVLM2 2.2B ~3 s warm and good; moondream ~1.5 s but vague (\"urns ... on a couch\").",
     "vision_model": "moondream",
     "vision_model_about": "2026-10-16 (operator: \"Please continue with moondream for live photos\"; a test: moondream was short and less wrong than SmolVLM2, which it replaces; \"TEMPORARY RULE: No gemma4 or larger llm live switching\").",
-    "prompt": "Describe what you see in one short, simple sentence, naming a few main things.",
     "keep_alive": "5m",
     "describe_max_seconds": 60,
-    "answer_text": "I see {saw}",
-    "recall_text": "I saw {saw}",
-    "nothing_text": "I haven't taken a photo yet.",
-    "fail_text": "I couldn't take a photo.",
-    "unclear_text": "I took a photo, but I couldn't make out what's in it.",
     "awake_seconds_about": "2026-10-14 (operator: \"make sure brobots are awake, then 3-2-1, ... otherwise photo is taken as they're waking, head not in position\"): after control is granted the Brobot waits this long - awake, head settled - before mirror mode and \"3, 2, 1\" (golden rule 3's settle, 1.5 s, plus time to finish waking).",
     "awake_seconds": 2.5,
     "rounds_about": "2026-10-16 (operator: \"Edge TPU list shown first while moondream is still looking (both, not a swap) * so do this in 2 rounds * round 1 is from TPU quick look (while moondream looks) * round 2 is from moondream\"; then: \"thinking please wait > photo > TPU > Brobot N: I see [TPU labels] * (if background moondream look still running, brobot says gathering details) * Brobot optional statement to stall for time * No bubble for notes ... this is background internal stuff * build brobot response as statement-2 'I see ... ...' from statement-1 & what moondream found\"). The Brobot: Thinking, please wait. - the photo - the egg (egg_name) - the Edge TPU worker (quick_look, ~0.04 s) names the objects: statement 1, quick_text with {objects} (quick_none_text when it names none). vision_model looks meanwhile, in the background (its notes only in the log). After statement 1: gathering_text if it is still looking, then one of stall_lines if it is still looking; then statement 2: detail_text with {saw} - its own lead-in (detail_strip_prefixes) taken off, statement 1's objects it didn't name added; detail_unclear_text when it saw nothing. gopod_photo.go, gopod_photo_quick_look.go.",
-    "quick_look": {
-      "about": "The Edge TPU's object model (COCO, 90 kinds of thing). 2026-10-16 test on the kept photos: ssdlite_mobiledet at 0.4 named the most and right (person, chair, keyboard; ssd_mobilenet_v2 only one each; 0.3 added a wrong car). The Coral stick runs one program at a time - this worker holds it while Wire-Pod runs.",
-      "enabled": true,
-      "python": "~/miniforge3/envs/gopod-coral39/bin/python",
-      "worker": "gopod_probes/tools/gopod_edge_tpu_quick_look_001.py",
-      "model": "../../runtime/data_gomad/models/edge_tpu/general_objects/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite",
-      "labels": "../../runtime/data_gomad/models/edge_tpu/general_objects/coco_labels.txt",
-      "min_score": 0.4,
-      "timeout_seconds": 3,
-      "pictures_about": "2026-10-17 (operator: \"3 images displayed * [raw snapshot][snapshot enhancement attempt][TPU object recognition on enhancement] * I see ... [TPU read on enhancement] * I see ... [moondream read of TPU]\"; \"TPU with bounding boxes\"): the worker cleans up the snapshot (enhance: median filter size, auto contrast cutoff %, then brightness, contrast, sharpness - 1 is unchanged), finds the objects in the enhanced one and draws their boxes and names; the egg pops up the photo, the enhanced one and the boxes; the vision model looks at the enhanced one, told the TPU's objects. Kept beside the photo (webroot/photos, _enhanced.jpg, _tpu.jpg).",
-      "pictures": true,
-      "enhance": {"median": 3, "autocontrast_cutoff": 1, "brightness": 1.1, "contrast": 1.1, "sharpness": 1.6}
-    },
-    "quick_text": "I see {objects}.",
-    "quick_none_text": "Hmm, I need a closer look.",
-    "gathering_text": "Gathering details. Please wait!",
-    "detail_text": "I see {saw}",
-    "detail_unclear_text": "That's all I can make out.",
     "stall_lines_about": "2026-10-16 (operator: \"Brobot optional statement to stall for time, lol\"): after gathering_text, if the vision model is still looking, he says one of these (picked at random). DRAFT lines - written by Claude, the operator's to change.",
-    "detail_prompt_about": "2026-10-16 (operator: \"do not repeat without more detail * I see a person, I see a person with glasses * build 2 more details from 1, no repeats\"): the vision model's question once statement 1 named {objects}; empty = photo.prompt. A test on the 13:24 photos: telling moondream the objects (\"This photo shows a person. Give two more details\") got only \"urn of water on the table\"; the plain prompt got \"a man wearing ... glasses seated at the keyboard\" - more detail, so it stays empty. Statement 2 never adds statement 1's objects again, and a look naming nothing new gives detail_unclear_text.",
-    "detail_prompt": "",
-    "stall_lines": ["My eyes are basically potato cams, bro.", "Hold on, my lens is buffering.", "Zoom and enhance... like on TV."],
-    "detail_strip_prefixes": ["The image shows", "The image features", "The image depicts", "The image captures", "This image shows", "The photo shows", "The picture shows", "In the image,", "In this image,", "I see"]
+    "detail_prompt_about": "2026-10-16 (operator: \"do not repeat without more detail * I see a person, I see a person with glasses * build 2 more details from 1, no repeats\"): the vision model's question once statement 1 named {objects}; empty = photo.prompt. A test on the 13:24 photos: telling moondream the objects (\"This photo shows a person. Give two more details\") got only \"urn of water on the table\"; the plain prompt got \"a man wearing ... glasses seated at the keyboard\" - more detail, so it stays empty. Statement 2 never adds statement 1's objects again, and a look naming nothing new gives detail_unclear_text."
   },
   "highlight_scroll": {
     "about": "2026-10-15 (operator: \"highlighting scrolling aims to be vertically centered within the bottom/bottom top/top rule\"; \"Add a dead zone: chat holds still until highlight is ~1/4 of the window, below centre * then one smooth move to re-centre, unless bottom/bottom is reached first\"): the chat holds still until the piece being said is dead_zone of the window below its centre, then one smooth move puts it back at the centre - never past the chat's end. Read by the chat page on F5.",
@@ -325,66 +228,14 @@
   "math": {
     "about": "The Brobots' math (operator 2026-10-14: \"GOPOD is like as 'mathy' as math can get\"; \"gemma isn't for calculating\"; \"Build it all ... fractions, decimals, repeating decimals, same ground as fractions pack * Plus/minus/times/divide and percent * clean, correct & proper\"; gopod_math.go). A math question in the live chat is worked out in code, exactly, and the Brobot answers it step by step, word for word - the LLM never calculates. Fraction to decimal (long division; a repeating block gets a bar, 0.3̅), decimal to fraction (over 10, 100, 1000..., simplified), repeating decimal to fraction (the 10x method), percents (to and from, '15% of 80', 'what percent is 3 of 4'), and plus, minus, times, divide with brackets and the order of operations. It reads digits and symbols and the speech-to-text's words ('zero point three repeating', 'three quarters'). lines: each step's words, {name} filled in; fractions show as 1⁄3 and are said 'over' (spoken_symbols). max_repeat_digits: a longer repeating block is shown rounded. Locked by TestMath*. 2026-10-14 (operator: \"asking word, last? = 'Explain the Math' * same as livestream contest format: '[statement]. Explain the Math'\"; \"After 'Explain the Math', I'd like Brobot 1 to answer & Brobot 2 to follow up, Brobots shared-persona style\"; \"simple bullet list format\"; \"Wrap all that up as an 'Explain the Math' pop-up\"): only a line that ends with trigger is math. Brobot 1 answers first, Brobot 2 follows up (whoever it was sent to): each says up to flavour_sentences of his own (the LLM's, any sentence with a number in it dropped), then his share of the steps, one bullet each - Brobot 2 the last third (at least the last step). In the live chat it's an 'Explain the Math' pop-up (popup_title over the challenge, Goverlord's congratulations; topic_pictures.max_per_session): Brobot 1's answer under the prize, Brobot 2's in his own marquee bubble (the pop-up rule, 2026-10-15: no 'Brobot N:' headers in pop-ups). 2026-10-15 (operator: \"tell me about yourself vs tell me all about yourself * this feels like it should fall into a long 'math' response\"): Explain the Math is the long answer - a fraction to decimal shows the long division itself, digit by digit (each bring-down, digit and remainder), until it ends or a remainder comes back, at most long_division_max_steps; a longer repeating block is said digit by digit (\"the 1 4 2 8 5 7 repeats\").",
     "enabled": true,
-    "trigger": "explain the math",
-    "bullet": "• ",
     "flavour_sentences": 2,
     "popup_title_about": "2026-10-16 (operator: \"Congratulations .... AI Wordplay Explain the Math. 🏆 Win to get Doc's approved 'Almost Approved' top prizes!\").",
-    "popup_title": "🏆 Win to get Doc's approved 'Almost Approved' top prizes!",
     "egg_name_about": "2026-10-16 (operator: '\"AI Wordplay Explain the Math\" = title of the livestream show = easter egg * Trigger phrase (submission format rule) is: \"[contest submission text]. Explain the Math\" * No Prize yet. Start with a Doc's Almost Approved Trophy'): the contest egg's name; popup_title is the trophy over the submission.",
-    "egg_name": "AI Wordplay Explain the Math",
     "fraction_words_about": "2026-10-16 (operator: 'A decimal is a specialized kind of fraction (a decimal fraction), so the single word fraction covers either or both'; on Explain the Math as the math phrase: 'Not really...'): a line with one of these words is worked out too (Brobot 1 answers, Brobot 2 follows up), with or without Explain the Math; it also finds the Fractions egg (the fractions topic, the Doc & Pip workbook).",
-    "fraction_words": ["fraction", "fractions", "decimal", "decimals"],
     "decimal_follow_up_line_about": "2026-10-16 (operator: 'This clarification is another good follow up for brobot 2'): Brobot 2 says this after his own words when the line is about a decimal.",
-    "decimal_follow_up_line": "A decimal is a specialized kind of fraction - a decimal fraction - so the word fraction covers either or both.",
     "follow_up_note_about": "2026-10-15 (operator: \"can the Brobot 2 follow-up response, also follow-up on errors like the 'regular fraction'? Makes sense that Brobot 2 would do this\"): Brobot 2's follow-up note for Explain the Math, instead of addressing.follow_up_note - he can set his brother straight in his own words (still no numbers in them; the steps carry the math).",
-    "follow_up_note": "Brobot 1 just answered this. Follow up on his answer your own way - if he got something wrong, set him straight.",
     "max_repeat_digits": 12,
-    "long_division_max_steps": 8,
-    "place_names": [
-      "tenths",
-      "hundredths",
-      "thousandths",
-      "ten-thousandths",
-      "hundred-thousandths",
-      "millionths"
-    ],
-    "lines": {
-      "fraction_divide": "To turn {fraction} into a decimal, divide the top by the bottom: {top} ÷ {bottom}.",
-      "division_ends": "{top} ÷ {bottom} = {decimal}.",
-      "division_repeats": "{top} ÷ {bottom} = {decimal}. The remainder keeps coming back, so the {block} repeats forever.",
-      "division_long": "{top} ÷ {bottom} = {decimal}. It repeats, but its repeating block is too long to show.",
-      "decimal_over": "{decimal} goes to the {place}, so it's {fraction}.",
-      "simplify": "Divide the top and the bottom by {gcd}: {fraction} = {simple}.",
-      "repeat_let": "Let x = {decimal}.",
-      "repeat_multiply": "Times by {by}: {x} = {value}.",
-      "repeat_subtract": "Subtract, and the repeating part cancels out: {bigx} − {smallx} = {big} − {small}, so {kx} = {diff}.",
-      "repeat_divide": "So x = {fraction}.",
-      "repeat_is": "{decimal} is {fraction}.",
-      "percent_over": "{percent} means out of 100: {fraction}.",
-      "percent_divide": "{percent} means {number} ÷ 100 = {decimal}.",
-      "percent_is": "{percent} is {value}.",
-      "times_hundred": "To make a percent, times by 100: {decimal} × 100 = {percent}.",
-      "what_percent": "{part} out of {whole}: {part} ÷ {whole} = {decimal}, and {decimal} × 100 = {percent}.",
-      "op": "{a} {op} {b} = {result}.",
-      "common_bottom": "Give them the same bottom, {bottom}: {a} = {a2}, and {b} = {b2}.",
-      "times_fractions": "Times the tops and times the bottoms: {a} × {b} = {result}.",
-      "divide_fractions": "Dividing by {b} is the same as times its flip, {flip}: {a} × {flip} = {result}.",
-      "divide_zero": "{number} ÷ 0 can't be done. No number times 0 makes {number}.",
-      "order_note": "Times and divide go first, then plus and minus.",
-      "mixed": "{fraction} is {mixed}.",
-      "or_mixed": ", or {mixed}",
-      "mixed_improper": "{mixed} is {fraction} as one fraction.",
-      "already_simplest": "{fraction} is already as simple as it gets.",
-      "already_decimal": "{decimal} is already a decimal.",
-      "already_percent": "{percent} is already a percent.",
-      "whole_fraction": "{number} is a whole number: {number}⁄1.",
-      "answer": "So {from} = {to}.",
-      "long_first": "{bottom} goes into {top} {times} times, remainder {rem}.",
-      "long_step": "Bring down a 0: {down} ÷ {bottom} = {digit}, remainder {rem}.",
-      "long_ends": "Remainder 0, so it ends there.",
-      "long_repeats": "Remainder {rem} again - we've been here before, so the digits repeat from here.",
-      "long_more": "And so on, the same way."
-    }
+    "long_division_max_steps": 8
   },
   "weather_card": {
     "about": "2026-10-14 (operator: \"In chat bubbles, use the animations where possible (cold has no animation) * pre-load related audio to play @ 10 % volume * use same rule: aligned top-right * display 50% of actual size\"): a bubble holding the live weather line (\"... Celsius, and <weather>, as of ...\") gets Vector's weather face (folder/faces/<face>.webp, the weather kit; gopod_weather_kit.html shows them all) in its top-right corner at Vector's own size (184x96), in the speaking Brobot's eye colour, with the magnifier; its sound (folder/sounds/<sound>.mp3) is loaded with the bubble and plays once as it shows, at chat_audio.volume. faces: the first whose words are in the line wins; night_face/night_sound from night_from to night_to o'clock (the line's \"as of\" time). Cold has no face on Vector, so none here. The page reads it on F5.",
@@ -414,23 +265,15 @@
       { "words": ["newsletter", "crushn8r.ca/subscribe"], "url": "https://crushn8r.ca/subscribe", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" },
       { "words": ["nightlife", "mississauga"], "url": "https://flare4.com", "image": "qr/flare4_com.png", "title": "flare4.com", "about": "2026-10-18 (operator: \"For 'crushn8r' easter egg in response bubble talking about ron's past, add a QR to flare4.com\"): the Brobot 0 topic's past (\"Ron used to make the nightlife look good on camera ... Mississauga and the GTA\")." }
     ],
-    "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right.",
-    "second": { "after": "subscribing to our newsletter!", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" }
+    "second_about": "2026-10-17 (operator: \"2 QR CODES * QR1 is in the top-right corner * QR2 is added after the call to action, invisible, revealed as highlighted last\"; \"Wanna know more? Get CREW'd by subscribing to our newsletter! [QR2]\"): a bubble piece holding after (any case) gets this QR code right after its words, the last step of its word reveal. QR1s scrolled above the chat's top jump to the bubble's bottom-right."
   },
   "point_bubbles": {
     "about": "2026-10-23 (operator: \"thought bubbles are not reiterating their respective value points * brobots to reiterate their value points brobot party style * I need a templated answer-chain mechanism * either the machine (game-mechanism) f*ck*ng works or it doesn't, regardless of the editable data\"): the answer chain's point_bubbles part - a value point with notes (title | note | note) becomes his thought bubbles, in order: a hype line for its title, then one party line per note. The model is asked for exactly that (prompt: {title} {notes} {count} {numbered}); a line it misses, or one that shares no word with its note, is made from the note (fallback: {title}, {note}, {Note}; hype: a Brobot's own interjection after a made title line). keep_lead_lines: his own lines before the point's (the weather comment) kept first.",
-    "prompt": "Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: a hype line naming {title}; then one line for each - {numbered}. Each line uses its own words from that note, said your way.",
     "fallback": {"title": "{title}!", "note": "{Note}."},
-    "hype": {"Brobot 1": ["NGL, bro!", "Real talk, bro."], "Brobot 2": ["Woo, bro!", "Oh yeah!"]},
     "keep_lead_lines": 1
   },
   "visual_sources": {
-    "about": "GOPOD VISUAL CONTROL - the TPU +/- rotation (operator 2026-10-20: \"Focus on adding the tpu +/- rotation\"; the retired 8011 demo's VISUAL_SOURCE_RING): KP+ next, KP- previous, wrapping; each turn grabs a frame from the source (a Brobot's camera, or the USB webcam's device) and runs the Edge TPU on it. gopod_visual.go.",
-    "ring": [
-      {"id": "doc_robot", "label": "Doc (Brobot 1)", "robot": "Brobot 1"},
-      {"id": "pip_robot", "label": "Pip (Brobot 2)", "robot": "Brobot 2"},
-      {"id": "usb_c920", "label": "Logitech C920", "device": "/dev/video0"}
-    ]
+    "about": "GOPOD VISUAL CONTROL - the TPU +/- rotation (operator 2026-10-20: \"Focus on adding the tpu +/- rotation\"; the retired 8011 demo's VISUAL_SOURCE_RING): KP+ next, KP- previous, wrapping; each turn grabs a frame from the source (a Brobot's camera, or the USB webcam's device) and runs the Edge TPU on it. gopod_visual.go."
   },
   "bubble_sounds_about": "2026-10-25 (operator: \"Operator & Manager Bubbles TEMPLATE!! * add in an inherent play audio by default + mute option * default audio fallback = djent wav * if none found, skip/move on * then set all to mute * does not apply to (music)\"; \"Operator Bubbles TEMPLATE!! * add in an optional error label (stings?) = play grunge instead * if none found, skip/move on\"): each bubble kind's sound when it shows - file (empty = default_file, djent), volume (its share of chat_audio.volume), mute (true = none). error: the Operator bubble's error label (numpad_ptt.error_texts) - played even when muted. A file not found is skipped. \"(music)\" is its own rule (the system sting).",
   "bubble_sounds": {

@@ -65,6 +65,20 @@ func gopodLocateClusterWord(word string) []string {
 	_ = json.Unmarshal(data, &all)
 	files, _ := filepath.Glob(filepath.Join(gopodClustersFolder(all), "*.md"))
 	sort.Strings(files)
+	// 2026-11-03 (the clusters plan: the Butler's lines folded into his profile):
+	// the persona profiles' settings sections too - only bracketed places count.
+	var pp struct {
+		Folder string `json:"folder"`
+	}
+	_ = json.Unmarshal(all["persona_profiles"], &pp)
+	if folder := strings.TrimSpace(pp.Folder); folder != "" {
+		if !filepath.IsAbs(folder) {
+			folder = filepath.Join(gopodChipperRoot(), folder)
+		}
+		profiles, _ := filepath.Glob(filepath.Join(folder, "*.md"))
+		sort.Strings(profiles)
+		files = append(files, profiles...)
+	}
 	var out []string
 	for _, f := range files {
 		raw, err := os.ReadFile(f)
@@ -142,7 +156,7 @@ func gopodLocateJSON(file string, path []string) string {
 }
 
 func gopodLocateSong(dir string, args []string) string {
-	files := []string{"knobs.json", "zKnobs.json", "story.md"}
+	files := []string{"zKnobs.md", "knobs.json", "zKnobs.json", "story.md"}
 	if len(args) == 0 {
 		var out []string
 		for _, f := range files {

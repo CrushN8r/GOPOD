@@ -21,6 +21,9 @@ func TestPageRunsFromSettings(t *testing.T) {
 		t.Skip("no overlay here")
 	}
 	data, _ := gopodSettingsMerged()
+	// 2026-11-03 (the clusters plan, step 5): the page reads the settings with
+	// the topic-clusters laid over them (gopod_settings_folder.go) - so does this.
+	data = gopodClustersOverlay(data)
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(data, &top); err != nil {
 		t.Fatal(err)

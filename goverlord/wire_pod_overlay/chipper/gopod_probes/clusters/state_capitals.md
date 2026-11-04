@@ -1,6 +1,7 @@
 # State and province capitals
 - **about:** A weather place that is a US state or a Canadian province on its own ("the weather in Kansas", "Oz in Kansas, USA") is looked up at its capital (gopodStateCapital), the way a country alone is its capital (clean_politics.capitals). Left out on purpose: New York and Washington - their names are big cities too.
 - **from:** 2026-11-03 (live: "what's the weather of Oz in Kansas, USA" got Kansas, Alabama; operator: "Its capital")
+- **see also:** weather_run (the place in the weather report)
 ---
 
 ## US states, then Canadian provinces and territories (clean_politics.state_capitals)

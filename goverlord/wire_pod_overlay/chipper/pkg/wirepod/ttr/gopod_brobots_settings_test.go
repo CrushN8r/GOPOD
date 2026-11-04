@@ -1683,7 +1683,7 @@ func gopodRawSettingsForTest(t *testing.T) (map[string]any, string) {
 	if root == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
 	}
-	data, err := gopodSettingsMerged()
+	data, err := gopodSettingsFull()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2639,10 +2639,10 @@ func TestPageReplayLine(t *testing.T) {
 	if ok, line := gopodPageReplayLine(broken, nil); ok || !strings.Contains(line, "stopped") || !strings.Contains(line, "Operator line") || !strings.Contains(line, "page:") || !strings.Contains(line, "mirror:") {
 		t.Errorf("broken report: %v %q", ok, line)
 	}
-	raw, _ := gopodSettingsMerged()
+	raw, _ := gopodSettingsFull()
 	var all map[string]json.RawMessage
 	json.Unmarshal(raw, &all)
-	if !strings.Contains(string(all["system_menu"]), `"cmd": "system-test-replay"`) {
+	if !strings.Contains(string(all["system_menu"]), `"cmd":"system-test-replay"`) {
 		t.Errorf("system-test-replay isn't in the system menu")
 	}
 }

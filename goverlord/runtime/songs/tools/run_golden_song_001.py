@@ -1348,7 +1348,18 @@ BROBOTS_SETTINGS_DIR = (
 )
 
 
+# 2026-11-03 (the clusters plan, step 8b): the settings Wire-Pod runs on - the
+# settings folder with the topic-clusters laid over (the warm-up's lines live in
+# gopod_probes/clusters/preshow.md) - written by Wire-Pod at each start.
+BROBOTS_SETTINGS_FULL = BROBOTS_SETTINGS_DIR.parent / "gopod_settings_full.json"
+
+
 def load_brobots_settings():
+    try:
+        return json.loads(BROBOTS_SETTINGS_FULL.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        print("GOLDEN_SETTINGS no gopod_settings_full.json yet (Wire-Pod writes it at its start) - "
+              "the settings folder alone, without the topic-clusters", flush=True)
     merged = {}
     for f in sorted(BROBOTS_SETTINGS_DIR.glob("*.json")):
         merged.update(json.loads(f.read_text(encoding="utf-8")))

@@ -11,4 +11,13 @@ if [ ! -d "$lib/node_modules/jsdom" ]; then
   mkdir -p "$lib"
   (cd "$lib" && npm init -y >/dev/null 2>&1 && npm install jsdom@24.1.3 --no-audit --no-fund >/dev/null)
 fi
+# 2026-11-03 (the clusters plan, step 7): the settings as the page gets them - the
+# topic-clusters laid over the settings folder - from the running Wire-Pod.
+full="$(mktemp)"
+trap 'rm -f "$full"' EXIT
+if curl -s -f -m 10 -o "$full" "http://localhost:8080/gopod_brobots_settings.json"; then
+  export GOPOD_REPLAY_SETTINGS="$full"
+else
+  echo "page replay: Wire-Pod isn't answering - the settings folder alone (no topic-clusters)" >&2
+fi
 NODE_PATH="$lib/node_modules" timeout 600 node "$here/gopod_page_replay_001.js" "$webroot" "${1:-}"

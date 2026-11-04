@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/tools")
-from knobs_envelope_001 import load_knobs_envelope
+from knobs_envelope_001 import load_knobs_envelope, save_knobs_envelope
 
 VALID_SPEAKERS = ("brobot_1", "brobot_2")
 
@@ -83,7 +83,7 @@ def main():
     # so mutating it here already carries into the dump below. Every other
     # step's own field order/values are untouched.
     step["speaker"] = new_speaker
-    KNOBS_PATH.write_text(json.dumps(envelope, indent=2) + "\n", encoding="utf-8")
+    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nROBOT_PICK_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")
     return 0
 

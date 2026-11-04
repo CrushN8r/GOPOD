@@ -60,6 +60,10 @@ goverlord/runtime/gopod_layer/gopod_yourself/logs/
 # level deeper.
 goverlord/runtime/songs/*/zKnobs.json
 goverlord/runtime/songs/*/*/zKnobs.json
+# 2026-11-04 (operator: "zKnobs.md is the one source"): the private working knobs
+# are now zKnobs.md (knobs_md_001.py); knobs.json, built from it, stays tracked.
+goverlord/runtime/songs/*/zKnobs.md
+goverlord/runtime/songs/*/*/zKnobs.md
 
 # goverlord/runtime/songs/01b_brobots_bingo_game/bin/*.bak: the rolling pre-edit binary backup
 # lineage. Git history already preserves every prior vectorx-gobingo build,

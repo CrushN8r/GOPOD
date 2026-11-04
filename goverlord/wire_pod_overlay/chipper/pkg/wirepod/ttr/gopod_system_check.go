@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -113,11 +114,15 @@ func gopodSystemCheckProblems() ([]string, int) {
 	// 2026-10-28: the game engine's run cards (gopod_game_engine.go).
 	checked += len(gopodBrobotsSettings.Game.Runs)
 	problems = append(problems, gopodGameRunsCheck()...)
+	// 2026-11-03 (step 8 of the clusters plan): words left in the settings files.
+	if left, allowed := gopodWordsLeft(); len(left) > allowed {
+		problems = append(problems, gopodSystemText("system_check.words_left", "n", strconv.Itoa(len(left)), "allowed", strconv.Itoa(allowed), "paths", strings.Join(left[:min3(len(left), 5)], ", ")))
+	}
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
 	// 1. The settings: every file they name.
 	var settings map[string]any
-	if data, err := gopodSettingsMerged(); err != nil || json.Unmarshal(data, &settings) != nil {
+	if data, err := gopodSettingsFull(); err != nil || json.Unmarshal(data, &settings) != nil {
 		problems = append(problems, "the settings folder (webroot/gopod_settings) can't be read")
 	} else {
 		gopodCheckWalk(settings, nil, func(path, value string) {
@@ -253,6 +258,14 @@ func gopodSystemCheckProblems() ([]string, int) {
 				}
 			}
 		}
+		// 2026-11-04 (step 9): zKnobs.md, the one source, builds knobs.json as it is.
+		if gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
+			checked++
+			tool := filepath.Join(gopodSongsDir(), "tools", "knobs_md_001.py")
+			if out, err := gopodAsOperator(exec.Command("python3", "-I", tool, "check", dir)).CombinedOutput(); err != nil {
+				problems = append(problems, "song "+song+": zKnobs.md and knobs.json differ ("+strings.TrimSpace(string(out))+") - the next run builds knobs.json from zKnobs.md")
+			}
+		}
 		if story, err := os.ReadFile(filepath.Join(dir, "story.md")); err == nil {
 			for _, line := range strings.Split(string(story), "\n") {
 				if id := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(line), "## STEP ")); strings.HasPrefix(strings.TrimSpace(line), "## STEP ") && id != "" {
@@ -347,6 +360,14 @@ func gopodSystemCheckAtStart() {
 		logger.Println("GOPOD_CHECK " + p)
 	}
 	logger.Println(fmt.Sprintf("GOPOD_CHECK %d things checked, %d to fix", checked, len(problems)))
+}
+
+// min3: the smaller of a and b.
+func min3(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // ## EOF

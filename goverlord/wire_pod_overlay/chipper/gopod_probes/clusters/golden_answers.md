@@ -2,6 +2,7 @@
 - **words:** golden answer, golden answers
 - **ask:** What is AI wordplay?
 
+- **see also:** easter_eggs, personas/butler.md
 ---
 
 ## The golden answers (golden_answers)
