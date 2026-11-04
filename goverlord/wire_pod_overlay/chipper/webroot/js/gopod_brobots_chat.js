@@ -1368,6 +1368,11 @@
         sbTrack.appendChild(sbThumb);
         document.body.appendChild(sbTrack);
         document.documentElement.classList.add("gopod-own-scrollbar");
+        // 2026-11-04 (operator, visitor page: "when the scroll appears, the bubbles
+        // haven't accounted for the scroll bar width and they end up getting cut off
+        // ... on the right side"): the chat keeps room for its own scroll bar on the
+        // right from the start (its width and its 4 px from the edge, plus 4 px).
+        document.documentElement.style.setProperty("--gopod-scroll-room", (scrollBar.width_px + 8) + "px");
         sbThumbPx = sbKept();
         sbThumb.addEventListener("pointerdown", function (ev) {
           var end = ev.target.dataset ? ev.target.dataset.end : "";

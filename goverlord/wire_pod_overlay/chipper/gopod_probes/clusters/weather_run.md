@@ -16,7 +16,7 @@
 ## Steps 5 and 9: Doc reports, Pip confirms (weather_lines)
 1. report: Brobot Weather Report for {place}, {date}. Temperature is {temp} and {sky} as of {time}.
 2. confirm: Confirmed. Temperature is {temp} at {time}.
-3. intern_ready: Weather info received from Git repo. Ready when you are Bro!
+3. intern_ready: Weather info received from {from}. Ready when you are Bro!
 
 ## Steps 6 and 10: what the model is asked for, around the weather (chain_prompts)
 1. weather_lead: First one short line about this weather. Then:

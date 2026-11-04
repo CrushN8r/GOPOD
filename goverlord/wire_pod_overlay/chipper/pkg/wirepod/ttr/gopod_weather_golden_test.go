@@ -92,11 +92,14 @@ func TestWeatherBrainLock(t *testing.T) {
 			take = tk
 		}
 	}
-	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || !take.BrobotSays {
-		t.Errorf("LOCKED: the weather take isn't PLAYHEAD handing to Cache PYC: %+v", take)
+	// 2026-11-04 (operator: "Fix intern name: 'Git repo' * intern name should be
+	// pulled from its topic-cluster"; "Git Repo does the api call ... handsoff to
+	// Cache PYC"): the details come from GIT REPO - {from}, his call name.
+	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || take.From != "GIT REPO" || !take.BrobotSays || gopodCallName(take.From) != "Git Repo" {
+		t.Errorf("LOCKED: the weather take isn't PLAYHEAD handing to Cache PYC, from Git Repo: %+v", take)
 	}
 	if s.Managers.HandoffText != "{intern} will help you with that." ||
-		s.WeatherLines["intern_ready"] != "Weather info received from Git repo. Ready when you are Bro!" ||
+		s.WeatherLines["intern_ready"] != "Weather info received from {from}. Ready when you are Bro!" ||
 		s.BubbleNotices.ValuePoints.GotItAgain != "Thanks for your help, {helper}." {
 		t.Errorf("LOCKED: a brain line of the weather run changed: %q / %q / %q", s.Managers.HandoffText, s.WeatherLines["intern_ready"], s.BubbleNotices.ValuePoints.GotItAgain)
 	}

@@ -123,6 +123,11 @@
    the thumb to scroll, drag its ends to make it longer or shorter (less or more
    travel), double-click for its natural size. */
 html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded { scrollbar-width: none; }
+/* 2026-11-04 (operator, visitor page: bubbles cut off on the right once the scroll
+   bar shows): room for the chat's own scroll bar is kept on the right at all
+   times (--gopod-scroll-room, set from chat_window.scroll_bar.width_px), on every
+   screen - the bar floats over the chat's right edge, so no bubble sits under it. */
+html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded { padding-right: var(--gopod-scroll-room, 20px); }
 html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scrollbar { display: none; }
 .gopod-scroll-track {
   position: fixed; display: none; z-index: 20;

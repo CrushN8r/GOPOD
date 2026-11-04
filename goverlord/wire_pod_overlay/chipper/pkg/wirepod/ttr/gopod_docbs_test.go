@@ -190,8 +190,13 @@ func TestIntroRecipe(t *testing.T) {
 	if r := gopodIntroRecipe("BUTLER", tester); !strings.Contains(r, `"I'm KEYNOTE VALE, my nickname is Keys, because I hold all the keys."`) {
 		t.Errorf("the Butler's opening: %q", r)
 	}
-	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm Cameo."`) {
-		t.Errorf("Cameo's opening (no nickname, no why): %q", r)
+	// 2026-11-04 (operator: "NEW RULE: Gomad names in CAPS!!"; "nickname Chammy
+	// (cammy) * why, short for Chameleon").
+	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm CAMEO, my nickname is Chammy, because it's short for Chameleon."`) {
+		t.Errorf("CAMEO's opening: %q", r)
+	}
+	if r := gopodIntroRecipe("GIT REPO", tester); !strings.Contains(r, `"I'm Git Repo."`) {
+		t.Errorf("Git Repo's opening (no nickname, no why): %q", r)
 	}
 	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {
 		t.Errorf("not an intro: %q", r)

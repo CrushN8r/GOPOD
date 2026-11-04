@@ -10,9 +10,9 @@
 2. Brobot 2: clueless, happy
 
 ## CRUSHN8R CREW'd news station Gomads mentoring interns
-1. CHALK: Display Gomad and Indoor News Anchor
-2. PLAYHEAD: Session Manager and Indoor News Anchor
-3. CAMEO: Social Media Gomad at GOPOD
+1. CHALK: Display Gomad, look manager and Indoor News Anchor
+2. PLAYHEAD: Session Gomad, session manager and Indoor News Anchor
+3. CAMEO: Content Gomad, social media manager
 
 ## CRUSHN8R CREW'd news station Interns in training
 1. Git Repo: ethical white hat hacker

@@ -38,7 +38,7 @@
 7. CACHE PYC: Cache PYC
 8. INTEL 404 PNFH: Intel 404 PNFH
 9. INTEL 404 PNFT: Intel 404 PNFT
-10. CAMEO: Cameo
+10. CAMEO: CAMEO
 
 ## The warm-up (llm) (llm)
 1. warmup_text: Voice files generated. Language Model Loading

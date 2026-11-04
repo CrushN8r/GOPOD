@@ -45,6 +45,11 @@ type gopodManagerTake struct {
 	// 2026-10-26: an intern's take - this Gomad hands it over first
 	// (managers.handoff_text), then the intern takes over.
 	Via string `json:"via"`
+	// 2026-11-04 (operator: "Git Repo does the api call to get the raw weather
+	// details * Git Repo handsoff to Cache PYC for display details"; "intern name
+	// should be pulled from its topic-cluster"): the intern the details come from -
+	// {from} in the take's lines, his call name from his persona file.
+	From string `json:"from"`
 }
 
 // gopodHandoff (2026-10-26, operator: "Gomad can now 'also' say [intern] will
@@ -66,6 +71,12 @@ func gopodWeatherInternReady(intern, to string) {
 	line := strings.TrimSpace(gopodBrobotsSettings.WeatherLines["intern_ready"])
 	if intern == "" || line == "" {
 		return
+	}
+	// {from}: the intern the weather details come from (the take's from).
+	for _, t := range gopodBrobotsSettings.Managers.Takes {
+		if t.Kind == "weather" && t.Host == intern && strings.TrimSpace(t.From) != "" {
+			line = strings.ReplaceAll(line, "{from}", gopodCallName(t.From))
+		}
 	}
 	gopodReporterSayTo(intern, to, line, true, true)
 }

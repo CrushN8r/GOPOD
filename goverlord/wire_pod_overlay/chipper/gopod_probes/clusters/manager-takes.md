@@ -9,11 +9,12 @@
 ## Take 1: weather (CACHE PYC) (managers.takes.0)
 1. host: CACHE PYC
 2. via: PLAYHEAD
-3. kind: weather
-4. words: weather |
-5. take_text: ``
-6. brobot_says: true
-7. why: 2026-10-27 (operator: "what's the weather like right now * [Gomad] * [assigned-intern] will help you with that. * Thanks for your help, [intern]."): PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own "I'll help you with that."); the Brobot thanks her and says the weather.
+3. from: GIT REPO
+4. kind: weather
+5. words: weather |
+6. take_text: ``
+7. brobot_says: true
+8. why: 2026-10-27 (operator: "what's the weather like right now * [Gomad] * [assigned-intern] will help you with that. * Thanks for your help, [intern]."): PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own "I'll help you with that."); the Brobot thanks her and says the weather.
 
 ## Take 2: url_qr (PLAYHEAD) (managers.takes.1)
 1. host: PLAYHEAD
@@ -23,7 +24,7 @@
 
 ## Take 3: usb (GIT REPO) (managers.takes.2)
 1. host: GIT REPO
-2. via: CHALK
+2. via: PLAYHEAD
 3. kind: usb
 4. words: usb devices | what's plugged in | what is plugged in | lsusb
 5. take_text: I'll check that.
