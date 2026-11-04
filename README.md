@@ -253,6 +253,8 @@ What GOPOD's sessions turn into outside the room: the contest, its clips, and th
 - [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md): GOPOD's own documentation - songs, the chat page,
   every rule and command.
 
+![Hey feelin' lucky? Call me!! Let's clip some cash!!](goverlord/wire_pod_overlay/chipper/webroot/pictures/promo/lucky-call-cash.jpg)
+
 **Contact:** [crushn8r.ca](https://crushn8r.ca), and the CRUSHN8R CREW'd newsletter.
 
 ## Credits
