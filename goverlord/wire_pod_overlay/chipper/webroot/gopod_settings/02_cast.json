@@ -4,19 +4,6 @@
     "clock_format": "3:04 PM, Monday, January 2, 2006",
     "cast_about": "One entry per participant (who: his host or Brobot name), {gender} filled the same way.",
     "cast_mentors_about": "2026-10-29 (operator: \"Yes: add CHALK's intern and PLAYHEAD's intern to the cast list * interns work with/for both, but male/male female/female * CHALK mentors Cache PYC (display pizzazz/wow stuff) * PLAYHEAD mentors Git Repo (more tech helper)\"): the managers' and interns' cast lines say who mentors whom.",
-    "cast": [
-      {"who": "Brobot 0", "line": "Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)"},
-      {"who": "Brobot 1", "line": "Doc ({gender}, Brobot 1, a Brobot)"},
-      {"who": "Brobot 2", "line": "Pip ({gender}, Brobot 2, a Brobot)"},
-      {"who": "CHALK", "line": "CHALK BORED ({gender}, display manager, mentors Cache PYC - display pizzazz, the wow stuff)"},
-      {"who": "PLAYHEAD", "line": "PLAYHEAD ZUMINTU ({gender}, session manager, mentors Git Repo - the tech helper)"},
-      {"who": "GIT REPO", "line": "Git Repo ({gender}, intern: USB ports - PLAYHEAD's intern, works with both managers)"},
-      {"who": "CACHE PYC", "line": "Cache PYC ({gender}, intern: web search results and the weather - CHALK's intern, works with both managers)"},
-      {"who": "INTEL 404 PNFH", "line": "Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)"},
-      {"who": "INTEL 404 PNFT", "line": "Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)"},
-      {"who": "CAMEO", "line": "Cameo ({gender}, social media Gomad)"},
-      {"who": "BUTLER", "line": "{name}, \"{nickname}\" (the {job}, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)"}
-    ],
     "chat_note_about": "2026-10-27 (live: every Gomad's \"tell me all about yourself\" came back as the Brobots' own answer): a Gomad gets the recent chat as one note of other people's lines - chat_note, then each line, a Brobot's answer as chat_answer - never as its own replies."
   },
   "brothers": {
@@ -83,12 +70,6 @@
   "managers": {
     "brobot_says_about": "2026-10-22 (operator: \"no weather voice generation or display, weather spoken by brobot\"): a take with brobot_says - its manager says take_text only; the Brobot says the result (the golden weather line opens his reply).",
     "about": "CHALK and PLAYHEAD, the managers (operator 2026-10-18: \"CHALK & PLAYHEAD can take over system commands * KP1, what's the weather * 'weather' detected * CHALK says, I'll help you with that, and takes over the request * after I can still ask the brobots about the weather and other system results in the chat * they get the same thought bubbles\"; then \"PLAYHEAD * he now takes over 'time & location' stuff * WAWN, where are we now? * weather * his bubble background is tape ribbon color of vintage video tape cassettes\"; \"CHALK (display) now is to take ownership of: search-results box (same smaller size, no audio) * system-status and the other system bubbles * hidden/surprise egg cards\"). takes: in the live chat, a line with one of a take's words - its host (a reporter_voices host, its own colour) says take_text, then does its kind: weather (the weather line; no egg since 2026-10-18) or time_place (time_place_text: {place} {weekday} {date} {clock}). The Brobots still get the facts in their prompt, but don't open their reply with the weather for release_seconds. display_host: CHALK draws the search results, the system bubbles (system-* answers, Wire-Pod intent, numpad status) and the surprise eggs on its chalkboard. gopod_managers.go.",
-    "takes": [
-      {"host": "CACHE PYC", "via": "PLAYHEAD", "kind": "weather", "words": ["weather"], "take_text": "", "brobot_says": true, "why": "2026-10-27 (operator: \"what's the weather like right now * [Gomad] * [assigned-intern] will help you with that. * Thanks for your help, [intern].\"): PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own \"I'll help you with that.\"); the Brobot thanks her and says the weather."},
-      {"host": "PLAYHEAD", "kind": "url_qr", "words": [], "take_text": "I can help with that. QR code generated."},
-      {"host": "GIT REPO", "via": "CHALK", "kind": "usb", "words": ["usb devices", "what's plugged in", "what is plugged in", "lsusb"], "take_text": "I'll check that."},
-      {"host": "PLAYHEAD", "kind": "time_place", "words": ["what time", "time is it", "where are we", "wawn", "what day is it", "what's the date", "what is the date", "today's date"], "take_text": "I'll help you with that."}
-    ],
     "release_seconds": 120,
     "time_place_text": "{place}, {weekday}, {date}, {clock}.",
     "display_host": "CHALK",

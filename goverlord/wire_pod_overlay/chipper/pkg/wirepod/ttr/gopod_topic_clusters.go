@@ -29,7 +29,9 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -45,6 +47,8 @@ var gopodClusterPairs = map[string][2]string{
 	"reporter_voices.opening": {"host", "text"},
 	"reporter_voices.closing": {"host", "text"},
 	"sign_off.lines":          {"who", "text"},
+	// 2026-11-03 (step 7): the cast the here-and-now line names, "who: line".
+	"here_now.cast": {"who", "line"},
 }
 
 // 2026-11-03 (operator: "the whole GOPOD system can be that ... let's do that as
@@ -188,6 +192,69 @@ func gopodClusterHolds(dotted string) string {
 	return ""
 }
 
+// gopodClusterTyped: a bare number, true, false, null or [] (an empty list), as its value.
+func gopodClusterTyped(v string) (any, bool) {
+	switch v {
+	case "true":
+		return true, true
+	case "false":
+		return false, true
+	case "null":
+		return nil, true
+	case "[]":
+		return []any{}, true // an empty list
+	}
+	if !gopodClusterNumberRE.MatchString(v) {
+		return nil, false
+	}
+	var n any
+	if json.Unmarshal([]byte(v), &n) != nil {
+		return nil, false
+	}
+	return n, true
+}
+
+var gopodClusterNumberRE = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`)
+
+// gopodClusterPlace: the node at parts under blocks[top], made as it goes - a
+// group for a name, a list for a number (the next entry, or one already there) -
+// and the setter that puts a new node in its place.
+func gopodClusterPlace(blocks map[string]any, top string, parts []string) (any, func(any), string) {
+	node := blocks[top]
+	set := func(v any) { blocks[top] = v }
+	for i, p := range parts {
+		if n, err := strconv.Atoi(p); err == nil && n >= 0 {
+			list, ok := node.([]any)
+			if node != nil && !ok {
+				return nil, nil, strings.Join(parts[:i], ".") + " isn't a list"
+			}
+			if n > len(list) {
+				return nil, nil, "list entry " + p + " comes before entry " + strconv.Itoa(len(list))
+			}
+			if n == len(list) {
+				list = append(list, nil)
+				set(list)
+			}
+			parentSet, idx, l := set, n, list
+			node = l[idx]
+			set = func(v any) { l[idx] = v; parentSet(l) }
+			continue
+		}
+		m, ok := node.(map[string]any)
+		if !ok {
+			if node != nil {
+				return nil, nil, strings.Join(parts[:i], ".") + " isn't a group"
+			}
+			m = map[string]any{}
+			set(m)
+		}
+		key, mm := p, m
+		node = m[p]
+		set = func(v any) { mm[key] = v }
+	}
+	return node, set, ""
+}
+
 // gopodClustersApply lays the clusters over the merged settings; the problems
 // are the points that land nowhere.
 func gopodClustersApply(data []byte) ([]byte, []string) {
@@ -212,7 +279,13 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 			bad(s, "no settings place in brackets")
 			continue
 		}
-		parts := strings.Split(s.Path, ".")
+		// 2026-11-03 (step 7, the format step): "(a.b[])" is a line list, a
+		// point a line; a number in the place is a list's entry ("managers.takes.0").
+		path, lines := s.Path, gopodClusterLines[s.Path]
+		if strings.HasSuffix(path, "[]") {
+			path, lines = strings.TrimSuffix(path, "[]"), true
+		}
+		parts := strings.Split(path, ".")
 		top := parts[0]
 		if _, ok := blocks[top]; !ok {
 			var v any
@@ -228,40 +301,17 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 			}
 			blocks[top] = v
 		}
-		// The parent of the place, and the place's key in it.
-		var parent map[string]any
-		var key string
-		node := blocks[top]
-		if len(parts) > 1 {
-			m, ok := node.(map[string]any)
-			for _, p := range parts[1 : len(parts)-1] {
-				if !ok {
-					break
-				}
-				next, has := m[p].(map[string]any)
-				if !has {
-					next = map[string]any{}
-					m[p] = next
-				}
-				m = next
-			}
-			if !ok {
-				bad(s, s.Path+" isn't a group")
-				continue
-			}
-			parent, key = m, parts[len(parts)-1]
-			node = m[key]
+		node, set, werr := gopodClusterPlace(blocks, top, parts[1:])
+		if werr != "" {
+			bad(s, werr)
+			continue
 		}
-		if gopodClusterLines[s.Path] {
+		if lines {
 			var list []any
 			for _, pt := range s.Points {
 				list = append(list, pt)
 			}
-			if parent != nil {
-				parent[key] = list
-			} else {
-				blocks[top] = list
-			}
+			set(list)
 			continue
 		}
 		if pair, ok := gopodClusterPairs[s.Path]; ok {
@@ -285,11 +335,7 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				}
 				list = append(list, map[string]any{pair[0]: l, pair[1]: right})
 			}
-			if parent != nil {
-				parent[key] = list
-			} else {
-				blocks[top] = list
-			}
+			set(list)
 			continue
 		}
 		m, ok := node.(map[string]any)
@@ -299,11 +345,7 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				bad(s, s.Path+" isn't a group")
 				continue
 			}
-			if parent != nil {
-				parent[key] = m
-			} else {
-				blocks[top] = m
-			}
+			set(m)
 		}
 		for _, pt := range s.Points {
 			at := strings.Index(pt, ": ")
@@ -334,9 +376,19 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				m[k] = items
 				continue
 			}
+			// 2026-11-03 (step 7): a bare number, true, false or null is that value
+			// (a dial, a switch) - unless the place already holds a text there.
+			if _, wasText := m[k].(string); !wasText && !gopodClusterTexts[s.Path] {
+				if typed, ok := gopodClusterTyped(v); ok {
+					m[k] = typed
+					continue
+				}
+			}
 			if old, has := m[k]; has {
-				if _, isText := old.(string); !isText {
-					bad(s, k+" isn't a text or a list")
+				switch old.(type) {
+				case string, float64, bool:
+				default:
+					bad(s, k+" isn't a text, a number or a list")
 					continue
 				}
 			}
@@ -355,6 +407,17 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 		return data, problems
 	}
 	return out, problems
+}
+
+// gopodSettingsFull (2026-11-03, step 7: the Torah read the menu without its
+// cluster and found none): the merged settings with the clusters laid over them -
+// what Wire-Pod and the page run on. Anything reading the settings as data uses this.
+func gopodSettingsFull() ([]byte, error) {
+	data, err := gopodSettingsMerged()
+	if err != nil {
+		return nil, err
+	}
+	return gopodClustersOverlay(data), nil
 }
 
 // gopodClustersOverlay: the merged settings with the clusters laid over them.

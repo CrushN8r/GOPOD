@@ -24,3 +24,16 @@
 ## Voice genders (here_now.voice_genders)
 1. f: female
 2. m: male
+
+## The cast, in order (here_now.cast)
+1. Brobot 0: Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)
+2. Brobot 1: Doc ({gender}, Brobot 1, a Brobot)
+3. Brobot 2: Pip ({gender}, Brobot 2, a Brobot)
+4. CHALK: CHALK BORED ({gender}, display manager, mentors Cache PYC - display pizzazz, the wow stuff)
+5. PLAYHEAD: PLAYHEAD ZUMINTU ({gender}, session manager, mentors Git Repo - the tech helper)
+6. GIT REPO: Git Repo ({gender}, intern: USB ports - PLAYHEAD's intern, works with both managers)
+7. CACHE PYC: Cache PYC ({gender}, intern: web search results and the weather - CHALK's intern, works with both managers)
+8. INTEL 404 PNFH: Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)
+9. INTEL 404 PNFT: Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)
+10. CAMEO: Cameo ({gender}, social media Gomad)
+11. BUTLER: {name}, "{nickname}" (the {job}, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)

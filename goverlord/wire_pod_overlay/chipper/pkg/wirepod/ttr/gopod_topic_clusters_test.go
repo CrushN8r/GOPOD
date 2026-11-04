@@ -160,3 +160,58 @@ func TestOtherWordsFromClusters(t *testing.T) {
 		t.Error("game, photo or the notice's score line not read from its file")
 	}
 }
+
+// 2026-11-03 (step 7, the format step): a number in the place is a list's entry,
+// "(path[])" a line list, a bare number/true/false/[] is typed, a backticked
+// number stays text, and an entry out of order is a problem, not a guess.
+func TestClusterFormatNestedAndTyped(t *testing.T) {
+	all := map[string]json.RawMessage{"x": json.RawMessage(`{"keep": 1}`)}
+	blocks := map[string]any{}
+	var v any
+	_ = json.Unmarshal(all["x"], &v)
+	blocks["x"] = v
+	node, set, bad := gopodClusterPlace(blocks, "x", []string{"items", "0"})
+	if bad != "" || node != nil {
+		t.Fatalf("first entry: %v %q", node, bad)
+	}
+	set(map[string]any{"cmd": "a"})
+	if _, _, bad := gopodClusterPlace(blocks, "x", []string{"items", "2"}); bad == "" {
+		t.Error("entry 2 before entry 1 wasn't a problem")
+	}
+	if n, ok := gopodClusterTyped("60"); !ok || n != float64(60) {
+		t.Errorf("60: %v %v", n, ok)
+	}
+	if b, ok := gopodClusterTyped("true"); !ok || b != true {
+		t.Errorf("true: %v", b)
+	}
+	if l, ok := gopodClusterTyped("[]"); !ok || len(l.([]any)) != 0 {
+		t.Errorf("[]: %v", l)
+	}
+	if _, ok := gopodClusterTyped("29%"); ok {
+		t.Error("29% read as a number")
+	}
+	if blocks["x"].(map[string]any)["keep"] != float64(1) {
+		t.Error("the settings' own value was lost")
+	}
+	// The live files: the menu's scriptures, a tour's lines, a command's switch.
+	merged, _ := gopodSettingsMerged()
+	var page struct {
+		SystemMenu struct {
+			Groups []struct {
+				Tour  []string `json:"tour"`
+				Items []struct {
+					Cmd string `json:"cmd"`
+					Run bool   `json:"run"`
+				} `json:"items"`
+			} `json:"groups"`
+		} `json:"system_menu"`
+	}
+	_ = json.Unmarshal(gopodClustersOverlay(merged), &page)
+	menu := page.SystemMenu.Groups
+	if len(menu) != 10 || len(menu[0].Tour) == 0 || menu[0].Items[2].Cmd != "system-status" || !menu[0].Items[2].Run {
+		t.Errorf("system menu from system-menu.md: %d groups", len(menu))
+	}
+	if len(gopodBrobotsSettings.Managers.Takes) != 4 || len(gopodBrobotsSettings.HereNow.Cast) == 0 {
+		t.Error("takes or the cast not read from their files")
+	}
+}

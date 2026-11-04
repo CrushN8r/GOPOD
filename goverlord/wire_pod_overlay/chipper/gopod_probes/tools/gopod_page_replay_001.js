@@ -112,6 +112,10 @@ function makePage(role) {
     let body = null, ok = true, status = 200;
     if (p === "/gopod_chat_feed.json") { body = JSON.stringify(feed); }
     // 2026-10-29: the settings folder, served as one - as Wire-Pod does (gopod_settings_folder.go).
+    else if (p === "/gopod_brobots_settings.json" && process.env.GOPOD_REPLAY_SETTINGS) {
+      // 2026-11-03: as Wire-Pod serves them, the topic-clusters laid over (gopod_page_replay.sh).
+      body = fs.readFileSync(process.env.GOPOD_REPLAY_SETTINGS, "utf8");
+    }
     else if (p === "/gopod_brobots_settings.json") {
       const dir = path.join(W, "gopod_settings"), merged = {};
       fs.readdirSync(dir).filter(f => f.endsWith(".json")).sort().forEach(f => Object.assign(merged, JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"))));
