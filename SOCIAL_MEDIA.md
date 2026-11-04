@@ -45,6 +45,9 @@ Our socials - @CrushN8r is the GOPOD universe. The accounts are named; they're n
 Every post leads back to a real page, never the post itself: crushn8r.com routes people where they
 need to go (the sites are listed in [LIVESTREAM.md](LIVESTREAM.md#where-it-lands)).
 
+**One joke, many doorways.** One good moment from the livestream becomes a Short, a Reel, a TikTok, a
+Math Aftermath write-up, a lesson - and the next contest prompt.
+
 <details><summary>Game card: niche pillars</summary>
 <!-- gopod topic: 02_niche_pillars -->
 

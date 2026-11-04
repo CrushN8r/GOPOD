@@ -116,8 +116,11 @@ Videos for ads or personal use. Reveal these, in order, in your own words:
 *Party food on wheels: donut, cupcake and cake-slice cars, LEGO ice-cream crew, and the BBQ box.*
 - **Printables** - the Chocolate Bingo kit (print at home, plays in black and white), and the GOPOD
   word search and sudoku on crushn8r.ca.
-- **Print-shop merch from a gig** - bingo cards, signs, winner photos and posters, through Mission
-  Promotional Products. Merch ideas - crew tees, a chocolate-bingo pin, a mug - aren't made yet.
+- **Gig merch, ordered locally** - bingo cards, signs, winner photos, posters, cakes and balloons,
+  through local businesses: bakeries, print shops and party supply stores. In Windsor, Ontario: The
+  Party Warehouse (locally owned, one of the city's biggest balloon selections), Party City, Pretty
+  Little Party Co. and Balloons By Us. Merch ideas - crew tees, a chocolate-bingo pin, a mug, the
+  [Almost Doc Approved](LIVESTREAM.md#almost-doc-approved) sticker and badge - aren't made yet.
 - **Affiliates** - recipe links on foodmath, planned.
 
 <details><summary>Game card: printables and affiliates</summary>
@@ -126,18 +129,18 @@ Videos for ads or personal use. Reveal these, in order, in your own words:
 # printables and affiliates
 - **chapter:** Booking
 
-- **words:** printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print
+- **words:** printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print, party supplies, balloons, bakery, local businesses
 - **notes 1:** printables | the Chocolate Bingo kit | the GOPOD word search and sudoku on crushn8r.ca
-- **notes 2:** print-shop merch | bingo cards, signs, winner photos, posters | through Mission Promotional Products
+- **notes 2:** gig merch, ordered locally | bingo cards, signs, winner photos, posters | bakeries, print shops, party supply stores
 - **notes 3:** affiliates | foodmath recipe links | planned
-- **summary:** printables: the Chocolate Bingo kit, the GOPOD word search and sudoku | print-shop merch: bingo cards, signs, winner photos, posters | affiliates: foodmath recipe links, planned
+- **summary:** printables: the Chocolate Bingo kit, the GOPOD word search and sudoku | gig merch, ordered locally: bingo cards, signs, winner photos, posters, bakeries, print shops, party supply stores | affiliates: foodmath recipe links, planned
 - **source:** BOOKING.md
 
 ---
 
 Printables and affiliates. Reveal these, in order, in your own words:
 1. Printables: the Chocolate Bingo kit - print at home, plays in black and white - and the GOPOD word search and sudoku on crushn8r.ca.
-2. Print-shop merch from a gig: bingo cards, signs, winner photos and posters, through Mission Promotional Products.
+2. Gig merch, ordered locally: bingo cards, signs, winner photos, posters, cakes and balloons - through local bakeries, print shops and party supply stores. In Windsor: The Party Warehouse, Party City, Pretty Little Party Co. and Balloons By Us.
 3. Affiliates: recipe links on foodmath - planned, not live yet.
 
 </details>

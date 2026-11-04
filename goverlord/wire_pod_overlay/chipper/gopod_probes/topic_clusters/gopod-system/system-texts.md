@@ -183,7 +183,7 @@ topics: {names}
 1. thinking_line.thinking_please_wait: Thinking, please wait.
 
 ## Torah (system_text)
-1. torah.the_gopod_torah_is_written: The GOPOD Torah is written again: GOPOD_TORAH.md and its scriptures (torah/) match the system as it is now.
+1. torah.the_gopod_torah_is_written: The GOPOD Torah is written again: GOPOD_TORAH.md and its scriptures (system_torah/) match the system as it is now.
 
 ## Value points golden (system_text)
 1. value_points_golden.no_topic_system_topic_lists: no topic {arg1} (system-topic lists them)

@@ -8,9 +8,9 @@ anyone who was told they were bad at it.
 
 ## The app, access built in
 
-<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="420" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers">
+<p align="center"><img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="100%" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers"></p>
 
-*LLM Ready. The chat on the big screen, the same chat in the app on a phone.*
+<p align="center"><em>LLM Ready. The chat on the big screen, the same chat in the app on a phone.</em></p>
 
 **The app is how people at a live gig join in.** Join the rig's Wi-Fi, open the chat, ask for a
 username. Once it's approved, you're in the conversation with the Brobots - under your own name, on
@@ -59,6 +59,34 @@ with a clearer head. A short brobot exchange doesn't solve the problem - it crea
 ```
 stuck energy  →  a short GOPOD session  →  laugh, engage, join in  →  a break  →  a clearer head
 ```
+
+**Laugh first, learn after.** The livestream ([LIVESTREAM.md](LIVESTREAM.md)) doesn't say "Learn
+algebra." It says "Look what happened on tonight's livestream." Funny, then interesting, then joining
+in, then learning - and then confidence. Low shame: a wrong answer is part of the show.
+
+<details><summary>Game card: laugh first, learn after</summary>
+<!-- gopod topic: 04_laugh_first -->
+
+# laugh first, learn after
+- **chapter:** Accessmath: GOPOD for everyone
+
+- **words:** laugh first, learn after, tonight's livestream, learn algebra, confidence, low shame, scared of math, afraid of math, told i was bad at math
+- **reminder:** Hey, that reminds me... Look what happened on tonight's livestream.
+- **say 1:** Not "Learn algebra." "Look what happened on tonight's livestream."
+- **notes 1:** the invite | not learn algebra | look what happened on tonight's livestream
+- **notes 2:** the path | funny, interesting, joining in | learning, then confidence
+- **notes 3:** low shame | a wrong answer is part of the show
+- **summary:** the invite: not learn algebra, look what happened on tonight's livestream | the path: funny, interesting, joining in, learning, then confidence | low shame: a wrong answer is part of the show
+- **source:** ACCESSMATH.md
+
+---
+
+How the livestream brings people to accessmath. Reveal these, in order, in your own words:
+1. Not "Learn algebra." "Look what happened on tonight's livestream."
+2. Funny, then interesting, then joining in, then learning - and then confidence.
+3. Low shame: a wrong answer is part of the show, so confusion turns into the next laugh.
+
+</details>
 
 **Borrowing a stage.** Someone with no platform of their own can stand in GOPOD's light for a
 minute, and what they bring gets carried by it. The brand isn't just GOPOD's - it's a stage other

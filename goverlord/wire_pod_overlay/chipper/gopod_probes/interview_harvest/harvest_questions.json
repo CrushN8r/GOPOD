@@ -393,6 +393,78 @@
       "ask": "Brobot 1, what's the channel goal for 2027?"
     },
     {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "contest_season",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, is the contest season a one-off stream, or more like a sports league?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "contest_season",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what happens every week in the contest season?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "contest_season",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how does the contest season end - monthly, quarterly, year-end?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "how_a_round_plays",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, in a round, what does the room send Doc - SuperChat-style submissions?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "how_a_round_plays",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, in a round, who's the host and who's the sidekick?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "how_a_round_plays",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how many ways are there to win a round, and what are they?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "what_gets_explained",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, in the contest, do you explain opinions or who's right?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "what_gets_explained",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what kinds of things get explained - headlines, graphs, memes?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "what_gets_explained",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, in the contest, who do you laugh at - bad logic or people?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "almost_doc_approved",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the Almost Doc Approved award for?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "almost_doc_approved",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what does Doc say when it's Almost Doc Approved?"
+    },
+    {
+      "chapter": "Livestream: AI Wordplay! Explain the MAth!",
+      "topic": "almost_doc_approved",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what Almost Doc Approved keepsakes are planned - a trophy?"
+    },
+    {
       "chapter": "Social media",
       "topic": "socials",
       "to": "Brobot 1",
@@ -487,6 +559,24 @@
       "topic": "where_we_teach",
       "to": "Brobot 2",
       "ask": "Brobot 2, who benefits the most?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "laugh_first",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, does the livestream say 'learn algebra', or something else?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "laugh_first",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, laugh first, learn after - what's the path to confidence?"
+    },
+    {
+      "chapter": "Accessmath: GOPOD for everyone",
+      "topic": "laugh_first",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, is a wrong answer a red mark, or part of the show? Low shame?"
     },
     {
       "chapter": "Booking",

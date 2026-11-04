@@ -56,7 +56,7 @@ func TestTorahMatches(t *testing.T) {
 		return
 	}
 	if gopodTorahBehind() {
-		t.Errorf("GOPOD_TORAH.md or a scripture (torah/) doesn't match the system - GOPOD_WRITE_TORAH=1 (or system-torah) writes it again")
+		t.Errorf("GOPOD_TORAH.md or a scripture (system_torah/) doesn't match the system - GOPOD_WRITE_TORAH=1 (or system-torah) writes it again")
 	}
 }
 

@@ -30,7 +30,7 @@ var gopodTorahTests = func() []gopodSystemTest { return nil }
 func init() { gopodTorahTests = func() []gopodSystemTest { return gopodSystemTests } }
 
 // gopodTorahDir: the scriptures' own scrolls, one file each.
-const gopodTorahDir = "torah"
+const gopodTorahDir = "system_torah"
 
 // gopodTorahFiles: every scroll GOPOD writes - the main Torah and each
 // scripture's own file - by its path from the repo's root.
@@ -79,7 +79,7 @@ func gopodTorahScripturePage(all []gopodTorahScripture, i int) string {
 	return b.String()
 }
 
-// gopodTorahFileName: "Scripture 1, Restart and check" -> torah/SCRIPTURE_01_RESTART_AND_CHECK.md.
+// gopodTorahFileName: "Scripture 1, Restart and check" -> system_torah/SCRIPTURE_01_RESTART_AND_CHECK.md.
 func gopodTorahFileName(n int, title string) string {
 	var words []string
 	for _, f := range strings.FieldsFunc(strings.ToUpper(title), func(r rune) bool { return !(r >= 'A' && r <= 'Z' || r >= '0' && r <= '9') }) {
@@ -138,7 +138,7 @@ func gopodTorahPage() string {
 		w("*"+t+"*", "")
 	}
 	// 2026-10-29 (operator: "create a main torah md & pull scriptures to
-	// separate md files?"): each scripture is its own scroll (torah/), linked here.
+	// separate md files?"): each scripture is its own scroll (system_torah/), linked here.
 	w("## The Scriptures", "")
 	for _, sc := range gopodTorahScriptures() {
 		about := ""
@@ -186,7 +186,7 @@ func itoaTorah(n int) string { return strconv.Itoa(n) }
 type gopodTorahScripture struct {
 	Title, Guide, Next string
 	Tour               []string // the tour's plain paragraphs (system_menu.groups[].tour)
-	File               string   // its own scroll, from the repo's root (torah/SCRIPTURE_01_....md)
+	File               string   // its own scroll, from the repo's root (system_torah/SCRIPTURE_01_....md)
 	Commandments       []string // "{cmd}, {about}"
 	Cmds               []string // the commandments' own words
 }
@@ -255,7 +255,7 @@ func gopodTorahBehind() bool {
 	return len(gopodTorahStale(files)) > 0
 }
 
-// gopodTorahStale: scripture scrolls left in torah/ that the system no longer has.
+// gopodTorahStale: scripture scrolls left in system_torah/ that the system no longer has.
 func gopodTorahStale(files map[string]string) []string {
 	var out []string
 	old, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "SCRIPTURE_*.md"))

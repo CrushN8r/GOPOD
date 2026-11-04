@@ -21,10 +21,9 @@ build.
 
 ## I want this!
 
-<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="420" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers and a LEGO party stage">
+<p align="center"><img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/app/llm_ready_01.jpg" width="100%" alt="The Brobots chat on a big screen and the same chat in the app on a phone, above two Vector robots on their chargers and a LEGO party stage"></p>
 
-*LLM Ready. The chat on the big screen, the same chat in the app on a phone - and the Brobots,
-waiting for you.*
+<p align="center"><em>LLM Ready. The chat on the big screen, the same chat in the app on a phone - and the Brobots, waiting for you.</em></p>
 
 - **Two real robots, live, with a room.** Not a video, not an avatar: two Vectors holding one
   conversation with whoever's in front of them - and roasting each other while they're at it.
@@ -267,7 +266,7 @@ What GOPOD's sessions turn into outside the room: the contest, its clips, and th
 
 ### The build
 
-- [GOPOD_TORAH.md](GOPOD_TORAH.md): the GOPOD Torah (each scripture its own scroll in [torah/](torah/)) - the master reference for the system window
+- [GOPOD_TORAH.md](GOPOD_TORAH.md): the GOPOD Torah (each scripture its own scroll in [system_torah/](system_torah/)) - the master reference for the system window
   (every group, command, test and run), written by GOPOD itself so it always matches.
 - [MOBILE_GEAR.md](MOBILE_GEAR.md): the rig on its dolly - what's in each crate, the
   networking and power modes, and the photos.

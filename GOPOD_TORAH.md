@@ -11,16 +11,16 @@ running settings, so they always match the system as it grows - `system-check` s
 
 ## The Scriptures
 
-- [Scripture 1, Restart and check](torah/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
-- [Scripture 2, Play](torah/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
-- [Scripture 3, Edit words and settings](torah/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
-- [Scripture 4, Find](torah/SCRIPTURE_04_FIND.md) - Don't know where something lives?
-- [Scripture 5, Apply](torah/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
-- [Scripture 6, Switches](torah/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
-- [Scripture 7, Brobots](torah/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
-- [Scripture 8, Tune moves](torah/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
-- [Scripture 9, Test one thing](torah/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
-- [Scripture 10, Wrap up](torah/SCRIPTURE_10_WRAP_UP.md) - End the show.
+- [Scripture 1, Restart and check](system_torah/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
+- [Scripture 2, Play](system_torah/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
+- [Scripture 3, Edit words and settings](system_torah/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
+- [Scripture 4, Find](system_torah/SCRIPTURE_04_FIND.md) - Don't know where something lives?
+- [Scripture 5, Apply](system_torah/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
+- [Scripture 6, Switches](system_torah/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
+- [Scripture 7, Brobots](system_torah/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
+- [Scripture 8, Tune moves](system_torah/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
+- [Scripture 9, Test one thing](system_torah/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
+- [Scripture 10, Wrap up](system_torah/SCRIPTURE_10_WRAP_UP.md) - End the show.
 
 ## The Commandments
 
