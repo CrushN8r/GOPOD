@@ -15,8 +15,6 @@ original cloud. GOPOD runs two of them, Brobot 1 and Brobot 2, on one Jetson: on
 conversation, scripted performances, and upstream Wire-Pod left untouched through an overlay
 build.
 
-**Watch:** [VIDEO PLACEHOLDER — `start bingo test` run]
-
 ![Under construction](goverlord/wire_pod_overlay/chipper/webroot/pictures/under-construction.jpg)
 
 ## I want this!

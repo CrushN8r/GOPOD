@@ -658,10 +658,12 @@ type gopodBrobotsSettingsFile struct {
 		Text  string   `json:"text"`
 		// 2026-10-31: the opening and the cast line, said by code around the
 		// model's middle part: "I'm {name}{nickname_part}." ... cast_line.
-		CastLine     string `json:"cast_line"`
-		Opening      string `json:"opening"`
-		NicknamePart string `json:"nickname_part"`
-		WhyPart      string `json:"why_part"`
+		CastLine string `json:"cast_line"`
+		// 2026-11-04: "<profile section>|<label>" - his working relationships, in his facts.
+		Relations    []string `json:"relations"`
+		Opening      string   `json:"opening"`
+		NicknamePart string   `json:"nickname_part"`
+		WhyPart      string   `json:"why_part"`
 		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
 		// md, then weather topic cluster md"): his take on the weather, after his
 		// intro (gopod_probes/topic_clusters/show/group-chat-intro.md).
@@ -685,6 +687,9 @@ type gopodBrobotsSettingsFile struct {
 		Rounds []struct {
 			Text string   `json:"text"`
 			Keys []string `json:"keys"`
+			// 2026-11-04 (operator: "Keys will now do the round robin"): who asks
+			// it - its bubble and voice (empty: the Operator, as before).
+			Asker string `json:"asker"`
 		} `json:"rounds"`
 		QuietSeconds   float64 `json:"quiet_seconds"`
 		LineMaxSeconds float64 `json:"line_max_seconds"`
@@ -693,6 +698,10 @@ type gopodBrobotsSettingsFile struct {
 		DoneText       string  `json:"done_text"`
 		// 2026-11-02: {name} for the line to All ("Hey Brobots!").
 		AllName string `json:"all_name"`
+		// 2026-11-04: the song the rounds come from (gopodApplyCommCheckSong).
+		Song string `json:"song"`
+		// 2026-11-04: the song has a wake_both step (both Brobots woken first).
+		Wake bool `json:"wake"`
 	} `json:"comm_check"`
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {
@@ -1099,6 +1108,8 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	}
 	// 2026-10-08: the topics' parts come from the chapters folder (gopod_chapters_folder.go).
 	gopodApplyChaptersFolder(&s)
+	// 2026-11-04: the comm check's rounds from its song (gopod_comm_check.go).
+	gopodApplyCommCheckSong(&s)
 	// 2026-10-27: every run from its card (gopod_game_engine.go).
 	gopodApplyGameRuns(&s)
 	// 2026-10-30: every persona's labels from its profile (gopod_persona_profiles.go).

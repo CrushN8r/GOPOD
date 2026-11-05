@@ -1,0 +1,17 @@
+{
+  "song_id": "brobots_rapid_fire",
+  "song_type": "bingo_capture",
+  "story_ref": "story.md",
+  "global_tempo": 0.1,
+  "chat_intro": "Rapid Fire Live",
+  "touch_interrupt_off": true,
+  "llm_warmup": true,
+  "llm_ready_text": "We here, are Rapid Fire Ready",
+  "with_next_about": "2026-11-04 (operator: \"Perfect Run!! Lock that in as a rapid fire exchanges test\"): host_say_0201 has \"with_next\": true - Brobot 1's line and Brobot 2's start together (run_golden_song_001.py). Each line's \" \" commas time the gaps; Brobot 2's three leading pauses are the tuned offset - one more or fewer moves all his lines.",
+  "steps": [
+    {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPENING"},
+    {"step_id": "host_say_0201", "note": "say_turn", "speaker": "brobot_1", "with_next": true, "buffer_after": 0.0, "tempo_factor": 0.0, "section": "RAPID FIRE"},
+    {"step_id": "brat_say_0201", "note": "say_turn", "speaker": "brobot_2", "buffer_after": 1.0, "section": "RAPID FIRE"},
+    {"step_id": "brobots_exit_0301", "note": "exit", "speaker": "brobot_1", "section": "CLOSING"}
+  ]
+}

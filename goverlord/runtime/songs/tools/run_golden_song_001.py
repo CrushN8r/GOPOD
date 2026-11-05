@@ -241,6 +241,14 @@ SONG_REGISTRY = {
 # 2026-10-11 (operator: "new song, really fast"): the elevator fart joke.
 SONG_REGISTRY["brobots_fart_joke"] = dict(SONG_REGISTRY["brobots_bingo"])
 
+# 2026-11-04 (operator: "Lock that in as a rapid fire exchanges test * Make it a
+# GOPOD song (WIP)"): two lines at once, timed by their own commas.
+SONG_REGISTRY["brobots_rapid_fire"] = dict(SONG_REGISTRY["brobots_bingo"])
+
+# 2026-11-04 (operator: "Brobot 1 Arm lift, Brobot 2 Arm lift, Brobots Nod
+# together, Brobots say brobots ready message together"): the ready move.
+SONG_REGISTRY["brobots_ready"] = dict(SONG_REGISTRY["brobots_bingo"])
+
 DEFAULT_SONG_ID = "brobots_baby_robots_sleep"
 
 
@@ -2346,6 +2354,17 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         return run_say_turn(mod, robots, name, say_text, suppress_assume_release=suppress_assume_release)
 
     current_section = None
+    with_next_jobs = []  # steps started with the next one ("with_next")
+
+    def start_with_next(run, entry):
+        """2026-11-04: a "with_next" step runs beside the step after it (both
+        robots at once); it's waited for once that next step is done."""
+        job = {}
+        thread = threading.Thread(target=lambda: job.update(run()), daemon=True)
+        thread.start()
+        with_next_jobs.append((thread, job, entry))
+        entry["ok"] = True
+        entry["with_next"] = True
     # Robots whose control is retaken before their next step (retake_robot_control).
     needs_control_retake = set()
     stop_request = song_stop_request_path(mod)
@@ -2620,9 +2639,16 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                     entry["error"] = f"{step['text']!r} was not heard on the chat page within {most:.0f}s - the run stops here"
 
         elif note == "say_turn":
-            result = say_step_line(name, step["text"])
-            entry["ok"] = result["ok"]
-            entry["result"] = result
+            # 2026-11-04 (operator: "Perfect Run!! Lock that in as a rapid fire
+            # exchanges test"): "with_next": true - this line starts and the next
+            # say_turn starts with it, both robots at once; each line's own
+            # " " commas (about 0.5 s each) time the gaps (04_rapid_fire).
+            if step.get("with_next"):
+                start_with_next(lambda n=name, t=step["text"]: say_step_line(n, t), entry)
+            else:
+                result = say_step_line(name, step["text"])
+                entry["ok"] = result["ok"]
+                entry["result"] = result
 
         elif note == "thinking":
             # GOLDEN, locked (2026-10-13, operator: "a single robust engine for live
@@ -2711,9 +2737,13 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                     mod, serial, step["cycles"], step["hold_seconds"], live,
                     speed=step["speed"], manage_control=manage_control,
                 )
-            result = run_move_with_line(arm_move, lambda: say_step_line(name, step["text"])) if step.get("text") else arm_move()
-            entry["ok"] = result["ok"]
-            entry["result"] = result
+            run = (lambda: run_move_with_line(arm_move, lambda: say_step_line(name, step["text"]))) if step.get("text") else arm_move
+            if step.get("with_next"):
+                start_with_next(run, entry)
+            else:
+                result = run()
+                entry["ok"] = result["ok"]
+                entry["result"] = result
 
         elif note == "nod":
             def nod_move():
@@ -2721,9 +2751,13 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                     mod, serial, step["hold_seconds"], live,
                     speed=step["speed"], manage_control=manage_control,
                 )
-            result = run_move_with_line(nod_move, lambda: say_step_line(name, step["text"])) if step.get("text") else nod_move()
-            entry["ok"] = result["ok"]
-            entry["result"] = result
+            run = (lambda: run_move_with_line(nod_move, lambda: say_step_line(name, step["text"]))) if step.get("text") else nod_move
+            if step.get("with_next"):
+                start_with_next(run, entry)
+            else:
+                result = run()
+                entry["ok"] = result["ok"]
+                entry["result"] = result
 
         elif note == "wheel_nudge":
             # Stage 2 of WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md - fixed
@@ -2892,6 +2926,13 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         if unconditional_text_speak and not entry.get("ok") and step.get("fail"):
             run_say_turn(mod, robots, name, step["fail"], suppress_assume_release=suppress_assume_release)
 
+        # 2026-11-04: a step started "with_next" is waited for once the step after it is done.
+        if not step.get("with_next") and with_next_jobs:
+            for thread, job, together_entry in with_next_jobs:
+                thread.join()
+                together_entry["ok"] = job.get("ok", False)
+                together_entry["result"] = job
+            with_next_jobs.clear()
         # A failed robot step, or a line still silent after the heal, under the
         # song's hold: retake that robot's control before its next step.
         if continuous_hold_both and note in CONTROL_RETAKE_NOTES and not step_filtered:
@@ -3022,6 +3063,10 @@ def main():
         song_type = None
     if song_type == "interview":
         print("This is the interview: type \"start interview\" in the Brobots chat to play it.", flush=True)
+        return None
+    # 2026-11-04: the comm check's song is played by Wire-Pod (gopod_comm_check.go).
+    if song_type == "comm_check":
+        print("This is the comm check: type \"system-comm-check\" in the Brobots chat to play it.", flush=True)
         return None
     return run_golden_song(song_dir, live, voice_destination)
 

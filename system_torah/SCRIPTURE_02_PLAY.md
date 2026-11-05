@@ -11,6 +11,8 @@ Available steps are listed under “system-score”. To replay a previously save
 - start bingo test, the Bingo test
 - start baby brobots, the Baby Brobots nap song
 - start fart joke, the Fart Joke
+- start rapid fire, the rapid fire exchanges test
+- start brobots ready, the Brobots ready move
 - system-play, a song or part of it: <song> [from <step>] [to <step>] [robot 1|2] [dry] (steps: system-score)
 - replay, a saved session - add its name
 - stop run, stops the song playing

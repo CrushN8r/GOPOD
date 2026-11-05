@@ -25,7 +25,8 @@ func TestCommCheck(t *testing.T) {
 			t.Errorf("KP%d asked %d times, want once", n, keys["KP"+string(rune('0'+n))])
 		}
 	}
-	if keys[gopodNumpadAllKey] != 1 || !strings.Contains(lines[0][1], "party animal") {
+	// 2026-11-04 (operator: "Keys will now do the round robin"): Goverlord hands it to Keys first, then Keys asks.
+	if keys[gopodNumpadAllKey] != 1 || lines[0][0] != "KP0" || lines[0][2] != "Goverlord" || lines[1][2] != "BUTLER" {
 		t.Errorf("comm check lines: %v", keys)
 	}
 	js, _ := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "js", "gopod_brobots_chat.js"))

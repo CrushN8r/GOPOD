@@ -785,13 +785,25 @@ func gopodReporterReadsOperator(text, how, to string) {
 	if !gopodScriptPlaying.Load() && gopodReporterVoice(gopodOperatorVoiceHost) != "" {
 		host = gopodOperatorVoiceHost
 	}
+	// 2026-11-04 (operator: "Keys will now do the round robin"): a comm check
+	// line is said in its asker's voice (Keys: the system voice) - never the
+	// Operator's recording.
+	asker := gopodCommCheckAsker(text)
+	if asker != "" {
+		host = asker
+		if gopodReporterVoice(host) == "" {
+			host = gopodBrobotsSettings.SignOff.SystemRole
+		}
+	}
 	for _, from := range rv.ReadLinesFrom {
 		if from == how {
 			// 2026-10-24: a numpad line plays its own mic recording, evened and
 			// timed like a made voice (gopod_mic_voice.go) - the Operator's made
 			// voice only when there's none.
-			if gopodMicVoiceSay(host, text) {
-				return
+			if asker == "" {
+				if gopodMicVoiceSay(host, text) {
+					return
+				}
 			}
 			// 2026-10-16 (operator: "Operator bubble (as voice file is being
 			// generated) * update message to \"Voice file generating.\" +

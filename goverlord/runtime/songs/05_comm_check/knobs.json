@@ -1,0 +1,15 @@
+{
+  "song_id": "brobots_comm_check",
+  "song_type": "comm_check",
+  "story_ref": "story.md",
+  "about": "2026-11-04 (operator: \"Make system-comm-check a GOPOD song\"): system-comm-check plays this song (gopod_comm_check.go, settings comm_check.song): each \"ask\" step's line from story.md, asked on each of its keys in order. A wake_both step wakes both Brobots first (control taken, the settle, given back - gopodRobotCall). 2026-11-04 (operator: \"Goverlord, to orchestrate, delegates butler Keys to get the party started * Keys > Gomads > ... * Keys will now do the round robin\"): \"asker\" is whose bubble and voice the line is - Goverlord hands it to Keys (KP0), then BUTLER (Keys) calls everyone in: the Gomads CHALK, PLAYHEAD, CAMEO (KP7-9), the Brobots Doc and Pip (KP1-2), the interns Git Repo and Cache PYC (KP3-4), the guards Buzzer and Switch (KP5-6), then the Brobots together (*).",
+  "steps": [
+    {"step_id": "brobots_wake_0101", "note": "wake_both", "section": "OPENING"},
+    {"step_id": "keys_ask_0201", "note": "ask", "asker": "Goverlord", "keys": ["KP0"], "section": "ROUND ROBIN"},
+    {"step_id": "gomads_ask_0202", "note": "ask", "asker": "BUTLER", "keys": ["KP7", "KP8", "KP9"], "section": "ROUND ROBIN"},
+    {"step_id": "brobots_ask_0203", "note": "ask", "asker": "BUTLER", "keys": ["KP1", "KP2"], "section": "ROUND ROBIN"},
+    {"step_id": "interns_ask_0204", "note": "ask", "asker": "BUTLER", "keys": ["KP3", "KP4"], "section": "ROUND ROBIN"},
+    {"step_id": "guards_ask_0205", "note": "ask", "asker": "BUTLER", "keys": ["KP5", "KP6"], "section": "ROUND ROBIN"},
+    {"step_id": "all_ask_0206", "note": "ask", "asker": "BUTLER", "keys": ["KPmul"], "section": "ROUND ROBIN"}
+  ]
+}

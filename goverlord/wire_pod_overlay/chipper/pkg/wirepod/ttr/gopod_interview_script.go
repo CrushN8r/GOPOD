@@ -613,6 +613,10 @@ func gopodReporterHost(who string) string {
 // gopodScriptQuestionReader: the reporter who reads this line, when it's the
 // playing draft's question (the one read_by would pick otherwise), or "".
 func gopodScriptQuestionReader(to, text string) string {
+	// 2026-11-04: a comm check line is labelled as who asks it (Keys).
+	if a := gopodCommCheckAsker(text); a != "" {
+		return a
+	}
 	gopodScript.Lock()
 	asking, host := gopodScript.asking, gopodScript.readBy
 	gopodScript.Unlock()

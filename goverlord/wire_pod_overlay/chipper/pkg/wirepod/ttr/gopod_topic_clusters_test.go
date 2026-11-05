@@ -233,7 +233,7 @@ func TestNestedGroupsFromClusters(t *testing.T) {
 	if err := json.Unmarshal(merged, &s); err != nil {
 		t.Fatal(err)
 	}
-	if len(s.Game.Runs) != 4 || len(s.ValuePoints.Funnels) != 3 || len(s.ValuePoints.CoreTopics) == 0 {
+	if len(s.Game.Runs) != 6 || len(s.ValuePoints.Funnels) != 3 || len(s.ValuePoints.CoreTopics) == 0 {
 		t.Errorf("runs %d, funnels %d, core topics %d", len(s.Game.Runs), len(s.ValuePoints.Funnels), len(s.ValuePoints.CoreTopics))
 	}
 	if exp, _ := s.Game.Runs[0]["experience"].(map[string]any); exp == nil || exp["takes"] == nil {

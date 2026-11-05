@@ -129,6 +129,8 @@ One card per run (`game.runs`) - start it, stop it, its song.
 | Bingo Test | `start bingo test` | `stop bingo test` | 01a_brobots_bingo_test |
 | Baby Brobots | `start baby brobots` | `stop baby brobots` | 101_brobots_nap |
 | Fart Joke | `start fart joke` | `stop fart joke` | 03_fart_joke |
+| Rapid Fire | `start rapid fire` | `stop rapid fire` | 04_rapid_fire |
+| Brobots Ready | `start brobots ready` | `stop brobots ready` | 06_brobots_ready |
 
 ## The Looks
 

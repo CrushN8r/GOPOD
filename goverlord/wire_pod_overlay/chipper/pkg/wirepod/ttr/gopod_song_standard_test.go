@@ -85,6 +85,10 @@ func TestSongFoldersFollowTheStandard(t *testing.T) {
 			if k.SongType == "interview" {
 				known = gopodInterviewNotes
 			}
+			// 2026-11-04: the comm check's song, played by gopod_comm_check.go.
+			if k.SongType == "comm_check" {
+				known = gopodCommCheckNotes
+			}
 			// 2026-10-16: an LLM warm song (the opener), played by gopod_opener_song.go.
 			if k.SongType == "llm_warm" {
 				known = gopodOpenerNotes

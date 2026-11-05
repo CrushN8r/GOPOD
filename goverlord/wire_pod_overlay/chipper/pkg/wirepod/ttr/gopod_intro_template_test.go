@@ -13,7 +13,8 @@ func TestIntroTemplate(t *testing.T) {
 	for _, who := range []string{"Brobot 1", "Brobot 2", "BUTLER", "GIT REPO", "CHALK", "PLAYHEAD", "CAMEO"} {
 		opening := gopodIntroOpening(who)
 		cast := gopodIntroCastLine(who)
-		if !strings.HasPrefix(opening, "I'm ") || cast == "" {
+		// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
+		if !strings.HasPrefix(opening, "I'm ") || cast != "" {
 			t.Errorf("%s: opening %q, cast line %q", who, opening, cast)
 			continue
 		}
@@ -171,9 +172,13 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 		"Okay, so long story short, I'm the party guy! 😜\nhappy" + m + " Our gig? We help folks get it.",
 	} {
 		wrapped := gopodIntroWrap("Brobot 2", middle, true)
+		// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
+		if strings.Contains(wrapped, "Here in the chat with us") {
+			t.Errorf("still lists who's here: %q", wrapped)
+		}
 		r := buildGOPODStreamResultWithRepair(context.Background(), gopodAnimationMarkerToInternal(wrapped), "test", nil)
 		said := strings.Join(gopodSpokenPieceTexts(r.AudibleChunks), " ")
-		for _, want := range []string{"my nickname is Pip", "Here in the chat with us"} {
+		for _, want := range []string{"my nickname is Pip"} {
 			if !strings.Contains(said, want) {
 				t.Errorf("not said %q:\n%s\n(wrapped %q)", want, said, wrapped)
 			}

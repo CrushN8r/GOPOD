@@ -179,8 +179,9 @@ func TestIntroRecipe(t *testing.T) {
 	for _, who := range []string{"Brobot 2", "CACHE PYC", "BUTLER"} {
 		r := gopodIntroRecipe(who, tester)
 		// 2026-10-31: the facts without their labels, and no operator in the list.
-		// The cast is the code's line now (gopodIntroCastLine), not the model's.
-		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || strings.Contains(gopodIntroCastLine(who), "Brobot 0") || !strings.Contains(gopodIntroCastLine(who), "Doc") && who != "Brobot 1" {
+		// 2026-11-04: no cast line (operator: "remove who's here in the chat from
+		// every response"); his working relationships are in his facts.
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || !strings.Contains(r, "I answer to ") {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {
@@ -237,7 +238,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself. b) Name who's in the chat right now. c) Keys will be the first to speak, to open up the session.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: GOPOD party-brobot reps: Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself - who you answer to and who works with you. b) Keys will be the first to speak, to open up the session.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: GOPOD party-brobot reps: Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}

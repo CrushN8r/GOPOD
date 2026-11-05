@@ -63,7 +63,7 @@
 10. awaits_text: Goverlord awaits your return...
 
 ## Comm check lines (comm_check)
-1. start_text: Comm check: {n} lines, the whole numpad in turn - KP0 to KP9, then * for All.
+1. start_text: Comm check: {n} lines - Goverlord hands it to Keys, and Keys calls everyone in, one at a time.
 2. done_text: Comm check complete. {n} lines. The game is back to zero - the show can start.
 
 ## Language model lines (llm)

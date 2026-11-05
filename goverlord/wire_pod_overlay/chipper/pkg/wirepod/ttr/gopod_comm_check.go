@@ -18,11 +18,16 @@ package wirepod_ttr
 // starts clean. Record Session keeps it all.
 
 import (
+	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/fforchino/vector-go-sdk/pkg/vector"
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
@@ -69,20 +74,37 @@ func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 	}
 }
 
-// gopodCommCheckLines: every round's text on each of its keys, in order.
-func gopodCommCheckLines() [][2]string {
+// gopodCommCheckLines: every round's text on each of its keys, in order, with
+// who asks it.
+func gopodCommCheckLines() [][3]string {
 	cc := gopodBrobotsSettings.CommCheck
-	var lines [][2]string // key, text
+	var lines [][3]string // key, text, asker
 	for _, r := range cc.Rounds {
 		keys := r.Keys
 		if len(keys) == 0 {
 			keys = cc.Keys
 		}
 		for _, k := range keys {
-			lines = append(lines, [2]string{k, r.Text})
+			lines = append(lines, [3]string{k, r.Text, r.Asker})
 		}
 	}
 	return lines
+}
+
+// gopodCommCheckAsking (2026-11-04, operator: "Goverlord, to orchestrate,
+// delegates butler Keys to get the party started * Keys will now do the round
+// robin"): the comm check line going out and who asks it - its bubble is his
+// (gopodScriptQuestionReader) and it's read in his voice
+// (gopodReporterReadsOperator), not the Operator's.
+var gopodCommCheckAsking atomic.Value // [2]string{text, asker}
+
+// gopodCommCheckAsker: who asks this comm check line, "" when it isn't one.
+func gopodCommCheckAsker(text string) string {
+	a, _ := gopodCommCheckAsking.Load().([2]string)
+	if a[1] == "" || strings.TrimSpace(a[0]) != strings.TrimSpace(text) {
+		return ""
+	}
+	return a[1]
 }
 
 // gopodCommCheckWaitAnswer: until a feed line after from comes from who
@@ -139,8 +161,19 @@ func gopodSystemCommCheck() string {
 			}
 			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
 		}
-		// 2026-11-02: PLAYHEAD says who's here before the first key.
-		gopodWhosHereAnnounce("comm check", true)
+		// 2026-11-04 (operator: "Add in wake calls to new songs"): the song's
+		// wake_both - each Brobot woken (control taken, the settle, given back).
+		if cc.Wake {
+			for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
+				if strings.TrimSpace(esn) != "" {
+					gopodRobotCall(esn, true, func(*vector.Vector, context.Context) string { return "" })
+				}
+			}
+		}
+		// 2026-11-04 (operator: "remove who's here in the chat from every
+		// response, too repetitive"): no who's-here line before the first key -
+		// Goverlord hands it to Keys, and Keys calls everyone in.
+		defer gopodCommCheckAsking.Store([2]string{})
 		for i, l := range lines {
 			if gopodCommCheckStop.Load() {
 				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")
@@ -173,6 +206,7 @@ func gopodSystemCommCheck() string {
 			GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, "numpad_sim|"+key+"|"+label)
 			gopodCommCheckWaitPage(gopodFeedLastID(), 30*time.Second)
 			gopodNumpadLastKey.Store(key)
+			gopodCommCheckAsking.Store([2]string{text, strings.TrimSpace(l[2])})
 			// 2026-10-29 (live 05:13: KP2 went before Brobot 1 had answered, and
 			// the replies landed among KP3's bubbles): the next key waits for
 			// this one's own answer - a line from who was asked - then the quiet.
@@ -208,6 +242,60 @@ func gopodSystemCommCheck() string {
 		}
 	}()
 	return strings.ReplaceAll(cc.StartText, "{n}", strconv.Itoa(len(lines)))
+}
+
+// gopodCommCheckNotes: the comm check song's one note - a line asked on its keys.
+var gopodCommCheckNotes = map[string]bool{"ask": true, "wake_both": true}
+
+// gopodApplyCommCheckSong (2026-11-04, operator: "Make system-comm-check a GOPOD
+// song"): the comm check's rounds come from its song (comm_check.song, a song_id:
+// runtime/songs/05_comm_check) - each "ask" step's line from story.md, asked on
+// each of its keys (knobs.json) in order.
+func gopodApplyCommCheckSong(s *gopodBrobotsSettingsFile) {
+	id := strings.TrimSpace(s.CommCheck.Song)
+	if id == "" {
+		return
+	}
+	songs, _ := gopodAllSongs()
+	dir := songs[id]
+	if dir == "" {
+		logger.Println("GOPOD_COMM_CHECK no song folder has song_id " + id)
+		return
+	}
+	story, err := os.ReadFile(filepath.Join(dir, "story.md"))
+	if err != nil {
+		return
+	}
+	knobs, err := os.ReadFile(filepath.Join(dir, "knobs.json"))
+	if err != nil {
+		return
+	}
+	texts, err := gopodInterviewStory(string(story))
+	var k struct {
+		Steps []struct {
+			StepID string   `json:"step_id"`
+			Note   string   `json:"note"`
+			Keys   []string `json:"keys"`
+			Asker  string   `json:"asker"`
+		} `json:"steps"`
+	}
+	if err != nil || json.Unmarshal(knobs, &k) != nil {
+		logger.Println("GOPOD_COMM_CHECK song " + filepath.Base(dir) + " unreadable")
+		return
+	}
+	s.CommCheck.Rounds = nil
+	for _, st := range k.Steps {
+		if st.Note == "wake_both" {
+			s.CommCheck.Wake = true
+		}
+		if st.Note == "ask" && strings.TrimSpace(texts[st.StepID]) != "" {
+			s.CommCheck.Rounds = append(s.CommCheck.Rounds, struct {
+				Text  string   `json:"text"`
+				Keys  []string `json:"keys"`
+				Asker string   `json:"asker"`
+			}{texts[st.StepID], st.Keys, st.Asker})
+		}
+	}
 }
 
 // ## EOF

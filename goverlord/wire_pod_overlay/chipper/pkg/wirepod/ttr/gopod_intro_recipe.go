@@ -60,6 +60,24 @@ func gopodIntroRecipe(who, text string) string {
 			facts = append(facts, v)
 		}
 	}
+	// 2026-11-04 (operator: "relationships aren't being talked about"): who he
+	// answers to and who answers to him (his profile's own sections).
+	sections := gopodPersonaProfileSections(who)
+	for _, part := range ir.Relations {
+		head, label, ok := strings.Cut(part, "|")
+		if !ok {
+			continue
+		}
+		var names []string
+		for _, line := range sections[strings.TrimSpace(head)] {
+			if line = strings.TrimSpace(line); line != "" && !strings.Contains(line, "(to come)") {
+				names = append(names, line)
+			}
+		}
+		if len(names) > 0 {
+			facts = append(facts, strings.TrimSpace(label)+" "+strings.Join(names, "; "))
+		}
+	}
 	text2 := ir.Text
 	// A Brobot's intro + weather: his take on the report after his one line.
 	if (who == "Brobot 1" || who == "Brobot 2") && gopodIntroWeather(text) {

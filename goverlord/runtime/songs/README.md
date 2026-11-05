@@ -27,6 +27,12 @@ and the interview with `start interview`.
   Brobots sleep through the narrated poem. `start baby brobots`.
 - `03_fart_joke/` — the fart joke: an elevator, three thinking pauses, three farts.
   `start fart joke`.
+- `04_rapid_fire/` — the rapid fire exchanges test: two lines at once, their commas timing the
+  "what?" / "what do you mean what?" exchange. `start rapid fire`. Work in progress.
+- `05_comm_check/` — the comm check before the show: its lines asked on each numpad key.
+  `system-comm-check`. Work in progress.
+- `06_brobots_ready/` — the Brobots ready move: arm lifts, a nod together, "Brobots ready!" together.
+  `start brobots ready`. Work in progress.
 
 Before and after its run, a song can have a pre/post chat in the Brobots chat (the
 `experience` in each run card, settings `game.runs` - the game engine): Bingo, the nap, the fart

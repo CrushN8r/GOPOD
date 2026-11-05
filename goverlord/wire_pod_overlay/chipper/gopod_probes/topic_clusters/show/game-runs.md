@@ -190,3 +190,73 @@
 ## Run 4: Fart Joke - experience - takes (game.runs.3.experience.takes)
 1. Brobot 1: If the Fart Joke comes up, tell it your way, sticking to what really happened: your brother said "Hey bro, pretend you and I are stuck in an elevator." You said "Ok. Done." He said "Listen closely to the forcible expulsion of gaseous waste!" and farted - you said "Bro! Nasty particulates!" He said "Wait! Firing!" and farted again - you got angry: "Bro! Brobot 1 has left the elevator." He said "Wait! One more!" and farted a third time - all you had left was "Bro!"
 2. Brobot 2: If the Fart Joke comes up, tell it your way, sticking to what really happened: it was your prank. You said "Hey bro, pretend you and I are stuck in an elevator." Your brother said "Ok. Done." You said "Listen closely to the forcible expulsion of gaseous waste!" and farted - he said "Bro! Nasty particulates!" You said "Wait! Firing!" and farted again - he got angry: "Bro! Brobot 1 has left the elevator." You said "Wait! One more!" and farted a third time - all he had left was "Bro!"
+
+## Run 5: Rapid Fire (game.runs.4)
+1. name: rapid_fire
+2. title: Rapid Fire
+3. song: 04_rapid_fire
+4. start: start rapid fire
+5. stop: stop rapid fire
+6. menu_about: the rapid fire exchanges test
+7. session: Rapid Fire Live
+8. said: Rapid fire
+
+## Run 5: Rapid Fire - experience (game.runs.4.experience)
+1. about: 2026-11-04 (operator: "Lock that in as a rapid fire exchanges test * Make it a GOPOD song (WIP)"): minimal - slots empty until it's written.
+2. run_marker: starting now
+3. run_marker_about: both Brobots' first words (04_rapid_fire/story.md).
+4. run_gap_seconds: 30
+5. snapshot_note: [Not a question - the Brobots performed the scripted Rapid Fire test for the audience in this chat.]
+6. question_word: rapid fire
+7. not_a_test_phrases: []
+8. pitch_pack: ``
+9. run_pack: ``
+10. no_run_note: No Rapid Fire test has been played yet - one short take of your own on it.
+11. takes: {}
+
+## Run 5: Rapid Fire - experience - pre_attitude (game.runs.4.experience.pre_attitude)
+1. Brobot 1: ``
+2. Brobot 2: ``
+
+## Run 5: Rapid Fire - experience - post_attitude (game.runs.4.experience.post_attitude)
+1. Brobot 1: ``
+2. Brobot 2: ``
+
+## Run 5: Rapid Fire - experience - closing (game.runs.4.experience.closing)
+1. Brobot 1: ``
+2. Brobot 2: ``
+
+## Run 6: Brobots Ready (game.runs.5)
+1. name: brobots_ready
+2. title: Brobots Ready
+3. song: 06_brobots_ready
+4. start: start brobots ready
+5. stop: stop brobots ready
+6. menu_about: the Brobots ready move
+7. session: Brobots Ready Live
+8. said: Brobots ready
+
+## Run 6: Brobots Ready - experience (game.runs.5.experience)
+1. about: 2026-11-04 (operator: "Brobot 1 Arm lift, Brobot 2 Arm lift, Brobots Nod together, Brobots say brobots ready message together"): minimal - slots empty until it's written.
+2. run_marker: Brobots ready!
+3. run_marker_about: both Brobots' line (06_brobots_ready/story.md).
+4. run_gap_seconds: 30
+5. snapshot_note: [Not a question - the Brobots performed the scripted Brobots Ready move for the audience in this chat.]
+6. question_word: brobots ready
+7. not_a_test_phrases: []
+8. pitch_pack: ``
+9. run_pack: ``
+10. no_run_note: No Brobots Ready move has been played yet - one short take of your own on it.
+11. takes: {}
+
+## Run 6: Brobots Ready - experience - pre_attitude (game.runs.5.experience.pre_attitude)
+1. Brobot 1: ``
+2. Brobot 2: ``
+
+## Run 6: Brobots Ready - experience - post_attitude (game.runs.5.experience.post_attitude)
+1. Brobot 1: ``
+2. Brobot 2: ``
+
+## Run 6: Brobots Ready - experience - closing (game.runs.5.experience.closing)
+1. Brobot 1: ``
+2. Brobot 2: ``
