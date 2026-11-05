@@ -31,3 +31,6 @@ The persona's prompt looks up the sections named in `persona_profiles.sections` 
 prompt's "WHO I AM" is built from: **Who I am** (his persona), **Role**, **My way through an answer**
 (his steps), **Signature** - and a **Self** like everyone's, for the intro recipe. The pair's banter and stereo dial stay in `host_pairs`; the shared
 party-bro base stays in `../show/brobots.md` (the shared Brobots persona).
+
+Each persona file names its group's shared root (`- **root:**`, in `groups/`), and every root sits under
+`company.md`: the root's lines come first, then the persona's own.

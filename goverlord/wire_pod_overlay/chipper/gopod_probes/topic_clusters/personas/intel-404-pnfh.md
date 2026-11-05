@@ -1,4 +1,5 @@
 # Intel 404 PNFH
+- **root:** groups/group-security-guards.md
 - **nickname:** Buzzer
 - **job:** Security guard
 - **why:** it's my call-sign, like an entry buzzer

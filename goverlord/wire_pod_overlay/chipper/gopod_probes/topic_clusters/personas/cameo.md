@@ -1,4 +1,5 @@
 # CAMEO
+- **root:** groups/group-gomads.md
 - **nickname:** Chammy
 - **job:** CRUSHN8R CREW Content Gomad
 - **why:** it's short for Chameleon

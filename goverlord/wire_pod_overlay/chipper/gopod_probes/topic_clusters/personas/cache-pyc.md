@@ -1,4 +1,5 @@
 # Cache PYC
+- **root:** groups/group-interns.md
 - **nickname:** Mimi
 - **job:** CRUSHN8R CREW Display and Social Media Intern
 - **why:** I hustle for cash (cache), and PYC from compiled Python is Pretty Young Compiler

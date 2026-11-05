@@ -20,6 +20,7 @@ package wirepod_ttr
 import (
 	"context"
 	"encoding/json"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -174,6 +175,7 @@ func gopodSystemCommCheck() string {
 		// response, too repetitive"): no who's-here line before the first key -
 		// Goverlord hands it to Keys, and Keys calls everyone in.
 		defer gopodCommCheckAsking.Store([2]string{})
+		defer gopodGameWelcomePending.Store(false)
 		for i, l := range lines {
 			if gopodCommCheckStop.Load() {
 				logger.Println("GOPOD_COMM_CHECK stopped (stop run)")
@@ -207,6 +209,10 @@ func gopodSystemCommCheck() string {
 			gopodCommCheckWaitPage(gopodFeedLastID(), 30*time.Second)
 			gopodNumpadLastKey.Store(key)
 			gopodCommCheckAsking.Store([2]string{text, strings.TrimSpace(l[2])})
+			// 2026-11-04: the last line's answer ends with the game welcome.
+			if i == len(lines)-1 {
+				gopodGameWelcomePending.Store(true)
+			}
 			// 2026-10-29 (live 05:13: KP2 went before Brobot 1 had answered, and
 			// the replies landed among KP3's bubbles): the next key waits for
 			// this one's own answer - a line from who was asked - then the quiet.
@@ -242,6 +248,32 @@ func gopodSystemCommCheck() string {
 		}
 	}()
 	return strings.ReplaceAll(cc.StartText, "{n}", strconv.Itoa(len(lines)))
+}
+
+// gopodGameWelcomePending (2026-11-04, operator: "GOPOD game = 1st reminder,
+// however coloured/flavoured"; "brobot 2 ends the song * point robust
+// per-persona flavour mechanism at brobot 2"): the comm song's last line is
+// out - its answer by comm_check.game_welcome.by ends with the game welcome.
+var gopodGameWelcomePending atomic.Bool
+
+// gopodGameWelcomeLine: the game welcome for this Brobot's reminder, once -
+// the base word for word or one of his flavours, at random; "" otherwise.
+func gopodGameWelcomeLine(esn string) string {
+	gw := gopodBrobotsSettings.CommCheck.GameWelcome
+	name := gopodBrobotName(esn)
+	if !gopodGameWelcomePending.Load() || !strings.EqualFold(strings.TrimSpace(gw.By), name) {
+		return ""
+	}
+	var pool []string
+	for _, line := range append([]string{gw.Base}, gw.Flavours[name]...) {
+		if line = strings.TrimSpace(line); line != "" {
+			pool = append(pool, line)
+		}
+	}
+	if len(pool) == 0 || !gopodGameWelcomePending.CompareAndSwap(true, false) {
+		return ""
+	}
+	return pool[rand.Intn(len(pool))]
 }
 
 // gopodCommCheckNotes: the comm check song's one note - a line asked on its keys.

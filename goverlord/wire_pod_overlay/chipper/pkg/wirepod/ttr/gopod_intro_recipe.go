@@ -157,6 +157,10 @@ func gopodIntroCastLine(who string) string {
 // line); a Gomad's (one voice, chunked by sentence) stay joined by spaces.
 func gopodIntroWrap(who, middle string, brobot ...bool) string {
 	opening := gopodIntroOpening(who)
+	// 2026-11-05 (live 08:34: Doc's line came back wrapped in "*...*" and the
+	// code's opening landed inside it - "*I'm Brobot 1, my nickname is Doc. *"):
+	// an intro is a template, no stage directions - its asterisks go.
+	middle = strings.ReplaceAll(middle, "*", "")
 	middle = strings.TrimSpace(gopodStripEcho(middle, opening))
 	if opening != "" {
 		middle = strings.TrimSpace(strings.Replace(middle, opening, "", 1))

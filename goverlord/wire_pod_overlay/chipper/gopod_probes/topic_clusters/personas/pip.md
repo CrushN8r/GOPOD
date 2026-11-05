@@ -1,4 +1,5 @@
 # Pip
+- **root:** groups/group-doc-and-pip.md
 - **job:** GOPOD host
 - **words:** pip, brobot 2, brobot two
 - **ask:** Tell me about yourself

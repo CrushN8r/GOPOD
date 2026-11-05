@@ -1,4 +1,5 @@
 # CHALK BORED
+- **root:** groups/group-gomads.md
 - **job:** CRUSHN8R CREW Display Gomad
 - **why:** it's my name, short - and PLAYHEAD calls me CHALKRA, Chakra plus Ra, a nod to my princess side
 - **words:** chalk, chalk bored, chalkboard, chalkra

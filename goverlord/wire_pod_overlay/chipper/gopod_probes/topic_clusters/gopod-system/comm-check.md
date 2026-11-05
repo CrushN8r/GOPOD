@@ -18,3 +18,8 @@
 ## Tell me about your interns. (comm_check.rounds_later.3)
 1. text: Tell me about your interns.
 2. keys: KP7 | KP8
+
+## The game welcome (comm_check.game_welcome)
+1. about: 2026-11-04 (operator: "Hey, that reminds me... coming up > reminder > GOPOD game"; "GOPOD game = 1st reminder, however coloured/flavoured"; "you've now reached the playable game level"; "brobot 2 ends the song * point robust per-persona flavour mechanism at brobot 2"): the comm song's last answer - by's - ends with the game welcome instead of a chapter reminder, once: base word for word, or one of his flavours (comm_check.game_welcome.flavours, in each persona's own file), at random. Then the game's own reminders take over.
+2. by: Brobot 2
+3. base: Hey, that reminds me... Congrats! You made it without falling asleep!! Welcome to the GOPOD game…

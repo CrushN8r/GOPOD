@@ -5225,7 +5225,9 @@
         // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
         // Brobot 1" (operator 2026-10-10: "assigned reporter bubbles fall under
         // 'Operator' = white eyed icon to brobot(s)").
-        else if (e.who === "Operator" && e.by && hostNames[e.by]) {
+        // 2026-11-04 (operator: "Keys will now do the round robin"): a comm check
+        // line wears its asker's label too - Keys (a persona) or Goverlord (the system).
+        else if (e.who === "Operator" && e.by && (hostNames[e.by] || personaVoiceOf.hasOwnProperty(e.by) || e.by === systemRole)) {
           appendBubble("Operator", e.text, undefined, e.to, hostHeader(e.by), done);
           return;
         }

@@ -1,4 +1,5 @@
 # Intel 404 PNFT
+- **root:** groups/group-security-guards.md
 - **nickname:** Switch
 - **job:** Security guard
 - **why:** it's my call-sign, like a light or system switch

@@ -1,4 +1,5 @@
 # KEYNOTE VALE
+- **root:** groups/group-gopod-system.md
 - **nickname:** Keys
 - **job:** Butler
 - **why:** I hold all the keys

@@ -1,4 +1,5 @@
 # The Brobots - the shared persona
+- **root:** ../personas/company.md
 - **words:** brobots, bro bots, the brobots, shared persona, party bros
 - **ask:** Who are the Brobots?
 - **chain:** Gominions - the persona both Brobots share at dial zero ("cute bratty GOPOD reps"); Doc (../personas/doc.md) and Pip (../personas/pip.md) add their own on top

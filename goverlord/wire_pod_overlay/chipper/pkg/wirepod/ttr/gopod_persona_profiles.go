@@ -49,7 +49,7 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 // "- **nickname:**", "- **job:**", "- **words:**", "- **ask:**" - then "---", then
 // its sections ("## Self", ...), each its points ("1. ...").
 func gopodPersonaProfileRead(path string) (head map[string]string, sections map[string][]string) {
-	head, sections = gopodPersonaProfileReadOne(path)
+	head, sections = gopodPersonaProfileReadRooted(path, 0)
 	// 2026-11-04 (operator: "Pull all Doc & Pip from brobots md files"; "Doc is
 	// not Brobot 1. Doc is the persona hosted by Brobot 1"): a robot's file names
 	// the persona it hosts ("- **hosts:** doc.md"); the persona's head lines win,
@@ -61,7 +61,7 @@ func gopodPersonaProfileRead(path string) (head map[string]string, sections map[
 				hosted = f
 			}
 		}
-		ph, ps := gopodPersonaProfileReadOne(hosted)
+		ph, ps := gopodPersonaProfileReadRooted(hosted, 0)
 		for k, v := range ph {
 			if k != "hosts" {
 				head[k] = v
@@ -72,6 +72,36 @@ func gopodPersonaProfileRead(path string) (head map[string]string, sections map[
 		}
 	}
 	return head, sections
+}
+
+// gopodPersonaProfileReadRooted (2026-11-04, operator: "Brobots 1/2 are rooted in
+// a shared 'brobots' persona ... Security Guards ... Interns ... Gomads should be
+// rooted in the same way"; "Doc/Pip > DocBS/PipTA"; "Keys = 'GOPOD System'
+// group"; "company.md > all have a job/role/obligation at the company"; "shared
+// root persona > individual personas"): a file's own head and sections, with
+// its root's sections first ("- **root:** groups/group-gomads.md", found beside
+// it or anywhere under topic_clusters/) - the root's own root before that
+// (company.md), at most three deep. The head is the file's own.
+func gopodPersonaProfileReadRooted(path string, depth int) (head map[string]string, sections map[string][]string) {
+	head, sections = gopodPersonaProfileReadOne(path)
+	root := strings.TrimSpace(head["root"])
+	if root == "" || depth >= 3 {
+		return head, sections
+	}
+	rootPath := filepath.Join(filepath.Dir(path), root)
+	if _, err := os.Stat(rootPath); err != nil {
+		if f := gopodTopicTreeFind(filepath.Base(root)); f != "" {
+			rootPath = f
+		}
+	}
+	_, rs := gopodPersonaProfileReadRooted(rootPath, depth+1)
+	if rs == nil {
+		return head, sections
+	}
+	for k, pts := range sections {
+		rs[k] = append(rs[k], pts...)
+	}
+	return head, rs
 }
 
 // gopodPersonaProfileReadOne: one profile file's head and sections.

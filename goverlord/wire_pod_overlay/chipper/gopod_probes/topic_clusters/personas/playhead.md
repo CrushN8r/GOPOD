@@ -1,4 +1,5 @@
 # PLAYHEAD ZUMINTU
+- **root:** groups/group-gomads.md
 - **job:** CRUSHN8R CREW Session Gomad
 - **why:** ZUMINTU sounds like 'zoom into', so CHALK teases by calling me 'Zoomy' 
 - **words:** playhead, play head, zumintu, zoomy

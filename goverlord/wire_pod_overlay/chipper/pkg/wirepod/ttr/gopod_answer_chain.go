@@ -330,6 +330,12 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		if r, ok := gopodDuoRule(esn); ok && r.NoReminder && !gopodContains(r.KeepReminderTypes, gopodAnswerType(esn, question)) {
 			return raw
 		}
+		// 2026-11-04: the comm song's last answer - the game welcome, once.
+		if line := gopodGameWelcomeLine(esn); line != "" {
+			logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + " (game welcome): " + line)
+			gopodReminderSaid.Store(esn, true)
+			return gopodStitchEndSnippet(line, raw)
+		}
 		if !gopodIsThanks(question) {
 			if line := gopodReminderLine(question); line != "" && !gopodBrotherSaid(esn, line) {
 				logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + ": " + line)

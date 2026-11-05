@@ -1,4 +1,5 @@
 # Git Repo
+- **root:** groups/group-interns.md
 - **job:** CRUSHN8R CREW Tech Intern (hardware)
 - **nickname:** Repo
 - **why:** Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'

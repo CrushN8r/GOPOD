@@ -209,3 +209,35 @@ func TestIntroOpeningOnce(t *testing.T) {
 		}
 	}
 }
+
+// 2026-11-04 (operator: "shared root persona > individual personas"): each
+// persona's group root comes first in his profile - Doc and Pip (on the
+// Brobots), the Gomads, the interns, the guards, the GOPOD System (Keys).
+func TestPersonaRoots(t *testing.T) {
+	for who, want := range map[string]string{
+		"Brobot 1":       "Doc and Pip: GOPOD's host and his sidekick",
+		"Brobot 2":       "Doc and Pip: GOPOD's host and his sidekick",
+		"CHALK":          "The Gomads: Goverlord's managers",
+		"CAMEO":          "The Gomads: Goverlord's managers",
+		"GIT REPO":       "The interns: the CRUSHN8R CREW'd news station's interns in training",
+		"INTEL 404 PNFT": "The security guards: GOPOD's guards",
+		"BUTLER":         "GOPOD System: Goverlord, GOPOD's brain",
+	} {
+		group := gopodPersonaProfileSections(who)["Our group"]
+		if len(group) == 0 || !strings.HasPrefix(group[0], want) {
+			t.Errorf("%s's group: %q, want %q first", who, group, want)
+		}
+		if gopodPersonaProfileField(who, "My job title") == "" {
+			t.Errorf("%s lost his own Self section", who)
+		}
+	}
+}
+
+// 2026-11-05 (live 08:34): a model line wrapped in asterisks never wraps the opening.
+func TestIntroNoAsterisks(t *testing.T) {
+	m := gopodAnimationMarker
+	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\nUgh, fine - I keep it clear.", true)
+	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "my nickname is Doc") != 1 {
+		t.Errorf("intro with asterisks: %q", got)
+	}
+}

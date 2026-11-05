@@ -702,6 +702,13 @@ type gopodBrobotsSettingsFile struct {
 		Song string `json:"song"`
 		// 2026-11-04: the song has a wake_both step (both Brobots woken first).
 		Wake bool `json:"wake"`
+		// 2026-11-04: the game welcome - the song's last answer's first reminder
+		// (gopodGameWelcomeLine): by, base, and each persona's flavours.
+		GameWelcome struct {
+			By       string              `json:"by"`
+			Base     string              `json:"base"`
+			Flavours map[string][]string `json:"flavours"`
+		} `json:"game_welcome"`
 	} `json:"comm_check"`
 	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {

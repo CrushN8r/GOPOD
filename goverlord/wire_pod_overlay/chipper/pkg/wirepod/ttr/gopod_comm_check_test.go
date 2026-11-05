@@ -35,4 +35,26 @@ func TestCommCheck(t *testing.T) {
 	}
 }
 
+// 2026-11-04 (operator: "GOPOD game = 1st reminder, however coloured/flavoured";
+// "brobot 2 ends the song"): the game welcome - only Brobot 2's, only once, the
+// base or one of his flavours.
+func TestGameWelcome(t *testing.T) {
+	gw := gopodBrobotsSettings.CommCheck.GameWelcome
+	if gw.By != "Brobot 2" || !strings.Contains(gw.Base, "Welcome to the GOPOD game") || len(gw.Flavours["Brobot 2"]) == 0 {
+		t.Fatalf("game welcome: %+v", gw)
+	}
+	defer gopodGameWelcomePending.Store(false)
+	gopodGameWelcomePending.Store(true)
+	if got := gopodGameWelcomeLine(gopodBrobot1ESN); got != "" {
+		t.Errorf("Brobot 1 got the game welcome: %q", got)
+	}
+	got := gopodGameWelcomeLine(gopodBrobot2ESN)
+	if !strings.HasPrefix(got, "Hey, that reminds me...") || !strings.Contains(got, "GOPOD game") {
+		t.Errorf("Brobot 2's game welcome: %q", got)
+	}
+	if again := gopodGameWelcomeLine(gopodBrobot2ESN); again != "" {
+		t.Errorf("the game welcome twice: %q", again)
+	}
+}
+
 // ## EOF

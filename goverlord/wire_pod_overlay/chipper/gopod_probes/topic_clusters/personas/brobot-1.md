@@ -1,4 +1,5 @@
 # Brobot 1
+- **root:** ../show/brobots.md
 - **hosts:** doc.md
 - **words:** brobot 1, brobot one
 - **chain:** Gominion - the robot, Vector 1; it hosts the persona Doc (doc.md)
