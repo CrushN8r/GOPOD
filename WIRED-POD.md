@@ -82,6 +82,7 @@ whole way, in order.
 
 - **words:** how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
 - **reminder:** Hey, that reminds me... Two Brobots, one conversation.
+- **summary:** Two Brobots, one conversation | call one by name | the chat lights the piece being said | type, or hold a numpad key and talk
 - **source:** WIRED-POD.md
 
 ---

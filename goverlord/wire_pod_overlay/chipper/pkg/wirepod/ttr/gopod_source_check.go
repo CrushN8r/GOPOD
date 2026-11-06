@@ -19,6 +19,7 @@ package wirepod_ttr
 //	6 roster   everyone in the chat has a line in the crew roster
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -366,7 +367,132 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 			return nil
 		})
 	}
+	more, m := gopodSchemaCheckGame()
+	return append(out, more...), n + m
+}
+
+// gopodSchemaRequired: a schema file's required lines - the points of its
+// "## Required..." sections, each its name (before ":"), by section.
+func gopodSchemaRequired(path string) map[string][]string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	out := map[string][]string{}
+	section := ""
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "## ") {
+			section = strings.TrimSpace(strings.TrimPrefix(line, "## "))
+			continue
+		}
+		if m := gopodProfilePointRE.FindStringSubmatch(line); m != nil && strings.HasPrefix(section, "Required") {
+			name, _, _ := strings.Cut(m[1], ":")
+			out[section] = append(out[section], strings.TrimSpace(name))
+		}
+	}
+	return out
+}
+
+// gopodSchemaCheckGame (2026-11-06, operator: "build schemas for the other places
+// in GOPOD where a schema would earn its keep, most useful first"): every game
+// card against _topic_cluster/topic-schema.md, every chapter against
+// chapter-schema.md (and every card's chapter is one of them), every song folder
+// against songs/_new_song/song-schema.md.
+func gopodSchemaCheckGame() ([]string, int) {
+	var out []string
+	n := 0
+	tpl := filepath.Join(gopodTopicRoot(), "_topic_cluster")
+	// Chapters: their titles, each with its required lines.
+	chapters := map[string]bool{}
+	if req := gopodSchemaRequired(filepath.Join(tpl, "chapter-schema.md"))["Required"]; req != nil {
+		files, _ := filepath.Glob(filepath.Join(gopodTopicRoot(), "chapters", "*", "chapter.md"))
+		for _, f := range files {
+			head := gopodSchemaHead(f)
+			chapters[strings.ToLower(head["label"])] = true
+			for _, k := range req {
+				n++
+				if strings.TrimSpace(head[k]) == "" {
+					out = append(out, "schema chapter "+filepath.Base(filepath.Dir(f))+": no "+k+" line (chapter-schema.md)")
+				}
+			}
+		}
+	}
+	// Game cards.
+	if req := gopodSchemaRequired(filepath.Join(tpl, "topic-schema.md"))["Required"]; req != nil {
+		for _, c := range gopodTopicDocCardsAll() {
+			head := map[string]string{}
+			if at := strings.Index(c.Text, "\n---\n"); at >= 0 {
+				for _, line := range strings.Split(c.Text[:at], "\n") {
+					if k, v, ok := gopodTopicHeadKV(line); ok {
+						head[k] = v
+					}
+				}
+			}
+			where := "topic " + c.File + " (" + filepath.Base(c.Path) + ")"
+			for _, k := range req {
+				n++
+				switch {
+				case strings.TrimSpace(head[k]) == "":
+					out = append(out, "schema "+where+": no "+k+" line (topic-schema.md)")
+				case k == "chapter" && len(chapters) > 0 && !chapters[strings.ToLower(head[k])]:
+					out = append(out, "schema "+where+": its chapter \""+head[k]+"\" isn't a chapter (chapter-schema.md)")
+				}
+			}
+		}
+	}
+	// Songs.
+	songs := filepath.Join(gopodRepoRoot(), "goverlord", "runtime", "songs")
+	req := gopodSchemaRequired(filepath.Join(songs, "_new_song", "song-schema.md"))
+	if req != nil {
+		dirs, _ := os.ReadDir(songs)
+		for _, d := range dirs {
+			if !d.IsDir() || strings.HasPrefix(d.Name(), "_") || d.Name() == "tools" {
+				continue
+			}
+			dir := filepath.Join(songs, d.Name())
+			var knobs map[string]json.RawMessage
+			data, err := os.ReadFile(filepath.Join(dir, "knobs.json"))
+			if err == nil && json.Unmarshal(data, &knobs) != nil {
+				out = append(out, "schema song "+d.Name()+": knobs.json doesn't read (song-schema.md)")
+				continue
+			}
+			if _, wip := knobs["_comment"]; wip && len(knobs) == 1 {
+				continue // a song still being written
+			}
+			for _, f := range req["Required files"] {
+				n++
+				if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
+					out = append(out, "schema song "+d.Name()+": no "+f+" (song-schema.md)")
+				}
+			}
+			for _, k := range req["Required in knobs.json"] {
+				n++
+				if knobs != nil && knobs[k] == nil {
+					out = append(out, "schema song "+d.Name()+": its knobs.json has no "+k+" (song-schema.md)")
+				}
+			}
+		}
+	}
 	return out, n
+}
+
+// gopodSchemaHead: a topic-cluster md's head lines (its "# " label and "- **k:**" lines).
+func gopodSchemaHead(path string) map[string]string {
+	head := map[string]string{}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return head
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.TrimSpace(line) == "---" {
+			break
+		}
+		if k, v, ok := gopodTopicHeadKV(line); ok {
+			head[k] = v
+		}
+	}
+	return head
 }
 
 // ## EOF

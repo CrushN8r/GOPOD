@@ -61,6 +61,8 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 - **The schemas (2026-11-06):** `persona-schema.md` (the master persona card) and `company-schema.md`
   (the master company) are the yardsticks; the system check (`gopodSchemaCheck`) measures every persona and company file
   against them on every restart and lists any missing head line, section, Self line or company point "to fix".
+  The same check measures every game card (`_topic_cluster/topic-schema.md`), chapter (`chapter-schema.md`)
+  and song folder (`songs/_new_song/song-schema.md`).
 - **The persona schema (2026-11-06):** every persona is one card, the same fields for all -
   company (`personas/company.md`, ## Our company: what GOPOD is, sell it, the chain of command, one
   owner per job, wild takes that make adult sense), group (its root in `personas/groups/`), then

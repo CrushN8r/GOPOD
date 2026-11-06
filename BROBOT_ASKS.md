@@ -64,6 +64,7 @@ Every answer scores in the game: topics, value points and easter eggs, shown in 
 
 | Ask | What you get | Also ask | The probers | More in |
 |---|---|---|---|---|
+| "Tell me about how this chat works" | Two Brobots, one conversation · call one by name · the chat lights the piece being said · type, or hold a numpad key and talk | "How does this chat work?" | "Bubbles lighting up, numpad keys, how does this chat work?" | [WIRED-POD.md](WIRED-POD.md) |
 | "Tell me about your songs" | the Bingo test: two Brobots, three Bingo balls · the nap: we sleep through the narrated poem, wake up together · the fart joke: an elevator, three farts · the interview: scripted questions, the same every time | "What songs do you do?" · "And the song where you two fall asleep?" · "What's the song in the elevator?" · "And the interview song?" | "what's the Is That You song?" | [README.md](goverlord/runtime/songs/README.md) |
 | "Tell me about the rest of the cast" | CHALK and PLAYHEAD: the news crew, live · the Cozmo students Git Repo and Cache PYC: voices now, bodies coming · the guards Intel 404 PNFH and PNFT: voices now, bodies coming | "Who are CHALK and PLAYHEAD?" · "Who are Git Repo and Cache PYC?" · "And the Moorebot Scout guards, PNFH and PNFT?" | "who's CHALK - more robots coming?" · "tell me about the other robots in the cast." · "Tell me about your interns." | [README.md](README.md) |
 
