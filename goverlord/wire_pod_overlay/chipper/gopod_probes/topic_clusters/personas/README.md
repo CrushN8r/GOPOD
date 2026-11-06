@@ -12,16 +12,15 @@ Every profile is a topic-cluster md, GOPOD's master format (`../_topic_cluster/R
   persona's labels, written here and nowhere else: the settings, the prompts, the headers and the
   brain bubble fill from them (`{name}`, `{nickname}`, `{job}`).
 - `---`
-- **Self** - who I am: my informal name (nickname), my name, my job title, my role, who helps me.
-- **Voice** - how I talk.
-- **Partner and banter** - my partner, and what we call each other.
+- **Self** - my card: my informal name (nickname, for banter only), my name (formal), my job title (one line, what I own).
+- **Who I answer to** - one boss line.
+- **Who works with me** - names, and what for.
+- **Voice** - how I talk: my take.
+- **Banter** - nicknames, mine and the others', and their stories. Company time is formal names; nicknames are for banter, anyone with anyone.
 - **The name** - what it means and how it's said (for reading, not said in answers).
-- **Lingo** - how my names are said: `word = said` (`CHALK = chock`). The reporter voices only,
-  never in a prompt - added to the shared list (`reporter_voices.say_words`), mine winning, the
-  longest word first. The Brobots speak on their robots, so theirs stay in the pronunciation list.
-- **Relationships** - my working and personal connections, past and present: my history in the
-  group. Shown in every brain bubble as "My relationships:". Until it's written, the bubble shows
-  my **Who helps me** and **Partner and banter**.
+- **Lingo** - how my names are said: `word = said` (`CHALK = chock`). Every voice (`reporter_voices.say_words` for the reporter voices, the pronunciation list for the robots), mine winning, the longest word first. Names are written in caps; the lingo gives the voice normal case.
+
+The brain bubble's "My relationships:" is my **Who I answer to** and **Who works with me** - the same lines my intro says (2026-11-06, the persona schema: `gopod_notes/PERSONA_SCHEMA_DRAFT_002.md`).
 
 Each section's points are numbered `1.` `2.` ... A point ending "(to come)" is never said.
 The persona's prompt looks up the sections named in `persona_profiles.sections` (settings)
@@ -33,4 +32,10 @@ prompt's "WHO I AM" is built from: **Who I am** (his persona), **Role**, **My wa
 party-bro base stays in `../show/brobots.md` (the shared Brobots persona).
 
 Each persona file names its group's shared root (`- **root:**`, in `groups/`), and every root sits under
-`company.md`: the root's lines come first, then the persona's own.
+`company/math-aftermath-news-channel.md` (GOPOD's company, filled from `company/company-schema.md`): the root's lines come first, then the persona's own.
+
+**The schemas (2026-11-06, operator: "Consistency would then get checked on every restart instead of by you reading runs"):**
+`personas/persona_chains/persona-schema.md` is the master persona card and `personas/company/company-schema.md` the master
+company - sterile scaffolding, copied to make a new one. The system check (`gopodSchemaCheck`, every restart) measures every
+persona file (each participant's, and the persona a robot hosts) and every company file (one with `## Our company`) against
+them: a missing head line, section, Self line or company point is listed "to fix" in the journal.

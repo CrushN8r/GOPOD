@@ -137,8 +137,8 @@ func TestSystemSetNamesTheCluster(t *testing.T) {
 	if f := gopodClusterHolds("spice.exclamations"); f != "spice.md" {
 		t.Errorf("spice.exclamations: %q, want spice.md", f)
 	}
-	if f := gopodClusterHolds("managers.personas.CHALK.prompt"); f != "chalk.md" {
-		t.Errorf("CHALK's prompt: %q, want chalk.md", f)
+	if f := gopodClusterHolds("managers.personas.CHALK.prompt"); f != "chalk-bored.md" {
+		t.Errorf("CHALK's prompt: %q, want chalk-bored.md", f)
 	}
 	if f := gopodClusterHolds("spice.pick"); f != "" {
 		t.Errorf("spice.pick is in the settings, not %q", f)

@@ -58,11 +58,20 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   words - the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences),
   each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
   for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
-- **The intro presentation (2026-10-31):** each intro opens with a sentence made by code from the
-  profile - "I'm [name], my nickname is [nickname], because [why]." (formal name, informal
-  nickname, the profile head's `why`; each part left out when blank: `intro_recipe.opening`,
-  `nickname_part`, `why_part`) - then his job, role and who helps him (the interns) in his own
-  words, then who's here.
+- **The schemas (2026-11-06):** `persona-schema.md` (the master persona card) and `company-schema.md`
+  (the master company) are the yardsticks; the system check (`gopodSchemaCheck`) measures every persona and company file
+  against them on every restart and lists any missing head line, section, Self line or company point "to fix".
+- **The persona schema (2026-11-06):** every persona is one card, the same fields for all -
+  company (`personas/company.md`, ## Our company: what GOPOD is, sell it, the chain of command, one
+  owner per job, wild takes that make adult sense), group (its root in `personas/groups/`), then
+  his own: **Self** (nickname - banter only, formal name, one job line), **Who I answer to**, **Who
+  works with me**, **Voice**, **Banter** (every nickname and its story; anyone can banter with
+  anyone). Company time is formal names: headers, call-ins and intros use them (`call_name`;
+  KEYNOTE, DOCTRINE, PIP, GIT REPO, CACHE PYC, INTEL 404 PNFH/PNFT); names are written in caps and
+  each persona's **Lingo** gives the voice normal case. The intro opens "I'm [full name]." (code),
+  then his job, who he answers to and who works with him (model, from the card); the brain bubble's
+  "My relationships:" is the same two sections. DOCTRINE BARFALLONYOU SQUAWKADOODLE (DocBS) and PIP
+  N STALL (PipTA) are the host and sidekick at the dial's 100%, on Brobot 1 and Brobot 2.
 - **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about
   yourself") gets the recipe: introduce yourself in your own voice, in your profile's Self order -
@@ -78,7 +87,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   format (`gopod_probes/topic_clusters/_topic_cluster/README.md`): its head is the persona's labels - `# <full
   name>`, `nickname`, `job` - written there and nowhere else; the settings, prompts, headers and the
   brain bubble fill from them. Anything in the system speaker's voice is headed
-  `system_bubble.label` "{first}: {job}" from `voice_persona` (BUTLER): "KEYNOTE: Butler". Every
+  `system_bubble.label` "{first}" from `voice_persona` (BUTLER): "KEYNOTE" (2026-11-06; was "KEYNOTE: Butler"). Every
   persona in `managers.personas` is a host on the page, its own voice or another's. A persona's
   answer is at most `managers.answer_num_predict` tokens (400), ending at a whole sentence.
 - **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/topic_clusters/personas/<name>.md` - CHALK,

@@ -18,8 +18,8 @@
 
 ## Genders (here_now.genders)
 1. Brobot 0: male
-2. Brobot 1: male
-3. Brobot 2: male
+2. Brobot 1: BARFALLONYOU ({gender}, on Brobot 1, GOPOD's host)
+3. Brobot 2: PIP ({gender}, on Brobot 2, GOPOD's sidekick)
 
 ## Voice genders (here_now.voice_genders)
 1. f: female
@@ -29,11 +29,11 @@
 1. Brobot 0: Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)
 2. Brobot 1: Doc ({gender}, Brobot 1, a Brobot)
 3. Brobot 2: Pip ({gender}, Brobot 2, a Brobot)
-4. CHALK: CHALK BORED ({gender}, Display Gomad, look manager, mentors Cache PYC - display pizzazz, the wow stuff)
-5. PLAYHEAD: PLAYHEAD ZUMINTU ({gender}, Session Gomad, session manager, mentors Git Repo - the tech helper)
-6. GIT REPO: Git Repo ({gender}, intern: USB ports - PLAYHEAD's intern, works with both managers)
-7. CACHE PYC: Cache PYC ({gender}, intern: web search results and the weather - CHALK's intern, works with both managers)
-8. INTEL 404 PNFH: Buzzer (Intel 404 PNFH, {gender}, security guard: Brobot 1's battery)
-9. INTEL 404 PNFT: Switch (Intel 404 PNFT, {gender}, security guard: Brobot 2's battery)
-10. CAMEO: CAMEO ({gender}, Content Gomad, social media manager)
-11. BUTLER: {name}, "{nickname}" (the {job}, male, Goverlord's voice - he announces the runs, gives the system's answers and asks Master CrushN8r to keep or delete a session recording)
+4. CHALK: CHALK BORED ({gender}, Display Gomad - the display and the board; her intern CACHE PYC)
+5. PLAYHEAD: PLAYHEAD ZUMINTU ({gender}, Session Gomad - the runs, the time and place; his intern GIT REPO)
+6. GIT REPO: GIT REPO ({gender}, PLAYHEAD's Tech Intern - the USB ports, the raw weather)
+7. CACHE PYC: CACHE PYC ({gender}, the Display and Social Media Intern, for CHALK and CAMEO - the weather, ready to say)
+8. INTEL 404 PNFH: INTEL 404 PNFH ({gender}, security guard: Brobot 1's battery)
+9. INTEL 404 PNFT: INTEL 404 PNFT ({gender}, security guard: Brobot 2's battery)
+10. CAMEO: CAMEO ({gender}, Content Gomad - social media; her intern CACHE PYC)
+11. BUTLER: {name} (the {job}, male, Goverlord's voice - the runs, the system's answers, the comm check)

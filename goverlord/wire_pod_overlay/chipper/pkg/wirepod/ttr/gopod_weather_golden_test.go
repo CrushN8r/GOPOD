@@ -95,7 +95,7 @@ func TestWeatherBrainLock(t *testing.T) {
 	// 2026-11-04 (operator: "Fix intern name: 'Git repo' * intern name should be
 	// pulled from its topic-cluster"; "Git Repo does the api call ... handsoff to
 	// Cache PYC"): the details come from GIT REPO - {from}, his call name.
-	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || take.From != "GIT REPO" || !take.BrobotSays || gopodCallName(take.From) != "Git Repo" {
+	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || take.From != "GIT REPO" || !take.BrobotSays || gopodCallName(take.From) != "GIT REPO" {
 		t.Errorf("LOCKED: the weather take isn't PLAYHEAD handing to Cache PYC, from Git Repo: %+v", take)
 	}
 	if s.Managers.HandoffText != "{intern} will help you with that." ||

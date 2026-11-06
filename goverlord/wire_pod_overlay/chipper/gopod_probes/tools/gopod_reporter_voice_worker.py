@@ -123,55 +123,45 @@ def heard_times(wav, words):
 
 
 def align_heard(words, heard):
-    """Kokoro's words with Vosk's heard times (heard: Vosk's result list).
-    2026-11-02 (live: CHALK's "...and PLAYHEAD ZUMINTU and I have been..." lit
-    back at its start): a word Vosk didn't catch kept Kokoro's own time, and
-    Kokoro's clock isn't Vosk's - "I" landed at 2.61 s after "and" ended at
-    5.4 s. A word not heard now starts where the last one ended, never earlier,
-    so the times only go forward."""
+    """GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
+    template/schema the highlighting to one gear we can look to to fix * no
+    patching - remove all patching"): Kokoro's words with Vosk's heard times, one
+    rule - the words said as written ("Intel", "battery") are matched to the heard
+    words in order (the longest common run, anywhere in the line, no look-ahead
+    window, no partial matches); every other word ("404" said four oh four,
+    "P-N-F-T" said P N F T) and every mark shares the time between the matched
+    words around it, by its length. Kokoro's own clock is used only after the
+    last matched word. Replaces the look-ahead, "said another way" and gap rules
+    (2026-11-02..04)."""
     import re
     norm = lambda t: re.sub(r"[^a-z0-9]+", "", str(t).lower())
-    out, at, last_end = [], 0, 0.0
-    for wi, w in enumerate(words):
-        n = norm(w["t"])
-        if not n:
-            # A mark ("," "."): at the end of the word before it (filled below when that word wasn't heard).
-            out.append({"t": w["t"], "s": None if out and out[-1]["s"] is None else last_end, "e": None if out and out[-1]["s"] is None else last_end})
-            continue
-        hit = None
-        for j in range(at, min(at + 4, len(heard))):
-            h = norm(heard[j]["word"])
-            if h and (h == n or h.startswith(n) or n.startswith(h)):
-                hit = j
-                break
-        # 2026-11-03 (operator: "a highlight glitch on CHALKRA & Chalkra * both ran
-        # at the same time"; Vosk heard "chakra" twice, for "chock-ra" and
-        # "Chakra" - the first took the second's time): a word said another way
-        # takes the next heard word, when the word after it matches the heard
-        # word after that - one shown word, one spoken word (the page's ZUMINTU rule).
-        if hit is None and at < len(heard):
-            nxt = next((norm(x["t"]) for x in words[wi + 1:] if norm(x["t"])), "")
-            if nxt and at + 1 < len(heard):
-                h2 = norm(heard[at + 1]["word"])
-                if h2 and (h2 == nxt or h2.startswith(nxt) or nxt.startswith(h2)):
-                    hit = at
-        if hit is None:
-            # Not heard: timed below, between the words around it.
-            out.append({"t": w["t"], "s": None, "e": None, "k": max(float(w["e"]) - float(w["s"]), 0.05)})
-            continue
-        s, e = round(float(heard[hit]["start"]), 3), round(float(heard[hit]["end"]), 3)
-        out.append({"t": w["t"], "s": s, "e": e})
-        last_end, at = e, hit + 1
-    return _fill_unheard(out, norm)
+    wi = [i for i, w in enumerate(words) if norm(w["t"])]
+    a = [norm(words[i]["t"]) for i in wi]
+    b = [norm(h["word"]) for h in heard]
+    # The longest common run of words (LCS), in order.
+    n, m = len(a), len(b)
+    L = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(n - 1, -1, -1):
+        for j in range(m - 1, -1, -1):
+            L[i][j] = L[i + 1][j + 1] + 1 if a[i] and a[i] == b[j] else max(L[i + 1][j], L[i][j + 1])
+    out = [{"t": w["t"], "s": None, "e": None, "k": max(float(w["e"]) - float(w["s"]), 0.05)} for w in words]
+    i = j = 0
+    while i < n and j < m:
+        if a[i] and a[i] == b[j]:
+            k = wi[i]
+            out[k]["s"], out[k]["e"] = round(float(heard[j]["start"]), 3), round(float(heard[j]["end"]), 3)
+            i, j = i + 1, j + 1
+        elif L[i + 1][j] >= L[i][j + 1]:
+            i += 1
+        else:
+            j += 1
+    return _share_gaps(out, norm)
 
 
-def _fill_unheard(out, norm):
-    """2026-11-04 (operator: "highlight glitch" on CHALK's and PLAYHEAD's "CREW'd"
-    lines - Vosk didn't catch "CREW'd", it kept Kokoro's own time, 1.5 s late, and
-    the words after it lit back in time): a word Vosk didn't catch - and the marks
-    with it - shares the gap between the heard words around it, in order; with no
-    heard word after it, its own length (Kokoro's) after the last one. Kokoro's
-    clock is never mixed with Vosk's."""
+def _share_gaps(out, norm):
+    """The words between two matched words share that time by their length
+    (letters); a mark sits where the word before it ends. After the last matched
+    word, each takes its own Kokoro length."""
     i = 0
     while i < len(out):
         if out[i]["s"] is not None:
@@ -181,19 +171,17 @@ def _fill_unheard(out, norm):
         while j < len(out) and out[j]["s"] is None:
             j += 1
         start = out[i - 1]["e"] if i > 0 else 0.0
-        words = [k for k in range(i, j) if norm(out[k]["t"])]
+        weights = [len(norm(out[k]["t"])) for k in range(i, j)]
         if j < len(out):
-            end = max(start, out[j]["s"])
+            span = max(0.0, out[j]["s"] - start)
+            total = sum(weights) or 1
+            per = [span * w / total for w in weights]
         else:
-            end = start + sum(out[k].get("k", 0.05) for k in words)
-        step = (end - start) / len(words) if words else 0
+            per = [out[k]["k"] if weights[k - i] else 0.0 for k in range(i, j)]
         at = start
         for k in range(i, j):
-            if norm(out[k]["t"]):
-                out[k]["s"], out[k]["e"] = round(at, 3), round(at + step, 3)
-                at += step
-            else:
-                out[k]["s"] = out[k]["e"] = round(at, 3)
+            out[k]["s"], out[k]["e"] = round(at, 3), round(at + per[k - i], 3)
+            at += per[k - i]
         i = j
     for w in out:
         w.pop("k", None)

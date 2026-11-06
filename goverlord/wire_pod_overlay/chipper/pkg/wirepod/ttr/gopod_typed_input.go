@@ -384,6 +384,7 @@ func gopodTypedInputAll(text, how string) error {
 			done := gopodReplyDone(first)
 			failed := make(chan struct{})
 			gopodAllFirstAnswer.Store(first, true) // his answer hands over to his brother (kgsim.go)
+			gopodDialZero.Store(first, true)       // both asked: the Brobots at the dial's 0%
 			if first != gopodBrobot1ESN {
 				gopodAnswerNext.Store(first, true)
 			}
@@ -413,12 +414,15 @@ func gopodTypedInputAll(text, how string) error {
 					break wait
 				}
 			}
+			gopodDialZero.Delete(first)
 			logger.Println("GOPOD_ALL " + gopodBrobotName(second) + " answers next: " + text)
 			gopodAnswerNext.Store(second, true)
 			gopodFollowingUp.Store(second, true)
+			gopodDialZero.Store(second, true)
 			if _, err := StreamingKGSim(nil, second, text, false); err != nil {
 				logger.Println("LLM error (typed): " + err.Error())
 			}
+			gopodDialZero.Delete(second)
 		}()
 		return nil
 	}

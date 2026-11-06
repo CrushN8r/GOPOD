@@ -260,12 +260,9 @@ type gopodRosterGroup struct {
 // [grumpy, impatient], Brobot 2 [clueless, happy]. CRUSHN8R CREW'd news station
 // Gomads mentoring interns: ..."): the roster's groups in file order.
 func gopodRosterGroups() []gopodRosterGroup {
-	path := strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster)
+	path := gopodTopicPath(gopodBrobotsSettings.BrainChain.Roster) // moved, found by its file name
 	if path == "" {
 		return nil
-	}
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(gopodChipperRoot(), path)
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -472,8 +469,8 @@ func gopodSystemBrain() string {
 }
 
 // gopodBrainFullSelf (2026-11-02, operator's brain bubble: "My full name is
-// KEYNOTE VALE, known at GOPOD as 'Keys' the Butler ..."): his full name, his
-// nickname and job from his profile, then his profile's "In short".
+// KEYNOTE VALE, known at GOPOD as 'Keys' the Butler ..."): his full name and
+// job from his profile, then his profile's "In short".
 func gopodBrainFullSelf(who string) string {
 	if strings.TrimSpace(who) == "" {
 		return ""
@@ -495,18 +492,14 @@ func gopodBrainFullSelf(who string) string {
 	if name == "" {
 		name = gopodCallName(who)
 	}
-	nick := first(gopodPersonaProfileField(who, "My informal name (nickname)"))
 	job := ""
 	if head != nil {
 		job = strings.TrimSpace(gopodPersonaFill(who, head["job"]))
 	}
+	// 2026-11-06 (operator: "go with formal first names on company time * let's
+	// keep nicknames for bantering"): the brain says his formal name, not his nickname.
 	out := "My full name is " + name
-	switch {
-	case nick != "" && !strings.EqualFold(nick, name) && job != "":
-		out += ", known at GOPOD as '" + nick + "' the " + job
-	case nick != "" && !strings.EqualFold(nick, name):
-		out += ", known at GOPOD as '" + nick + "'"
-	case job != "":
+	if job != "" {
 		out += ", the " + job
 	}
 	out += "."

@@ -3,6 +3,10 @@ package wirepod_ttr
 
 import (
 	"context"
+	"encoding/json"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -66,7 +70,7 @@ func TestCrewRoster(t *testing.T) {
 		}
 	}
 	l := gopodBrainLines("Brobot 1", "hey")
-	if len(l) < 2 || !strings.Contains(l[1], "GOPOD System: Keys [Butler, Goverlord's voice]") || !strings.Contains(l[1], "Brobot 1 [grumpy, impatient] (me)") {
+	if len(l) < 2 || !strings.Contains(l[1], "GOPOD System: KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(l[1], "BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose] (me)") {
 		t.Errorf("In the chat: %v", l)
 	}
 }
@@ -105,7 +109,8 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	said := false
 	dry := gopodDryVoice
 	defer func() { gopodDryVoice = dry }()
-	gopodDryVoice = func(host, text string, show bool) { said = true }
+	// 2026-11-05: his Got it is said at once (the Brobots' order) - only the answer is dropped.
+	gopodDryVoice = func(host, text string, show bool) { said = said || text != gopodGotItNamed("GIT REPO").Text }
 	if !gopodGomadAnswerAs("GIT REPO", "GIT REPO", "tell me a joke") {
 		t.Fatal("the llm part didn't take the line")
 	}
@@ -178,7 +183,8 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 		}
 		r := buildGOPODStreamResultWithRepair(context.Background(), gopodAnimationMarkerToInternal(wrapped), "test", nil)
 		said := strings.Join(gopodSpokenPieceTexts(r.AudibleChunks), " ")
-		for _, want := range []string{"my nickname is Pip"} {
+		// 2026-11-06 (company time: formal names): his opening is said, whole.
+		for _, want := range []string{"I'm Pip-in-stall"} { // his Lingo: PIP N STALL = Pip-in-stall
 			if !strings.Contains(said, want) {
 				t.Errorf("not said %q:\n%s\n(wrapped %q)", want, said, wrapped)
 			}
@@ -197,10 +203,10 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 func TestIntroOpeningOnce(t *testing.T) {
 	m := gopodAnimationMarker
 	cases := []struct{ who, middle, gone, kept string }{
-		{"CHALK", "I'm CHALK BORED, my nickname is CHALK – because it's my name. I run the display.", "my nickname is CHALK –", "I run the display."},
+		{"CHALK", "I'm CHALK BORED. I'm CHALK BORED, and I run the display.", "I'm CHALK BORED, and", "I run the display."},
 		{"CACHE PYC", "I'm Cache PYC. I'm Cache PYC, and I'm hustling every day.", "I'm Cache PYC, and", "I'm hustling every day."},
 		{"Brobot 2", "thinking" + m + " I'm Brobot 2, and hey! You know the party's on.", "I'm Brobot 2, and", "Hey!"},
-		{"Brobot 1", "I'm Doc, Brobot 1, which means I get to be the party guy. Here in the chat: all our brothers are rocking it, including Pip.", "all our brothers", "Which means I get to be the party guy."},
+		{"Brobot 1", "I'm BARFALLONYOU, Brobot 1, which means I get to be the party guy. Here in the chat: all our brothers are rocking it, including Pip.", "all our brothers", "Which means I get to be the party guy."},
 	}
 	for _, c := range cases {
 		got := gopodIntroWrap(c.who, c.middle, c.who == "Brobot 1" || c.who == "Brobot 2")
@@ -215,8 +221,8 @@ func TestIntroOpeningOnce(t *testing.T) {
 // Brobots), the Gomads, the interns, the guards, the GOPOD System (Keys).
 func TestPersonaRoots(t *testing.T) {
 	for who, want := range map[string]string{
-		"Brobot 1":       "Doc and Pip: GOPOD's host and his sidekick",
-		"Brobot 2":       "Doc and Pip: GOPOD's host and his sidekick",
+		"Brobot 1":       "BARFALLONYOU and PIP: GOPOD's host and his sidekick",
+		"Brobot 2":       "BARFALLONYOU and PIP: GOPOD's host and his sidekick",
 		"CHALK":          "The Gomads: Goverlord's managers",
 		"CAMEO":          "The Gomads: Goverlord's managers",
 		"GIT REPO":       "The interns: the CRUSHN8R CREW'd news station's interns in training",
@@ -237,7 +243,67 @@ func TestPersonaRoots(t *testing.T) {
 func TestIntroNoAsterisks(t *testing.T) {
 	m := gopodAnimationMarker
 	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\nUgh, fine - I keep it clear.", true)
-	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "my nickname is Doc") != 1 {
+	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "I'm BARFALLONYOU SQUAWKADOODLE") != 1 {
 		t.Errorf("intro with asterisks: %q", got)
+	}
+}
+
+// 2026-11-05 (operator: "everybody's personas ... that same robot's bubble type
+// and mechanism"): anyone's Got it, by name - Keys' own, the golden one otherwise.
+func TestGotItNamed(t *testing.T) {
+	if got := gopodGotItNamed("BUTLER").Text; got != "Message received, sir." {
+		t.Errorf("Keys' Got it: %q", got)
+	}
+	if got := gopodGotItNamed("CHALK").Text; got != gopodThinkingLineSpoken() || got == "" {
+		t.Errorf("CHALK's Got it: %q", got)
+	}
+	if gopodGotItFor(gopodBrobot1ESN).Text != gopodGotItNamed("Brobot 1").Text {
+		t.Error("a Brobot's Got it isn't the named one")
+	}
+}
+
+// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0% * DOC & PIP = Dials @ 100%"):
+// a line to both - the Brobots at the dial's 0%, BRUH!; one Brobot - his persona.
+func TestDialZeroBrobots(t *testing.T) {
+	if got := gopodIntroOpening("Brobot 1"); !strings.HasPrefix(got, "I'm BARFALLONYOU SQUAWKADOODLE") {
+		t.Errorf("KP1 opening: %q", got)
+	}
+	gopodDialZero.Store(gopodBrobot1ESN, true)
+	defer gopodDialZero.Delete(gopodBrobot1ESN)
+	if got := gopodIntroOpening("Brobot 1"); got != "I'm Brobot 1, my nickname is BRUH!" {
+		t.Errorf("All round opening: %q", got)
+	}
+}
+
+// 2026-11-06 (operator: "FIX IT SO IT WORKS WITHOUT ME"): the one highlight gear -
+// a word the voice says as several ("404", "P-N-F-T") never pulls the words after
+// it early; they keep their heard times (gopod_reporter_voice_worker.py align_heard).
+func TestHighlightOneGear(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set (the deploy sets it)")
+	}
+	script := `
+import sys, json
+sys.path.insert(0, sys.argv[1])
+from gopod_reporter_voice_worker import align_heard
+words = [{"t": t, "s": 0, "e": 0.3} for t in ["I'm", "Intel", "404", "P-N-F-T.", "I", "watch", "it"]]
+heard = [{"word": w, "start": s, "end": s + 0.2} for w, s in [("i'm", 0.2), ("intel", 0.5), ("four", 0.9), ("oh", 1.1), ("four", 1.3), ("p", 1.6), ("n", 1.9), ("f", 2.2), ("t", 2.5), ("i", 2.8), ("watch", 3.0), ("it", 3.3)]]
+print(json.dumps(align_heard(words, heard)))
+`
+	out, err := exec.Command("python3", "-I", "-c", script, filepath.Join(root, "gopod_probes", "tools")).Output()
+	if err != nil {
+		t.Skip("python3 or the voice worker can't load here: " + err.Error())
+	}
+	var got []struct {
+		T string  `json:"t"`
+		S float64 `json:"s"`
+		E float64 `json:"e"`
+	}
+	if err := json.Unmarshal(out, &got); err != nil || len(got) != 7 {
+		t.Fatalf("align_heard: %s", out)
+	}
+	if got[4].S != 2.8 || got[5].S != 3.0 || got[2].S < 0.69 || got[3].S <= got[2].S || got[3].S >= 2.8 {
+		t.Errorf("highlight times: %+v", got)
 	}
 }

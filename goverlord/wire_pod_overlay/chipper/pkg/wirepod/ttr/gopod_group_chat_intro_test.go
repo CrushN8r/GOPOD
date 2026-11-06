@@ -45,7 +45,7 @@ func TestGroupChatIntroLock(t *testing.T) {
 		}
 	}
 	bc := gopodBrobotsSettings.BrainChain
-	if !strings.Contains(bc.Flow["intro"], "Keys will be the first to speak") || !strings.Contains(bc.Flow["intro_first"], "You're the first to speak") || bc.IntroOpener != "Keys" {
+	if !strings.Contains(bc.Flow["intro"], "KEYNOTE opened the session") || !strings.Contains(bc.Flow["intro_first"], "You're the first to speak") || bc.IntroOpener != "KEYNOTE" {
 		t.Errorf("LOCKED: the Guided Task Flow in use isn't the golden one: %q / %q / %q", bc.Flow["intro"], bc.Flow["intro_first"], bc.IntroOpener)
 	}
 }

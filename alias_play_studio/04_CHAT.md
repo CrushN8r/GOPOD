@@ -676,13 +676,14 @@ shows. A restored chat shows all. `.spoken` / `.speaking` in `gopod_chat_bubbles
   voice - "highlighting appears late ... weird segmentation passes").
 - While a link's words are revealed, only the shown words are underlined.
 
-**Forced alignment: word times from the voice.** The voice worker has Vosk listen to each voice
-it makes and gives every word its heard time (Kokoro's own time only for a word Vosk missed; a
-mark where its word ends) - `"aligner": "vosk"` in `<name>.words.json`, saved beside each voice.
-A voice without one, or timed by Kokoro's estimate only, is made again on its next use. The page
-reveals a reporter's or Goverlord's line (and an egg's congratulations) word by word at those
-times (`alignUnits`) - a mark or emoji when its word ends, a word said another way
-("crushin-ate-a") between its neighbours.
+**Forced alignment: word times from the voice - GOLDEN, the one highlight gear (2026-11-06).**
+The voice worker has Vosk listen to each voice it makes (`align_heard`), and the page lines the
+shown words up with those times (`alignUnits`) - both by the same one rule: the words said as
+written are matched in order (the longest common run - no look-ahead window, no partial
+matches); every other word ("404" said four oh four, "PNFT" said P N F T, "2026" in parts) and
+every mark or emoji shares the time between the matched words around it, by its length. A highlight
+glitch is looked for here, in this rule, never patched word by word. `"aligner": "vosk"` in
+`<name>.words.json`, saved beside each voice; a voice without one is made again on its next use.
 
 **One reveal, any source of times.** The word reveal (`digitSequence` + `alignUnits`) uses word
 times whenever a piece carries them, whatever made them - a Kokoro voice's `.words.json`, or a

@@ -188,17 +188,19 @@ func TestIntroRecipe(t *testing.T) {
 			t.Errorf("%s's intro recipe has an unfilled label: %q", who, r)
 		}
 	}
-	if r := gopodIntroRecipe("BUTLER", tester); !strings.Contains(r, `"I'm KEYNOTE VALE, my nickname is Keys, because I hold all the keys."`) {
+	// 2026-11-06 (operator: "every intro should start similar to \"I'm [], my
+	// nickname is [] ...\""): formal name, then the nickname, once.
+	if r := gopodIntroRecipe("BUTLER", tester); !strings.Contains(r, `"I'm KEYNOTE VALE, my nickname is KEYS, because I hold all the keys."`) {
 		t.Errorf("the Butler's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "NEW RULE: Gomad names in CAPS!!"; "nickname Chammy
 	// (cammy) * why, short for Chameleon").
-	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm CAMEO, my nickname is Chammy, because it's short for Chameleon."`) {
+	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm CAMEO LOOKS, my nickname is CHAMMY, because it's short for Chameleon."`) {
 		t.Errorf("CAMEO's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "Git Repo nickname = 'Repo' * 'Repo' = repossesser
 	// (wordplay, lol), not repository"): his why ends on its own "!!'" - no extra stop.
-	if r := gopodIntroRecipe("GIT REPO", tester); !strings.Contains(r, `"I'm Git Repo, my nickname is Repo, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'"`) {
+	if r := gopodIntroRecipe("GIT REPO", tester); !strings.Contains(r, `"I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'"`) || !strings.Contains(r, "I answer to PLAYHEAD ZUMINTU") {
 		t.Errorf("Git Repo's opening: %q", r)
 	}
 	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {
@@ -238,7 +240,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself - who you answer to and who works with you. b) Keys will be the first to speak, to open up the session.", "My full name is Brobot 2, known at GOPOD as 'Pip' the GOPOD host. A party-bro GOPOD sales rep. I'm clueless & happy. Brobot 1 & I are robot brothers.", "In the chat: GOPOD party-brobot reps: Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself - who you answer to and who works with you. b) KEYNOTE opened the session.", "My full name is PIP N STALL, the GOPOD sidekick.", "In the chat: GOPOD hosts, on the two Brobots (the dial at 100%): BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose], PIP [the sidekick, on Brobot 2 - the room's pied piper] (me). GOPOD party-brobot reps (the dial at 0%): Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -248,7 +250,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
-	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is Brobot 2") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: my brother Doc, Brobot 1." {
+	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is PIP N STALL") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: I answer to the Gomads, KEYNOTE, then Goverlord. I work with my host BARFALLONYOU SQUAWKADOODLE - he explains too hard, I get it too late, and the room roots for me." {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

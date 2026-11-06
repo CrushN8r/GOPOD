@@ -142,7 +142,9 @@ func GopodChatFeedAddLive(esn, text string) {
 	}
 	gopodLiveCheck.last[who], gopodLiveCheck.at[who] = words, time.Now()
 	gopodLiveCheck.Unlock()
-	gopodChatFeedAddEventVia(who, "", "", gopodFeedLiveVia, text)
+	// 2026-11-06: "by" - the name he answers as (gopodCallName: his persona's, or
+	// "Brobot N" at the dial's 0%), the page's one source for his bubble's header.
+	gopodChatFeedAddEventVia(who, "", gopodCallName(who), gopodFeedLiveVia, text)
 	gopodChatFeed.Lock()
 	id := gopodChatFeed.next
 	gopodChatFeed.Unlock()

@@ -2,25 +2,25 @@
 package wirepod_ttr
 
 import (
-	"strings"
 	"testing"
 )
 
-// TestNicknamesAndKeys: the guards are Buzzer and Switch - headed
-// "Buzzer (Intel 404 PNFH)", called by their nicknames, and saying so when
-// asked who they are; the page's 1-9 menu sends 3 to 9 to that numpad key.
+// TestNicknamesAndKeys: on company time the guards go by their formal names
+// (2026-11-06, operator: "go with formal first names on company time * let's
+// keep nicknames for bantering") - headed, called and saying so by them; Buzzer
+// and Switch stay their nicknames, for banter; the page's 1-9 menu sends 3 to 9
+// to that numpad key.
 func TestNicknamesAndKeys(t *testing.T) {
-	want := map[string]string{"INTEL 404 PNFH": "Buzzer", "INTEL 404 PNFT": "Switch"}
+	want := map[string]string{"INTEL 404 PNFH": "BUZZER", "INTEL 404 PNFT": "SWITCH"}
 	for host, nick := range want {
-		id := gopodBrobotsSettings.HostPersonas[host].Name
-		if got := gopodBrobotsSettings.ReporterVoices.Labels[host]; got != nick+" ("+id+")" {
+		if got := gopodBrobotsSettings.ReporterVoices.Labels[host]; got != host {
 			t.Errorf("%s header %q", host, got)
 		}
-		if gopodCallName(host) != nick {
+		if gopodCallName(host) != host {
 			t.Errorf("%s called %q", host, gopodCallName(host))
 		}
-		if !strings.Contains(gopodBrobotsSettings.Managers.Personas[host].WhoLine, "I'm "+nick) {
-			t.Errorf("%s doesn't say he's %s", host, nick)
+		if gopodBrobotsSettings.HostPersonas[host].Nickname != nick {
+			t.Errorf("%s's banter nickname isn't %s", host, nick)
 		}
 	}
 	for in, out := range map[string]string{"kp:5": "KP5", "kp:9": "KP9", "kp:3": "KP3"} {

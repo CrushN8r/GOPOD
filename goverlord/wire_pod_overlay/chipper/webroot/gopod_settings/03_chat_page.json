@@ -165,7 +165,7 @@
   "system_bubble": {
     "about": "The system bubbles' header (operator 2026-10-04: \"label these timers as system messages ... [icon] Goverlord: GOPOD Brain [icon]\"): every Goverlord system bubble (the LLM warm-up, countdowns, chapters, Goverlord's lines, numpad statuses), with the grey icon at both ends. Read by the chat page only.",
     "label_about": "2026-10-30 (operator: \"replace templated this: Goverlord: GOPOD Brain, with: KEYNOTE: Butler * anything with KEYNOTE's voice, please update at the template level\"; \"All should branch from single master sources\"): the header of everything said in the system speaker's voice - the system bubbles, the Butler's own answers, the weather card - filled from voice_persona's labels: {first} {middle} {last} of its full name, {name}, {nickname}, {job}.",
-    "label": "{first}: {job}",
+    "label": "{first}",
     "voice_persona": "BUTLER"
   },
   "extra_animations": {

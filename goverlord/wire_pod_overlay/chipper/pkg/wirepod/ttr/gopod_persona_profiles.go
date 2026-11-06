@@ -39,8 +39,34 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 		if f := gopodTopicTreeFind(slug + ".md"); f != "" {
 			return f
 		}
+		// 2026-11-06 (operator's shuffle: chalk.md -> company/gomads/chalk-bored.md):
+		// renamed, it's the profile under the folder whose "words" name who.
+		if f := gopodPersonaProfileByWords(folder, who); f != "" {
+			return f
+		}
 	}
 	return p
+}
+
+// gopodPersonaProfileByWords: the profile under folder whose head's words list
+// has who ("CHALK" -> the file with "- **words:** chalk, chalk bored, ...").
+func gopodPersonaProfileByWords(folder, who string) string {
+	want := strings.ToLower(strings.TrimSpace(who))
+	found := ""
+	_ = filepath.WalkDir(folder, func(path string, d os.DirEntry, err error) error {
+		if err != nil || found != "" || d.IsDir() || !strings.HasSuffix(path, ".md") {
+			return nil
+		}
+		head, _ := gopodPersonaProfileReadOne(path)
+		for _, w := range strings.Split(head["words"], ",") {
+			if strings.ToLower(strings.TrimSpace(w)) == want {
+				found = path
+				break
+			}
+		}
+		return nil
+	})
+	return found
 }
 
 // gopodPersonaProfileRead (2026-10-30, operator: "make the topic-cluster shape the
@@ -54,7 +80,8 @@ func gopodPersonaProfileRead(path string) (head map[string]string, sections map[
 	// not Brobot 1. Doc is the persona hosted by Brobot 1"): a robot's file names
 	// the persona it hosts ("- **hosts:** doc.md"); the persona's head lines win,
 	// and its sections follow the robot's.
-	if host := strings.TrimSpace(head["hosts"]); host != "" {
+	// 2026-11-06: at the dial's 0% (a line to both) the robot answers as himself.
+	if host := strings.TrimSpace(head["hosts"]); host != "" && !gopodAtDialZero(strings.TrimSpace(head["label"])) {
 		hosted := filepath.Join(filepath.Dir(path), host)
 		if _, err := os.Stat(hosted); err != nil {
 			if f := gopodTopicTreeFind(host); f != "" {
@@ -67,8 +94,10 @@ func gopodPersonaProfileRead(path string) (head map[string]string, sections map[
 				head[k] = v
 			}
 		}
+		// 2026-11-06: the persona's own section wins over the robot's of the same
+		// name (the robot's "Who I am" is his at the dial's 0%).
 		for k, pts := range ps {
-			sections[k] = append(sections[k], pts...)
+			sections[k] = pts
 		}
 	}
 	return head, sections
@@ -228,6 +257,9 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 			hps[who] = map[string]any{}
 		}
 		hps[who]["name"], hps[who]["nickname"], hps[who]["job_name"] = hp.Name, hp.Nickname, hp.JobName
+		if hp.CallName != "" {
+			hps[who]["call_name"] = hp.CallName
+		}
 	}
 	raw, err := json.Marshal(hps)
 	if err != nil {
@@ -316,18 +348,14 @@ func gopodProfileLingo() map[string]string {
 	return out
 }
 
-// gopodBrainRelationships: who's relationships for his brain - his profile's
-// "## Relationships" points; until those are written, what's there already:
-// his "Who helps me" and his "Partner and banter".
+// gopodBrainRelationships: who's relationships for his brain - his card's
+// "## Who I answer to" and "## Who works with me" (2026-11-06, the persona
+// schema: one place for each fact, the same lines his intro says).
 func gopodBrainRelationships(who string) string {
 	sections := gopodPersonaProfileSections(who)
-	points := sections["Relationships"]
-	if len(points) == 0 {
-		if v := gopodPersonaProfileField(who, "Who helps me"); v != "" {
-			points = append(points, v)
-		}
-		points = append(points, sections["Partner and banter"]...)
-	}
+	var points []string
+	points = append(points, sections["Who I answer to"]...)
+	points = append(points, sections["Who works with me"]...)
 	var out []string
 	for _, p := range points {
 		if p = strings.TrimSuffix(strings.TrimSpace(gopodPersonaFill(who, p)), "."); p != "" {
@@ -337,7 +365,7 @@ func gopodBrainRelationships(who string) string {
 	if len(out) == 0 {
 		return ""
 	}
-	return strings.Join(out, "; ") + "."
+	return strings.Join(out, ". ") + "."
 }
 
 // ## EOF

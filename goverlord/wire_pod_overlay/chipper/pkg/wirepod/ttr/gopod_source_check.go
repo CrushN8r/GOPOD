@@ -23,14 +23,16 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 )
 
 var gopodUnfilledRE = regexp.MustCompile(`\{(name|nickname|job|self|cast|first|middle|last|fullname|task|asked)\}`)
 
-// gopodSelfLines: the Self lines every profile has, for the intro.
-var gopodSelfLines = []string{"My informal name (nickname)", "My name", "My job title", "My role", "Who helps me"}
+// gopodSelfLines: the Self lines every profile has, for the intro (2026-11-06:
+// the nickname is for banter, not the intro - it may still be to come).
+var gopodSelfLines = []string{"My name", "My job title"}
 
 // gopodSourceCheck: the problems, and how many things were checked.
 func gopodSourceCheck() ([]string, int) {
@@ -65,6 +67,17 @@ func gopodSourceCheck() ([]string, int) {
 	go func() {
 		defer wg.Done()
 		p, n := gopodSourceCheckKeys()
+		add(p...)
+		count(n)
+	}()
+	// 7 schema (2026-11-06, operator: "Consistency would then get checked on every
+	// restart instead of by you reading runs * please build that in"): every
+	// persona file against persona-schema.md, every company file against
+	// company-schema.md (gopodSchemaCheck).
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		p, n := gopodSchemaCheck(whos)
 		add(p...)
 		count(n)
 	}()
@@ -230,6 +243,130 @@ func gopodReadFileString(path string) string {
 		return ""
 	}
 	return string(data)
+}
+
+// gopodSchemaShape: a topic-cluster md's shape - its head's keys ("- **job:**"),
+// its "## " sections in order, and its Self lines' labels ("My name").
+type gopodSchemaShape struct {
+	keys, sections, self []string
+	points           map[string]int
+}
+
+func gopodSchemaShapeOf(path string) (gopodSchemaShape, bool) {
+	var s gopodSchemaShape
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return s, false
+	}
+	s.points = map[string]int{}
+	inHead, section := true, ""
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		switch {
+		case inHead && line == "---":
+			inHead = false
+		case inHead && strings.HasPrefix(line, "- **"):
+			if k, _, ok := strings.Cut(strings.TrimPrefix(line, "- **"), ":**"); ok {
+				s.keys = append(s.keys, k)
+			}
+		case !inHead && strings.HasPrefix(line, "## "):
+			section = strings.TrimSpace(strings.TrimPrefix(line, "## "))
+			s.sections = append(s.sections, section)
+		case !inHead && gopodProfilePointRE.MatchString(line):
+			s.points[section]++
+			if section == "Self" {
+				if label, _, ok := strings.Cut(gopodProfilePointRE.FindStringSubmatch(line)[1], ":"); ok {
+					s.self = append(s.self, label)
+				}
+			}
+		}
+	}
+	return s, true
+}
+
+// gopodSchemaCheck: the persona files (each participant's, and the persona a
+// robot hosts) against persona-schema.md - its head keys ("why" aside: a nickname
+// may have no story), its sections and its Self lines; the company files (a file
+// with "## Our company") against company-schema.md - the same sections, as many
+// points. A missing one is a problem to fix.
+func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
+	var out []string
+	n := 0
+	has := func(list []string, v string) bool {
+		for _, x := range list {
+			if strings.EqualFold(x, v) {
+				return true
+			}
+		}
+		return false
+	}
+	if schemaPath := gopodTopicTreeFind("persona-schema.md"); schemaPath != "" {
+		schema, _ := gopodSchemaShapeOf(schemaPath)
+		files := map[string]bool{}
+		for who := range whos {
+			p := gopodPersonaProfileFile(who)
+			files[p] = true
+			if head, _ := gopodPersonaProfileReadOne(p); head != nil {
+				if h := strings.TrimSpace(head["hosts"]); h != "" {
+					if f := gopodTopicTreeFind(h); f != "" {
+						files[f] = true
+					}
+				}
+			}
+		}
+		for p := range files {
+			shape, ok := gopodSchemaShapeOf(p)
+			n++
+			if !ok {
+				continue
+			}
+			name := filepath.Base(p)
+			for _, k := range schema.keys {
+				if k == "why" || k == "about" {
+					continue
+				}
+				n++
+				if !has(shape.keys, k) {
+					out = append(out, "schema "+name+": no \"- **"+k+":**\" head line (persona-schema.md)")
+				}
+			}
+			for _, sec := range schema.sections {
+				n++
+				if !has(shape.sections, sec) {
+					out = append(out, "schema "+name+": no \"## "+sec+"\" section (persona-schema.md)")
+				}
+			}
+			for _, label := range schema.self {
+				n++
+				if !has(shape.self, label) {
+					out = append(out, "schema "+name+": its Self has no \""+label+"\" line (persona-schema.md)")
+				}
+			}
+		}
+	}
+	if schemaPath := gopodTopicTreeFind("company-schema.md"); schemaPath != "" {
+		schema, _ := gopodSchemaShapeOf(schemaPath)
+		_ = filepath.WalkDir(filepath.Dir(schemaPath), func(p string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() || !strings.HasSuffix(p, ".md") || p == schemaPath {
+				return nil
+			}
+			shape, ok := gopodSchemaShapeOf(p)
+			if !ok || !has(shape.sections, "Our company") {
+				return nil
+			}
+			for _, sec := range schema.sections {
+				n++
+				switch {
+				case !has(shape.sections, sec):
+					out = append(out, "schema "+filepath.Base(p)+": no \"## "+sec+"\" section (company-schema.md)")
+				case shape.points[sec] != schema.points[sec]:
+					out = append(out, "schema "+filepath.Base(p)+": \"## "+sec+"\" has "+strconv.Itoa(shape.points[sec])+" points, company-schema.md has "+strconv.Itoa(schema.points[sec]))
+				}
+			}
+			return nil
+		})
+	}
+	return out, n
 }
 
 // ## EOF

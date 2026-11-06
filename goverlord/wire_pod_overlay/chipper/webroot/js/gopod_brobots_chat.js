@@ -996,6 +996,9 @@
         var shell = nestShells[who];
         if (shell && shell.isConnected && !shell.dataset.filled && !restoringChat) {
           shell.dataset.filled = "1";
+          // The name he answered as (brobotBy), on the bubble opened before his reply.
+          var shellWho = shell.querySelector(".brobot-bubble-who");
+          if (shellWho && brobotBy[who]) { shellWho.textContent = brobotBy[who] + ":"; }
           if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
           bubble.className.split(" ").forEach(function (c) { if (c) { shell.classList.add(c); } });
           if (inPopup) { shell.classList.add("popup-winner"); }
@@ -1743,6 +1746,8 @@
             if (settings.topic_pictures && settings.topic_pictures.in_question) {
               picturesInQuestion = settings.topic_pictures.in_question;
             }
+            // 2026-11-05: anyone's Got it words (chat_moves) - a persona's opens its bubble.
+            if (settings.chat_moves) { chatMoves = settings.chat_moves; }
             if (settings.reporter_voices) {
               reporterRole = settings.reporter_voices.role || reporterRole;
               hostNames = settings.reporter_voices.hosts || hostNames;
@@ -1755,6 +1760,7 @@
                 if (nickTpl && hp.nickname) { hostLabels[h] = nickLabels[h] = nickTpl.replace("{nickname}", hp.nickname).replace("{name}", hp.name || h); }
               });
               displayNames = settings.display_names || displayNames;
+              hostPersonasNow = settings.host_personas || hostPersonasNow;
               if (settings.hourglass) { hourglassCfg = settings.hourglass; }
               if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
@@ -1931,9 +1937,12 @@
         avatar.className = "brobot-bubble-avatar";
         var name = document.createElement("span");
         name.className = "brobot-bubble-who";
-        // 2026-11-02 (operator: "bubble's name should say Doc: instead of Brobot 1"):
-        // a Brobot's bubble wears his persona's name (display_names.brobots).
-        var shown = ((displayNames || {}).brobots || {})[who] || who;
+        // 2026-11-06 (operator: "page's header names should be running through a
+        // templated pathway to a single source of truth"): a Brobot's bubble wears
+        // the name Wire-Pod answered as (his reply's "by": gopodCallName - his
+        // persona's call name, or "Brobot N" at the dial's 0%), else his call name
+        // (host_personas.<who>.call_name), else who.
+        var shown = brobotBy[who] || ((hostPersonasNow || {})[who] || {}).call_name || who;
         name.textContent = noColon ? shown : shown + ":";
         head.appendChild(avatar);
         head.appendChild(name);
@@ -3477,7 +3486,18 @@
       // A browser plays sound only after the page has been clicked or typed in.
       // 2026-10-06 (operator: "Reporter 1, Brobot 3:" / "Reporter 2, Brobot 4:"):
       // the header is the host's label (reporter_voices.labels).
-      var reporterRole, hostNames = {}, hostLabels = {};
+      var reporterRole, hostNames = {}, hostLabels = {}, chatMoves = {};
+      // gotItOf (2026-11-05, operator: "everybody's personas ... that same robot's
+      // bubble type and mechanism"): who's Got it words - his own, else the golden.
+      function gotItOf(who) {
+        var g = (chatMoves.got_it || {})[who] || {};
+        return String(g.text || chatMoves.thinking_text || "").trim();
+      }
+      // openReceipt: who's bubble at the bottom, opened by his Got it, still waiting for his answer.
+      function openReceipt(who) {
+        var at = openHostBox();
+        return at && at.who === who && at.outer.dataset.receipt ? at.outer : null;
+      }
       // 2026-10-22 (operator: "a bubble's header in a scripted run should have
       // what values? default (CHALK), fallback (Brobot 7), remembered edits
       // (CHALK BORED)? * editable"): the header template (display_names) - a
@@ -3698,6 +3718,15 @@
         }
         if (!restoringChat) { recordBubble(who, String(text), "host"); }
         if (String(text).indexOf("lines:") === 0) {
+          // 2026-11-05: his answer goes in the bubble his Got it opened, under his brain.
+          var receipt = openReceipt(who);
+          if (receipt) {
+            delete receipt.dataset.receipt;
+            hostBrain(receipt, who);
+            linesInto(receipt, text);
+            next();
+            return;
+          }
           hostBrain(bubble, who);
           linesInto(bubble, text);
           placeBubble(bubble, next, function () {
@@ -3708,7 +3737,17 @@
         }
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
-        bubble.appendChild(line);
+        // 2026-11-05: his Got it opens his bubble, the Brobots' way - its top line
+        // (an opener), his brain and his answer go in under it.
+        if (gotItOf(who) && String(text).trim() === gotItOf(who)) {
+          var opener = document.createElement("div");
+          opener.className = "brobot-opener";
+          opener.appendChild(line);
+          bubble.appendChild(opener);
+          bubble.dataset.receipt = "1";
+        } else {
+          bubble.appendChild(line);
+        }
         hostBrain(bubble, who);
         voiceLitLine(bubble, line, text);
         placeBubble(bubble, next, function () {
@@ -5033,8 +5072,10 @@
         [300, 1200].forEach(function (ms) { setTimeout(function () { scrollChatTo(chatMaxScroll()); }, ms); });
       }
       var feedIdNow = 0; // the chat event being shown (a Brobot bubble keeps it: data-feed)
+      var brobotBy = {}, hostPersonasNow = {}; // the name each Brobot answered as last; the served labels
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
+        if (/^Brobot [12]$/.test(e.who) && e.by) { brobotBy[e.who] = e.by; }
         // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
         if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) {
           // The mic's "skip" (Wire-Pod's skip: line) goes through the skip gate too.
@@ -5504,62 +5545,50 @@
           units.forEach(function (u) { u.classList.remove("now"); u.classList.add("said"); });
         }, at * 1000);
       }
-      // Each unit's second in the voice: a word at the start of the spoken word
-      // it matches (a part of one, like "20" and "26" of "2026", at its share
-      // of it); a mark or emoji when the word before it ends (the silence
-      // after it); a word not found (said another way: "crushin-ate-a") between
-      // its neighbours.
+
+      // GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
+      // template/schema the highlighting to one gear we can look to to fix * no
+      // patching - remove all patching"): the same rule as the voice worker's
+      // align_heard (gopod_reporter_voice_worker.py) - the shown words said as
+      // written are matched to the voice's words in order (the longest common run,
+      // no look-ahead window, no partial matches); every other shown word ("404",
+      // "PNFT", "2026" cut in parts) and every mark or emoji shares the time between
+      // the matched words around it, by its length. Replaces the look-ahead and the
+      // "said another way" rule (2026-10-18..11-02).
       function alignUnits(units, words) {
         var norm = function (t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); };
-        var toks = words.map(function (w) { return { n: norm(w.t), s: +w.s || 0, e: +w.e || 0, used: 0 }; });
-        var times = [], at = 0, lastEnd = 0;
         var unitText = function (v) { return v ? norm(v.tagName === "IMG" ? "" : v.textContent) : ""; };
-        units.forEach(function (u, ui) {
-          var n = unitText(u);
-          if (!n) { times.push(lastEnd > 0 ? lastEnd : null); return; }
-          var hit = null, part = 0;
-          for (var j = at; j < Math.min(at + 6, toks.length); j++) {
-            var t = toks[j];
-            if (!t.n) { continue; }
-            var rest = t.n.slice(t.used);
-            if (rest === n || rest.indexOf(n) === 0 || (t.used === 0 && n.indexOf(t.n) === 0)) {
-              hit = j; part = t.used / t.n.length;
-              t.used = Math.min(t.n.length, t.used + n.length);
-              break;
-            }
+        var a = units.map(unitText), b = words.map(function (w) { return norm(w.t); });
+        var n = a.length, m = b.length, L = [], i, j;
+        for (i = 0; i <= n; i++) { L.push(new Array(m + 1).fill(0)); }
+        for (i = n - 1; i >= 0; i--) {
+          for (j = m - 1; j >= 0; j--) {
+            L[i][j] = (a[i] && a[i] === b[j]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
           }
-          // 2026-11-02 (live: PLAYHEAD's "ZUMINTU" lit before it was said - the
-          // voice says it "zoom-into"): a word said another way takes the next
-          // unused spoken word, when the word after it matches the spoken word
-          // after that - one shown word, one spoken word.
-          if (hit === null) {
-            var k = at;
-            while (k < toks.length && (!toks[k].n || toks[k].used)) { k++; }
-            var k2 = k + 1;
-            while (k2 < toks.length && !toks[k2].n) { k2++; }
-            var nextN = "";
-            for (var q = ui + 1; q < units.length && !nextN; q++) { nextN = unitText(units[q]); }
-            if (k < toks.length && (!nextN || (k2 < toks.length && toks[k2].n.indexOf(nextN) === 0))) {
-              hit = k; part = 0;
-              toks[k].used = toks[k].n.length;
-            }
-          }
-          if (hit === null) { times.push(null); return; }
-          var tk = toks[hit];
-          times.push(tk.s + (tk.e - tk.s) * part);
-          lastEnd = tk.e;
-          at = tk.used >= tk.n.length ? hit + 1 : hit;
-        });
-        // Not found: between the times around it.
-        for (var i = 0; i < times.length; i++) {
-          if (times[i] !== null) { continue; }
+        }
+        var s = new Array(n).fill(null), e = new Array(n).fill(null);
+        i = 0; j = 0;
+        while (i < n && j < m) {
+          if (a[i] && a[i] === b[j]) { s[i] = +words[j].s || 0; e[i] = +words[j].e || 0; i++; j++; }
+          else if (L[i + 1][j] >= L[i][j + 1]) { i++; }
+          else { j++; }
+        }
+        var lastEnd = words.length ? +words[words.length - 1].e || 0 : 0;
+        for (i = 0; i < n; i++) {
+          if (s[i] !== null) { continue; }
           var k = i;
-          while (k < times.length && times[k] === null) { k++; }
-          var from = i > 0 ? times[i - 1] : 0, to = k < times.length ? times[k] : (words.length ? +words[words.length - 1].e : from);
-          for (var m = i; m < k; m++) { times[m] = from + (to - from) * (m - i + 1) / (k - i + 1); }
+          while (k < n && s[k] === null) { k++; }
+          var from = i > 0 ? e[i - 1] : 0, to = k < n ? s[k] : Math.max(from, lastEnd);
+          var total = 0, q;
+          for (q = i; q < k; q++) { total += a[q].length; }
+          var at = from;
+          for (q = i; q < k; q++) {
+            var share = total ? (to - from) * a[q].length / total : 0;
+            s[q] = at; e[q] = at + share; at += share;
+          }
           i = k - 1;
         }
-        return times;
+        return s;
       }
       // 2026-10-18: a Brobot bubble's own pieces - never a manager's part nested
       // in it (PLAYHEAD at its top, CHALK at its bottom), so piece numbers stay his.
@@ -6324,7 +6353,7 @@
         if (!lines || !lines.length) { return; }
         var boxes = {};
         lines.forEach(function (n) {
-          var box = boxes[n.title];
+          var box = boxes[n.title] || Array.prototype.filter.call(bubble.querySelectorAll(":scope > .bubble-notice"), function (x) { return x.dataset.title === n.title; })[0];
           if (!box) {
             box = boxes[n.title] = nestPart("notice", "egg-summary bubble-notice", systemHead(n.title), String(n.line).indexOf("\t") >= 0 ? null : n.line, "egg-summary-text");
             if (String(n.line).indexOf("\t") >= 0) { box.appendChild(noticeLine(n.line)); }
@@ -6341,6 +6370,9 @@
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
         if (!/^Brobot [12]$/.test(String(to || ""))) {
           if (to) { (hostBrains[to] = hostBrains[to] || []).push({ title: title, line: line }); }
+          // 2026-11-05: his bubble is open (his Got it) - his brain goes in now.
+          var receipt = to ? openReceipt(to) : null;
+          if (receipt) { hostBrain(receipt, to); }
           return;
         }
         var shell = nestShell(to);

@@ -38,9 +38,16 @@ type gopodGotIt struct {
 // locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 *
 // assign Got it 2 to brobot 2"): his own copy (chat_moves.got_it), each part not
 // set taken from the shared golden values.
-func gopodGotItFor(esn string) gopodGotIt {
+func gopodGotItFor(esn string) gopodGotIt { return gopodGotItNamed(gopodBrobotName(esn)) }
+
+// gopodGotItNamed (2026-11-05, operator: "I'd like everybody's personas to have
+// that same sort of behavior * that same robot's bubble type and mechanism";
+// "reuse ... minimal sources of truth"): anyone's Got it, by name - a Brobot's
+// or a persona's (chat_moves.got_it.<name>, in its own file); the golden words
+// when it has none.
+func gopodGotItNamed(name string) gopodGotIt {
 	cm := gopodBrobotsSettings.ChatMoves
-	g := cm.GotIt[gopodBrobotName(esn)]
+	g := cm.GotIt[name]
 	if strings.TrimSpace(g.Text) == "" {
 		g.Text = gopodThinkingLineSpoken()
 	}

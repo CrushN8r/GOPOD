@@ -43,7 +43,7 @@
 1. comeback: Nice try, {title} {nickname}!
 
 ## Persona profiles (persona_profiles)
-1. sections: Our group | Self | Voice | Partner and banter
+1. sections: Our company | Our group | Self | Who I answer to | Who works with me | Voice | Banter
 2. text: Your profile, in your own words: {lines}
 
 ## Point bubbles (point_bubbles)

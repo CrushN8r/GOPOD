@@ -237,6 +237,13 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if line, ok := gopodBrobotPersonaLines[gopodBrobotName(esn)]; ok {
 			whoIAm = line
 		}
+		// GOPOD 2026-11-06: a line to both - he answers at the dial's 0%, his own
+		// "Who I am" (brobot-1.md / brobot-2.md), not his hosted persona's.
+		if gopodAtDialZero(gopodBrobotName(esn)) {
+			if pts := gopodPersonaProfileSections(gopodBrobotName(esn))["Who I am"]; len(pts) > 0 {
+				whoIAm = strings.Join(pts, " ")
+			}
+		}
 		smsg.Content += "\n\nWHO I AM:\n" + whoIAm
 		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)

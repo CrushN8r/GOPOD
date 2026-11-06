@@ -26,18 +26,18 @@
 
 ## The reporters' labels and words (reporter_voices) (reporter_voices)
 1. generating_text: Voice file generating.
-2. nickname_label: {nickname} ({name})
+2. nickname_label: ``
 
 ## Their bubble labels (reporter_voices.labels) (reporter_voices.labels)
 1. Brobot 3: Reporter 1: Brobot 3
 2. Brobot 4: Reporter 2: Brobot 4
 3. CHALK: CHALK
 4. PLAYHEAD: PLAYHEAD
-5. Goverlord: Reporter 0, Goverlord
-6. GIT REPO: Git Repo
-7. CACHE PYC: Cache PYC
-8. INTEL 404 PNFH: Intel 404 PNFH
-9. INTEL 404 PNFT: Intel 404 PNFT
+5. Goverlord: GOVERLORD
+6. GIT REPO: GIT REPO
+7. CACHE PYC: CACHE PYC
+8. INTEL 404 PNFH: INTEL 404 PNFH
+9. INTEL 404 PNFT: INTEL 404 PNFT
 10. CAMEO: CAMEO
 
 ## The warm-up (llm) (llm)

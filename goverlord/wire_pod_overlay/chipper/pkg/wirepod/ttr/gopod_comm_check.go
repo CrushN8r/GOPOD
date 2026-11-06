@@ -194,7 +194,8 @@ func gopodSystemCommCheck() string {
 			name := label
 			if strings.HasPrefix(target, gopodPersonaMark) {
 				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaMark))
-			} else if h := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[label].Name); h != "" {
+			} else if h := gopodCallName(label); h != "" {
+				// 2026-11-06: a Brobot is called by his formal name (call_name: DOCTRINE, PIP).
 				name = h
 			}
 			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"

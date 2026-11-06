@@ -214,6 +214,10 @@ func gopodReminderTopics(question string) string {
 // (helper_from call_name) and a hand-over ({intern}): host_personas.<host>.
 // call_name, else its name, else the host.
 func gopodCallName(host string) string {
+	// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0%"): a line to both - he's Brobot N.
+	if gopodAtDialZero(host) {
+		return host
+	}
 	p := gopodBrobotsSettings.HostPersonas[host]
 	for _, n := range []string{p.CallName, p.Nickname, p.Name, host} {
 		if n = strings.TrimSpace(n); n != "" {

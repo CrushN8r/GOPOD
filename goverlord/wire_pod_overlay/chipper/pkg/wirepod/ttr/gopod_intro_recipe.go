@@ -55,7 +55,7 @@ func gopodIntroRecipe(who, text string) string {
 		return ""
 	}
 	var facts []string
-	for _, label := range []string{"My job title", "My role", "Who helps me"} {
+	for _, label := range []string{"My job title"} {
 		if v := strings.TrimSuffix(strings.TrimSpace(gopodPersonaProfileField(who, label)), "."); v != "" {
 			facts = append(facts, v)
 		}
@@ -75,7 +75,7 @@ func gopodIntroRecipe(who, text string) string {
 			}
 		}
 		if len(names) > 0 {
-			facts = append(facts, strings.TrimSpace(label)+" "+strings.Join(names, "; "))
+			facts = append(facts, strings.TrimSpace(strings.TrimSpace(label)+" "+strings.Join(names, " ")))
 		}
 	}
 	text2 := ir.Text
@@ -128,8 +128,8 @@ func gopodIntroOpeningWith(who string, withWhy bool) string {
 	out := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(ir.Opening, "{name}", name), "{nickname_part}", part))
 	// 2026-11-04 (Git Repo's why ends "... 'Git yer butt in gear!!'"): the
 	// opening's own full stop is dropped when the why already ends its sentence,
-	// a closing quote aside - "!!'" not "!!'.".
-	if body := strings.TrimRight(strings.TrimSuffix(out, "."), "'\"’”"); strings.HasSuffix(out, ".") && body != strings.TrimSuffix(out, ".") && strings.ContainsAny(body[len(body)-1:], ".!?") {
+	// a closing quote aside - "!!'" not "!!'.", "BRUH!" not "BRUH!.".
+	if body := strings.TrimRight(strings.TrimSuffix(out, "."), "'\"’”"); strings.HasSuffix(out, ".") && body != "" && strings.ContainsAny(body[len(body)-1:], ".!?") {
 		out = strings.TrimSuffix(out, ".")
 	}
 	return out
@@ -267,7 +267,7 @@ func gopodIntroSelfNames(who string) []string {
 		return strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(v), "."))
 	}
 	var out []string
-	for _, n := range []string{gopodCallName(who), first(gopodPersonaProfileField(who, "My name")), first(gopodPersonaProfileField(who, "My informal name (nickname)"))} {
+	for _, n := range []string{who, gopodCallName(who), first(gopodPersonaProfileField(who, "My name")), first(gopodPersonaProfileField(who, "My informal name (nickname)"))} {
 		if n != "" {
 			out = append(out, n)
 		}

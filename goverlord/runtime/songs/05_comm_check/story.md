@@ -22,7 +22,7 @@ the waits are the settings' `comm_check` (quiet_seconds, line_max_seconds).
 ## SECTION: ROUND ROBIN
 
 ## STEP keys_ask_0201
-> TEXT: Keys! Get the party started: introduce yourself to the chat - what you do, who you answer to and who works with you.
+> TEXT: {name}! Get the party started: introduce yourself to the chat - what you do, who you answer to and who works with you.
 
 ## STEP gomads_ask_0202
 > TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.

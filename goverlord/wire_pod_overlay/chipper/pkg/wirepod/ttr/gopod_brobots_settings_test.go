@@ -24,7 +24,7 @@ func TestBrobotsSettingsReachTheCode(t *testing.T) {
 	if gopodAnimationMarker != s.AnimationMarker || gopodSharedBrobotChatExchanges != s.SharedChat.MaxQuestions || gopodBingoSnapshotNote != s.Bingo.SnapshotNote {
 		t.Fatal("a setting did not reach the code")
 	}
-	if gopodBrobotPersonaLines["Brobot 1"] != s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"]) || !strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "I go by Pip") || gopodBrobotsSettings.Bingo.Takes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
+	if gopodBrobotPersonaLines["Brobot 1"] != s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"]) || !strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "I go by PIP N STALL") || gopodBrobotsSettings.Bingo.Takes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
 		t.Fatal("personas or Bingo takes did not reach the code")
 	}
 	got := gopodFillPromptTokens("$PLACEHOLDER_WORD$ANIMATION_MARKER spoken thought, marker: $ANIMATION_MARKER")

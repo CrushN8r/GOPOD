@@ -523,6 +523,14 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 		// 2026-11-01 (live: the comm check stopped while Git Repo's answer was
 		// being made; it came 2 minutes later and played): a stop run while the
 		// answer is made drops it.
+		// 2026-11-05 (operator: "the same robot's bubble type and mechanism * when
+		// they're asked a question, the bubble can say, message received, sir, and
+		// then the process can go on"): the Brobots' order - his Got it, said at
+		// once (the voice template), then his brain, then his answer when it's made.
+		if got := strings.TrimSpace(gopodGotItNamed(host).Text); got != "" {
+			gopodReporterSay(sayAs, got, true, true)
+		}
+		gopodGomadBrain(host, sayAs, text)
 		var reply string
 		var err error
 		seq := gopodStopSeq.Load()
@@ -540,8 +548,6 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 			logger.Println("GOPOD_PERSONA " + host + ": " + err.Error())
 			return false
 		}
-		// 2026-10-30 (operator: "everybody gets a brain bubble"): its brain first.
-		gopodGomadBrain(host, sayAs, text)
 		gopodReporterSay(sayAs, reply, true, true)
 		kind := "answer"
 		if gopodIsIntro(text) {

@@ -175,6 +175,23 @@ var gopodAllFirstAnswer sync.Map
 // reminds me...' lines as they were").
 var gopodFollowingUp sync.Map
 
+// gopodDialZero (2026-11-06, operator: "Brobot 1/2 = Dials @ 0% * DOC & PIP =
+// Dials @ 100%"; "Keep DOC/PIP seperate personas from brobots"): a Brobot
+// answering a line to both (KP*, "All") answers at the dial's 0% - as Brobot 1
+// or 2, the party-bro GOPOD rep, not the persona he hosts (gopodPersonaProfileRead).
+var gopodDialZero sync.Map // esn -> true
+
+// gopodAtDialZero: the Brobot by this name is answering at the dial's 0%.
+func gopodAtDialZero(name string) bool {
+	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
+		if gopodBrobotName(esn) == name {
+			_, ok := gopodDialZero.Load(esn)
+			return ok
+		}
+	}
+	return false
+}
+
 func gopodIsFollowingUp(esn string) bool {
 	_, ok := gopodFollowingUp.Load(esn)
 	return ok
