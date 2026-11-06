@@ -12,7 +12,7 @@
 2. opening: I'm {name}{nickname_part}.
 3. nickname_part: , my nickname is {nickname}
 4. why_part: , because {why}
-5. text: This is GOPOD's company orientation group chat - GOPOD gave everyone here the chat details, and each of us introduces ourselves to the group. Don't repeat the question. Your first sentence is said for you: "{opening}" - it already says your name, your nickname and why; never say or explain any of them again. Then two or three sentences, in your own words, proud of your work - never labels like "my job title" - of what you do, who you answer to and who works with you: {facts}. Only those. Don't list who's here.
+5. text: This is GOPOD's company orientation group chat - GOPOD gave everyone here the chat details, and each of us introduces ourselves to the group. Don't repeat the question. Your name, your nickname and its story are already said for you - never say or explain them again; start with your job. Then two or three sentences, in your own words, proud of your work, in plain words with no stage directions - never labels like "my job title" - of what you do, who you answer to and who works with you: {facts}. Only those. Don't list who's here.
 6. weather_text: Then, on a new line, react to the weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report and the hand-over are said for you.
 7. weather_text_next: Then, on a new line, react to your brother's weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report is said for you.
 8. cast_line: ``

@@ -32,7 +32,11 @@ func gopodPersonaFor(persona string) string {
 }
 
 // gopodPersonaPrompt: the persona's identity and its reporter's lines to talk like.
-func gopodPersonaPrompt(host string) string {
+func gopodPersonaPrompt(host string) string { return gopodPersonaPromptFor(host, false) }
+
+// gopodPersonaPromptFor: the prompt; for an intro, the profile's intro sections
+// only (persona_profiles.intro_sections) - the opening says the name, nickname and why.
+func gopodPersonaPromptFor(host string, intro bool) string {
 	p := gopodBrobotsSettings.Managers.Personas[host]
 	var b strings.Builder
 	b.WriteString(gopodPersonaFill(host, p.Prompt))
@@ -42,8 +46,12 @@ func gopodPersonaPrompt(host string) string {
 		b.WriteString(" " + t)
 	}
 	// 2026-10-30: its profile - self, voice, banter (gopod_persona_profiles.go).
-	if t := gopodPersonaProfileText(host); t != "" {
-		b.WriteString(" " + t)
+	profile := gopodPersonaProfileText(host)
+	if is := gopodBrobotsSettings.PersonaProfiles.IntroSections; intro && len(is) > 0 {
+		profile = gopodPersonaProfileTextOf(host, is)
+	}
+	if profile != "" {
+		b.WriteString(" " + profile)
 	}
 	// 2026-10-26: who, where, when, who else, what's happening (gopod_here_now.go).
 	if n := gopodHereNow(host); n != "" {
@@ -152,7 +160,7 @@ var (
 // replies, so it repeated them. Now the chat is one note of other people's
 // lines (here_now.chat_note, each answer as here_now.chat_answer), then the line.
 func gopodPersonaMessages(host, text string) []map[string]string {
-	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPrompt(host)}}
+	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPromptFor(host, gopodIsIntro(text))}}
 	hn := gopodBrobotsSettings.HereNow
 	// 2026-10-31: the brain chain - code-made memory, instead of the raw chat
 	// (brain_chain.gomads_raw_chat: true keeps the raw chat too).

@@ -39,3 +39,5 @@ Each persona file names its group's shared root (`- **root:**`, in `groups/`), a
 company - sterile scaffolding, copied to make a new one. The system check (`gopodSchemaCheck`, every restart) measures every
 persona file (each participant's, and the persona a robot hosts) and every company file (one with `## Our company`) against
 them: a missing head line, section, Self line or company point is listed "to fix" in the journal.
+
+**4 personas, 2 robots (2026-11-06, operator: "ensure DOC & PIP are split from brobots * 4 personas, DOC, PIP, 2 BROBOTS"):** `company/gominions/brobot-1.md` / `brobot-2.md` are the Brobots' own personas (party-bro GOPOD reps, BRUH!) at the dial's 0% - a line to both (KP*). `company/hosts/barfallonyou-squawkadoodle.md` (DOC) and `pip-stall.md` (PIP) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am"; the robot's file names it in `hosts:`.

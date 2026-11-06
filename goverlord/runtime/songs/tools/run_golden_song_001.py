@@ -1416,6 +1416,7 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
     bubble stays at least llm.song_warmup_min_seconds, or until the request is
     done if that's longer. Same page file Wire-Pod's own start warm-up uses."""
     llm = load_brobots_settings()["llm"]
+    song_ready_line = (ready_text or "").strip()
     # 2026-10-25 (operator: "the first sign of Goverlord intelligence is, ah! No
     # llm required, so skip the b*llsh*t * Look at the run make it make sense with
     # some sense of human flow"): a song that needs no language model (the nap)
@@ -1531,6 +1532,26 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
                     print(f"LLM_WARMUP line not heard on the page: {line.get('who', '')}", flush=True)
             except Exception as exc:  # noqa: BLE001 - a reporter line never stops the song
                 print(f"LLM_WARMUP line failed {type(exc).__name__}", flush=True)
+    # 2026-11-06 (operator: "LLM warming should be smart enough to know * schema
+    # the opener llm warming * then per run after opener llm warming,
+    # smart-llm-warm-check/bypass per run vs opener llm warming"): the opener
+    # (Wire-Pod's start, _new_song/_llm_warm) warms the language model; a run that
+    # finds it still loaded bypasses the loading lines - no "Voice files generated.
+    # Language Model Loading", no "Language Model Loaded" - Goverlord says the
+    # song's own ready line (and run_ready_end) and the song goes on.
+    # llm.smart_warm false turns it off (the full warm-up every run).
+    if llm_required and llm.get("smart_warm", True) and base and model and _llm_loaded(base, model):
+        line = "\n".join(t for t in (song_ready_line, (llm.get("run_ready_end") or "").strip()) if t)
+        print(f"LLM_WARMUP smart: already warm model={model} - loading lines bypassed", flush=True)
+        if line:
+            try:
+                answer = mod.wirepod_web_send_form("/api-sdk/gopod_system_say", {"text": line, "wait_seconds": "30"}, timeout=40)
+                if isinstance(answer, dict) and str(answer.get("body", "")).strip() == "not_heard":
+                    print("LLM_WARMUP smart ready line not heard on the page", flush=True)
+            except Exception as exc:  # noqa: BLE001 - the line never stops the song
+                print(f"LLM_WARMUP smart ready line failed {type(exc).__name__}", flush=True)
+        say_lines()
+        return
     # 2026-10-13 (operator: "\"System llm bubble\" displays first and always
     # stays at the bottom ... until LLM Ready"; "Sequential Run Check"): the
     # System llm bubble first with "LLM Warming Up. Please wait." (held a moment

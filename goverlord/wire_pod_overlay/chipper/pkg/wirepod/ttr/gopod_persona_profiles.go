@@ -275,13 +275,18 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 
 // gopodPersonaProfileText: the profile lines for who's prompt, "" with none.
 func gopodPersonaProfileText(who string) string {
+	return gopodPersonaProfileTextOf(who, gopodBrobotsSettings.PersonaProfiles.Sections)
+}
+
+// gopodPersonaProfileTextOf: the profile lines from these sections.
+func gopodPersonaProfileTextOf(who string, names []string) string {
 	pp := gopodBrobotsSettings.PersonaProfiles
 	sections := gopodPersonaProfileSections(who)
 	if len(sections) == 0 || strings.TrimSpace(pp.Text) == "" {
 		return ""
 	}
 	var lines []string
-	for _, name := range pp.Sections {
+	for _, name := range names {
 		lines = append(lines, sections[name]...)
 	}
 	if len(lines) == 0 {

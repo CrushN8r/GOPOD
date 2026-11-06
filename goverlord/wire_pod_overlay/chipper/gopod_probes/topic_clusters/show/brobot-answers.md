@@ -44,7 +44,8 @@
 
 ## Persona profiles (persona_profiles)
 1. sections: Our company | Our group | Self | Who I answer to | Who works with me | Voice | Banter
-2. text: Your profile, in your own words: {lines}
+2. intro_sections: Our company | Our group | Who I answer to | Who works with me | Voice
+3. text: Your profile, in your own words: {lines}
 
 ## Point bubbles (point_bubbles)
 1. prompt: Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: a hype line naming {title}; then one line for each - {numbered}. Each line uses its own words from that note, said your way.

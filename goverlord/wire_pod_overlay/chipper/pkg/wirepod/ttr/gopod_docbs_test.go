@@ -190,17 +190,17 @@ func TestIntroRecipe(t *testing.T) {
 	}
 	// 2026-11-06 (operator: "every intro should start similar to \"I'm [], my
 	// nickname is [] ...\""): formal name, then the nickname, once.
-	if r := gopodIntroRecipe("BUTLER", tester); !strings.Contains(r, `"I'm KEYNOTE VALE, my nickname is KEYS, because I hold all the keys."`) {
+	if r := gopodIntroOpening("BUTLER"); !strings.Contains(r, `I'm KEYNOTE VALE, my nickname is KEYS, because I hold all the keys.`) {
 		t.Errorf("the Butler's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "NEW RULE: Gomad names in CAPS!!"; "nickname Chammy
 	// (cammy) * why, short for Chameleon").
-	if r := gopodIntroRecipe("CAMEO", tester); !strings.Contains(r, `"I'm CAMEO LOOKS, my nickname is CHAMMY, because it's short for Chameleon."`) {
+	if r := gopodIntroOpening("CAMEO"); !strings.Contains(r, `I'm CAMEO LOOKS, my nickname is CHAMMY, because it's short for Chameleon.`) {
 		t.Errorf("CAMEO's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "Git Repo nickname = 'Repo' * 'Repo' = repossesser
 	// (wordplay, lol), not repository"): his why ends on its own "!!'" - no extra stop.
-	if r := gopodIntroRecipe("GIT REPO", tester); !strings.Contains(r, `"I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'"`) || !strings.Contains(r, "I answer to PLAYHEAD ZUMINTU") {
+	if r := gopodIntroOpening("GIT REPO"); !strings.Contains(r, `I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'`) || !strings.Contains(gopodIntroRecipe("GIT REPO", tester), "I answer to PLAYHEAD ZUMINTU") {
 		t.Errorf("Git Repo's opening: %q", r)
 	}
 	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {

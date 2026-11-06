@@ -323,7 +323,7 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 			}
 			name := filepath.Base(p)
 			for _, k := range schema.keys {
-				if k == "why" || k == "about" {
+				if k == "why" || k == "about" || k == "hosts" { // a story may be blank; only robots host
 					continue
 				}
 				n++
@@ -459,6 +459,23 @@ func gopodSchemaCheckGame() ([]string, int) {
 			}
 			if _, wip := knobs["_comment"]; wip && len(knobs) == 1 {
 				continue // a song still being written
+			}
+			// The opener warm-up (song_type llm_warm): its steps, in order (llm-warm-schema.md).
+			var kind string
+			_ = json.Unmarshal(knobs["song_type"], &kind)
+			if warm := gopodSchemaRequired(filepath.Join(songs, "_new_song", "_llm_warm", "llm-warm-schema.md"))["Required steps, in order"]; kind == "llm_warm" && warm != nil {
+				var steps []struct {
+					Note string `json:"note"`
+				}
+				_ = json.Unmarshal(knobs["steps"], &steps)
+				n++
+				var got []string
+				for _, s := range steps {
+					got = append(got, s.Note)
+				}
+				if strings.Join(got, " ") != strings.Join(warm, " ") {
+					out = append(out, "schema song "+d.Name()+": its steps "+strings.Join(got, ", ")+" aren't the opener's "+strings.Join(warm, ", ")+" (llm-warm-schema.md)")
+				}
 			}
 			for _, f := range req["Required files"] {
 				n++

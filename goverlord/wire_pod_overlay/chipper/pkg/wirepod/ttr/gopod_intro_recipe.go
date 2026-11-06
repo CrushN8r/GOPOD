@@ -184,7 +184,7 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		// Brobot 1, which means..."): his own "I'm <name>" again is dropped -
 		// the whole sentence when it's the opening again (dashes, punctuation and
 		// case aside), else just its "I'm <name>," start.
-		if opening != "" && gopodIsOpeningAgain(bare, opening, core) {
+		if opening != "" && (gopodIsOpeningAgain(bare, opening, core) || gopodSaysNameAndNickname(who, bare)) {
 			carry = cue
 			continue
 		}
@@ -372,5 +372,20 @@ func gopodIntroThenWeather(esn, question, raw string) string {
 
 // gopodIntroFor: a Brobot's answer now is an intro (its chain is brobots_intro).
 var gopodIntroFor sync.Map // esn -> bool
+
+// gopodSaysNameAndNickname (2026-11-06, live: "My name is KEYNOTE VALE, my
+// nickname is KEYS - because ..." after the code's opening): the sentence says his
+// card's name and nickname again - the opening said them; it goes, however worded.
+func gopodSaysNameAndNickname(who, sentence string) bool {
+	first := func(v string) string {
+		if at := strings.Index(v, " - "); at > 0 {
+			v = v[:at]
+		}
+		return gopodLooseWords(v)
+	}
+	name, nick := first(gopodPersonaProfileField(who, "My name")), first(gopodPersonaProfileField(who, "My informal name (nickname)"))
+	s := gopodLooseWords(sentence)
+	return name != "" && nick != "" && strings.Contains(s, name) && strings.Contains(" "+s+" ", " "+nick+" ")
+}
 
 // ## EOF

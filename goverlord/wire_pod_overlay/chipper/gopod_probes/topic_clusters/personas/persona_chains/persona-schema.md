@@ -1,5 +1,6 @@
 # FULL NAME
 - **root:** (to come: the group root, in persona_chains/groups/)
+- **hosts:** (robots only: the persona file this robot hosts at the dial's 100%; the robot's own file is his persona at 0%)
 - **nickname:** (to come: in caps)
 - **job:** (to come: the job name)
 - **why:** (to come: the nickname's story, said after "because")

@@ -674,7 +674,10 @@ type gopodBrobotsSettingsFile struct {
 	PersonaProfiles struct {
 		Folder   string   `json:"folder"`
 		Sections []string `json:"sections"`
-		Text     string   `json:"text"`
+		// 2026-11-06 (COMM_FART_RAPID_RUNS_REVIEW_001.md): the sections an intro
+		// gets - no Self, Banter or The name: the opening already says them.
+		IntroSections []string `json:"intro_sections"`
+		Text          string   `json:"text"`
 	} `json:"persona_profiles"`
 	// 2026-10-30: every persona's chains - DocBS's template (gopod_persona_chains.go).
 	PersonaChains struct {

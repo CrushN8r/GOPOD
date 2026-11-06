@@ -410,3 +410,10 @@ after it and any `show_ball`. Older songs (no `compose_moves`) play as before. L
 ---
 
 [Back to ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md)
+
+**Smart warm (2026-11-06, operator: "LLM warming should be smart enough to know").** The opener
+(`00_llm_warming`, Wire-Pod's start) warms the language model, on its schema
+(`_new_song/_llm_warm/llm-warm-schema.md`, checked every restart). A song with `llm_warmup` checks the
+model first: still loaded, the loading lines are bypassed - Goverlord says the song's own ready line and
+it goes on (`song_llm_warmup`, `run_golden_song_001.py`); not loaded, the full warm-up. `llm.smart_warm`
+false turns it off.

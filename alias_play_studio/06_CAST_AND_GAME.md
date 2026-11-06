@@ -58,6 +58,10 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   words - the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences),
   each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
   for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
+- **4 personas, 2 robots (2026-11-06):** Brobot 1 and Brobot 2 are their own personas (party-bro GOPOD reps,
+  BRUH!) at the dial's 0% - a line to both (KP*); BARFALLONYOU SQUAWKADOODLE (DOC, title DOCTRINE, DocBS) and PIP
+  N STALL (PipTA) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am".
+  A robot's file names the persona it hosts (`hosts:`); headers and call-ins follow the dial (`gopodCallName`).
 - **The schemas (2026-11-06):** `persona-schema.md` (the master persona card) and `company-schema.md`
   (the master company) are the yardsticks; the system check (`gopodSchemaCheck`) measures every persona and company file
   against them on every restart and lists any missing head line, section, Self line or company point "to fix".

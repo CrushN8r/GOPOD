@@ -152,7 +152,7 @@
   "background_loop": {
     "about": "2026-10-13 (operator: \"a 6s loop * I want to run the loop in the background very quiet, try 10% volume * keyboard line record/session clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s\"): the chat page plays file (from the overlay's sounds/, copied to the page's voice folder at Wire-Pod's start) over and over with no gap, at volume (0-1), starting again from its top each time the session clock resets to 00:00:00. Empty file: off. 2026-10-17 (the master): volume is a percentage of chat_audio.volume - 0.05 on its own was 14% of 0.35.",
     "file": "BrobotsGroove-Loop-1.wav",
-    "volume": "95%",
+    "volume": "13%",
     "starts_on_about": "2026-10-24 (operator: \"Page refresh now shows background loop speaker icon = ON, should be/it starts OFF\"): the speaker on every page load - false, off (its volume bar shows only while it's on).",
     "starts_on": false
   },
