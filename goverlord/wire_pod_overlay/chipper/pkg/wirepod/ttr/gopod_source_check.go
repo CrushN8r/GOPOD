@@ -19,6 +19,7 @@ package wirepod_ttr
 //	6 roster   everyone in the chat has a line in the crew roster
 
 import (
+	"fmt"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -371,8 +372,8 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 	return append(out, more...), n + m
 }
 
-// gopodSchemaRequired: a schema file's required lines - the points of its
-// "## Required..." sections, each its name (before ":"), by section.
+// gopodSchemaRequired: a schema file's listed lines - the points of its
+// "## Required..." and "## Known..." sections, each its name (before ":"), by section.
 func gopodSchemaRequired(path string) map[string][]string {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -386,8 +387,11 @@ func gopodSchemaRequired(path string) map[string][]string {
 			section = strings.TrimSpace(strings.TrimPrefix(line, "## "))
 			continue
 		}
-		if m := gopodProfilePointRE.FindStringSubmatch(line); m != nil && strings.HasPrefix(section, "Required") {
-			name, _, _ := strings.Cut(m[1], ":")
+		if m := gopodProfilePointRE.FindStringSubmatch(line); m != nil && (strings.HasPrefix(section, "Required") || strings.HasPrefix(section, "Known")) {
+			name := m[1]
+			if strings.HasPrefix(section, "Required") {
+				name, _, _ = strings.Cut(m[1], ":") // "label: what it is"; a known part is its whole name
+			}
 			out[section] = append(out[section], strings.TrimSpace(name))
 		}
 	}
@@ -441,8 +445,54 @@ func gopodSchemaCheckGame() ([]string, int) {
 			}
 		}
 	}
-	// Songs.
 	songs := filepath.Join(gopodRepoRoot(), "goverlord", "runtime", "songs")
+	// Run cards (game.runs) against run-schema.md; a run's song must be a song folder.
+	if req := gopodSchemaRequired(filepath.Join(tpl, "run-schema.md")); req != nil {
+		for _, run := range gopodBrobotsSettings.Game.Runs {
+			raw, _ := json.Marshal(run)
+			var m map[string]any
+			_ = json.Unmarshal(raw, &m)
+			pending, _ := m["pending"].(bool)
+			keys := append([]string{}, req["Required"]...)
+			if !pending {
+				keys = append(keys, req["Required unless pending"]...)
+			}
+			for _, k := range keys {
+				n++
+				v := strings.TrimSpace(fmt.Sprint(m[k]))
+				switch {
+				case m[k] == nil || v == "":
+					out = append(out, "schema run "+run.Name+": no "+k+" (run-schema.md)")
+				case k == "song":
+					if _, err := os.Stat(filepath.Join(songs, v)); err != nil {
+						out = append(out, "schema run "+run.Name+": its song "+v+" isn't a song folder (run-schema.md)")
+					}
+				}
+			}
+		}
+	}
+	// Answer chains against answer-chain-schema.md: every part known, every "from" a chain.
+	if req := gopodSchemaRequired(filepath.Join(tpl, "answer-chain-schema.md")); req != nil {
+		known := map[string]bool{}
+		for _, part := range req["Known parts"] {
+			known[part] = true
+		}
+		for name, c := range gopodBrobotsSettings.AnswerChains {
+			if c.From != "" {
+				n++
+				if _, ok := gopodBrobotsSettings.AnswerChains[c.From]; !ok {
+					out = append(out, "schema answer chain "+name+": from "+c.From+", no such chain (answer-chain-schema.md)")
+				}
+			}
+			for _, part := range c.Parts {
+				n++
+				if !known[part] {
+					out = append(out, "schema answer chain "+name+": part "+part+" isn't a known part (answer-chain-schema.md)")
+				}
+			}
+		}
+	}
+	// Songs.
 	req := gopodSchemaRequired(filepath.Join(songs, "_new_song", "song-schema.md"))
 	if req != nil {
 		dirs, _ := os.ReadDir(songs)

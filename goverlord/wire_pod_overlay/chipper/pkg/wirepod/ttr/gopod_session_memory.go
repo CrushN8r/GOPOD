@@ -376,7 +376,12 @@ var gopodForgottenNote = gopodBrobotsSettings.SharedChat.ForgottenNote
 //     run, since its a scripted performance?"
 //   - Other performed lines (go search answers) come as one note per run of
 //     lines (gopodSharedFeedNote), from the oldest remembered exchange on.
-func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
+func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
+	// 2026-11-06 (COMM_FART_RAPID_RUNS_REVIEW_001.md: in the All round Brobot 1
+	// said "I'm Brobot 1, my nickname is BRUH!" then carried on DOC's intro): at
+	// the dial's 0% his earlier answers - said as the persona he hosts - come back
+	// as that persona's lines ("BARFALLONYOU said: ..."), not his own.
+	saidBy := len(asSaid) > 0 && asSaid[0]
 	cutoff := time.Now().Add(-gopodSharedBrobotChatMaxAge)
 	if gopodSharedBrobotChatStart.After(cutoff) {
 		cutoff = gopodSharedBrobotChatStart
@@ -499,6 +504,13 @@ func gopodSharedBrobotChat() []openai.ChatCompletionMessage {
 		}
 		if runes := []rune(answer); len(runes) > gopodSharedBrobotAnswerMaxRunes {
 			answer = string(runes[:gopodSharedBrobotAnswerMaxRunes])
+		}
+		if who := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(ex.ESN)].CallName); saidBy && who != "" {
+			chat = append(chat,
+				openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodTagForBrobot(ex.ESN, gopodSpellNames(ex.UserMessage))},
+				openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: who + " said: " + answer},
+			)
+			continue
 		}
 		chat = append(chat,
 			openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodTagForBrobot(ex.ESN, gopodSpellNames(ex.UserMessage))},
