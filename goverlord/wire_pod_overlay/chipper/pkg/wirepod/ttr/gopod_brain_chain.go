@@ -208,6 +208,13 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
 		"{relationships}": gopodBrainRelationships(self),
+		// 2026-11-08 (operator's brain bubble: "Name:Brobot 2, Nickname:BRUH *
+		// JOB-TITLE: proud party-bro GOPOD rep * JOB-ROLE: sell GOPOD, CTA:GOPOD
+		// Yourself * TASK: answer all that is asked of me in a few sentences"): his
+		// card's name, nickname and job title, and the task for this line.
+		"{my_name}": gopodBrainCardPart(self, "My name"), "{my_nickname}": gopodBrainCardPart(self, "My informal name (nickname)"),
+		"{my_job_title}": strings.Replace(strings.TrimPrefix(strings.TrimPrefix(gopodBrainCardPart(self, "My job title"), "a "), "the "), "GOPOD's ", "GOPOD ", 1),
+		"{my_task}": gopodBrainTask(question),
 		"{full_self}":     gopodBrainFullSelf(self),
 	}
 }
@@ -511,6 +518,27 @@ func gopodBrainFullSelf(who string) string {
 		out += " " + short
 	}
 	return out
+}
+
+
+// gopodBrainCardPart: a Self line of his card, up to its first " - " (the label
+// itself, not its story), its full stop off.
+func gopodBrainCardPart(who, label string) string {
+	v := gopodPersonaProfileField(who, label)
+	if at := strings.Index(v, " - "); at > 0 {
+		v = v[:at]
+	}
+	return strings.TrimSuffix(strings.TrimSpace(v), ".")
+}
+
+// gopodBrainTask: the task for this line - an intro's (brain_chain.flow.task_intro),
+// else answering it (brain_chain.flow.task_answer).
+func gopodBrainTask(question string) string {
+	f := gopodBrobotsSettings.BrainChain.Flow
+	if gopodIsIntro(question) && f["task_intro"] != "" {
+		return f["task_intro"]
+	}
+	return f["task_answer"]
 }
 
 // ## EOF

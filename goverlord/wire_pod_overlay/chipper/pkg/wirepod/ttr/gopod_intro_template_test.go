@@ -69,9 +69,9 @@ func TestCrewRoster(t *testing.T) {
 			t.Errorf("%s isn't on the crew roster", gopodCallName(c.Who))
 		}
 	}
-	l := gopodBrainLines("Brobot 1", "hey")
-	if len(l) < 2 || !strings.Contains(l[1], "GOPOD System: KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(l[1], "BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose] (me)") {
-		t.Errorf("In the chat: %v", l)
+	// 2026-11-08: the cast, grouped by the roster, for whoever still asks for it.
+	if g := gopodCastGrouped("Brobot 1"); !strings.Contains(g, "GOPOD System: KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(g, "BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose] (me)") {
+		t.Errorf("the cast: %v", g)
 	}
 }
 

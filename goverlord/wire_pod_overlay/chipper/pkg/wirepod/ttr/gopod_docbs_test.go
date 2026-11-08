@@ -234,13 +234,14 @@ func TestSourceCheck(t *testing.T) {
 func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "first to speak") {
-		t.Errorf("an empty chain's flow: %q", b)
+	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: answer all that is asked of me in a few sentences") {
+		t.Errorf("an answer's task: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "a) Introduce yourself - who you answer to and who works with you. b) KEYNOTE opened the session.", "My full name is PIP N STALL, the GOPOD sidekick.", "In the chat: GOPOD hosts, on the two Brobots (the dial at 100%): BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose], PIP [the sidekick, on Brobot 2 - the room's pied piper] (me). GOPOD party-brobot reps (the dial at 0%): Brobot 1 [grumpy, impatient], Brobot 2 [clueless, happy] (me). ", "So far: 2 have spoken, 1 introduced themselves.", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "JOB-ROLE: sell GOPOD, CTA: GOPOD Yourself", "TASK: introduce yourself - your job, who you answer to and who works with you - in a few sentences", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -250,7 +251,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
-	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is PIP N STALL") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: I answer to the Gomads, KEYNOTE, then Goverlord. I work with my host BARFALLONYOU BURNS - he explains too hard, I get it too late, and the room roots for me." {
+	if len(l) != 4 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[2] != "JOB-ROLE: sell GOPOD, CTA: GOPOD Yourself" || l[3] != "TASK: answer all that is asked of me in a few sentences" {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

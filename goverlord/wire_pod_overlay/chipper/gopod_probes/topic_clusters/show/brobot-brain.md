@@ -3,7 +3,7 @@
 - **ask:** What do the Brobots know about this chat?
 - **chain:** Gominions (Doc and Pip) - what the code tells them before they answer
 - **see also:** ../personas/crew_roster.md (the descriptions), group-chat-intro (the intro), reply-rules (how the answer is cut), big-picture
-- **about:** 2026-11-03 (step 3 of GOPOD_CLUSTERS_PLAN_002.md): the brain bubble's template and the before-I-answer lines, from 01_brain.json brain_chain and prebuild_context. {words} are filled by the code. A value in backticks is that text exactly (its leading space kept). The numbers and switches (short_term, question_chars, gomads_raw_chat) and the roster's path stay in the settings.
+- **about:** 2026-11-08 (operator's brain bubble: "Name:Brobot 2, Nickname:BRUH * JOB-TITLE: proud party-bro GOPOD rep * JOB-ROLE: sell GOPOD, CTA:GOPOD Yourself * TASK: answer all that is asked of me in a few sentences"; "the brain bubble as GOPOD's one brain template"): four lines from his card and the task. 2026-11-03 (step 3 of GOPOD_CLUSTERS_PLAN_002.md): the brain bubble's template and the before-I-answer lines, from 01_brain.json brain_chain and prebuild_context. {words} are filled by the code. A value in backticks is that text exactly (its leading space kept). The numbers and switches (short_term, question_chars, gomads_raw_chat) and the roster's path stay in the settings.
 ---
 
 ## The brain bubble (brain_chain)
@@ -24,14 +24,16 @@
 15. performers: Doc and Pip
 
 ## The brain's lines, in order (brain_chain.lines)
-1. {full_self}
-2. In the chat: {cast_described}
-3. So far: {spoken_count} have spoken, {introduced_count} introduced themselves. Guided Task Flow: {flow}{reminders_part}
-4. My relationships: {relationships}
+1. Name: {my_name}, Nickname: {my_nickname}
+2. JOB-TITLE: proud {my_job_title}
+3. JOB-ROLE: sell GOPOD, CTA: GOPOD Yourself
+4. TASK: {my_task}
 
 ## The guided task flow (brain_chain.flow)
 1. first: You're the first to speak this session - open it up.
 2. recent: Does the recent chat help me answer the question asked.
+3. task_intro: introduce yourself - your job, who you answer to and who works with you - in a few sentences
+4. task_answer: answer all that is asked of me in a few sentences
 
 ## Before I answer (prebuild_context)
 1. header: BEFORE I ANSWER:
