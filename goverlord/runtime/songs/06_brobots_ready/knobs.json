@@ -8,13 +8,15 @@
   "llm_warmup": true,
   "llm_ready_text": "We here, are Brobots Ready Ready",
   "about": "2026-11-04 (operator: \"Brobot 1 Arm lift, Brobot 2 Arm lift, Brobots Nod together, Brobots say brobots ready message together\"): the nods start together - host_nod_0203 has \"with_next\": true (run_golden_song_001.py); the move values are the global knobs' (global_knobs.json).",
+  "warmup_after": "brobots_wake_0101",
+  "warmup_after_about": "2026-11-08 (operator: \"Do next in line, Brobots Ready, then rapid fire, song by song\" - the golden timing lessons, alias_play_studio/02_SONGS.md): the Brobots wake while the ready line and its music play (warmup_after the wake), no gap after the wake, no tempo wait between steps; the last 1 s before exit stays - the final line plays in full.",
   "steps": [
-    {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 3.0, "section": "OPENING"},
-    {"step_id": "host_arm_cue_0201", "note": "arm_cue", "speaker": "brobot_1", "buffer_after": 0.0, "section": "READY"},
-    {"step_id": "brat_arm_cue_0202", "note": "arm_cue", "speaker": "brobot_2", "buffer_after": 0.0, "section": "READY"},
+    {"step_id": "brobots_wake_0101", "note": "wake_both", "speaker": "brobot_1", "settle_seconds": 1.5, "buffer_after": 0.0, "section": "OPENING", "tempo_factor": 0.0},
+    {"step_id": "host_arm_cue_0201", "note": "arm_cue", "speaker": "brobot_1", "buffer_after": 0.0, "section": "READY", "tempo_factor": 0.0},
+    {"step_id": "brat_arm_cue_0202", "note": "arm_cue", "speaker": "brobot_2", "buffer_after": 0.0, "section": "READY", "tempo_factor": 0.0},
     {"step_id": "host_nod_0203", "note": "nod", "speaker": "brobot_1", "with_next": true, "buffer_after": 0.0, "tempo_factor": 0.0, "section": "READY"},
-    {"step_id": "brat_nod_0203", "note": "nod", "speaker": "brobot_2", "buffer_after": 0.0, "section": "READY"},
-    {"step_id": "brobots_ready_0204", "note": "brobots_ready_together", "speaker": "brobot_1", "buffer_after": 1.0, "section": "READY"},
+    {"step_id": "brat_nod_0203", "note": "nod", "speaker": "brobot_2", "buffer_after": 0.0, "section": "READY", "tempo_factor": 0.0},
+    {"step_id": "brobots_ready_0204", "note": "brobots_ready_together", "speaker": "brobot_1", "buffer_after": 1.0, "section": "READY", "tempo_factor": 0.0},
     {"step_id": "brobots_exit_0301", "note": "exit", "speaker": "brobot_1", "section": "CLOSING"}
   ]
 }
