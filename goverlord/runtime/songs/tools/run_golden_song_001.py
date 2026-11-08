@@ -2483,6 +2483,12 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         print(f"===== {step_id} Notes: {display_tag}", flush=True)
         step_start_wall = time.time()
         print(f"{robots.timing_prefix()}{tag} {step_id}: note={note} speaker={speaker}", flush=True)
+        # 2026-11-08 (operator's fart joke timing: "DOC angry + line, "Bro!" [starts
+        # 1 s after danger audio plays]"): "start_after": seconds this step waits
+        # before it begins - with the step before it "with_next", it lands that far
+        # into that step (a sound still playing).
+        if live and step.get("start_after"):
+            time.sleep(float(step["start_after"]))
 
         if serial in needs_control_retake and note in CONTROL_RETAKE_NOTES and not step_filtered:
             needs_control_retake.discard(serial)
@@ -2797,8 +2803,12 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             # sound (knobs.json "sounds", copied into the page's voice folder by
             # Wire-Pod at its start) played on the chat page at the step's volume;
             # the song waits its length.
-            entry["result"] = play_song_sound(mod, live, song_dir, step.get("sound", ""), step.get("volume", 1.0), robots, tag)
-            entry["ok"] = entry["result"]["ok"]
+            # 2026-11-08: "with_next" - the sound plays on while the next step starts.
+            if step.get("with_next"):
+                start_with_next(lambda s=step: play_song_sound(mod, live, song_dir, s.get("sound", ""), s.get("volume", 1.0), robots, tag), entry)
+            else:
+                entry["result"] = play_song_sound(mod, live, song_dir, step.get("sound", ""), step.get("volume", 1.0), robots, tag)
+                entry["ok"] = entry["result"]["ok"]
 
         elif note == "picture":
             # 2026-10-13 (operator: "Build missing pieces for scripted songs * as

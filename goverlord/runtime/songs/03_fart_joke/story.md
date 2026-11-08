@@ -43,10 +43,10 @@ goes frustrated, then angry, then leaves. `start fart joke` in the Brobots chat.
 > TEXT: Wait! One more!
 ## STEP brat_fart3_0208
 
+## STEP host_danger_0209
+## STEP host_beat_angry_0209
 ## STEP host_say_0209
 > TEXT: Bro!
-## STEP host_beat_angry_0209
-## STEP host_danger_0209
 
 ---
 
