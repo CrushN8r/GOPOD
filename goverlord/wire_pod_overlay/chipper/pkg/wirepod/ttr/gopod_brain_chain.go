@@ -271,7 +271,7 @@ func gopodRosterGroups() []gopodRosterGroup {
 	var out []gopodRosterGroup
 	inBody := false
 	for _, line := range strings.Split(string(data), "\n") {
-		t := strings.TrimSpace(line)
+		t := strings.TrimSpace(gopodPersonaFill("", line)) // {Brobot 1.call}: names from their profiles
 		if !inBody {
 			inBody = t == "---"
 			continue

@@ -250,7 +250,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
-	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is PIP N STALL") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: I answer to the Gomads, KEYNOTE, then Goverlord. I work with my host BARFALLONYOU SQUAWKADOODLE - he explains too hard, I get it too late, and the room roots for me." {
+	if len(l) != 4 || !strings.HasPrefix(l[0], "My full name is PIP N STALL") || !strings.HasSuffix(l[2], "Guided Task Flow: Does the recent chat help me answer the question asked. Reminders: Bingo, Legacy, & wrap-up") || l[3] != "My relationships: I answer to the Gomads, KEYNOTE, then Goverlord. I work with my host BARFALLONYOU BURNS - he explains too hard, I get it too late, and the room roots for me." {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

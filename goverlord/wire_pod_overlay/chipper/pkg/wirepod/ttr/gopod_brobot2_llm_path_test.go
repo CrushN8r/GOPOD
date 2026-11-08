@@ -22,7 +22,7 @@ func TestBrobot2IndependentLLMPath(t *testing.T) {
 	}
 	systemPrompt := req.Messages[0].Content
 	// 2026-10-05: the prompt names the brother by his persona line, not his ESN.
-	if !strings.Contains(systemPrompt, "WHO I AM:\n"+gopodBrobotsSettings.Personas["Brobot 2"]) {
+	if !strings.Contains(systemPrompt, "WHO I AM:\n"+gopodPersonaFill("Brobot 2", gopodBrobotsSettings.Personas["Brobot 2"])) {
 		t.Fatal("system prompt missing Brobot 2's own persona line")
 	}
 

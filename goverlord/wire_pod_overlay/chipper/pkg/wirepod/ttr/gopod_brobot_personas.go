@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -131,7 +132,7 @@ func gopodHostPersonaLines() map[string]string {
 		if t := gopodHostPersonaText(name, line); t != "" {
 			line = strings.TrimSpace(line) + " " + t
 		}
-		lines[name] = line
+		lines[name] = gopodPersonaFill(name, line)
 	}
 	return lines
 }
@@ -290,8 +291,33 @@ func gopodPersonaFill(host, text string) string {
 	if !strings.Contains(text, "{") {
 		return text
 	}
+	// 2026-11-08 (operator: "there shouldn't be places that quote it * there should
+	// be (global?) variables representing the single source of truth"): another
+	// persona's labels - {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job},
+	// {Brobot 1.call} (his call name) - from that persona's own profile.
+	text = gopodPersonaVarRE.ReplaceAllStringFunc(text, func(m string) string {
+		parts := gopodPersonaVarRE.FindStringSubmatch(m)
+		o, ok := gopodBrobotsSettings.HostPersonas[parts[1]]
+		if !ok {
+			return m
+		}
+		switch parts[2] {
+		case "name":
+			return o.Name
+		case "nickname":
+			return o.Nickname
+		case "job":
+			return o.JobName
+		}
+		if o.CallName != "" {
+			return o.CallName
+		}
+		return o.Name
+	})
 	p := gopodBrobotsSettings.HostPersonas[host]
 	return strings.NewReplacer("{name}", p.Name, "{nickname}", p.Nickname, "{job}", p.JobName).Replace(text)
 }
+
+var gopodPersonaVarRE = regexp.MustCompile(`\{([^{}.]+)\.(name|nickname|job|call)\}`)
 
 // ## EOF

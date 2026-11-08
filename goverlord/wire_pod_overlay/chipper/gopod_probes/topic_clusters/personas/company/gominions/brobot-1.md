@@ -1,11 +1,11 @@
 # Brobot 1
 - **root:** ../show/brobots.md
-- **hosts:** barfallonyou-squawkadoodle.md
+- **hosts:** barfallonyou-burns.md
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
 - **words:** brobot 1, brobot one
 - **ask:** Tell me about yourself
-- **chain:** Gominion - the robot, Vector 1, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts BARFALLONYOU SQUAWKADOODLE (barfallonyou-squawkadoodle.md)
+- **chain:** Gominion - the robot, Vector 1, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts the persona in barfallonyou-burns.md
 - **about:** 2026-11-04 (operator: "brobots 1 md file = DocBS Dial @ zero"; "Doc is not Brobot 1. Doc is the persona hosted by Brobot 1. Pip is not Brobot 2. Pip is the persona hosted by Brobot 2."): the robot - the body. Its persona's file, named in hosts, is laid over it when the code reads it (Doc's head lines win, his sections follow these). No serial or address is written here.
 ---
 

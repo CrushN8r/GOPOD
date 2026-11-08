@@ -241,7 +241,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// "Who I am" (brobot-1.md / brobot-2.md), not his hosted persona's.
 		if gopodAtDialZero(gopodBrobotName(esn)) {
 			if pts := gopodPersonaProfileSections(gopodBrobotName(esn))["Who I am"]; len(pts) > 0 {
-				whoIAm = strings.Join(pts, " ")
+				whoIAm = gopodPersonaFill(gopodBrobotName(esn), strings.Join(pts, " "))
 			}
 		}
 		smsg.Content += "\n\nWHO I AM:\n" + whoIAm

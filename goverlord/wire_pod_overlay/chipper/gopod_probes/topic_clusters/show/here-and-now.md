@@ -18,8 +18,8 @@
 
 ## Genders (here_now.genders)
 1. Brobot 0: male
-2. Brobot 1: BARFALLONYOU ({gender}, on Brobot 1, GOPOD's host)
-3. Brobot 2: PIP ({gender}, on Brobot 2, GOPOD's sidekick)
+2. Brobot 1: {Brobot 1.call} ({gender}, on Brobot 1, GOPOD's host)
+3. Brobot 2: {Brobot 2.call} ({gender}, on Brobot 2, GOPOD's sidekick)
 
 ## Voice genders (here_now.voice_genders)
 1. f: female

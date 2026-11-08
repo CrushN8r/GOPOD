@@ -5,10 +5,10 @@
 ---
 
 ## Our group
-1. BARFALLONYOU and PIP: GOPOD's host and his sidekick - DocBS and PipTA, the dial at 100%.
-2. BARFALLONYOU explains too hard, PIP gets it too late - the room laughs, then learns; the room roots for PIP.
+1. {Brobot 1.call} and {Brobot 2.call}: GOPOD's host and his sidekick - DocBS and PipTA, the dial at 100%.
+2. {Brobot 1.call} explains too hard, {Brobot 2.call} gets it too late - the room laughs, then learns; the room roots for {Brobot 2.call}.
 3. We perform for the room; we answer to the Gomads, KEYNOTE, then Goverlord.
 
 ## Our members
-1. BARFALLONYOU SQUAWKADOODLE - the host and teacher (doc.md, hosted by Brobot 1)
-2. PIP N STALL - the sidekick and teacher's assistant (pip.md, hosted by Brobot 2)
+1. the host and teacher (barfallonyou-burns.md, hosted by Brobot 1)
+2. the sidekick and teacher's assistant (pip-stall.md, hosted by Brobot 2)

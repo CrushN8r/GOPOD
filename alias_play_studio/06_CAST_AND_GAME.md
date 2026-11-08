@@ -59,7 +59,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
   for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
 - **4 personas, 2 robots (2026-11-06):** Brobot 1 and Brobot 2 are their own personas (party-bro GOPOD reps,
-  BRUH!) at the dial's 0% - a line to both (KP*); BARFALLONYOU SQUAWKADOODLE (DOC, title DOCTRINE, DocBS) and PIP
+  BRUH!) at the dial's 0% - a line to both (KP*); BARFALLONYOU BURNS (DOC, title DOCTRINE, DocBS) and PIP
   N STALL (PipTA) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am".
   A robot's file names the persona it hosts (`hosts:`); headers and call-ins follow the dial (`gopodCallName`).
 - **The schemas (2026-11-06):** `persona-schema.md` (the master persona card) and `company-schema.md`
@@ -77,7 +77,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   KEYNOTE, DOCTRINE, PIP, GIT REPO, CACHE PYC, INTEL 404 PNFH/PNFT); names are written in caps and
   each persona's **Lingo** gives the voice normal case. The intro opens "I'm [full name]." (code),
   then his job, who he answers to and who works with him (model, from the card); the brain bubble's
-  "My relationships:" is the same two sections. DOCTRINE BARFALLONYOU SQUAWKADOODLE (DocBS) and PIP
+  "My relationships:" is the same two sections. DOCTRINE BARFALLONYOU BURNS (DocBS) and PIP
   N STALL (PipTA) are the host and sidekick at the dial's 100%, on Brobot 1 and Brobot 2.
 - **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about

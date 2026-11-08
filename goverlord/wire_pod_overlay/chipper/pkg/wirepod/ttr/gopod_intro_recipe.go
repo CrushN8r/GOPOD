@@ -70,7 +70,7 @@ func gopodIntroRecipe(who, text string) string {
 		}
 		var names []string
 		for _, line := range sections[strings.TrimSpace(head)] {
-			if line = strings.TrimSpace(line); line != "" && !strings.Contains(line, "(to come)") {
+			if line = strings.TrimSpace(gopodPersonaFill(who, line)); line != "" && !strings.Contains(line, "(to come)") {
 				names = append(names, line)
 			}
 		}
