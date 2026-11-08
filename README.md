@@ -223,7 +223,7 @@ Two crates on one dolly. Roll in, plug in, party.
 
 The crates, power and networking modes, with more photos: [MOBILE_GEAR.md](MOBILE_GEAR.md).
 
-About $1K to $3K CDN.
+About $3K USD when this rig was built; up to about $5.5K USD at today's prices (the Jetson costs more now). Owning the Vectors, a laptop or a power station already brings it down.
 
 ## Privacy and safety
 
