@@ -78,6 +78,7 @@ system commands (typed on this keyboard):
   system-record on|off              Record Session on or off (the page's Record? box)
   system-brain                      the brain chain: every answer's record (who asked, who answered, the line, its kind), and the session so far
   system-robots-off on|off          robots off: nothing reaches the Brobots; their says play on the page in their numpad voices, says and animations captured for a replay
+  system-run-check on|off|replay    a silent run-check: robots off and the page muted, the chat drawn as ever; off saves its chat lines; replay plays them at normal volume
   system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
   system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)

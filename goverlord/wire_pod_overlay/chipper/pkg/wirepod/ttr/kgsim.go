@@ -252,6 +252,12 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// GOPOD 2026-10-31: his facts are worked out first - they set his reminders,
 		// which his brain names; then the brain chain (gopod_brain_chain.go), then the facts.
 		facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText))
+		// GOPOD 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ?
+		// Can the request be sent to gemma, + a look up guide, for a helpful
+		// response?"): a how-to gets its system-menu entries (gopodHelpLookup).
+		if h := gopodHelpLookup(transcribedText); h != "" {
+			facts = strings.TrimSpace(facts + "\n" + h)
+		}
 		if b := gopodBrainText(gopodBrobotName(esn), transcribedText); b != "" {
 			smsg.Content += "\n\n" + b
 		}

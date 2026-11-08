@@ -798,6 +798,22 @@ type gopodBrobotsSettingsFile struct {
 		CaptureFile string            `json:"capture_file"`
 		Voices      map[string]string `json:"voices"`
 	} `json:"robots_off"`
+	// 2026-11-08: a how-to's look-up in the system menu (gopodHelpLookup).
+	HelpLookup struct {
+		Words  []string `json:"words"`
+		Skip   []string `json:"skip"`
+		Max    int      `json:"max"`
+		Header string   `json:"header"`
+		Item   string   `json:"item"`
+	} `json:"help_lookup"`
+	// 2026-11-08: the silent run-check (gopod_robots_off.go gopodSystemRunCheck).
+	RunCheck struct {
+		File              string   `json:"file"`
+		MuteMarker        string   `json:"mute_marker"`
+		UnmuteMarker      string   `json:"unmute_marker"`
+		SkipPrefixes      []string `json:"skip_prefixes"`
+		ReplayWaitSeconds float64  `json:"replay_wait_seconds"`
+	} `json:"run_check"`
 	ProbersMake struct {
 		File          string            `json:"file"`
 		Shapes        []string          `json:"shapes"`

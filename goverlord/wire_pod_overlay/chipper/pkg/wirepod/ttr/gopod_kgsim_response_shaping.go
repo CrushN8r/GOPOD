@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sort"
 	"regexp"
 	"strings"
 	"sync"
@@ -980,4 +981,120 @@ func loadCanonicalBrobotPrompt(userMessage string) (string, int, bool) {
 		return prompt, len([]byte(prompt)), true
 	}
 	return defaultPrompt, len([]byte(defaultPrompt)), false
+}
+
+// gopodHelpLookup (2026-11-08, operator: "how far are we away from me asking a
+// brobot to help me with the GOPOD system * Brobot N, how do I raise the volume
+// for ... ? * Can the request be sent to gemma, + a look up guide, for a helpful
+// response?"): a line with a how-to word (help_lookup.words) gets the system
+// menu's best matching commands (gopod-system/system-menu.md, the Torah) as
+// facts - each command scored by the line's words found in its own cmd (3) or about
+// (2), and in its scripture's tour sentences that name it (1 each); the top
+// help_lookup.max, each as help_lookup.item, under help_lookup.header.
+func gopodHelpLookup(text string) string {
+	hl := gopodBrobotsSettings.HelpLookup
+	low := strings.ToLower(text)
+	asked := false
+	for _, w := range hl.Words {
+		if w = strings.ToLower(strings.TrimSpace(w)); w != "" && strings.Contains(low, w) {
+			asked = true
+			break
+		}
+	}
+	path := gopodTopicTreeFind("system-menu.md")
+	if !asked || path == "" || hl.Max <= 0 {
+		return ""
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	skip := map[string]bool{}
+	for _, w := range hl.Skip {
+		skip[strings.ToLower(w)] = true
+	}
+	var words []string
+	for _, w := range strings.Fields(gopodLooseWords(text)) {
+		if len(w) > 2 && !skip[w] {
+			words = append(words, w)
+		}
+	}
+	type item struct{ cmd, about, group string }
+	var items []item
+	tours := map[string][]string{} // group -> its tour sentences
+	group, kind := "", ""
+	var cur *item
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "## ") {
+			cur, kind = nil, ""
+			if at := strings.Index(line, "(system_menu.groups."); at > 0 {
+				ref := strings.TrimSuffix(line[at+len("(system_menu.groups."):], ")")
+				g, rest, _ := strings.Cut(ref, ".")
+				group = g
+				switch {
+				case strings.HasPrefix(rest, "items."):
+					items = append(items, item{group: g})
+					cur = &items[len(items)-1]
+				case strings.HasPrefix(rest, "tour"):
+					kind = "tour"
+				}
+			}
+			continue
+		}
+		m := gopodProfilePointRE.FindStringSubmatch(line)
+		if m == nil {
+			continue
+		}
+		switch {
+		case cur != nil && strings.HasPrefix(m[1], "cmd: "):
+			cur.cmd = strings.TrimSpace(strings.TrimPrefix(m[1], "cmd: "))
+		case cur != nil && strings.HasPrefix(m[1], "about: "):
+			cur.about = strings.TrimSpace(strings.TrimPrefix(m[1], "about: "))
+		case kind == "tour":
+			tours[group] = append(tours[group], m[1])
+		}
+	}
+	type scored struct {
+		it    item
+		score int
+	}
+	var best []scored
+	for _, it := range items {
+		if it.cmd == "" {
+			continue
+		}
+		cmd, about := " "+gopodLooseWords(it.cmd)+" ", " "+gopodLooseWords(it.about)+" "
+		root := strings.Join(strings.Fields(it.cmd)[:1], "")
+		s := 0
+		for _, w := range words {
+			switch {
+			case strings.Contains(cmd, " "+w+" "):
+				s += 3
+			case strings.Contains(about, " "+w+" "):
+				s += 2
+			}
+			for _, sentence := range tours[it.group] {
+				if strings.Contains(sentence, root) && strings.Contains(" "+gopodLooseWords(sentence)+" ", " "+w+" ") {
+					s++
+					break
+				}
+			}
+		}
+		if s > 0 {
+			best = append(best, scored{it, s})
+		}
+	}
+	if len(best) == 0 {
+		return ""
+	}
+	sort.SliceStable(best, func(a, b int) bool { return best[a].score > best[b].score })
+	if len(best) > hl.Max {
+		best = best[:hl.Max]
+	}
+	lines := []string{hl.Header}
+	for _, b := range best {
+		lines = append(lines, strings.NewReplacer("{cmd}", b.it.cmd, "{about}", b.it.about).Replace(hl.Item))
+	}
+	return strings.Join(lines, "\n")
 }

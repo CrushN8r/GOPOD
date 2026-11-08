@@ -165,3 +165,11 @@
 5. Nice try. And {word}? Tell me about {title}.
 6. Hey party animal, {word} - what's the deal with {title}?
 7. {wrong_greeting}, Brobots! What's {title}, and why should they care about {word}?
+
+## Help lookup (help_lookup)
+1. about: 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ? * Can the request be sent to gemma, + a look up guide, for a helpful response?"): a line with one of words gets the system menu's best matching commands (system-menu.md, the Torah) in the Brobot's facts - scored by the line's words (skip left out) in each command's cmd and about, and in its scripture's tour; the top max, each as item, under header (gopodHelpLookup, gopod_kgsim_response_shaping.go).
+2. words: how do i | how can i | how to | how would i | help me | where do i
+3. skip: how | the | for | and | can | you | your | with | what | please | brobot | doc | pip | this | that | would | where | help
+4. max: 3
+5. header: GOPOD SYSTEM HELP - Brobot 0 asks how to do something in GOPOD. Tell him the command to type in the Brobots chat, in your own words, from these system menu entries only:
+6. item: `- type "{cmd}" ({about})`

@@ -301,6 +301,21 @@
 2. about: Robots back on
 3. run: false
 
+## system-run-check on (system_menu.groups.5.items.12)
+1. cmd: system-run-check on
+2. about: a silent run-check: robots off and the page muted, the chat drawn as ever; start any run
+3. run: false
+
+## system-run-check off (system_menu.groups.5.items.13)
+1. cmd: system-run-check off
+2. about: ends the run check and saves its chat lines
+3. run: false
+
+## system-run-check replay (system_menu.groups.5.items.14)
+1. cmd: system-run-check replay
+2. about: plays the saved run check again on the page, at normal volume
+3. run: false
+
 ## 7. Brobots (system_menu.groups.6)
 1. title: 7. Brobots
 2. guide: Wire-Pod's bot page, here: add 1 or 2 at the end for one Brobot (both when left out).

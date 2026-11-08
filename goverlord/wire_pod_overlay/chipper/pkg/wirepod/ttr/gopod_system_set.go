@@ -68,7 +68,7 @@ func gopodSystemSetMatch(text string) bool {
 	if gopodSystemTestMatch(text) {
 		return true
 	}
-	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-torah", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-brain", "system-audit", "system-voices", "system-voices-report"} {
+	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-torah", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-run-check", "system-brain", "system-audit", "system-voices", "system-voices-report"} {
 		if word == cmd || strings.HasPrefix(word, cmd+" ") {
 			return true
 		}
@@ -131,6 +131,9 @@ func gopodSystemSetLine(esn, text, how string) {
 	} else if cmd == "system-brain" {
 		// 2026-10-31: the brain chain as it is now (gopod_brain_chain.go).
 		answer = gopodSystemBrain()
+	} else if cmd == "system-run-check" {
+		// 2026-11-08: a silent run-check, and its replay (gopod_robots_off.go).
+		answer = gopodSystemRunCheck(text)
 	} else if cmd == "system-robots-off" {
 		// 2026-10-29: robots off (gopod_robots_off.go).
 		answer = gopodSystemRobotsOff(text)

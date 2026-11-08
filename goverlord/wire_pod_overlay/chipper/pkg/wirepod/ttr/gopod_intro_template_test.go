@@ -307,3 +307,15 @@ print(json.dumps(align_heard(words, heard)))
 		t.Errorf("highlight times: %+v", got)
 	}
 }
+
+// 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ?"): a how-to
+// gets its system-menu command as facts; any other line gets none.
+func TestHelpLookup(t *testing.T) {
+	if got := gopodHelpLookup("Brobot 1, how do I raise the volume for you?"); !strings.Contains(got, "system-brobot volume") {
+		t.Errorf("volume how-to: %q", got)
+	}
+	t.Log(gopodHelpLookup("Brobot 1, how do I raise the volume for you?"))
+	if got := gopodHelpLookup("Brobot 1, tell me about the rig"); got != "" {
+		t.Errorf("not a how-to: %q", got)
+	}
+}

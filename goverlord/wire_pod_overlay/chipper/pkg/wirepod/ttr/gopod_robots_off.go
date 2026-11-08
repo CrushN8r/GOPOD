@@ -21,6 +21,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -255,4 +256,100 @@ func gopodIsBodiedBrobot(host string) bool {
 		}
 	}
 	return false
+}
+
+// The silent run-check (2026-11-08, operator: "does GOPOD system have a run-check
+// run? * a full (silent/volume=0/background) run-check * bypass robot & voice audio
+// output * full chat window rendering for you and I * also re-playable with normal
+// volume again"): system-run-check on - robots off for the run (not saved), the
+// chat page muted (every voice plays at volume 0, so the page keeps its timing),
+// the feed marked; start any run. system-run-check off - robots back as they were,
+// the page unmuted, the run's chat lines saved (run_check.file). system-run-check
+// replay - the saved lines played again on the page at normal volume, each after
+// the page has played the one before.
+var gopodRunCheck = struct {
+	sync.Mutex
+	on, wasOff bool
+	from       int
+}{}
+
+func gopodSystemRunCheck(text string) string {
+	f := strings.Fields(strings.ToLower(text))
+	rc := gopodBrobotsSettings.RunCheck
+	role := gopodBrobotsSettings.ReporterVoices.Role
+	path := gopodHomePath(rc.File)
+	gopodRunCheck.Lock()
+	defer gopodRunCheck.Unlock()
+	if len(f) < 2 {
+		return gopodSystemText("run_check.how")
+	}
+	switch f[1] {
+	case "on":
+		if !gopodRunCheck.on {
+			gopodRunCheck.on, gopodRunCheck.wasOff = true, GopodRobotsOff()
+			gopodRobotsOffOn.Store(true)
+			gopodRunCheck.from = gopodFeedLastID()
+			GopodChatFeedAdd(role, rc.MuteMarker)
+		}
+		return gopodSystemText("run_check.on")
+	case "off":
+		if !gopodRunCheck.on {
+			return gopodSystemText("run_check.not_on")
+		}
+		gopodRunCheck.on = false
+		gopodRobotsOffOn.Store(gopodRunCheck.wasOff)
+		var lines []gopodChatFeedEvent
+		gopodChatFeed.Lock()
+		for _, e := range gopodChatFeed.events {
+			if e.ID > gopodRunCheck.from && !gopodRunCheckMarker(e) {
+				lines = append(lines, e)
+			}
+		}
+		gopodChatFeed.Unlock()
+		GopodChatFeedAdd(role, rc.UnmuteMarker)
+		b, _ := json.MarshalIndent(lines, "", " ")
+		_ = gopodMkdirAll(filepath.Dir(path), 0755)
+		if err := gopodWriteFile(path, b, 0644); err != nil {
+			return gopodSystemText("run_check.not_saved", "error", err.Error())
+		}
+		return gopodSystemText("run_check.off", "lines", strconv.Itoa(len(lines)))
+	case "replay":
+		if gopodRunCheck.on {
+			return gopodSystemText("run_check.still_on")
+		}
+		data, err := os.ReadFile(path)
+		var lines []gopodChatFeedEvent
+		if err != nil || json.Unmarshal(data, &lines) != nil || len(lines) == 0 {
+			return gopodSystemText("run_check.nothing")
+		}
+		go func() {
+			GopodChatFeedAdd(role, rc.UnmuteMarker)
+			for _, e := range lines {
+				if gopodCommCheckStop.Load() {
+					return
+				}
+				gopodChatFeedAddEventVia(e.Who, e.To, e.By, e.Via, e.Text)
+				gopodCommCheckWaitPage(gopodFeedLastID(), time.Duration(rc.ReplayWaitSeconds*float64(time.Second)))
+			}
+		}()
+		return gopodSystemText("run_check.replay", "lines", strconv.Itoa(len(lines)))
+	}
+	return gopodSystemText("run_check.how")
+}
+
+// gopodRunCheckMarker: a feed line the replay leaves out - the page's own
+// acknowledgements (run_check.skip_prefixes), the mute markers and the
+// run-check's own command lines.
+func gopodRunCheckMarker(e gopodChatFeedEvent) bool {
+	rc := gopodBrobotsSettings.RunCheck
+	t := strings.TrimSpace(e.Text)
+	if t == rc.MuteMarker || t == rc.UnmuteMarker {
+		return true
+	}
+	for _, p := range rc.SkipPrefixes {
+		if p != "" && strings.HasPrefix(t, p) {
+			return true
+		}
+	}
+	return strings.Contains(strings.ToLower(t), "system-run-check") || strings.Contains(t, "Run check ")
 }

@@ -86,6 +86,14 @@
     "take_sheet": "~/gopod_tts/sessions/harvest/take_sheet.json",
     "take_sheet_about": "Keep also adds the session's answers to the take sheet as takes (operator 2026-10-06: \"keep this session take?\"), one per Brobot answer, filed under the value points it was given; delete adds nothing. Empty: no takes."
   },
+  "run_check": {
+    "about": "2026-11-08 (operator: \"a full (silent/volume=0/background) run-check * bypass robot & voice audio output * full chat window rendering for you and I * also re-playable with normal volume again\"): system-run-check on|off|replay (gopod_robots_off.go). on: robots off for the run (not saved), the page muted - every voice plays at volume 0, so the page keeps its timing; off: robots back, page unmuted, the run's chat lines saved to file; replay: those lines played again at normal volume, each after the page played the one before (at most replay_wait_seconds). mute_marker / unmute_marker: the page's own lines for it. skip_prefixes: lines the replay leaves out (the page's acknowledgements).",
+    "file": "~/crushn8r_git/gopod_notes/run_checks/run_check_last.json",
+    "mute_marker": "run_check:mute",
+    "unmute_marker": "run_check:unmute",
+    "skip_prefixes": ["heard:", "loop_pause", "loop_resume"],
+    "replay_wait_seconds": 90
+  },
   "robots_off": {
     "about": "2026-10-29 (operator: \"I want to show what the visitor's runs will look like * plus all audio a visitor would hear in the same room * the only things missing would be my voice & the vector robot speaker output * there are voices assigned in place of the brobots speaker speech * if I later replay with the brobots I want all the full replay there\"; \"Just capture the brobot safe say + playanimations\"; \"follow numpad for voices\"). on: nothing reaches a Brobot - a Brobot's say plays on the chat page in his numpad voice (the voices panel's KP1/KP2, saved in voices; none picked: the unassigned voice) - his bubble, its order and its wait stay as with the robots, only the voice is a temp one, and every say and animation goes into capture_file ({date} filled in, one JSON line each) for a replay with the Brobots later. Switched with system-robots-off on|off (gopod_robots_off.go).",
     "on": false,

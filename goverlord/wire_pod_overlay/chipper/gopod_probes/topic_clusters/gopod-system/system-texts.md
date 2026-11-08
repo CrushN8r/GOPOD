@@ -229,3 +229,13 @@ topics: {names}
 2. robots_off.how: system-robots-off on|off - on: nothing reaches the Brobots; their says play on the page in their numpad voices, says and animations captured
 3. robots_off.switched: Robots off: {state}.
 4. robots_off.not_saved: system-robots-off: not saved - {error}
+
+## Run check (system_text)
+1. run_check.how: system-run-check on|off|replay - on: a silent run-check (robots off, the page muted); start any run; off: saves its chat lines; replay: plays them again at normal volume.
+2. run_check.on: Run check on - robots off and the page muted. Start any run; system-run-check off when it's done.
+3. run_check.not_on: The run check isn't on - system-run-check on first.
+4. run_check.off: Run check off - {lines} chat lines saved. system-run-check replay plays them at normal volume.
+5. run_check.not_saved: system-run-check: not saved - {error}
+6. run_check.still_on: The run check is still on - system-run-check off first.
+7. run_check.nothing: No run check saved yet - system-run-check on, then a run, then off.
+8. run_check.replay: Replaying the run check: {lines} chat lines, at normal volume.

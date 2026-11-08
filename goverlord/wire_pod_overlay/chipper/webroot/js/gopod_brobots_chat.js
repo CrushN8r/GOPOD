@@ -1761,6 +1761,7 @@
               });
               displayNames = settings.display_names || displayNames;
               hostPersonasNow = settings.host_personas || hostPersonasNow;
+              settingsRunCheck = settings.run_check || settingsRunCheck;
               if (settings.hourglass) { hourglassCfg = settings.hourglass; }
               if (settings.bubble_kinds) { bubbleKinds = settings.bubble_kinds.rules || []; }
               openingEndText = settings.reporter_voices.opening_end_text || openingEndText;
@@ -4775,10 +4776,12 @@
       // plays at chat_audio.volume; a sound's own volume ("#vol=", a sting's or a
       // song step's) is its share of it. The background loop keeps its own.
       var chatVolume = 0.35;
+      var runCheckMuted = false; // run_check.mute_marker / unmute_marker on the feed
       function chatLevel(share) {
         // A viewer page is silent (C1): the main page plays the sound.
         if (!isMainPage) { return 0; }
         var v = typeof share === "number" && !isNaN(share) ? share : 1;
+        if (runCheckMuted) { return 0; } // 2026-11-08: the silent run-check (system-run-check)
         return Math.max(0, Math.min(1, chatVolume * v));
       }
       // 2026-10-17 (operator: "One master default knobs setting all other knobs
@@ -5072,10 +5075,13 @@
         [300, 1200].forEach(function (ms) { setTimeout(function () { scrollChatTo(chatMaxScroll()); }, ms); });
       }
       var feedIdNow = 0; // the chat event being shown (a Brobot bubble keeps it: data-feed)
-      var brobotBy = {}, hostPersonasNow = {}; // the name each Brobot answered as last; the served labels
+      var brobotBy = {}, hostPersonasNow = {}, settingsRunCheck = {}; // the name each Brobot answered as last; the served labels
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
         if (/^Brobot [12]$/.test(e.who) && e.by) { brobotBy[e.who] = e.by; }
+        // 2026-11-08 (system-run-check): the run check mutes and unmutes the page.
+        var rcs = settingsRunCheck || {};
+        if (e.who === reporterRole && (e.text === rcs.mute_marker || e.text === rcs.unmute_marker)) { runCheckMuted = e.text === rcs.mute_marker; done(); return; }
         // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
         if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) {
           // The mic's "skip" (Wire-Pod's skip: line) goes through the skip gate too.
