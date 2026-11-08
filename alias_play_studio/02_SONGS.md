@@ -417,3 +417,16 @@ after it and any `show_ball`. Older songs (no `compose_moves`) play as before. L
 model first: still loaded, the loading lines are bypassed - Goverlord says the song's own ready line and
 it goes on (`song_llm_warmup`, `run_golden_song_001.py`); not loaded, the full warm-up. `llm.smart_warm`
 false turns it off.
+
+**Golden timing lessons (2026-11-08, the fart joke - operator: "I want both brobots acting normally with as
+little time between them for comedic effect").** Where and how time was cut, no speech overlap:
+1. **Full, then minimize:** every line, sound and thinking step plays to its end; every gap between parts is
+   cut - `buffer_after` 0, `tempo_factor` 0.
+2. **No hold after a line:** a move with a line (`emotion_beat` + its say line) holds 0 s (`hold_seconds` 0);
+   a hold belongs only to a move with no line. The engine's own pause after the line is 0.3 s.
+3. **Wake during the ceremony:** `warmup_after` the wake - the Brobots wake while the ready line and its
+   music play, so the first line follows the music.
+4. **Smart warm:** the model still loaded from the opener - no loading lines, just the song's ready line.
+5. **Sounds after the line, offsets written in:** a sound plays after its line, in full; an offset is
+   written - `with_next` on the sound, `start_after` on the next step ("Bro!" 1 s into the danger sound).
+6. **Locked when it plays right:** `songs_soft_lock.json` (`TestSongSoftLocks`).

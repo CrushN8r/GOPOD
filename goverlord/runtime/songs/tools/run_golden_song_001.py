@@ -1854,7 +1854,7 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
             entry["line_dispatch"] = said
             anim = anim if said.get("status") == 200 else said
         print(f"{robots.timing_prefix()}{tag}_BEAT {name} token={animation_token}: animation, then the line {load_brobots_settings()['chat_moves'].get('speech_after_animation_seconds', 0.9)}s later", flush=True)
-        time.sleep(0.5)
+        time.sleep(0.3)  # 2026-11-08 (operator: "update to 0.3 s pause"; was 0.5)
         # Advisory-only, non-blocking - see run_songs_runner_001.py's own long
         # comment / BINGO_STUCK_ANIMATION_FALSE_POSITIVE_RESOLUTION_001.md for
         # why this never flips entry["ok"].
