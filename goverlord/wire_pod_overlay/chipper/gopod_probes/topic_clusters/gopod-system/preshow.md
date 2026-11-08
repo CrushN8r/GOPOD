@@ -31,14 +31,14 @@
 ## Their bubble labels (reporter_voices.labels) (reporter_voices.labels)
 1. Brobot 3: Reporter 1: Brobot 3
 2. Brobot 4: Reporter 2: Brobot 4
-3. CHALK: CHALK
-4. PLAYHEAD: PLAYHEAD
+3. CHALK: {CHALK.call}
+4. PLAYHEAD: {PLAYHEAD.call}
 5. Goverlord: GOVERLORD
-6. GIT REPO: GIT REPO
-7. CACHE PYC: CACHE PYC
-8. INTEL 404 PNFH: INTEL 404 PNFH
-9. INTEL 404 PNFT: INTEL 404 PNFT
-10. CAMEO: CAMEO
+6. GIT REPO: {GIT REPO.call}
+7. CACHE PYC: {CACHE PYC.call}
+8. INTEL 404 PNFH: {INTEL 404 PNFH.call}
+9. INTEL 404 PNFT: {INTEL 404 PNFT.call}
+10. CAMEO: {CAMEO.call}
 
 ## The warm-up (llm) (llm)
 1. warmup_text: Voice files generated. Language Model Loading

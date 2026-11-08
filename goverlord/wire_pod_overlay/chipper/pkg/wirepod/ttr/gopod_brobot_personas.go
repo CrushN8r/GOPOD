@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -295,9 +296,23 @@ func gopodPersonaFill(host, text string) string {
 	// be (global?) variables representing the single source of truth"): another
 	// persona's labels - {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job},
 	// {Brobot 1.call} (his call name) - from that persona's own profile.
-	text = gopodPersonaVarRE.ReplaceAllStringFunc(text, func(m string) string {
+	text = gopodNameVarsFill(text, gopodBrobotsSettings.HostPersonas)
+	p := gopodBrobotsSettings.HostPersonas[host]
+	return strings.NewReplacer("{name}", p.Name, "{nickname}", p.Nickname, "{job}", p.JobName).Replace(text)
+}
+
+var gopodPersonaVarRE = regexp.MustCompile(`\{([^{}.]+)\.(name|nickname|job|call)\}`)
+
+
+// gopodNameVarsFill: text with every {<persona>.name|nickname|job|call} filled
+// from hps (a persona's labels, from its profile head); an unknown one stays.
+func gopodNameVarsFill(text string, hps map[string]gopodHostPersona) string {
+	if !strings.Contains(text, ".") || !strings.Contains(text, "{") {
+		return text
+	}
+	return gopodPersonaVarRE.ReplaceAllStringFunc(text, func(m string) string {
 		parts := gopodPersonaVarRE.FindStringSubmatch(m)
-		o, ok := gopodBrobotsSettings.HostPersonas[parts[1]]
+		o, ok := hps[parts[1]]
 		if !ok {
 			return m
 		}
@@ -314,10 +329,50 @@ func gopodPersonaFill(host, text string) string {
 		}
 		return o.Name
 	})
-	p := gopodBrobotsSettings.HostPersonas[host]
-	return strings.NewReplacer("{name}", p.Name, "{nickname}", p.Nickname, "{job}", p.JobName).Replace(text)
 }
 
-var gopodPersonaVarRE = regexp.MustCompile(`\{([^{}.]+)\.(name|nickname|job|call)\}`)
+// gopodApplyNameVars: every string in the settings (struct fields, map values,
+// list items, at any depth) with its persona variables filled (gopodNameVarsFill).
+func gopodApplyNameVars(s *gopodBrobotsSettingsFile) {
+	hps := s.HostPersonas
+	var walk func(v reflect.Value)
+	walk = func(v reflect.Value) {
+		switch v.Kind() {
+		case reflect.Ptr, reflect.Interface:
+			if !v.IsNil() {
+				walk(v.Elem())
+			}
+		case reflect.Struct:
+			for i := 0; i < v.NumField(); i++ {
+				if f := v.Field(i); f.CanSet() || f.Kind() == reflect.Struct || f.Kind() == reflect.Map || f.Kind() == reflect.Slice {
+					walk(f)
+				}
+			}
+		case reflect.Slice, reflect.Array:
+			for i := 0; i < v.Len(); i++ {
+				walk(v.Index(i))
+			}
+		case reflect.Map:
+			for _, k := range v.MapKeys() {
+				e := v.MapIndex(k)
+				if e.Kind() == reflect.String {
+					if s := gopodNameVarsFill(e.String(), hps); s != e.String() {
+						v.SetMapIndex(k, reflect.ValueOf(s).Convert(e.Type()))
+					}
+					continue
+				}
+				c := reflect.New(e.Type()).Elem()
+				c.Set(e)
+				walk(c)
+				v.SetMapIndex(k, c)
+			}
+		case reflect.String:
+			if v.CanSet() {
+				v.SetString(gopodNameVarsFill(v.String(), hps))
+			}
+		}
+	}
+	walk(reflect.ValueOf(s).Elem())
+}
 
 // ## EOF

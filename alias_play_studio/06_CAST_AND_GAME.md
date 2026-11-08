@@ -672,3 +672,5 @@ chapter joined it; chapters are now 01-11.
 ---
 
 [Back to ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md)
+
+**Names are variables everywhere (2026-11-08, operator: "UNIFIED TEMPLATED GOPOD GAME ENGINE"):** a persona's name, nickname, job and call name live once, in its own profile head; every other text in GOPOD's settings and clusters says `{Brobot 1.name}`, `{BUTLER.nickname}`, `{CHALK.job}`, `{Brobot 1.call}`, filled at load (`gopodApplyNameVars`) and in the page's settings. Literal on purpose: the head itself, Lingo, search words, the numpad map, dated operator quotes.

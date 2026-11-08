@@ -270,7 +270,8 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 	if err != nil {
 		return data
 	}
-	return out
+	// 2026-11-08: the page gets the persona variables filled too (gopodNameVarsFill).
+	return []byte(gopodNameVarsFill(string(out), gopodBrobotsSettings.HostPersonas))
 }
 
 // gopodPersonaProfileText: the profile lines for who's prompt, "" with none.

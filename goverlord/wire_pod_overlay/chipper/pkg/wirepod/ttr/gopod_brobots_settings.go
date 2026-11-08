@@ -1142,6 +1142,12 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	gopodApplyPersonaProfiles(&s)
 	// 2026-10-28: nickname headers (gopodApplyNicknames).
 	gopodApplyNicknames(&s)
+	// 2026-11-08 (operator: "Like fucking everywhere, can variables replace
+	// quotes? * UNIFIED TEMPLATED GOPOD GAME ENGINE"): every text in the settings
+	// and the clusters laid over them gets its persona variables filled -
+	// {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job}, {Brobot 1.call} - from
+	// each persona's one source (gopodApplyNameVars, gopod_brobot_personas.go).
+	gopodApplyNameVars(&s)
 	var missing []string
 	check := func(ok bool, name string) {
 		if !ok {

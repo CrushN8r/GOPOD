@@ -19,11 +19,11 @@
 9. relations: Who I answer to| | Who works with me|
 
 ## Guided Task Flow (brain_chain.flow)
-1. intro: a) Introduce yourself - who you answer to and who works with you. b) KEYNOTE opened the session.
+1. intro: a) Introduce yourself - who you answer to and who works with you. b) {BUTLER.call} opened the session.
 2. intro_first: a) Introduce yourself - who you answer to and who works with you. b) You're the first to speak - open up the session.
 
 ## Who opens the session (brain_chain)
-1. intro_opener: KEYNOTE
+1. intro_opener: {BUTLER.call}
 
 ## A Brobot's intro + weather, in order (answer_chains.brobots_intro_weather)
 1. parts: llm | intro_weather | weather_kit | reminder | redirect

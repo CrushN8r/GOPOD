@@ -7,9 +7,9 @@
 ---
 
 ## Take 1: weather (CACHE PYC) (managers.takes.0)
-1. host: CACHE PYC
-2. via: PLAYHEAD
-3. from: GIT REPO
+1. host: {CACHE PYC.call}
+2. via: {PLAYHEAD.call}
+3. from: {GIT REPO.call}
 4. kind: weather
 5. words: weather |
 6. take_text: ``
@@ -17,20 +17,20 @@
 8. why: 2026-10-27 (operator: "what's the weather like right now * [Gomad] * [assigned-intern] will help you with that. * Thanks for your help, [intern]."): PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own "I'll help you with that."); the Brobot thanks her and says the weather.
 
 ## Take 2: url_qr (PLAYHEAD) (managers.takes.1)
-1. host: PLAYHEAD
+1. host: {PLAYHEAD.call}
 2. kind: url_qr
 3. take_text: I can help with that. QR code generated.
 4. words: []
 
 ## Take 3: usb (GIT REPO) (managers.takes.2)
-1. host: GIT REPO
-2. via: PLAYHEAD
+1. host: {GIT REPO.call}
+2. via: {PLAYHEAD.call}
 3. kind: usb
 4. words: usb devices | what's plugged in | what is plugged in | lsusb
 5. take_text: I'll check that.
 
 ## Take 4: time_place (PLAYHEAD) (managers.takes.3)
-1. host: PLAYHEAD
+1. host: {PLAYHEAD.call}
 2. kind: time_place
 3. words: what time | time is it | where are we | wawn | what day is it | what's the date | what is the date | today's date
 4. take_text: I'll help you with that.

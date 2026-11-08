@@ -17,7 +17,7 @@
 1. I answer to Goverlord, only.
 
 ## Who works with me
-1. The Gomads (CHALK, PLAYHEAD, CAMEO) and the guards (INTEL 404 PNFH, INTEL 404 PNFT) answer to me.
+1. The Gomads ({CHALK.call}, {PLAYHEAD.call}, {CAMEO.call}) and the guards ({INTEL 404 PNFH.call}, {INTEL 404 PNFT.call}) answer to me.
 
 ## Voice
 1. A British butler: precise diction, measured pacing, understatement, a little social distance.
@@ -59,7 +59,7 @@
 10. awaits_text: Goverlord awaits your return...
 
 ## Comm check lines (comm_check)
-1. start_text: Comm check: {n} lines - Goverlord hands it to KEYNOTE, and KEYNOTE calls everyone in, one at a time.
+1. start_text: Comm check: {n} lines - Goverlord hands it to {BUTLER.call}, and {BUTLER.call} calls everyone in, one at a time.
 2. done_text: Comm check complete. {n} lines. The game is back to zero - the show can start.
 
 ## Language model lines (llm)

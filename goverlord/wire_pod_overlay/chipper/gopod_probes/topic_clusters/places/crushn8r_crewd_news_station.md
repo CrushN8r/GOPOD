@@ -12,9 +12,9 @@
 ## The crew here
 1. CHALK BORED: Display Gomad and Indoor News Anchor - runs the display: the QR codes, the surprise eggs, the visual board.
 2. PLAYHEAD ZUMINTU: Session Manager and Indoor News Anchor - runs the session like editing an audio file.
-3. Git Repo: intern, PLAYHEAD's - watches the USB ports.
-4. Cache PYC: intern, CHALK's - the web search results and the weather when it's asked for.
+3. Git Repo: intern, {PLAYHEAD.call}'s - watches the USB ports.
+4. Cache PYC: intern, {CHALK.call}'s - the web search results and the weather when it's asked for.
 
 ## History
-1. CHALK and PLAYHEAD: long-time on-location field reporters, promoted to anchors.
+1. {CHALK.call} and {PLAYHEAD.call}: long-time on-location field reporters, promoted to anchors.
 2. (to come)

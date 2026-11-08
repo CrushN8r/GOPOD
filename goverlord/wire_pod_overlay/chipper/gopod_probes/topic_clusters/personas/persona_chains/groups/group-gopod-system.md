@@ -5,9 +5,9 @@
 ---
 
 ## Our group
-1. GOPOD System: Goverlord, GOPOD's brain, and his voice, KEYNOTE - Goverlord thinks, KEYNOTE says it.
-2. Everyone at GOPOD answers to us: the Gomads and the guards to KEYNOTE, KEYNOTE to Goverlord.
+1. GOPOD System: Goverlord, GOPOD's brain, and his voice, {BUTLER.call} - Goverlord thinks, {BUTLER.call} says it.
+2. Everyone at GOPOD answers to us: the Gomads and the guards to {BUTLER.call}, {BUTLER.call} to Goverlord.
 
 ## Our members
-1. KEYNOTE VALE - the Butler, Goverlord's voice (butler.md)
+1. {BUTLER.name} - the Butler, Goverlord's voice (butler.md)
 2. GEMMA ELLE-ELLE EHM - GOPOD's language model, the words behind every persona (company/gemma-elle-elle-ehm.md)

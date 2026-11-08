@@ -8,7 +8,7 @@
 
 ## The brain bubble (brain_chain)
 1. bubble_hide: In the chat: |
-2. whos_here_host: PLAYHEAD
+2. whos_here_host: {PLAYHEAD.call}
 3. whos_here_text: Who's here in the chat: {names}.
 4. visitors_label: Visitors in the chat
 5. header: BRAIN - code-made facts about this chat, all true. Use them; the style is yours:
