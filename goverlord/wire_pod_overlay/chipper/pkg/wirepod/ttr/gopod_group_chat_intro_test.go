@@ -3,6 +3,7 @@ package wirepod_ttr
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -126,5 +127,48 @@ func TestIntroWeatherOrder(t *testing.T) {
 	inOrder("Brobot alone", got, gopodIntroOpening("Brobot 1"), cast, "Brobot Weather Report", "Sweet sky", "that reminds me")
 	if strings.Contains(got, "what say you on this") {
 		t.Errorf("one Brobot alone handed over: %s", got)
+	}
+}
+
+// SOFT-LOCKED songs (2026-11-08, operator, on the fart joke: "overall the
+// sequence runs fine as-is * soft-lock it as near presentation ready"): each
+// song named in gopod_probes/locks/songs_soft_lock.json keeps its knobs.json and
+// story.md as locked. A change is the operator's word only, then GOPOD_RELOCK=1.
+func TestSongSoftLocks(t *testing.T) {
+	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
+	if root == "" {
+		t.Skip("GOPOD_OVERLAY_CHIPPER not set (the deploy sets it)")
+	}
+	lockPath := filepath.Join(root, "gopod_probes", "locks", "songs_soft_lock.json")
+	songs := filepath.Join(gopodRepoRoot(), "goverlord", "runtime", "songs")
+	sum := func(song string) string {
+		h := sha256.New()
+		for _, f := range []string{"knobs.json", "story.md"} {
+			b, _ := os.ReadFile(filepath.Join(songs, song, f))
+			h.Write(b)
+		}
+		return hex.EncodeToString(h.Sum(nil))
+	}
+	locked := map[string]string{}
+	if b, err := os.ReadFile(lockPath); err == nil {
+		_ = json.Unmarshal(b, &locked)
+	}
+	if os.Getenv("GOPOD_RELOCK") == "1" {
+		if len(locked) == 0 {
+			locked["03_fart_joke"] = ""
+		}
+		for song := range locked {
+			locked[song] = sum(song)
+		}
+		b, _ := json.MarshalIndent(locked, "", "  ")
+		if err := os.WriteFile(lockPath, append(b, '\n'), 0644); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+	for song, want := range locked {
+		if got := sum(song); got != want {
+			t.Errorf("SOFT-LOCKED: song %s changed (operator's word only, then GOPOD_RELOCK=1)", song)
+		}
 	}
 }
