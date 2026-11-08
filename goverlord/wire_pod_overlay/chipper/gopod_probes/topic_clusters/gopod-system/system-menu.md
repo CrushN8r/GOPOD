@@ -301,14 +301,14 @@
 2. about: Robots back on
 3. run: false
 
-## system-run-check on (system_menu.groups.5.items.12)
-1. cmd: system-run-check on
-2. about: a silent run-check: robots off and the page muted, the chat drawn as ever; start any run
+## system-run-check off (system_menu.groups.5.items.12)
+1. cmd: system-run-check off
+2. about: sound off for a run check: robots off and the page muted, the chat drawn as ever; start any run
 3. run: false
 
-## system-run-check off (system_menu.groups.5.items.13)
-1. cmd: system-run-check off
-2. about: ends the run check and saves its chat lines
+## system-run-check on (system_menu.groups.5.items.13)
+1. cmd: system-run-check on
+2. about: sound back on; the run check's chat lines saved
 3. run: false
 
 ## system-run-check replay (system_menu.groups.5.items.14)

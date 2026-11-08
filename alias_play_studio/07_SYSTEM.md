@@ -355,10 +355,11 @@ data; the code only guides the flow. Wire-Pod checks every key at start.
 
 **Silent run-check (2026-11-08, operator: "a full (silent/volume=0/background) run-check * bypass robot & voice
 audio output * full chat window rendering for you and I * also re-playable with normal volume again").**
-`system-run-check on` - robots off for the run (not saved) and the chat page muted (voices play at volume 0, so
-the page keeps its timing); start any run; `system-run-check off` - robots back, page unmuted, the run's chat
-lines saved (`run_check.file`); `system-run-check replay` - those lines played again at normal volume, each after
-the page played the one before (gopod_robots_off.go).
+`system-run-check off` - the sound off: robots off for the run (not saved) and the chat page muted (voices play at
+volume 0, so the page keeps its timing); a hidden page doesn't pause it; start any run; `system-run-check on` - the
+sound back: robots back, page unmuted, the run's chat lines saved (`run_check.file`); `system-run-check replay` -
+those lines played again at normal volume, each after the page played the one before (gopod_robots_off.go).
+Typed to 0 (the system), like every system command.
 
 **Brobot help (2026-11-08, operator: "Brobot N, how do I raise the volume for ... ?").** A how-to line
 (`help_lookup.words`) gets the system menu's best matching commands (the Torah, system-menu.md) in the Brobot's

@@ -161,6 +161,12 @@ func gopodPagePause(hidden bool) {
 	if gopodPagePauseState.paused {
 		return
 	}
+	// 2026-11-08 (operator: "while the run is going, I may go to another page, so
+	// please ensure the background pause has smart-detection"): with the run
+	// check's sound off, a hidden page doesn't pause the run - it plays on, muted.
+	if gopodRunCheckSilent() {
+		return
+	}
 	gopodPagePauseState.timer = time.AfterFunc(time.Duration(gopodBrobotsSettings.Session.PauseAfterMS)*time.Millisecond, func() {
 		gopodPagePauseState.Lock()
 		if !gopodPageHidden.Load() || gopodPagePauseState.paused {

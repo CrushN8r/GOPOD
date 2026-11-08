@@ -18,8 +18,8 @@ Turn parts on or off for this session. “system-numpad” shows who each numpad
 - system-record off, Record Session off, kept zipped
 - system-robots-off on, Robots off: the Brobots' says on the page in their numpad voices, says and animations captured
 - system-robots-off off, Robots back on
-- system-run-check on, a silent run-check: robots off and the page muted, the chat drawn as ever; start any run
-- system-run-check off, ends the run check and saves its chat lines
+- system-run-check off, sound off for a run check: robots off and the page muted, the chat drawn as ever; start any run
+- system-run-check on, sound back on; the run check's chat lines saved
 - system-run-check replay, plays the saved run check again on the page, at normal volume
 
 *Close the menu with the speaker icon.*

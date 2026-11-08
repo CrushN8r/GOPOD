@@ -4390,6 +4390,8 @@
         // 2026-10-17 (operator: "Fix collapsed chat > \"here\""): a collapsed chat
         // (the Brobots Chat button) is away too - nothing plays into it.
         // 2026-10-24: a visitor plays no sound, so it needs no click to follow.
+        // 2026-11-08 (system-run-check off): the silent run plays on in a hidden tab.
+        if (runCheckMuted && pageClicked && (!log || log.style.display !== "none")) { return true; }
         return pageClicked && document.visibilityState === "visible" &&
           (!log || log.style.display !== "none") && container.offsetParent !== null &&
           container.classList.contains("expanded");
