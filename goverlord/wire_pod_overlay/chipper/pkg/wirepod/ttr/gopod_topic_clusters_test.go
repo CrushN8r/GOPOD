@@ -94,7 +94,7 @@ func TestBrainFromClusters(t *testing.T) {
 	if bc.CastMe != " (me)" || !strings.HasPrefix(bc.RemindersPart, " Reminders:") {
 		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
 	}
-	if len(bc.Lines) != 8 || bc.Lines[0] != "Name: {my_name}, Nickname: {my_nickname}" || bc.Lines[7] != "TASK: {my_task}" {
+	if len(bc.Lines) != 9 || bc.Lines[0] != "Name: {my_name}, Nickname: {my_nickname}" || bc.Lines[8] != "TASK: {my_task}" {
 		t.Errorf("brain lines: %q", bc.Lines)
 	}
 	if len(gopodBrobotsSettings.ReplyTighten.NotSentenceEnds) == 0 || !strings.Contains(gopodBrobotsSettings.Summary.FactsNote, "\n") {

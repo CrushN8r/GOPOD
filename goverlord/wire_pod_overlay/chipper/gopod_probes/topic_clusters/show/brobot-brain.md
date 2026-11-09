@@ -31,13 +31,14 @@
 5. I ANSWER TO: {my_answer_to}
 6. I WORK WITH: {my_works_with}
 7. ANSWERS TO ME: {my_answers_to_me}
-8. TASK: {my_task}
+8. WHO DOES WHAT: {who_does_what}
+9. TASK: {my_task}
 
 ## The guided task flow (brain_chain.flow)
 1. first: You're the first to speak this session - open it up.
 2. recent: Does the recent chat help me answer the question asked.
-3. task_intro: 1) your job 2) who you answer to 3) who you work with 4) who answers to you, if anyone 5) stop - 2-3 sentences, proud and playful
-4. task_answer: answer all that is asked of me in a few sentences
+3. task_intro: 1) is it my job? if not, name who does it and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful
+4. task_answer: 1) is it my job? if not, name who does it and stop 2) answer all that is asked of me in a few sentences
 
 ## Before I answer (prebuild_context)
 1. header: BEFORE I ANSWER:

@@ -222,6 +222,10 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{my_answer_to}":     gopodBrainCardSection(self, "Who I answer to", "I answer to "),
 		"{my_works_with}":    gopodBrainCardSection(self, "Who works with me", "I work with "),
 		"{my_answers_to_me}": gopodBrainCardSection(self, "Who answers to me", ""),
+		// 2026-11-09 (operator: "The redirect becomes the first step of every TASK
+		// * establish early in the templated response chains-of-thought so it
+		// becomes an inherent behaviour later"): who does what, from the roster.
+		"{who_does_what}": gopodWhoDoesWhat(),
 		"{full_self}":     gopodBrainFullSelf(self),
 	}
 }
@@ -584,6 +588,21 @@ func gopodPersonaCompany() string {
 		return nil
 	})
 	return name
+}
+
+
+// gopodWhoDoesWhat: everyone on the crew roster and their job, one line -
+// "NAME - job; NAME - job" (gopodRosterGroups, names filled from the profiles).
+func gopodWhoDoesWhat() string {
+	var out []string
+	for _, g := range gopodRosterGroups() {
+		for i, n := range g.Names {
+			if d := strings.TrimSpace(g.Descs[i]); d != "" {
+				out = append(out, n+" - "+d)
+			}
+		}
+	}
+	return strings.Join(out, "; ")
 }
 
 // ## EOF

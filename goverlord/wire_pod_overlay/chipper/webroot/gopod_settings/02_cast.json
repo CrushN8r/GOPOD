@@ -114,6 +114,7 @@
   "host_personas": {
     "Brobot 1": {"call_name": "BARFALLONYOU"},
     "Brobot 2": {"call_name": "PIP"},
+    "GEMMA": {"call_name": "GEMMA"},
     "CHALK": {
       "call_name": "CHALK",
       "role": "",

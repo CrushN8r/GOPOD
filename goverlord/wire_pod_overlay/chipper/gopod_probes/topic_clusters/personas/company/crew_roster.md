@@ -19,7 +19,7 @@
 3. CAMEO: Content Gomad, social media
 
 ## CRUSHN8R CREW'd news station Interns in training
-1. GIT REPO: Tech Intern - the USB ports, the raw weather
+1. GIT REPO: Tech Intern - the USB ports & getting weather info
 2. CACHE PYC: Display and Social Media Intern - the weather, ready to say
 
 ## GOPOD security guards
@@ -28,3 +28,4 @@
 
 ## GOPOD System
 1. KEYNOTE: Butler, Goverlord's voice
+2. {GEMMA.call}: the language model - the words behind every persona
