@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"unicode"
@@ -1097,4 +1098,20 @@ func gopodHelpLookup(text string) string {
 		lines = append(lines, strings.NewReplacer("{cmd}", b.it.cmd, "{about}", b.it.about).Replace(hl.Item))
 	}
 	return strings.Join(lines, "\n")
+}
+
+// gopodBrobotsPersonaFor: the shared Brobots prompt without its dial-0% persona
+// blocks (brobots_prompt.dial_zero_blocks, by number) - for DOC and PIP.
+func gopodBrobotsPersonaFor(prompt string) string {
+	bp := gopodBrobotsSettings.BrobotsPrompt
+	for _, n := range bp.DialZeroBlocks {
+		i, err := strconv.Atoi(strings.TrimSpace(n))
+		if err != nil || i < 0 || i >= len(bp.Blocks) {
+			continue
+		}
+		if block := strings.Join(bp.Blocks[i], "\n"); block != "" {
+			prompt = strings.Replace(prompt, block, "", 1)
+		}
+	}
+	return strings.TrimSpace(regexp.MustCompile(`\n{3,}`).ReplaceAllString(prompt, "\n\n"))
 }

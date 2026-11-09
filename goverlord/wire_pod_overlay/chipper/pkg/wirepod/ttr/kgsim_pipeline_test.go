@@ -149,7 +149,9 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 
 	req := CreateAIReq("Tell me all about bingo", gopodBrobot1ESN, false, true)
 	systemPrompt := req.Messages[0].Content
-	brobotIndex := strings.Index(systemPrompt, string(brobotBytes))
+	// 2026-11-09: at the dial's 100% (one Brobot asked) the shared prompt comes
+	// without its dial-0% persona blocks (gopodBrobotsPersonaFor).
+	brobotIndex := strings.Index(systemPrompt, gopodBrobotsPersonaFor(string(brobotBytes)))
 	coreIndex := strings.Index(systemPrompt, string(coreBytes))
 	scenarioIndex := strings.Index(systemPrompt, bingoPacket)
 	esnIndex := strings.Index(systemPrompt, "WHO I AM:\n"+gopodPersonaFill("Brobot 1", gopodBrobotsSettings.Personas["Brobot 1"]))

@@ -1074,6 +1074,9 @@ type gopodBrobotsSettingsFile struct {
 	NumpadMaps    map[string]json.RawMessage `json:"numpad_maps"`
 	BrobotsPrompt struct {
 		Blocks [][]string `json:"blocks"`
+		// 2026-11-09: the blocks that are the Brobots' own persona - their
+		// prompt at the dial's 0% only (gopodBrobotsPersonaFor, kgsim.go).
+		DialZeroBlocks []string `json:"dial_zero_blocks"`
 	} `json:"brobots_prompt"`
 	BatteryWatch struct {
 		Enabled         bool    `json:"enabled"`

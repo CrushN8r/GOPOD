@@ -244,6 +244,17 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 				whoIAm = gopodPersonaFill(gopodBrobotName(esn), strings.Join(pts, " "))
 			}
 		}
+		// GOPOD 2026-11-09 (operator: "4 PERSONAS to 2 ROBOTS!! * WHAT IS THE
+		// DISCONNECT/LEAK?"): the shared prompt's party-bro persona blocks are the
+		// Brobots' own (dial 0%); at 100% they're taken out and DOC or PIP gets his
+		// card instead - the company, his group, his own lines - the same profile
+		// text every other persona gets.
+		if !gopodAtDialZero(gopodBrobotName(esn)) {
+			smsg.Content = gopodBrobotsPersonaFor(smsg.Content)
+			if card := gopodPersonaProfileText(gopodBrobotName(esn)); card != "" {
+				whoIAm += "\n\n" + card
+			}
+		}
 		smsg.Content += "\n\nWHO I AM:\n" + whoIAm
 		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)
