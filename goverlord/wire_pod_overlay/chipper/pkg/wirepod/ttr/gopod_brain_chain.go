@@ -215,6 +215,13 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{my_name}": gopodBrainCardPart(self, "My name"), "{my_nickname}": gopodBrainCardPart(self, "My informal name (nickname)"),
 		"{my_job_title}": strings.Replace(strings.TrimPrefix(strings.TrimPrefix(gopodBrainCardPart(self, "My job title"), "a "), "the "), "GOPOD's ", "GOPOD ", 1),
 		"{my_task}": gopodBrainTask(question),
+		// 2026-11-09 (operator: "there is the company/employee, employee/employee,
+		// employee/intern * separate it all out, remap into an inherently sequential
+		// build or chain of thought"): one relationship per line, from his card.
+		"{my_company}":       gopodPersonaCompany(),
+		"{my_answer_to}":     gopodBrainCardSection(self, "Who I answer to", "I answer to "),
+		"{my_works_with}":    gopodBrainCardSection(self, "Who works with me", "I work with "),
+		"{my_answers_to_me}": gopodBrainCardSection(self, "Who answers to me", ""),
 		"{full_self}":     gopodBrainFullSelf(self),
 	}
 }
@@ -430,7 +437,8 @@ func gopodBrainLines(self, question string) []string {
 	facts := gopodBrainFacts(self, question)
 	var out []string
 	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
-		if line := gopodBrainFill(l, facts); line != "" && !strings.HasSuffix(line, ":") {
+		// A line whose value is missing (to come, or not on his card) isn't shown.
+		if line := strings.TrimSpace(gopodBrainFill(l, facts)); line != "" && !strings.HasSuffix(line, ":") {
 			out = append(out, line)
 		}
 	}
@@ -539,6 +547,43 @@ func gopodBrainTask(question string) string {
 		return f["task_intro"]
 	}
 	return f["task_answer"]
+}
+
+
+// gopodBrainCardSection: his card's section as one line - its points (filled,
+// "(to come)" left out) joined, each without the start the label already says
+// ("I answer to "), its last full stop off; "" when there's none.
+func gopodBrainCardSection(who, section, start string) string {
+	var out []string
+	for _, p := range gopodPersonaProfileSections(who)[section] {
+		p = strings.TrimSpace(gopodPersonaFill(who, p))
+		if p == "" || strings.Contains(p, "(to come)") {
+			continue
+		}
+		if start != "" && strings.HasPrefix(strings.ToLower(p), strings.ToLower(start)) {
+			p = p[len(start):]
+		}
+		out = append(out, strings.TrimSuffix(p, "."))
+	}
+	return strings.Join(out, "; ")
+}
+
+// gopodPersonaCompany: the company every persona works for - the label of the
+// persona file with "## Our company" (company-schema.md, the template, aside).
+func gopodPersonaCompany() string {
+	folder := gopodTopicPath(gopodBrobotsSettings.PersonaProfiles.Folder)
+	name := ""
+	_ = filepath.WalkDir(folder, func(p string, d os.DirEntry, err error) error {
+		if err != nil || name != "" || d.IsDir() || !strings.HasSuffix(p, ".md") || strings.HasSuffix(p, "company-schema.md") {
+			return nil
+		}
+		if data, err := os.ReadFile(p); err == nil && strings.Contains(string(data), "\n## Our company\n") {
+			head, _ := gopodPersonaProfileReadOne(p)
+			name = strings.TrimSpace(head["label"])
+		}
+		return nil
+	})
+	return name
 }
 
 // ## EOF

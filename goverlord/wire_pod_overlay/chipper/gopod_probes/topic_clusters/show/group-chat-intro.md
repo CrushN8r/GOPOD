@@ -16,7 +16,7 @@
 6. weather_text: Then, on a new line, react to the weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report and the hand-over are said for you.
 7. weather_text_next: Then, on a new line, react to your brother's weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report is said for you.
 8. cast_line: ``
-9. relations: Who I answer to| | Who works with me|
+9. relations: Who I answer to| | Who works with me| | Who answers to me|Answering to me:
 
 ## Guided Task Flow (brain_chain.flow)
 1. intro: a) Introduce yourself - who you answer to and who works with you. b) {BUTLER.call} opened the session.

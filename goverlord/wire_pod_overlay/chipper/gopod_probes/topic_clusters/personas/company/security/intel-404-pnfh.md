@@ -19,6 +19,9 @@
 ## Who works with me
 1. I work with my partner on the same shift, {INTEL 404 PNFT.call} - I cover Here, he covers There.
 
+## Who answers to me
+1. (to come)
+
 ## Voice
 1. Goofy and fumbly: playful, higher and more energetic than Switch.
 2. Procedural language and mild self-importance - and I often can't locate what I'm looking for.

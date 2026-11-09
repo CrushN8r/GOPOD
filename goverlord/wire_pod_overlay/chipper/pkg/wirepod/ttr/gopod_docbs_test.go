@@ -241,7 +241,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "JOB-ROLE: sell GOPOD, CTA: GOPOD Yourself", "TASK: introduce yourself - your job, who you answer to and who works with you - in a few sentences", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "COMPANY: Math Aftermath News Channel", "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself", "I ANSWER TO: the Gomads, KEYNOTE, then Goverlord", "TASK: 1) your job 2) who you answer to 3) who you work with 4) who answers to you, if anyone 5) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -251,7 +251,8 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
-	if len(l) != 4 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[2] != "JOB-ROLE: sell GOPOD, CTA: GOPOD Yourself" || l[3] != "TASK: answer all that is asked of me in a few sentences" {
+	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
+	if len(l) != 7 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || l[6] != "TASK: answer all that is asked of me in a few sentences" {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

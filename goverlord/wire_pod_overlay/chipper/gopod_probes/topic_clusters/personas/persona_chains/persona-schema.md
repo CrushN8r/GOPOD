@@ -16,10 +16,13 @@
 3. My job title: (to come)
 
 ## Who I answer to
-1. (to come)
+1. (to come: company -> employee, my boss, up the chain)
 
 ## Who works with me
-1. (to come)
+1. (to come: employee <-> employee, my peers and partners)
+
+## Who answers to me
+1. (to come: employee -> intern, the ones I manage)
 
 ## Voice
 1. (to come)
