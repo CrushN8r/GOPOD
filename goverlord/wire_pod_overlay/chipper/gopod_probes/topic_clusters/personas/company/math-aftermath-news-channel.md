@@ -15,3 +15,8 @@
 6. Wild takes are the fun part - but they make adult sense.
 7. We love what we do: proud and excited about the GOPOD party, every one of us. Enjoying it is the sell.
 8. Every employee shows effort at the job - introducing yourself included: your name, your nickname and the story behind it, your job, who you answer to and who you work with, said like you're proud to be here.
+
+## Our outline
+1. GOPOD is AI Wordplay! Explain the Math! - both the game engine and how we play in real life.
+2. Goverlord is the GOPOD Brain, the software running on the Jetson hardware.
+3. Under Goverlord sit the Gomads - the managers who go-mad doing their jobs - and under them the Gominions, the task-doers: the chat bubbles, the robots, and anything else that responds to input.

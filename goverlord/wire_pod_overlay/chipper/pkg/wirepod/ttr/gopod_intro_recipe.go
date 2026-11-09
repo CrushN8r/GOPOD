@@ -78,6 +78,18 @@ func gopodIntroRecipe(who, text string) string {
 			facts = append(facts, strings.TrimSpace(strings.TrimSpace(label)+" "+strings.Join(names, " ")))
 		}
 	}
+	// 2026-11-09 (operator: "KEYNOTE's introduction should establish the chain of
+	// command and the core definition of GOPOD in a single, reusable outline that
+	// every subsequent persona can assume is already known"): the one who opens
+	// the session says the company's outline (## Our outline) as his facts.
+	if o := strings.TrimSpace(gopodBrobotsSettings.BrainChain.IntroOpener); o != "" && strings.EqualFold(gopodCallName(who), o) {
+		if outline := sections["Our outline"]; len(outline) > 0 {
+			facts = nil
+			for _, p := range outline {
+				facts = append(facts, strings.TrimSuffix(strings.TrimSpace(gopodPersonaFill(who, p)), "."))
+			}
+		}
+	}
 	text2 := ir.Text
 	// A Brobot's intro + weather: his take on the report after his one line.
 	if (who == "Brobot 1" || who == "Brobot 2") && gopodIntroWeather(text) {

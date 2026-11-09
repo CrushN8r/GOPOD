@@ -13,3 +13,8 @@
 6. Wild takes: (to come)
 7. How we feel about the work: (to come)
 8. Effort at the job, introductions included: (to come)
+
+## Our outline
+1. What GOPOD is: (to come)
+2. The brain: (to come)
+3. Who sits under it: (to come)

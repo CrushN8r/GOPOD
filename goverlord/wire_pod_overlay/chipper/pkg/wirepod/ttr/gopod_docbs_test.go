@@ -181,7 +181,7 @@ func TestIntroRecipe(t *testing.T) {
 		// 2026-10-31: the facts without their labels, and no operator in the list.
 		// 2026-11-04: no cast line (operator: "remove who's here in the chat from
 		// every response"); his working relationships are in his facts.
-		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || !strings.Contains(r, "I answer to ") {
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || (who != "BUTLER" && !strings.Contains(r, "I answer to ")) || (who == "BUTLER" && !strings.Contains(r, "GOPOD is AI Wordplay! Explain the Math!")) {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {

@@ -214,7 +214,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 		// card's name, nickname and job title, and the task for this line.
 		"{my_name}": gopodBrainCardPart(self, "My name"), "{my_nickname}": gopodBrainCardPart(self, "My informal name (nickname)"),
 		"{my_job_title}": strings.Replace(strings.TrimPrefix(strings.TrimPrefix(gopodBrainCardPart(self, "My job title"), "a "), "the "), "GOPOD's ", "GOPOD ", 1),
-		"{my_task}": gopodBrainTask(question),
+		"{my_task}": gopodBrainTask(self, question),
 		// 2026-11-09 (operator: "there is the company/employee, employee/employee,
 		// employee/intern * separate it all out, remap into an inherently sequential
 		// build or chain of thought"): one relationship per line, from his card.
@@ -545,8 +545,15 @@ func gopodBrainCardPart(who, label string) string {
 
 // gopodBrainTask: the task for this line - an intro's (brain_chain.flow.task_intro),
 // else answering it (brain_chain.flow.task_answer).
-func gopodBrainTask(question string) string {
-	f := gopodBrobotsSettings.BrainChain.Flow
+func gopodBrainTask(self, question string) string {
+	bc := gopodBrobotsSettings.BrainChain
+	f := bc.Flow
+	// 2026-11-09 (operator: "KEYNOTE's introduction should establish the chain of
+	// command and the core definition of GOPOD in a single, reusable outline"):
+	// the one who opens the session (brain_chain.intro_opener) says our outline.
+	if gopodIsIntro(question) && f["task_intro_opener"] != "" && strings.EqualFold(gopodCallName(self), strings.TrimSpace(bc.IntroOpener)) {
+		return f["task_intro_opener"]
+	}
 	if gopodIsIntro(question) && f["task_intro"] != "" {
 		return f["task_intro"]
 	}
