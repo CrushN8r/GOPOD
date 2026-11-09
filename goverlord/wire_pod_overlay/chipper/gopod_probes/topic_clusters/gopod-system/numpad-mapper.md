@@ -6,7 +6,7 @@
 - **about:** 2026-11-04 (operator: "I want a system updated numpad-mapper topic-cluster * pull golden guts from GOPOD numpad mapping * like KP lines 0-9,* | [numlock on/off toggle], voices"; "build numpad-mapper.md as the one source"): the numpad map, moved here from ~/.gopod_alias_lib/numpad_persona_map_001.json. Two key layouts, one per keyboard (operator: "I have 2 keyboards * my PC keyboard which I use now * the connected USB numpad * can you add a keyboard-numpad mapping selector for the 2 numpad configs?"; "Two key layouts"): usb - the USB numpad, as it was; pc - the PC keyboard's numpad, a copy to start, yours to change. system-numpad-layout usb|pc picks one (numpad_ptt.layout in 05_voices_and_robots.json), then F5 the chat page. Each key is a section: persona, body (its robot or voice-only), status (live or reserved), and suit with NumLock off (reporter: the persona as its reporter; robot: the Brobot at dial zero). Edit a key here, then restart.
 - **voices:** each key's voice is set in the chat page's Numpad voices panel, which saves it in 05_voices_and_robots.json (reporter_voices.hosts for the personas; robots_off.voices for Doc and Pip with the robots off) - it stays there so the panel keeps working.
 - **the keys today, NumLock on:** KP0 Butler (Keys) - KP1 Doc - KP2 Pip - KP3 Git Repo - KP4 Cache PYC - KP5 Buzzer - KP6 Switch - KP7 CHALK - KP8 PLAYHEAD - KP9 CAMEO - * all the Brobots - / skip - 000 exit.
-- **NumLock off:** KP7 CHALK and KP8 PLAYHEAD as their reporters (live); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (reserved); KP3-KP6 and KP9 free (reserved).
+- **NumLock off:** KP7 CHALK and KP8 PLAYHEAD as their reporters (live); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (reserved); KP3 GEMMA, the language model (live); KP4-KP6 and KP9 free (reserved).
 ---
 
 ## USB numpad - The map (numpad_maps.usb)
@@ -108,10 +108,11 @@
 4. status: reserved
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 2 at the PipTA dial at zero - the shared Brobots persona, no Pip (personas/brobot-2.md); KP2 with NumLock on is Pip. Reserved, not built.
 
-## USB numpad - KP3, NumLock off - - (numpad_maps.usb.numlock_off.KP3)
-1. persona: -
-2. body: -
-3. status: reserved
+## USB numpad - KP3, NumLock off - GEMMA (numpad_maps.usb.numlock_off.KP3)
+1. persona: GEMMA
+2. body: voice-only
+3. status: live
+4. _note: 2026-11-09 (operator: "Gemma should also be available in system numpad mapping"; "Do 1,3,4"): GEMMA ELLE-ELLE EHM, the language model as a chat persona, on the first free key
 
 ## USB numpad - KP4, NumLock off - - (numpad_maps.usb.numlock_off.KP4)
 1. persona: -
@@ -247,10 +248,11 @@
 4. status: reserved
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 2 at the PipTA dial at zero - the shared Brobots persona, no Pip (personas/brobot-2.md); KP2 with NumLock on is Pip. Reserved, not built.
 
-## PC keyboard - KP3, NumLock off - - (numpad_maps.pc.numlock_off.KP3)
-1. persona: -
-2. body: -
-3. status: reserved
+## PC keyboard - KP3, NumLock off - GEMMA (numpad_maps.pc.numlock_off.KP3)
+1. persona: GEMMA
+2. body: voice-only
+3. status: live
+4. _note: 2026-11-09 (operator: "Gemma should also be available in system numpad mapping"; "Do 1,3,4"): GEMMA ELLE-ELLE EHM, the language model as a chat persona, on the first free key
 
 ## PC keyboard - KP4, NumLock off - - (numpad_maps.pc.numlock_off.KP4)
 1. persona: -

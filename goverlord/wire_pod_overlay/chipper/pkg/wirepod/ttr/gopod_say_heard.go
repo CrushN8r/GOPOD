@@ -33,6 +33,10 @@ func gopodWaitHeard(most time.Duration) bool {
 	if most <= 0 || rv.HeardMarker == "" {
 		return false
 	}
+	// 2026-11-09: the run check's sound off - heard as said, no wait on the page.
+	if gopodRunCheckSilent() {
+		return true
+	}
 	token := fmt.Sprintf("%d", time.Now().UnixNano())
 	heard := make(chan struct{})
 	gopodSayHeard.Lock()

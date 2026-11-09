@@ -487,6 +487,28 @@
       // 2026-10-23 (operator: "| 00:56:42 |🔇"): a bar before the speaker too.
       typedRowText("|", "gopod-typed-sep");
       typedRow.appendChild(speakerToggle);
+      // 2026-11-09 (operator: "snapshot loop icon golden guts & add after the loop
+      // icon * ... 00:00:00 | 🔇 🔇 * make the 2nd 🔇 a simple master mute toggle"):
+      // the loop speaker's own button, a second time - it mutes every sound the
+      // page plays (chatLevel), the loop too; remembered on this browser.
+      var masterToggle = document.createElement("button");
+      masterToggle.type = "button";
+      masterToggle.className = "gopod-loop-speaker";
+      try { masterMuted = localStorage.getItem("gopod_master_mute") === "1"; } catch (err) { masterMuted = false; }
+      function showMasterMute() {
+        masterToggle.textContent = masterMuted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
+        masterToggle.setAttribute("aria-pressed", masterMuted ? "true" : "false");
+        masterToggle.title = masterMuted ? "All sound muted - click to unmute" : "All sound on - click to mute";
+        masterToggle.setAttribute("aria-label", masterToggle.title);
+      }
+      masterToggle.addEventListener("click", function () {
+        masterMuted = !masterMuted;
+        try { localStorage.setItem("gopod_master_mute", masterMuted ? "1" : "0"); } catch (err) { /* not kept */ }
+        backgroundLoop.setVolume(backgroundLoop.volume());
+        showMasterMute();
+      });
+      showMasterMute();
+      typedRow.appendChild(masterToggle);
       // The speaker's volume bar: shown while the mouse is over the speaker (or the bar).
       var volumeWrap = document.createElement("div");
       volumeWrap.className = "gopod-loop-volume";
@@ -4779,11 +4801,12 @@
       // song step's) is its share of it. The background loop keeps its own.
       var chatVolume = 0.35;
       var runCheckMuted = false; // run_check.mute_marker / unmute_marker on the feed
+      var masterMuted = false; // the master mute button (after the loop's speaker)
       function chatLevel(share) {
         // A viewer page is silent (C1): the main page plays the sound.
         if (!isMainPage) { return 0; }
         var v = typeof share === "number" && !isNaN(share) ? share : 1;
-        if (runCheckMuted) { return 0; } // 2026-11-08: the silent run-check (system-run-check)
+        if (runCheckMuted || masterMuted) { return 0; } // 2026-11-08: the silent run-check; 2026-11-09: the master mute
         return Math.max(0, Math.min(1, chatVolume * v));
       }
       // 2026-10-17 (operator: "One master default knobs setting all other knobs

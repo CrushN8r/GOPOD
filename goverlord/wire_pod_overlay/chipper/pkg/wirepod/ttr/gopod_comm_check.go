@@ -53,6 +53,12 @@ func gopodPagePlayedUpTo() int {
 
 // gopodCommCheckWaitPage: until the page has played id (or max).
 func gopodCommCheckWaitPage(id int, max time.Duration) {
+	// 2026-11-09 (operator: the silent comm check ran 48-64 min, not ~14): with the
+	// run check's sound off nobody's listening - the run doesn't wait on the page,
+	// whose hidden tab the browser slows; the page plays it all in order, muted.
+	if gopodRunCheckSilent() {
+		return
+	}
 	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(250 * time.Millisecond) {
 		if gopodPagePlayedUpTo() >= id {
 			return
@@ -69,7 +75,7 @@ func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 			last, since = id, time.Now()
 			continue
 		}
-		if time.Since(since) >= quiet && gopodPagePlayedUpTo() >= last {
+		if time.Since(since) >= quiet && (gopodRunCheckSilent() || gopodPagePlayedUpTo() >= last) {
 			return
 		}
 	}

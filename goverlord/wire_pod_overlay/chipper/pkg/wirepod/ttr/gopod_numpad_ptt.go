@@ -225,6 +225,11 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 		base = strings.ToUpper(base)
 		entry, ok := m.NumlockOff[base]
 		host := gopodPersonaFor(entry.Persona)
+		// 2026-11-09 (operator: "Gemma should also be available in system numpad
+		// mapping"): a live persona with no suit talks as itself, as on NumLock on.
+		if ok && entry.Status == "live" && entry.Suit == "" && host != "" {
+			return host, gopodPersonaMark + host, nil
+		}
 		if !ok || entry.Status != "live" || entry.Suit != "reporter" || host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
 			return "", "", errors.New(key + " is not live")
 		}
