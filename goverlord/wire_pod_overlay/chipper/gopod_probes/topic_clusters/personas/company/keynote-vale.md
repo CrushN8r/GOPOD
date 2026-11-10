@@ -38,7 +38,6 @@
 1. KEYNOTE = Keynote
 2. KEYNOTE VALE = Keynote Vale
 3. KEYS = Keys
-4. Goverlord = Guhverlord
 
 ## My settings (managers.personas.BUTLER)
 1. host: BUTLER

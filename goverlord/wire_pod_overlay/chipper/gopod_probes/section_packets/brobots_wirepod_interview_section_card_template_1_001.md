@@ -614,6 +614,7 @@ Two data blocks the code reads. Nothing else lives here.
     {"from": "C1000", "to": "see-one-thousand"},
     {"from": "Pinterest", "to": "pin-trest"},
     {"from": "CRUSHN8R", "to": "Crush-Ehnaydir"},
+    {"from": "Goverlord", "to": "Guhverlord"},
     {"from": "CrushN8r", "to": "Crush-Ehnaydir"},
     {"from": "A.I.", "to": "AY-EYE"},
     {"from": "A.I", "to": "AY-EYE"},
