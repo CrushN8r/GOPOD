@@ -59,6 +59,15 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 		}
 		return out
 	}
+	// 2026-11-10 (operator: "a long pause because LLM voices are being
+	// pre-generated ... no longer"): the song's first message no longer waits for
+	// the voice files; the built-in opener still does, so it's compared that way.
+	for i := range steps {
+		if steps[i].Note == "warm_message" {
+			steps[i].WaitVoices = true
+			break
+		}
+	}
 	song := play(steps)
 	// The built-in opener with the song's words.
 	var texts []string
