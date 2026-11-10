@@ -235,13 +235,13 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
 	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) is it my job? if not, name who does it and stop 2) answer all that is asked of me in a few sentences") || !strings.Contains(b, "WHO DOES WHAT: BARFALLONYOU - the host") {
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) answer all that is asked of me in a few sentences") || !strings.Contains(b, "WHO DOES WHAT: BARFALLONYOU - the host") {
 		t.Errorf("an answer's task: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "COMPANY: Math Aftermath News Channel", "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself", "I ANSWER TO: the Gomads, KEYNOTE, then Goverlord", "TASK: 1) is it my job? if not, name who does it and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "COMPANY: Math Aftermath News Channel", "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself", "I ANSWER TO: the Gomads, KEYNOTE, then Goverlord", "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -252,7 +252,7 @@ func TestBrainChain(t *testing.T) {
 	l := gopodBrainLines("Brobot 2", "hey")
 	gopodBrainReminders.Delete("Brobot 2")
 	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
-	if len(l) != 8 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || l[7] != "TASK: 1) is it my job? if not, name who does it and stop 2) answer all that is asked of me in a few sentences" {
+	if len(l) != 8 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || l[7] != "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) answer all that is asked of me in a few sentences" {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {
