@@ -59,6 +59,7 @@ Every answer scores in the game: topics, value points and easter eggs, shown in 
 | "Tell me about your local brain" | local brain: brobots can party offline, plug in and go · anywhere: basement, back seat, does not matter | "What brain do you run on - is there a monthly bill?" · "No cloud, no wifi - where's the wildest place you've worked?" | "what brain do you run on? Are you on ChatGPT?" | [WIRED-POD.md](WIRED-POD.md) |
 | "Tell me about running offline" | boring works: no internet, all local, basement, car, park · internet is a bonus: never the engine · power: big battery, car, any outlet, runs all day | "Can you run offline?" · "Offline at a venue - do you even need their wifi?" · "What do you run on for power?" | "No wifi in the building. Do you pack up?" | [MOBILE_GEAR.md](MOBILE_GEAR.md) |
 | "Tell me about the rig" | One dolly, two crates · Lower Crate 1 - Power Station · Upper Crate 2 - GOPOD Compute · roll in, plug in, party | "What's the rig?" | "Two crates on a dolly? Show me the gear." | [MOBILE_GEAR.md](MOBILE_GEAR.md) |
+| "Tell me about the alias play studio" | GOPOD's reference manual · every rule written once, with its code and its test · GOLDEN means proven live and locked · start with Concepts and terms | "What's the alias play studio?" · "In the alias play studio, is every rule written once, with its code and its test?" · "What does GOLDEN mean in the alias play studio?" · "Where do I start in the alias play studio, with no code?" |  | [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) |
 
 ### Show and tell
 

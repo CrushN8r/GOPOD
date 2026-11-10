@@ -243,6 +243,30 @@
       "ask": "Brobot 2, what's the rig?"
     },
     {
+      "chapter": "The brain and the rig",
+      "topic": "alias_play_studio",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the alias play studio?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "alias_play_studio",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, in the alias play studio, is every rule written once, with its code and its test?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "alias_play_studio",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what does GOLDEN mean in the alias play studio?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "alias_play_studio",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, where do I start in the alias play studio, with no code?"
+    },
+    {
       "chapter": "Show and tell",
       "topic": "how_the_chat_works",
       "to": "Brobot 1",

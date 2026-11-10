@@ -806,6 +806,11 @@ type gopodBrobotsSettingsFile struct {
 		Header string   `json:"header"`
 		Item   string   `json:"item"`
 	} `json:"help_lookup"`
+	// 2026-11-10: a line naming a root doc gets its game cards (gopodDocLookup).
+	DocLookup struct {
+		Header string `json:"header"`
+		Item   string `json:"item"`
+	} `json:"doc_lookup"`
 	// 2026-11-08: the silent run-check (gopod_robots_off.go gopodSystemRunCheck).
 	RunCheck struct {
 		File              string   `json:"file"`

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"sort"
 	"regexp"
 	"strconv"
@@ -1114,4 +1115,57 @@ func gopodBrobotsPersonaFor(prompt string) string {
 		}
 	}
 	return strings.TrimSpace(regexp.MustCompile(`\n{3,}`).ReplaceAllString(prompt, "\n\n"))
+}
+
+// gopodDocLookup (2026-11-10, operator: "Hey, brobot 1, tell me about
+// WIRED-POD.md * WIRED-POD.md look up supplies value-points for the brain
+// bubble"): a line naming a root doc (topic_clusters.root_docs) by its file name
+// gets that doc's game cards - each card's label and summary (doc_lookup in
+// brobot-answers.md). A one-word name ("BOOKING") counts only with its ".md".
+func gopodDocLookup(text string) string {
+	dl := gopodBrobotsSettings.DocLookup
+	if dl.Header == "" || dl.Item == "" {
+		return ""
+	}
+	low := " " + gopodLooseWords(text) + " "
+	docs, _ := gopodTopicRootDocsSetting.Load().([]string)
+	for _, d := range docs {
+		name := gopodLooseWords(strings.TrimSuffix(filepath.Base(d), gopodTopicExt))
+		if name == "" {
+			continue
+		}
+		if !strings.Contains(low, " "+name+" md ") && (!strings.Contains(name, " ") || !strings.Contains(low, " "+name+" ")) {
+			continue
+		}
+		var lines []string
+		for _, c := range gopodTopicDocCards(filepath.Join(gopodRepoRoot(), d)) {
+			label, summary := "", ""
+			for _, l := range strings.Split(c.Text, "\n") {
+				if t := strings.TrimSpace(l); strings.HasPrefix(t, "# ") && label == "" {
+					label = strings.TrimSpace(strings.TrimPrefix(t, "# "))
+				}
+			}
+			head, _ := gopodSplitTopicFile(c.Text)
+			for _, kv := range head {
+				if kv[0] == "summary" {
+					var parts []string
+					for _, p := range strings.Split(kv[1], "|") {
+						if p = strings.TrimSpace(p); p != "" {
+							parts = append(parts, p)
+						}
+					}
+					summary = strings.Join(parts, "; ")
+				}
+			}
+			if label != "" && summary != "" {
+				lines = append(lines, strings.NewReplacer("{label}", label, "{summary}", summary).Replace(dl.Item))
+			}
+		}
+		if len(lines) == 0 {
+			continue
+		}
+		logger.Println("GOPOD_DOC_LOOKUP " + filepath.Base(d) + ": " + fmt.Sprint(len(lines)) + " cards")
+		return strings.ReplaceAll(dl.Header, "{doc}", filepath.Base(d)) + "\n" + strings.Join(lines, "\n")
+	}
+	return ""
 }

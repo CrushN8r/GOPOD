@@ -38,4 +38,27 @@ page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs 
 
 ---
 
+<details><summary>Game card: the alias play studio</summary>
+<!-- gopod topic: 05_alias_play_studio -->
+
+# the alias play studio
+- **chapter:** The brain and the rig
+
+- **words:** alias play studio, play studio, alias studio, the manual, reference manual, golden rules
+- **ask:** Tell me about the alias play studio
+- **summary:** GOPOD's reference manual | every rule written once, with its code and its test | GOLDEN means proven live and locked | start with Concepts and terms
+- **source:** ALIAS-PLAY-STUDIO.md
+
+---
+
+The alias play studio: GOPOD's reference manual. Reveal these, in order, in your own words:
+1. How two Vectors learn a song, how a session and its runs work, and how the Brobots chat page behaves, rule by rule.
+2. Every song rule, chat-page rule, command and setting is written once, with the code that does it and the test that locks it.
+3. GOLDEN means proven live and locked - changed only with the owner's OK.
+4. For a Wire-Pod owner, the owner running the show, and an AI assistant - no code needed, start with Concepts and terms.
+
+</details>
+
+---
+
 GOPOD — [README](README.md) · [WIRED-POD](WIRED-POD.md) · [asks](BROBOT_ASKS.md) · [mobile gear](MOBILE_GEAR.md) · [livestream](LIVESTREAM.md)

@@ -319,3 +319,20 @@ func TestHelpLookup(t *testing.T) {
 		t.Errorf("not a how-to: %q", got)
 	}
 }
+
+// TestDocLookup: a line naming a root doc gets that doc's game cards (gopodDocLookup).
+func TestDocLookup(t *testing.T) {
+	got := gopodDocLookup("Hey, brobot 1, tell me about WIRED-POD.md")
+	if !strings.Contains(got, "WIRED-POD.md") || !strings.Contains(got, "- how this chat works: ") || !strings.Contains(got, "- our local brain: ") {
+		t.Errorf("WIRED-POD.md: %q", got)
+	}
+	t.Log(got)
+	got = gopodDocLookup("Hey, brobot 2, tell me about the GOPOD alias play studio")
+	if !strings.Contains(got, "ALIAS-PLAY-STUDIO.md") || !strings.Contains(got, "- the alias play studio: GOPOD's reference manual") {
+		t.Errorf("alias play studio: %q", got)
+	}
+	t.Log(got)
+	if got := gopodDocLookup("Brobot 1, how do I book you?"); got != "" {
+		t.Errorf("a one-word doc name without .md: %q", got)
+	}
+}
