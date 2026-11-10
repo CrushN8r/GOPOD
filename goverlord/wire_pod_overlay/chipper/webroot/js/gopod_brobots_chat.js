@@ -2706,7 +2706,7 @@
         showOnItsTurn(bubble, say);
       }
       // Its voice starts: the words revealed across seconds, then said.
-      function voiceLitStart(seconds, words, src) {
+      function voiceLitStart(seconds, words, src, audio) {
         // The line waiting for this very voice file, else the line shown last.
         var path = String(src || "").replace(/#.*$/, "").replace(/^https?:\/\/[^/]+/, "");
         var own = path && voiceWaitFor[path];
@@ -2722,6 +2722,11 @@
         say.dataset.at = "0";
         say.dataset.end = String(seconds);
         say._spokenWords = words || null;
+        // 2026-11-10 (operator: "It's the timings with the voice. That's really
+        // important"): the voice is the clock - its words light at its playing
+        // position, never on timers of their own.
+        say._voice = audio || null;
+        say._voiceFrom = 0;
         // 2026-10-24 (operator: "please check that the highlighting mechanism is
         // inherently part of this bubble"): a voiced line shown in parts (the egg's
         // congratulations, then "MouseOver to Zoom In" under the prize) is one
@@ -2753,7 +2758,9 @@
             } else {
               p.dataset.end = String(seconds * n / total);
             }
-            setTimeout(function () { if (!p.classList.contains("spoken")) { lightSpan(p); } }, startAt * 1000);
+            p._voice = audio || null;
+            p._voiceFrom = startAt;
+            voiceAt(audio, startAt, function () { if (!p.classList.contains("spoken")) { lightSpan(p); } });
             from += n;
           });
         }
@@ -4998,7 +5005,7 @@
             var capMs = isFinite(audio.duration) && audio.duration > 0 ? audio.duration * 1000 + 5000 : 60000;
             setTimeout(finish, capMs);
             // A reporter's or Goverlord's line lights with its voice (voiceLitStart).
-            if (!pooled && (voiceLitNext || voiceWaitFor[String(src).replace(/#.*$/, "")])) { litDone = voiceLitStart(audio.duration, audio._words, src); }
+            if (!pooled && (voiceLitNext || voiceWaitFor[String(src).replace(/#.*$/, "")])) { litDone = voiceLitStart(audio.duration, audio._words, src, audio); }
             // 2026-10-25 (operator: "audio played late. can you see any log details
             // about this delay?"): a voice that starts 0.8 s+ after its turn came
             // says why in Wire-Pod's log - waiting for its bubble, or for its file.
@@ -5562,18 +5569,39 @@
         });
         if (aligned) { at = Math.max(at, aligned[aligned.length - 1] || 0); }
         var voiceEnd = aligned && span._spokenWords.length ? +span._spokenWords[span._spokenWords.length - 1].e || at : at;
-        units.forEach(function (u, i) {
+        var step = function (i) {
+          var u = units[i];
           var said = Math.max(0, (i + 1 < starts.length ? starts[i + 1] : Math.max(voiceEnd, at)) - starts[i]);
-          setTimeout(function () {
-            if (!span.classList.contains("speaking")) { return; }
-            if (i > 0) { units[i - 1].classList.remove("now"); units[i - 1].classList.add("said"); }
-            u.classList.add("now");
-            if (window.GopodCharHighlight) { window.GopodCharHighlight.play(u, said); }
-          }, starts[i] * 1000);
-        });
-        setTimeout(function () {
+          if (!span.classList.contains("speaking")) { return; }
+          if (i > 0) { units[i - 1].classList.remove("now"); units[i - 1].classList.add("said"); }
+          u.classList.add("now");
+          if (window.GopodCharHighlight) { window.GopodCharHighlight.play(u, said); }
+        };
+        var allSaid = function () {
           units.forEach(function (u) { u.classList.remove("now"); u.classList.add("said"); });
-        }, at * 1000);
+        };
+        // A voiced line with its word times follows the voice's playing position.
+        if (aligned && span._voice) {
+          units.forEach(function (u, i) { voiceAt(span._voice, (span._voiceFrom || 0) + starts[i], function () { step(i); }); });
+          voiceAt(span._voice, (span._voiceFrom || 0) + at, allSaid);
+          return;
+        }
+        units.forEach(function (u, i) { setTimeout(function () { step(i); }, starts[i] * 1000); });
+        setTimeout(allSaid, at * 1000);
+      }
+      // 2026-11-10: fn runs once the voice has played to second t (its own
+      // playing position - a late start or a stall holds it back). It runs at
+      // once if the voice ends, fails or is stopped first.
+      function voiceAt(audio, t, fn) {
+        if (!audio) { setTimeout(fn, t * 1000); return; }
+        var began = Date.now();
+        var tick = function () {
+          // A voice that never plays (skipped, refused): let go after its length + 30 s.
+          if (Date.now() - began > (t + 30) * 1000 ||
+              audio.ended || audio._failed || (audio.currentTime || 0) >= t || (audio.paused && audio.currentTime > 0)) { fn(); return; }
+          if (document.hidden) { setTimeout(tick, 250); } else { requestAnimationFrame(tick); }
+        };
+        tick();
       }
 
       // GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
