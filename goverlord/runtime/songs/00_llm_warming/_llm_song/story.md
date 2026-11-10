@@ -9,11 +9,11 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_01
 
-> TEXT: Okay. We're about to go live. Our News Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
+> TEXT: Okay Zoomy! We're about to go live. Our CRUSHN8R Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
 
 ## STEP line_02
 
-> TEXT: I've got the mic AND the umbrella. I'm doing both jobs. I am a professional.
+> TEXT: Chalkra, I've got the mic AND the umbrella. I'm doing both jobs. I am a professional.
 
 ## STEP line_03
 
@@ -29,15 +29,15 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_06
 
-> TEXT: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime.
+> TEXT: Okay. The word is rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event, because it is truly an event of a lifetime.
 
 ## STEP line_07
 
-> TEXT: And it's our job to make it happen. I'm so excited. Feel that. Do you feel that?
+> TEXT: And it's our job to make it happen. Zoomy, I'm so excited. Wait. Feel that. Do you feel that?
 
 ## STEP line_08
 
-> TEXT: My hands are full. I am a professional.
+> TEXT: Chalkra. My hands are full. I am a professional.
 
 ## STEP line_09
 

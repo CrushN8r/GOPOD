@@ -8,7 +8,7 @@
       "step_id": "goverlord_warm_0101",
       "note": "warm_message",
       "volume": "",
-      "wait_voices": true,
+      "wait_voices": false,
       "section": "WARM UP"
     },
     {

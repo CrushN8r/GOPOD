@@ -511,13 +511,15 @@ func gopodMilitaryTimeSpoken(hour, minute int) string {
 	if hour == 0 {
 		hw = "zero"
 	} else if hour < 10 {
-		hw = "zero " + gopodDigitWords[hour]
+		// 2026-11-10 (operator: "0726 would be spoken as 0-7,26 (zero-seven,
+		// twenty-six)"): the hour is one group, HH.
+		hw = "zero-" + gopodDigitWords[hour]
 	}
 	if minute == 0 {
 		return hw + " hundred"
 	}
 	if minute < 10 {
-		return hw + " zero " + gopodDigitWords[minute]
+		return hw + " zero-" + gopodDigitWords[minute]
 	}
 	return hw + " " + gopodTwoDigitWord(minute)
 }

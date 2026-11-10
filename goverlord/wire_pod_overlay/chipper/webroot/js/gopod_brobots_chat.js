@@ -5416,11 +5416,10 @@
           }
           while ((m = military.exec(text))) {
             var h = parseInt(m[1], 10), mi = parseInt(m[2], 10), at = m.index, n = digitHighlight.seconds_per_number;
-            if (h === 0) { cuts.push([at, at + 2, n]); }
-            else if (h < 10) { cuts.push([at, at + 1, n]); cuts.push([at + 1, at + 2, n]); }
-            else { cuts.push([at, at + 2, n]); }
-            if (mi === 0 || mi >= 10) { cuts.push([at + 2, at + 4, n]); }
-            else { cuts.push([at + 2, at + 3, n]); cuts.push([at + 3, at + 4, n]); }
+            // 2026-11-10 (operator: "group as HH/MM * 0726 ... zero-seven, twenty-six
+            // * 1126 ... eleven, twenty-six"): the hour lights as one group, then the minutes.
+            cuts.push([at, at + 2, n]);
+            cuts.push([at + 2, at + 4, n]); // MM, one group too
             // 2026-10-16 (operator: "1316 Hours Military Time ... globally
             // reveal as per: 13 / 16 / Hours / Military / Time."): the label's
             // words follow, one step each, like every word.

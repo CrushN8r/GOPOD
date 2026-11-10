@@ -20,4 +20,4 @@
 ## His guard's warning and his answer (battery_watch)
 1. guard_warning: Security warning: {brobot}'s battery is running low.
 2. guard_handover: {brobot}, what say you on this, {title} {nickname}?
-3. reply: {comeback} Yeah... {line}
+3. reply: Yeah... {line}

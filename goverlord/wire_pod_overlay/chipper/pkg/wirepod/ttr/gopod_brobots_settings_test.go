@@ -881,8 +881,8 @@ func TestLiveWeatherWords(t *testing.T) {
 		mil, twelve string
 	}{
 		{20, 25, "twenty twenty-five", "eight twenty-five pm"},
-		{8, 0, "zero eight hundred", "eight o'clock 'a' m"},
-		{0, 5, "zero zero five", "twelve oh five 'a' m"},
+		{8, 0, "zero-eight hundred", "eight o'clock 'a' m"},
+		{0, 5, "zero zero-five", "twelve oh five 'a' m"},
 		{12, 30, "twelve thirty", "twelve thirty pm"},
 	} {
 		if got := gopodMilitaryTimeSpoken(c.h, c.m); got != c.mil {
@@ -969,16 +969,16 @@ func TestSpeakMilitaryTime(t *testing.T) {
 	label, said := lw.MilitaryLabel, strings.ToLower(lw.MilitaryLabel)
 	cases := map[string]string{
 		"as of 6:14 PM or 1814 " + label + ".": "as of 6:14 PM or eighteen fourteen " + said + ".",
-		"as of 0800 " + label + " or 8:00 AM.": "as of zero eight hundred " + said + " or 8:00 AM.",
+		"as of 0800 " + label + " or 8:00 AM.": "as of zero-eight hundred " + said + " or 8:00 AM.",
 		"17° Celsius or 62° Fahrenheit":        "17 degrees Celsius or 62 degrees Fahrenheit",
 		"Meet at 1814 bro":                     "Meet at 1814 bro",
 	}
 	// The operator's table (2026-10-14, "Military Time Rules").
 	table := map[[2]int]string{
-		{0, 0}: "zero hundred", {1, 0}: "zero one hundred", {9, 0}: "zero nine hundred",
+		{0, 0}: "zero hundred", {1, 0}: "zero-one hundred", {9, 0}: "zero-nine hundred",
 		{10, 0}: "ten hundred", {12, 0}: "twelve hundred", {18, 0}: "eighteen hundred",
 		{18, 14}: "eighteen fourteen", {18, 30}: "eighteen thirty", {23, 59}: "twenty-three fifty-nine",
-		{6, 30}: "zero six thirty", {7, 9}: "zero seven zero nine",
+		{6, 30}: "zero-six thirty", {7, 9}: "zero-seven zero-nine",
 	}
 	for hm, want := range table {
 		if got := gopodMilitaryTimeSpoken(hm[0], hm[1]); got != want {
