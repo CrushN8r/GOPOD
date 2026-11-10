@@ -988,6 +988,15 @@ type gopodBrobotsSettingsFile struct {
 		FollowUpKitLine string  `json:"follow_up_kit_line"`
 	} `json:"live_weather"`
 	Photo struct {
+		// 2026-11-10 (operator: Vector camera overexposed / greenish; "Do the safe
+		// to build white balance & exposure"): the camera's exposure for a photo -
+		// manual on: exposure_ms and gain set before it, auto again after it.
+		Camera struct {
+			Manual        bool    `json:"manual"`
+			ExposureMs    uint32  `json:"exposure_ms"`
+			Gain          float32 `json:"gain"`
+			SettleSeconds float64 `json:"settle_seconds"`
+		} `json:"camera"`
 		AskPhrases         []string `json:"ask_phrases"`
 		RecallPhrases      []string `json:"recall_phrases"`
 		VisionModel        string   `json:"vision_model"`

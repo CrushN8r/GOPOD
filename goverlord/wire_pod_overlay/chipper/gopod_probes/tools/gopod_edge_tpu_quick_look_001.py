@@ -25,9 +25,28 @@ from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
 
+def white_balanced(image, strength):
+    """2026-11-10 (operator: Vector photos greenish; "Do the safe to build white
+    balance"): grey-world white balance - each colour scaled so the three average
+    the same, which pulls the camera's green cast back; strength 0 = unchanged,
+    1 = full."""
+    from PIL import ImageStat
+    if strength <= 0 or image.mode != "RGB":
+        return image
+    means = ImageStat.Stat(image).mean
+    grey = sum(means) / 3
+    bands = []
+    for band, mean in zip(image.split(), means):
+        gain = 1 + strength * ((grey / mean if mean else 1) - 1)
+        bands.append(band.point(lambda v, g=gain: min(255, int(v * g + 0.5))))
+    return Image.merge("RGB", bands)
+
+
 def enhanced(image, knobs):
-    """The snapshot cleaned up: a median filter for the camera's grain, then auto
-    contrast, brightness, contrast and sharpness (1 = unchanged)."""
+    """The snapshot cleaned up: white balance (the green cast), a median filter for
+    the camera's grain, then auto contrast, brightness, contrast and sharpness
+    (1 = unchanged)."""
+    image = white_balanced(image, float(knobs.get("white_balance", 0)))
     if knobs.get("median", 0) >= 3:
         image = image.filter(ImageFilter.MedianFilter(int(knobs["median"]) | 1))
     image = ImageOps.autocontrast(image, cutoff=knobs.get("autocontrast_cutoff", 1))

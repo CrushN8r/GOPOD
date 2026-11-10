@@ -35,8 +35,15 @@
 10. pictures: true
 
 ## The quick look - enhance (photo.quick_look.enhance)
-1. median: 3
-2. autocontrast_cutoff: 1
-3. brightness: 1.1
-4. contrast: 1.1
-5. sharpness: 1.6
+1. white_balance: 1
+2. median: 3
+3. autocontrast_cutoff: 1
+4. brightness: 1.1
+5. contrast: 1.1
+6. sharpness: 1.6
+
+## The camera's exposure for a photo (photo.camera)
+1. manual: false
+2. exposure_ms: 8
+3. gain: 1.0
+4. settle_seconds: 0.5

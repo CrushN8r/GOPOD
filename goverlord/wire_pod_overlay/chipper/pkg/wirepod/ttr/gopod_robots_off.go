@@ -16,6 +16,10 @@ package wirepod_ttr
 // later. Anything else a robot is asked fails as an unplugged robot would.
 
 import (
+	"encoding/binary"
+	"math"
+	"reflect"
+	"unsafe"
 	"context"
 	"encoding/json"
 	"errors"
@@ -362,3 +366,59 @@ func gopodRunCheckSilent() bool {
 	defer gopodRunCheck.Unlock()
 	return gopodRunCheck.on
 }
+
+// gopodSetCameraSettings (2026-11-10, operator: "Do the safe to build white
+// balance & exposure"): the robot's SetCameraSettings (gain, exposure_ms, auto
+// exposure; firmware 1.7+). The Go SDK has it in its proto but no Go call, so
+// it goes over the robot's own gRPC connection with its three fields packed by
+// hand. Robots off: nothing is sent.
+func gopodSetCameraSettings(ctx context.Context, conn vectorpb.ExternalInterfaceClient, gain float32, exposureMs uint32, auto bool) error {
+	if off, ok := conn.(*gopodOffConn); ok {
+		if GopodRobotsOff() {
+			return nil
+		}
+		conn = off.ExternalInterfaceClient
+	}
+	v := reflect.ValueOf(conn)
+	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
+		return errors.New("no robot connection")
+	}
+	f := v.Elem().FieldByName("cc")
+	if !f.IsValid() {
+		return errors.New("no robot connection")
+	}
+	cc, ok := reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Elem().Interface().(grpc.ClientConnInterface)
+	if !ok || cc == nil {
+		return errors.New("no robot connection")
+	}
+	// SetCameraSettingsRequest: 1 gain (float), 2 exposure_ms (uint32), 3 enable_auto_exposure (bool).
+	req := []byte{0x0d, 0, 0, 0, 0}
+	binary.LittleEndian.PutUint32(req[1:], math.Float32bits(gain))
+	req = append(req, 0x10)
+	req = binary.AppendUvarint(req, uint64(exposureMs))
+	if auto {
+		req = append(req, 0x18, 1)
+	}
+	var resp []byte
+	return cc.Invoke(ctx, "/Anki.Vector.external_interface.ExternalInterface/SetCameraSettings", &req, &resp, grpc.ForceCodec(gopodRawCodec{}))
+}
+
+// gopodRawCodec: a gRPC codec for bytes already packed (gopodSetCameraSettings).
+type gopodRawCodec struct{}
+
+func (gopodRawCodec) Marshal(v interface{}) ([]byte, error) {
+	if b, ok := v.(*[]byte); ok {
+		return *b, nil
+	}
+	return nil, errors.New("raw codec: not bytes")
+}
+
+func (gopodRawCodec) Unmarshal(data []byte, v interface{}) error {
+	if b, ok := v.(*[]byte); ok {
+		*b = append((*b)[:0], data...)
+		return nil
+	}
+	return errors.New("raw codec: not bytes")
+}
+
+func (gopodRawCodec) Name() string { return "proto" }

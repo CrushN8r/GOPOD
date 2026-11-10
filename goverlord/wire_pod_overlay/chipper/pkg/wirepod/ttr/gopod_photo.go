@@ -74,6 +74,20 @@ func gopodPhotoCapture(robot *vector.Vector, ctx context.Context) ([]byte, error
 	// "3" went 0 ms after control was granted): he wakes and settles first
 	// (golden rule 3), photo.awake_seconds.
 	time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.Photo.AwakeSeconds))
+	// 2026-11-10 (Vector's camera blows out in bright rooms): photo.camera.manual -
+	// his exposure and gain for this photo (SDK SetCameraSettings, firmware 1.7+),
+	// a moment to settle, then auto exposure again once it's taken.
+	if cam := gopodBrobotsSettings.Photo.Camera; cam.Manual {
+		if err := gopodSetCameraSettings(ctx, robot.Conn, cam.Gain, cam.ExposureMs, false); err != nil {
+			logger.Println("GOPOD_PHOTO camera settings: " + err.Error())
+		}
+		time.Sleep(gopodSecondsToDuration(cam.SettleSeconds))
+		defer func() {
+			if err := gopodSetCameraSettings(context.Background(), robot.Conn, 0, 0, true); err != nil {
+				logger.Println("GOPOD_PHOTO camera back to auto: " + err.Error())
+			}
+		}()
+	}
 	robot.Conn.EnableMirrorMode(ctx, &vectorpb.EnableMirrorModeRequest{Enable: true})
 	for i := 3; i > 0; i-- {
 		time.Sleep(time.Millisecond * 300)
