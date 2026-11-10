@@ -1042,6 +1042,10 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
    magnified, the others keep their small size (the first no longer stretches
    to fill its row). */
 .topic-pictures:has(img.zoomed) img:not(.zoomed) { flex: 0 1 30%; }
+/* 2026-11-10 (operator: "the zoomed in photo should expand to, below the other 2
+   so 'the other 2' always remain on top"): the magnified picture moves to its own
+   line under the others. */
+.topic-pictures img.zoomed { order: 99; }
 /* 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
    chalkboard color background"): CHALK's bubbles and its egg on a chalkboard. */
 .brobot-bubble.host-chalk {

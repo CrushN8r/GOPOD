@@ -7,7 +7,7 @@
 ---
 
 ## Photo (photo)
-1. prompt: Describe what you see in one short, simple sentence, naming a few main things.
+1. prompt: What is in this picture?
 2. answer_text: I see {saw}
 3. recall_text: I saw {saw}
 4. nothing_text: I haven't taken a photo yet.
