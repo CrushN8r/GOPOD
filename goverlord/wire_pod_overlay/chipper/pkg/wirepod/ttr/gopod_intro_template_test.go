@@ -320,19 +320,18 @@ func TestHelpLookup(t *testing.T) {
 	}
 }
 
-// TestDocLookup: a line naming a root doc gets that doc's game cards (gopodDocLookup).
+// TestDocLookup: naming a root doc by its file name loads its game cards (gopodDocNameWords).
 func TestDocLookup(t *testing.T) {
-	got := gopodDocLookup("Hey, brobot 1, tell me about WIRED-POD.md")
-	if !strings.Contains(got, "WIRED-POD.md") || !strings.Contains(got, "- how this chat works: ") || !strings.Contains(got, "- our local brain: ") {
-		t.Errorf("WIRED-POD.md: %q", got)
-	}
-	t.Log(got)
-	got = gopodDocLookup("Hey, brobot 2, tell me about the GOPOD alias play studio")
-	if !strings.Contains(got, "ALIAS-PLAY-STUDIO.md") || !strings.Contains(got, "- the alias play studio: GOPOD's reference manual") {
-		t.Errorf("alias play studio: %q", got)
-	}
-	t.Log(got)
-	if got := gopodDocLookup("Brobot 1, how do I book you?"); got != "" {
-		t.Errorf("a one-word doc name without .md: %q", got)
+	for ask, want := range map[string]string{
+		"Hey, brobot 1, tell me about WIRED-POD.md":              "WIRED-POD.md#",
+		"Hey, brobot 2, tell me about the GOPOD alias play studio": "ALIAS-PLAY-STUDIO.md#",
+	} {
+		found := false
+		for _, p := range loadScenarioPacketsForMessage(ask) {
+			found = found || strings.Contains(p.File, want)
+		}
+		if !found {
+			t.Errorf("%q: no card from %s", ask, want)
+		}
 	}
 }

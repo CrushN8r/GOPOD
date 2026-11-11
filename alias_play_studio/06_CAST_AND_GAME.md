@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: the GOPOD game</summary>
+<!-- gopod topic: 04_the_game -->
+
+# the GOPOD game
+- **chapter:** Show and tell
+
+- **words:** gopod game, game engine, the game, value points, grand prize
+- **ask:** Tell me about the GOPOD game
+- **summary:** AI Wordplay! Explain the MAth! is a game | one session score: topics, value points, eggs | eggs are prizes that pop up | grand prize: every value point revealed
+- **source:** alias_play_studio/06_CAST_AND_GAME.md
+
+---
+
+The GOPOD game. Reveal these, in order, in your own words:
+1. "AI Wordplay! Explain the MAth!" is a game: a question can reveal a value point, and the session keeps one score - topics, value points and eggs.
+2. An egg is a prize - pictures or a card - that pops up when a line's words find it; each chapter is one egg.
+3. The grand prize: every value point revealed.
+
+</details>
+
 ## 12. Managers: CHALK and PLAYHEAD
 
 The managers take load off the Brobots. They are GOPOD's other chat participants (Gomads):

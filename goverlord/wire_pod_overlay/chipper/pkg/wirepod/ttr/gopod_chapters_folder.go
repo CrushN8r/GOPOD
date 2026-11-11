@@ -380,7 +380,7 @@ func gopodTopicRegistry() []scenarioPacketEntry {
 	chapters, always, _ := gopodReadChaptersFolder()
 	var out []scenarioPacketEntry
 	add := func(t gopodTopicFile) {
-		out = append(out, scenarioPacketEntry{Name: t.Name, File: t.Path, Triggers: t.Words})
+		out = append(out, scenarioPacketEntry{Name: t.Name, File: t.Path, Triggers: append(append([]string{}, t.Words...), gopodDocNameWords(t.Path)...)})
 	}
 	for _, t := range always {
 		add(t)
@@ -501,3 +501,17 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 	s.ValuePoints.Reminders = reminders
 	s.ReplyTighten.TopicSentences = sentences
 }
+
+// gopodDocNameWords (2026-11-10, operator: "Hey, brobot 1, tell me about
+// WIRED-POD.md * WIRED-POD.md look up supplies value-points for the brain
+// bubble"): a root doc's game card is also found by its file name
+// ("wired-pod.md") - the name as written, so a plain "social media" question
+// stays with its own card.
+func gopodDocNameWords(path string) []string {
+	doc, _, ok := strings.Cut(path, gopodTopicExt+"#")
+	if !ok {
+		return nil
+	}
+	return []string{strings.ToLower(filepath.Base(doc) + gopodTopicExt)}
+}
+

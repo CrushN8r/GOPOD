@@ -269,10 +269,6 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if h := gopodHelpLookup(transcribedText); h != "" {
 			facts = strings.TrimSpace(facts + "\n" + h)
 		}
-		// GOPOD 2026-11-10: a named md file gets its game cards (gopodDocLookup).
-		if d := gopodDocLookup(transcribedText); d != "" {
-			facts = strings.TrimSpace(facts + "\n" + d)
-		}
 		if b := gopodBrainText(gopodBrobotName(esn), transcribedText); b != "" {
 			smsg.Content += "\n\n" + b
 		}

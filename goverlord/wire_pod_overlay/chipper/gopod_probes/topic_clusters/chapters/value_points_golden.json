@@ -25,6 +25,22 @@
    "words": "Maths for anyone who was told they were bad at it - and it all runs locally, no internet needed.",
    "sum": "20ad3caf5f48"
   },
+  "alias_play_studio#1": {
+   "words": "How two Vectors learn a song, how a session and its runs work, and how the Brobots chat page behaves, rule by rule.",
+   "sum": "f8edaa94f1e5"
+  },
+  "alias_play_studio#2": {
+   "words": "Every song rule, chat-page rule, command and setting is written once, with the code that does it and the test that locks it.",
+   "sum": "4d172a5730dd"
+  },
+  "alias_play_studio#3": {
+   "words": "GOLDEN means proven live and locked - changed only with the owner's OK.",
+   "sum": "23c2eb341321"
+  },
+  "alias_play_studio#4": {
+   "words": "For a Wire-Pod owner, the owner running the show, and an AI assistant - no code needed, start with Concepts and terms.",
+   "sum": "bb947814d859"
+  },
   "almost_doc_approved#1": {
    "words": "Doc's award for a near miss: someone does something clever, useful or funny, Doc judges it - \"Almost Doc Approved.\"",
    "sum": "fc58f3cb37d0"
@@ -469,6 +485,18 @@
    "words": "The audience does not identify with Doc. The audience identifies with Pip. That is the whole trick.",
    "sum": "09dbb9076111"
   },
+  "the_game#1": {
+   "words": "\"AI Wordplay! Explain the MAth!\" is a game: a question can reveal a value point, and the session keeps one score - topics, value points and eggs.",
+   "sum": "df8541096641"
+  },
+  "the_game#2": {
+   "words": "An egg is a prize - pictures or a card - that pops up when a line's words find it; each chapter is one egg.",
+   "sum": "852c25b4c1e3"
+  },
+  "the_game#3": {
+   "words": "The grand prize: every value point revealed.",
+   "sum": "4d2511f52bba"
+  },
   "the_songs#1": {
    "words": "The Bingo test: the two of you trade banter and call three Bingo balls - B-1, I-9 and O-0 - a test before the real Bingo game.",
    "sum": "e713a3469d9d"
@@ -484,6 +512,18 @@
   "the_songs#4": {
    "words": "The interview: scripted questions, the same every time, ready to record.",
    "sum": "a4fb15da0f2f"
+  },
+  "the_system#1": {
+   "words": "System commands are typed on the chat page's keyboard, or picked in the system menu - a fixed list of edits and reads, never a terminal command.",
+   "sum": "2f719c23d175"
+  },
+  "the_system#2": {
+   "words": "The speaker icon opens the system menu; it leads you like a tour guide, one group at a time.",
+   "sum": "c2ebf128c133"
+  },
+  "the_system#3": {
+   "words": "Every write goes to system-undo - an edit Wire-Pod wouldn't start with is put back at once.",
+   "sum": "51847db9e54f"
   },
   "websites#1": {
    "words": "crushn8r.ca is the contact hub - the newsletter sign-up, a GOPOD word search and sudoku, and the birthday-video request page. crushn8r.com is the communication hub, crushn8r.net the network hub.",

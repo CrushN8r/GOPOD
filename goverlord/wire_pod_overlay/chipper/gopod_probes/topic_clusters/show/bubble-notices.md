@@ -19,7 +19,7 @@
 2. parts: plan | memory | score | points | summary | search | egg | combo | chapter
 3. note: -{note}
 4. notes: [{notes}]
-5. notes_join: |
+5. notes_join: `|`
 6. egg: Easter Egg '{title}': {summary}
 7. combo: Combo: {topics}
 8. chapter: Chapter cleared: {chapter}

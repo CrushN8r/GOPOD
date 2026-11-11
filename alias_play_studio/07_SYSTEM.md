@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: the GOPOD system</summary>
+<!-- gopod topic: 05_the_system -->
+
+# the GOPOD system
+- **chapter:** Show and tell
+
+- **words:** gopod system, the system, system menu, system commands, system command
+- **ask:** Tell me about the GOPOD system menu
+- **summary:** system commands, typed in the chat | the system menu, a tour guide | every write goes to system-undo
+- **source:** alias_play_studio/07_SYSTEM.md
+
+---
+
+The GOPOD system. Reveal these, in order, in your own words:
+1. System commands are typed on the chat page's keyboard, or picked in the system menu - a fixed list of edits and reads, never a terminal command.
+2. The speaker icon opens the system menu; it leads you like a tour guide, one group at a time.
+3. Every write goes to system-undo - an edit Wire-Pod wouldn't start with is put back at once.
+
+</details>
+
 ## 14. The system menu and commands
 
 ### 14.1 How system commands work

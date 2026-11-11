@@ -315,6 +315,42 @@
       "ask": "Brobot 2, and the Moorebot Scout guards, PNFH and PNFT?"
     },
     {
+      "chapter": "Show and tell",
+      "topic": "the_game",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about the GOPOD game"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_game",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, in the GOPOD game, what is an egg?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_game",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the grand prize in the GOPOD game?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_system",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the GOPOD system menu"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_system",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how does the system menu lead you, like a tour guide?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_system",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what happens to every write in the GOPOD system - is there an undo?"
+    },
+    {
       "chapter": "Bingo and foodmath",
       "topic": "bingo",
       "to": "Brobot 1",

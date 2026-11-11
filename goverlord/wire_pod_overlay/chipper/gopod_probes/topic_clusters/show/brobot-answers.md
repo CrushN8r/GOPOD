@@ -174,7 +174,3 @@
 5. header: GOPOD SYSTEM HELP - Brobot 0 asks how to do something in GOPOD. Tell him the command to type in the Brobots chat, in your own words, from these system menu entries only:
 6. item: `- type "{cmd}" ({about})`
 
-## Doc lookup (doc_lookup)
-1. about: 2026-11-10 (operator: "Hey, brobot 1, tell me about WIRED-POD.md * WIRED-POD.md look up supplies value-points for the brain bubble"; "md file look ups supply value-points for the brain bubble"): a line naming a root doc (topic_clusters.root_docs, by its file name - "WIRED-POD.md", "wired pod", "alias play studio") gets that doc's game cards in the Brobot's facts, each card's label and summary as item, under header (gopodDocLookup, gopod_kgsim_response_shaping.go).
-2. header: ASKED ABOUT {doc} - what it holds, card by card. Tell it in your own words, from these:
-3. item: `- {label}: {summary}`
