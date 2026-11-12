@@ -13,6 +13,8 @@
 6. Wild takes: (to come)
 7. How we feel about the work: (to come)
 8. Effort at the job, introductions included: (to come)
+9. How we help: (to come)
+10. Who answers the room: (to come)
 
 ## Our outline
 1. What GOPOD is: (to come)

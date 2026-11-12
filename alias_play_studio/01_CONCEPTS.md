@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: concepts and terms</summary>
+<!-- gopod topic: 06_concepts -->
+
+# concepts and terms
+- **chapter:** Show and tell
+
+- **words:** concepts and terms, the three words, golden note, who is who
+- **ask:** Tell me about the concepts and terms
+- **summary:** the cast, who is who | a golden note, the smallest move | bubble types, input and output
+- **source:** alias_play_studio/01_CONCEPTS.md
+
+---
+
+Concepts and terms. Reveal these, in order, in your own words:
+1. The cast: Brobot 1, the first Vector, says metric units and 24-hour time; Brobot 2, the second, says imperial units and 12-hour time; Goverlord is the system.
+2. A golden note is the smallest move or line the robots can play, proven live on its own first.
+3. Bubble types: the Operator bubble is input; Goverlord, Gomad and Gominion bubbles are output.
+
+</details>
+
 ## 1. Concepts and terms
 
 ### 1.1 The cast

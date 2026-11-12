@@ -12,6 +12,26 @@ set-up says so.
 
 ---
 
+<details><summary>Game card: the GOPOD Yourself guide</summary>
+<!-- gopod topic: 06_build_your_own -->
+
+# the GOPOD Yourself guide
+- **chapter:** The brain and the rig
+
+- **words:** gopod yourself guide, build your own, your own robots, gift back, perform or compose
+- **ask:** Tell me about the GOPOD Yourself guide
+- **summary:** the guide to put your own Vectors on stage | perform or compose | ten steps, each with a done when
+- **source:** GOPOD_YOURSELF.md
+
+---
+
+The GOPOD Yourself guide. Reveal these, in order, in your own words:
+1. GOPOD Yourself is the guide to put your own two Vectors on stage - written for you and your AI helper, and a gift back to the Wire-Pod community.
+2. Pick your lane: PERFORM, a rig that rolls into a room and runs offline; COMPOSE, the Alias Play Studio - your own show, your own way.
+3. Ten set-up steps, each ending with "Done when" - from backing up Wire-Pod to the first chat.
+
+</details>
+
 ## Pick your lane
 
 GOPOD grows two ways. Pick one, or both - they share the same set-up (the steps below).

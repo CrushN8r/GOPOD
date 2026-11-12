@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: rules and tests</summary>
+<!-- gopod topic: 11_rules_and_tests -->
+
+# rules and tests
+- **chapter:** Show and tell
+
+- **words:** rules and tests, troubleshooting, the golden path, tests that lock
+- **ask:** Tell me about the rules and tests
+- **summary:** the golden path for a new move | troubleshooting starts at the journal | tests lock behaviour
+- **source:** alias_play_studio/08_RULES_AND_TESTS.md
+
+---
+
+Rules and tests. Reveal these, in order, in your own words:
+1. The golden path for a new move: bench it in phcal, check it live, give it its note type, put it in a song.
+2. Troubleshooting starts with watching Wire-Pod's journal for GOPOD's markers.
+3. Tests lock behaviour: they run before every deploy, and if one fails, nothing deploys.
+
+</details>
+
 ## 17. Golden rules
 
 1. **The golden path for a new move:** bench it in phcal → check it live → give it its note

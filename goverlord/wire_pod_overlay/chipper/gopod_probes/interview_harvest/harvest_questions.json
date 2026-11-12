@@ -267,6 +267,24 @@
       "ask": "Brobot 2, where do I start in the alias play studio, with no code?"
     },
     {
+      "chapter": "The brain and the rig",
+      "topic": "build_your_own",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about the GOPOD Yourself guide"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "build_your_own",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, GOPOD Yourself guide - perform or compose, which lane do I pick?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "build_your_own",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, how many steps to build your own, and when is each one done?"
+    },
+    {
       "chapter": "Show and tell",
       "topic": "how_the_chat_works",
       "to": "Brobot 1",
@@ -349,6 +367,132 @@
       "topic": "the_system",
       "to": "Brobot 2",
       "ask": "Brobot 2, what happens to every write in the GOPOD system - is there an undo?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "concepts",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the concepts and terms"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "concepts",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, in the concepts and terms, what is a golden note?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "concepts",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, concepts and terms - which bubble types are input and output?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "making_a_song",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about making a song"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "making_a_song",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, making a song - what goes in each step of knobs json?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "making_a_song",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, making a song, what is a note - a piano key?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_session",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the session"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_session",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, in a session, how do I stop run?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_session",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how does the session end - the thanks ending?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_one_door",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about the one door"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_one_door",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how is a live reply built - the answer chain?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_one_door",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, thought bubbles - is every bubble built on one template?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "voices_and_sound",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the voices and sound"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "voices_and_sound",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, is there one master volume for every sound?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "voices_and_sound",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, voices and sound - how soon does speech start after an animation?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "rules_and_tests",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tell me about the rules and tests"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "rules_and_tests",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, where does troubleshooting start?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "rules_and_tests",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, tests that lock - what happens if one fails before a deploy?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_gears",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, tell me about the gears"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_gears",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, the run chain - what do the derailleurs do?"
+    },
+    {
+      "chapter": "Show and tell",
+      "topic": "the_gears",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, the gears - once one is locked, what gets tuned?"
     },
     {
       "chapter": "Bingo and foodmath",

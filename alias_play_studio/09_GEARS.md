@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: the gears</summary>
+<!-- gopod topic: 12_the_gears -->
+
+# the gears
+- **chapter:** Show and tell
+
+- **words:** the gears, run chain, derailleurs, geared bicycle
+- **ask:** Tell me about the gears
+- **summary:** built like a geared bicycle | the chain binds the gears, derailleurs shift it live | a locked gear, only its teeth tuned
+- **source:** alias_play_studio/09_GEARS.md
+
+---
+
+The gears. Reveal these, in order, in your own words:
+1. GOPOD's game engine is built like a geared bicycle: the gears are fixed parts.
+2. The chain binds the gears, and the derailleurs shift the chain between gears live - every run goes through the same chain.
+3. Once a gear is locked, only its teeth - the values - are tuned. The gear stays the gear.
+
+</details>
+
 ## 20. The gears: GOPOD's run chain
 
 GOPOD's game engine is built like a geared bicycle. The gears are fixed parts. The chain binds

@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: voices and sound</summary>
+<!-- gopod topic: 10_voices_and_sound -->
+
+# voices and sound
+- **chapter:** Show and tell
+
+- **words:** voices and sound, the voices, who speaks, master volume
+- **ask:** Tell me about the voices and sound
+- **summary:** each persona its own voice | one master volume | speech 0.4 s after an animation
+- **source:** alias_play_studio/05_VOICES_AND_SOUND.md
+
+---
+
+Voices and sound. Reveal these, in order, in your own words:
+1. Each persona speaks with its own voice; a host's robot voice effects sit on top of its pitch.
+2. One master volume: every sound the chat page plays - voices, stings, songs, weather - plays at it.
+3. Speech starts 0.4 s after an animation.
+
+</details>
+
 ## 10. Voices
 
 ### 10.1 Who speaks with which voice

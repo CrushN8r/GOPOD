@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: making a song</summary>
+<!-- gopod topic: 07_making_a_song -->
+
+# making a song
+- **chapter:** Show and tell
+
+- **words:** make a song, making a song, song folder, knobs json, song engine
+- **ask:** How do I make a song?
+- **summary:** a song is a folder | each step names its note | a note is a piano key, proven live first
+- **source:** alias_play_studio/02_SONGS.md
+
+---
+
+Making a song. Reveal these, in order, in your own words:
+1. A song is a folder: copy _new_song to start one; a folder whose name starts with _ is a template, never a song.
+2. Each step in knobs.json names its note - what it plays - and who plays it, Brobot 1 or Brobot 2.
+3. A note is what a step plays - the piano's keys - and nothing goes into a song untested.
+
+</details>
+
 ## 2. A song folder
 
 ### 2.1 The folder and its files

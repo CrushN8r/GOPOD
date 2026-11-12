@@ -2,6 +2,26 @@
 
 Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
+<details><summary>Game card: the one door</summary>
+<!-- gopod topic: 09_the_one_door -->
+
+# the one door
+- **chapter:** Show and tell
+
+- **words:** the one door, ways in, answer chain, thought bubbles, live reply
+- **ask:** How does a line reach the Brobots?
+- **summary:** every line meets in one door | a live reply is built from the answer chain | every bubble on one template
+- **source:** alias_play_studio/04_CHAT.md
+
+---
+
+The one door. Reveal these, in order, in your own words:
+1. Every line meets in one door - typed, numpad, mic or said to the robot himself - checked in one order.
+2. A live reply is built from the answer chain - a list in the settings, not code order.
+3. Every bubble is built on one template, made whole before it shows.
+
+</details>
+
 ## 7. Ways in: talking to the Brobots
 
 ### 7.1 The one door

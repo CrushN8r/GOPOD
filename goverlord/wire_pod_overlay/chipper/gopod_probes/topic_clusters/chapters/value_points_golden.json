@@ -141,6 +141,18 @@
    "words": "Your brother: you two are aware of each other and share this chat - you hear everything he says, and he hears you.\nAnswer about him from this chat: what he said, what he's up to right now. If this chat doesn't show it, say you don't know, in character.",
    "sum": "eabe57da0927"
   },
+  "build_your_own#1": {
+   "words": "GOPOD Yourself is the guide to put your own two Vectors on stage - written for you and your AI helper, and a gift back to the Wire-Pod community.",
+   "sum": "f8e1108c9a42"
+  },
+  "build_your_own#2": {
+   "words": "Pick your lane: PERFORM, a rig that rolls into a room and runs offline; COMPOSE, the Alias Play Studio - your own show, your own way.",
+   "sum": "c6f7c1017e06"
+  },
+  "build_your_own#3": {
+   "words": "Ten set-up steps, each ending with \"Done when\" - from backing up Wire-Pod to the first chat.",
+   "sum": "51cb81ca32d5"
+  },
   "call_for_help#1": {
    "words": "One person, or a small team - coaching (teach him to run it) or hands-on (run it for him).",
    "sum": "22039d315da1"
@@ -176,6 +188,18 @@
   "community_path#2": {
    "words": "Two lanes: community (trust) and paid - bars and comedy clubs, 18+. The room is adult, the material isn't. Gambling is never raised.",
    "sum": "e6b269689e86"
+  },
+  "concepts#1": {
+   "words": "The cast: Brobot 1, the first Vector, says metric units and 24-hour time; Brobot 2, the second, says imperial units and 12-hour time; Goverlord is the system.",
+   "sum": "f92ade1e31b2"
+  },
+  "concepts#2": {
+   "words": "A golden note is the smallest move or line the robots can play, proven live on its own first.",
+   "sum": "b1fcae151486"
+  },
+  "concepts#3": {
+   "words": "Bubble types: the Operator bubble is input; Goverlord, Gomad and Gominion bubbles are output.",
+   "sum": "5ab6cceba49e"
   },
   "contest_season#1": {
    "words": "It's a season, not a one-off stream - like a sports league. A year opener sets the theme, the rules and the prize ladder.",
@@ -353,6 +377,18 @@
    "words": "I've worked out of a basement with zero signal and out of the back seat of a moving car. Doesn't matter.",
    "sum": "b8d5cd4ebe99"
   },
+  "making_a_song#1": {
+   "words": "A song is a folder: copy _new_song to start one; a folder whose name starts with _ is a template, never a song.",
+   "sum": "adc5672ca62e"
+  },
+  "making_a_song#2": {
+   "words": "Each step in knobs.json names its note - what it plays - and who plays it, Brobot 1 or Brobot 2.",
+   "sum": "b7fad9270548"
+  },
+  "making_a_song#3": {
+   "words": "A note is what a step plays - the piano's keys - and nothing goes into a song untested.",
+   "sum": "89d85f17eb26"
+  },
   "mission_comeback#1": {
    "words": "The comeback: Brobot 0 came up through the Windsor Downtown Mission's Enterprise program. GOPOD is him coming back with something built - a maker who came back through a community program and turned two \"trashed\" Brobots into a working show.",
    "sum": "6b6ee4c9ab9d"
@@ -449,6 +485,18 @@
    "words": "Roast battle: this is an 18+ comedy roast. The Party Brobots go all out - savage, expletive-laden, personal, and funny - at each other and at anyone who steps up. Hit hard, keep it a joke, and make the room laugh.",
    "sum": "005581767d0b"
   },
+  "rules_and_tests#1": {
+   "words": "The golden path for a new move: bench it in phcal, check it live, give it its note type, put it in a song.",
+   "sum": "90df2fc8a6b2"
+  },
+  "rules_and_tests#2": {
+   "words": "Troubleshooting starts with watching Wire-Pod's journal for GOPOD's markers.",
+   "sum": "7dd702384533"
+  },
+  "rules_and_tests#3": {
+   "words": "Tests lock behaviour: they run before every deploy, and if one fails, nothing deploys.",
+   "sum": "7b4026cb698d"
+  },
   "socials#1": {
    "words": "The YouTube channel: CrushN8r - \"Crazy Off-Course Crash-Courses!\" - two robots, Doc and Pip, explaining the math behind the wordplay. Songs, interviews, and live sessions from the workbench.",
    "sum": "3f003f37e7ee"
@@ -497,6 +545,42 @@
    "words": "The grand prize: every value point revealed.",
    "sum": "4d2511f52bba"
   },
+  "the_gears#1": {
+   "words": "GOPOD's game engine is built like a geared bicycle: the gears are fixed parts.",
+   "sum": "f6086f82bc73"
+  },
+  "the_gears#2": {
+   "words": "The chain binds the gears, and the derailleurs shift the chain between gears live - every run goes through the same chain.",
+   "sum": "dd00648df505"
+  },
+  "the_gears#3": {
+   "words": "Once a gear is locked, only its teeth - the values - are tuned. The gear stays the gear.",
+   "sum": "d1e0c1aeafb1"
+  },
+  "the_one_door#1": {
+   "words": "Every line meets in one door - typed, numpad, mic or said to the robot himself - checked in one order.",
+   "sum": "d772c29cf943"
+  },
+  "the_one_door#2": {
+   "words": "A live reply is built from the answer chain - a list in the settings, not code order.",
+   "sum": "f2d8b48cc4ae"
+  },
+  "the_one_door#3": {
+   "words": "Every bubble is built on one template, made whole before it shows.",
+   "sum": "fd860ca53436"
+  },
+  "the_session#1": {
+   "words": "A session is one Wire-Pod start to the next; Goverlord runs it and keeps its one record.",
+   "sum": "fe19283df15f"
+  },
+  "the_session#2": {
+   "words": "Runs - the interview, the songs - start from the chat, and \"stop run\" stops one at its next safe spot.",
+   "sum": "6497bdc40d11"
+  },
+  "the_session#3": {
+   "words": "\"Thanks guys\" or \"thanks brobots\" ends the session at the next safe spot.",
+   "sum": "e4902802c608"
+  },
   "the_songs#1": {
    "words": "The Bingo test: the two of you trade banter and call three Bingo balls - B-1, I-9 and O-0 - a test before the real Bingo game.",
    "sum": "e713a3469d9d"
@@ -524,6 +608,18 @@
   "the_system#3": {
    "words": "Every write goes to system-undo - an edit Wire-Pod wouldn't start with is put back at once.",
    "sum": "51847db9e54f"
+  },
+  "voices_and_sound#1": {
+   "words": "Each persona speaks with its own voice; a host's robot voice effects sit on top of its pitch.",
+   "sum": "c1f70d3a16b3"
+  },
+  "voices_and_sound#2": {
+   "words": "One master volume: every sound the chat page plays - voices, stings, songs, weather - plays at it.",
+   "sum": "23468606baa9"
+  },
+  "voices_and_sound#3": {
+   "words": "Speech starts 0.4 s after an animation.",
+   "sum": "f12a77f6cd94"
   },
   "websites#1": {
    "words": "crushn8r.ca is the contact hub - the newsletter sign-up, a GOPOD word search and sudoku, and the birthday-video request page. crushn8r.com is the communication hub, crushn8r.net the network hub.",
