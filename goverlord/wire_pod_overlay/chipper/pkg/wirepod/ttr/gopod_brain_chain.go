@@ -46,6 +46,7 @@ type gopodBrainRecord struct {
 	Question string `json:"question"`
 	Kind     string `json:"kind"`
 	Answer   string `json:"answer,omitempty"` // 2026-11-13: the after-answer note
+	Turn     int64  `json:"turn,omitempty"`   // the chat queue's turn it was said in
 }
 
 var gopodBrainChain = struct {
@@ -62,7 +63,7 @@ func gopodBrainAdd(to, question, kind string, answer ...string) {
 		q = gopodCut(q, bc.QuestionChars)
 	}
 	gopodBrainChain.Lock()
-	rec := gopodBrainRecord{Seq: len(gopodBrainChain.recs) + 1, At: time.Now().Format(time.RFC3339), Asked: bc.Asked, To: to, Question: q, Kind: kind}
+	rec := gopodBrainRecord{Seq: len(gopodBrainChain.recs) + 1, At: time.Now().Format(time.RFC3339), Asked: bc.Asked, To: to, Question: q, Kind: kind, Turn: gopodTurnNow.Load()}
 	if len(answer) > 0 {
 		rec.Answer = gopodBrainNote(answer[0])
 	}
@@ -125,7 +126,10 @@ func gopodBrainAskedBefore(question string) (gopodBrainRecord, bool) {
 func gopodBrainAskedIn(q map[string]bool, recs []gopodBrainRecord) (gopodBrainRecord, bool) {
 	for i := len(recs) - 1; i >= 0; i-- {
 		r := recs[i]
-		if r.Answer == "" {
+		// 2026-11-13 (live: Pip repeated Doc's answer word for word - Doc's line,
+		// same turn, was shown him as "asked before"): this turn's own answers
+		// aren't "before"; his brother's reaches him through the follow-up.
+		if r.Answer == "" || (r.Turn != 0 && r.Turn == gopodTurnNow.Load()) {
 			continue
 		}
 		w := gopodPickWords(r.Question)
@@ -468,83 +472,6 @@ func gopodBrainBubbleLines(self, question string) []string {
 	return out
 }
 
-// gopodBrainCluster: the show/ or gopod-system/ topic cluster whose words the question says (the
-// longest phrase said wins; the first file on a tie) - its "# title", without
-// a trailing "(...)".
-// None: nothing.
-func gopodBrainCluster(question string) []string {
-	q := strings.ToLower(question)
-	var best []string
-	bestLen := 0
-	for _, c := range gopodBrainClusterIndex() {
-		for _, w := range c.words {
-			if len(w) > bestLen && gopodHasWholeWords(q, w) {
-				best, bestLen = c.lines, len(w)
-			}
-		}
-	}
-	return append([]string(nil), best...)
-}
-
-// gopodBrainClusters: each cluster's words and brain lines, read at most every
-// few seconds (a file can be edited while Wire-Pod runs).
-var gopodBrainClusters = struct {
-	sync.Mutex
-	at  time.Time
-	all []gopodBrainClusterEntry
-}{}
-
-type gopodBrainClusterEntry struct{ words, lines []string }
-
-func gopodBrainClusterIndex() []gopodBrainClusterEntry {
-	gopodBrainClusters.Lock()
-	defer gopodBrainClusters.Unlock()
-	if gopodBrainClusters.all != nil && time.Since(gopodBrainClusters.at) < 5*time.Second {
-		return gopodBrainClusters.all
-	}
-	all := []gopodBrainClusterEntry{}
-	for _, folder := range []string{"gopod_probes/topic_clusters/show", "gopod_probes/topic_clusters/gopod-system"} {
-		for _, f := range gopodClusterFiles(gopodTopicPath(folder)) {
-			data, err := os.ReadFile(f)
-			if err != nil {
-				continue
-			}
-			var e gopodBrainClusterEntry
-			head, _ := gopodSplitTopicFile(string(data))
-			for _, kv := range head {
-				if kv[0] == "words" {
-					for _, w := range gopodCommaList(kv[1]) {
-						if w = strings.ToLower(strings.TrimSpace(w)); w != "" {
-							e.words = append(e.words, w)
-						}
-					}
-				}
-			}
-			for _, l := range strings.Split(string(data), "\n") {
-				t := strings.TrimSpace(l)
-				// 2026-11-13 (live: a greeting's brain filled with "Top-level lines",
-				// "answer_shapes marks"... - a cluster's ## sections are its settings,
-				// not thinking): its title only.
-				if !strings.HasPrefix(t, "# ") {
-					continue
-				}
-				t = strings.TrimSpace(strings.TrimLeft(t, "#"))
-				if at := strings.LastIndex(t, " ("); at > 0 && strings.HasSuffix(t, ")") {
-					t = strings.TrimSpace(t[:at])
-				}
-				if t != "" {
-					e.lines = append(e.lines, t)
-				}
-			}
-			if len(e.words) > 0 && len(e.lines) > 0 {
-				all = append(all, e)
-			}
-		}
-	}
-	gopodBrainClusters.all, gopodBrainClusters.at = all, time.Now()
-	return all
-}
-
 // gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the
 // names they're called, then the talking visitors by their approved names.
 func gopodWhosHere() []string {
@@ -613,17 +540,13 @@ func gopodBrainLines(self, question string) []string {
 	// bubbles when not in comm-check * that's my fucking point!!"): who he is and
 	// who he works with (intro_lines) only in the comm check or an intro; any
 	// other line's brain is its own thinking (lines).
-	// 2026-11-13 (operator: "smaller topic clusters can act as brain fillers!
-	// example weather topic-cluster md (scaffolding)"; "swap comm-check topic
-	// cluster for next relevant topic-cluster"; "I ask, they look it up, and
-	// respond"): any other line's brain opens with the topic cluster it asks
-	// about - its title and its steps - in his bubble and his prompt alike.
+	// The topic this line asks about is already in the brain: its value point
+	// (the notice's point lines) - one path, nothing else added here.
 	var out []string
 	lines := gopodBrobotsSettings.BrainChain.Lines
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		lines = append(append([]string{}, gopodBrobotsSettings.BrainChain.IntroLines...), lines...)
 	} else if !gopodIsThanks(question) {
-		out = gopodBrainCluster(question)
 		// 2026-11-13 (operator: "if I ask the same question, its already noted"):
 		// the note of the same question asked before.
 		if r, ok := gopodBrainAskedBefore(question); ok {

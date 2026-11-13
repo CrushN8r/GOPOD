@@ -235,7 +235,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
 	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) what's asked of me, in my own words? 3) what do I know? the topic above, the time, the recent chat 4) answer all that is asked of me in a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) the time now, and what's asked of me, in my own words - does it fit the time? 2) is it my job? if not, name who does it - if I don't know, KEYS - and stop 3) what do I know? my value point, the recent chat 4) answer in kind, for the time it is - plain words someone new gets, a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
 		t.Errorf("an answer's task: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
@@ -257,7 +257,7 @@ func TestBrainChain(t *testing.T) {
 	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
 	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
-	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: 1) is it my job?") {
+	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: ") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

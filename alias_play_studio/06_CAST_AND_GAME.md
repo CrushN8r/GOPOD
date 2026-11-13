@@ -578,9 +578,8 @@ of GOPOD in it gets `off_topic_note` - "This line is nonsense or far from GOPOD.
 GOPOD. You have a job to do." No fixed points listed: the earlier exchanges come with every prompt
 (`session_memory`), and the "Hey, that reminds me..." end line names what's left (the gravity block).
 
-**A day of parties follows the clock**: the part of the day it is now (Morning, Afternoon, Evening -
-`here_now.day_parts`, the hour each starts) is the first one given, then the parts after it; a question
-that names a part gets that part. No greeting in the notes.
+**A day of parties and the clock**: no code picks a part by the time. Every Brobot's TASK starts with the time now and
+whether the ask fits it, and ends "answer in kind, for the time it is" - so "evening greetings" at 11 AM gets a morning answer.
 
 **NEW egg template: the eggs revealed thus far**: `topic_pictures.egg_text` = "Congratulations! Easter Eggs Revealed
 Thus Far!\n{eggs}" - {eggs} every egg revealed this session, in the order found, each in quotes

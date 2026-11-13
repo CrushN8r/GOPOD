@@ -2727,39 +2727,6 @@ func TestVisitorGetsTheChatPage(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (operator: "swap comm-check topic cluster for next relevant
-// topic-cluster"): a weather question's brain opens with the weather run's steps,
-// and the comm check's lines (who I am) aren't in it.
-func TestBrainClusterFiller(t *testing.T) {
-	got := gopodBrainBubbleLines("Brobot 1", "what's the weather like in milan italy right now?")
-	if len(got) == 0 || got[0] != "The weather run" || strings.HasPrefix(got[1], "Step") {
-		t.Fatalf("the weather question's brain: %q", got)
-	}
-	for _, l := range got {
-		if strings.HasPrefix(l, "JOB-TITLE") || strings.HasPrefix(l, "WHO DOES WHAT") {
-			t.Errorf("comm-check line outside the comm check: %q", l)
-		}
-	}
-}
-
-// 2026-11-13 (live 06:20: "Good Evening"): a day of parties gives the part of the
-// day it is - then the part after it; a question naming a part gets that part.
-func TestClockPoint(t *testing.T) {
-	hour := time.Now().Hour()
-	want := "Evening"
-	if hour >= 5 && hour < 12 {
-		want = "Morning"
-	} else if hour >= 12 && hour < 17 {
-		want = "Afternoon"
-	}
-	i := gopodClockPoint("bookings", 3, map[int]bool{}, gopodPickWords("I hear you two are party animals!! Correct?"))
-	if title, _ := gopodPointNotes("bookings", i+1); title != want {
-		t.Fatalf("at %d o'clock: %q, want %q", hour, title, want)
-	}
-	if gopodClockPoint("bookings", 3, map[int]bool{}, gopodPickWords("and your evening?")) != -1 {
-		t.Errorf("a question naming a part is left to the words")
-	}
-}
 
 // 2026-11-13 (live: Brobot 1 said "PIP said:" only, the bubble lit the whole
 // line): a chunk with a cue mid-line is spoken whole - every word in a piece.
