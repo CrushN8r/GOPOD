@@ -59,6 +59,11 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 		}
 		return out
 	}
+	// 2026-11-13 (live: Esc "not enabled" the whole opener): the song as it is
+	// opens the skip gate, whatever its first message waits for.
+	if asIs := play(steps); !strings.Contains(strings.Join(asIs, "\n"), ": "+gopodSkipOnMark+"\n") {
+		t.Errorf("the opener song never opens the skip gate:\n  %s", strings.Join(asIs, "\n  "))
+	}
 	// 2026-11-10 (operator: "a long pause because LLM voices are being
 	// pre-generated ... no longer"): the song's first message no longer waits for
 	// the voice files; the built-in opener still does, so it's compared that way.

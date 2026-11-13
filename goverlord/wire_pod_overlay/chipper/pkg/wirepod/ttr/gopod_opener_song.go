@@ -187,7 +187,7 @@ func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 	// 2026-10-25 (operator: "enable happens at \"Voices ready for playback.\"
 	// independent of edits"): the message step right after the voice files
 	// check opens the skip gate once it shows, whatever its words.
-	voicesChecked := false
+	voicesChecked, opened := false, false
 	for _, s := range steps {
 		// 2026-10-17 (operator: "Goverlord awaits your return..."): each step
 		// waits for the chat page, so a message and its voice play together.
@@ -227,12 +227,17 @@ func gopodPlayOpener(steps []gopodOpenerStep, warmed <-chan struct{}) {
 			if !gopodLinesMade(lines) {
 				gopodMakeLines(lines)
 			}
+			// 2026-11-13 (live: Esc "not enabled" all run - the voice files
+			// check no longer waits, e782057, so the gate never opened): the
+			// message step after the first one (the voice files check) opens
+			// it, waiting or not.
 			skipOn := voicesChecked
-			voicesChecked = s.WaitVoices
+			voicesChecked = true
 			for i, line := range lines {
 				// Just ahead of its message, so the message's voice stays right
 				// behind it (the page loads that voice before showing it).
-				if skipOn && i == 0 {
+				if skipOn && !opened && i == 0 {
+					opened = true
 					GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, gopodSkipOnMark)
 				}
 				gopodWarmupMessage(strings.Join(lines[:i+1], "\n"))
