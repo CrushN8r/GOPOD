@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"sync"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -243,7 +244,7 @@ func gopodClockPoint(name string, count int, said map[int]bool, asked map[string
 		return -1
 	}
 	sort.Slice(day, func(a, b int) bool { return day[a].from < day[b].from })
-	hour := float64(gopodHereNowHour())
+	hour := float64(time.Now().Hour())
 	now := len(day) - 1 // before the first part starts, it's still the last one
 	for k, d := range day {
 		if hour >= d.from {

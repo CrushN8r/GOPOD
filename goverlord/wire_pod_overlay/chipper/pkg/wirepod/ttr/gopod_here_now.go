@@ -92,26 +92,6 @@ func gopodHereNowPlaceTime() (string, string) {
 	return where, facts.Local.Format(hn.ClockFormat)
 }
 
-// gopodHereNowHour: the hour now where the Brobots are - the live weather's
-// clock when it's been fetched (never fetched here), else this machine's.
-func gopodHereNowHour() int { return gopodHereNowClock().Hour() }
-
-// gopodHereNowClock: the time now where the Brobots are - the live weather's
-// zone when it's been fetched (never fetched here), else this machine's.
-func gopodHereNowClock() time.Time {
-	place := strings.ToLower(strings.TrimSpace(gopodBrobotsSettings.LiveWeather.Location))
-	// TryLock: a fetch going holds the cache - the machine's clock then, no wait.
-	if !gopodWeatherCache.TryLock() {
-		return time.Now()
-	}
-	c, ok := gopodWeatherCache.places[place]
-	gopodWeatherCache.Unlock()
-	if ok && !c.facts.Local.IsZero() {
-		return time.Now().In(c.facts.Local.Location())
-	}
-	return time.Now()
-}
-
 func gopodHereNowBatteries() string {
 	var out []string
 	gopodBatteryLast.Lock()

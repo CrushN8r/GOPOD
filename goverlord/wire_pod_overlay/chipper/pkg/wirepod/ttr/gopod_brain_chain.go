@@ -88,7 +88,8 @@ func gopodBrainAdd(to, question, kind string, answer ...string) {
 
 // gopodBrainNote: an answer as its note - one line, at most answer_chars.
 func gopodBrainNote(answer string) string {
-	a := strings.Join(strings.Fields(strings.ReplaceAll(answer, "\u2063", "")), " ")
+	// As the bubble shows it - no "confused___" cue (live 2026-11-13).
+	a := strings.Join(strings.Fields(strings.ReplaceAll(gopodDisplayReply(answer), "\u2063", "")), " ")
 	if n := gopodBrobotsSettings.BrainChain.AnswerChars; n > 0 && len(a) > n {
 		a = gopodCut(a, n)
 	}
@@ -468,8 +469,8 @@ func gopodBrainBubbleLines(self, question string) []string {
 }
 
 // gopodBrainCluster: the show/ or gopod-system/ topic cluster whose words the question says (the
-// longest phrase said wins; the first file on a tie) - its "# title", then each
-// "## section" title (its steps), each without its settings place "(...)".
+// longest phrase said wins; the first file on a tie) - its "# title", without
+// a trailing "(...)".
 // None: nothing.
 func gopodBrainCluster(question string) []string {
 	q := strings.ToLower(question)
@@ -521,7 +522,10 @@ func gopodBrainClusterIndex() []gopodBrainClusterEntry {
 			}
 			for _, l := range strings.Split(string(data), "\n") {
 				t := strings.TrimSpace(l)
-				if !strings.HasPrefix(t, "# ") && !strings.HasPrefix(t, "## ") {
+				// 2026-11-13 (live: a greeting's brain filled with "Top-level lines",
+				// "answer_shapes marks"... - a cluster's ## sections are its settings,
+				// not thinking): its title only.
+				if !strings.HasPrefix(t, "# ") {
 					continue
 				}
 				t = strings.TrimSpace(strings.TrimLeft(t, "#"))
@@ -595,9 +599,9 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 	return strings.TrimSpace(tmpl)
 }
 
-// gopodBrainTime: the time now, in the here-and-now clock format (no fetch).
+// gopodBrainTime: the time now (this machine's clock), in the here-and-now format.
 func gopodBrainTime() string {
-	return gopodHereNowClock().Format(gopodBrobotsSettings.HereNow.ClockFormat)
+	return time.Now().Format(gopodBrobotsSettings.HereNow.ClockFormat)
 }
 
 // gopodBrainLines: the brain template's lines for self (brain_chain.lines) - the

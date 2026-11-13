@@ -2732,7 +2732,7 @@ func TestVisitorGetsTheChatPage(t *testing.T) {
 // and the comm check's lines (who I am) aren't in it.
 func TestBrainClusterFiller(t *testing.T) {
 	got := gopodBrainBubbleLines("Brobot 1", "what's the weather like in milan italy right now?")
-	if len(got) == 0 || got[0] != "The weather run" {
+	if len(got) == 0 || got[0] != "The weather run" || strings.HasPrefix(got[1], "Step") {
 		t.Fatalf("the weather question's brain: %q", got)
 	}
 	for _, l := range got {
@@ -2745,7 +2745,7 @@ func TestBrainClusterFiller(t *testing.T) {
 // 2026-11-13 (live 06:20: "Good Evening"): a day of parties gives the part of the
 // day it is - then the part after it; a question naming a part gets that part.
 func TestClockPoint(t *testing.T) {
-	hour := gopodHereNowHour()
+	hour := time.Now().Hour()
 	want := "Evening"
 	if hour >= 5 && hour < 12 {
 		want = "Morning"

@@ -209,7 +209,7 @@ func gopodBatterySay(name string, volts float64, onCharger bool) {
 	if len(lines) == 0 {
 		return
 	}
-	gopodBatterySafeSpot()
+	defer gopodBatterySafeSpot()()
 	said := lines[rand.Intn(len(lines))]
 	// 2026-11-03 (operator: "[I need help getting home.] only if not on charger").
 	if home := strings.TrimSpace(gopodBrobotsSettings.BatteryWatch.HomeLines[name]); home != "" && !onCharger {
@@ -231,15 +231,22 @@ func gopodBatterySay(name string, volts float64, onCharger bool) {
 // gopodBatterySafeSpot: 2026-10-15 (operator: "This type of interjection would
 // happen at the next safe spot to interrupt * during live, not scripted runs"):
 // live chat only, between replies - never while a reply, a run or a draft is going.
-func gopodBatterySafeSpot() {
+//
+// 2026-11-13 (live: both "I felt dizzy" lines shown inside the open egg bubble -
+// the line came between replies but inside the question's turn): the spot is
+// found, then the line is a turn of its own (the master chat queue) - it starts
+// once the turn going has ended, so it's never part of another bubble. The
+// returned func ends that turn.
+func gopodBatterySafeSpot() func() {
 	for gopodReplyBusy() || gopodRunActive() || gopodScriptPlaying.Load() {
 		time.Sleep(2 * time.Second)
 	}
+	return gopodTurnBeginOwn("battery", false)
 }
 
 // gopodBatterySafeSay: his line alone, his bubble and voice, at the next safe spot.
 func gopodBatterySafeSay(name, line string) {
-	gopodBatterySafeSpot()
+	defer gopodBatterySafeSpot()()
 	gopodRecordSay(name, line)
 }
 
