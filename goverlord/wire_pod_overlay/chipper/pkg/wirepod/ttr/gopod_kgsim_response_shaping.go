@@ -394,12 +394,17 @@ func commandPacketFromFilteredChunk(chunk string) string {
 		}
 		return formatAnimationCommand("thinking") + "... " + text
 	}
-	unit := units[0]
-	text := cleanRobotSpeechText(robotSafeFilter(unit.Text))
-	if text == "" {
-		return ""
+	// 2026-11-13 (live: "PIP said: thinking___ Think about ..." - only "PIP
+	// said:" was spoken, while the bubble lit the whole line): every unit of the
+	// chunk, each with its own cue - not the first alone. The speech loop and the
+	// highlight's pieces (gopodSpokenPieceTexts) both read this packet.
+	var out []string
+	for _, unit := range units {
+		if text := cleanRobotSpeechText(robotSafeFilter(unit.Text)); text != "" {
+			out = append(out, formatAnimationCommand(normalizeActionParameter(unit.ActionParameter))+"... "+text)
+		}
 	}
-	return formatAnimationCommand(normalizeActionParameter(unit.ActionParameter)) + "... " + text
+	return strings.Join(out, " ")
 }
 
 func buildGOPODStreamResult(raw string) gopodStreamResult {

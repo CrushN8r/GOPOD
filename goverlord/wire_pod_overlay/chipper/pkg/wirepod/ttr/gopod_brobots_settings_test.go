@@ -2760,3 +2760,12 @@ func TestClockPoint(t *testing.T) {
 		t.Errorf("a question naming a part is left to the words")
 	}
 }
+
+// 2026-11-13 (live: Brobot 1 said "PIP said:" only, the bubble lit the whole
+// line): a chunk with a cue mid-line is spoken whole - every word in a piece.
+func TestChunkSpokenWhole(t *testing.T) {
+	got := strings.Join(gopodSpokenPieceTexts([]string{"thinking... PIP said: thinking... Think about turning fear into bravery - let's talk the GOPOD way and see how that helps!"}), " ")
+	if !strings.Contains(got, "Pip said") || !strings.Contains(got, "Think about turning fear into bravery") || !strings.Contains(got, "see how that helps") {
+		t.Errorf("not all spoken: %q", got)
+	}
+}
