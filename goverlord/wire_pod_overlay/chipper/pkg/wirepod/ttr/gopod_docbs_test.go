@@ -235,7 +235,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
 	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) the time now, and what's asked of me, in my own words - does it fit the time? 2) is it my job? if not, name who does it - if I don't know, KEYS - and stop 3) what do I know? my value point, the recent chat 4) answer in kind, for the time it is - plain words someone new gets, a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) the time now, and what's asked of me, in my own words - does it fit the time? 2) is it my job? if not, name who does it - if I don't know, KEYS - and stop 3) what do I know? my FACT and MEMORY 4) answer in kind, for the time it is - plain words someone new gets, a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
 		t.Errorf("an answer's task: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
@@ -295,7 +295,7 @@ func TestBrainAfterAnswerNotes(t *testing.T) {
 	l := gopodBrainLines("Brobot 1", "what's the weather in milan italy?")
 	found := false
 	for _, x := range l {
-		if strings.HasPrefix(x, "Asked before (#1) - Pip:") {
+		if strings.HasPrefix(x, "MEMORY: asked before (#1) - Pip:") {
 			found = true
 		}
 	}
@@ -303,8 +303,28 @@ func TestBrainAfterAnswerNotes(t *testing.T) {
 		t.Errorf("the same question has no note: %q", l)
 	}
 	for _, x := range gopodBrainLines("Brobot 1", "tell me about bingo for seniors") {
-		if strings.HasPrefix(x, "Asked before") {
+		if strings.HasPrefix(x, "MEMORY:") {
 			t.Errorf("a new question got a note: %q", x)
 		}
+	}
+}
+
+// 2026-11-13 (the frozen root: TIME, TASK, FACT, MEMORY): FACT is the point
+// given to him, as its topic card writes it.
+func TestBrainFactLine(t *testing.T) {
+	esn := gopodBrobotESN("Brobot 1")
+	gopodGiven.Lock()
+	saved := gopodGiven.points[esn]
+	gopodGiven.points[esn] = []string{"booking 2/3"}
+	gopodGiven.Unlock()
+	defer func() { gopodGiven.Lock(); gopodGiven.points[esn] = saved; gopodGiven.Unlock() }()
+	found := ""
+	for _, l := range gopodBrainLines("Brobot 1", "Nothing booked this week. What would it cost to book you two for a gig?") {
+		if strings.HasPrefix(l, "FACT: ") {
+			found = l
+		}
+	}
+	if !strings.Contains(found, "we don't sit in a closet") {
+		t.Errorf("FACT line: %q", found)
 	}
 }

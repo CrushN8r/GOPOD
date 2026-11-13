@@ -87,6 +87,50 @@ func gopodBrainAdd(to, question, kind string, answer ...string) {
 // Brobot's and persona's recent chat shows them, and a question asked before
 // shows its note in the brain.
 
+// gopodBrainFact: the value point given to self for this answer, as its topic
+// card writes it (one plain line); "" for none (a persona, or no point).
+func gopodBrainFact(self string) string {
+	esn := gopodBrobotESN(self)
+	if esn == "" {
+		return ""
+	}
+	for _, given := range gopodGivenPoints(esn) {
+		f := strings.Fields(given)
+		if len(f) != 2 {
+			continue
+		}
+		k, err := strconv.Atoi(strings.SplitN(f[1], "/", 2)[0])
+		if err != nil {
+			continue
+		}
+		for _, e := range gopodTopicRegistry() {
+			if e.Name != f[0] {
+				continue
+			}
+			content, err := gopodReadTopicFacts(e.File)
+			if err != nil {
+				break
+			}
+			if _, points := gopodSplitPoints(string(content)); k >= 1 && k <= len(points) {
+				return strings.Join(strings.Fields(gopodPointLine.ReplaceAllString(points[k-1], "")), " ")
+			}
+		}
+	}
+	return ""
+}
+
+// gopodBrainMemory: the note of this question asked before (asked_before), "" for none.
+func gopodBrainMemory(question string) string {
+	if gopodCommCheckRunning.Load() || gopodIsIntro(question) || gopodIsThanks(question) {
+		return ""
+	}
+	r, ok := gopodBrainAskedBefore(question)
+	if !ok {
+		return ""
+	}
+	return strings.NewReplacer("{seq}", strconv.Itoa(r.Seq), "{to}", r.To, "{answer}", r.Answer).Replace(gopodBrobotsSettings.BrainChain.AskedBefore)
+}
+
 // gopodBrainNote: an answer as its note - one line, at most answer_chars.
 func gopodBrainNote(answer string) string {
 	// As the bubble shows it - no "confused___" cue (live 2026-11-13).
@@ -317,6 +361,10 @@ func gopodBrainFacts(self, question string) map[string]string {
 		// becomes an inherent behaviour later"): who does what, from the roster.
 		"{who_does_what}": gopodWhoDoesWhat(),
 		"{full_self}":     gopodBrainFullSelf(self),
+		// 2026-11-13 (the frozen root: TIME, TASK, FACT, MEMORY): his one fact line
+		// and the memory of this question asked before - "" leaves the line out.
+		"{fact}":   gopodBrainFact(self),
+		"{memory}": gopodBrainMemory(question),
 		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
 		"{time}": gopodBrainTime(),
 	}
@@ -546,12 +594,6 @@ func gopodBrainLines(self, question string) []string {
 	lines := gopodBrobotsSettings.BrainChain.Lines
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		lines = append(append([]string{}, gopodBrobotsSettings.BrainChain.IntroLines...), lines...)
-	} else if !gopodIsThanks(question) {
-		// 2026-11-13 (operator: "if I ask the same question, its already noted"):
-		// the note of the same question asked before.
-		if r, ok := gopodBrainAskedBefore(question); ok {
-			out = append(out, strings.NewReplacer("{seq}", strconv.Itoa(r.Seq), "{to}", r.To, "{answer}", r.Answer).Replace(gopodBrobotsSettings.BrainChain.AskedBefore))
-		}
 	}
 	for _, l := range lines {
 		// A line whose value is missing (to come, or not on his card) isn't shown.
