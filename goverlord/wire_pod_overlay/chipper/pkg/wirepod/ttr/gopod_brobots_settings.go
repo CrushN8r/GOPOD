@@ -624,8 +624,15 @@ type gopodBrobotsSettingsFile struct {
 		VisitorsLabel string            `json:"visitors_label"`
 		Header        string            `json:"header"`
 		ShortHeader   string            `json:"short_header"`
-		ShortTerm     int               `json:"short_term"`
+		// 2026-11-13 (operator: "chat look back time ranges? Local recent lookup
+		// (10 minutes), if not sufficient, look back deeper (30 minutes)").
+		RecentMinutes float64 `json:"recent_minutes"`
+		DeepMinutes   float64 `json:"deep_minutes"`
 		RecordLine    string            `json:"record_line"`
+		// 2026-11-13: the after-answer notes (gopodBrainNote).
+		AnswerPart  string `json:"answer_part"`
+		AskedBefore string `json:"asked_before"`
+		AnswerChars int    `json:"answer_chars"`
 		LongLine      string            `json:"long_line"`
 		FlowLine      string            `json:"flow_line"`
 		Flow          map[string]string `json:"flow"`

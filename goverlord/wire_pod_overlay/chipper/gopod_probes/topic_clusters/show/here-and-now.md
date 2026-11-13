@@ -42,4 +42,4 @@
 9. INTEL 404 PNFT: {INTEL 404 PNFT.call} ({gender}, security guard: Brobot 2's battery)
 10. CAMEO: {CAMEO.call} ({gender}, Content Gomad - social media; her intern {CACHE PYC.call})
 11. BUTLER: {name} (the {job}, male, Goverlord's voice - the runs, the system's answers, the comm check)
-12. GEMMA: {GEMMA.call} ({gender}, GOPOD's language model - the words behind every persona)
+12. GEMMA: {GEMMA.call} ({gender}, GOPOD's LLM Gomad - maximum wordplay fun)

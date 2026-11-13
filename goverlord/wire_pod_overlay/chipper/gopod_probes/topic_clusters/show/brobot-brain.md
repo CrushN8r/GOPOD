@@ -22,6 +22,8 @@
 13. none: nobody yet
 14. operator_who: Brobot 0
 15. performers: Doc and Pip
+16. answer_part: ` - {to}: "{answer}"`
+17. asked_before: Asked before (#{seq}) - {to}: "{answer}"
 
 ## The brain's comm-check lines, in order (brain_chain.intro_lines)
 1. Name: {my_name}, Nickname: {my_nickname}

@@ -145,7 +145,8 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
 |---|---|---|---|
 | **Self, long term** | who I am: nickname, name, job title, role, who helps me; my voice and banter | my profile (the master format) | my prompt; my brain bubble's Self line |
 | **Self, short term** | what I'm asked right now, and the task | the line, the intro recipe, the take | my prompt; the Guided Task Flow line |
-| **Chat, short term** | the last few answers: who asked, who answered, the line, its kind | the brain chain's last `short_term` (4) records | every prompt ("Recent chat"); not in the bubble (no "Last:") |
+| **Chat, short term** | the last 10 minutes: who asked, who answered, the line, its kind, and each answer's note | the brain chain's records of the last `recent_minutes` (10) | every prompt ("Recent chat"); not in the bubble (no "Last:") |
+| **Asked before** | the same question's note, so it isn't answered from scratch | the brain chain: the last `recent_minutes` (10), then `deep_minutes` (30) | the brain bubble and the prompt ("Asked before") |
 | **Chat, long term** | the session so far: the game's score, the runs Doc and Pip performed (kept until the session ends), who has spoken, who's introduced | the whole chain and the game | every prompt; the brain bubble's "Session:" line |
 | **Flow** | one or two helper lines for what comes next | the chain: an intro or an answer, then the first to speak or "Does recent chat help me answer this question asked by: Master CrushN8r?" | every prompt; the brain bubble's "Guided Task Flow:" line |
 

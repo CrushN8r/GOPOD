@@ -13,7 +13,7 @@ package wirepod_ttr
 // language model, so nothing an answer coloured is carried on: who asked, who
 // answered, the line asked, its kind (intro, answer). From the chain:
 //
-//	short-term   the last brain_chain.short_term records, newest last
+//	short-term   the records of the last brain_chain.recent_minutes, newest last
 //	long-term    the session so far - the game's score, who has spoken, who's
 //	             introduced themselves
 //	flow         one or two helper lines for what comes next
@@ -45,6 +45,7 @@ type gopodBrainRecord struct {
 	To       string `json:"to"`
 	Question string `json:"question"`
 	Kind     string `json:"kind"`
+	Answer   string `json:"answer,omitempty"` // 2026-11-13: the after-answer note
 }
 
 var gopodBrainChain = struct {
@@ -53,7 +54,8 @@ var gopodBrainChain = struct {
 }{}
 
 // gopodBrainAdd: one answer's record - who answered (his call name), the line, its kind.
-func gopodBrainAdd(to, question, kind string) {
+// gopodBrainAdd: a record; answer is what was said back (its note), "" for none.
+func gopodBrainAdd(to, question, kind string, answer ...string) {
 	bc := gopodBrobotsSettings.BrainChain
 	q := strings.Join(strings.Fields(question), " ")
 	if bc.QuestionChars > 0 && len(q) > bc.QuestionChars {
@@ -61,9 +63,12 @@ func gopodBrainAdd(to, question, kind string) {
 	}
 	gopodBrainChain.Lock()
 	rec := gopodBrainRecord{Seq: len(gopodBrainChain.recs) + 1, At: time.Now().Format(time.RFC3339), Asked: bc.Asked, To: to, Question: q, Kind: kind}
+	if len(answer) > 0 {
+		rec.Answer = gopodBrainNote(answer[0])
+	}
 	gopodBrainChain.recs = append(gopodBrainChain.recs, rec)
 	gopodBrainChain.Unlock()
-	logger.Println("GOPOD_BRAIN #" + strconv.Itoa(rec.Seq) + " " + rec.Asked + " to " + rec.To + " (" + rec.Kind + "): " + rec.Question)
+	logger.Println("GOPOD_BRAIN #" + strconv.Itoa(rec.Seq) + " " + rec.Asked + " to " + rec.To + " (" + rec.Kind + "): " + rec.Question + " | note: " + rec.Answer)
 	if dir := gopodSessionLogDir(); dir != "" {
 		if line, err := json.Marshal(rec); err == nil {
 			if f, err := os.OpenFile(filepath.Join(dir, "brain_chain.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644); err == nil {
@@ -72,6 +77,86 @@ func gopodBrainAdd(to, question, kind string) {
 			}
 		}
 	}
+}
+
+// The after-answer notes (2026-11-13, operator: "summarize afterwards, as a
+// contribution to the chat, for everyone to reference * if I ask the same
+// question, its already noted"; "the group/swarm/Goverlord-assisted awareness
+// within the chat"): each answer's first words, kept with its question - every
+// Brobot's and persona's recent chat shows them, and a question asked before
+// shows its note in the brain.
+
+// gopodBrainNote: an answer as its note - one line, at most answer_chars.
+func gopodBrainNote(answer string) string {
+	a := strings.Join(strings.Fields(strings.ReplaceAll(answer, "\u2063", "")), " ")
+	if n := gopodBrobotsSettings.BrainChain.AnswerChars; n > 0 && len(a) > n {
+		a = gopodCut(a, n)
+	}
+	return a
+}
+
+// gopodBrainAnswerPart: a record's note for its recent-chat line, "" for none.
+func gopodBrainAnswerPart(r gopodBrainRecord) string {
+	if r.Answer == "" || gopodBrobotsSettings.BrainChain.AnswerPart == "" {
+		return ""
+	}
+	return strings.NewReplacer("{to}", r.To, "{answer}", r.Answer).Replace(gopodBrobotsSettings.BrainChain.AnswerPart)
+}
+
+// gopodBrainAskedBefore: the newest noted record whose question is this one -
+// most of the shorter one's words (gopodPickWords), two words or more.
+func gopodBrainAskedBefore(question string) (gopodBrainRecord, bool) {
+	q := gopodPickWords(question)
+	if len(q) == 0 {
+		return gopodBrainRecord{}, false
+	}
+	bc := gopodBrobotsSettings.BrainChain
+	// The recent minutes first, then deeper.
+	for _, minutes := range []float64{bc.RecentMinutes, bc.DeepMinutes} {
+		if r, ok := gopodBrainAskedIn(q, gopodBrainWithin(gopodBrainSnapshot(), minutes)); ok {
+			return r, true
+		}
+	}
+	return gopodBrainRecord{}, false
+}
+
+// gopodBrainAskedIn: the newest noted record in recs whose question is q.
+func gopodBrainAskedIn(q map[string]bool, recs []gopodBrainRecord) (gopodBrainRecord, bool) {
+	for i := len(recs) - 1; i >= 0; i-- {
+		r := recs[i]
+		if r.Answer == "" {
+			continue
+		}
+		w := gopodPickWords(r.Question)
+		same, fewer := 0, len(w)
+		if len(q) < fewer {
+			fewer = len(q)
+		}
+		for k := range q {
+			if w[k] {
+				same++
+			}
+		}
+		if fewer >= 2 && same*10 >= fewer*7 {
+			return r, true
+		}
+	}
+	return gopodBrainRecord{}, false
+}
+
+// gopodBrainWithin: the records of the last minutes (0: all of them).
+func gopodBrainWithin(recs []gopodBrainRecord, minutes float64) []gopodBrainRecord {
+	if minutes <= 0 {
+		return recs
+	}
+	since := time.Now().Add(-time.Duration(minutes * float64(time.Minute)))
+	var out []gopodBrainRecord
+	for _, r := range recs {
+		if at, err := time.Parse(time.RFC3339, r.At); err != nil || !at.Before(since) {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 // gopodBrainReset: a new chain (the thanks ending, the comm check's end). The runs
@@ -535,6 +620,11 @@ func gopodBrainLines(self, question string) []string {
 		lines = append(append([]string{}, gopodBrobotsSettings.BrainChain.IntroLines...), lines...)
 	} else if !gopodIsThanks(question) {
 		out = gopodBrainCluster(question)
+		// 2026-11-13 (operator: "if I ask the same question, its already noted"):
+		// the note of the same question asked before.
+		if r, ok := gopodBrainAskedBefore(question); ok {
+			out = append(out, strings.NewReplacer("{seq}", strconv.Itoa(r.Seq), "{to}", r.To, "{answer}", r.Answer).Replace(gopodBrobotsSettings.BrainChain.AskedBefore))
+		}
 	}
 	for _, l := range lines {
 		// A line whose value is missing (to come, or not on his card) isn't shown.
@@ -555,14 +645,12 @@ func gopodBrainText(self, question string) string {
 	facts := gopodBrainFacts(self, question)
 	lines := append([]string{bc.Header}, gopodBrainLines(self, question)...)
 	recs := gopodBrainSnapshot()
-	if n := bc.ShortTerm; n > 0 && len(recs) > n {
-		recs = recs[len(recs)-n:]
-	}
+	recs = gopodBrainWithin(recs, bc.RecentMinutes)
 	if len(recs) > 0 {
 		lines = append(lines, bc.ShortHeader)
 		for _, r := range recs {
 			lines = append(lines, strings.NewReplacer("{seq}", strconv.Itoa(r.Seq), "{asked}", r.Asked, "{to}", r.To,
-				"{question}", r.Question, "{kind}", r.Kind).Replace(bc.RecordLine))
+				"{question}", r.Question, "{kind}", r.Kind).Replace(bc.RecordLine)+gopodBrainAnswerPart(r))
 		}
 	}
 	lines = append(lines, gopodBrainFill(bc.LongLine, facts))

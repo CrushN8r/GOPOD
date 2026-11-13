@@ -214,7 +214,7 @@ func gopodShapeBrobotAnswer(esn, question, raw string) string {
 	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
 		kind = "intro"
 	}
-	gopodBrainAdd(gopodCallName(gopodBrobotName(esn)), question, kind)
+	gopodBrainAdd(gopodCallName(gopodBrobotName(esn)), question, kind, raw)
 	return shaped
 }
 
@@ -553,7 +553,7 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 		if gopodIsIntro(text) {
 			kind = "intro"
 		}
-		gopodBrainAdd(gopodCallName(host), text, kind)
+		gopodBrainAdd(gopodCallName(host), text, kind, reply)
 		return true
 	}
 	return false

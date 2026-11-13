@@ -280,3 +280,31 @@ func TestBrainChain(t *testing.T) {
 		t.Error("the reset kept the chain")
 	}
 }
+
+// 2026-11-13 (operator: "the shared after-answer chat notes"): an answer's note
+// is kept with its question - in everyone's recent chat, and in the brain when
+// the same question comes again.
+func TestBrainAfterAnswerNotes(t *testing.T) {
+	gopodBrainReset()
+	defer gopodBrainReset()
+	gopodBrainAdd("Pip", "What's the weather like in Milan Italy right now?", "answer", "Milan's sunny, 13 degrees,⁣ perfect pizza weather!")
+	b := gopodBrainText("Brobot 1", "hey")
+	if !strings.Contains(b, `Pip: "Milan's sunny, 13 degrees, perfect pizza weather!"`) {
+		t.Errorf("the note isn't in the recent chat:\n%s", b)
+	}
+	l := gopodBrainLines("Brobot 1", "what's the weather in milan italy?")
+	found := false
+	for _, x := range l {
+		if strings.HasPrefix(x, "Asked before (#1) - Pip:") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("the same question has no note: %q", l)
+	}
+	for _, x := range gopodBrainLines("Brobot 1", "tell me about bingo for seniors") {
+		if strings.HasPrefix(x, "Asked before") {
+			t.Errorf("a new question got a note: %q", x)
+		}
+	}
+}

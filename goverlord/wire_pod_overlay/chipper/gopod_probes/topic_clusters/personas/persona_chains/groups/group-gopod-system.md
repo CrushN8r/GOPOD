@@ -10,4 +10,4 @@
 
 ## Our members
 1. {BUTLER.name} - the Butler, Goverlord's voice (butler.md)
-2. GEMMA ELLE-ELLE EHM - GOPOD's language model, the words behind every persona (company/gemma-elle-elle-ehm.md)
+2. GEMMA ELLE-ELLE EHM - GOPOD's LLM Gomad, maximum wordplay fun (company/gemma-elle-elle-ehm.md)

@@ -28,4 +28,4 @@
 
 ## GOPOD System
 1. KEYNOTE: Butler, Goverlord's voice
-2. {GEMMA.call}: the language model - the words behind every persona
+2. {GEMMA.call}: the LLM Gomad - maximum wordplay fun
