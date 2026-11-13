@@ -70,6 +70,7 @@ var gopodClusterTexts = map[string]bool{
 var gopodClusterLines = map[string]bool{
 	"system_help.lines":      true,
 	"brain_chain.lines":      true, // step 3: the brain's template, a line each
+	"brain_chain.intro_lines": true, // 2026-11-13: the comm check's (and an intro's) lines
 	"prebuild_context.lines": true,
 }
 

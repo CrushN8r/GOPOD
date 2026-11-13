@@ -235,7 +235,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
 	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) answer all that is asked of me in a few sentences") || !strings.Contains(b, "WHO DOES WHAT: BARFALLONYOU - the host") {
+	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) what's asked of me, in my own words? 3) what do I know? the topic above, the time, the recent chat 4) answer all that is asked of me in a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
 		t.Errorf("an answer's task: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
@@ -249,10 +249,15 @@ func TestBrainChain(t *testing.T) {
 	// The operator's brain scaffold, the same in the bubble and the prompt; no
 	// "Last:", no "Asked by:"; his reminders when his answer named some.
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
-	l := gopodBrainLines("Brobot 2", "hey")
+	// 2026-11-13: an answer's brain is the time and the task; the comm-check
+	// lines (who I am) are an intro's.
+	if a := gopodBrainLines("Brobot 2", "hey"); len(a) != 2 || !strings.HasPrefix(a[0], "TIME: ") || !strings.HasPrefix(a[1], "TASK: ") {
+		t.Errorf("an answer's brain lines: %q", a)
+	}
+	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
 	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
-	if len(l) != 8 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || l[7] != "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) answer all that is asked of me in a few sentences" {
+	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: 1) is it my job?") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

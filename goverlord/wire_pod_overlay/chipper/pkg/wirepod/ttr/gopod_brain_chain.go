@@ -227,6 +227,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 		// becomes an inherent behaviour later"): who does what, from the roster.
 		"{who_does_what}": gopodWhoDoesWhat(),
 		"{full_self}":     gopodBrainFullSelf(self),
+		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
+		"{time}": gopodBrainTime(),
 	}
 }
 
@@ -380,6 +382,80 @@ func gopodBrainBubbleLines(self, question string) []string {
 	return out
 }
 
+// gopodBrainCluster: the show/ or gopod-system/ topic cluster whose words the question says (the
+// longest phrase said wins; the first file on a tie) - its "# title", then each
+// "## section" title (its steps), each without its settings place "(...)".
+// None: nothing.
+func gopodBrainCluster(question string) []string {
+	q := strings.ToLower(question)
+	var best []string
+	bestLen := 0
+	for _, c := range gopodBrainClusterIndex() {
+		for _, w := range c.words {
+			if len(w) > bestLen && gopodHasWholeWords(q, w) {
+				best, bestLen = c.lines, len(w)
+			}
+		}
+	}
+	return append([]string(nil), best...)
+}
+
+// gopodBrainClusters: each cluster's words and brain lines, read at most every
+// few seconds (a file can be edited while Wire-Pod runs).
+var gopodBrainClusters = struct {
+	sync.Mutex
+	at  time.Time
+	all []gopodBrainClusterEntry
+}{}
+
+type gopodBrainClusterEntry struct{ words, lines []string }
+
+func gopodBrainClusterIndex() []gopodBrainClusterEntry {
+	gopodBrainClusters.Lock()
+	defer gopodBrainClusters.Unlock()
+	if gopodBrainClusters.all != nil && time.Since(gopodBrainClusters.at) < 5*time.Second {
+		return gopodBrainClusters.all
+	}
+	all := []gopodBrainClusterEntry{}
+	for _, folder := range []string{"gopod_probes/topic_clusters/show", "gopod_probes/topic_clusters/gopod-system"} {
+		for _, f := range gopodClusterFiles(gopodTopicPath(folder)) {
+			data, err := os.ReadFile(f)
+			if err != nil {
+				continue
+			}
+			var e gopodBrainClusterEntry
+			head, _ := gopodSplitTopicFile(string(data))
+			for _, kv := range head {
+				if kv[0] == "words" {
+					for _, w := range gopodCommaList(kv[1]) {
+						if w = strings.ToLower(strings.TrimSpace(w)); w != "" {
+							e.words = append(e.words, w)
+						}
+					}
+				}
+			}
+			for _, l := range strings.Split(string(data), "\n") {
+				t := strings.TrimSpace(l)
+				if !strings.HasPrefix(t, "# ") && !strings.HasPrefix(t, "## ") {
+					continue
+				}
+				t = strings.TrimSpace(strings.TrimLeft(t, "#"))
+				if at := strings.LastIndex(t, " ("); at > 0 && strings.HasSuffix(t, ")") {
+					t = strings.TrimSpace(t[:at])
+				}
+				if t != "" {
+					e.lines = append(e.lines, t)
+				}
+			}
+			if len(e.words) > 0 && len(e.lines) > 0 {
+				all = append(all, e)
+			}
+		}
+	}
+	gopodBrainClusters.all, gopodBrainClusters.at = all, time.Now()
+	return all
+}
+
 // gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the
 // names they're called, then the talking visitors by their approved names.
 func gopodWhosHere() []string {
@@ -434,13 +510,33 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 	return strings.TrimSpace(tmpl)
 }
 
+// gopodBrainTime: the time now, in the here-and-now clock format (no fetch).
+func gopodBrainTime() string {
+	return gopodHereNowClock().Format(gopodBrobotsSettings.HereNow.ClockFormat)
+}
+
 // gopodBrainLines: the brain template's lines for self (brain_chain.lines) - the
 // one template every brain bubble shows and every prompt gets. A line with
 // nothing after its label isn't kept.
 func gopodBrainLines(self, question string) []string {
 	facts := gopodBrainFacts(self, question)
+	// 2026-11-13 (operator: "why is the comm-check orientation in the thought
+	// bubbles when not in comm-check * that's my fucking point!!"): who he is and
+	// who he works with (intro_lines) only in the comm check or an intro; any
+	// other line's brain is its own thinking (lines).
+	// 2026-11-13 (operator: "smaller topic clusters can act as brain fillers!
+	// example weather topic-cluster md (scaffolding)"; "swap comm-check topic
+	// cluster for next relevant topic-cluster"; "I ask, they look it up, and
+	// respond"): any other line's brain opens with the topic cluster it asks
+	// about - its title and its steps - in his bubble and his prompt alike.
 	var out []string
-	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
+	lines := gopodBrobotsSettings.BrainChain.Lines
+	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
+		lines = append(append([]string{}, gopodBrobotsSettings.BrainChain.IntroLines...), lines...)
+	} else if !gopodIsThanks(question) {
+		out = gopodBrainCluster(question)
+	}
+	for _, l := range lines {
 		// A line whose value is missing (to come, or not on his card) isn't shown.
 		if line := strings.TrimSpace(gopodBrainFill(l, facts)); line != "" && !strings.HasSuffix(line, ":") {
 			out = append(out, line)

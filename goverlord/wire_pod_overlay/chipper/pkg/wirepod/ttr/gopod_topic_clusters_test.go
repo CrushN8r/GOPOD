@@ -94,8 +94,9 @@ func TestBrainFromClusters(t *testing.T) {
 	if bc.CastMe != " (me)" || !strings.HasPrefix(bc.RemindersPart, " Reminders:") {
 		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
 	}
-	if len(bc.Lines) != 9 || bc.Lines[0] != "Name: {my_name}, Nickname: {my_nickname}" || bc.Lines[8] != "TASK: {my_task}" {
-		t.Errorf("brain lines: %q", bc.Lines)
+	// 2026-11-13: the comm check's lines (intro_lines), then every answer's (lines).
+	if len(bc.IntroLines) != 8 || bc.IntroLines[0] != "Name: {my_name}, Nickname: {my_nickname}" || len(bc.Lines) != 2 || bc.Lines[0] != "TIME: {time}" || bc.Lines[1] != "TASK: {my_task}" {
+		t.Errorf("brain lines: %q %q", bc.IntroLines, bc.Lines)
 	}
 	if len(gopodBrobotsSettings.ReplyTighten.NotSentenceEnds) == 0 || !strings.Contains(gopodBrobotsSettings.Summary.FactsNote, "\n") {
 		t.Errorf("reply rules or the summary's line break lost")

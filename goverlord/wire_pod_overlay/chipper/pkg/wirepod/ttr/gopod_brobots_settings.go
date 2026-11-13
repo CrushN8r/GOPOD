@@ -570,7 +570,6 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
 	// 2026-10-29: the system window tour (gopod_system_tour.go).
 	SystemTour struct {
-		Run          []string `json:"run"`
 		QuietSeconds float64  `json:"quiet_seconds"`
 		StartText    string   `json:"start_text"`
 		EndText      string   `json:"end_text"`
@@ -634,6 +633,7 @@ type gopodBrobotsSettingsFile struct {
 		// the session"): his call name; his own intro flow is flow.intro_first.
 		IntroOpener   string   `json:"intro_opener"`
 		Lines         []string `json:"lines"`
+		IntroLines    []string `json:"intro_lines"`
 		CastItem      string   `json:"cast_item"`
 		Roster        string   `json:"roster"`
 		CastMe        string   `json:"cast_me"`
@@ -1062,6 +1062,8 @@ type gopodBrobotsSettingsFile struct {
 		ChatAnswer   string            `json:"chat_answer"`
 		BatteryNote  string            `json:"battery_note"`
 		Genders      map[string]string `json:"genders"`
+		// 2026-11-13: the parts of the day, the hour each starts (gopodClockPoint).
+		DayParts map[string]float64 `json:"day_parts"`
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`
 	// 2026-11-04 (operator: "The shared Brobots persona * go on its own

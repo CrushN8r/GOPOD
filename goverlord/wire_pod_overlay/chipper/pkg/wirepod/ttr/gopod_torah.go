@@ -188,7 +188,6 @@ type gopodTorahScripture struct {
 	Tour               []string // the tour's plain paragraphs (system_menu.groups[].tour)
 	File               string   // its own scroll, from the repo's root (system_torah/SCRIPTURE_01_....md)
 	Commandments       []string // "{cmd}, {about}"
-	Cmds               []string // the commandments' own words
 }
 
 // gopodTorahScriptures: the system window's groups as scriptures (torah's words):
@@ -221,7 +220,6 @@ func gopodTorahScriptures() []gopodTorahScripture {
 		}
 		sc := gopodTorahScripture{Title: strings.NewReplacer("{n}", strconv.Itoa(i+1), "{title}", title).Replace(tw.Scripture), Guide: g.Guide, Tour: g.Tour, File: gopodTorahFileName(i+1, title)}
 		add := func(cmd, about string) {
-			sc.Cmds = append(sc.Cmds, cmd)
 			sc.Commandments = append(sc.Commandments, strings.NewReplacer("{cmd}", cmd, "{about}", about).Replace(tw.Commandment))
 		}
 		if g.Runs {

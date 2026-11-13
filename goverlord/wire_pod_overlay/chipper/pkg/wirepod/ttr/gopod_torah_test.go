@@ -27,26 +27,10 @@ func TestTorahMatches(t *testing.T) {
 			t.Errorf("the Torah has no %q", want)
 		}
 	}
-	// The tour: every scripture opens "Scripture N, ..."; every commandment it
-	// runs is one of the Torah's, and never the restart, a robot move, a switch,
-	// or the session's end.
-	all := map[string]bool{}
+	// The tour: every scripture opens "Scripture N, ...".
 	for i, sc := range gopodTorahScriptures() {
 		if !strings.HasPrefix(sc.Title, "Scripture "+strconv.Itoa(i+1)+",") {
 			t.Errorf("scripture %d: %q", i+1, sc.Title)
-		}
-		for _, c := range sc.Cmds {
-			all[c] = true
-		}
-	}
-	for _, c := range gopodBrobotsSettings.SystemTour.Run {
-		if !all[c] {
-			t.Errorf("the tour runs %q - not a commandment in the Torah", c)
-		}
-		for _, never := range []string{"system-restart", "system-brobot wake", "system-brobot head", "system-brobot lift", "system-brobot wheels", "system-calibrate", "stop session", "thanks brobots", "system-numpad", "system-native", "system-tweaks", "system-tpu restart", "system-comm-check"} {
-			if strings.HasPrefix(c, never) {
-				t.Errorf("the tour must not run %q", c)
-			}
 		}
 	}
 	if os.Getenv("GOPOD_WRITE_TORAH") == "1" {

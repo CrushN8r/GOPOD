@@ -159,6 +159,8 @@ topics: {names}
 9. system_tests.missing: missing: {missing}
 10. system_tests.no_report: no report: {out}
 11. system_tests.voices_timed: worker ready {ready}, {timed} of {used} voices in use timed by Vosk
+12. system_tests.running: Running {tests} - the result comes here when it's done.
+13. system_tests.already_running: A test is already running - its result comes here when it's done.
 
 ## System tour (system_text)
 1. system_tour.system_tour_a_run_is: system-tour: a run is going - try again after it

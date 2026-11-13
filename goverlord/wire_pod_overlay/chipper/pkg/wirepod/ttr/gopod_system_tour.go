@@ -9,10 +9,10 @@ package wirepod_ttr
 // run plays the game, with the restart left out"). system-tour goes through the
 // GOPOD Torah in the chat, Goverlord saying it: the opening, then each scripture
 // ("Scripture 1, Restart and check"), each commandment ("system-status, Wire-Pod,
-// ..."), and the scripture's next line. A commandment on system_tour.run is run
-// too and its answer shown; the rest - the restart, anything that moves a robot,
-// changes a switch, ends the session, or waits for your words - is only said.
-// system-tour again stops it. Record Session keeps it.
+// ..."), and the scripture's next line. 2026-11-13 (operator: "can we take out
+// these examples from the tour? * I'll give you photos of the system window
+// instead"): nothing is run - the tour only says. system-tour again stops it.
+// Record Session keeps it.
 
 import (
 	"strconv"
@@ -49,10 +49,6 @@ func gopodSystemTour() string {
 	scriptures := gopodTorahScriptures()
 	gopodTourRunning.Store(true)
 	gopodTourStop.Store(false)
-	run := map[string]bool{}
-	for _, c := range gopodBrobotsSettings.SystemTour.Run {
-		run[strings.ToLower(strings.TrimSpace(c))] = true
-	}
 	go func() {
 		defer gopodTourRunning.Store(false)
 		// 2026-10-29: the tour is a turn of the master chat queue; a question
@@ -99,22 +95,6 @@ func gopodSystemTour() string {
 			gopodSayLinesInBubble(role, lines, here)
 			if here {
 				gopodCommCheckWaitQuiet(gopodSecondsToDuration(gopodBrobotsSettings.SystemTour.QuietSeconds), 60*time.Second)
-			}
-			// Then the scripture's safe commandments run, each answer in its own bubble.
-			for _, cmd := range sc.Cmds {
-				if gopodTourStop.Load() {
-					return
-				}
-				if !run[strings.ToLower(strings.TrimSpace(cmd))] {
-					continue
-				}
-				// Sent as the keyboard sends it - system commands are the keyboard's.
-				if err := gopodOperatorLine(gopodBrobot1ESN, cmd, "Typed text"); err != nil {
-					logger.Println("GOPOD_TOUR " + cmd + ": " + err.Error())
-				}
-				if gopodPageHere() {
-					gopodCommCheckWaitQuiet(gopodSecondsToDuration(gopodBrobotsSettings.SystemTour.QuietSeconds), 120*time.Second)
-				}
 			}
 		}
 		say(gopodBrobotsSettings.SystemTour.EndText)

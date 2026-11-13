@@ -578,8 +578,9 @@ of GOPOD in it gets `off_topic_note` - "This line is nonsense or far from GOPOD.
 GOPOD. You have a job to do." No fixed points listed: the earlier exchanges come with every prompt
 (`session_memory`), and the "Hey, that reminds me..." end line names what's left (the gravity block).
 
-**A day of parties greets its part of the day**: each part's notes open with its greeting ("good Morning", "good Afternoon",
-"good Evening"; `07_parties_and_rooms/01_bookings.txt`), so it's the first thought bubble of that point.
+**A day of parties follows the clock**: the part of the day it is now (Morning, Afternoon, Evening -
+`here_now.day_parts`, the hour each starts) is the first one given, then the parts after it; a question
+that names a part gets that part. No greeting in the notes.
 
 **NEW egg template: the eggs revealed thus far**: `topic_pictures.egg_text` = "Congratulations! Easter Eggs Revealed
 Thus Far!\n{eggs}" - {eggs} every egg revealed this session, in the order found, each in quotes

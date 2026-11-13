@@ -955,6 +955,9 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
 /* 2026-10-17 (operator: "In terminal-results chat bubble, make terminal-bubble-text
    font-size 50% of current bubble-text font-size"): system-set's answers. */
 .brobot-bubble-text.terminal-text { font-size: 50%; white-space: pre-line; }
+/* 2026-11-13 (live: system-locate's long paths ran out of the bubble): a long
+   word or path breaks inside the bubble. */
+.brobot-bubble-text.terminal-text { overflow-wrap: anywhere; }
 /* 2026-10-17 (operator: "RULE: For headers with more than one icon: [icon] [header
    text] [icon] & [icon] [input] to Brobots [icon] [icon] * to give the effect of the
    icons' animations mirroring each other in sync rather than together in sync, set

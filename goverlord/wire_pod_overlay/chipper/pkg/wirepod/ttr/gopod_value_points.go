@@ -185,6 +185,12 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 			}
 		}
 	}
+	// 2026-11-13 (live, 06:20: "Good Evening"; operator: "Both brobots should know
+	// the time and respond accordingly"): a topic with parts of the day gives the
+	// part it is now, then the parts after it - unless the question names a part.
+	if i := gopodClockPoint(name, len(points), said, asked); i >= 0 {
+		return i
+	}
 	best, bestScore := -1, 0
 	for i, p := range points {
 		if said[i+1] || !gopodCorePoint(name, i+1) {
@@ -207,6 +213,50 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 		}
 	}
 	return best
+}
+
+// gopodClockPoint: of a topic whose points are titled by parts of the day
+// (here_now.day_parts), the unsaid one for now - the part it is, else the next
+// one after it. -1: not such a topic, the question names a part, or none left.
+func gopodClockPoint(name string, count int, said map[int]bool, asked map[string]bool) int {
+	parts := gopodBrobotsSettings.HereNow.DayParts
+	if len(parts) == 0 {
+		return -1
+	}
+	type part struct {
+		i    int
+		from float64
+	}
+	var day []part
+	for i := 0; i < count; i++ {
+		title, _ := gopodPointNotes(name, i+1)
+		from, ok := parts[title]
+		if title == "" || !ok {
+			continue
+		}
+		if asked[strings.ToLower(title)] {
+			return -1
+		}
+		day = append(day, part{i, from})
+	}
+	if len(day) == 0 {
+		return -1
+	}
+	sort.Slice(day, func(a, b int) bool { return day[a].from < day[b].from })
+	hour := float64(gopodHereNowHour())
+	now := len(day) - 1 // before the first part starts, it's still the last one
+	for k, d := range day {
+		if hour >= d.from {
+			now = k
+		}
+	}
+	for k := 0; k < len(day); k++ {
+		d := day[(now+k)%len(day)]
+		if !said[d.i+1] && gopodCorePoint(name, d.i+1) {
+			return d.i
+		}
+	}
+	return -1
 }
 
 // gopodCoverageRevealFor: gopodCoverageReveal for this question - the point it

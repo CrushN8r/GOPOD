@@ -33,8 +33,9 @@ BACKUP="${OVERLAY_DIR}/chipper_backups/chipper.bak_${TS}_pre_overlay_deploy"  # 
 # 2026-10-08 (operator: "a correct proper mechanical pipeline ... stop this lazy
 # patch work approach"): the Brobots' tests first - including the highlight
 # check on every kept reply (TestHighlightCorpus) - and no deploy if one fails.
+# 2026-11-13: -timeout 20m - the suite passed Go's 10-minute default as the game grew.
 echo "DEPLOY_STEP testing the Brobots chat..."
-if ! GOPOD_OVERLAY_CHIPPER="${OVERLAY_DIR}/chipper" "${GOPOD_GO:-go}" -C "${WIREPOD_DIR}/chipper" test -count=1 -tags nolibopusfile \
+if ! GOPOD_OVERLAY_CHIPPER="${OVERLAY_DIR}/chipper" "${GOPOD_GO:-go}" -C "${WIREPOD_DIR}/chipper" test -count=1 -timeout 20m -tags nolibopusfile \
     -overlay="${OVERLAY_DIR}/overlay.json" ./pkg/wirepod/ttr/ > "/tmp/chipper_overlay_tests_${TS}.log" 2>&1; then
   grep -E "^(--- FAIL|FAIL)|_test.go:" "/tmp/chipper_overlay_tests_${TS}.log" | head -20 >&2
   echo "DEPLOY_FAILED tests failed - nothing deployed (full log: /tmp/chipper_overlay_tests_${TS}.log)" >&2

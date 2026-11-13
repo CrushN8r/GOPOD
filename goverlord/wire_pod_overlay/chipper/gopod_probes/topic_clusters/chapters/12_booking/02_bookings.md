@@ -4,10 +4,10 @@
 - **reminder:** Hey, that reminds me... At a party, GOPOD means live Brobot-hosted fun.
 - **say 1:** Morning: forty people playing bingo at a seniors' residence on a Thursday, no wifi in the building - doesn't matter, we're already running.
 - **say 2:** Afternoon: a classroom full of kids shouting out spelling words at us like we're the strictest, funniest teacher they've ever had.
-- **notes 2:** Afternoon | good Afternoon | classroom | kids shout wordplay at us | we respond back
-- **notes 3:** Evening | good Evening | same Brobots, same gear | bar top, stage lights | a lively crowd
-- **notes 1:** Morning | good Morning | seniors' bingo | Chocolate Bingo too! | Merch too!
-- **summary:** Morning: good Morning, seniors' bingo, Chocolate Bingo too!, Merch too! | Afternoon: good Afternoon, classroom, kids shout wordplay at us, we respond back | Evening: good Evening, same Brobots, same gear, bar top, stage lights, a lively crowd
+- **notes 2:** Afternoon | classroom | kids shout wordplay at us | we respond back
+- **notes 3:** Evening | same Brobots, same gear | bar top, stage lights | a lively crowd
+- **notes 1:** Morning | seniors' bingo | Chocolate Bingo too! | Merch too!
+- **summary:** Morning: seniors' bingo, Chocolate Bingo too!, Merch too! | Afternoon: classroom, kids shout wordplay at us, we respond back | Evening: same Brobots, same gear, bar top, stage lights, a lively crowd
 
 ---
 

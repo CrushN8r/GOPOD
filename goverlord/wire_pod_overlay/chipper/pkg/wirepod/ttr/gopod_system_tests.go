@@ -321,6 +321,26 @@ func gopodSystemTestRun(text string) string {
 			names = append(names, w)
 		}
 	}
+	// 2026-11-13 (live: system-test-game typed again while it ran - a game and
+	// five admin runs at once, each wiping the live game the others were
+	// playing): one test run at a time, in the background; its result comes
+	// when it's done. Neither line starts "system-test" (the audit waits for that).
+	if !gopodTestsRunning.CompareAndSwap(false, true) {
+		return gopodSystemText("system_tests.already_running")
+	}
+	go func() {
+		defer gopodTestsRunning.Store(false)
+		answer := gopodSystemTestsPlay(names, byName)
+		logger.Println("GOPOD_SYSTEM_SET " + strings.ReplaceAll(answer, "\n", " | "))
+		GopodChatFeedAdd(gopodSystemSetRole(), answer)
+	}()
+	return gopodSystemText("system_tests.running", "tests", strings.Join(names, ", "))
+}
+
+var gopodTestsRunning atomic.Bool
+
+// gopodSystemTestsPlay: the tests by name, one after another - their answer.
+func gopodSystemTestsPlay(names []string, byName map[string]gopodSystemTest) string {
 	out := []string{}
 	pass := 0
 	for _, n := range names {

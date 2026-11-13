@@ -268,9 +268,12 @@ func gopodShowTopicPictures(esn, userMessage string) {
 const gopodBubbleNoticeMark = "notice:"
 
 // gopodBubbleNotice posts a notice for brobot's bubble.
+// 2026-11-13 (live: "[good Morning seniors' bingo Chocolate Bingo too!]" - the
+// notes' | separators gone): the page splits at the first | only, so only the
+// title loses its |s; the line keeps them.
 func gopodBubbleNotice(brobot, title, line string) {
 	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, brobot,
-		gopodBubbleNoticeMark+strings.ReplaceAll(strings.TrimSpace(title), "|", " ")+"|"+strings.ReplaceAll(strings.TrimSpace(line), "|", " "))
+		gopodBubbleNoticeMark+strings.ReplaceAll(strings.TrimSpace(title), "|", " ")+"|"+strings.TrimSpace(line))
 }
 
 // gopodEggSummaryPost: the egg's summary to the Brobot answering - a chapter's
