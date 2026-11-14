@@ -1069,6 +1069,8 @@ type gopodBrobotsSettingsFile struct {
 		ChatAnswer   string            `json:"chat_answer"`
 		BatteryNote  string            `json:"battery_note"`
 		Genders      map[string]string `json:"genders"`
+		// 2026-11-13: the parts of the day, the hour each starts (the brain's {day_part}).
+		DayParts map[string]float64 `json:"day_parts"`
 
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`

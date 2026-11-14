@@ -70,7 +70,7 @@ func TestCrewRoster(t *testing.T) {
 		}
 	}
 	// 2026-11-08: the cast, grouped by the roster, for whoever still asks for it.
-	if g := gopodCastGrouped("Brobot 1"); !strings.Contains(g, "GOPOD System: KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(g, "BARFALLONYOU [the host, on Brobot 1 - explains too hard, on purpose] (me)") {
+	if g := gopodCastGrouped("Brobot 1"); !strings.Contains(g, "GOPOD System: KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(g, "BARFALLONYOU [the host - explains too hard, on purpose] (me)") || strings.Contains(g, "Brobot 1 [grumpy, impatient] (me)") {
 		t.Errorf("the cast: %v", g)
 	}
 }

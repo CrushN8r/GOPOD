@@ -103,9 +103,16 @@ func GopodVisitorTypedInput(esn, text, how string) error {
 }
 
 // gopodTypedKey: the page's "kp:N" (its 1-9 menu, 3 to 9) as the numpad key "KPN".
+// 2026-11-13 (operator: "there should be numlock-off 0-9, numlock-on 0-9"): the
+// keyboard's picker is the numpad map - "kp:1" a NumLock-on key, "kp:1off" its
+// NumLock-off key (0off too; plain 0 is the system's own line).
 func gopodTypedKey(esn string) (string, bool) {
 	n := strings.TrimPrefix(strings.TrimSpace(esn), "kp:")
-	if n == esn || len(n) != 1 || n < "1" || n > "9" {
+	if n == esn {
+		return "", false
+	}
+	num, off := strings.CutSuffix(n, gopodNumlockOffSuffix)
+	if len(num) != 1 || num < "0" || num > "9" || (num == "0" && !off) {
 		return "", false
 	}
 	return "KP" + n, true
@@ -131,14 +138,8 @@ func gopodTypedToKey(key, text, how string) error {
 	if err != nil {
 		return err
 	}
-	if strings.HasPrefix(target, gopodPersonaMark) {
-		host := strings.TrimPrefix(target, gopodPersonaMark)
-		return gopodLineTurn(text, []string{host}, func() error {
-			gopodPersonaReply(host, gopodCapsTypoFix(gopodSpellNames(text)), how)
-			return nil
-		})
-	}
-	return gopodOperatorLine(target, text, how)
+	// 2026-11-13: the one key path, the same as a held key (gopodKeyLine).
+	return gopodKeyLine(target, gopodCapsTypoFix(gopodSpellNames(text)), how)
 }
 
 // GopodVoiceCommandInput: a line a voice command's script hands over (start

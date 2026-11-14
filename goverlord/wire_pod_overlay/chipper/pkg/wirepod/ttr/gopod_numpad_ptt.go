@@ -171,9 +171,15 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 	// place that decides it (gopodNumpadBrobot); "" = not live. The page reads
 	// this and nothing else for a key's target.
 	targets := map[string]string{}
+	// 2026-11-13 (operator: "separate robot bodies from personas"): a key to a
+	// robot shows the persona the map names for it (KP1 Doc), never the body.
+	m, _, _ := gopodNumpadMapIn(layout)
 	for n := 0; n <= 9; n++ {
 		key := "KP" + strconv.Itoa(n)
-		if label, _, err := gopodNumpadBrobotIn(layout, key); err == nil {
+		if label, target, err := gopodNumpadBrobotIn(layout, key); err == nil {
+			if e, ok := m.NumlockOn[key]; ok && !strings.HasPrefix(target, gopodPersonaMark) && strings.TrimSpace(e.Persona) != "" {
+				label = strings.TrimSpace(e.Persona)
+			}
 			targets[key] = label
 		} else {
 			targets[key] = ""
@@ -184,7 +190,10 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 			}
 		}
 		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
-		if label, _, err := gopodNumpadBrobotIn(layout, key+gopodNumlockOffSuffix); err == nil {
+		if label, target, err := gopodNumpadBrobotIn(layout, key+gopodNumlockOffSuffix); err == nil {
+			if e, ok := m.NumlockOff[key]; ok && !strings.HasPrefix(target, gopodPersonaMark) && !strings.HasPrefix(target, gopodPersonaReporterMark) && strings.TrimSpace(e.Persona) != "" {
+				label = strings.TrimSpace(e.Persona)
+			}
 			targets[key+gopodNumlockOffSuffix] = label
 		}
 	}
@@ -230,6 +239,19 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 		if ok && entry.Status == "live" && entry.Suit == "" && host != "" {
 			return host, gopodPersonaMark + host, nil
 		}
+		// 2026-11-13 (operator: "Brobot 1 = KP1 numlock-off * DOC = KP1 numlock-on";
+		// "separate robot bodies from personas"): a robot's own persona on NumLock
+		// off - his body, at the dial's 0% (gopodKeyLine).
+		if ok && entry.Status == "live" && entry.Suit == "robot" {
+			brobot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[entry.Body]
+			if brobot == "Brobot 2" && gopodSolo() {
+				brobot = "Brobot 1"
+			}
+			if esn := gopodBrobotESN(brobot); esn != "" {
+				return strings.TrimSpace(entry.Persona), gopodDialZeroMark + esn, nil
+			}
+			return "", "", errors.New(key + "'s body " + entry.Body + " is no Brobot")
+		}
 		if !ok || entry.Status != "live" || entry.Suit != "reporter" || host == "" || gopodBrobotsSettings.Managers.Personas[host].Reporter == "" {
 			return "", "", errors.New(key + " is not live")
 		}
@@ -259,6 +281,71 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 
 // gopodPersonaMark: a numpad "ESN" that is a voice-only persona's host.
 const gopodPersonaMark = "persona:"
+
+// gopodDialZeroMark: a numpad "ESN" that is a robot as himself, at the dial's 0%.
+const gopodDialZeroMark = "dial0:"
+
+// gopodNumpadLiveKeys: the map's live keys in its order - NumLock on KP0-KP9,
+// then NumLock off KP0off-KP9off - each one that reaches someone.
+func gopodNumpadLiveKeys() []string {
+	m, _, err := gopodNumpadMap()
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, off := range []bool{false, true} {
+		for n := 0; n <= 9; n++ {
+			key := "KP" + strconv.Itoa(n)
+			e, ok := m.NumlockOn[key]
+			if off {
+				e, ok = m.NumlockOff[key]
+				key += gopodNumlockOffSuffix
+			}
+			if !ok || e.Status != "live" {
+				continue
+			}
+			if _, _, err := gopodNumpadBrobot(key); err == nil {
+				out = append(out, key)
+			}
+		}
+	}
+	return out
+}
+
+// gopodKeyLine (2026-11-13, operator: "Make the numpad like the cohesive spine of
+// info-flow pathways"): one path for a key's line, typed or held - to wherever
+// the map's target says: a voice-only persona, a persona in its reporter suit, a
+// robot as himself (the dial's 0%, for this line only), or a robot's hosted persona.
+func gopodKeyLine(target, text, how string) error {
+	switch {
+	case strings.HasPrefix(target, gopodPersonaReporterMark):
+		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
+		return gopodLineTurn(text, []string{host}, func() error {
+			gopodPersonaReplyAs(host, gopodBrobotsSettings.Managers.Personas[host].Reporter, text, how)
+			return nil
+		})
+	case strings.HasPrefix(target, gopodPersonaMark):
+		host := strings.TrimPrefix(target, gopodPersonaMark)
+		return gopodLineTurn(text, []string{host}, func() error {
+			gopodPersonaReply(host, text, how)
+			return nil
+		})
+	case strings.HasPrefix(target, gopodDialZeroMark):
+		esn := strings.TrimPrefix(target, gopodDialZeroMark)
+		done := gopodReplyDone(esn)
+		gopodDialZero.Store(esn, true)
+		err := gopodOperatorLine(esn, text, how)
+		go func() {
+			select {
+			case <-done:
+			case <-time.After(2 * gopodSecondsToDuration(gopodBrobotsSettings.LineQueue.AnswerMaxSeconds)):
+			}
+			gopodDialZero.Delete(esn)
+		}()
+		return err
+	}
+	return gopodOperatorLine(target, text, how)
+}
 
 // gopodPersonaReporterMark: a numpad "ESN" that is a persona in its reporter
 // suit - it answers as its reporter (managers.personas.<host>.reporter).
@@ -383,23 +470,7 @@ func GopodNumpadPTTStop(key string) map[string]any {
 			gopodMicVoiceRemember(text, master)
 		}
 		go func() {
-			if strings.HasPrefix(esn, gopodPersonaReporterMark) {
-				host := strings.TrimPrefix(esn, gopodPersonaReporterMark)
-				gopodLineTurn(text, []string{host}, func() error {
-					gopodPersonaReplyAs(host, gopodBrobotsSettings.Managers.Personas[host].Reporter, text, "Numpad text")
-					return nil
-				})
-				return
-			}
-			if strings.HasPrefix(esn, gopodPersonaMark) {
-				host := strings.TrimPrefix(esn, gopodPersonaMark)
-				gopodLineTurn(text, []string{host}, func() error {
-					gopodPersonaReply(host, text, "Numpad text")
-					return nil
-				})
-				return
-			}
-			if err := gopodOperatorLine(esn, text, "Numpad text"); err != nil {
+			if err := gopodKeyLine(esn, text, "Numpad text"); err != nil {
 				logger.Println("GOPOD_NUMPAD_PTT " + err.Error())
 			}
 		}()

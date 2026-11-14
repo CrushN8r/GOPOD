@@ -328,3 +328,16 @@ func TestBrainFactLine(t *testing.T) {
 		t.Errorf("FACT line: %q", found)
 	}
 }
+
+// 2026-11-13 (live: "this morning?" at 3:05 PM got "it's the mornin'"): the
+// TIME line names the part of the day; the model's "<br>" is a line break.
+func TestTimePartAndBreaks(t *testing.T) {
+	for h, want := range map[int]string{2: "night", 9: "morning", 15: "afternoon", 18: "evening", 22: "night"} {
+		if got := gopodDayPart(h); got != want {
+			t.Errorf("%d o'clock: %q, want %q", h, got, want)
+		}
+	}
+	if got := gopodDisplayReply("I'm DOC. <br>I'm here."); strings.Contains(got, "<br") {
+		t.Errorf("br kept: %q", got)
+	}
+}

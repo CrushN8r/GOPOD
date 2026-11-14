@@ -1,12 +1,12 @@
 # The numpad mapper
 - **words:** numpad, numpad mapper, numpad map, keys, KP0, KP1, numlock, push to talk
 - **ask:** Which key talks to whom?
-- **chain:** Goverlord - the numpad assigner: each key, both NumLock layers, to a persona and a body
+- **chain:** Goverlord > KEYNOTE (Keys, the Butler) - his set of keys, the spine of who talks to whom: each key, both NumLock layers, to one persona and a body. The persona the key names is who answers - its name, card and brain; the body is only where it speaks.
 - **see also:** ../personas/ (each persona file), brobot-bubbles, chat-page-words
 - **about:** 2026-11-04 (operator: "I want a system updated numpad-mapper topic-cluster * pull golden guts from GOPOD numpad mapping * like KP lines 0-9,* | [numlock on/off toggle], voices"; "build numpad-mapper.md as the one source"): the numpad map, moved here from ~/.gopod_alias_lib/numpad_persona_map_001.json. Two key layouts, one per keyboard (operator: "I have 2 keyboards * my PC keyboard which I use now * the connected USB numpad * can you add a keyboard-numpad mapping selector for the 2 numpad configs?"; "Two key layouts"): usb - the USB numpad, as it was; pc - the PC keyboard's numpad, a copy to start, yours to change. system-numpad-layout usb|pc picks one (numpad_ptt.layout in 05_voices_and_robots.json), then F5 the chat page. Each key is a section: persona, body (its robot or voice-only), status (live or reserved), and suit with NumLock off (reporter: the persona as its reporter; robot: the Brobot at dial zero). Edit a key here, then restart.
 - **voices:** each key's voice is set in the chat page's Numpad voices panel, which saves it in 05_voices_and_robots.json (reporter_voices.hosts for the personas; robots_off.voices for Doc and Pip with the robots off) - it stays there so the panel keeps working.
 - **the keys today, NumLock on:** KP0 Butler (Keys) - KP1 Doc - KP2 Pip - KP3 Git Repo - KP4 Cache PYC - KP5 Buzzer - KP6 Switch - KP7 CHALK - KP8 PLAYHEAD - KP9 CAMEO - * all the Brobots - / skip - 000 exit.
-- **NumLock off:** KP7 CHALK and KP8 PLAYHEAD as their reporters (live); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (reserved); KP3 GEMMA, the language model (live); KP4-KP6 and KP9 free (reserved).
+- **NumLock off:** KP7 CHALK and KP8 PLAYHEAD on location, as their reporters, the dial at 0% (live; NumLock on: the Gomads, indoors, the dial at 100%); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (live, 2026-11-13); KP3 GEMMA, the language model (live); KP4-KP6 and KP9 free (reserved).
 ---
 
 ## USB numpad - The map (numpad_maps.usb)
@@ -98,14 +98,14 @@
 1. persona: Brobot 1
 2. body: Vector 1
 3. suit: robot
-4. status: reserved
+4. status: live
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 1 at the DocBS dial at zero - the shared Brobots persona, no Doc (personas/brobot-1.md); KP1 with NumLock on is Doc. Reserved, not built.
 
 ## USB numpad - KP2, NumLock off - Brobot 2 (numpad_maps.usb.numlock_off.KP2)
 1. persona: Brobot 2
 2. body: Vector 2
 3. suit: robot
-4. status: reserved
+4. status: live
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 2 at the PipTA dial at zero - the shared Brobots persona, no Pip (personas/brobot-2.md); KP2 with NumLock on is Pip. Reserved, not built.
 
 ## USB numpad - KP3, NumLock off - GEMMA (numpad_maps.usb.numlock_off.KP3)
@@ -134,14 +134,14 @@
 2. body: voice-only
 3. suit: reporter
 4. status: live
-5. _note: 2026-10-30: CHALK in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.CHALK.reporter); operator: "CHALK/PLAYHEAD = same mapping, 2 suits (indoor/outdoor)"
+5. _note: 2026-11-13 (operator: "primarily Gomads at CRUSHN8R CREW'd News Company (Dial = 100%), typically indoors * occasionally they're on-site/on-location news reporters (Dial = 0%), typically outdoors * Like 2 outdoor reporters got indoor job promotions"): CHALK on location - the same persona and voice, the dial at 0%, answering as her reporter (managers.personas.CHALK.reporter); NumLock on is CHALK the Gomad, indoors, the dial at 100%.
 
 ## USB numpad - KP8, NumLock off - PLAYHEAD (numpad_maps.usb.numlock_off.KP8)
 1. persona: PLAYHEAD
 2. body: voice-only
 3. suit: reporter
 4. status: live
-5. _note: 2026-10-30: PLAYHEAD in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.PLAYHEAD.reporter)
+5. _note: 2026-11-13 (operator: "primarily Gomads at CRUSHN8R CREW'd News Company (Dial = 100%), typically indoors * occasionally they're on-site/on-location news reporters (Dial = 0%), typically outdoors * Like 2 outdoor reporters got indoor job promotions"): PLAYHEAD on location - the same persona and voice, the dial at 0%, answering as his reporter (managers.personas.PLAYHEAD.reporter); NumLock on is PLAYHEAD the Gomad, indoors, the dial at 100%.
 
 ## USB numpad - KP9, NumLock off - - (numpad_maps.usb.numlock_off.KP9)
 1. persona: -
@@ -238,14 +238,14 @@
 1. persona: Brobot 1
 2. body: Vector 1
 3. suit: robot
-4. status: reserved
+4. status: live
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 1 at the DocBS dial at zero - the shared Brobots persona, no Doc (personas/brobot-1.md); KP1 with NumLock on is Doc. Reserved, not built.
 
 ## PC keyboard - KP2, NumLock off - Brobot 2 (numpad_maps.pc.numlock_off.KP2)
 1. persona: Brobot 2
 2. body: Vector 2
 3. suit: robot
-4. status: reserved
+4. status: live
 5. _note: 2026-11-04 (operator: "reserve KP1/2 numlock OFF for brobots?"): Brobot 2 at the PipTA dial at zero - the shared Brobots persona, no Pip (personas/brobot-2.md); KP2 with NumLock on is Pip. Reserved, not built.
 
 ## PC keyboard - KP3, NumLock off - GEMMA (numpad_maps.pc.numlock_off.KP3)
@@ -274,14 +274,14 @@
 2. body: voice-only
 3. suit: reporter
 4. status: live
-5. _note: 2026-10-30: CHALK in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.CHALK.reporter); operator: "CHALK/PLAYHEAD = same mapping, 2 suits (indoor/outdoor)"
+5. _note: 2026-11-13 (operator: "primarily Gomads at CRUSHN8R CREW'd News Company (Dial = 100%), typically indoors * occasionally they're on-site/on-location news reporters (Dial = 0%), typically outdoors * Like 2 outdoor reporters got indoor job promotions"): CHALK on location - the same persona and voice, the dial at 0%, answering as her reporter (managers.personas.CHALK.reporter); NumLock on is CHALK the Gomad, indoors, the dial at 100%.
 
 ## PC keyboard - KP8, NumLock off - PLAYHEAD (numpad_maps.pc.numlock_off.KP8)
 1. persona: PLAYHEAD
 2. body: voice-only
 3. suit: reporter
 4. status: live
-5. _note: 2026-10-30: PLAYHEAD in the outdoor reporter suit - same persona and voice, answers as its reporter (managers.personas.PLAYHEAD.reporter)
+5. _note: 2026-11-13 (operator: "primarily Gomads at CRUSHN8R CREW'd News Company (Dial = 100%), typically indoors * occasionally they're on-site/on-location news reporters (Dial = 0%), typically outdoors * Like 2 outdoor reporters got indoor job promotions"): PLAYHEAD on location - the same persona and voice, the dial at 0%, answering as his reporter (managers.personas.PLAYHEAD.reporter); NumLock on is PLAYHEAD the Gomad, indoors, the dial at 100%.
 
 ## PC keyboard - KP9, NumLock off - - (numpad_maps.pc.numlock_off.KP9)
 1. persona: -

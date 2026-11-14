@@ -3,7 +3,7 @@
 - **ask:** Where are the Brobots, and who are they chatting with?
 - **chain:** Gominions (Doc and Pip) - the here-and-now line the code writes for them
 - **see also:** brobot-brain (before I answer), ../personas/crew_roster.md, dizzy-brobots (the batteries)
-- **about:** 2026-11-03 (step 4): from 02_cast.json here_now. The clock format and the cast list (grouped fields) stay in the settings. A value in backticks is that text exactly.
+- **about:** 2026-11-13 (live: "how are you both doing this morning?" at 3:05 PM got "it's the mornin'"): the parts of the day - the brain's TIME line names the one it is now ({day_part}), so the model reads "afternoon", not only "3:05 PM". 2026-11-03 (step 4): from 02_cast.json here_now. The clock format and the cast list (grouped fields) stay in the settings. A value in backticks is that text exactly.
 ---
 
 ## Here and now (here_now) (here_now)
@@ -15,6 +15,12 @@
 6. chat_answer: A Brobot answered: {line}
 7. battery_note: The Brobots' batteries right now: {batteries}.
 8. battery_text: {brobot} {reading}
+
+## Parts of the day, the hour each starts (here_now.day_parts)
+1. morning: 5
+2. afternoon: 12
+3. evening: 17
+4. night: 21
 
 ## Genders (here_now.genders)
 1. Brobot 0: male

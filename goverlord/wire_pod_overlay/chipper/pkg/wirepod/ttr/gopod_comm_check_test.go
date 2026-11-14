@@ -58,3 +58,24 @@ func TestGameWelcome(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-13 (operator: "make it dynamic so it runs off the same core numpad
+// mapping of all live/active keys * start with keys, then brobots"): the comm
+// check asks Keys first, then the map's live keys in order, then all the Brobots.
+func TestCommCheckRunsOffTheMap(t *testing.T) {
+	var keys []string
+	for _, l := range gopodCommCheckLines() {
+		keys = append(keys, l[0])
+	}
+	got := strings.Join(keys, " ")
+	if !strings.HasPrefix(got, "KP0 KP1 KP2 ") || !strings.HasSuffix(got, " KPmul") || !strings.Contains(got, "KP1off") || !strings.Contains(got, "KP7off") {
+		t.Errorf("comm check keys: %s", got)
+	}
+	seen := map[string]bool{}
+	for _, k := range keys {
+		if seen[k] {
+			t.Errorf("%s asked twice", k)
+		}
+		seen[k] = true
+	}
+}

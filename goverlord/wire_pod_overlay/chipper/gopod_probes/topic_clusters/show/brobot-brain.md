@@ -47,7 +47,7 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 8. WHO DOES WHAT: {who_does_what}
 
 ## The brain's lines, in order (brain_chain.lines)
-1. TIME: {time}
+1. TIME: {time} - {day_part}
 2. TASK: {my_task}
 3. FACT: {fact}
 4. MEMORY: {memory}

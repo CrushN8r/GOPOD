@@ -86,17 +86,35 @@ func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 func gopodCommCheckLines() [][3]string {
 	cc := gopodBrobotsSettings.CommCheck
 	var lines [][3]string // key, text, asker
+	asked := map[string]bool{}
 	for _, r := range cc.Rounds {
 		keys := r.Keys
 		if len(keys) == 0 {
 			keys = cc.Keys
 		}
 		for _, k := range keys {
+			// 2026-11-13 (operator: "make it dynamic so it runs off the same core
+			// numpad mapping of all live/active keys * start with keys, then
+			// brobots, then ..."): "map" - every live key of the numpad map, in its
+			// order, that an earlier step hasn't asked.
+			if strings.EqualFold(k, gopodCommCheckMapKeys) {
+				for _, mk := range gopodNumpadLiveKeys() {
+					if !asked[mk] && !strings.EqualFold(mk, gopodNumpadAllKey) {
+						asked[mk] = true
+						lines = append(lines, [3]string{mk, r.Text, r.Asker})
+					}
+				}
+				continue
+			}
+			asked[k] = true
 			lines = append(lines, [3]string{k, r.Text, r.Asker})
 		}
 	}
 	return lines
 }
+
+// gopodCommCheckMapKeys: a comm check step's keys word for every live map key.
+const gopodCommCheckMapKeys = "map"
 
 // gopodCommCheckAsking (2026-11-04, operator: "Goverlord, to orchestrate,
 // delegates butler Keys to get the party started * Keys will now do the round

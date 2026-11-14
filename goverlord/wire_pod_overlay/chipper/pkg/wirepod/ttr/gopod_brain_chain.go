@@ -319,7 +319,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 			continue
 		}
 		me := ""
-		if c.Who == self || gopodCallName(c.Who) == gopodCallName(self) {
+		if gopodCallName(c.Who) == gopodCallName(self) {
 			me = bc.CastMe
 		}
 		described = append(described, strings.TrimSpace(strings.NewReplacer("{name}", gopodCallName(c.Who),
@@ -366,7 +366,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{fact}":   gopodBrainFact(self),
 		"{memory}": gopodBrainMemory(question),
 		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
-		"{time}": gopodBrainTime(),
+		"{time}":     gopodBrainTime(),
+		"{day_part}": gopodDayPart(time.Now().Hour()),
 	}
 }
 
@@ -472,12 +473,14 @@ func gopodCastGrouped(self string) string {
 	for _, g := range groups {
 		var items []string
 		for i, n := range g.Names {
-			who, ok := here[strings.ToLower(n)]
+			_, ok := here[strings.ToLower(n)]
 			if !ok {
 				continue
 			}
+			// 2026-11-13 (operator: "separate robot bodies from personas"): "(me)"
+			// is the persona answering, not every persona on his body.
 			me := ""
-			if who == self || (self != "" && gopodCallName(who) == gopodCallName(self)) {
+			if self != "" && strings.EqualFold(n, gopodCallName(self)) {
 				me = bc.CastMe
 			}
 			items = append(items, strings.TrimSpace(strings.NewReplacer("{name}", n, "{description}", g.Descs[i], "{me}", me).Replace(bc.CastItem)))
@@ -572,6 +575,24 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 		tmpl = strings.ReplaceAll(tmpl, k, v)
 	}
 	return strings.TrimSpace(tmpl)
+}
+
+// gopodDayPart: the part of the day this hour is in (here_now.day_parts - the
+// latest one started; before the first, the last of the day).
+func gopodDayPart(hour int) string {
+	name, from, last, lastFrom := "", -1.0, "", -1.0
+	for n, h := range gopodBrobotsSettings.HereNow.DayParts {
+		if h <= float64(hour) && h > from {
+			name, from = n, h
+		}
+		if h > lastFrom {
+			last, lastFrom = n, h
+		}
+	}
+	if name == "" {
+		return last
+	}
+	return name
 }
 
 // gopodBrainTime: the time now (this machine's clock), in the here-and-now format.

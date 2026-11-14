@@ -205,7 +205,6 @@
       // both Brobots get the line, as when both hear it spoken (gopod_typed_input.go).
       // 2026-10-08 (operator: "Brobots ()1 ()2 ()All | Numpad? [] | Record? [] |
       // 00:00:00"): the line's layout.
-      var TYPED_TARGETS = { "ESN01": "1", "ESN02": "2", "all": "All" };
       function typedRowText(text, className) {
         var span = document.createElement("span");
         span.className = className;
@@ -232,29 +231,40 @@
       var numpadLayoutSelect = null, NUMPAD_LAYOUT_KEY = "gopod_numpad_layout", numpadMapLoad = null;
       // The layout this page uses: its menu's pick ("" until it has one - the one in use).
       function numpadLayoutNow() { return numpadLayoutSelect && numpadLayoutSelect.dataset.picked === "1" ? numpadLayoutSelect.value : ""; }
-      var allBox = document.createElement("input");
+      // 2026-11-13 (operator: "the admin menu doesn't fully reflect the numpad
+      // mapping * there should be numlock-off 0-9, numlock-on 0-9 * what about the
+      // '*' for all brobots?"; "Yes do that root fix/replacement"): one picker, the
+      // numpad map itself - * all the Brobots (Brobot 1 first), *2 (Brobot 2 first),
+      // 0 the system (the admin's), 1-9 NumLock on, 0off-9off NumLock off - each
+      // named by the persona the map gives its key (relabelPicker). It replaces the
+      // All box and its 1/2 order menu. The visitor page is this same code.
+      var PICKER_KEYS = ["*", "*2", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "0off", "1off", "2off", "3off", "4off", "5off", "6off", "7off", "8off", "9off"];
+      function pickerKey(v) { return v === "*" || v === "*2" ? "KPmul" : "KP" + v; }
+      function relabelPicker() {
+        if (!allFirstSelect) { return; }
+        var targets = (typeof numpad !== "undefined" && numpad.targets) || {};
+        Array.prototype.forEach.call(allFirstSelect.options, function (o) {
+          if (o.value === "0") { return; }
+          var who = targets[pickerKey(o.value)] || "";
+          o.textContent = o.value + (who ? " " + who : "");
+          o.disabled = !who && o.value !== "*" && o.value !== "*2";
+        });
+      }
       (function () {
         var label = document.createElement("label");
         label.className = "gopod-all-pick";
-        allBox.type = "checkbox";
-        allBox.className = "gopod-all-box";
-        allBox.checked = savedRobot === "all";
-        label.appendChild(allBox);
-        label.appendChild(document.createTextNode(TYPED_TARGETS.all));
         allFirstSelect = document.createElement("select");
         allFirstSelect.className = "gopod-all-first";
         allFirstSelect.title = "";
-        ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].forEach(function (n) {
+        PICKER_KEYS.forEach(function (n) {
           var o = document.createElement("option");
           o.value = n;
           o.textContent = n;
           if (n === "0") { o.className = "gopod-all-system"; o.hidden = true; o.disabled = true; }
           allFirstSelect.appendChild(o);
         });
-        allFirstSelect.value = "1";
-        allBox.addEventListener("change", function () {
-          if (allBox.checked && allFirstSelect.value !== "1" && allFirstSelect.value !== "2") { allFirstSelect.value = "1"; }
-        });
+        allFirstSelect.value = savedRobot === "all" ? "*" : "1";
         label.appendChild(allFirstSelect);
         typedRow.appendChild(label);
         // 2026-11-04 (operator: "duplicate existing 'All' drop down menu * assign PC
@@ -290,12 +300,14 @@
       })();
       // typedChoice: who the line goes to now - its serial, and who answers first.
       function typedChoice() {
-        var n = allFirstSelect ? allFirstSelect.value : "1";
-        if (allBox.checked && (n === "1" || n === "2")) { return { serial: "all", first: n }; }
-        if (allBox.checked) { return { serial: "all", first: "1" }; }
+        var n = allFirstSelect ? allFirstSelect.value : "*";
+        if (n === "*") { return { serial: "all", first: "1" }; }
+        if (n === "*2") { return { serial: "all", first: "2" }; }
         if (n === "0") { return { serial: "system", first: "" }; }
-        if (n === "1") { return { serial: "ESN01", first: "" }; }
-        if (n === "2") { return { serial: "ESN02", first: "" }; }
+        // 2026-11-13 (operator: "the admin menu doesn't fully reflect the numpad
+        // mapping"; "separate robot bodies from personas"): 1 and 2 go through the
+        // numpad map like 3-9 - the key's persona answers (KP1 Doc on Vector 1), not
+        // the robot body.
         return { serial: "kp:" + n, first: "" };
       }
       // A line to All, sent with Brobot 2 first: its Operator icons in that order.
@@ -4762,7 +4774,7 @@
             if (zero) {
               zero.hidden = !isAdminPage;
               zero.disabled = !isAdminPage;
-              if (!isAdminPage && allFirstSelect.value === "0") { allFirstSelect.value = "1"; }
+              if (!isAdminPage && allFirstSelect.value === "0") { allFirstSelect.value = "*"; }
             }
             // A visitor's typing row is two lines (2026-10-24, operator: "remove
             // 3rd line: | Record? [] | 00:25:46 | 🔇"): the Brobots, then the text.
@@ -5818,7 +5830,7 @@
         fetch("/api-sdk/gopod_numpad_map?layout=" + encodeURIComponent(numpadLayoutNow()), { cache: "no-store" })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (data) {
-            if (data && data.map) { numpad.map = data.map; numpad.targets = data.targets || {}; numpad.personaReporters = data.persona_reporters || {}; }
+            if (data && data.map) { numpad.map = data.map; numpad.targets = data.targets || {}; numpad.personaReporters = data.persona_reporters || {}; relabelPicker(); }
             if (data && data.layout && numpadLayoutSelect && !numpadLayoutNow()) { numpadLayoutSelect.value = data.layout; }
           }).catch(function () { /* no map - push-to-talk stays quiet */ });
       };
@@ -6569,7 +6581,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key) + "&layout=" + encodeURIComponent(numpadLayoutNow()) + (allFirstSelect && Number(allFirstSelect.value) >= 1 && Number(allFirstSelect.value) <= 2 ? "&first=" + allFirstSelect.value : "")
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + "&layout=" + encodeURIComponent(numpadLayoutNow()) + (allFirstSelect && allFirstSelect.value === "*2" ? "&first=2" : "&first=1")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }

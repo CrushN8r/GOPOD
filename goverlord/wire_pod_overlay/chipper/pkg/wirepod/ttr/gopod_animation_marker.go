@@ -298,7 +298,13 @@ func gopodJoinSplitCues(text string) string {
 	return text
 }
 
+// gopodHTMLBreak: an HTML line break the model writes ("<br>", "<br/>").
+var gopodHTMLBreak = regexp.MustCompile(`(?i)\s*<br\s*/?>\s*`)
+
 func gopodPrepareReply(text string) string {
+	// 2026-11-13 (live: "<br>dartingEyes I'm ..." said and shown): the model's
+	// HTML line break is a line break.
+	text = gopodHTMLBreak.ReplaceAllString(text, "\n")
 	text = gopodJoinSplitCues(text)
 	// 2026-10-17 (live: "--- (Wait for Brobot 0 before replying)" was shown and
 	// said): a "(wait ...)" stage note, and a "---" at a line's end, are dropped.

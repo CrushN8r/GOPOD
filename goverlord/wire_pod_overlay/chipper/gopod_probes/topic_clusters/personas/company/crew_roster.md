@@ -6,8 +6,8 @@
 ---
 
 ## GOPOD hosts, on the two Brobots (the dial at 100%)
-1. {Brobot 1.call}: the host, on Brobot 1 - explains too hard, on purpose
-2. {Brobot 2.call}: the sidekick, on Brobot 2 - the room's pied piper
+1. {Brobot 1.call}: the host - explains too hard, on purpose
+2. {Brobot 2.call}: the sidekick - the room's pied piper
 
 ## GOPOD party-brobot reps (the dial at 0%)
 1. Brobot 1: grumpy, impatient

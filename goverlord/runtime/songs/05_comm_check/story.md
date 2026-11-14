@@ -4,7 +4,9 @@
 
 The comm check before the show: `system-comm-check` plays it. Goverlord hands it to his butler,
 Keys, to get the party started; Keys introduces himself, then runs the round robin - he calls each
-persona in, top-down (the Gomads, the Brobots, the interns, the guards, then the Brobots together),
+live key of the numpad map in, in the map's order (NumLock on, then NumLock off: the Brobots'
+hosts first, then the rest), then the Brobots together (2026-11-13: "keys": ["map"] - the map's
+live keys, so a key made live or off in numpad-mapper.md joins or leaves the comm check itself),
 and each introduces themselves: what they do, who they answer to and who works with them. Each line
 goes to its keys in turn, as if the key were held and the words spoken - the model, the voices and
 the robots, live - and the next waits for the answer to finish. It starts by waking both Brobots.
@@ -24,16 +26,7 @@ the waits are the settings' `comm_check` (quiet_seconds, line_max_seconds).
 ## STEP keys_ask_0201
 > TEXT: {name}! Get the party started: introduce yourself to the chat - what you do, who you answer to and who works with you.
 
-## STEP gomads_ask_0202
-> TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
-
-## STEP brobots_ask_0203
-> TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
-
-## STEP interns_ask_0204
-> TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
-
-## STEP guards_ask_0205
+## STEP map_ask_0202
 > TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
 
 ## STEP all_ask_0206

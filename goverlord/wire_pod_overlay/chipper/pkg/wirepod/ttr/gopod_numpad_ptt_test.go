@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -59,7 +60,8 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 		t.Fatal("no targets for the page")
 	}
 	// 2026-10-30 (the numpad remap): KP0 held is the Butler, * held is All.
-	for key, want := range map[string]string{"KP0": "BUTLER", gopodNumpadAllKey: "All", "KP1": "Brobot 1", "KP2": "Brobot 2", "KP3": "GIT REPO", "KP4": "CACHE PYC",
+	// 2026-11-13: a key to a robot shows the persona the map names (KP1 Doc).
+	for key, want := range map[string]string{"KP0": "BUTLER", gopodNumpadAllKey: "All", "KP1": "Doc", "KP2": "Pip", "KP3": "GIT REPO", "KP4": "CACHE PYC",
 		"KP5": "INTEL 404 PNFH", "KP6": "INTEL 404 PNFT", "KP7": "CHALK", "KP8": "PLAYHEAD", "KP9": "CAMEO"} {
 		if got := out.Targets[key]; got != want {
 			t.Errorf("%s -> %q, want %q", key, got, want)
@@ -92,5 +94,54 @@ func TestNumpadNumlockOffReporter(t *testing.T) {
 	}
 	if _, _, err := gopodNumpadBrobot("KP8off"); err == nil {
 		t.Fatal("KP8off is reserved, not live")
+	}
+}
+
+// 2026-11-13 (operator: "separate robot bodies from personas"; "numlock-off 0-9,
+// numlock-on 0-9"): the keyboard picker is the map - its keys parse, and a key
+// to a robot is named by its persona (KP1 Doc), never the body.
+func TestPickerIsTheMap(t *testing.T) {
+	for in, want := range map[string]string{"kp:1": "KP1", "kp:9": "KP9", "kp:1off": "KP1off", "kp:0off": "KP0off"} {
+		if got, ok := gopodTypedKey(in); !ok || got != want {
+			t.Errorf("%s: %q %v", in, got, ok)
+		}
+	}
+	if _, ok := gopodTypedKey("kp:0"); ok {
+		t.Error("kp:0 is the system's line, not a key")
+	}
+	data, err := GopodNumpadMapJSONFor("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var d struct {
+		Targets map[string]string `json:"targets"`
+	}
+	_ = json.Unmarshal(data, &d)
+	if d.Targets["KP1"] == "Brobot 1" || d.Targets["KP1"] == "" {
+		t.Errorf("KP1 shows %q - the persona the map names, not the body", d.Targets["KP1"])
+	}
+}
+
+// 2026-11-13 (operator: "Brobot 1 = KP1 numlock-off * Brobot 2 = KP2 numlock-off
+// * DOC = KP1 numlock-on * PIP = KP2 numlock-on"): four personas, two bodies.
+func TestFourPersonasTwoBodies(t *testing.T) {
+	for key, want := range map[string][2]string{
+		"KP1":    {"Brobot 1", gopodBrobot1ESN},
+		"KP2":    {"Brobot 2", gopodBrobot2ESN},
+		"KP1off": {"Brobot 1", gopodDialZeroMark + gopodBrobot1ESN},
+		"KP2off": {"Brobot 2", gopodDialZeroMark + gopodBrobot2ESN},
+	} {
+		label, target, err := gopodNumpadBrobot(key)
+		if err != nil || target != want[1] || (strings.HasSuffix(key, "off") && label != want[0]) {
+			t.Errorf("%s: %q %q %v", key, label, target, err)
+		}
+	}
+	data, _ := GopodNumpadMapJSONFor("")
+	var d struct {
+		Targets map[string]string `json:"targets"`
+	}
+	_ = json.Unmarshal(data, &d)
+	if d.Targets["KP1"] != "Doc" || d.Targets["KP2"] != "Pip" || d.Targets["KP1off"] != "Brobot 1" || d.Targets["KP2off"] != "Brobot 2" {
+		t.Errorf("the picker's names: %v", d.Targets)
 	}
 }
