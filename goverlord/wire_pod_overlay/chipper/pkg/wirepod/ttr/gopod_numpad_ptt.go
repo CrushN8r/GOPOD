@@ -173,18 +173,9 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 	targets := map[string]string{}
 	// 2026-11-13 (operator: "separate robot bodies from personas"): a key to a
 	// robot shows the persona the map names for it (KP1 Doc), never the body.
-	m, _, _ := gopodNumpadMapIn(layout)
 	for n := 0; n <= 9; n++ {
 		key := "KP" + strconv.Itoa(n)
-		if label, target, err := gopodNumpadBrobotIn(layout, key); err == nil {
-			if e, ok := m.NumlockOn[key]; ok && !strings.HasPrefix(target, gopodPersonaMark) && strings.TrimSpace(e.Persona) != "" {
-				label = strings.TrimSpace(e.Persona)
-				// 2026-11-13 (operator: "1on/2on = DOC/PIP"): the persona the body
-				// hosts, by its nickname.
-				if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(target)].Nickname); nick != "" {
-					label = nick
-				}
-			}
+		if label, ok := gopodNumpadKeyLabelIn(layout, key); ok {
 			targets[key] = label
 		} else {
 			targets[key] = ""
@@ -195,10 +186,7 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 			}
 		}
 		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
-		if label, target, err := gopodNumpadBrobotIn(layout, key+gopodNumlockOffSuffix); err == nil {
-			if e, ok := m.NumlockOff[key]; ok && !strings.HasPrefix(target, gopodPersonaMark) && !strings.HasPrefix(target, gopodPersonaReporterMark) && strings.TrimSpace(e.Persona) != "" {
-				label = strings.TrimSpace(e.Persona)
-			}
+		if label, ok := gopodNumpadKeyLabelIn(layout, key+gopodNumlockOffSuffix); ok {
 			targets[key+gopodNumlockOffSuffix] = label
 		}
 	}
@@ -290,6 +278,28 @@ const gopodPersonaMark = "persona:"
 // gopodDialZeroMark: a numpad "ESN" that is a robot as himself, at the dial's 0%.
 const gopodDialZeroMark = "dial0:"
 
+// gopodNumpadKeyLabelIn (2026-11-13, operator: "there is a single numpad mapping
+// source, correct?"): who a key reaches, as everything shows it - the picker, the
+// comm check: a robot's key by the persona the map names (its NumLock-on key by
+// the persona the body hosts, by nickname - DOC; NumLock off, the robot himself -
+// Brobot 1); any other key as gopodNumpadBrobot labels it. false: not live.
+func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
+	label, target, err := gopodNumpadBrobotIn(layout, key)
+	if err != nil {
+		return "", false
+	}
+	if strings.HasPrefix(target, gopodPersonaMark) || strings.HasPrefix(target, gopodPersonaReporterMark) || target == gopodTypedAll {
+		return label, true
+	}
+	if strings.HasPrefix(target, gopodDialZeroMark) {
+		return label, true
+	}
+	if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(target)].Nickname); nick != "" {
+		return nick, true
+	}
+	return label, true
+}
+
 // gopodNumpadLiveKeys: the map's live keys in its order - NumLock on KP0-KP9,
 // then NumLock off KP0off-KP9off - each one that reaches someone.
 func gopodNumpadLiveKeys() []string {
@@ -348,6 +358,12 @@ func gopodKeyLine(target, text, how string) error {
 			gopodDialZero.Delete(esn)
 		}()
 		return err
+	}
+	// A robot's NumLock-on key: the persona he hosts, the dial at 100% - set here,
+	// never left over from the line before (live 2026-11-14: KP1 in the comm check
+	// answered as Brobot 1 after a line to all).
+	if target != gopodTypedAll {
+		gopodDialZero.Delete(target)
 	}
 	return gopodOperatorLine(target, text, how)
 }

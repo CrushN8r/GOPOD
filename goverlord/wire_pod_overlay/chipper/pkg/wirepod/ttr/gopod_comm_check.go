@@ -215,12 +215,14 @@ func gopodSystemCommCheck() string {
 				logger.Println("GOPOD_COMM_CHECK " + key + ": " + err.Error())
 				continue
 			}
-			name := label
+			// 2026-11-14 (operator: "there is a single numpad mapping source"): the
+			// key's name as the picker shows it (gopodNumpadKeyLabelIn) - a voice-only
+			// persona by its call name.
+			name, _ := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
 			if strings.HasPrefix(target, gopodPersonaMark) {
 				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaMark))
-			} else if h := gopodCallName(label); h != "" {
-				// 2026-11-06: a Brobot is called by his formal name (call_name: DOCTRINE, PIP).
-				name = h
+			} else if strings.HasPrefix(target, gopodPersonaReporterMark) {
+				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaReporterMark))
 			}
 			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
 			// back): the line to both is to the Brobots (comm_check.all_name).
@@ -243,8 +245,13 @@ func gopodSystemCommCheck() string {
 			// this one's own answer - a line from who was asked - then the quiet.
 			from := gopodFeedLastID()
 			answerer := label
-			if strings.HasPrefix(target, gopodPersonaMark) {
+			switch {
+			case strings.HasPrefix(target, gopodPersonaMark):
 				answerer = strings.TrimPrefix(target, gopodPersonaMark)
+			case strings.HasPrefix(target, gopodPersonaReporterMark):
+				answerer = gopodBrobotsSettings.Managers.Personas[strings.TrimPrefix(target, gopodPersonaReporterMark)].Reporter
+			case strings.HasPrefix(target, gopodDialZeroMark):
+				answerer = gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark))
 			}
 			// 2026-10-30 (the full numpad: * held is All): All's line is answered
 			// by both Brobots, Brobot 1 then Brobot 2 - it ends with Brobot 2's
@@ -255,10 +262,8 @@ func gopodSystemCommCheck() string {
 					answerer = "Brobot 1"
 				}
 			}
-			if strings.HasPrefix(target, gopodPersonaMark) {
-				host := strings.TrimPrefix(target, gopodPersonaMark)
-				gopodLineTurn(text, []string{host}, func() error { gopodPersonaReply(host, text, "Numpad text"); return nil })
-			} else if err := gopodOperatorLine(target, text, "Numpad text"); err != nil {
+			// The one key path (gopodKeyLine) - the same as a typed or held key.
+			if err := gopodKeyLine(target, text, "Numpad text"); err != nil {
 				logger.Println("GOPOD_COMM_CHECK " + err.Error())
 			}
 			gopodCommCheckWaitAnswer(from, answerer, max)

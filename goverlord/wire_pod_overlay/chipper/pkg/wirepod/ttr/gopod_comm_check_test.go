@@ -79,3 +79,16 @@ func TestCommCheckRunsOffTheMap(t *testing.T) {
 		seen[k] = true
 	}
 }
+
+// 2026-11-14 (live: after "hey all!! weather please" the comm check called KP1
+// "Brobot 1" - the dial left at 0% from the line to all): a key's name comes
+// from the map alone (gopodNumpadKeyLabelIn), whatever the dial was left at.
+func TestCommCheckNamesFromTheMap(t *testing.T) {
+	gopodDialZero.Store(gopodBrobot1ESN, true)
+	defer gopodDialZero.Delete(gopodBrobot1ESN)
+	for key, want := range map[string]string{"KP1": "DOC", "KP2": "PIP", "KP1off": "Brobot 1", "KP2off": "Brobot 2"} {
+		if got, ok := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key); !ok || got != want {
+			t.Errorf("%s: %q, want %q", key, got, want)
+		}
+	}
+}
