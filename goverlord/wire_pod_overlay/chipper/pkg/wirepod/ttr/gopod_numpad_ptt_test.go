@@ -61,7 +61,7 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 	}
 	// 2026-10-30 (the numpad remap): KP0 held is the Butler, * held is All.
 	// 2026-11-13: a key to a robot shows the persona the map names (KP1 Doc).
-	for key, want := range map[string]string{"KP0": "BUTLER", gopodNumpadAllKey: "All", "KP1": "Doc", "KP2": "Pip", "KP3": "GIT REPO", "KP4": "CACHE PYC",
+	for key, want := range map[string]string{"KP0": "BUTLER", gopodNumpadAllKey: "All", "KP1": "DOC", "KP2": "PIP", "KP3": "GIT REPO", "KP4": "CACHE PYC",
 		"KP5": "INTEL 404 PNFH", "KP6": "INTEL 404 PNFT", "KP7": "CHALK", "KP8": "PLAYHEAD", "KP9": "CAMEO"} {
 		if got := out.Targets[key]; got != want {
 			t.Errorf("%s -> %q, want %q", key, got, want)
@@ -141,7 +141,7 @@ func TestFourPersonasTwoBodies(t *testing.T) {
 		Targets map[string]string `json:"targets"`
 	}
 	_ = json.Unmarshal(data, &d)
-	if d.Targets["KP1"] != "Doc" || d.Targets["KP2"] != "Pip" || d.Targets["KP1off"] != "Brobot 1" || d.Targets["KP2off"] != "Brobot 2" {
+	if d.Targets["KP1"] != "DOC" || d.Targets["KP2"] != "PIP" || d.Targets["KP1off"] != "Brobot 1" || d.Targets["KP2off"] != "Brobot 2" {
 		t.Errorf("the picker's names: %v", d.Targets)
 	}
 }

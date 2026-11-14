@@ -179,6 +179,11 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 		if label, target, err := gopodNumpadBrobotIn(layout, key); err == nil {
 			if e, ok := m.NumlockOn[key]; ok && !strings.HasPrefix(target, gopodPersonaMark) && strings.TrimSpace(e.Persona) != "" {
 				label = strings.TrimSpace(e.Persona)
+				// 2026-11-13 (operator: "1on/2on = DOC/PIP"): the persona the body
+				// hosts, by its nickname.
+				if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(target)].Nickname); nick != "" {
+					label = nick
+				}
 			}
 			targets[key] = label
 		} else {

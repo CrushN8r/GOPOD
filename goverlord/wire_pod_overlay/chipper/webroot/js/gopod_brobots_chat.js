@@ -247,7 +247,10 @@
         Array.prototype.forEach.call(allFirstSelect.options, function (o) {
           if (o.value === "0") { return; }
           var who = targets[pickerKey(o.value)] || "";
-          o.textContent = o.value + (who ? " " + who : "");
+          // 2026-11-13 (operator: "1on/2on = DOC/PIP * 1off/2off = Brobot 1/Brobot 2"):
+          // a NumLock-on key reads "1on".
+          var shown = /^\d$/.test(o.value) ? o.value + "on" : o.value;
+          o.textContent = shown + (who ? " " + who : "");
           o.disabled = !who && o.value !== "*" && o.value !== "*2";
         });
       }
