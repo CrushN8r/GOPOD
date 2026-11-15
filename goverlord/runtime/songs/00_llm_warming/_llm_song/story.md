@@ -9,7 +9,7 @@ No steps = nothing said. Swap this folder for another `_llm_song` to change them
 
 ## STEP line_01
 
-> TEXT: Okay Zoomy! We're about to go live. Our CRUSHN8R Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
+> TEXT: Okay Zoomy! We're about to go live! Our CRUSHN8R Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
 
 ## STEP line_02
 

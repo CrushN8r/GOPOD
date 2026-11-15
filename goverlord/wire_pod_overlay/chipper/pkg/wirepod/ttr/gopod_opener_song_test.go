@@ -153,3 +153,16 @@ func TestOpenerStepVolume(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-14 (operator: "keeping the text the way it is written in the story.md
+// file * this current chunking & splitting method to remain, which includes
+// multi-line support"): voice chunks of one line stay on that line; a new line
+// written in the text stays a new line.
+func TestChunksShownAsWritten(t *testing.T) {
+	text := "Okay Zoomy! We're about to go live. Our CRUSHN8R Crew is ready.\nSecond line here."
+	got := gopodChunksDisplay(text, []string{"Okay Zoomy! We're about to go live.", "Our CRUSHN8R Crew is ready.", "Second line here."})
+	want := "Okay Zoomy! We're about to go live." + gopodSameLineMark + "Our CRUSHN8R Crew is ready.\nSecond line here."
+	if got != want {
+		t.Errorf("got %q\nwant %q", got, want)
+	}
+}

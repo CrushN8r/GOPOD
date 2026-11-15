@@ -612,7 +612,8 @@ func gopodReporterSayTo(host, to, text string, show, wait bool) bool {
 	// manager's line inside a Brobot's bubble (to) stays one line.
 	if show && to == "" {
 		if chunks := gopodSpokenChunks(text); len(chunks) > 1 {
-			gopodSayLinesInBubble(host, chunks, wait)
+			// 2026-11-14: shown as written - chunks of one line stay on it.
+			gopodSayLinesInBubble(host, chunks, wait, gopodChunksDisplay(text, chunks))
 			return true
 		}
 	}

@@ -103,6 +103,33 @@ func gopodSystemTour() string {
 	return strings.ReplaceAll(gopodBrobotsSettings.SystemTour.StartText, "{n}", strconv.Itoa(len(scriptures)))
 }
 
+// gopodSameLineMark: in a "lines:" bubble, the join between two voice chunks of
+// one written line (the page keeps them on that line).
+const gopodSameLineMark = "\u2063"
+
+// gopodChunksDisplay: chunks of text as the bubble shows them - joined by
+// gopodSameLineMark, or by "\n" where the text itself starts a new line there.
+func gopodChunksDisplay(text string, chunks []string) string {
+	var b strings.Builder
+	at := 0
+	for i, c := range chunks {
+		c = strings.TrimSpace(c)
+		j := strings.Index(text[at:], c)
+		if i > 0 {
+			if j >= 0 && strings.Contains(text[at:at+j], "\n") {
+				b.WriteString("\n")
+			} else {
+				b.WriteString(gopodSameLineMark)
+			}
+		}
+		b.WriteString(c)
+		if j >= 0 {
+			at += j + len(c)
+		}
+	}
+	return b.String()
+}
+
 // gopodSayLinesInBubble (2026-10-29, operator: "rather than a long wait for a
 // single audio wav file, can brobot speech be sent in manageable chunks/segments
 // * send segment for processing, while the brobot speaks send next segment,
@@ -110,7 +137,14 @@ func gopodSystemTour() string {
 // template), each its own voice - every line's voice named at once (so each
 // starts dormant, Generating... until made), the first made, then each next one
 // made while the one before it plays. wait: on until the page has played each.
-func gopodSayLinesInBubble(host string, lines []string, wait bool) {
+//
+// 2026-11-14 (operator: "I prefer not to have each thing on its own line * keeping
+// the text the way it is written in the story.md file * this current chunking &
+// splitting method to remain, which includes multi-line support"): display, when
+// given, is how the bubble shows them - a chunk joined to the one before by
+// gopodSameLineMark sits on the same line, as written; "\n" is a line of its own.
+// Without it, each is a line (the tour's paragraphs).
+func gopodSayLinesInBubble(host string, lines []string, wait bool, display ...string) {
 	rv := gopodBrobotsSettings.ReporterVoices
 	var keep []string
 	for _, l := range lines {
@@ -121,7 +155,11 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool) {
 	if len(keep) == 0 {
 		return
 	}
-	GopodChatFeedAdd(host, "lines:"+strings.Join(keep, "\n"))
+	shown := strings.Join(keep, "\n")
+	if len(display) > 0 && strings.TrimSpace(display[0]) != "" {
+		shown = display[0]
+	}
+	GopodChatFeedAdd(host, "lines:"+shown)
 	says := make([]string, len(keep))
 	for i, l := range keep {
 		says[i] = gopodReporterSays(l)

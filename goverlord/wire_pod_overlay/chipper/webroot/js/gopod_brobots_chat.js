@@ -2579,17 +2579,25 @@
           // run ... the text didn't default to 85% solid white"): each line's words
           // are its voice's line from the moment it's drawn - dormant (0%) until
           // its voice plays, 85% after, or shown whole by a skip or a stop.
-          String(text).slice(6).split("\n").forEach(function (one) {
+          // 2026-11-14 (operator: "keeping the text the way it is written in the
+          // story.md file * this current chunking & splitting method to remain"):
+          // a line is "\n"-split as written; inside it, voice chunks (joined by
+          // U+2063, gopodSameLineMark) sit side by side on that line, each still
+          // its own voice and lit on its own.
+          String(text).slice(6).split("\n").forEach(function (lineText) {
             var el = document.createElement("span");
             el.className = "brobot-bubble-text brobot-bubble-line";
-            var say = document.createElement("span");
-            say.className = "brobot-say";
-            say.textContent = one;
-            el.appendChild(say);
             bubble.appendChild(el);
-            if (restoringChat || skippingReporters || !one.trim()) { say.classList.add("spoken"); return; }
-            voiceLineAhead(one, say);
-            showOnItsTurn(bubble, say);
+            lineText.split("\u2063").forEach(function (one, i) {
+              if (i > 0) { el.appendChild(document.createTextNode(" ")); }
+              var say = document.createElement("span");
+              say.className = "brobot-say";
+              say.textContent = one;
+              el.appendChild(say);
+              if (restoringChat || skippingReporters || !one.trim()) { say.classList.add("spoken"); return; }
+              voiceLineAhead(one, say);
+              showOnItsTurn(bubble, say);
+            });
           });
           if (!restoringChat) { bubble.classList.add("voice-lit"); voiceTieAhead(); }
       }
