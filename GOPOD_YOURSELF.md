@@ -368,7 +368,7 @@ More: [08_RULES_AND_TESTS.md, troubleshooting](alias_play_studio/08_RULES_AND_TE
 > From Doctrine Barfallonyou
 > Lesson! The show isn't finished when it works for you. It's finished when it works for the next person.
 > Boom! Done! Class Dismissed!
-> — Doc Squawkadoodle
+> — Doctrine Spewer
 
 ---
 

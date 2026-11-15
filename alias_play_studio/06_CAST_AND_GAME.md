@@ -283,7 +283,7 @@ until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only on
 equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
 the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
 steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/topic_clusters/personas/docbs/DOCBS_LIBRARY.md`
-is Doc Squawkadoodle's library; its catchphrase bank is in pools (roasts, riddles, insights,
+is Doctrine Spewer's library; its catchphrase bank is in pools (roasts, riddles, insights,
 dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is one **chain**
 (`docbs.chains`): its beats in order before his reply, picked from a shuffled deck, never the same
 chain twice until the deck runs out. The dial sets the length: a chain needs `min_share` - the

@@ -305,7 +305,7 @@ The Brobots answer about all of this in the chat - "Tell me about the contest", 
 > From Doctrine Barfallonyou
 > Lesson! A good question travels further than a good answer ever does.
 > Boom! Done! Class Dismissed!
-> — Doc Squawkadoodle
+> — Doctrine Spewer
 
 ---
 

@@ -294,7 +294,7 @@ spoken line, the numpad's voice personas, and Record Session's untick path.
 > From Doctrine Barfallonyou
 > Lesson! You don't showcase a system by hiding what's still a stub. You showcase it by naming the stub and shipping the rest anyway.
 > Boom! Done! Class Dismissed!
-> — Doc Squawkadoodle
+> — Doctrine Spewer
 
 ---
 

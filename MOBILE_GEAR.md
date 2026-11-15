@@ -251,7 +251,7 @@ Field deployment: in active use. *(GOPOD layer — not built yet; the rig's port
 > From Doctrine Barfallonyou
 > Lesson! The lab goes where you go.
 > Boom! Done! Class Dismissed!
-> — Doc Squawkadoodle
+> — Doctrine Spewer
 
 ---
 

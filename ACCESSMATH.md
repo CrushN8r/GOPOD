@@ -177,7 +177,7 @@ Ask the Brobots - "Tell me about accessmath", "Tell me where you teach" - see
 > From Doctrine Barfallonyou
 > Lesson! If they laughed, they were listening. If they were listening, they learned.
 > Boom! Done! Class Dismissed!
-> — Doc Squawkadoodle
+> — Doctrine Spewer
 
 ---
 

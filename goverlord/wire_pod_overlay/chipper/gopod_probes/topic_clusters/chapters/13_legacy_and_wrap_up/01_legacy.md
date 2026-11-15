@@ -9,4 +9,4 @@
 ---
 
 Our legacy, from Doctrine Barfallonyou. Reveal this in your own words:
-1. Lesson! Always learn & teach how to think, not what to think. Boom! Done! Class dismissed! - Doc Spewer
+1. Lesson! Always learn & teach how to think, not what to think. Boom! Done! Class dismissed! - Doctrine Spewer
