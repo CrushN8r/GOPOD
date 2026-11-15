@@ -8,7 +8,7 @@ package wirepod_ttr
 // markers, from the one source - the numpad map's live keys, in its order - with
 // each persona's names from its card and what it does from the crew roster. A
 // key made live or off in numpad-mapper.md, or a renamed persona, changes the
-// table; nothing is written by hand. system-torah writes it (with the Torah);
+// table; nothing is written by hand. system-scrolls writes it (with the Scrolls);
 // system-check and TestReadmeCastMatches fail when it's behind. Its few words:
 // readme_cast (numpad-mapper.md).
 
@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	gopodReadmeCastStart = "<!-- gopod cast table: written by GOPOD from the numpad map (numpad-mapper.md) - system-torah writes it again -->"
+	gopodReadmeCastStart = "<!-- gopod cast table: written by GOPOD from the numpad map (numpad-mapper.md) - system-scrolls writes it again -->"
 	gopodReadmeCastEnd   = "<!-- /gopod cast table -->"
 )
 
@@ -54,32 +54,23 @@ func gopodReadmeCastTable() string {
 		if err != nil {
 			continue
 		}
+		nick, _ := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
 		shown := key
 		if base, off := strings.CutSuffix(key, gopodNumlockOffSuffix); off {
 			shown = fill(rc.NumlockOff, "{key}", base)
 		}
 		switch {
 		case strings.HasPrefix(target, gopodDialZeroMark):
-			row(shown, "**"+label+"**", what(label))
+			row(shown, "**"+nick+"** - "+label, what(label))
 		case strings.HasPrefix(target, gopodPersonaReporterMark):
 			host := strings.TrimPrefix(target, gopodPersonaReporterMark)
-			row(shown, fill(rc.OnLocation, "{who}", "**"+gopodCallName(host)+"**"), what(gopodCallName(host), host))
+			row(shown, fill(rc.OnLocation, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[host].Name)), what(gopodCallName(host), host))
 		case strings.HasPrefix(target, gopodPersonaMark):
 			host := strings.TrimPrefix(target, gopodPersonaMark)
-			hp := gopodBrobotsSettings.HostPersonas[host]
-			call := gopodCallName(host)
-			if n := strings.TrimSpace(hp.Nickname); n != "" && host == gopodBrobotsSettings.SignOff.SystemRole {
-				call = n // the butler goes by Keys
-			}
-			row(shown, named(call, hp.Name), what(gopodCallName(host), host))
+			row(shown, named(nick, gopodBrobotsSettings.HostPersonas[host].Name), what(gopodCallName(host), host))
 		default:
 			body := gopodBrobotName(target)
-			hp := gopodBrobotsSettings.HostPersonas[body]
-			call := strings.TrimSpace(hp.Nickname)
-			if call == "" {
-				call = gopodCallName(body)
-			}
-			row(shown, fill(rc.OnBody, "{who}", named(call, hp.Name), "{body}", body), what(gopodCallName(body), body))
+			row(shown, fill(rc.OnBody, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[body].Name), "{body}", body), what(gopodCallName(body), body))
 		}
 	}
 	row("*", rc.AllWho, rc.AllWhat)

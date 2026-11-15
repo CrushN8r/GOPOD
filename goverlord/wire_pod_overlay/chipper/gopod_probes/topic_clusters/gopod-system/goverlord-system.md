@@ -1,5 +1,5 @@
 # Goverlord's system words
-- **words:** numpad, torah, tour, record session, search, visitors, copy
+- **words:** numpad, scrolls, tour, record session, search, visitors, copy
 - **ask:** What else does the system say?
 - **chain:** Goverlord - the numpad's and the system window's other words
 - **see also:** system-texts, system-menu, system-help, ../personas/butler.md
@@ -29,7 +29,7 @@
 3. kept_text: Session recording kept.
 
 ## System menu (system_menu)
-1. intro: Goverlord's Torah: In the beginning there was a great restart. Click a commandment to run it, or it waits in the text box for your words (press Enter).
+1. intro: Goverlord's Scrolls: In the beginning there was a great restart. Click a commandment to run it, or it waits in the text box for your words (press Enter).
 
 ## system_menu copy (system_menu.copy)
 1. icon: 📋
@@ -48,12 +48,12 @@
 2. note: A web search for "{search}" (GOPOD's own search) found these. Use only these facts, said simply in your own style:
 
 ## System tour (system_tour)
-1. end_text: And so ends the Torah. Now GOPOD Yourself!
-2. start_text: The Torah tour: {n} scriptures, Goverlord reading - system-tour again stops it.
+1. end_text: And so end the Scrolls. Now GOPOD Yourself!
+2. start_text: The Scrolls tour: {n} scriptures, Goverlord reading - system-tour again stops it.
 
-## Torah (torah)
+## Scrolls (torah)
 1. next_to: `Go to scripture `
-2. opening: Goverlord's Torah: In the beginning there was a great restart.
+2. opening: Goverlord's Scrolls: In the beginning there was a great restart.
 3. scripture: Scripture {n}, {title}
 
 ## Visitors (visitors)

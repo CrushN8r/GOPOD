@@ -1,26 +1,26 @@
-# The GOPOD Torah
+# GOPOD SYSTEM SCROLLS
 
-> Goverlord's Torah: In the beginning there was a great restart.
+> Goverlord's Scrolls: In the beginning there was a great restart.
 
 The master reference for GOPOD's system window: every scripture (the window's groups), every commandment (its
 commands), every test, every run. A fun take, not a religious one. GOPOD writes these scrolls itself from its
 running settings, so they always match the system as it grows - `system-check` says when they've fallen behind,
-`system-torah` writes them again; `system-tour` goes through them in the chat.
+`system-scrolls` writes them again; `system-tour` goes through them in the chat.
 
 *Click a commandment to run it, or it waits in the text box for your words (press Enter).*
 
 ## The Scriptures
 
-- [Scripture 1, Restart and check](system_torah/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
-- [Scripture 2, Play](system_torah/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
-- [Scripture 3, Edit words and settings](system_torah/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
-- [Scripture 4, Find](system_torah/SCRIPTURE_04_FIND.md) - Don't know where something lives?
-- [Scripture 5, Apply](system_torah/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
-- [Scripture 6, Switches](system_torah/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
-- [Scripture 7, Brobots](system_torah/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
-- [Scripture 8, Tune moves](system_torah/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
-- [Scripture 9, Test one thing](system_torah/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
-- [Scripture 10, Wrap up](system_torah/SCRIPTURE_10_WRAP_UP.md) - End the show.
+- [Scripture 1, Restart and check](system_scrolls/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
+- [Scripture 2, Play](system_scrolls/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
+- [Scripture 3, Edit words and settings](system_scrolls/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
+- [Scripture 4, Find](system_scrolls/SCRIPTURE_04_FIND.md) - Don't know where something lives?
+- [Scripture 5, Apply](system_scrolls/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
+- [Scripture 6, Switches](system_scrolls/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
+- [Scripture 7, Brobots](system_scrolls/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
+- [Scripture 8, Tune moves](system_scrolls/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
+- [Scripture 9, Test one thing](system_scrolls/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
+- [Scripture 10, Wrap up](system_scrolls/SCRIPTURE_10_WRAP_UP.md) - End the show.
 
 ## The Commandments
 
@@ -81,8 +81,8 @@ system commands (typed on this keyboard):
   system-run-check off|on|replay    run check: off = sound off (robots off, page muted, the chat drawn as ever); on = sound back, its chat lines saved; replay plays them at normal volume
   system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
-  system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
-  system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now
+  system-tour                       the system window tour: Goverlord goes through the Scrolls, scripture by scripture; safe commandments run (again: stop)
+  system-scrolls                      the GOPOD System Scrolls (GOPOD_SYSTEM_SCROLLS.md, the system's master reference) written again from the system as it is now
   system-comm-check                 the pre-show comm check: the whole numpad held in turn (KP0 the Butler, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
   system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)

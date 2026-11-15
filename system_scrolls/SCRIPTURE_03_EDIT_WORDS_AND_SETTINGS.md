@@ -35,4 +35,4 @@ Made a mistake? “system-undo” puts back the last edit. Don't know a name or 
 
 ---
 
-[Scripture 2, Play](SCRIPTURE_02_PLAY.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 4, Find](SCRIPTURE_04_FIND.md)
+[Scripture 2, Play](SCRIPTURE_02_PLAY.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 4, Find](SCRIPTURE_04_FIND.md)

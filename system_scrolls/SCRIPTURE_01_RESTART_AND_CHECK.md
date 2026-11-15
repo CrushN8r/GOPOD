@@ -18,4 +18,4 @@ All PASS? Go to Scripture 2 to play, or Scripture 3 to edit.
 
 ---
 
-[The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 2, Play](SCRIPTURE_02_PLAY.md)
+[GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 2, Play](SCRIPTURE_02_PLAY.md)

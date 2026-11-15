@@ -2,7 +2,7 @@
 package wirepod_ttr
 
 // The system window tour (2026-10-29, operator: "system menu demo = Go through
-// it as the Torah * Goverlord's Torah: In the beginning there was a great
+// it as the Scrolls * Goverlord's Scrolls: In the beginning there was a great
 // restart. * Scripture 1, Restart and check * system-restart, a forced restart
 // ... * All PASS? Go to scripture 2 to play, or 3 to edit."; "Yes to: a recorded
 // tour of the system window: every menu item played in order, the way the admin

@@ -38,4 +38,4 @@ Wire-Pod's bot page, right here. Add 1 or 2 at the end for one Brobot, or leave 
 
 ---
 
-[Scripture 6, Switches](SCRIPTURE_06_SWITCHES.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 8, Tune moves](SCRIPTURE_08_TUNE_MOVES.md)
+[Scripture 6, Switches](SCRIPTURE_06_SWITCHES.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 8, Tune moves](SCRIPTURE_08_TUNE_MOVES.md)

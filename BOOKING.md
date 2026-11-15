@@ -1,13 +1,23 @@
-# Booking
+# Book the Brobots
 
-Gigs to book with Brobot 1 and Brobot 2. Every one is live or scripted, and catered to that room's
-GOPOD game session: the Brobots play the topics the room cares about, and the room plays the game.
+**Two real robots, live in your room.** Brobot 1 and Brobot 2 talk with your crowd, roast each
+other, and play the GOPOD game on the topics your room cares about. Live or scripted. No internet
+needed.
+
+<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/brobots_party_01.jpg" width="400" alt="Brobot 1 and Brobot 2 on their chargers under a LEGO party stage of PARTY dancers">
+
+*The Brobots ready to party.*
+
+**How to book**
+1. Email **contact@crushn8r.ca** - the room, the date, the crowd.
+2. The reply gives a price, in CAD, and a date.
+3. Say yes, and the Brobots roll in.
+
+For a birthday video, use the request page on crushn8r.ca. The CRUSHN8R CREW'd newsletter hears
+first about live events.
 
 **Paid and volunteer.** Paid rooms keep the lights on; volunteer rooms give back - birthdays and
 BBQs are where it starts.
-
-**The way in:** contact@crushn8r.ca. For a birthday video, the request page on crushn8r.ca. The
-CRUSHN8R CREW'd newsletter hears first about live events. Every price comes by reply, in CAD.
 
 <details><summary>Game card: booking us</summary>
 <!-- gopod topic: 01_booking -->
@@ -100,12 +110,8 @@ Videos for ads or personal use. Reveal these, in order, in your own words:
 
 - **Birthdays** - seven pizza-boxes of food-shaped Hot Wheels cars on the table; a live
   happy-birthday act is coming.
-- **BBQs** - GOPOD can do BBQ's too! A pizza-box of BBQ-food Hot Wheels cars, and LEGO hot-dog and
+- **BBQs** - GOPOD can do BBQs too! A pizza-box of BBQ-food Hot Wheels cars, and LEGO hot-dog and
   pizza-slice minifigures.
-
-<img src="goverlord/wire_pod_overlay/chipper/webroot/pictures/birthday/brobots_party_01.jpg" width="400" alt="Brobot 1 and Brobot 2 on their chargers under a LEGO party stage of PARTY dancers">
-
-*The Brobots ready to party.*
 
 | | |
 |---|---|
@@ -153,8 +159,8 @@ Printables and affiliates. Reveal these, in order, in your own words:
 
 - **words:** bbq, bbqs, barbecue, barbecues, cookout, cookouts, burger, burgers, hot dog, hot dogs, wiener, wieners
 - **pictures:** bbq/hw_bbq_01.jpg, bbq/hw_bbq_box_01.jpg, bbq/hw_burgers_01.jpg, bbq/hw_burgers_02.jpg, bbq/hw_wieners_01.jpg, bbq/lego_pizzas.jpg
-- **reminder:** Hey, that reminds me... GOPOD can do BBQ's too!
-- **say 1:** GOPOD can do BBQ's too!
+- **reminder:** Hey, that reminds me... GOPOD can do BBQs too!
+- **say 1:** GOPOD can do BBQs too!
 - **say 2:** A pizza-box of BBQ-food Hot Wheels cars - burger trucks, hot-dog cars and a diner food truck - already bought, already sorted.
 - **say 3:** LEGO hot-dog and pizza-slice minifigures come along too.
 - **notes 1:** BBQs | GOPOD can do BBQ's too
@@ -166,7 +172,7 @@ Printables and affiliates. Reveal these, in order, in your own words:
 ---
 
 GOPOD can do BBQ's too. Reveal these, in order, in your own words:
-1. GOPOD can do BBQ's too!
+1. GOPOD can do BBQs too!
 2. A pizza-box of BBQ-food Hot Wheels cars - burger trucks, hot-dog cars and a diner food truck - already bought, already sorted.
 3. LEGO hot-dog and pizza-slice minifigures come along too.
 

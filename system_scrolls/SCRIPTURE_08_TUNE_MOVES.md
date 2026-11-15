@@ -14,4 +14,4 @@ A move looks off? Try it alone on one Brobot first. “system-calibrate” plays
 
 ---
 
-[Scripture 7, Brobots](SCRIPTURE_07_BROBOTS.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 9, Test one thing](SCRIPTURE_09_TEST_ONE_THING.md)
+[Scripture 7, Brobots](SCRIPTURE_07_BROBOTS.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 9, Test one thing](SCRIPTURE_09_TEST_ONE_THING.md)

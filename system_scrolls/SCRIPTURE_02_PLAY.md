@@ -21,4 +21,4 @@ Available steps are listed under “system-score”. To replay a previously save
 
 ---
 
-[Scripture 1, Restart and check](SCRIPTURE_01_RESTART_AND_CHECK.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 3, Edit words and settings](SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md)
+[Scripture 1, Restart and check](SCRIPTURE_01_RESTART_AND_CHECK.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 3, Edit words and settings](SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md)

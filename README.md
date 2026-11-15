@@ -42,24 +42,24 @@ Now that you're here, you can GOPOD Yourself! Lol
 
 Two robot bodies, four Brobot personas, and a whole crew of voices - every one on a numpad key.
 
-<!-- gopod cast table: written by GOPOD from the numpad map (numpad-mapper.md) - system-torah writes it again -->
+<!-- gopod cast table: written by GOPOD from the numpad map (numpad-mapper.md) - system-scrolls writes it again -->
 | Key | Who | What they do |
 |---|---|---|
-| KP0 | **KEYNOTE** - KEYNOTE VALE | Butler, Goverlord's voice |
+| KP0 | **KEYS** - KEYNOTE VALE | Butler, Goverlord's voice |
 | KP1 | **DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1 | the host - explains too hard, on purpose |
 | KP2 | **PIP** - PIP N STALL, on Brobot 2 | the sidekick - the room's pied piper |
-| KP3 | **GIT REPO** | Tech Intern - the USB ports & getting weather info |
-| KP4 | **CACHE PYC** | Display and Social Media Intern - the weather, ready to say |
-| KP5 | **INTEL 404 PNFH** | Brobot 1's battery |
-| KP6 | **INTEL 404 PNFT** | Brobot 2's battery |
-| KP7 | **CHALK** - CHALK BORED | Display Gomad, the display and the board |
-| KP8 | **PLAYHEAD** - PLAYHEAD ZUMINTU | Session Gomad, the runs and the session |
-| KP9 | **CAMEO** - CAMEO LOOKS | Content Gomad, social media |
-| KP1, NumLock off | **Brobot 1** | grumpy, impatient |
-| KP2, NumLock off | **Brobot 2** | clueless, happy |
-| KP3, NumLock off | **GEMMA** - GEMMA ELLE-ELLE EHM | the LLM Gomad - maximum wordplay fun |
-| KP7, NumLock off | **CHALK**, on location | Display Gomad, the display and the board |
-| KP8, NumLock off | **PLAYHEAD**, on location | Session Gomad, the runs and the session |
+| KP3 | **REPO** - Git Repo | Tech Intern - the USB ports & getting weather info |
+| KP4 | **MIMI** - Cache PYC | Display and Social Media Intern - the weather, ready to say |
+| KP5 | **BUZZER** - Intel 404 PNFH | Brobot 1's battery |
+| KP6 | **SWITCH** - Intel 404 PNFT | Brobot 2's battery |
+| KP7 | **CHALKRA** - CHALK BORED | Display Gomad, the display and the board |
+| KP8 | **ZOOMY** - PLAYHEAD ZUMINTU | Session Gomad, the runs and the session |
+| KP9 | **CHAMMY** - CAMEO LOOKS | Content Gomad, social media |
+| KP1, NumLock off | **BRUH!** - Brobot 1 | grumpy, impatient |
+| KP2, NumLock off | **BRUH!** - Brobot 2 | clueless, happy |
+| KP3, NumLock off | **LLM** - ELLE-ELLE EHM GEMMA | the LLM Gomad - maximum wordplay fun |
+| KP7, NumLock off | **CHALKRA** - CHALK BORED, on location | Display Gomad, the display and the board |
+| KP8, NumLock off | **ZOOMY** - PLAYHEAD ZUMINTU, on location | Session Gomad, the runs and the session |
 | * | **All the Brobots** | One line, both answer. |
 <!-- /gopod cast table -->
 
@@ -199,7 +199,7 @@ well enough to demo.
 - [WIRED-POD.md](WIRED-POD.md) - the Take Out: what GOPOD adds on top of Wire-Pod, in three parts
   (the alias play studio, the chat page, the offline AI), and how to take it home.
 - [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) - how songs are built, note by note, and every rule.
-- [GOPOD_TORAH.md](GOPOD_TORAH.md) - the master reference for the system window, written by GOPOD
+- [GOPOD_SYSTEM_SCROLLS.md](GOPOD_SYSTEM_SCROLLS.md) - the master reference for the system window, written by GOPOD
   itself so it always matches.
 
 ![Hey feelin' lucky? Call me!! Let's clip some cash!!](goverlord/wire_pod_overlay/chipper/webroot/pictures/promo/lucky-call-cash.jpg)

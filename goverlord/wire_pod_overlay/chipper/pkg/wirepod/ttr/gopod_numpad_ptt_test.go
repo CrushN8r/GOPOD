@@ -61,12 +61,13 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 	}
 	// 2026-10-30 (the numpad remap): KP0 held is the Butler, * held is All.
 	// 2026-11-13: a key to a robot shows the persona the map names (KP1 Doc).
-	for key, want := range map[string]string{"KP0": "BUTLER", gopodNumpadAllKey: "All", "KP1": "DOC", "KP2": "PIP", "KP3": "GIT REPO", "KP4": "CACHE PYC",
-		"KP5": "INTEL 404 PNFH", "KP6": "INTEL 404 PNFT", "KP7": "CHALK", "KP8": "PLAYHEAD", "KP9": "CAMEO"} {
+	// 2026-11-15 (operator: "KP# = [nickname]"): each key named by its persona's nickname.
+	for key, want := range map[string]string{"KP0": "KEYS", gopodNumpadAllKey: "All", "KP1": "DOC", "KP2": "PIP", "KP3": "REPO", "KP4": "MIMI",
+		"KP5": "BUZZER", "KP6": "SWITCH", "KP7": "CHALKRA", "KP8": "ZOOMY", "KP9": "CHAMMY"} {
 		if got := out.Targets[key]; got != want {
 			t.Errorf("%s -> %q, want %q", key, got, want)
 		}
-		if gopodReporterVoice(want) == "" && key != gopodNumpadAllKey && key != "KP1" && key != "KP2" {
+		if _, target, err := gopodNumpadBrobot(key); err == nil && strings.HasPrefix(target, gopodPersonaMark) && gopodReporterVoice(strings.TrimPrefix(target, gopodPersonaMark)) == "" {
 			t.Errorf("%s (%s) has no voice", key, want)
 		}
 	}
@@ -141,7 +142,7 @@ func TestFourPersonasTwoBodies(t *testing.T) {
 		Targets map[string]string `json:"targets"`
 	}
 	_ = json.Unmarshal(data, &d)
-	if d.Targets["KP1"] != "DOC" || d.Targets["KP2"] != "PIP" || d.Targets["KP1off"] != "Brobot 1" || d.Targets["KP2off"] != "Brobot 2" {
+	if d.Targets["KP1"] != "DOC" || d.Targets["KP2"] != "PIP" || d.Targets["KP1off"] != "BRUH!" || d.Targets["KP2off"] != "BRUH!" {
 		t.Errorf("the picker's names: %v", d.Targets)
 	}
 }

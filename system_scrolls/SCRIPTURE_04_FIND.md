@@ -20,4 +20,4 @@ Found it? Go back to Scripture 3 to change it.
 
 ---
 
-[Scripture 3, Edit words and settings](SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 5, Apply](SCRIPTURE_05_APPLY.md)
+[Scripture 3, Edit words and settings](SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 5, Apply](SCRIPTURE_05_APPLY.md)

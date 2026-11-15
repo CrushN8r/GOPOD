@@ -12,4 +12,4 @@ Edits take effect after a restart, from Scripture 1. Edited story lines get thei
 
 ---
 
-[Scripture 4, Find](SCRIPTURE_04_FIND.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 6, Switches](SCRIPTURE_06_SWITCHES.md)
+[Scripture 4, Find](SCRIPTURE_04_FIND.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 6, Switches](SCRIPTURE_06_SWITCHES.md)

@@ -60,8 +60,8 @@
 52.   system-run-check off|on|replay    run check: off = sound off (robots off, page muted, the chat drawn as ever); on = sound back, its chat lines saved; replay plays them at normal volume
 53.   system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
 54.   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
-55.   system-tour                       the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
-56.   system-torah                      the GOPOD Torah (GOPOD_TORAH.md, the system's master reference) written again from the system as it is now
+55.   system-tour                       the system window tour: Goverlord goes through the Scrolls, scripture by scripture; safe commandments run (again: stop)
+56.   system-scrolls                      the GOPOD System Scrolls (GOPOD_SYSTEM_SCROLLS.md, the system's master reference) written again from the system as it is now
 57.   system-comm-check                 the pre-show comm check: the whole numpad held in turn (KP0 the Butler, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
 58.   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
 59.   system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)

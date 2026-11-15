@@ -68,7 +68,7 @@ func gopodSystemSetMatch(text string) bool {
 	if gopodSystemTestMatch(text) {
 		return true
 	}
-	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-torah", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-run-check", "system-brain", "system-audit", "system-voices", "system-voices-report"} {
+	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-scrolls", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-run-check", "system-brain", "system-audit", "system-voices", "system-voices-report"} {
 		if word == cmd || strings.HasPrefix(word, cmd+" ") {
 			return true
 		}
@@ -143,10 +143,10 @@ func gopodSystemSetLine(esn, text, how string) {
 		// 2026-10-29: DocBS's pool files (gopod_system_window_more.go).
 		answer = gopodSystemDocBS(text)
 	} else if cmd == "system-tour" {
-		// 2026-10-29: the system window tour, as the Torah (gopod_system_tour.go).
+		// 2026-10-29: the system window tour, as the Scrolls (gopod_system_tour.go).
 		answer = gopodSystemTour()
-	} else if cmd == "system-torah" {
-		// 2026-10-29: the GOPOD Torah written again (gopod_torah.go).
+	} else if cmd == "system-scrolls" {
+		// 2026-10-29: the GOPOD System Scrolls written again (gopod_torah.go).
 		answer = gopodSystemTorah()
 	} else if cmd == "system-comm-check" {
 		// 2026-10-28: the pre-show comm check, KP1-KP9 (gopod_comm_check.go).

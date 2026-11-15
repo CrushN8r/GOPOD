@@ -26,4 +26,4 @@ Turn parts on or off for this session. “system-numpad” shows who each numpad
 
 ---
 
-[Scripture 5, Apply](SCRIPTURE_05_APPLY.md) · [The GOPOD Torah](../GOPOD_TORAH.md) · [Scripture 7, Brobots](SCRIPTURE_07_BROBOTS.md)
+[Scripture 5, Apply](SCRIPTURE_05_APPLY.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md) · [Scripture 7, Brobots](SCRIPTURE_07_BROBOTS.md)

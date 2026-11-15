@@ -1,18 +1,18 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_torah.go
 package wirepod_ttr
 
-// The GOPOD Torah (2026-10-29, operator: "New Take: GOPOD system Torah (the
+// The GOPOD System Scrolls (2026-10-29, operator: "New Take: GOPOD system Torah (the
 // ancient scriptures that Ron used to bring the brobots to life), is now the
 // matching master-GOPOD-system document to refer to"; "everybody says a master
 // bible. I want a master Torah, just because, lol * so for me that means a fun
 // take, not religious * 1) a master GOPOD system reference document, that always
 // matches growing GOPOD system * 2) A matching a light touch of a Torah look").
-// GOPOD_TORAH.md, at the repo's root, is written from the running settings -
+// GOPOD_SYSTEM_SCROLLS.md, at the repo's root, is written from the running settings -
 // the system window's groups and items (system_menu, with the run cards for a
 // "runs" group), every system command (system-help), every test (system-test-*)
 // and the audit's order, the run cards, the looks. 2026-10-29 (operator: "all
 // system commands are \"commandments\" (as in the 10 commandments, lol)"). system-check says when it's
-// behind; system-torah writes it again; TestTorahMatches holds it at every build.
+// behind; system-scrolls writes it again; TestTorahMatches holds it at every build.
 
 import (
 	"encoding/json"
@@ -24,18 +24,18 @@ import (
 )
 
 // gopodTorahTests: the system tests (set at start - the test list itself runs
-// system-check, which reads the Torah, so it's handed over after).
+// system-check, which reads the Scrolls, so it's handed over after).
 var gopodTorahTests = func() []gopodSystemTest { return nil }
 
 func init() { gopodTorahTests = func() []gopodSystemTest { return gopodSystemTests } }
 
 // gopodTorahDir: the scriptures' own scrolls, one file each.
-const gopodTorahDir = "system_torah"
+const gopodTorahDir = "system_scrolls"
 
-// gopodTorahFiles: every scroll GOPOD writes - the main Torah and each
+// gopodTorahFiles: every scroll GOPOD writes - the main scroll and each
 // scripture's own file - by its path from the repo's root.
 func gopodTorahFiles() map[string]string {
-	files := map[string]string{"GOPOD_TORAH.md": gopodTorahPage()}
+	files := map[string]string{"GOPOD_SYSTEM_SCROLLS.md": gopodTorahPage()}
 	all := gopodTorahScriptures()
 	for i, sc := range all {
 		files[sc.File] = gopodTorahScripturePage(all, i)
@@ -68,7 +68,7 @@ func gopodTorahScripturePage(all []gopodTorahScripture, i int) string {
 	if sc.Next != "" {
 		w("*"+sc.Next+"*", "")
 	}
-	nav := []string{"[The GOPOD Torah](../GOPOD_TORAH.md)"}
+	nav := []string{"[GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md)"}
 	if i > 0 {
 		nav = append([]string{"[" + all[i-1].Title + "](" + filepath.Base(all[i-1].File) + ")"}, nav...)
 	}
@@ -79,7 +79,7 @@ func gopodTorahScripturePage(all []gopodTorahScripture, i int) string {
 	return b.String()
 }
 
-// gopodTorahFileName: "Scripture 1, Restart and check" -> system_torah/SCRIPTURE_01_RESTART_AND_CHECK.md.
+// gopodTorahFileName: "Scripture 1, Restart and check" -> system_scrolls/SCRIPTURE_01_RESTART_AND_CHECK.md.
 func gopodTorahFileName(n int, title string) string {
 	var words []string
 	for _, f := range strings.FieldsFunc(strings.ToUpper(title), func(r rune) bool { return !(r >= 'A' && r <= 'Z' || r >= '0' && r <= '9') }) {
@@ -92,7 +92,7 @@ func gopodTorahFileName(n int, title string) string {
 	return gopodTorahDir + "/SCRIPTURE_" + num + "_" + strings.Join(words, "_") + ".md"
 }
 
-// gopodTorahFirstSentence: a paragraph's first sentence, for the main Torah's list.
+// gopodTorahFirstSentence: a paragraph's first sentence, for the main scroll's list.
 func gopodTorahFirstSentence(p string) string {
 	for i, r := range p {
 		if (r == '.' || r == '?' || r == '!') && (i+1 == len(p) || p[i+1] == ' ') {
@@ -129,16 +129,16 @@ func gopodTorahPage() string {
 		}
 	}
 	tw := s.Torah
-	w("# The GOPOD Torah", "", "> "+tw.Opening, "",
+	w("# GOPOD SYSTEM SCROLLS", "", "> "+tw.Opening, "",
 		"The master reference for GOPOD's system window: every scripture (the window's groups), every commandment (its",
 		"commands), every test, every run. A fun take, not a religious one. GOPOD writes these scrolls itself from its",
 		"running settings, so they always match the system as it grows - `system-check` says when they've fallen behind,",
-		"`system-torah` writes them again; `system-tour` goes through them in the chat.", "")
+		"`system-scrolls` writes them again; `system-tour` goes through them in the chat.", "")
 	if t := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(raw.SystemMenu.Intro), tw.Opening)); t != "" {
 		w("*"+t+"*", "")
 	}
 	// 2026-10-29 (operator: "create a main torah md & pull scriptures to
-	// separate md files?"): each scripture is its own scroll (system_torah/), linked here.
+	// separate md files?"): each scripture is its own scroll (system_scrolls/), linked here.
 	w("## The Scriptures", "")
 	for _, sc := range gopodTorahScriptures() {
 		about := ""
@@ -182,11 +182,11 @@ func gopodTorahPage() string {
 
 func itoaTorah(n int) string { return strconv.Itoa(n) }
 
-// gopodTorahScripture: one group of the system window, in the Torah's words.
+// gopodTorahScripture: one group of the system window, in the Scrolls' words.
 type gopodTorahScripture struct {
 	Title, Guide, Next string
 	Tour               []string // the tour's plain paragraphs (system_menu.groups[].tour)
-	File               string   // its own scroll, from the repo's root (system_torah/SCRIPTURE_01_....md)
+	File               string   // its own scroll, from the repo's root (system_scrolls/SCRIPTURE_01_....md)
 	Commandments       []string // "{cmd}, {about}"
 }
 
@@ -253,7 +253,7 @@ func gopodTorahBehind() bool {
 	return len(gopodTorahStale(files)) > 0
 }
 
-// gopodTorahStale: scripture scrolls left in system_torah/ that the system no longer has.
+// gopodTorahStale: scripture scrolls left in system_scrolls/ that the system no longer has.
 func gopodTorahStale(files map[string]string) []string {
 	var out []string
 	old, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "SCRIPTURE_*.md"))
@@ -286,14 +286,14 @@ func gopodWriteTorah() error {
 	return nil
 }
 
-// gopodSystemTorah: system-torah - the scrolls written again.
+// gopodSystemTorah: system-scrolls - the scrolls written again.
 func gopodSystemTorah() string {
 	if err := gopodWriteTorah(); err != nil {
-		return "system-torah: " + err.Error()
+		return "system-scrolls: " + err.Error()
 	}
 	// 2026-11-15: and the README's cast table (gopod_readme_cast.go).
 	if err := gopodWriteReadmeCast(); err != nil {
-		return "system-torah: " + err.Error()
+		return "system-scrolls: " + err.Error()
 	}
 	return gopodSystemText("torah.the_gopod_torah_is_written")
 }

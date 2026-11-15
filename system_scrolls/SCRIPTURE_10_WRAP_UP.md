@@ -10,4 +10,4 @@ End the show. Say “thanks Brobots” for the ending, or “stop session” to 
 
 ---
 
-[Scripture 9, Test one thing](SCRIPTURE_09_TEST_ONE_THING.md) · [The GOPOD Torah](../GOPOD_TORAH.md)
+[Scripture 9, Test one thing](SCRIPTURE_09_TEST_ONE_THING.md) · [GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md)

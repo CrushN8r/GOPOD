@@ -86,7 +86,7 @@ func TestCommCheckRunsOffTheMap(t *testing.T) {
 func TestCommCheckNamesFromTheMap(t *testing.T) {
 	gopodDialZero.Store(gopodBrobot1ESN, true)
 	defer gopodDialZero.Delete(gopodBrobot1ESN)
-	for key, want := range map[string]string{"KP1": "DOC", "KP2": "PIP", "KP1off": "Brobot 1", "KP2off": "Brobot 2"} {
+	for key, want := range map[string]string{"KP1": "DOC", "KP2": "PIP", "KP1off": "BRUH!", "KP2off": "BRUH!"} {
 		if got, ok := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key); !ok || got != want {
 			t.Errorf("%s: %q, want %q", key, got, want)
 		}

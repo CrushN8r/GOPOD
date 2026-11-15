@@ -1,5 +1,5 @@
-# The system menu (the Torah)
-- **words:** system menu, torah, commandments, scriptures, shell window
+# The system menu (the Scrolls)
+- **words:** system menu, scrolls, commandments, scriptures, shell window
 - **ask:** What's in the system menu?
 - **chain:** Goverlord - the shell window's menu: its scriptures (groups), their tours and commands
 - **see also:** system-help (the same commands, as a list), system-texts (what each answers)
@@ -476,7 +476,7 @@
 
 ## 9. Test one thing - tour (system_menu.groups.8.tour[])
 1. Something acting up? Test just that part. “system-test-list” lists the tests, and “system-test” followed by a name runs one. “system-test-game” finds every topic, value point and Easter egg by its own words, and “system-test-admin-run” plays the full admin run, every line in order.
-2. “system-comm-check” holds every numpad key in turn before the show, live. “system-tour” is this tour, “system-torah” writes the Torah again, and “system-audit” runs everything with no robots called. A FAIL says what it saw: fix it in Scripture 3, then Scripture 5.
+2. “system-comm-check” holds every numpad key in turn before the show, live. “system-tour” is this tour, “system-scrolls” writes the Scrolls again, and “system-audit” runs everything with no robots called. A FAIL says what it saw: fix it in Scripture 3, then Scripture 5.
 
 ## system-test-list (system_menu.groups.8.items.0)
 1. cmd: system-test-list
@@ -490,12 +490,12 @@
 
 ## system-tour (system_menu.groups.8.items.2)
 1. cmd: system-tour
-2. about: the system window tour: Goverlord goes through the Torah, scripture by scripture; safe commandments run (again: stop)
+2. about: the system window tour: Goverlord goes through the Scrolls, scripture by scripture; safe commandments run (again: stop)
 3. run: true
 
-## system-torah (system_menu.groups.8.items.3)
-1. cmd: system-torah
-2. about: the GOPOD Torah (GOPOD_TORAH.md, the master system reference) written again from the system as it is now
+## system-scrolls (system_menu.groups.8.items.3)
+1. cmd: system-scrolls
+2. about: the GOPOD System Scrolls (GOPOD_SYSTEM_SCROLLS.md, the master system reference) written again from the system as it is now
 3. run: true
 
 ## system-comm-check (system_menu.groups.8.items.4)

@@ -215,15 +215,9 @@ func gopodSystemCommCheck() string {
 				logger.Println("GOPOD_COMM_CHECK " + key + ": " + err.Error())
 				continue
 			}
-			// 2026-11-14 (operator: "there is a single numpad mapping source"): the
-			// key's name as the picker shows it (gopodNumpadKeyLabelIn) - a voice-only
-			// persona by its call name.
+			// 2026-11-15 (operator: "KP# = [nickname]"): the key's name as the
+			// picker shows it - its persona's nickname (gopodNumpadKeyLabelIn).
 			name, _ := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
-			if strings.HasPrefix(target, gopodPersonaMark) {
-				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaMark))
-			} else if strings.HasPrefix(target, gopodPersonaReporterMark) {
-				name = gopodCallName(strings.TrimPrefix(target, gopodPersonaReporterMark))
-			}
 			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
 			// back): the line to both is to the Brobots (comm_check.all_name).
 			if n := strings.TrimSpace(cc.AllName); n != "" && strings.EqualFold(label, "All") {

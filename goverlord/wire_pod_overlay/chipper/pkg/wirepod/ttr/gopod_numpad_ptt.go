@@ -278,26 +278,45 @@ const gopodPersonaMark = "persona:"
 // gopodDialZeroMark: a numpad "ESN" that is a robot as himself, at the dial's 0%.
 const gopodDialZeroMark = "dial0:"
 
-// gopodNumpadKeyLabelIn (2026-11-13, operator: "there is a single numpad mapping
-// source, correct?"): who a key reaches, as everything shows it - the picker, the
-// comm check: a robot's key by the persona the map names (its NumLock-on key by
-// the persona the body hosts, by nickname - DOC; NumLock off, the robot himself -
-// Brobot 1); any other key as gopodNumpadBrobot labels it. false: not live.
+// gopodNumpadKeyLabelIn (2026-11-15, operator: "KP# = [nickname] * remove all
+// patchwork * rebuild from persona nickname dynamic lookup"): who a key reaches,
+// as everything shows it - the picker, the comm check, the README's cast - the
+// nickname on that persona's own card (gopodPersonaNickname): a robot's
+// NumLock-on key the persona the body hosts (DOC), NumLock off the robot himself,
+// a reporter-suit key the persona's, the * key the map's All. false: not live.
 func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 	label, target, err := gopodNumpadBrobotIn(layout, key)
 	if err != nil {
 		return "", false
 	}
-	if strings.HasPrefix(target, gopodPersonaMark) || strings.HasPrefix(target, gopodPersonaReporterMark) || target == gopodTypedAll {
+	switch {
+	case target == gopodTypedAll:
 		return label, true
+	case strings.HasPrefix(target, gopodDialZeroMark):
+		return gopodPersonaNickname(gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark)), false), true
+	case strings.HasPrefix(target, gopodPersonaReporterMark):
+		return gopodPersonaNickname(strings.TrimPrefix(target, gopodPersonaReporterMark), false), true
+	case strings.HasPrefix(target, gopodPersonaMark):
+		return gopodPersonaNickname(strings.TrimPrefix(target, gopodPersonaMark), false), true
 	}
-	if strings.HasPrefix(target, gopodDialZeroMark) {
-		return label, true
+	return gopodPersonaNickname(gopodBrobotName(target), true), true
+}
+
+// gopodPersonaNickname: the nickname on who's own card; hosted, the persona the
+// body hosts (Brobot 1 -> DOC). Its call name when a card has none.
+func gopodPersonaNickname(who string, hosted bool) string {
+	if hosted {
+		if n := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[who].Nickname); n != "" {
+			return n
+		}
+		return gopodCallName(who)
 	}
-	if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(target)].Nickname); nick != "" {
-		return nick, true
+	if head, _ := gopodPersonaProfileReadOne(gopodPersonaProfileFile(who)); head != nil {
+		if n := strings.TrimSpace(head["nickname"]); n != "" {
+			return n
+		}
 	}
-	return label, true
+	return who
 }
 
 // gopodNumpadLiveKeys: the map's live keys in its order - NumLock on KP0-KP9,

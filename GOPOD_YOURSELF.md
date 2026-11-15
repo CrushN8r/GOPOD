@@ -292,7 +292,7 @@ How GOPOD is played: the Alias Play Studio.
 
 - **No terminal needed.** Click the speaker icon on the chat page: the system menu has every
   setting, song, voice and test, grouped in order. Its full map, written by GOPOD itself:
-  [GOPOD_TORAH.md](GOPOD_TORAH.md).
+  [GOPOD_SYSTEM_SCROLLS.md](GOPOD_SYSTEM_SCROLLS.md).
 - **Change the words.** A song is a folder under `goverlord/runtime/songs/`: `story.md` for the
   lines, `knobs.json` for who says what, the cues and the moves. Copy `_new_song/` to start one.
 - **Script a run.** The LLM writes an interview, you keep the best takes, and it plays the same
