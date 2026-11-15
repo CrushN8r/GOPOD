@@ -51,6 +51,8 @@
     "about": "2026-10-29 (operator: \"decouple dumb code from flexible data\"; pass 3 of FLEXIBLE_DATA_SURVEY_001.md): system-help's list, a line each - the command, two or more spaces, what it does (the results template lines them up as a table). The Torah's Commandments section prints the same list. 2026-11-03: the lines are in gopod_probes/topic_clusters/gopod-system/system-help.md (step 1 of the clusters plan)."
   },
   "system_tour_about": "2026-10-29 (operator: \"system menu demo = Go through it as the Torah\"; \"Yes to: a recorded tour of the system window: every menu item played in order, the way the admin run plays the game, with the restart left out\"): system-tour - Goverlord says the Torah's opening, then each scripture, each commandment and the scripture's next line (torah's words); nothing is run (2026-11-13, operator: \"take out these examples from the tour\" - photos of the system window instead). quiet_seconds: the quiet after each line before the next. system-tour again stops it; Record Session keeps it. gopod_system_tour.go.",
+  "readme_cast_about": "2026-11-15 (operator: \"lists/stuff like that should be written to files that are either auto-updated on the spot/per-session/daily? Like if/when persona(s) join/leave/replace cast members\"): the README's Meet the cast table - GOPOD writes it from the numpad map, the persona cards and the crew roster (gopod_readme_cast.go; system-torah writes it with the Torah; system-check and a test fail when it's behind). Its words are numpad-mapper.md's readme_cast.",
+  "readme_cast": {},
   "system_tour": {
     "quiet_seconds": 2
   },

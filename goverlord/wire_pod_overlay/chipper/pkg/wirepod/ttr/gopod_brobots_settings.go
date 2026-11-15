@@ -581,6 +581,19 @@ type gopodBrobotsSettingsFile struct {
 		SoloNote string `json:"solo_note"`
 	} `json:"brobots_setup"`
 	// 2026-10-29: the Torah's words (gopod_torah.go, gopod_system_tour.go).
+	// 2026-11-15 (operator: "lists/stuff like that should be written to files
+	// that are auto-updated"): the README's cast table, written from the numpad
+	// map (gopod_readme_cast.go) - its few words.
+	ReadmeCast struct {
+		Head       string `json:"head"`
+		Rule       string `json:"rule"`
+		Row        string `json:"row"`
+		NumlockOff string `json:"numlock_off"`
+		OnBody     string `json:"on_body"`
+		OnLocation string `json:"on_location"`
+		AllWho     string `json:"all_who"`
+		AllWhat    string `json:"all_what"`
+	} `json:"readme_cast"`
 	Torah struct {
 		Opening     string `json:"opening"`
 		Scripture   string `json:"scripture"`

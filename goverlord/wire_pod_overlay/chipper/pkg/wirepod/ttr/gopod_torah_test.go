@@ -45,3 +45,26 @@ func TestTorahMatches(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-15 (operator: "lists/stuff like that should be written to files that
+// are auto-updated"): the README's cast table is the numpad map's - GOPOD writes
+// it (GOPOD_WRITE_TORAH=1 or system-torah); it fails when behind.
+func TestReadmeCastMatches(t *testing.T) {
+	if os.Getenv("GOPOD_WRITE_TORAH") == "1" {
+		if err := gopodWriteReadmeCast(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, _, ok := gopodReadmeCastWant(); !ok {
+		t.Fatal("README.md has no cast table markers")
+	}
+	if gopodReadmeCastBehind() {
+		t.Errorf("README.md's cast table doesn't match the numpad map - GOPOD_WRITE_TORAH=1 (or system-torah) writes it again")
+	}
+	table := gopodReadmeCastTable()
+	for _, want := range []string{"**DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1", "| KP1, NumLock off | **Brobot 1** |", "**All the Brobots**"} {
+		if !strings.Contains(table, want) {
+			t.Errorf("the cast table has no %q:\n%s", want, table)
+		}
+	}
+}

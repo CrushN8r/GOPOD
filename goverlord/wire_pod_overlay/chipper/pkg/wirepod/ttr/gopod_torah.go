@@ -291,6 +291,10 @@ func gopodSystemTorah() string {
 	if err := gopodWriteTorah(); err != nil {
 		return "system-torah: " + err.Error()
 	}
+	// 2026-11-15: and the README's cast table (gopod_readme_cast.go).
+	if err := gopodWriteReadmeCast(); err != nil {
+		return "system-torah: " + err.Error()
+	}
 	return gopodSystemText("torah.the_gopod_torah_is_written")
 }
 

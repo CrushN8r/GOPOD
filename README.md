@@ -42,17 +42,26 @@ Now that you're here, you can GOPOD Yourself! Lol
 
 Two robot bodies, four Brobot personas, and a whole crew of voices - every one on a numpad key.
 
+<!-- gopod cast table: written by GOPOD from the numpad map (numpad-mapper.md) - system-torah writes it again -->
 | Key | Who | What they do |
 |---|---|---|
-| KP1 | **DOC** - Doctrine Barfallonyou Spewer, on Brobot 1 | The host. Explains it too hard, on purpose. |
-| KP2 | **PIP** - Pip N Stall, on Brobot 2 | The sidekick. Gets it wrong first, so the room doesn't have to. |
-| KP1 / KP2, NumLock off | **Brobot 1** and **Brobot 2** | The party-bro GOPOD reps, as themselves. |
+| KP0 | **KEYNOTE** - KEYNOTE VALE | Butler, Goverlord's voice |
+| KP1 | **DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1 | the host - explains too hard, on purpose |
+| KP2 | **PIP** - PIP N STALL, on Brobot 2 | the sidekick - the room's pied piper |
+| KP3 | **GIT REPO** | Tech Intern - the USB ports & getting weather info |
+| KP4 | **CACHE PYC** | Display and Social Media Intern - the weather, ready to say |
+| KP5 | **INTEL 404 PNFH** | Brobot 1's battery |
+| KP6 | **INTEL 404 PNFT** | Brobot 2's battery |
+| KP7 | **CHALK** - CHALK BORED | Display Gomad, the display and the board |
+| KP8 | **PLAYHEAD** - PLAYHEAD ZUMINTU | Session Gomad, the runs and the session |
+| KP9 | **CAMEO** - CAMEO LOOKS | Content Gomad, social media |
+| KP1, NumLock off | **Brobot 1** | grumpy, impatient |
+| KP2, NumLock off | **Brobot 2** | clueless, happy |
+| KP3, NumLock off | **GEMMA** - GEMMA ELLE-ELLE EHM | the LLM Gomad - maximum wordplay fun |
+| KP7, NumLock off | **CHALK**, on location | Display Gomad, the display and the board |
+| KP8, NumLock off | **PLAYHEAD**, on location | Session Gomad, the runs and the session |
 | * | **All the Brobots** | One line, both answer. |
-| KP0 | **KEYS** - Keynote Vale, the butler | Goverlord's voice. If nobody else knows, Keys does. |
-| KP7 / KP8 | **CHALK** and **PLAYHEAD** | The news crew: Gomads indoors, reporters on location (NumLock off). |
-| KP9 | **CAMEO** | Social media. |
-| KP3 / KP4 | **GIT REPO** and **CACHE PYC** | The interns. |
-| KP5 / KP6 | **INTEL 404 PNFH** and **PNFT** | The security guards, watching the Brobots' batteries. |
+<!-- /gopod cast table -->
 
 <details><summary>Game card: the rest of the cast</summary>
 <!-- gopod topic: 03_future_cast -->

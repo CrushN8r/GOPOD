@@ -8,6 +8,16 @@
 - **the keys today, NumLock on:** KP0 Butler (Keys) - KP1 Doc - KP2 Pip - KP3 Git Repo - KP4 Cache PYC - KP5 Buzzer - KP6 Switch - KP7 CHALK - KP8 PLAYHEAD - KP9 CAMEO - * all the Brobots - / skip - 000 exit.
 - **NumLock off:** KP7 CHALK and KP8 PLAYHEAD on location, as their reporters, the dial at 0% (live; NumLock on: the Gomads, indoors, the dial at 100%); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (live, 2026-11-13); KP3 GEMMA, the language model (live); KP4-KP6 and KP9 free (reserved).
 ---
+## The README's cast table (readme_cast)
+1. head: `| Key | Who | What they do |`
+2. rule: `|---|---|---|`
+3. row: `| {key} | {who} | {what} |`
+4. numlock_off: `{key}, NumLock off`
+5. on_body: `{who}, on {body}`
+6. on_location: `{who}, on location`
+7. all_who: **All the Brobots**
+8. all_what: One line, both answer.
+
 
 ## USB numpad - The map (numpad_maps.usb)
 1. _note: Golden numpad/NumLock persona mapping - single source of truth: gopod_probes/topic_clusters/gopod-system/numpad-mapper.md (was ~/.gopod_alias_lib/numpad_persona_map_001.json until 2026-11-04). See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.
