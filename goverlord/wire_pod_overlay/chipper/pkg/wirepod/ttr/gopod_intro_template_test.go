@@ -287,7 +287,7 @@ func TestHighlightOneGear(t *testing.T) {
 import sys, json
 sys.path.insert(0, sys.argv[1])
 from gopod_reporter_voice_worker import align_heard
-words = [{"t": t, "s": 0, "e": 0.3} for t in ["I'm", "Intel", "404", "P-N-F-T.", "I", "watch", "it"]]
+words = [{"t": t, "s": i * 0.5, "e": i * 0.5 + 0.3} for i, t in enumerate(["I'm", "Intel", "404", "P-N-F-T.", "I", "watch", "it"])]
 heard = [{"word": w, "start": s, "end": s + 0.2} for w, s in [("i'm", 0.2), ("intel", 0.5), ("four", 0.9), ("oh", 1.1), ("four", 1.3), ("p", 1.6), ("n", 1.9), ("f", 2.2), ("t", 2.5), ("i", 2.8), ("watch", 3.0), ("it", 3.3)]]
 print(json.dumps(align_heard(words, heard)))
 `
