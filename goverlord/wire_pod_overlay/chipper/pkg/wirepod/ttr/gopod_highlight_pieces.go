@@ -139,11 +139,27 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 	var cuts []int // byte offsets in display
 	seg, lastWord := 0, -1
 	for p := range pieces {
-		first := -1
+		first, lead := -1, 0
 		for i := range spoken {
-			if pieceOf[i] == p && matchOf[i] >= 0 {
+			if pieceOf[i] != p {
+				continue
+			}
+			if matchOf[i] >= 0 {
 				first = matchOf[i]
 				break
+			}
+			lead++
+		}
+		// 2026-11-15 (live: "...party bus of theirs, yeah?. Goverlord's got" -
+		// "Goverlord's" said "Guhverlord's" opens a piece, the border slid to
+		// "got", and that piece's light never went out): a piece starts at its
+		// first word even when it's said another way - back by the piece's words
+		// said differently before its first match, never behind the piece before.
+		if first >= 0 && lead > 0 {
+			if back := first - lead; back > lastWord {
+				first = back
+			} else {
+				first = lastWord + 1
 			}
 		}
 		// 2026-10-08: a piece whose words are all said differently ("PipTA" said

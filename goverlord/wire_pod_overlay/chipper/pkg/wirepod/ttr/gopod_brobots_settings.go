@@ -508,6 +508,9 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"parts"`
 		RightText string `json:"right_text"`
 		WrongText string `json:"wrong_text"`
+		// 2026-11-15: the greeting every answer opens with when the line greets no
+		// part of the day (the answer chain's greeting part).
+		DayText string `json:"day_text"`
 	} `json:"greetings"`
 	// 2026-10-24: GOPOD as a phone app - the secure page (gopod_https.go).
 	App struct {
@@ -757,7 +760,10 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"spice"`
 	PrebuildContext struct {
 		Header string   `json:"header"`
-		Lines  []string `json:"lines"`
+		// 2026-11-15 (operator: "'My role is a GOPOD rep' is fine for Brobots"):
+		// his {role} at the dial's 0%; hosting DOC or PIP, it's the persona's job.
+		RepRole string   `json:"rep_role"`
+		Lines   []string `json:"lines"`
 	} `json:"prebuild_context"`
 	// 2026-10-22: the Brobot Bubble's steps, in order (gopodBubbleStep).
 	BrobotBubble struct {
@@ -1082,8 +1088,6 @@ type gopodBrobotsSettingsFile struct {
 		ChatAnswer   string            `json:"chat_answer"`
 		BatteryNote  string            `json:"battery_note"`
 		Genders      map[string]string `json:"genders"`
-		// 2026-11-13: the parts of the day, the hour each starts (the brain's {day_part}).
-		DayParts map[string]float64 `json:"day_parts"`
 
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`

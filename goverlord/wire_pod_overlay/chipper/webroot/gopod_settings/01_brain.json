@@ -177,14 +177,14 @@
     "gomads_raw_chat": false
   },
   "answer_chains": {
-    "base": {"parts": ["start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
-    "brobots": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
-    "brobots_intro": {"parts": ["llm", "intro_wrap"]},
-    "brobots_summary": {"parts": ["golden_line", "llm", "summary_bubbles", "reminder"]},
-    "duo_a": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
-    "duo_b": {"parts": ["golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},
-    "brobots_math": {"parts": ["colour:value_point", "llm", "rule", "reminder", "redirect"]},
-    "gomad_persona": {"parts": ["who_line", "manager_take", "llm"]}
+    "base": {"parts": ["greeting", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
+    "brobots": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
+    "brobots_intro": {"parts": ["greeting", "llm", "intro_wrap"]},
+    "brobots_summary": {"parts": ["greeting", "golden_line", "llm", "summary_bubbles", "reminder"]},
+    "duo_a": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
+    "duo_b": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},
+    "brobots_math": {"parts": ["greeting", "colour:value_point", "llm", "rule", "reminder", "redirect"]},
+    "gomad_persona": {"parts": ["greeting", "who_line", "manager_take", "llm"]}
   },
   "reply_tighten": {
     "about": "Tighter replies (operator 2026-10-06: \"Tighten the responses\"; 2026-10-07: a response budget instead of one cap - \"Can you hear me? vs Tell me all about yourself\"; gopod_reply_tighten.go). On the LLM's part of a reply only, before the scripted lines go in. The budget is worked out by the code per question, the prompt is unchanged: base_sentences, plus per_topic_sentences for each topic the question loads (topic_sentences sets a topic's own number - checks, \"can you hear me?\", adds none), plus more_sentences when it has a more_words phrase, never over max_sentences; after a point's scripted line (value_points.say_lines) the LLM gets say_line_sentences (2026-10-07: its talk after the line argued with it). Anything in [square brackets] is dropped - a placeholder, never speech. not_sentence_ends don't end a sentence. drop_lists cuts numbered and bulleted list lines and ``` blocks and keeps **bold** words without the stars; drop_stage_directions cuts *stage directions* (two words or more, or one on stage_directions.json) - false brings back the stage_direction_emojis lines.",

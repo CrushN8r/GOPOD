@@ -61,12 +61,13 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 
 ## Before I answer (prebuild_context)
 1. header: BEFORE I ANSWER:
+2. rep_role: a GOPOD rep
 
 ## Before I answer, its lines in order (prebuild_context.lines)
 1. Time is {time}.
 2. I am {brobot} ({host}, {gender}), located in {place}.
 3. I'm chatting with friends: {cast}. I check recent chat history for context.
-4. My role is a GOPOD rep.
+4. My role is {role}.
 5. {solo}
 6. I have a reminders-list to go through: {reminders}.
 7. What was asked of me: "{question}"

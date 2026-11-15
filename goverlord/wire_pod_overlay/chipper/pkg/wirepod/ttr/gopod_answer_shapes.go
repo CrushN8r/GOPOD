@@ -48,7 +48,7 @@ func gopodAnswerShape(esn, question string, first bool) []string {
 	shape := append([]string(nil), gopodBrobotsSettings.AnswerShapes.Shapes[typ]...)
 	// A golden question's exact line may open any answer.
 	if len(shape) > 0 {
-		shape = append([]string{"golden?", "snippet?"}, shape...)
+		shape = append([]string{"greeting?", "golden?", "snippet?"}, shape...)
 		shape = append(shape, "snippet?") // the code's scripted end line
 	}
 	// Duo A (duo.a): its reminder is the hand-over (ends_with), or the hand-over
@@ -83,6 +83,11 @@ func gopodShapeLabels(esn, answer string) []string {
 			continue
 		}
 		label := "llm"
+		// 2026-11-15: the greeting of the day opens every answer - "greeting".
+		if len(labels) == 0 && gopodGreetingLeadRE.MatchString(b) {
+			labels = append(labels, "greeting")
+			continue
+		}
 		// A scripted start line (scripted_snippets, the code's) - "snippet".
 		if gopodIsSnippetLine(b) {
 			labels = append(labels, "snippet")

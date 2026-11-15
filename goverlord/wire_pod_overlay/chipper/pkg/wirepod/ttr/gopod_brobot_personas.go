@@ -156,6 +156,10 @@ func gopodPrebuildContext(esn, question string) string {
 		"reminders": gopodReminderTopics(question),
 		"question":  strings.TrimSpace(question),
 		"steps":     strings.Join(h.Steps, ", then "),
+		"role":      strings.TrimSpace(h.JobName),
+	}
+	if gopodAtDialZero(brobot) || fill["role"] == "" {
+		fill["role"] = strings.TrimSpace(pc.RepRole)
 	}
 	// 2026-10-23 (A3): the score, so he answers from it too.
 	score, _ := gopodCoverageScoreText()

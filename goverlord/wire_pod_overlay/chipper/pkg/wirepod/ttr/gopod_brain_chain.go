@@ -577,22 +577,11 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 	return strings.TrimSpace(tmpl)
 }
 
-// gopodDayPart: the part of the day this hour is in (here_now.day_parts - the
-// latest one started; before the first, the last of the day).
+// gopodDayPart: the part of the day this hour is in - the greetings' parts
+// (gopodPartOfDay), the one source.
 func gopodDayPart(hour int) string {
-	name, from, last, lastFrom := "", -1.0, "", -1.0
-	for n, h := range gopodBrobotsSettings.HereNow.DayParts {
-		if h <= float64(hour) && h > from {
-			name, from = n, h
-		}
-		if h > lastFrom {
-			last, lastFrom = n, h
-		}
-	}
-	if name == "" {
-		return last
-	}
-	return name
+	now := time.Now()
+	return gopodPartOfDay(time.Date(now.Year(), now.Month(), now.Day(), hour, 0, 0, 0, now.Location()))
 }
 
 // gopodBrainTime: the time now (this machine's clock), in the here-and-now format.

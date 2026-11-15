@@ -32,6 +32,7 @@
 ## Greetings (greetings)
 1. right_text: Good {part} to you too!
 2. wrong_text: Good {said}? It's {time} here - good {part}!
+3. day_text: Good {part}!
 
 ## Host persona frames (host_persona_frames)
 1. dial: {my} stereo dial: {left_pct}% {left}, {right_pct}% {name}.

@@ -26,4 +26,4 @@
 1. intro_opener: {BUTLER.call}
 
 ## A Brobot's intro + weather, in order (answer_chains.brobots_intro_weather)
-1. parts: llm | intro_weather | weather_kit | reminder | redirect
+1. parts: greeting | llm | intro_weather | weather_kit | reminder | redirect

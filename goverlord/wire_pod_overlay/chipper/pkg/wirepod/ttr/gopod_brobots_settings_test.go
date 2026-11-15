@@ -637,7 +637,7 @@ func TestSayLinesForHardPoints(t *testing.T) {
 		t.Errorf("point 2: %q", got)
 	}
 	reply := gopodStitchSnippet(say["doc_and_pip 1"], "happy___ "+say["doc_and_pip 1"]+" Yo bro!")
-	if strings.Count(reply, "Squawkadoodle") != 1 {
+	if strings.Count(reply, say["doc_and_pip 1"]) != 1 {
 		t.Errorf("say line twice: %q", reply)
 	}
 
@@ -2736,5 +2736,39 @@ func TestChunkSpokenWhole(t *testing.T) {
 	got := strings.Join(gopodSpokenPieceTexts([]string{"thinking... PIP said: thinking... Think about turning fear into bravery - let's talk the GOPOD way and see how that helps!"}), " ")
 	if !strings.Contains(got, "Pip said") || !strings.Contains(got, "Think about turning fear into bravery") || !strings.Contains(got, "see how that helps") {
 		t.Errorf("not all spoken: %q", got)
+	}
+}
+
+// 2026-11-15 (live: "yeah?. Goverlord's got" - the border slid to "got"): a
+// piece whose first word is said another way still starts at that word.
+func TestPieceStartsAtWordSaidAnotherWay(t *testing.T) {
+	display := "on that party bus of theirs, yeah?. Goverlord's got a big plan."
+	shown, _ := gopodSegmentDisplay(display, []string{"on that party bus of theirs,", "yeah?.", "Guhverlord's got a big plan."})
+	m := gopodBrobotsSettings.ScriptedSplit.SegmentMarker
+	if !strings.Contains(shown, m+"Goverlord's got") {
+		t.Errorf("the piece should start at Goverlord's: %q", shown)
+	}
+}
+
+// 2026-11-15 (operator: "Have everyone start their response with a greeting of
+// the day"): every answer chain opens with the greeting part; an answer opens
+// with the greeting for now, said once, and a line's own greeting is answered.
+func TestAnswerOpensWithGreetingOfTheDay(t *testing.T) {
+	for g := range gopodBrobotsSettings.AnswerChains {
+		if p := gopodAnswerChain(g); len(p) == 0 || p[0] != "greeting" {
+			t.Errorf("chain %s doesn't open with greeting: %v", g, p)
+		}
+	}
+	afternoon := time.Date(2026, 11, 15, 14, 0, 0, 0, time.Local)
+	if got := gopodGreetingOpen("", "who are you and what do you do?", afternoon); got != "Good afternoon!" {
+		t.Errorf("no greeting in the line: %q", got)
+	}
+	if got := gopodGreetingOpen("", "good afternoon Brobots", afternoon); got != "Good afternoon to you too!" {
+		t.Errorf("a greeting in the line: %q", got)
+	}
+	g := gopodGreetingOpen("", "hi", time.Now())
+	out := gopodGreetingStitch("", "hi", "Good evening, my friend! Nice try, Mrs cranky-shaft!")
+	if !strings.HasPrefix(out, g) || strings.Count(strings.ToLower(out), "good ") != 1 || !strings.Contains(out, "Mrs cranky-shaft") {
+		t.Errorf("stitched: %q", out)
 	}
 }

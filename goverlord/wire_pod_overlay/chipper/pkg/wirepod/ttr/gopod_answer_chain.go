@@ -109,11 +109,7 @@ func gopodContains(list []string, v string) bool {
 // hilarity that ensues afterwards"): the exact line for a golden question
 // (golden_answers), "" for none.
 func gopodGoldenAnswer(esn, question string) string {
-	// 2026-10-24: a "good <part of day>" opens with its greeting, checked
-	// against the real time (gopod_greetings.go).
-	if line := gopodGreetingLine(esn, question, time.Now()); line != "" {
-		return line
-	}
+	// 2026-11-15: a line's greeting is answered by the chain's greeting part.
 	lower := strings.ToLower(strings.Join(strings.Fields(question), " "))
 	for _, g := range gopodBrobotsSettings.GoldenAnswers {
 		for _, q := range g.Queries {
@@ -291,6 +287,9 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return gopodStitchEndSnippet(line, raw)
 			}
 		}
+	case "greeting":
+		// 2026-11-15: every answer opens with the greeting of the day (gopod_greetings.go).
+		return gopodGreetingStitch(esn, question, raw)
 	case "golden_line":
 		// 2026-10-23: a golden question's exact answer, word for word, first.
 		if line := gopodGoldenAnswer(esn, question); line != "" {
@@ -455,6 +454,8 @@ func gopodGomadPartFor(host, text string) string {
 			}
 		case "llm":
 			return p
+		case "greeting":
+			// Not an answer of its own: it opens the model's (gopodGomadReplyMade).
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)
 		}
@@ -500,7 +501,14 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	}
 	logger.Println("GOPOD_PERSONA " + host + ": " + reply)
 	// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
-	return gopodPersonaChainWrap(host, reply), nil
+	reply = gopodPersonaChainWrap(host, reply)
+	// 2026-11-15: then the greeting of the day first, when its chain has it.
+	for _, p := range gopodAnswerChain("gomad_persona") {
+		if p == "greeting" {
+			reply = gopodGreetingStitch("", text, reply)
+		}
+	}
+	return reply, nil
 }
 
 // gopodGomadAnswerEarly: host's answer, said and shown as sayAs; early, when

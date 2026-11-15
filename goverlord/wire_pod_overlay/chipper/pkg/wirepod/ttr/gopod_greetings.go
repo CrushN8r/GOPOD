@@ -54,6 +54,35 @@ func gopodGreetingLine(esn, text string, now time.Time) string {
 	return strings.TrimSpace(strings.NewReplacer("{said}", said, "{part}", part, "{time}", gopodClockFor(esn, now)).Replace(tmpl))
 }
 
+// gopodGreetingLeadRE: a greeting of the day an answer opens with itself.
+var gopodGreetingLeadRE = regexp.MustCompile(`(?i)^\s*good\s+(morning|afternoon|evening|night|day)\b[^\pL]*`)
+
+// gopodGreetingOpen (2026-11-15, operator: "Have everyone start their response
+// with a greeting of the day. Good morning, good afternoon, good evening, good
+// night et. Cetera"): what every answer opens with - the reply to a line's
+// greeting (gopodGreetingLine), else the greeting for the part of day it is now
+// (greetings.day_text); "" when off.
+func gopodGreetingOpen(esn, text string, now time.Time) string {
+	if line := gopodGreetingLine(esn, text, now); line != "" {
+		return line
+	}
+	part := gopodPartOfDay(now)
+	if part == "" {
+		return ""
+	}
+	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.Greetings.DayText, "{part}", part))
+}
+
+// gopodGreetingStitch: reply opening with its greeting - one the model wrote
+// itself is dropped, so it's said once, and right for the time.
+func gopodGreetingStitch(esn, text, reply string) string {
+	g := gopodGreetingOpen(esn, text, time.Now())
+	if g == "" || strings.TrimSpace(reply) == "" {
+		return reply
+	}
+	return gopodStitchSnippet(g, gopodGreetingLeadRE.ReplaceAllString(reply, ""))
+}
+
 // gopodClockFor: the time as this Brobot's own clock says it (his 12/24-hour
 // setting, the weather line's way): "10:19 AM", or "1019 Hours Military Time".
 func gopodClockFor(esn string, t time.Time) string {

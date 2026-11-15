@@ -40,7 +40,7 @@ func TestIntroTemplate(t *testing.T) {
 	if typ := gopodAnswerType("ESN01", "Hey Doc! Introduce yourself fully"); typ != "intro" {
 		t.Errorf("intro answer type: %q", typ)
 	}
-	if p := gopodAnswerChain("brobots_intro"); len(p) != 2 || p[1] != "intro_wrap" {
+	if p := gopodAnswerChain("brobots_intro"); len(p) == 0 || p[len(p)-1] != "intro_wrap" {
 		t.Errorf("brobots_intro chain: %v", p)
 	}
 }
