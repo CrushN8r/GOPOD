@@ -112,7 +112,13 @@ func GopodReporterVoicesStart() {
 		gopodReporter.Unlock()
 		gopodVoicesAtStart.Store(true)
 		logger.Println("GOPOD_REPORTER_VOICES ready")
-		for _, l := range append(gopodBookends(true), gopodBookends(false)...) {
+		// 2026-11-14 (operator: "in the opener, reporter lines ... they all get
+		// like pre-generated? that's wrong now * have each bubble appear starting
+		// with the generating + hourglass"): the opening isn't made ahead - a line
+		// not made yet is made when its bubble comes (Generating and the hourglass
+		// meanwhile); one already made plays at once. The closing is made now.
+		gopodReporterBookendsDone()
+		for _, l := range gopodBookends(false) {
 			gopodReporterFile(l.Host, gopodReporterSays(l.Text))
 		}
 		// 2026-10-08: the system voice's lines too (LLM status first, before the opening).
@@ -837,13 +843,14 @@ func gopodReporterOpening(warm bool) {
 	if len(opening) == 0 {
 		return
 	}
-	if !gopodReporterAllMade(opening) {
-		select {
-		case <-gopodReporterBookendsMade:
-		case <-time.After(gopodSecondsToDuration(rv.StartWaitSeconds)):
-			logger.Println("GOPOD_REPORTER_VOICES opening skipped: voices not ready")
-			return
-		}
+	// The voice worker ready (not every line made - each is made as it comes:
+	// generate once, use many - 2026-11-14, operator: "If they're there & no
+	// diffs, skip to play-readiness").
+	select {
+	case <-gopodReporterBookendsMade:
+	case <-time.After(gopodSecondsToDuration(rv.StartWaitSeconds)):
+		logger.Println("GOPOD_REPORTER_VOICES opening skipped: voices not ready")
+		return
 	}
 	// 2026-10-08: the system voice says the LLM status first - only while it
 	// warms (2026-10-13: a warm start skips the warming part).
