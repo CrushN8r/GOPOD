@@ -1720,8 +1720,10 @@ func TestHeaderTemplateHolds(t *testing.T) {
 			t.Errorf("bubble_kinds rule %v: a kind of the five, and what it has", m)
 		}
 	}
-	if fb, _ := gopodBlockForTest(t, raw, "display_names")["fallback"].(string); !strings.Contains(fb, "{n}") {
-		t.Errorf("display_names.fallback %q: no {n}", fb)
+	// 2026-11-14 (operator: "Brobot 3/4 ... old stale labelling ... prune"): no
+	// "Brobot {n}" header fallback - a header is its persona's label.
+	if fb, _ := gopodBlockForTest(t, raw, "display_names")["fallback"].(string); strings.Contains(fb, "Brobot") {
+		t.Errorf("display_names.fallback %q: a Brobot label for a persona", fb)
 	}
 	if n := strings.Count(page, `head.className = "brobot-bubble-head"`); n != 1 {
 		t.Errorf("the page builds a bubble header %d ways, want 1", n)
