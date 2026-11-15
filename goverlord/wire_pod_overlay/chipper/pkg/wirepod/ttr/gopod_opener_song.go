@@ -164,7 +164,7 @@ func gopodMessageLines(text string) []string {
 var gopodLinesMade = func(lines []string) bool {
 	for _, line := range lines {
 		if _, _, ok := gopodReporterCached(gopodBrobotsSettings.SignOff.SystemRole,
-			gopodSaySwap(gopodReporterSays(line), gopodBrobotsSettings.ReporterVoices.SystemSayWords)); !ok {
+			gopodSaysFor(gopodBrobotsSettings.SignOff.SystemRole, line)); !ok {
 			return false
 		}
 	}
@@ -174,7 +174,7 @@ var gopodLinesMade = func(lines []string) bool {
 // gopodMakeLines makes every line's system voice file (waiting for the voice worker).
 func gopodMakeLines(lines []string) {
 	for _, line := range lines {
-		gopodReporterFile(gopodBrobotsSettings.SignOff.SystemRole, gopodReporterSays(line))
+		gopodReporterFile(gopodBrobotsSettings.SignOff.SystemRole, gopodSaysFor(gopodBrobotsSettings.SignOff.SystemRole, line))
 	}
 }
 

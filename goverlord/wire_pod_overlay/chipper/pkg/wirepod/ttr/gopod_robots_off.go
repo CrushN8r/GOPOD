@@ -82,7 +82,7 @@ func (c *gopodOffConn) SayText(ctx context.Context, in *vectorpb.SayTextRequest,
 	// should change, only placeholder voices"): only the voice goes to the
 	// page - the Brobot's bubble is his own, as with the robots; no line,
 	// no marker of its own.
-	page, seconds, ok := gopodReporterFile(host, gopodReporterSays(in.GetText()))
+	page, seconds, ok := gopodReporterFile(host, gopodSaysFor(host, in.GetText()))
 	if !ok {
 		logger.Println("GOPOD_ROBOTS_OFF " + host + ": no voice for the say - check his voice in the numpad's voices panel: " + gopodHeardShort(in.GetText()))
 	} else {

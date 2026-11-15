@@ -480,7 +480,7 @@ func gopodGomadAnswerStart(host, sayAs, text string) *gopodGomadEarlyAnswer {
 			first = chunks[0]
 		}
 		if first = strings.TrimSpace(first); first != "" {
-			gopodReporterFile(sayAs, gopodReporterSays(first))
+			gopodReporterFile(sayAs, gopodSaysFor(sayAs, first))
 		}
 	}()
 	return e

@@ -43,10 +43,7 @@ func gopodVoicesBackupDir() string {
 func gopodVoicesNeeded() []string {
 	var out []string
 	check := func(host, text string) {
-		says := gopodReporterSays(text)
-		if gopodSpeaksAsSystem(host) {
-			says = gopodSaySwap(says, gopodBrobotsSettings.ReporterVoices.SystemSayWords)
-		}
+		says := gopodSaysFor(host, text)
 		if _, _, ok := gopodReporterCached(host, says); !ok {
 			out = append(out, host+": "+gopodHeardShort(text))
 		}

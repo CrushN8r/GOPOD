@@ -94,7 +94,7 @@ func gopodEggSay(text, name, zoom string) bool {
 func gopodEggVoiceMake(host, file string, parts []string) (float64, error) {
 	var files []string
 	for _, p := range parts {
-		pg, _, ok := gopodReporterFile(host, p)
+		pg, _, ok := gopodReporterFile(host, gopodSaysFor(host, p))
 		if !ok {
 			return 0, errors.New("piece not made: " + p)
 		}

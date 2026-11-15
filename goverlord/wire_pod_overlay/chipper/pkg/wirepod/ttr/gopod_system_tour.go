@@ -162,11 +162,8 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool, display ...st
 	GopodChatFeedAdd(host, "lines:"+shown)
 	says := make([]string, len(keep))
 	for i, l := range keep {
-		says[i] = gopodReporterSays(l)
+		says[i] = gopodSaysFor(host, l)
 		said := says[i]
-		if gopodSpeaksAsSystem(host) {
-			said = gopodSaySwap(said, rv.SystemSayWords)
-		}
 		if rv.GeneratingMarker == "" {
 			continue
 		}

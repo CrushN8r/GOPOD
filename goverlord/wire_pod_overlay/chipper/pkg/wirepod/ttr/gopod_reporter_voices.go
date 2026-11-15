@@ -119,12 +119,12 @@ func GopodReporterVoicesStart() {
 		// meanwhile); one already made plays at once. The closing is made now.
 		gopodReporterBookendsDone()
 		for _, l := range gopodBookends(false) {
-			gopodReporterFile(l.Host, gopodReporterSays(l.Text))
+			gopodReporterFile(l.Host, gopodSaysFor(l.Host, l.Text))
 		}
 		// 2026-10-08: the system voice's lines too (LLM status first, before the opening).
 		for _, text := range gopodSystemLines() {
 			if strings.TrimSpace(text) != "" {
-				gopodReporterFile(gopodBrobotsSettings.SignOff.SystemRole, gopodReporterSays(text))
+				gopodReporterFile(gopodBrobotsSettings.SignOff.SystemRole, gopodSaysFor(gopodBrobotsSettings.SignOff.SystemRole, text))
 			}
 		}
 		gopodReporterBookendsDone()
@@ -138,10 +138,10 @@ func GopodReporterVoicesStart() {
 		// the Operator voice that reads a typed command.
 		made := 0
 		for _, l := range gopodReporterAllLines() {
-			if _, _, ok := gopodReporterCached(l.Host, gopodReporterSays(l.Text)); ok {
+			if _, _, ok := gopodReporterCached(l.Host, gopodSaysFor(l.Host, l.Text)); ok {
 				continue
 			}
-			if _, _, ok := gopodReporterFile(l.Host, gopodReporterSays(l.Text)); ok {
+			if _, _, ok := gopodReporterFile(l.Host, gopodSaysFor(l.Host, l.Text)); ok {
 				made++
 			}
 		}
@@ -198,11 +198,8 @@ func gopodReporterVoice(host string) string {
 // "off": the voice failed - its words show. Shown lines all come through here.
 func gopodSayShown(host, to, text string) (string, float64, bool) {
 	rv := gopodBrobotsSettings.ReporterVoices
-	says := gopodReporterSays(text)
+	says := gopodSaysFor(host, text)
 	said := says
-	if gopodSpeaksAsSystem(host) {
-		said = gopodSaySwap(said, rv.SystemSayWords)
-	}
 	_, _, made := gopodReporterCached(host, said)
 	waiting := !made && rv.GeneratingMarker != ""
 	if waiting {
@@ -235,10 +232,7 @@ func gopodSayShown(host, to, text string) (string, float64, bool) {
 // length in seconds, making it first if it isn't there yet. ok is false when
 // the worker isn't ready or the line couldn't be made.
 func gopodReporterFile(host, text string) (string, float64, bool) {
-	// Reporter 0 (2026-10-12): Goverlord's lines get its own phonetics too.
-	if gopodSpeaksAsSystem(host) {
-		text = gopodSaySwap(text, gopodBrobotsSettings.ReporterVoices.SystemSayWords)
-	}
+	// 2026-11-14: text is already what host says (gopodSaysFor) - no swap here.
 	if page, seconds, ok := gopodReporterCached(host, text); ok {
 		return page, seconds, true
 	}
@@ -581,11 +575,8 @@ func gopodReporterSay(host, text string, show, wait bool) bool {
 // gopodSayShown, for a line shown some other way.
 func gopodSayForShownLine(host, text string) (string, float64, bool) {
 	rv := gopodBrobotsSettings.ReporterVoices
-	says := gopodReporterSays(text)
+	says := gopodSaysFor(host, text)
 	said := says
-	if gopodSpeaksAsSystem(host) {
-		said = gopodSaySwap(said, rv.SystemSayWords)
-	}
 	cachedPage, _, made := gopodReporterCached(host, said)
 	shown := strings.TrimSpace(text)
 	if rv.GeneratingMarker != "" && shown != "" {
@@ -990,7 +981,7 @@ func gopodReporterAllMade(lines []gopodHostLine) bool {
 	for _, l := range lines {
 		// 2026-10-16 (comb-through: the file is made from the line as said -
 		// "live" -> "lyve" - so the check looks for that).
-		if _, _, ok := gopodReporterCached(l.Host, gopodReporterSays(l.Text)); !ok {
+		if _, _, ok := gopodReporterCached(l.Host, gopodSaysFor(l.Host, l.Text)); !ok {
 			return false
 		}
 	}
@@ -1000,6 +991,23 @@ func gopodReporterAllMade(lines []gopodHostLine) bool {
 // gopodReporterSays: the line as the reporter says it - reporter_voices.say_words
 // replaced, whole words, any case (operator 2026-10-06: "reporter word
 // replacements ... thx = thanks"). The bubble keeps what was typed.
+// gopodSaysFor (2026-11-14, operator: "You messed up Keys lingo for: CrushN8r *
+// Why are there still these whack-a-mole recurring errors? * No patching!!"):
+// what host's voice says for text - the one lingo for that voice: the shared
+// list and every persona's own (gopodLingoWords), and for Keys' voice (the
+// system's) his own words winning (reporter_voices.system_say_words). Every
+// voice file is made from this, and nothing swaps words after it.
+func gopodSaysFor(host, text string) string {
+	words := gopodLingoWords()
+	if gopodSpeaksAsSystem(host) {
+		for k, v := range gopodBrobotsSettings.ReporterVoices.SystemSayWords {
+			words[k] = v
+		}
+	}
+	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakFlags(text)), words)
+}
+
+// gopodReporterSays: gopodSaysFor a voice that isn't the system's.
 func gopodReporterSays(text string) string {
 	// 2026-10-18 (operator, on CHALK's weather line: "canada spoken 2x"): a flag
 	// right after its country isn't said again (gopodSpeakFlags).
