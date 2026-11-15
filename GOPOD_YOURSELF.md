@@ -73,7 +73,7 @@ voice cast takes 20 to 25 seconds.
 | **2 Vectors** | Brobot 1 and Brobot 2: one shared chat, brother banter, the full show. |
 | **3 or more** | **You pick two** to be the Brobots ([step 4](#step-4-name-your-brobots)). The rest stay ordinary Wire-Pod Vectors: they keep working the way they always have, just not in the Brobots' cast, shared chat or songs. Swap who's on stage by changing the pick and restarting. Not live-tested with more than two robots connected. |
 
-The voice-only cast on the numpad (CHALK, PLAYHEAD, the Cozmo students, the Moorebot guards, Cameo)
+The voice-only cast on the numpad (CHALK, PLAYHEAD, the interns, the Moorebot guards, Cameo)
 has no robot bodies yet. Extra Vectors are the obvious future bodies - not built.
 
 ---

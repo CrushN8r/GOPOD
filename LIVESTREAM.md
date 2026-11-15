@@ -7,6 +7,9 @@
 The livestream is where the Brobots and the room play it live. It hasn't run in front of a live
 audience yet - this is the design.
 
+**Be there for the first one.** The channel is CrushN8r on YouTube (@CrushN8r). The first live
+date goes to the CRUSHN8R CREW'd newsletter first: [crushn8r.ca](https://crushn8r.ca).
+
 ## The loop
 
 One segment. A claim or a number that doesn't sit right - a price that looks wrong, a stat that
