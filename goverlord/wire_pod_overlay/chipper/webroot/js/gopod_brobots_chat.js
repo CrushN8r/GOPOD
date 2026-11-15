@@ -3579,6 +3579,10 @@
         var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
         if (def && edits[def]) { return edits[def]; }
         if (edits[who]) { return edits[who]; }
+        // 2026-11-14 (operator: "CHALK – reporter * CHALK – news anchor"): the
+        // labels (reporter_voices.labels, each persona's name filled in) are the
+        // header's one source; the numpad persona only when a speaker has none.
+        if (hostLabels[who]) { return hostLabels[who]; }
         if (def) { return def; }
         if (np && dn.fallback) { return String(dn.fallback).replace("{n}", np.key.replace(/^KP/, "")); }
         return hostLabels[who] || who;

@@ -16,8 +16,8 @@ import (
 //	# Draft script: <run>
 //	> A line starting with ">" is a note; blank lines don't count.
 //	## 1. Who they are                      a question starts
-//	Reporter 1: banter before the question  (optional)
-//	Reporter 2 asks Brobot 1: the question  ("Brobots" asks both)
+//	CHALK reporter: banter before the question  (optional)
+//	PLAYHEAD reporter asks Brobot 1: the question  ("Brobots" asks both)
 //	Brobot 1: his answer                    "Brobot 1 (happy):" picks the animation
 //	moves: lift my arm = arm; nod = nod     moves at those words (arm, nod, cube)
 //	Brobot 2: his brother's line            then reporters' and Brobots' lines, in order
@@ -27,29 +27,12 @@ import (
 const gopodDraftScriptName = "draft_script.md"
 
 var (
-	gopodDraftAskLine  = regexp.MustCompile(`^(Reporter [12])(?:, Brobot [34])? asks (Brobot [12]|Brobots):\s*(.+)$`)
-	gopodDraftSayLine  = regexp.MustCompile(`^(Brobot [12]|Reporter [12])(?:, Brobot [34])?(?: \(([^)]*)\))?:\s*(.+)$`)
+	// 2026-11-14 (operator: "Brobot 3/4 ... old stale labelling ... prune"): a
+	// reporter is named by its role, "CHALK reporter" (reporter_voices.hosts).
+	gopodDraftAskLine  = regexp.MustCompile(`^([A-Z][A-Z0-9 ]* reporter) asks (Brobot [12]|Brobots):\s*(.+)$`)
+	gopodDraftSayLine  = regexp.MustCompile(`^(Brobot [12]|[A-Z][A-Z0-9 ]* reporter)(?: \(([^)]*)\))?:\s*(.+)$`)
 	gopodDraftMoveLine = regexp.MustCompile(`^moves:\s*(.+)$`)
 )
-
-// gopodDraftReporterLabel: "Reporter 1" -> its label in reporter_voices.labels
-// ("Reporter 1, Brobot 3").
-func gopodDraftReporterLabel(short string) string {
-	for _, label := range gopodBrobotsSettings.ReporterVoices.Labels {
-		if strings.HasPrefix(label, short+",") || strings.HasPrefix(label, short+":") || label == short {
-			return label
-		}
-	}
-	return short
-}
-
-// gopodDraftReporterShort: "Reporter 1: Brobot 3" (or "Reporter 1, Brobot 3") -> "Reporter 1".
-func gopodDraftReporterShort(label string) string {
-	if i := strings.IndexAny(label, ",:"); i > 0 && strings.HasPrefix(label, "Reporter") {
-		return label[:i]
-	}
-	return label
-}
 
 // gopodParseDraftScript reads a draft_script.md.
 func gopodParseDraftScript(text string) (gopodDraft, error) {
@@ -73,7 +56,7 @@ func gopodParseDraftScript(text string) (gopodDraft, error) {
 			if q.Ask != "" {
 				return d, errors.New(at + "a second question in \"" + q.Topic + "\"")
 			}
-			q.ReadBy, q.To, q.Ask = gopodDraftReporterLabel(m[1]), m[2], strings.TrimSpace(m[3])
+			q.ReadBy, q.To, q.Ask = m[1], m[2], strings.TrimSpace(m[3])
 		case gopodDraftMoveLine.MatchString(line):
 			if len(q.Answers) == 0 {
 				return d, errors.New(at + "moves before an answer")
@@ -89,8 +72,7 @@ func gopodParseDraftScript(text string) (gopodDraft, error) {
 		case gopodDraftSayLine.MatchString(line):
 			m := gopodDraftSayLine.FindStringSubmatch(line)
 			who, cue, say := m[1], strings.TrimSpace(m[2]), strings.TrimSpace(m[3])
-			if strings.HasPrefix(who, "Reporter") {
-				who = gopodDraftReporterLabel(who)
+			if strings.HasSuffix(who, " reporter") {
 				if q.Ask == "" {
 					q.Before = append(q.Before, gopodDraftLine{Who: who, Text: say})
 					continue
@@ -120,11 +102,11 @@ func gopodDraftScriptText(d gopodDraft) string {
 		}
 		b.WriteString("\n## " + topic + "\n")
 		for _, l := range q.Before {
-			b.WriteString(gopodDraftReporterShort(l.Who) + ": " + l.Text + "\n")
+			b.WriteString(l.Who + ": " + l.Text + "\n")
 		}
-		b.WriteString(gopodDraftReporterShort(q.ReadBy) + " asks " + q.To + ": " + q.Ask + "\n")
+		b.WriteString(q.ReadBy + " asks " + q.To + ": " + q.Ask + "\n")
 		for _, a := range q.Answers {
-			who := gopodDraftReporterShort(a.Brobot)
+			who := a.Brobot
 			if a.Cue != "" {
 				who += " (" + a.Cue + ")"
 			}

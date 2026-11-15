@@ -10,15 +10,15 @@
 1. llm_ready_text: We here, are Interview Ready
 
 ## Alright. Backstage just gave us the nod— it's that (interview_script.start_lines.0)
-1. who: Brobot 4
+1. who: PLAYHEAD reporter
 2. text: Alright. Backstage just gave us the nod— it's that time.
 
 ## The whole thing's written. It's ready. It's happen (interview_script.start_lines.1)
-1. who: Brobot 3
+1. who: CHALK reporter
 2. text: The whole thing's written. It's ready. It's happening.
 
 ## Interview... starts... now. (interview_script.start_lines.2)
-1. who: Brobot 4
+1. who: PLAYHEAD reporter
 2. text: Interview... starts... now.
 
 ## Interview build (interview_build)

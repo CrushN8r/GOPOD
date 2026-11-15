@@ -56,7 +56,7 @@ type gopodInterviewKnobsStep struct {
 // The knobs' speaker names and the draft's.
 var gopodInterviewSpeakers = map[string]string{
 	"brobot_1": "Brobot 1", "brobot_2": "Brobot 2", "brobots": "Brobots",
-	"reporter_1": "Reporter 1", "reporter_2": "Reporter 2",
+	"reporter_1": "CHALK reporter", "reporter_2": "PLAYHEAD reporter",
 }
 
 func gopodInterviewSpeaker(id string) (string, error) {
@@ -64,14 +64,10 @@ func gopodInterviewSpeaker(id string) (string, error) {
 	if !ok {
 		return "", errors.New("unknown speaker " + id)
 	}
-	if strings.HasPrefix(name, "Reporter") {
-		return gopodDraftReporterLabel(name), nil
-	}
 	return name, nil
 }
 
 func gopodInterviewSpeakerID(name string) string {
-	name = gopodDraftReporterShort(name)
 	for id, n := range gopodInterviewSpeakers {
 		if n == name {
 			return id

@@ -796,8 +796,8 @@
     "heard_marker": "heard:",
     "system_voice_about": "Goverlord's own Kokoro voice for the system lines it says (operator 2026-10-08: \"Add a third bm_george voice for system\"): sign_off.system_text (\"Draft run completed.\"), in the system_role's grey bubble. A draft's own questions show as the reporter who reads them (\"Reporter 1, Brobot 3:\"), like the opening's bubbles; keyboard, numpad and backpack lines stay \"Operator to ...\" (operator 2026-10-08).",
     "hosts": {
-      "Brobot 3": "af_heart",
-      "Brobot 4": "am_michael",
+      "CHALK reporter": "af_heart",
+      "PLAYHEAD reporter": "am_michael",
       "CHALK": "af_heart",
       "PLAYHEAD": "am_michael",
       "GIT REPO": "am_liam",
@@ -859,10 +859,10 @@
     },
     "opening_end_text": "opening_end",
     "gate_max_seconds": 600,
-    "operator_host": "Brobot 3",
+    "operator_host": "CHALK reporter",
     "read_by": {
-      "Brobot 1": "Brobot 3",
-      "Brobot 2": "Brobot 4"
+      "Brobot 1": "CHALK reporter",
+      "Brobot 2": "PLAYHEAD reporter"
     },
     "read_lines_from": [
       "Typed text",

@@ -341,7 +341,7 @@ func gopodVisitorCleanName(text string) string {
 func gopodVisitorUniqueName(name, self string) string {
 	// self: the asking visitor's key.
 	taken := map[string]bool{}
-	for _, n := range []string{"Operator", "Goverlord", "Brobots", "Brobot 1", "Brobot 2", "Brobot 3", "Brobot 4", gopodBrobotsSettings.SignOff.SystemRole} {
+	for _, n := range []string{"Operator", "Goverlord", "Brobots", "Brobot 1", "Brobot 2", "CHALK reporter", "PLAYHEAD reporter", gopodBrobotsSettings.SignOff.SystemRole} {
 		taken[strings.ToLower(n)] = true
 	}
 	for addr, v := range gopodVisitors.byAddr {

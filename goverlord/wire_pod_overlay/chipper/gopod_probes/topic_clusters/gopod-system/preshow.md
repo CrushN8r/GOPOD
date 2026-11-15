@@ -7,32 +7,32 @@
 ---
 
 ## The opening, in order (reporter_voices.opening) (reporter_voices.opening)
-1. Brobot 3: Okay. We're about to go live. Our News Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
-2. Brobot 4: I've got the mic AND the umbrella. I'm doing both jobs. I am a professional.
-3. Brobot 3: Good. You're doing one job. I'm doing the other job. That's the whole system. That's why it works.
-4. Brobot 4: Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash have an actual conversation.
-5. Brobot 3: Rescued. The word is rescued.
-6. Brobot 4: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime.
-7. Brobot 3: And it's our job to make it happen. I'm so excited. Do you feel that?
-8. Brobot 4: My hands are full. I am a professional.
-9. Brobot 3: That is not nerves. That is anticipation.
+1. CHALK reporter: Okay. We're about to go live. Our News Crew is ready. Grab the mic or grab the umbrella, I don't care which, just don't drop either one.
+2. PLAYHEAD reporter: I've got the mic AND the umbrella. I'm doing both jobs. I am a professional.
+3. CHALK reporter: Good. You're doing one job. I'm doing the other job. That's the whole system. That's why it works.
+4. PLAYHEAD reporter: Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash have an actual conversation.
+5. CHALK reporter: Rescued. The word is rescued.
+6. PLAYHEAD reporter: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime.
+7. CHALK reporter: And it's our job to make it happen. I'm so excited. Do you feel that?
+8. PLAYHEAD reporter: My hands are full. I am a professional.
+9. CHALK reporter: That is not nerves. That is anticipation.
 
 ## The closing, in order (reporter_voices.closing) (reporter_voices.closing)
-1. Brobot 4: It's going to be great. Go on and GOPOD Yourself. Find out what it's all about.
-2. Brobot 3: Great run. Mics are down.
-3. Brobot 4: Umbrella's down. Umbrella was never really necessary, there was never any rain.
-4. Brobot 3: The umbrella represents preparedness. Show is over.
-5. Brobot 4: Signing off.
+1. PLAYHEAD reporter: It's going to be great. Go on and GOPOD Yourself. Find out what it's all about.
+2. CHALK reporter: Great run. Mics are down.
+3. PLAYHEAD reporter: Umbrella's down. Umbrella was never really necessary, there was never any rain.
+4. CHALK reporter: The umbrella represents preparedness. Show is over.
+5. PLAYHEAD reporter: Signing off.
 
 ## The reporters' labels and words (reporter_voices) (reporter_voices)
 1. generating_text: Voice file generating.
 2. nickname_label: ``
 
 ## Their bubble labels (reporter_voices.labels) (reporter_voices.labels)
-1. Brobot 3: Reporter 1: Brobot 3
-2. Brobot 4: Reporter 2: Brobot 4
-3. CHALK: {CHALK.call}
-4. PLAYHEAD: {PLAYHEAD.call}
+1. CHALK reporter: {CHALK.call} – reporter
+2. PLAYHEAD reporter: {PLAYHEAD.call} – reporter
+3. CHALK: {CHALK.call} – news anchor
+4. PLAYHEAD: {PLAYHEAD.call} – news anchor
 5. Goverlord: GOVERLORD
 6. GIT REPO: {GIT REPO.call}
 7. CACHE PYC: {CACHE PYC.call}

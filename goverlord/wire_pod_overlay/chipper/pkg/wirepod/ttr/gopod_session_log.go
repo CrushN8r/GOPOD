@@ -163,7 +163,7 @@ func gopodSessionLogLine(line gopodRecordLine, note, via string, more ...func(*g
 func gopodSessionLogFeed(e gopodChatFeedEvent) {
 	note := map[string]string{"Operator": "operator_line", "Brobot 1": "say", "Brobot 2": "say", "Goverlord": "system_line",
 		"Countdown": "countdown", "Bingo Ball": "show_ball", "Narrator": "narrator", "Chapter": "chapter", "Picture": "pictures",
-		"Song Audio": "soundtrack", "Brobot 3": "reporter_line", "Brobot 4": "reporter_line"}[e.Who]
+		"Song Audio": "soundtrack", "CHALK reporter": "reporter_line", "PLAYHEAD reporter": "reporter_line"}[e.Who]
 	if e.Who == gopodBrobotsSettings.ReporterVoices.Role {
 		note = "" // a voice file playing: in chat.jsonl only
 	}

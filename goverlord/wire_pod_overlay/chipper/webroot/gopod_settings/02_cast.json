@@ -89,7 +89,7 @@
     "about": "2026-10-22 (operator: \"base = robot by ESN * wired-pod = brobots (Brobot N) * GOPOD = persona-name and chat participant\"; \"Look at the numpad mapping as a temporary source of golden truth * brobots 3/4 should really be brobots 7/8, as per numpad\"; \"a bubble's header in a scripted run should have what values? default (CHALK), fallback (Brobot 7), remembered edits (CHALK BORED)? * editable\"): the header template for the reporters' and managers' bubbles in the chat - edits (a remembered edit, by its default name: system-add display_names.edits CHALK = CHALK BORED), else default (the GOPOD persona), else fallback ({n} = the numpad key whose persona it is: KP7 CHALK = Brobot 7), else reporter_voices.labels. Scripts keep their own names (Reporter 1/2); the chat shows these. Page only: F5.",
     "default_about": "2026-10-22 (operator: \"numpad mapping sounds like a good template to form from\"): left empty, the default comes from the numpad map (~/.gopod_alias_lib/numpad_persona_map_001.json) - its persona for that voice (managers.personas reporter links Brobot 3 -> CHALK, Brobot 4 -> PLAYHEAD). A name here overrides it.",
     "default": {},
-    "fallback": "Brobot {n}",
+    "fallback": "",
     "edits": {},
     "brobots_about": "2026-11-06: gone - a Brobot bubble's header is host_personas.<Brobot N>.call_name (his persona's call name), or the name his reply came as (\"Brobot N\" at the dial's 0%), one source."
   },

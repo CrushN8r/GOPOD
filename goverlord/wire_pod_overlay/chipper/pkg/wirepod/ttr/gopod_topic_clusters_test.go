@@ -124,7 +124,7 @@ func TestCastWordsFromClusters(t *testing.T) {
 // words and the Butler's own persona text come from their files.
 func TestPreshowFromClusters(t *testing.T) {
 	rv := gopodBrobotsSettings.ReporterVoices
-	if len(rv.Opening) < 5 || rv.Opening[0].Host != "Brobot 3" || !strings.HasPrefix(rv.Opening[0].Text, "Okay. We're about to go live.") {
+	if len(rv.Opening) < 5 || rv.Opening[0].Host != "CHALK reporter" || !strings.HasPrefix(rv.Opening[0].Text, "Okay. We're about to go live.") {
 		t.Errorf("opening: %+v", rv.Opening)
 	}
 	if len(rv.Closing) == 0 || len(gopodBrobotsSettings.SignOff.Lines) == 0 || rv.SystemPersona == "" {

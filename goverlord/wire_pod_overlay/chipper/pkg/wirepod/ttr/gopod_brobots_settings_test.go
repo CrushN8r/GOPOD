@@ -331,7 +331,7 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 	if rv.Hosts[rv.OperatorHost] != "af_heart" { // operator 2026-10-09: af_heart & am_michael
 		t.Errorf("operator lines are read by %q (%q)", rv.OperatorHost, rv.Hosts[rv.OperatorHost])
 	}
-	for _, who := range []string{"Chapter", "Picture", "Reporter Voice", "Brobot 3", "Brobot 4", "Countdown"} {
+	for _, who := range []string{"Chapter", "Picture", "Reporter Voice", "CHALK reporter", "PLAYHEAD reporter", "Countdown"} {
 		if !gopodPageOnlyRole(who) {
 			t.Errorf("%q should be page-only", who)
 		}
@@ -448,7 +448,7 @@ func TestBrobotZeroSelfNameAndReporters(t *testing.T) {
 		t.Errorf("got %q", got)
 	}
 	rv := gopodBrobotsSettings.ReporterVoices
-	if rv.ReadBy["Brobot 1"] != "Brobot 3" || rv.ReadBy["Brobot 2"] != "Brobot 4" || rv.Hosts["Brobot 4"] != "am_michael" {
+	if rv.ReadBy["Brobot 1"] != "CHALK reporter" || rv.ReadBy["Brobot 2"] != "PLAYHEAD reporter" || rv.Hosts["PLAYHEAD reporter"] != "am_michael" {
 		t.Errorf("read_by %v hosts %v", rv.ReadBy, rv.Hosts)
 	}
 }

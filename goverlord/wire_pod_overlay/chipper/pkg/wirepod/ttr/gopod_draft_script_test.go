@@ -12,15 +12,15 @@ import (
 // A draft written as a script reads back the same.
 func TestDraftScriptRoundTrip(t *testing.T) {
 	d := gopodDraft{Run: "test", Questions: []gopodDraftQuestion{
-		{N: 1, Topic: "1. Who they are", To: "Brobot 1", ReadBy: "Reporter 2: Brobot 4", Ask: "Hey party animal. Who are you?",
-			Before: []gopodDraftLine{{Who: "Reporter 1: Brobot 3", Text: "Here we go."}},
+		{N: 1, Topic: "1. Who they are", To: "Brobot 1", ReadBy: "PLAYHEAD reporter", Ask: "Hey party animal. Who are you?",
+			Before: []gopodDraftLine{{Who: "CHALK reporter", Text: "Here we go."}},
 			Answers: []gopodDraftAnswer{
 				{Brobot: "Brobot 1", Cue: "happy", Say: "Brobot 1. I hear you: {weather}",
 					Moves: []gopodDraftMove{{At: "lift my arm", Move: "arm"}, {At: "nod", Move: "nod"}}},
-				{Brobot: "Reporter 1: Brobot 3", Say: "Did you see the arm?"},
+				{Brobot: "CHALK reporter", Say: "Did you see the arm?"},
 				{Brobot: "Brobot 2", Say: "Rude. Accurate."},
 			}},
-		{N: 2, Topic: "2. Both", To: "Brobots", ReadBy: "Reporter 1: Brobot 3", Ask: "Thanks Brobots",
+		{N: 2, Topic: "2. Both", To: "Brobots", ReadBy: "CHALK reporter", Ask: "Thanks Brobots",
 			Answers: []gopodDraftAnswer{{Brobot: "Brobot 2", Say: "Catch ya later."}}},
 	}}
 	text := gopodDraftScriptText(d)
