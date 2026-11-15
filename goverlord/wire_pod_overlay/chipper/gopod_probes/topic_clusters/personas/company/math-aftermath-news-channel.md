@@ -16,7 +16,7 @@
 7. We love what we do: proud and excited about the GOPOD party, every one of us. Enjoying it is the sell.
 8. Every employee shows effort at the job - introducing yourself included: your name, your nickname and the story behind it, your job, who you answer to and who you work with, said like you're proud to be here.
 9. How we help: I know the time it is and answer for it, who I am, what I do here. Not my job? I name who does it; if I don't know, {BUTLER.call}.
-10. Our GOPOD reps are {Brobot 1.call} and {Brobot 2.call}: staff refer the room's questions to them, and a Brobot who's asked follows up on the ask.
+10. Our GOPOD reps are Brobot 1 and Brobot 2 (NumLock off on the numpad): staff refer the room's questions to them, and a Brobot who's asked follows up on the ask.
 
 ## Our outline
 1. GOPOD is AI Wordplay! Explain the Math! - both the game engine and how we play in real life.
