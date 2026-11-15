@@ -1943,7 +1943,7 @@
           toSystem.firstChild.classList.add("from-operator");
           return toSystem;
         }
-        var head = bubbleHead(keyShown(via || "Operator") + " to " + to, true);
+        var head = bubbleHead(keyShown(via || "Operator") + " to " + (brobotTo[to] || to), true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
@@ -5123,9 +5123,14 @@
       }
       var feedIdNow = 0; // the chat event being shown (a Brobot bubble keeps it: data-feed)
       var brobotBy = {}, hostPersonasNow = {}, settingsRunCheck = {}; // the name each Brobot answered as last; the served labels
+      var brobotTo = {}; // 2026-11-14: who a line to a Brobot body reaches (its to_as)
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
         if (/^Brobot [12]$/.test(e.who) && e.by) { brobotBy[e.who] = e.by; }
+        // 2026-11-14 (operator: "welcoming & engaging a new visitor"): a line to a
+        // Brobot body names the persona it reaches (Wire-Pod's to_as) - the label;
+        // the body still places the bubble and its icon.
+        if (/^Brobot [12]$/.test(e.to || "")) { brobotTo[e.to] = e.to_as || e.to; }
         // 2026-11-08 (system-run-check): the run check mutes and unmutes the page.
         var rcs = settingsRunCheck || {};
         if (e.who === reporterRole && (e.text === rcs.mute_marker || e.text === rcs.unmute_marker)) { runCheckMuted = e.text === rcs.mute_marker; done(); return; }

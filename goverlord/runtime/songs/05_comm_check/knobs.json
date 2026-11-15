@@ -6,7 +6,8 @@
   "steps": [
     {"step_id": "brobots_wake_0101", "note": "wake_both", "section": "OPENING"},
     {"step_id": "keys_ask_0201", "note": "ask", "asker": "Goverlord", "keys": ["KP0"], "section": "ROUND ROBIN"},
-    {"step_id": "map_ask_0202", "note": "ask", "asker": "BUTLER", "keys": ["map"], "section": "ROUND ROBIN"},
+    {"step_id": "brobots_ask_0202", "note": "ask", "asker": "BUTLER", "keys": ["KP1off", "KP2off"], "section": "ROUND ROBIN"},
+    {"step_id": "map_ask_0203", "note": "ask", "asker": "BUTLER", "keys": ["map"], "section": "ROUND ROBIN"},
     {"step_id": "all_ask_0206", "note": "ask", "asker": "BUTLER", "keys": ["KPmul"], "section": "ROUND ROBIN"}
   ]
 }

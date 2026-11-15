@@ -145,3 +145,23 @@ func TestFourPersonasTwoBodies(t *testing.T) {
 		t.Errorf("the picker's names: %v", d.Targets)
 	}
 }
+
+// 2026-11-14 (operator: "welcoming & engaging a new visitor to GOPOD"): one
+// name for a Brobot body everywhere the chat shows it - the persona answering.
+func TestPersonaShownOneName(t *testing.T) {
+	gopodDialZero.Delete(gopodBrobot1ESN)
+	if got := gopodPersonaShown("Brobot 1"); got != "DOC" {
+		t.Errorf("NumLock on: %q, want DOC", got)
+	}
+	if got := gopodNoticeTitle(gopodBrobot1ESN); !strings.HasPrefix(got, "DOC") {
+		t.Errorf("brain title: %q", got)
+	}
+	gopodDialZero.Store(gopodBrobot1ESN, true)
+	defer gopodDialZero.Delete(gopodBrobot1ESN)
+	if got := gopodPersonaShown("Brobot 1"); got != "Brobot 1" {
+		t.Errorf("dial at 0%%: %q, want Brobot 1", got)
+	}
+	if got := gopodPersonaShown("CHALK"); got != "CHALK" {
+		t.Errorf("a persona's own name: %q", got)
+	}
+}

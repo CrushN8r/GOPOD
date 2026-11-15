@@ -215,6 +215,24 @@ func gopodReminderTopics(question string) string {
 // gopodCallName (2026-10-27): the name others call a host by - in a thank-you
 // (helper_from call_name) and a hand-over ({intern}): host_personas.<host>.
 // call_name, else its name, else the host.
+// gopodPersonaShown (2026-11-14, operator: "build it from the perspective of
+// welcoming & engaging a new visitor to GOPOD"): the one name the chat shows for
+// a Brobot body - the persona answering: Brobot N at the dial's 0%, else the
+// persona he hosts by its nickname (DOC, PIP), the same names the picker shows.
+// Any other name as it is.
+func gopodPersonaShown(body string) string {
+	if body != "Brobot 1" && body != "Brobot 2" {
+		return body
+	}
+	if gopodAtDialZero(body) {
+		return body
+	}
+	if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[body].Nickname); nick != "" {
+		return nick
+	}
+	return gopodCallName(body)
+}
+
 func gopodCallName(host string) string {
 	// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0%"): a line to both - he's Brobot N.
 	if gopodAtDialZero(host) {

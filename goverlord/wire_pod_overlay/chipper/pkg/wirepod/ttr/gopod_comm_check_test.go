@@ -68,7 +68,7 @@ func TestCommCheckRunsOffTheMap(t *testing.T) {
 		keys = append(keys, l[0])
 	}
 	got := strings.Join(keys, " ")
-	if !strings.HasPrefix(got, "KP0 KP1 KP2 ") || !strings.HasSuffix(got, " KPmul") || !strings.Contains(got, "KP1off") || !strings.Contains(got, "KP7off") {
+	if !strings.HasPrefix(got, "KP0 KP1off KP2off KP1 KP2 ") || !strings.HasSuffix(got, " KPmul") || !strings.Contains(got, "KP7off") {
 		t.Errorf("comm check keys: %s", got)
 	}
 	seen := map[string]bool{}

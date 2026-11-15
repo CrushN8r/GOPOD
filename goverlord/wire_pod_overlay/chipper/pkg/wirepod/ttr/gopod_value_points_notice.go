@@ -391,7 +391,7 @@ func gopodNoticeTitle(esn string) string {
 	// {name} is the persona answering - 2026-11-13 (operator: "Brobot 1 is a
 	// separate persona ... DOC is a separate persona"): Brobot 1 at the dial's 0%,
 	// else the persona he hosts (gopodCallName), never the body for both.
-	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title, "{name}", gopodCallName(brobot)))
+	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title, "{name}", gopodPersonaShown(brobot)))
 }
 
 // gopodNoticeFlush posts the held lines once they and his "Got it!" are in.

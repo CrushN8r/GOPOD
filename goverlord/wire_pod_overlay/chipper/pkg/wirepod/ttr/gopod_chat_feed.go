@@ -40,6 +40,9 @@ type gopodChatFeedEvent struct {
 	To     string `json:"to,omitempty"`
 	By     string `json:"by,omitempty"`  // a draft question: the reporter who reads it (the page's label)
 	Via    string `json:"via,omitempty"` // an operator line's input: "Keyboard", "KP1", "Backpack" (the page's label)
+	// ToAs (2026-11-14): a line to a Brobot body names the persona it reaches
+	// (gopodPersonaShown) - the page's label; To stays the body (its place, icon).
+	ToAs string `json:"to_as,omitempty"`
 	Text   string `json:"text"`
 	TimeMS int64  `json:"time_ms"`
 	// 2026-10-29: the turn it belongs to (the master chat queue, gopod_chat_queue.go).
@@ -144,7 +147,7 @@ func GopodChatFeedAddLive(esn, text string) {
 	gopodLiveCheck.Unlock()
 	// 2026-11-06: "by" - the name he answers as (gopodCallName: his persona's, or
 	// "Brobot N" at the dial's 0%), the page's one source for his bubble's header.
-	gopodChatFeedAddEventVia(who, "", gopodCallName(who), gopodFeedLiveVia, text)
+	gopodChatFeedAddEventVia(who, "", gopodPersonaShown(who), gopodFeedLiveVia, text)
 	gopodChatFeed.Lock()
 	id := gopodChatFeed.next
 	gopodChatFeed.Unlock()
@@ -282,6 +285,9 @@ func gopodChatFeedAddEventTurn(who, to, by, via, text string, turn int64) {
 	gopodChatFeed.Lock()
 	gopodChatFeed.next++
 	event := gopodChatFeedEvent{ID: gopodChatFeed.next, Who: who, To: to, By: by, Via: via, Text: text, TimeMS: time.Now().UnixMilli(), Turn: turn}
+	if as := gopodPersonaShown(to); as != to {
+		event.ToAs = as
+	}
 	// 2026-10-21 (operator: "highlighting ... should run as an independent agent on
 	// any & all bubbles"): a Brobot's newest bubble, so his speech names it exactly.
 	if who == "Brobot 1" || who == "Brobot 2" {
