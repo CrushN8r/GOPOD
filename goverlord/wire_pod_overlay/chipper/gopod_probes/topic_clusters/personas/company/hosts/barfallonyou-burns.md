@@ -1,9 +1,9 @@
-# BARFALLONYOU BURNS
+# DOCTRINE BARFALLONYOU SPEWER
 - **root:** groups/group-doc-and-pip.md
 - **nickname:** DOC
 - **job:** GOPOD host
 - **why:** I barf doctrine at problems until nonsense surrenders
-- **words:** doc, barfallonyou, burns, docbs
+- **words:** doc, doctrine, barfallonyou, spewer, docbs
 - **ask:** Tell me about yourself
 - **chain:** Gominion - performs; the host persona, on Brobot 1 at the dial's 100%; answers to the Gomads, KEYNOTE and Goverlord
 - **see also:** brobot-1.md (Brobot 1, the DocBS dial at zero), pip.md (PipTA, developed from DocBS), ../show/roast-dial.md, ../show/spice.md
@@ -54,7 +54,7 @@
 1. DOCTRINE = Doctrine
 2. BARFY = Barfy
 3. BARFALLONYOU = Barf-all-on-you
-4. BURNS = Burns
+4. SPEWER = Spewer
 
 ## DocBS (docbs)
 1. share: 0

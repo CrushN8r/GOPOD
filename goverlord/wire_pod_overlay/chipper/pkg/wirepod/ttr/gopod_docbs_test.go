@@ -257,7 +257,7 @@ func TestBrainChain(t *testing.T) {
 	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
 	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
-	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host BARFALLONYOU BURNS") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: ") {
+	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host DOCTRINE BARFALLONYOU SPEWER") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: ") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

@@ -243,7 +243,7 @@ func TestPersonaRoots(t *testing.T) {
 func TestIntroNoAsterisks(t *testing.T) {
 	m := gopodAnimationMarker
 	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\nUgh, fine - I keep it clear.", true)
-	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "I'm BARFALLONYOU BURNS") != 1 {
+	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "I'm DOCTRINE BARFALLONYOU SPEWER") != 1 {
 		t.Errorf("intro with asterisks: %q", got)
 	}
 }
@@ -265,7 +265,7 @@ func TestGotItNamed(t *testing.T) {
 // 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0% * DOC & PIP = Dials @ 100%"):
 // a line to both - the Brobots at the dial's 0%, BRUH!; one Brobot - his persona.
 func TestDialZeroBrobots(t *testing.T) {
-	if got := gopodIntroOpening("Brobot 1"); !strings.HasPrefix(got, "I'm BARFALLONYOU BURNS") {
+	if got := gopodIntroOpening("Brobot 1"); !strings.HasPrefix(got, "I'm DOCTRINE BARFALLONYOU SPEWER") {
 		t.Errorf("KP1 opening: %q", got)
 	}
 	gopodDialZero.Store(gopodBrobot1ESN, true)

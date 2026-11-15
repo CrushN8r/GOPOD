@@ -1,10 +1,12 @@
 # due credit
 
-- **words:** granny, gangster granny, gangsta, grandma, due credit, who helped
+- **words:** granny, gangster granny, gangsta, grandma, due credit, who helped, sparkly bling cap, driving her around
 - **pictures:** legacy/gangster_granny.jpg
-- **notes 1:** Gangster Granny with a sparkly bling cap | Ron drove her around | she helped Ron when it counted
-- **summary:** Gangster Granny with a sparkly bling cap: Ron drove her around, she helped Ron when it counted
+- **summary:** Gangster Granny: a 93-year-old woman always willing to help others | she helped Master CrushN8r, he drove her around town | his thanks to his sweet, adorable, gangster granny in a sparkly bling cap
 
 ---
 
-Due credit: Gangster Granny - a 93-year-old woman helped Brobot 0 when it counted - his thanks to her, his sweet, adorable, gangster granny in a sparkly bling cap.
+Due credit. Reveal these, in order, in your own words:
+1. Gangster Granny: a 93-year-old woman, always willing to help others.
+2. Gangster Granny helped Master CrushN8r when he needed help. Master CrushN8r helped Gangster Granny by driving her around town.
+3. Master CrushN8r's thanks to her, his sweet, adorable, gangster granny in a sparkly bling cap.

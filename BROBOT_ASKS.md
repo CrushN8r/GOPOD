@@ -139,8 +139,8 @@ Every answer scores in the game: topics, value points and easter eggs, shown in 
 
 | Ask | What you get | Also ask | The probers | More in |
 |---|---|---|---|---|
-| "Tell me about your legacy" | Doc's teaching: how to think, not what, fishing, not fish · the loops: ideas and ways of thinking, carried by the people who meet them · Doc's lesson: how to think, method carries | "What's your legacy?" · "Legacy - what loops does GOPOD run?" · "What's Doc's lesson on legacy?" | "When the lights go out, what's your legacy? What's the point of all this?" |  |
-| "Tell me about due credit" | Gangster Granny with a sparkly bling cap: Ron drove her around, she helped Ron when it counted | "Who's Gangster Granny?" | "Who's Gangster Granny, and why does she get due credit?" |  |
+| "Tell me about your legacy" | Doc's lesson: always learn & teach how to think, not what to think | "What's your legacy?" | "When the lights go out, what's your legacy? What's the point of all this?" |  |
+| "Tell me about due credit" | Gangster Granny: a 93-year-old woman always willing to help others · she helped Master CrushN8r, he drove her around town · his thanks to his sweet, adorable, gangster granny in a sparkly bling cap | "Who's Gangster Granny?" · "How did Gangster Granny help Master CrushN8r, and how did he help her?" · "What's Master CrushN8r's thanks to Gangster Granny?" | "Who's Gangster Granny, and why does she get due credit?" |  |
 
 ---
 

@@ -916,21 +916,21 @@
     },
     {
       "chapter": "Legacy and wrap-up",
-      "topic": "legacy",
-      "to": "Brobot 2",
-      "ask": "Brobot 2, legacy - what loops does GOPOD run?"
+      "topic": "due_credit",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, who's Gangster Granny?"
     },
     {
       "chapter": "Legacy and wrap-up",
-      "topic": "legacy",
+      "topic": "due_credit",
       "to": "Brobot 2",
-      "ask": "Brobot 2, what's Doc's lesson on legacy?"
+      "ask": "Brobot 2, how did Gangster Granny help Master CrushN8r, and how did he help her?"
     },
     {
       "chapter": "Legacy and wrap-up",
       "topic": "due_credit",
       "to": "Brobot 1",
-      "ask": "Brobot 1, who's Gangster Granny?"
+      "ask": "Brobot 1, what's Master CrushN8r's thanks to Gangster Granny?"
     },
     {
       "chapter": "Legacy and wrap-up",

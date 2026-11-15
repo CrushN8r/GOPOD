@@ -195,7 +195,15 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 			}
 		}
 		topical := len(loadScenarioPacketsForMessage(text)) > 0
-		if !gopodGameAllRevealed() && !gopodIsThanks(text) && (strings.TrimSpace(rem) == "" || (topical && !named)) {
+		// 2026-11-14: the reminder never names the topic in hand - points left
+		// only there (Gangster Granny's last two) leave it nothing to name.
+		inHand := map[string]bool{}
+		for _, p := range gopodGivenPoints(esn) {
+			if f := strings.Fields(p); len(f) > 0 {
+				inHand[f[0]] = true
+			}
+		}
+		if gopodGameLeftOutside(inHand) && !gopodIsThanks(text) && (strings.TrimSpace(rem) == "" || (topical && !named)) {
 			res.Dry = append(res.Dry, fmt.Sprintf("line %d (%s)", res.Lines, line))
 		}
 	}
@@ -226,6 +234,19 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 	res.Grand = gopodGameAllRevealed() && gameEggs
 	res.Master = res.Grand && hiddenEggs
 	return res, nil
+}
+
+// gopodGameLeftOutside: a point is still unrevealed in a topic not in skip.
+func gopodGameLeftOutside(skip map[string]bool) bool {
+	names, counts := gopodPackPointCounts()
+	gopodCoverage.Lock()
+	defer gopodCoverage.Unlock()
+	for _, n := range names {
+		if !skip[n] && gopodCoverage.revealed[n] < counts[n] {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodAdminRunLine: the test's answer - PASS when nothing is missing.

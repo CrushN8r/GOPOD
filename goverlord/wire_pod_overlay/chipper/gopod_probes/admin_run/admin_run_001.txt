@@ -72,6 +72,8 @@ Book us|Brobot 2|Do you do print shop merch, like signs and posters?
 Book us|Brobot 1|Any affiliate links?
 Join the crew|Brobot 2|How do I keep up with you guys?
 Due Credit|Brobot 1|Who's Gangster Granny?
+Due Credit|Brobot 2|How did Gangster Granny help Master CrushN8r, and how did he help her?
+Due Credit|Brobot 1|What's Master CrushN8r's thanks to Gangster Granny?
 Due Credit|Brobot 2|Roast me!
 Numpad|KP1|Who are you?
 Numpad|KP2|Who are you?
