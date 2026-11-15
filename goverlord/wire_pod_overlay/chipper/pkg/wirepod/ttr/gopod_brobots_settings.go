@@ -656,7 +656,7 @@ type gopodBrobotsSettingsFile struct {
 		// the session"): his call name; his own intro flow is flow.intro_first.
 		IntroOpener   string   `json:"intro_opener"`
 		Lines         []string `json:"lines"`
-		IntroLines    []string `json:"intro_lines"`
+		IntroFact     []string `json:"intro_fact"`
 		CastItem      string   `json:"cast_item"`
 		Roster        string   `json:"roster"`
 		CastMe        string   `json:"cast_me"`

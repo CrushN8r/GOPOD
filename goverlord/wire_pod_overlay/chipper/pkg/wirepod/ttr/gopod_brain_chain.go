@@ -336,7 +336,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 			reminders = strings.ReplaceAll(bc.RemindersPart, "{reminders}", gopodBrainList(names))
 		}
 	}
-	return map[string]string{
+	m := map[string]string{
 		"{self}": self0, "{cast}": gopodIntroCast(self), "{cast_described}": castLine, "{reminders_part}": reminders,
 		"{spoken}": join(spoken), "{introduced}": join(intro), "{score}": score,
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
@@ -356,19 +356,47 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{my_answer_to}":     gopodBrainCardSection(self, "Who I answer to", "I answer to "),
 		"{my_works_with}":    gopodBrainCardSection(self, "Who works with me", "I work with "),
 		"{my_answers_to_me}": gopodBrainCardSection(self, "Who answers to me", ""),
-		// 2026-11-09 (operator: "The redirect becomes the first step of every TASK
-		// * establish early in the templated response chains-of-thought so it
-		// becomes an inherent behaviour later"): who does what, from the roster.
-		"{who_does_what}": gopodWhoDoesWhat(),
 		"{full_self}":     gopodBrainFullSelf(self),
 		// 2026-11-13 (the frozen root: TIME, TASK, FACT, MEMORY): his one fact line
 		// and the memory of this question asked before - "" leaves the line out.
-		"{fact}":   gopodBrainFact(self),
+		"{fact}":   "",
 		"{memory}": gopodBrainMemory(question),
 		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
 		"{time}":     gopodBrainTime(),
 		"{day_part}": gopodDayPart(time.Now().Hour()),
 	}
+	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
+		m["{fact}"] = gopodBrainIntroFact(m)
+	} else {
+		m["{fact}"] = gopodBrainFact(self)
+	}
+	return m
+}
+
+// gopodBrainIntroFact: an intro's one FACT line - the intro_fact pieces, filled
+// from his card; a piece whose value isn't on it is left out.
+func gopodBrainIntroFact(m map[string]string) string {
+	var out []string
+	for _, piece := range gopodBrobotsSettings.BrainChain.IntroFact {
+		keep := true
+		for k, v := range m {
+			if strings.Contains(piece, k) && strings.TrimSpace(v) == "" {
+				keep = false
+			}
+		}
+		if keep {
+			out = append(out, strings.NewReplacer(gopodBrainPairs(m)...).Replace(piece))
+		}
+	}
+	return strings.Join(out, " ")
+}
+
+func gopodBrainPairs(m map[string]string) []string {
+	var kv []string
+	for k, v := range m {
+		kv = append(kv, k, strings.TrimSuffix(strings.TrimSpace(v), "."))
+	}
+	return kv
 }
 
 // gopodBrainReminders: the reminder topics of each Brobot's answer now (his name -> []string).
@@ -600,12 +628,11 @@ func gopodBrainLines(self, question string) []string {
 	// other line's brain is its own thinking (lines).
 	// The topic this line asks about is already in the brain: its value point
 	// (the notice's point lines) - one path, nothing else added here.
+	// 2026-11-15 (operator: "All this can sit in a look up file, rather than as
+	// bloat in the brian bubble"): an intro's brain is the same four lines - its
+	// FACT the one line looked up from his card (gopodBrainIntroFact).
 	var out []string
-	lines := gopodBrobotsSettings.BrainChain.Lines
-	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
-		lines = append(append([]string{}, gopodBrobotsSettings.BrainChain.IntroLines...), lines...)
-	}
-	for _, l := range lines {
+	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
 		// A line whose value is missing (to come, or not on his card) isn't shown.
 		if line := strings.TrimSpace(gopodBrainFill(l, facts)); line != "" && !strings.HasSuffix(line, ":") {
 			out = append(out, line)
@@ -760,19 +787,5 @@ func gopodPersonaCompany() string {
 	return name
 }
 
-
-// gopodWhoDoesWhat: everyone on the crew roster and their job, one line -
-// "NAME - job; NAME - job" (gopodRosterGroups, names filled from the profiles).
-func gopodWhoDoesWhat() string {
-	var out []string
-	for _, g := range gopodRosterGroups() {
-		for i, n := range g.Names {
-			if d := strings.TrimSpace(g.Descs[i]); d != "" {
-				out = append(out, n+" - "+d)
-			}
-		}
-	}
-	return strings.Join(out, "; ")
-}
 
 // ## EOF

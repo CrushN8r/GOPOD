@@ -241,7 +241,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "Name: PIP N STALL, Nickname: PIP", "COMPANY: Math Aftermath News Channel", "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself", "I ANSWER TO: the Gomads, KEYNOTE, then Goverlord", "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "FACT: I'm the proud GOPOD sidekick", "My company: Math Aftermath News Channel - we sell GOPOD, CTA: GOPOD Yourself.", "I answer to the Gomads, KEYNOTE, then Goverlord.", "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -256,8 +256,9 @@ func TestBrainChain(t *testing.T) {
 	}
 	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
-	// 2026-11-09: one relationship a line; PIP has nobody answering to him, so that line isn't shown.
-	if len(l) != 9 || l[0] != "Name: PIP N STALL, Nickname: PIP" || l[1] != "JOB-TITLE: proud GOPOD sidekick and the room's pied piper" || l[3] != "COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself" || !strings.HasPrefix(l[5], "I WORK WITH: my host DOCTRINE BARFALLONYOU SPEWER") || !strings.HasPrefix(l[7], "TIME: ") || !strings.HasPrefix(l[8], "TASK: ") {
+	// 2026-11-15: an intro's brain is the same four lines, its FACT looked up from
+	// his card; PIP has nobody answering to him, so that piece is left out.
+	if len(l) != 3 || !strings.HasPrefix(l[0], "TIME: ") || !strings.HasPrefix(l[1], "TASK: ") || !strings.Contains(l[2], "I work with my host DOCTRINE BARFALLONYOU SPEWER") || strings.Contains(l[2], "Answering to me") || strings.Contains(l[2], "..") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

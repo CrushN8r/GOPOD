@@ -3,7 +3,7 @@
 - **ask:** What do the Brobots know about this chat?
 - **chain:** Gominions (Doc and Pip) - what the code tells them before they answer
 - **see also:** ../personas/crew_roster.md (the descriptions), group-chat-intro (the intro), reply-rules (how the answer is cut), big-picture
-- **about:** 2026-11-13 (operator: "a 3 to 5 chain of thought process for easy llm management"; "At 11am ... evening greetings to you my friend (knowing its morning/AM, I would respond accordingly)"; "Without patching at all"): task_answer, four steps - the time and the ask, whose job, what I know, answer in kind for the time, plain words someone new gets. 2026-11-13 (operator: "Help the brobots how to think * NOT WHAT TO THINK"; his value point "how to think, not what"): task_answer is the thinking steps - whose job, what's asked, what I know, then my answer - for the Brobots and every persona (one brain template). 2026-11-13 (operator: "why is the comm-check orientation in the thought bubbles when not in comm-check"): the comm-check lines (who I am, who I work with) show in the comm check and an intro only; every other answer's brain is the time, the task, then its value points. 2026-11-08 (operator's brain bubble: "Name:Brobot 2, Nickname:BRUH * JOB-TITLE: proud party-bro GOPOD rep * JOB-ROLE: sell GOPOD, CTA:GOPOD Yourself * TASK: answer all that is asked of me in a few sentences"; "the brain bubble as GOPOD's one brain template"): four lines from his card and the task. 2026-11-03 (step 3 of GOPOD_CLUSTERS_PLAN_002.md): the brain bubble's template and the before-I-answer lines, from 01_brain.json brain_chain and prebuild_context. {words} are filled by the code. A value in backticks is that text exactly (its leading space kept). The numbers and switches (short_term, question_chars, gomads_raw_chat) and the roster's path stay in the settings.
+- **about:** 2026-11-15 (operator: "All this can sit in a look up file, rather than as bloat in the brian bubble"): the comm check's nine lines (name, job title, company, goal, who I answer to, work with, who answers to me, who does what) are gone from the brain - they sit in their lookup files (each persona's card, crew_roster.md); an intro's FACT is the one line looked up from my card (intro_fact), a piece whose value isn't on the card left out. 2026-11-13 (operator: "a 3 to 5 chain of thought process for easy llm management"; "At 11am ... evening greetings to you my friend (knowing its morning/AM, I would respond accordingly)"; "Without patching at all"): task_answer, four steps - the time and the ask, whose job, what I know, answer in kind for the time, plain words someone new gets. 2026-11-13 (operator: "Help the brobots how to think * NOT WHAT TO THINK"; his value point "how to think, not what"): task_answer is the thinking steps - whose job, what's asked, what I know, then my answer - for the Brobots and every persona (one brain template). 2026-11-13 (operator: "why is the comm-check orientation in the thought bubbles when not in comm-check"): the comm-check lines (who I am, who I work with) show in the comm check and an intro only; every other answer's brain is the time, the task, then its value points. 2026-11-08 (operator's brain bubble: "Name:Brobot 2, Nickname:BRUH * JOB-TITLE: proud party-bro GOPOD rep * JOB-ROLE: sell GOPOD, CTA:GOPOD Yourself * TASK: answer all that is asked of me in a few sentences"; "the brain bubble as GOPOD's one brain template"): four lines from his card and the task. 2026-11-03 (step 3 of GOPOD_CLUSTERS_PLAN_002.md): the brain bubble's template and the before-I-answer lines, from 01_brain.json brain_chain and prebuild_context. {words} are filled by the code. A value in backticks is that text exactly (its leading space kept). The numbers and switches (short_term, question_chars, gomads_raw_chat) and the roster's path stay in the settings.
 ---
 ## Boundaries - the frozen root, 2026-11-13, read first
 
@@ -36,15 +36,12 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 16. answer_part: ` - {to}: "{answer}"`
 17. asked_before: asked before (#{seq}) - {to}: "{answer}"
 
-## The brain's comm-check lines, in order (brain_chain.intro_lines)
-1. Name: {my_name}, Nickname: {my_nickname}
-2. JOB-TITLE: proud {my_job_title}
-3. COMPANY: {my_company}
-4. COMPANY GOAL: sell GOPOD, CTA: GOPOD Yourself
-5. I ANSWER TO: {my_answer_to}
-6. I WORK WITH: {my_works_with}
-7. ANSWERS TO ME: {my_answers_to_me}
-8. WHO DOES WHAT: {who_does_what}
+## An intro's FACT, its pieces in order, looked up from my card (brain_chain.intro_fact)
+1. I'm the proud {my_job_title}.
+2. My company: {my_company} - we sell GOPOD, CTA: GOPOD Yourself.
+3. I answer to {my_answer_to}.
+4. I work with {my_works_with}.
+5. Answering to me: {my_answers_to_me}.
 
 ## The brain's lines, in order (brain_chain.lines)
 1. TIME: {time} - {day_part}
