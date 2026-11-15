@@ -38,6 +38,7 @@
 ## Lingo
 1. PLAYHEAD = playhead
 2. ZUMINTU = zoom-into
+3. ZOOMY = zoomy
 
 ## My settings (managers.personas.PLAYHEAD)
 1. host: {PLAYHEAD.call}

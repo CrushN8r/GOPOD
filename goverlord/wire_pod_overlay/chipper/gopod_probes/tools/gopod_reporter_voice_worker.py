@@ -122,6 +122,10 @@ def heard_times(wav, words):
     return align_heard(words, heard)
 
 
+# How far a heard word may be from where Kokoro says it and still be that word.
+NEAR_SECONDS = 1.0
+
+
 def align_heard(words, heard):
     """GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
     template/schema the highlighting to one gear we can look to to fix * no
@@ -138,16 +142,26 @@ def align_heard(words, heard):
     wi = [i for i, w in enumerate(words) if norm(w["t"])]
     a = [norm(words[i]["t"]) for i in wi]
     b = [norm(h["word"]) for h in heard]
+    # 2026-11-14 (live: "Our CRUSHN8R Crew" - "CRUSHN8R" heard as "... eight our",
+    # so the written "Our" took that late "our" and the line sat dark 1.7 s): a
+    # heard word is the written one only near where Kokoro says it - Kokoro's own
+    # word times, stretched to the heard length, within NEAR_SECONDS.
+    kok = [float(words[i]["s"]) for i in wi]
+    kok_end = max([float(w["e"]) for w in words] or [0.0])
+    heard_end = max([float(h["end"]) for h in heard] or [0.0])
+    stretch = heard_end / kok_end if kok_end > 0 and heard_end > 0 else 1.0
+    near = lambda i, j: abs(float(heard[j]["start"]) - kok[i] * stretch) <= NEAR_SECONDS
+    same = lambda i, j: a[i] and a[i] == b[j] and near(i, j)
     # The longest common run of words (LCS), in order.
     n, m = len(a), len(b)
     L = [[0] * (m + 1) for _ in range(n + 1)]
     for i in range(n - 1, -1, -1):
         for j in range(m - 1, -1, -1):
-            L[i][j] = L[i + 1][j + 1] + 1 if a[i] and a[i] == b[j] else max(L[i + 1][j], L[i][j + 1])
+            L[i][j] = L[i + 1][j + 1] + 1 if same(i, j) else max(L[i + 1][j], L[i][j + 1])
     out = [{"t": w["t"], "s": None, "e": None, "k": max(float(w["e"]) - float(w["s"]), 0.05)} for w in words]
     i = j = 0
     while i < n and j < m:
-        if a[i] and a[i] == b[j]:
+        if same(i, j):
             k = wi[i]
             out[k]["s"], out[k]["e"] = round(float(heard[j]["start"]), 3), round(float(heard[j]["end"]), 3)
             i, j = i + 1, j + 1
