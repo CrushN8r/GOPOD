@@ -939,6 +939,13 @@ type gopodBrobotsSettingsFile struct {
 	Personas map[string]string `json:"personas"`
 	// 2026-10-21: the Doc & Pip persona template (gopod_brobot_personas.go).
 	HostPersonas map[string]gopodHostPersona `json:"host_personas"`
+	// 2026-11-15: each persona's colours, the one place (03_chat_page.json) - the
+	// page's bubbles and a Brobot body's robot eyes (gopod_eye_colors.go).
+	PersonaColours map[string]struct {
+		Background string `json:"background"`
+		Border     string `json:"border"`
+		Text       string `json:"text"`
+	} `json:"persona_colours"`
 	// 2026-10-21: each pair of hosts - partner, banter, stereo dial.
 	HostPairs map[string]gopodHostPair `json:"host_pairs"`
 	// 2026-10-08: lines said after the "thanks Brobots" sign-off.

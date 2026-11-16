@@ -3,7 +3,6 @@
 - **nickname:** BUZZER
 - **job:** Security guard
 - **body:** none
-- **colours:** background #1C3F94, border #FF2D2D
 - **why:** it's my call-sign, like an entry buzzer
 - **words:** buzzer, pnfh, intel 404
 - **ask:** Tell me about yourself

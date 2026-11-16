@@ -39,10 +39,6 @@ type gopodHostPersona struct {
 	// 2026-10-30 (operator: "full name [first middle last], nickname, job name"):
 	// the persona's job name - its {job} (gopodPersonaFill).
 	JobName string `json:"job_name"`
-	// 2026-11-15 (operator: "The colouring of the bubbles should be dynamic
-	// per-persona everywhere"): its card's colours ("background #.., border #..,
-	// text #..") - the page colours every bubble it speaks or asks in.
-	Colours string `json:"colours,omitempty"`
 	// 2026-11-15 (operator: "separate robot bodies from all personas * then
 	// assign/flag the robot body for use"): the robot body it speaks through, from
 	// its card's "body:" ("Brobot 1"; "" for a voice) - a body's ESN is only in the

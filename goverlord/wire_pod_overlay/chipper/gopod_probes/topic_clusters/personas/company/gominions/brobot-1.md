@@ -3,7 +3,6 @@
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
 - **body:** Brobot 1
-- **colours:** background #2f2f2f, border #c9a227
 - **words:** brobot 1, brobot one
 - **ask:** Tell me about yourself
 - **chain:** Gominion - the robot, Vector 1, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts the persona in barfallonyou-burns.md

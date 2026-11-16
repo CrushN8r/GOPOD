@@ -3,7 +3,6 @@
 - **nickname:** (to come: in caps)
 - **job:** (to come: the job name)
 - **body:** (the robot body this persona speaks through - Brobot 1, Brobot 2 - or none for a voice; a body's ESN lives only in the private ~/.gopod_esns.json)
-- **colours:** (optional: background #RRGGBB, border #RRGGBB, text #RRGGBB - every bubble this persona speaks or asks in; none: a robot's own bubble)
 - **why:** (to come: the nickname's story, said after "because")
 - **words:** (to come: the words that name this persona, small letters, the settings key first)
 - **ask:** Tell me about yourself

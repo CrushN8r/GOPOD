@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -22,23 +21,11 @@ import (
 // border colours from a single colour value setting * when DOC/PIP respond,
 // their respective eye colours change as well, to match DOC/PIP bubbles * upon
 // DOC/PIP response completion, respective eye colours default back to brobot
-// bubble colours"). A Brobot's own card (brobot-1.md) holds his colours; the
-// persona on his body (DOC, PIP - its card's "body:") holds its own. The page's
-// bubbles and the robot's eyes read the same border. (Was, 2026-10-17: the
+// bubble colours"). Each persona's colours are in one place, persona_colours
+// (03_chat_page.json): Brobot N's own, and DOC's or PIP's while they answer from
+// his body. The page's bubbles and the robot's eyes read the same border. (Was, 2026-10-17: the
 // robot's own app colour read into gopod_brobot_eye_colors.json for the page -
 // two sources; gone.)
-
-var gopodCardColourRE = regexp.MustCompile(`(?i)\b(background|border|text)\s+(#[0-9a-f]{6})\b`)
-
-// gopodCardColour: one colour ("border") from a card's colours line, "" for none.
-func gopodCardColour(colours, which string) string {
-	for _, m := range gopodCardColourRE.FindAllStringSubmatch(colours, -1) {
-		if strings.EqualFold(m[1], which) {
-			return m[2]
-		}
-	}
-	return ""
-}
 
 // gopodBrobotEyeHex: the eye colour for body now - answering, the border of the
 // persona answering from him (gopodAnswerer: DOC, PIP, or the Brobot himself).
@@ -47,7 +34,7 @@ func gopodBrobotEyeHex(body string, answering bool) string {
 	if answering {
 		who = gopodAnswerer(body)
 	}
-	return gopodCardColour(gopodBrobotsSettings.HostPersonas[who].Colours, "border")
+	return gopodBrobotsSettings.PersonaColours[who].Border
 }
 
 // gopodSetBrobotEyes sets the robot's eyes: answering, the persona he answers

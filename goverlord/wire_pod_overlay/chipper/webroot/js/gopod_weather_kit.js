@@ -79,12 +79,11 @@ document.querySelectorAll("[data-units]").forEach(function (b) {
     render();
   });
 });
-// 2026-11-15: each Brobot's eye colour is his card's border (host_personas.<Brobot N>.body_colours).
+// 2026-11-15: each Brobot's eye colour is his border in persona_colours (03_chat_page.json).
 fetch("gopod_settings_full.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (s) {
-  var hp = (s && s.host_personas) || {};
+  var pc = (s && s.persona_colours) || {};
   [["brobot_1", "Brobot 1"], ["brobot_2", "Brobot 2"]].forEach(function (k) {
-    var m = String((hp[k[1]] || {}).body_colours || "").match(/border\s+(#[0-9a-fA-F]{6})/);
-    if (m) { eyes[k[0]] = m[1]; }
+    if ((pc[k[1]] || {}).border) { eyes[k[0]] = pc[k[1]].border; }
   });
 }).catch(function () {});
 document.querySelector('[data-units="C"]').setAttribute("aria-pressed", "true");

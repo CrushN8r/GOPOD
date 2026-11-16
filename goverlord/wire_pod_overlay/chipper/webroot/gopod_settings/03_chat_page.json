@@ -1,4 +1,20 @@
 {
+  "persona_colours_about": "2026-11-15 (operator: \"all the decoration stuff should be in external editable callable css/js/json files * a flexible-value or label 'should' not be hard coded\"; \"decouple code, from flexible data sets ... single sources of truth\"): each persona's colours, the one place - its bubbles (background, border, text), its eyes in the chat icons, its reporter suit's border (its background), and a Brobot body's robot eyes (its border; DOC's and PIP's while they answer). Keyed by persona: Brobot 1 and 2 are the Brobots themselves; DOC and PIP the personas on their bodies. A persona not listed keeps the plain bubble. Edit, then wpr 2 and reload the page.",
+  "persona_colours": {
+    "Brobot 1": {"background": "#2f2f2f", "border": "#c9a227"},
+    "Brobot 2": {"background": "#454545", "border": "#c9a227"},
+    "DOC": {"background": "#5c1a1a", "border": "#ff3b30"},
+    "PIP": {"background": "#1a2a5c", "border": "#42a5f5"},
+    "BUTLER": {"background": "#2E0A57", "border": "#F2D675"},
+    "CHALK": {"background": "#2F4A3C", "border": "#F5F5F0", "text": "#F2F2EA"},
+    "PLAYHEAD": {"background": "#3B2A1E", "border": "#C0C0C0", "text": "#F2ECE4"},
+    "CAMEO": {"background": "#D6006F", "border": "#00E5FF"},
+    "GEMMA": {"background": "#0B5D3B", "border": "#9AF5FF"},
+    "GIT REPO": {"background": "#0D1117", "border": "#2F81F7"},
+    "CACHE PYC": {"background": "#E0A800", "border": "#6A0DAD"},
+    "INTEL 404 PNFH": {"background": "#1C3F94", "border": "#FF2D2D"},
+    "INTEL 404 PNFT": {"background": "#1C3F94", "border": "#FF2D2D"}
+  },
   "scripted_split": {
     "about": "Scripted songs only (a song opts in with \"sentence_split\": \"scripted\" in its knobs.json). The song engine splits each line once, joins the pieces with segment_marker (an invisible character), and both the robot (one say per piece) and the chat bubble (one highlight per piece) split on it. A piece ends at one of piece_ends (. ! ? and, since 2026-10-01, the comma) before a space - a comma inside a quote does not end one; an ellipsis (... or …) never ends a piece, so \"Ah... I like to party\" stays whole; a closing quote stays with its piece; a trailing tag from join_trailing joins the piece before it.",
     "segment_marker": "⁣",

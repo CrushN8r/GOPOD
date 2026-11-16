@@ -1670,7 +1670,7 @@
             }
             window.gopodSystemLabel = systemLabel;
             systemVoicePersona = vp || "";
-            personaColours(settings.host_personas || {});
+            personaColours(settings.persona_colours || {});
             // Every persona is a host on the page - its own voice or another's
             // (managers.personas, voice_of): the master list.
             personaVoiceOf = {};
@@ -1946,27 +1946,19 @@
       var BROBOT2_FIRST = /\b(?:start(?:ing)?\s+with|begin(?:ning)?\s+with)\s+(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\b|\b(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\s+(?:goes\s+|answers\s+)?first\b/i;
       // GOLDEN persona colours (2026-11-15, operator: "The colouring of the bubbles
       // should be dynamic per-persona everywhere, as much as safely possible"):
-      // each persona's card colours (host_personas.<who>.colours, "background #..,
-      // border #.., text #..") make its rules - its bubbles, its eyes, its outdoor
+      // each persona's colours (persona_colours in 03_chat_page.json - background,
+      // border, text) make its rules - its bubbles, its eyes, its outdoor
       // suit's border, its search box - one source, nothing hand-written per persona.
       // A persona with none (DOC, PIP) keeps its Brobot body's bubble.
       function personaSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
-      function cardColours(line) {
-        var c = {};
-        String(line || "").split(",").forEach(function (part) {
-          var m = part.trim().match(/^(background|border|text)\s+(#[0-9a-fA-F]{3,8})$/);
-          if (m) { c[m[1]] = m[2]; }
-        });
-        return c;
-      }
-      function personaColours(hosts) {
+      function personaColours(colours) {
         var rules = [];
         var root = document.documentElement.style;
         var each = [];
-        Object.keys(hosts).forEach(function (who) {
+        Object.keys(colours).forEach(function (who) {
           // 2026-11-15 (decoupled): every persona is its own key - Brobot 1, DOC,
           // PIP alike; a Brobot's own colours are also his --brobot-N vars (his eyes).
-          var c = cardColours(hosts[who].colours);
+          var c = colours[who] || {};
           each.push([who, c]);
           if (/^Brobot [12]$/.test(who)) {
             var n = who === "Brobot 2" ? "2" : "1";

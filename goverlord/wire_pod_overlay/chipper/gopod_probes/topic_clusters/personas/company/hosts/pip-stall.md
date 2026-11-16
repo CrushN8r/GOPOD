@@ -3,7 +3,6 @@
 - **nickname:** PIP
 - **job:** GOPOD sidekick
 - **body:** Brobot 2
-- **colours:** background #1a2a5c, border #42a5f5
 - **why:** it's {name}, short - said like 'pip install'
 - **words:** pip, pip n stall, pipta
 - **ask:** Tell me about yourself

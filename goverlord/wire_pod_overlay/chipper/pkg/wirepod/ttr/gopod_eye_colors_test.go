@@ -34,10 +34,10 @@ func TestBrobotEyesFromCards(t *testing.T) {
 		t.Errorf("blue round trip: %v %v", h, s)
 	}
 	// Decoupled: each persona its own colours - Brobot 1's brass, DOC's red.
-	if c := gopodCardColour(gopodBrobotsSettings.HostPersonas["Brobot 1"].Colours, "border"); c != "#c9a227" {
+	if c := gopodBrobotsSettings.PersonaColours["Brobot 1"].Border; c != "#c9a227" {
 		t.Errorf("Brobot 1: %q", c)
 	}
-	if c := gopodCardColour(gopodBrobotsSettings.HostPersonas["DOC"].Colours, "border"); c != "#ff3b30" {
+	if c := gopodBrobotsSettings.PersonaColours["DOC"].Border; c != "#ff3b30" {
 		t.Errorf("DOC: %q", c)
 	}
 	if !gopodAtDialZero("Brobot 1") && gopodBrobotEyeHex("Brobot 1", true) != "#ff3b30" {
@@ -48,23 +48,24 @@ func TestBrobotEyesFromCards(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (live: the page showed no persona colours): the page's settings
-// carry each card's colours - KEYNOTE's, a Brobot's own and his hosted persona's.
-func TestPageGetsCardColours(t *testing.T) {
+// 2026-11-15 (operator: "all the decoration stuff should be in external editable
+// callable css/js/json files"): the page's settings carry persona_colours, the
+// one place - and no persona card holds a colour.
+func TestPageGetsPersonaColours(t *testing.T) {
 	var out struct {
-		HostPersonas map[string]map[string]any `json:"host_personas"`
+		PersonaColours map[string]map[string]string `json:"persona_colours"`
 	}
 	full, _ := gopodSettingsFull()
 	if err := json.Unmarshal(gopodPersonaProfileLabelsJSON(full), &out); err != nil {
 		t.Fatal(err)
 	}
-	if c, _ := out.HostPersonas["BUTLER"]["colours"].(string); !strings.Contains(c, "#2E0A57") {
-		t.Errorf("KEYNOTE's colours: %q", c)
+	if out.PersonaColours["BUTLER"]["background"] != "#2E0A57" || out.PersonaColours["DOC"]["border"] != "#ff3b30" || out.PersonaColours["Brobot 1"]["border"] != "#c9a227" {
+		t.Errorf("persona colours: %v", out.PersonaColours)
 	}
-	b, _ := out.HostPersonas["Brobot 1"]["colours"].(string)
-	h, _ := out.HostPersonas["DOC"]["colours"].(string)
-	if !strings.Contains(b, "#c9a227") || !strings.Contains(h, "#ff3b30") {
-		t.Errorf("Brobot 1's colours: own %q, hosted %q", b, h)
+	for who := range gopodBrobotsSettings.HostPersonas {
+		if head, _ := gopodPersonaProfileReadOne(gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, who)); head["colours"] != "" {
+			t.Errorf("%s's card still holds colours", who)
+		}
 	}
 }
 

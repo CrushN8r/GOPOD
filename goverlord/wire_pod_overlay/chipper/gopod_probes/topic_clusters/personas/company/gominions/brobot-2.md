@@ -3,7 +3,6 @@
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
 - **body:** Brobot 2
-- **colours:** background #454545, border #c9a227
 - **words:** brobot 2, brobot two
 - **ask:** Tell me about yourself
 - **chain:** Gominion - the robot, Vector 2, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts the persona in pip-stall.md

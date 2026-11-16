@@ -3,7 +3,6 @@
 - **nickname:** CHALKRA
 - **job:** CRUSHN8R CREW Display Gomad
 - **body:** none
-- **colours:** background #2F4A3C, border #F5F5F0, text #F2F2EA
 - **why:** PLAYHEAD gave it to me - Chakra plus Ra, a nod to my princess side
 - **words:** chalk, chalk bored, chalkboard, chalkra
 - **ask:** Tell me about yourself

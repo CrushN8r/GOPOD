@@ -196,9 +196,6 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 		if v := head["job"]; v != "" {
 			hp.JobName = v
 		}
-		if v := head["colours"]; v != "" {
-			hp.Colours = v
-		}
 		if v := strings.TrimSpace(head["body"]); v != "" && !strings.EqualFold(v, "none") {
 			hp.Body = v
 		}
@@ -243,10 +240,6 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 		hps[who]["name"], hps[who]["nickname"], hps[who]["job_name"] = hp.Name, hp.Nickname, hp.JobName
 		if hp.CallName != "" {
 			hps[who]["call_name"] = hp.CallName
-		}
-		// 2026-11-15 (live: the page showed no persona colours): its card's colours too.
-		if hp.Colours != "" {
-			hps[who]["colours"] = hp.Colours
 		}
 	}
 	raw, err := json.Marshal(hps)

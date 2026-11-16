@@ -3,7 +3,6 @@
 - **nickname:** CHAMMY
 - **job:** CRUSHN8R CREW Content Gomad
 - **body:** none
-- **colours:** background #D6006F, border #00E5FF
 - **why:** it's Chamfer plus Chameleon - I cut the edge and change faces at the same time
 - **words:** cameo, chammy, chameleon, chamfer
 - **ask:** Tell me about yourself
