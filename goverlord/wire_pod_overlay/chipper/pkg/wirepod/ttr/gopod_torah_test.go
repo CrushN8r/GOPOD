@@ -68,3 +68,28 @@ func TestReadmeCastMatches(t *testing.T) {
 		}
 	}
 }
+
+// 2026-11-16 (operator: "can the system tour be segmented by folder tree & contents?
+// ... scripture-0/[topic-cluster/intro] * scripture-1/[scripture 1 stuff]"): the tour
+// is the scrolls' folders, in order - scripture 0 the intro, the lingo improver a stop.
+func TestTourIsTheScrollsTree(t *testing.T) {
+	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
+		t.Skip("not in the repo here")
+	}
+	stops := gopodTourScrolls()
+	if len(stops) < 2 || !strings.HasPrefix(stops[0].Title, "Scripture 0,") || !strings.HasPrefix(stops[1].Title, "Scripture 1,") {
+		t.Fatalf("tour stops: %d, first %q", len(stops), stops[0].Title)
+	}
+	lingo := false
+	for _, s := range stops {
+		if strings.Contains(strings.Join(s.Lines, " "), "system-lingo-improver") {
+			lingo = true
+		}
+	}
+	if !lingo {
+		t.Error("the lingo improver isn't a stop of the tour")
+	}
+	if strings.TrimSpace(gopodSystemText("lingo_improver.open")) == "" || !strings.Contains(gopodSystemText("lingo_improver.open"), "gopod_lingo_improver.html") {
+		t.Error("system-lingo-improver has no link")
+	}
+}

@@ -36,7 +36,7 @@ const gopodTorahDir = "system_scrolls"
 // scripture's own file - by its path from the repo's root.
 func gopodTorahFiles() map[string]string {
 	files := map[string]string{"GOPOD_SYSTEM_SCROLLS.md": gopodTorahPage()}
-	all := gopodTorahScriptures()
+	all := append([]gopodTorahScripture{gopodTorahIntro()}, gopodTorahScriptures()...)
 	for i, sc := range all {
 		files[sc.File] = gopodTorahScripturePage(all, i)
 	}
@@ -53,43 +53,76 @@ func gopodTorahScripturePage(all []gopodTorahScripture, i int) string {
 			b.WriteString(l + "\n")
 		}
 	}
-	w("# "+sc.Title, "")
-	for _, p := range sc.Tour {
-		w(p, "")
-	}
-	if len(sc.Tour) == 0 && sc.Guide != "" {
-		w(sc.Guide, "")
-	}
-	w("## Commandments", "")
+	// 2026-11-16: in the topic-cluster format - its head (words, ask, about), then
+	// its sections, a point a line - so the brain can look a scripture up.
+	words := []string{strings.ToLower(sc.Title)}
 	for _, c := range sc.Commandments {
-		w("- " + c)
+		if cmd, _, ok := strings.Cut(c, ","); ok {
+			words = append(words, strings.TrimSpace(cmd))
+		}
 	}
-	w("")
+	w("# "+sc.Title,
+		"- **words:** "+strings.Join(words, ", "),
+		"- **ask:** What's in "+sc.Title+"?",
+		"- **about:** written by GOPOD from the system window (system-menu.md) - system-scrolls writes it again; system-tour reads it from here",
+		"---", "")
+	numbered := func(title string, lines []string) {
+		if len(lines) == 0 {
+			return
+		}
+		w("## " + title)
+		for n, l := range lines {
+			w(strconv.Itoa(n+1) + ". " + l)
+		}
+		w("")
+	}
+	tour := sc.Tour
+	if len(tour) == 0 && sc.Guide != "" {
+		tour = []string{sc.Guide}
+	}
+	numbered("Tour", tour)
+	numbered("Commandments", sc.Commandments)
 	if sc.Next != "" {
-		w("*"+sc.Next+"*", "")
+		numbered("Next", []string{sc.Next})
 	}
-	nav := []string{"[GOPOD SYSTEM SCROLLS](../GOPOD_SYSTEM_SCROLLS.md)"}
+	nav := []string{"[GOPOD SYSTEM SCROLLS](../../GOPOD_SYSTEM_SCROLLS.md)"}
 	if i > 0 {
-		nav = append([]string{"[" + all[i-1].Title + "](" + filepath.Base(all[i-1].File) + ")"}, nav...)
+		nav = append([]string{"[" + all[i-1].Title + "](../" + filepath.Base(filepath.Dir(all[i-1].File)) + "/README.md)"}, nav...)
 	}
 	if i+1 < len(all) {
-		nav = append(nav, "["+all[i+1].Title+"]("+filepath.Base(all[i+1].File)+")")
+		nav = append(nav, "["+all[i+1].Title+"](../"+filepath.Base(filepath.Dir(all[i+1].File))+"/README.md)")
 	}
-	w("---", "", strings.Join(nav, " · "))
+	w(strings.Join(nav, " · "))
 	return b.String()
 }
 
-// gopodTorahFileName: "Scripture 1, Restart and check" -> system_scrolls/SCRIPTURE_01_RESTART_AND_CHECK.md.
+// gopodTorahIntro: scripture 0, the intro - the opening and the window's intro
+// (torah.intro_title; system_menu.intro).
+func gopodTorahIntro() gopodTorahScripture {
+	tw := gopodBrobotsSettings.Torah
+	title := strings.NewReplacer("{n}", "0", "{title}", tw.IntroTitle).Replace(tw.Scripture)
+	tour := []string{tw.Opening}
+	if t := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(gopodBrobotsSettings.SystemMenu.Intro), tw.Opening)); t != "" {
+		tour = append(tour, t)
+	}
+	return gopodTorahScripture{Title: title, Tour: tour, File: gopodTorahFileName(0, tw.IntroTitle)}
+}
+
+// gopodTorahFileName (2026-11-16, operator: "can the system tour be segmented by
+// folder tree & contents? like system-scrolls/ * scripture-0/[topic-cluster/intro]
+// * scripture-1/[scripture 1 stuff] * etc, for easy dynamic look up?"): each
+// scripture is its own folder, its scroll the folder's README.md -
+// "Scripture 1, Restart and check" -> system_scrolls/scripture-01-restart-and-check/README.md.
 func gopodTorahFileName(n int, title string) string {
 	var words []string
-	for _, f := range strings.FieldsFunc(strings.ToUpper(title), func(r rune) bool { return !(r >= 'A' && r <= 'Z' || r >= '0' && r <= '9') }) {
+	for _, f := range strings.FieldsFunc(strings.ToLower(title), func(r rune) bool { return !(r >= 'a' && r <= 'z' || r >= '0' && r <= '9') }) {
 		words = append(words, f)
 	}
 	num := strconv.Itoa(n)
 	if n < 10 {
 		num = "0" + num
 	}
-	return gopodTorahDir + "/SCRIPTURE_" + num + "_" + strings.Join(words, "_") + ".md"
+	return gopodTorahDir + "/scripture-" + num + "-" + strings.Join(words, "-") + "/README.md"
 }
 
 // gopodTorahFirstSentence: a paragraph's first sentence, for the main scroll's list.
@@ -140,7 +173,7 @@ func gopodTorahPage() string {
 	// 2026-10-29 (operator: "create a main torah md & pull scriptures to
 	// separate md files?"): each scripture is its own scroll (system_scrolls/), linked here.
 	w("## The Scriptures", "")
-	for _, sc := range gopodTorahScriptures() {
+	for _, sc := range append([]gopodTorahScripture{gopodTorahIntro()}, gopodTorahScriptures()...) {
 		about := ""
 		if len(sc.Tour) > 0 {
 			about = " - " + gopodTorahFirstSentence(sc.Tour[0])
@@ -186,7 +219,7 @@ func itoaTorah(n int) string { return strconv.Itoa(n) }
 type gopodTorahScripture struct {
 	Title, Guide, Next string
 	Tour               []string // the tour's plain paragraphs (system_menu.groups[].tour)
-	File               string   // its own scroll, from the repo's root (system_scrolls/SCRIPTURE_01_....md)
+	File               string   // its own scroll, from the repo's root (system_scrolls/scripture-01-.../README.md)
 	Commandments       []string // "{cmd}, {about}"
 }
 
@@ -256,10 +289,12 @@ func gopodTorahBehind() bool {
 // gopodTorahStale: scripture scrolls left in system_scrolls/ that the system no longer has.
 func gopodTorahStale(files map[string]string) []string {
 	var out []string
-	old, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "SCRIPTURE_*.md"))
-	for _, f := range old {
-		if _, ok := files[gopodTorahDir+"/"+filepath.Base(f)]; !ok {
-			out = append(out, f)
+	flat, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "SCRIPTURE_*.md"))
+	out = append(out, flat...) // the old one-file scrolls (before 2026-11-16)
+	dirs, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "scripture-*"))
+	for _, d := range dirs {
+		if _, ok := files[gopodTorahDir+"/"+filepath.Base(d)+"/README.md"]; !ok {
+			out = append(out, d)
 		}
 	}
 	return out
@@ -268,11 +303,11 @@ func gopodTorahStale(files map[string]string) []string {
 // gopodWriteTorah writes every scroll again (and drops the stale ones).
 func gopodWriteTorah() error {
 	files := gopodTorahFiles()
-	if err := gopodMkdirAll(filepath.Join(gopodRepoRoot(), gopodTorahDir), 0o755); err != nil {
-		return err
-	}
 	for rel, data := range files {
 		path := filepath.Join(gopodRepoRoot(), rel)
+		if err := gopodMkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return err
+		}
 		if old, err := os.ReadFile(path); err == nil && string(old) == data {
 			continue
 		}
@@ -281,7 +316,7 @@ func gopodWriteTorah() error {
 		}
 	}
 	for _, f := range gopodTorahStale(files) {
-		os.Remove(f)
+		os.RemoveAll(f)
 	}
 	return nil
 }

@@ -55,6 +55,7 @@
 1. next_to: `Go to scripture `
 2. opening: Goverlord's Scrolls: In the beginning there was a great restart.
 3. scripture: Scripture {n}, {title}
+4. intro_title: In the beginning
 
 ## Visitors (visitors)
 1. waiting_text: Waiting for approval

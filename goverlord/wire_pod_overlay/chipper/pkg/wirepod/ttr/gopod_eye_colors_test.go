@@ -161,3 +161,12 @@ func TestLingoImproverVoices(t *testing.T) {
 		t.Errorf("unknown voice: %q %q", said, note)
 	}
 }
+
+// 2026-11-16 (operator: "New voice please * for goverlord = Keys settings with
+// lower/deeper voice"): Goverlord's lines - KEYS' voice, lower; KEYS unchanged.
+func TestGoverlordVoiceDeeper(t *testing.T) {
+	g := gopodBrobotsSettings.SignOff.SystemRole
+	if gopodReporterPitch(g) >= 0 || gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona) != 0 {
+		t.Errorf("Goverlord %v cents, KEYS %v cents", gopodReporterPitch(g), gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona))
+	}
+}

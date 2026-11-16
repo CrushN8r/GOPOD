@@ -224,6 +224,7 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-20: the system menu's theme presets (system-menu-theme).
 	SystemMenu struct {
 		Themes map[string]map[string]string `json:"themes"`
+		Intro  string                       `json:"intro"` // 2026-11-16: scripture 0 (gopodTorahIntro)
 	} `json:"system_menu"`
 	// 2026-10-20: the TPU +/- rotation's sources (gopod_visual.go).
 	VisualSources struct {
@@ -599,6 +600,7 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"readme_cast"`
 	Torah struct {
 		Opening     string `json:"opening"`
+		IntroTitle  string `json:"intro_title"` // 2026-11-16: scripture 0's title
 		Scripture   string `json:"scripture"`
 		Commandment string `json:"commandment"`
 		NextFrom    string `json:"next_from"`

@@ -197,6 +197,7 @@ topics: {names}
 10. lingo_improver.keep: Keep in the {lingo} lingo
 11. lingo_improver.pick_and_type: Pick a voice and type something first.
 12. lingo_improver.no_voice_file: The voice file wasn't made - try again.
+13. lingo_improver.open: The lingo improver: [open it](/gopod_lingo_improver.html) - pick a voice, type a line, hear it, keep the spelling that sounds right.
 
 ## Scrolls (system_text)
 1. torah.the_gopod_torah_is_written: The GOPOD System Scrolls are written again: GOPOD_SYSTEM_SCROLLS.md and its scriptures (system_scrolls/) match the system as it is now.

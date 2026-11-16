@@ -11,16 +11,17 @@ running settings, so they always match the system as it grows - `system-check` s
 
 ## The Scriptures
 
-- [Scripture 1, Restart and check](system_scrolls/SCRIPTURE_01_RESTART_AND_CHECK.md) - Just started, or made some edits?
-- [Scripture 2, Play](system_scrolls/SCRIPTURE_02_PLAY.md) - You can run one song or one saved session at a time.
-- [Scripture 3, Edit words and settings](system_scrolls/SCRIPTURE_03_EDIT_WORDS_AND_SETTINGS.md) - This is where you change what's said and how.
-- [Scripture 4, Find](system_scrolls/SCRIPTURE_04_FIND.md) - Don't know where something lives?
-- [Scripture 5, Apply](system_scrolls/SCRIPTURE_05_APPLY.md) - Edits take effect after a restart, from Scripture 1.
-- [Scripture 6, Switches](system_scrolls/SCRIPTURE_06_SWITCHES.md) - Turn parts on or off for this session.
-- [Scripture 7, Brobots](system_scrolls/SCRIPTURE_07_BROBOTS.md) - Wire-Pod's bot page, right here.
-- [Scripture 8, Tune moves](system_scrolls/SCRIPTURE_08_TUNE_MOVES.md) - A move looks off?
-- [Scripture 9, Test one thing](system_scrolls/SCRIPTURE_09_TEST_ONE_THING.md) - Something acting up?
-- [Scripture 10, Wrap up](system_scrolls/SCRIPTURE_10_WRAP_UP.md) - End the show.
+- [Scripture 0, In the beginning](system_scrolls/scripture-00-in-the-beginning/README.md) - Goverlord's Scrolls: In the beginning there was a great restart.
+- [Scripture 1, Restart and check](system_scrolls/scripture-01-restart-and-check/README.md) - Just started, or made some edits?
+- [Scripture 2, Play](system_scrolls/scripture-02-play/README.md) - You can run one song or one saved session at a time.
+- [Scripture 3, Edit words and settings](system_scrolls/scripture-03-edit-words-and-settings/README.md) - This is where you change what's said and how.
+- [Scripture 4, Find](system_scrolls/scripture-04-find/README.md) - Don't know where something lives?
+- [Scripture 5, Apply](system_scrolls/scripture-05-apply/README.md) - Edits take effect after a restart, from Scripture 1.
+- [Scripture 6, Switches](system_scrolls/scripture-06-switches/README.md) - Turn parts on or off for this session.
+- [Scripture 7, Brobots](system_scrolls/scripture-07-brobots/README.md) - Wire-Pod's bot page, right here.
+- [Scripture 8, Tune moves](system_scrolls/scripture-08-tune-moves/README.md) - A move looks off?
+- [Scripture 9, Test one thing](system_scrolls/scripture-09-test-one-thing/README.md) - Something acting up?
+- [Scripture 10, Wrap up](system_scrolls/scripture-10-wrap-up/README.md) - End the show.
 
 ## The Commandments
 
@@ -32,6 +33,7 @@ system commands (typed on this keyboard):
   system-set <path.to.setting> <value>   any setting by its path (system-set managers.qr_note Scan it!)
   system-add / system-remove <path> <item>   an item in a list, or key = value in a group
   system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; the lingo alone: its list)
+  system-lingo-improver             the lingo improver page: pick a voice, hear a spelling, keep it
   system-topic [<topic> ...]        a chapter topic: words, points (say lines), label, reminder, pictures
   system-skip                       skip the voiced lines playing - in the tour, on to the next scripture (from Voices ready on)
   Esc                               exit the run going (a song, the tour, the comm check); with none, skip

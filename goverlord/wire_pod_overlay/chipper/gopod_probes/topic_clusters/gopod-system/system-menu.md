@@ -71,7 +71,7 @@
 3. next: Don't know the name or path? Go to 4. Done editing? Go to 5.
 
 ## 3. Edit words and settings - tour (system_menu.groups.2.tour[])
-1. This is where you change what's said and how. “system-topic” edits a chapter topic: its words, points and pictures. “system-lingo” changes how a word is said. “system-set” changes any setting by its path, or a song step's words, volume or timing, and “system-add” and “system-remove” put items into a list or take them out.
+1. This is where you change what's said and how. “system-topic” edits a chapter topic: its words, points and pictures. “system-lingo” changes how a word is said, and “system-lingo-improver” opens the lingo improver: pick a voice, type a line, hear it, and keep the spelling that sounds right. “system-set” changes any setting by its path, or a song step's words, volume or timing, and “system-add” and “system-remove” put items into a list or take them out.
 2. The show's character lives here too: the roast level and the Jekyll and Hyde switch, how often Brobot 1 goes full Doc BS, his Doc BS lines with “system-docbs”, the parts of a live answer chain, the run cards, one question at a time, and which robot is Brobot 1. “system-voices” picks a voice for each numpad key, and this window's own look and theme can change as well.
 3. Made a mistake? “system-undo” puts back the last edit. Don't know a name or path? Go to Scripture 4. Done editing? Go to Scripture 5.
 
@@ -178,6 +178,10 @@
 1. cmd: system-set brobots_setup.brobot_1
 2. about: which robot is Brobot 1 (an ESN; empty: Wire-Pod's robots decide) - then system-restart
 3. fill: `system-set brobots_setup.brobot_1 `
+
+## system-lingo-improver (system_menu.groups.2.items.22)
+1. cmd: system-lingo-improver
+2. about: the lingo improver: pick a voice, type a line, hear it, keep the spelling that sounds right
 
 ## 4. Find (system_menu.groups.3)
 1. title: 4. Find

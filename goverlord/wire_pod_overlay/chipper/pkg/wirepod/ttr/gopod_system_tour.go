@@ -15,6 +15,8 @@ package wirepod_ttr
 // Record Session keeps it.
 
 import (
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -46,7 +48,11 @@ func gopodSystemTour() string {
 	if role == "" {
 		return gopodSystemText("system_tour.system_tour_no_system_voice")
 	}
-	scriptures := gopodTorahScriptures()
+	// 2026-11-16 (operator: "can the system tour be segmented by folder tree &
+	// contents ... for easy dynamic look up?"): the tour is the scrolls' folder
+	// tree as it is on disk - scripture-00 (the intro), then each scripture's
+	// folder in order; a new folder is a new stop.
+	scriptures := gopodTourScrolls()
 	gopodTourRunning.Store(true)
 	gopodTourStop.Store(false)
 	go func() {
@@ -66,9 +72,6 @@ func gopodSystemTour() string {
 			}
 			return true
 		}
-		if !say(gopodBrobotsSettings.Torah.Opening) {
-			return
-		}
 		for _, sc := range scriptures {
 			if gopodTourStop.Load() || gopodRunActive() {
 				return
@@ -79,18 +82,7 @@ func gopodSystemTour() string {
 			// 2026-10-29 (operator: "Scripture tours >> human friendly easy to
 			// read paragraph"): the title, then its plain paragraphs (the group's
 			// tour), a voice a paragraph; a group with none falls back to the list.
-			lines := []string{sc.Title}
-			if len(sc.Tour) > 0 {
-				lines = append(lines, sc.Tour...)
-			} else {
-				if sc.Guide != "" {
-					lines = append(lines, sc.Guide)
-				}
-				lines = append(lines, sc.Commandments...)
-				if sc.Next != "" {
-					lines = append(lines, sc.Next)
-				}
-			}
+			lines := append([]string{sc.Title}, sc.Lines...)
 			here := gopodPageHere()
 			gopodSayLinesInBubble(role, lines, here)
 			if here {
@@ -101,6 +93,72 @@ func gopodSystemTour() string {
 		logger.Println("GOPOD_TOUR done: " + strconv.Itoa(len(scriptures)) + " scriptures")
 	}()
 	return strings.ReplaceAll(gopodBrobotsSettings.SystemTour.StartText, "{n}", strconv.Itoa(len(scriptures)))
+}
+
+// gopodTourScroll: one stop of the tour - a scripture's title and what's said there.
+type gopodTourScroll struct {
+	Title string
+	Lines []string
+}
+
+// gopodTourScrolls: the tour's stops, read from the scrolls' folder tree
+// (system_scrolls/scripture-NN-*/README.md, in order): each its title, then its
+// Tour points - or, with none, its Commandments and its Next. With no tree on
+// disk, the scrolls as GOPOD would write them.
+func gopodTourScrolls() []gopodTourScroll {
+	dirs, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "scripture-*", "README.md"))
+	sort.Strings(dirs)
+	var out []gopodTourScroll
+	for _, f := range dirs {
+		if st, ok := gopodTourStopRead(gopodReadFileString(f)); ok {
+			out = append(out, st)
+		}
+	}
+	if len(out) > 0 {
+		return out
+	}
+	files := gopodTorahFiles()
+	var keys []string
+	for k := range files {
+		if strings.HasPrefix(k, gopodTorahDir+"/") {
+			keys = append(keys, k)
+		}
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if st, ok := gopodTourStopRead(files[k]); ok {
+			out = append(out, st)
+		}
+	}
+	return out
+}
+
+// gopodTourStopRead: a scroll's title and what the tour says from it.
+func gopodTourStopRead(text string) (gopodTourScroll, bool) {
+	var st gopodTourScroll
+	sections := map[string][]string{}
+	section := ""
+	for _, line := range strings.Split(text, "\n") {
+		t := strings.TrimSpace(line)
+		switch {
+		case strings.HasPrefix(t, "# ") && st.Title == "":
+			st.Title = strings.TrimSpace(t[2:])
+		case strings.HasPrefix(t, "## "):
+			section = strings.TrimSpace(t[3:])
+		default:
+			if m := gopodProfilePointRE.FindStringSubmatch(t); m != nil && section != "" {
+				sections[section] = append(sections[section], m[1])
+			}
+		}
+	}
+	if st.Title == "" {
+		return st, false
+	}
+	st.Lines = sections["Tour"]
+	if len(st.Lines) == 0 {
+		st.Lines = append(append([]string(nil), sections["Commandments"]...), sections["Next"]...)
+	}
+	return st, true
 }
 
 // gopodSameLineMark: in a "lines:" bubble, the join between two voice chunks of
