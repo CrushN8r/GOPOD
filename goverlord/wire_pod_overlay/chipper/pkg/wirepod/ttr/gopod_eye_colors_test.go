@@ -123,3 +123,17 @@ func TestBodyLineIsTheBrobots(t *testing.T) {
 		t.Errorf("body line by: %+v", last)
 	}
 }
+
+// 2026-11-16 (bubble log: "Numpad to DOC" over a KP1off line): a key names the
+// persona it reaches.
+func TestKeyReaches(t *testing.T) {
+	for key, want := range map[string]string{"KP1": "DOC", "KP1off": "Brobot 1", "KP2": "PIP", "KP2off": "Brobot 2", "KP0": "BUTLER"} {
+		_, target, err := gopodNumpadBrobot(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := gopodKeyReaches(target); got != want {
+			t.Errorf("%s (%s) reaches %q, want %q", key, target, got, want)
+		}
+	}
+}

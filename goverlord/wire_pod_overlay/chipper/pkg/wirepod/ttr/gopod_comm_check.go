@@ -226,7 +226,9 @@ func gopodSystemCommCheck() string {
 			text := gopodSpellNames(strings.ReplaceAll(l[1], "{name}", name))
 			logger.Println("GOPOD_COMM_CHECK " + strconv.Itoa(i+1) + "/" + strconv.Itoa(len(lines)) + " " + key + " -> " + label + ": " + text)
 			// The page draws the key's bubbles, as if it were held.
-			GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, "numpad_sim|"+key+"|"+label)
+			// 2026-11-16 (bubble log: "Numpad to DOC" over a KP1off line): its fourth
+			// part is the persona the key reaches (gopodKeyReaches) - the status names it.
+			GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, "numpad_sim|"+key+"|"+label+"|"+gopodKeyReaches(target))
 			gopodCommCheckWaitPage(gopodFeedLastID(), 30*time.Second)
 			gopodNumpadLastKey.Store(key)
 			gopodCommCheckAsking.Store([2]string{text, strings.TrimSpace(l[2])})

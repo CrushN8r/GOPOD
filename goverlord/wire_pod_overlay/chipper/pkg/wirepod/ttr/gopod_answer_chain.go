@@ -514,7 +514,10 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 // gopodGomadAnswerEarly: host's answer, said and shown as sayAs; early, when
 // given, is its answer already started (gopodGomadAnswerStart).
 func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswer) bool {
-	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(host)), &atomic.Int32{})
+	// 2026-11-16 (live: KP7off/KP8off each waited 27 s after answering - the queue
+	// watched "CHALK", the answer came as "CHALK reporter"): counted by the name
+	// that speaks on the feed (sayAs), the same name the line queue waits for.
+	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(sayAs)), &atomic.Int32{})
 	n.(*atomic.Int32).Add(1)
 	defer n.(*atomic.Int32).Add(-1)
 	switch gopodGomadPartFor(host, text) {

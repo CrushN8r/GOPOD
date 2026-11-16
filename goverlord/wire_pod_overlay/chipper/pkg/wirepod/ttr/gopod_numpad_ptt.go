@@ -346,6 +346,27 @@ func gopodNumpadLiveKeys() []string {
 	return out
 }
 
+// gopodKeyReaches: the persona a map target reaches - a voice persona, its
+// reporter suit, a Brobot as himself (the dial's 0%), or the persona on a
+// body (DOC, PIP); "" for the line to all.
+func gopodKeyReaches(target string) string {
+	switch {
+	case strings.HasPrefix(target, gopodPersonaReporterMark):
+		return gopodBrobotsSettings.Managers.Personas[strings.TrimPrefix(target, gopodPersonaReporterMark)].Reporter
+	case strings.HasPrefix(target, gopodPersonaMark):
+		return strings.TrimPrefix(target, gopodPersonaMark)
+	case strings.HasPrefix(target, gopodDialZeroMark):
+		return gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark))
+	}
+	if body := gopodBrobotName(target); gopodIsBrobotBody(body) {
+		if p := gopodHostedPersona(body); p != "" {
+			return p
+		}
+		return body
+	}
+	return ""
+}
+
 // gopodKeyLine (2026-11-13, operator: "Make the numpad like the cohesive spine of
 // info-flow pathways"): one path for a key's line, typed or held - to wherever
 // the map's target says: a voice-only persona, a persona in its reporter suit, a
@@ -354,8 +375,10 @@ func gopodKeyLine(target, text, how string) error {
 	switch {
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
 		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
-		return gopodLineTurn(text, []string{host}, func() error {
-			gopodPersonaReplyAs(host, gopodBrobotsSettings.Managers.Personas[host].Reporter, text, how)
+		// The answer comes as the reporter (CHALK reporter): that's who the queue waits for.
+		suit := gopodBrobotsSettings.Managers.Personas[host].Reporter
+		return gopodLineTurn(text, []string{suit}, func() error {
+			gopodPersonaReplyAs(host, suit, text, how)
 			return nil
 		})
 	case strings.HasPrefix(target, gopodPersonaMark):

@@ -114,6 +114,10 @@ func gopodSayWords(robot *vector.Vector, esn, text string) {
 // 2026-10-16: afterLine (a live photo, gopod_photo.go) runs after the thinking
 // line, before the searching moves.
 func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string, brobot bool, ready func() bool, afterLine ...func()) {
+	// 2026-11-16 (operator: "When I call on DOC or PIP, their eye colour should
+	// change for the 'got it' part, not after"): his eyes in the answering
+	// persona's colour from the start of the answer (gopod_eye_colors.go).
+	gopodSetBrobotEyes(robot, esn, true)
 	if brobot {
 		// GOPOD 2026-10-09 (operator: "drop the buffer so every reply starts
 		// the same way"): the 2026-10-04 searching + kgSuccess buffer while the

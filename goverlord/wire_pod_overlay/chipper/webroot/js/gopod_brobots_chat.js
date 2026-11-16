@@ -940,7 +940,7 @@
         // 2026-11-15: a line a persona asks (the comm check's) wears its colours;
         // a Brobot's, the persona he answers as.
         if (byWho) { bubble.classList.add("host-" + personaSlug(byWho)); }
-        else if (/^Brobot [12]$/.test(who)) { brobotHostClass(bubble, who); }
+        else if (/^Brobot [12]$/.test(who)) { brobotHostClass(bubble, who, brobotBy[who]); }
         // 2026-09-29: Wire-Pod chat replies get the speaking highlight (gopod_chat_bubbles.css).
         if (format === "llm") { bubble.className += " brobot-bubble-live"; }
         // 2026-10-01: a scripted song line (split with the segment marker, the
@@ -1042,7 +1042,7 @@
           if (shellWho && brobotBy[who]) { shellWho.textContent = brobotBy[who] + ":"; }
           if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
           bubble.className.split(" ").forEach(function (c) { if (c) { shell.classList.add(c); } });
-          if (/^Brobot [12]$/.test(who)) { brobotHostClass(shell, who); }
+          if (/^Brobot [12]$/.test(who)) { brobotHostClass(shell, who, brobotBy[who]); }
           bubbleNote(shell, "filled");
           if (inPopup) { shell.classList.add("popup-winner"); }
           shell.appendChild(textEl);
@@ -1988,9 +1988,15 @@
       // A Brobot's bubble wears the persona he answers as (2026-11-15): the line's
       // to_as, else his reply's "by", else his own name - its colours (personaColours).
       function brobotAs(who) { return brobotTo[who] || brobotBy[who] || who; }
-      function brobotHostClass(shell, who) {
+      // 2026-11-16 (bubble log: "DOC:" over Brobot 1's colours, then "Brobot 1:"):
+      // the header and the colours from the same name - as (the reply's own "by"
+      // once it's in), else who the line reaches (brobotAs).
+      function brobotHostClass(shell, who, as) {
+        as = as || brobotAs(who);
         Array.prototype.slice.call(shell.classList).forEach(function (c) { if (/^host-/.test(c)) { shell.classList.remove(c); } });
-        shell.classList.add("host-" + personaSlug(brobotAs(who)));
+        shell.classList.add("host-" + personaSlug(as));
+        var w = shell.querySelector(":scope > .brobot-bubble-head .brobot-bubble-who");
+        if (w) { w.textContent = as + ":"; }
       }
       function operatorHead(to, via, text) {
         if (to === SYSTEM_TARGET) {
@@ -5284,6 +5290,8 @@
           if (String(e.text).indexOf("numpad_sim|") === 0) {
             var sim = String(e.text).split("|"), simKey = sim[1] || "", simWho = (numpad.targets && numpad.targets[simKey]) || sim[2] || "";
             if (restoringChat) { done(); return; }
+            // 2026-11-16: the persona this key reaches (its fourth part) heads the status.
+            if (/^Brobot [12]$/.test(simWho) && sim[3]) { brobotTo[simWho] = sim[3]; }
             var simSt = systemStatus(numpadText("hold", { key: simKey, brobot: simWho }), 0, simWho);
             var holdMs = ((numpad.cfg && numpad.cfg.min_hold_seconds) || 0.5) * 1000, recMs = (commCheckRecordSeconds || 2) * 1000;
             setTimeout(function () {
