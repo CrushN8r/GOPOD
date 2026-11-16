@@ -1963,19 +1963,15 @@
         var root = document.documentElement.style;
         var each = [];
         Object.keys(hosts).forEach(function (who) {
-          // A Brobot body (2026-11-15): his own card's colours ("Brobot N") and the
-          // persona he hosts (its nickname: DOC, PIP) - his bubble wears whichever
-          // he answers as (brobotAs); --brobot-N-color is his own border (his eyes).
+          // 2026-11-15 (decoupled): every persona is its own key - Brobot 1, DOC,
+          // PIP alike; a Brobot's own colours are also his --brobot-N vars (his eyes).
+          var c = cardColours(hosts[who].colours);
+          each.push([who, c]);
           if (/^Brobot [12]$/.test(who)) {
-            var own = cardColours(hosts[who].body_colours);
-            each.push([who, own]);
-            if (hosts[who].nickname) { each.push([hosts[who].nickname, cardColours(hosts[who].colours)]); }
             var n = who === "Brobot 2" ? "2" : "1";
-            if (own.border) { root.setProperty("--brobot-" + n + "-color", own.border); }
-            if (own.background) { root.setProperty("--brobot-" + n + "-bg", own.background); }
-            return;
+            if (c.border) { root.setProperty("--brobot-" + n + "-color", c.border); }
+            if (c.background) { root.setProperty("--brobot-" + n + "-bg", c.background); }
           }
-          each.push([who, cardColours(hosts[who].colours)]);
         });
         each.forEach(function (pair) {
           var who = pair[0], c = pair[1];

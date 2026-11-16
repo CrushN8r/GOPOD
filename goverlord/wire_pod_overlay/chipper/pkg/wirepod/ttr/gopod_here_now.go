@@ -39,7 +39,7 @@ func gopodHereNow(self string) string {
 }
 
 func gopodHereNowName(who string) string {
-	if n := gopodBrobotsSettings.HostPersonas[who].Name; n != "" {
+	if n := gopodPersona(who).Name; n != "" {
 		return n
 	}
 	return who

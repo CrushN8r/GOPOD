@@ -3,9 +3,9 @@ package wirepod_ttr
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -14,6 +14,7 @@ import (
 	"github.com/fforchino/vector-go-sdk/pkg/vector"
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
+	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
 // The Brobots' eye colours - one colour value, the border on a card (2026-11-15,
@@ -39,48 +40,32 @@ func gopodCardColour(colours, which string) string {
 	return ""
 }
 
-// gopodBrobotCardColours: a Brobot body's colours (his own card) and the hosted
-// persona's (the card his "hosts" names), whatever the dial says now.
-func gopodBrobotCardColours(body string) (own, hosted string) {
-	return gopodBrobotCardColoursIn(gopodBrobotsSettings.PersonaProfiles.Folder, body)
-}
-
-func gopodBrobotCardColoursIn(folder, body string) (own, hosted string) {
-	path := gopodPersonaProfileFileIn(folder, body)
-	head, _ := gopodPersonaProfileReadOne(path)
-	if head == nil {
-		return "", ""
-	}
-	own = strings.TrimSpace(head["colours"])
-	if host := strings.TrimSpace(head["hosts"]); host != "" {
-		hp := filepath.Join(filepath.Dir(path), host)
-		if f := gopodTopicTreeFind(host); f != "" {
-			hp = f
-		}
-		if ph, _ := gopodPersonaProfileReadOne(hp); ph != nil {
-			hosted = strings.TrimSpace(ph["colours"])
-		}
-	}
-	return own, hosted
-}
-
-// gopodBrobotEyeHex: the eye colour for body now - the hosted persona's border
-// while he answers as it (the dial past 0%), else his own.
+// gopodBrobotEyeHex: the eye colour for body now - answering, the border of the
+// persona answering from him (gopodAnswerer: DOC, PIP, or the Brobot himself).
 func gopodBrobotEyeHex(body string, answering bool) string {
-	own, hosted := gopodBrobotCardColours(body)
-	if answering && !gopodAtDialZero(body) {
-		if c := gopodCardColour(hosted, "border"); c != "" {
-			return c
-		}
+	who := body
+	if answering {
+		who = gopodAnswerer(body)
 	}
-	return gopodCardColour(own, "border")
+	return gopodCardColour(gopodBrobotsSettings.HostPersonas[who].Colours, "border")
 }
 
-// gopodSetBrobotEyes sets the robot's eyes to his colour now (answering: the
-// persona he answers as); nothing when the card has none.
+// gopodSetBrobotEyes sets the robot's eyes: answering, the persona he answers
+// as (its card's border); done, his default - his eye colour in Wire-Pod's
+// settings (2026-11-15, operator: "set default eye colour in wire-pod settings").
 func gopodSetBrobotEyes(robot *vector.Vector, esn string, answering bool) {
-	hex := gopodBrobotEyeHex(gopodBrobotName(esn), answering)
-	h, s, ok := gopodHexHS(hex)
+	var h, s float64
+	var ok bool
+	hex := "default"
+	if answering {
+		if gopodAtDialZero(gopodBrobotName(esn)) {
+			return
+		}
+		hex = gopodBrobotEyeHex(gopodBrobotName(esn), true)
+		h, s, ok = gopodHexHS(hex)
+	} else {
+		h, s, ok = gopodWirePodEyes(esn)
+	}
 	if robot == nil || !ok {
 		return
 	}
@@ -91,6 +76,26 @@ func gopodSetBrobotEyes(robot *vector.Vector, esn string, answering bool) {
 		return
 	}
 	logger.Println("GOPOD_EYES " + gopodBrobotName(esn) + " " + hex)
+}
+
+// gopodWirePodEyes: the robot's eye colour in Wire-Pod's settings
+// (vic.RobotSettings custom_eye_color), false when none is set.
+func gopodWirePodEyes(esn string) (h, s float64, ok bool) {
+	doc, found := vars.GetJdoc("vic:"+esn, "vic.RobotSettings")
+	if !found {
+		return 0, 0, false
+	}
+	var settings struct {
+		Custom struct {
+			Enabled    bool    `json:"enabled"`
+			Hue        float64 `json:"hue"`
+			Saturation float64 `json:"saturation"`
+		} `json:"custom_eye_color"`
+	}
+	if json.Unmarshal([]byte(doc.JsonDoc), &settings) != nil || !settings.Custom.Enabled {
+		return 0, 0, false
+	}
+	return settings.Custom.Hue, settings.Custom.Saturation, true
 }
 
 // gopodHexHS: "#RRGGBB" -> hue and saturation (0-1), the eyes' two numbers.

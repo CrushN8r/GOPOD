@@ -20,7 +20,7 @@ import (
 
 // gopodPersonaProfileFile: who's profile ("CACHE PYC" -> cache-pyc.md).
 func gopodPersonaProfileFile(who string) string {
-	return gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, who)
+	return gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, gopodAnswerer(who))
 }
 
 func gopodPersonaProfileFileIn(folder, who string) string {
@@ -75,32 +75,10 @@ func gopodPersonaProfileByWords(folder, who string) string {
 // "- **nickname:**", "- **job:**", "- **words:**", "- **ask:**" - then "---", then
 // its sections ("## Self", ...), each its points ("1. ...").
 func gopodPersonaProfileRead(path string) (head map[string]string, sections map[string][]string) {
-	head, sections = gopodPersonaProfileReadRooted(path, 0)
-	// 2026-11-04 (operator: "Pull all Doc & Pip from brobots md files"; "Doc is
-	// not Brobot 1. Doc is the persona hosted by Brobot 1"): a robot's file names
-	// the persona it hosts ("- **hosts:** doc.md"); the persona's head lines win,
-	// and its sections follow the robot's.
-	// 2026-11-06: at the dial's 0% (a line to both) the robot answers as himself.
-	if host := strings.TrimSpace(head["hosts"]); host != "" && !gopodAtDialZero(strings.TrimSpace(head["label"])) {
-		hosted := filepath.Join(filepath.Dir(path), host)
-		if _, err := os.Stat(hosted); err != nil {
-			if f := gopodTopicTreeFind(host); f != "" {
-				hosted = f
-			}
-		}
-		ph, ps := gopodPersonaProfileReadRooted(hosted, 0)
-		for k, v := range ph {
-			if k != "hosts" {
-				head[k] = v
-			}
-		}
-		// 2026-11-06: the persona's own section wins over the robot's of the same
-		// name (the robot's "Who I am" is his at the dial's 0%).
-		for k, pts := range ps {
-			sections[k] = pts
-		}
-	}
-	return head, sections
+	// 2026-11-15 (operator: "decouple brobots from DOC/PIP completely"): a card is
+	// its own persona, never another card mixed in - a Brobot's card is the
+	// Brobot's, DOC's is DOC's (gopodAnswerer says which one is answering).
+	return gopodPersonaProfileReadRooted(path, 0)
 }
 
 // gopodPersonaProfileReadRooted (2026-11-04, operator: "Brobots 1/2 are rooted in
@@ -221,11 +199,6 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 		if v := head["colours"]; v != "" {
 			hp.Colours = v
 		}
-		// 2026-11-15: a Brobot - his own colours and his hosted persona's, whatever
-		// the dial is at load (gopod_eye_colors.go).
-		if who == "Brobot 1" || who == "Brobot 2" {
-			hp.BodyColours, hp.Colours = gopodBrobotCardColoursIn(s.PersonaProfiles.Folder, who)
-		}
 		if s.HostPersonas == nil {
 			s.HostPersonas = map[string]gopodHostPersona{}
 		}
@@ -267,6 +240,10 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 		hps[who]["name"], hps[who]["nickname"], hps[who]["job_name"] = hp.Name, hp.Nickname, hp.JobName
 		if hp.CallName != "" {
 			hps[who]["call_name"] = hp.CallName
+		}
+		// 2026-11-15 (live: the page showed no persona colours): its card's colours too.
+		if hp.Colours != "" {
+			hps[who]["colours"] = hp.Colours
 		}
 	}
 	raw, err := json.Marshal(hps)

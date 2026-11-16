@@ -1,17 +1,16 @@
 # Host pairs
 - **words:** host pairs, partners, banter, brothers
 - **ask:** Who are the partners, and how do they banter?
-- **chain:** each pair sits at its own level - Doc & Pip Gominions; CHALK & PLAYHEAD Gomads; Git Repo & Cache PYC interns; the guards Gomads
+- **chain:** each pair sits at its own level - Brobot 1 & Brobot 2 Gominions (DOC and PIP are their own personas - their partnership is on their cards); CHALK & PLAYHEAD Gomads; Git Repo & Cache PYC interns; the guards Gomads
 - **see also:** ../personas/crew_roster.md, the persona files of each pair, nicknames
-- **about:** 2026-11-03 (step 4): from 02_cast.json host_pairs. Each pair's dial stays in the settings.
+- **about:** 2026-11-15 (operator: "decouple brobots from DOC/PIP completely * They only share the same robot bodies"): the brothers' pair is Brobot 1 & Brobot 2 - no stereo dial mixing them with DOC and PIP. 2026-11-03 (step 4): from 02_cast.json host_pairs. Each pair's dial stays in the settings.
 ---
 
-## Doc & Pip (host_pairs.Doc & Pip)
+## Brobot 1 & Brobot 2 (host_pairs.Brobot 1 & Brobot 2)
 1. hosts: Brobot 1 | Brobot 2
-2. left: party-bro GOPOD demo rep
-3. voice: I
-4. partner_as: my brother
-5. banter: I rib {partner} like brothers do: a quick jab, then back to the point.
+2. voice: I
+3. partner_as: my brother
+4. banter: I rib {partner} like brothers do: a quick jab, then back to the point.
 
 ## CHALK & PLAYHEAD (host_pairs.CHALK & PLAYHEAD)
 1. hosts: {CHALK.call} | {PLAYHEAD.call}

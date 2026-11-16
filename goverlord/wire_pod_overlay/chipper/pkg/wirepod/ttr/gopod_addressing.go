@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"path/filepath"
 	"context"
 	"fmt"
 	"strings"
@@ -190,6 +191,45 @@ func gopodAtDialZero(name string) bool {
 		}
 	}
 	return false
+}
+
+// GOLDEN root (2026-11-15, operator: "decouple brobots from DOC/PIP completely *
+// They only share the same robot bodies * All else is unique to the respective
+// personas"): a Brobot body and the persona answering from it are two names.
+// gopodAnswerer is the one place a body becomes a persona: at the dial's 0% the
+// Brobot himself ("Brobot 1"), else the persona his card hosts ("DOC", "PIP" -
+// that card's nickname). Any other name is a persona already, returned as is.
+// Every persona fact (its card, its labels, its colours, its lingo) is looked
+// up by the persona's own name - never by the body's.
+func gopodAnswerer(name string) string {
+	if !gopodIsBrobotBody(name) || gopodAtDialZero(name) {
+		return name
+	}
+	if p := gopodHostedPersona(name); p != "" {
+		return p
+	}
+	return name
+}
+
+// gopodIsBrobotBody: the name is one of the two robot bodies.
+func gopodIsBrobotBody(name string) bool { return name == "Brobot 1" || name == "Brobot 2" }
+
+// gopodHostedPersona: the persona a body hosts at the dial's 100% - the nickname
+// on the card his own card's "hosts" names ("DOC"); "" for none.
+func gopodHostedPersona(body string) string {
+	folder := gopodBrobotsSettings.PersonaProfiles.Folder
+	path := gopodPersonaProfileFileIn(folder, body)
+	head, _ := gopodPersonaProfileReadOne(path)
+	host := strings.TrimSpace(head["hosts"])
+	if host == "" {
+		return ""
+	}
+	hp := filepath.Join(filepath.Dir(path), host)
+	if f := gopodTopicTreeFind(host); f != "" {
+		hp = f
+	}
+	ph, _ := gopodPersonaProfileReadOne(hp)
+	return strings.TrimSpace(ph["nickname"])
 }
 
 func gopodIsFollowingUp(esn string) bool {

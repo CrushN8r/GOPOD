@@ -154,7 +154,7 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 	brobotIndex := strings.Index(systemPrompt, gopodBrobotsPersonaFor(string(brobotBytes)))
 	coreIndex := strings.Index(systemPrompt, string(coreBytes))
 	scenarioIndex := strings.Index(systemPrompt, bingoPacket)
-	esnIndex := strings.Index(systemPrompt, "WHO I AM:\n"+gopodPersonaFill("Brobot 1", gopodBrobotsSettings.Personas["Brobot 1"]))
+	esnIndex := strings.Index(systemPrompt, "WHO I AM:\n"+gopodBrobotPersonaLines[gopodAnswerer("Brobot 1")])
 	if strings.Contains(systemPrompt, gopodBrobot1ESN) || strings.Contains(systemPrompt, gopodBrobot2ESN) {
 		t.Fatal("a robot ID (ESN) is in the prompt; it gets said out loud")
 	}

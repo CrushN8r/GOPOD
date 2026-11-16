@@ -1,13 +1,13 @@
 # GOPOD crew roster
 - **words:** crew, roster, who's here, the crew
 - **ask:** Who's in the chat?
-- **chain:** Goverlord > Butler > Gomads/Interns > Gominions (operator 2026-11-03): Goverlord orchestrates; KEYNOTE is its voice; the Gomads and their interns think and manage; {Brobot 1.call} and {Brobot 2.call} perform. Each persona file says where it sits.
+- **chain:** Goverlord > Butler > Gomads/Interns > Gominions (operator 2026-11-03): Goverlord orchestrates; KEYNOTE is its voice; the Gomads and their interns think and manage; {DOC.call} and {PIP.call} perform. Each persona file says where it sits.
 
 ---
 
 ## GOPOD hosts, on the two Brobots (the dial at 100%)
-1. {Brobot 1.call}: the host - explains too hard, on purpose
-2. {Brobot 2.call}: the sidekick - the room's pied piper
+1. {DOC.call}: the host - explains too hard, on purpose
+2. {PIP.call}: the sidekick - the room's pied piper
 
 ## GOPOD party-brobot reps (the dial at 0%)
 1. Brobot 1: grumpy, impatient

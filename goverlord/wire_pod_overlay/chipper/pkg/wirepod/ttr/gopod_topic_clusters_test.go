@@ -113,9 +113,9 @@ func TestCastWordsFromClusters(t *testing.T) {
 	if gopodBrobotsSettings.HereNow.CastJoin != "; " || gopodBrobotsSettings.HereNow.Genders["Brobot 1"] == "" {
 		t.Errorf("here and now: %q %q", gopodBrobotsSettings.HereNow.CastJoin, gopodBrobotsSettings.HereNow.Genders)
 	}
-	p := gopodBrobotsSettings.HostPairs["Doc & Pip"]
+	p := gopodBrobotsSettings.HostPairs["Brobot 1 & Brobot 2"]
 	if len(p.Hosts) != 2 || p.Banter == "" || p.Dial == 0 {
-		t.Errorf("Doc & Pip's pair (words and dial): %+v", p)
+		t.Errorf("the brothers' pair (words and dial): %+v", p)
 	}
 }
 

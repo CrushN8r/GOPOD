@@ -100,7 +100,7 @@ func gopodSourceCheck() ([]string, int) {
 	// 5 headers: the system label from its voice persona's labels.
 	count(1)
 	if sb := gopodBrobotsSettings.SystemBubble; strings.TrimSpace(sb.VoicePersona) != "" {
-		hp := gopodBrobotsSettings.HostPersonas[sb.VoicePersona]
+		hp := gopodPersona(sb.VoicePersona)
 		if strings.TrimSpace(hp.Name) == "" || (strings.Contains(sb.Label, "{job}") && strings.TrimSpace(hp.JobName) == "") {
 			add("headers: system_bubble.label " + sb.Label + " can't fill from " + sb.VoicePersona + "'s labels (its profile head)")
 		}

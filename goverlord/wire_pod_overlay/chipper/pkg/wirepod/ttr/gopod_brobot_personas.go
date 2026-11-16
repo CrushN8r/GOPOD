@@ -43,8 +43,6 @@ type gopodHostPersona struct {
 	// per-persona everywhere"): its card's colours ("background #.., border #..,
 	// text #..") - the page colours every bubble it speaks or asks in.
 	Colours string `json:"colours,omitempty"`
-	// A Brobot body's own colours (his card), when Colours is the hosted persona's.
-	BodyColours string `json:"body_colours,omitempty"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`
@@ -87,6 +85,7 @@ func gopodHostPairOf(host string) (gopodHostPair, string, bool) {
 // gopodHostPersonaText renders a host's persona and his pair's banter and
 // stereo dial as a few plain sentences, added after base (his own text).
 func gopodHostPersonaText(host, base string) string {
+	// host is a persona's own name (Brobot 1, DOC) - its own labels, never resolved.
 	h := gopodBrobotsSettings.HostPersonas[host]
 	pair, partner, paired := gopodHostPairOf(host)
 	i, my := "I", "My"
@@ -139,7 +138,7 @@ func gopodHostPersonaLines() map[string]string {
 		if t := gopodHostPersonaText(name, line); t != "" {
 			line = strings.TrimSpace(line) + " " + t
 		}
-		lines[name] = gopodPersonaFill(name, line)
+		lines[name] = gopodPersonaFillAs(name, line)
 	}
 	return lines
 }
@@ -155,7 +154,7 @@ func gopodPrebuildContext(esn, question string) string {
 	if strings.TrimSpace(pc.Header) == "" || (brobot != "Brobot 1" && brobot != "Brobot 2") {
 		return ""
 	}
-	h := gopodBrobotsSettings.HostPersonas[brobot]
+	h := gopodPersona(brobot)
 	fill := map[string]string{
 		"brobot":    brobot,
 		"host":      strings.TrimSpace(h.Name),
@@ -231,21 +230,21 @@ func gopodReminderTopics(question string) string {
 // persona he hosts by its nickname (DOC, PIP), the same names the picker shows.
 // Any other name as it is.
 func gopodPersonaShown(body string) string {
-	if body != "Brobot 1" && body != "Brobot 2" {
-		return body
-	}
-	if gopodAtDialZero(body) {
-		return body
-	}
-	if nick := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[body].Nickname); nick != "" {
-		return nick
-	}
-	return gopodCallName(body)
+	// 2026-11-15: the persona answering from the body (gopodAnswerer) - its name
+	// is its nickname key ("DOC"), or the Brobot himself.
+	return gopodAnswerer(body)
+}
+
+// gopodPersona: the labels of the persona answering as name (gopodAnswerer) -
+// a body's are the persona's on it now, never the body's own when it hosts one.
+func gopodPersona(name string) gopodHostPersona {
+	return gopodBrobotsSettings.HostPersonas[gopodAnswerer(name)]
 }
 
 func gopodCallName(host string) string {
 	// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0%"): a line to both - he's Brobot N.
-	if gopodAtDialZero(host) {
+	host = gopodAnswerer(host)
+	if gopodIsBrobotBody(host) {
 		return host
 	}
 	p := gopodBrobotsSettings.HostPersonas[host]
@@ -262,6 +261,7 @@ func gopodCallName(host string) string {
 // and {nickname} filled (gopodNicknameFill, gopod_response_chains.go); "" when
 // he has none.
 func gopodHandoverLine(host, partner string) string {
+	// The hand-over is the Brobots' own (a line to both - the dial's 0%): his card.
 	line := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[host].Handover.Line)
 	if line == "" {
 		return ""
@@ -324,8 +324,17 @@ func gopodPersonaFill(host, text string) string {
 	// be (global?) variables representing the single source of truth"): another
 	// persona's labels - {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job},
 	// {Brobot 1.call} (his call name) - from that persona's own profile.
+	return gopodPersonaFillAs(gopodAnswerer(host), text)
+}
+
+// gopodPersonaFillAs: gopodPersonaFill for a persona's own name (Brobot 1, DOC) -
+// its own labels, never resolved through a body.
+func gopodPersonaFillAs(persona, text string) string {
+	if !strings.Contains(text, "{") {
+		return text
+	}
 	text = gopodNameVarsFill(text, gopodBrobotsSettings.HostPersonas)
-	p := gopodBrobotsSettings.HostPersonas[host]
+	p := gopodBrobotsSettings.HostPersonas[persona]
 	return strings.NewReplacer("{name}", p.Name, "{nickname}", p.Nickname, "{job}", p.JobName).Replace(text)
 }
 

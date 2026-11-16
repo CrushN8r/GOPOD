@@ -233,16 +233,11 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// the prompt was said out loud ("I'm Brobot ESN <serial>"); the code tells
 		// the brothers apart by ESN, the model only needs his name
 		// (SOCIAL_DEMO_REPLAY_003.md).
+		// GOPOD 2026-11-15: the persona answering from this body (gopodAnswerer) -
+		// the Brobot at the dial's 0%, DOC or PIP at 100% - its own "Who I am".
 		whoIAm := esnLine
-		if line, ok := gopodBrobotPersonaLines[gopodBrobotName(esn)]; ok {
+		if line, ok := gopodBrobotPersonaLines[gopodAnswerer(gopodBrobotName(esn))]; ok {
 			whoIAm = line
-		}
-		// GOPOD 2026-11-06: a line to both - he answers at the dial's 0%, his own
-		// "Who I am" (brobot-1.md / brobot-2.md), not his hosted persona's.
-		if gopodAtDialZero(gopodBrobotName(esn)) {
-			if pts := gopodPersonaProfileSections(gopodBrobotName(esn))["Who I am"]; len(pts) > 0 {
-				whoIAm = gopodPersonaFill(gopodBrobotName(esn), strings.Join(pts, " "))
-			}
 		}
 		// GOPOD 2026-11-09 (operator: "4 PERSONAS to 2 ROBOTS!! * WHAT IS THE
 		// DISCONNECT/LEAK?"): the shared prompt's party-bro persona blocks are the
@@ -251,7 +246,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		// text every other persona gets.
 		if !gopodAtDialZero(gopodBrobotName(esn)) {
 			smsg.Content = gopodBrobotsPersonaFor(smsg.Content)
-			if card := gopodPersonaProfileText(gopodBrobotName(esn)); card != "" {
+			if card := gopodPersonaProfileText(gopodAnswerer(gopodBrobotName(esn))); card != "" {
 				whoIAm += "\n\n" + card
 			}
 		}

@@ -1000,7 +1000,14 @@ func gopodReporterAllMade(lines []gopodHostLine) bool {
 func gopodSaysFor(host, text string) string {
 	words := gopodLingoWords()
 	if gopodSpeaksAsSystem(host) {
+		// 2026-11-15 (live: Keys said CRUSHN8R "Crush-Ehnaydir"): his own word
+		// replaces the shared one whatever its case ("CrushN8r" over "CRUSHN8R").
 		for k, v := range gopodBrobotsSettings.ReporterVoices.SystemSayWords {
+			for old := range words {
+				if strings.EqualFold(old, k) {
+					delete(words, old)
+				}
+			}
 			words[k] = v
 		}
 	}

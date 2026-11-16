@@ -505,7 +505,7 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 		if runes := []rune(answer); len(runes) > gopodSharedBrobotAnswerMaxRunes {
 			answer = string(runes[:gopodSharedBrobotAnswerMaxRunes])
 		}
-		if who := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodBrobotName(ex.ESN)].CallName); saidBy && who != "" {
+		if who := strings.TrimSpace(gopodPersona(gopodBrobotName(ex.ESN)).CallName); saidBy && who != "" {
 			chat = append(chat,
 				openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodTagForBrobot(ex.ESN, gopodSpellNames(ex.UserMessage))},
 				openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: who + " said: " + answer},

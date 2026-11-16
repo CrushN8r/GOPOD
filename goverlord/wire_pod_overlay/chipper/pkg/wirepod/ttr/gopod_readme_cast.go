@@ -64,13 +64,15 @@ func gopodReadmeCastTable() string {
 			row(shown, "**"+nick+"** - "+label, what(label))
 		case strings.HasPrefix(target, gopodPersonaReporterMark):
 			host := strings.TrimPrefix(target, gopodPersonaReporterMark)
-			row(shown, fill(rc.OnLocation, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[host].Name)), what(gopodCallName(host), host))
+			row(shown, fill(rc.OnLocation, "{who}", named(nick, gopodPersona(host).Name)), what(gopodCallName(host), host))
 		case strings.HasPrefix(target, gopodPersonaMark):
 			host := strings.TrimPrefix(target, gopodPersonaMark)
-			row(shown, named(nick, gopodBrobotsSettings.HostPersonas[host].Name), what(gopodCallName(host), host))
+			row(shown, named(nick, gopodPersona(host).Name), what(gopodCallName(host), host))
 		default:
 			body := gopodBrobotName(target)
-			row(shown, fill(rc.OnBody, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[body].Name), "{body}", body), what(gopodCallName(body), body))
+			// A body's key (NumLock on) reaches the persona it hosts (DOC, PIP).
+			hosted := gopodHostedPersona(body)
+			row(shown, fill(rc.OnBody, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[hosted].Name), "{body}", body), what(gopodCallName(hosted), hosted))
 		}
 	}
 	row("*", rc.AllWho, rc.AllWhat)

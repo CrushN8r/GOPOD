@@ -112,8 +112,10 @@
   },
   "host_personas_about": "2026-10-21 (operator: \"RULE: brobots 1 & 2 will become Doc & Pip * Doc & Pip are the GOPOD hosts\"; then \"Do: One persona shape for all four hosts\"): one shape for Doc, Pip, CHALK and PLAYHEAD - name (said only when his base text doesn't already say it), role, steps (his own thought steps, in order), signature (his line, when it fits; empty = none), handover (his hand-over line - {partner} the other host, {title} and {nickname} from nicknames (his own titles/nicknames here when he has them) - 2026-10-25, operator: \"I tend to use: Mr [funny-nickname] * randomly mix up Mr vs Mrs (mister/misses)\"). Brobots: added after his personas line; CHALK and PLAYHEAD: after their managers.personas prompt. Doc and Pip never name each other in the prompt (a named brother makes gemma2 take his name). Hand-over: live for the Brobots' first answer in a line to both (answer chain redirect); CHALK and PLAYHEAD have no line to both yet. Needs wpr 2.",
   "host_personas": {
-    "Brobot 1": {"call_name": "BARFALLONYOU"},
-    "Brobot 2": {"call_name": "PIP"},
+    "Brobot 1": {},
+    "DOC": {"call_name": "BARFALLONYOU"},
+    "Brobot 2": {},
+    "PIP": {"call_name": "PIP"},
     "GEMMA": {"call_name": "GEMMA"},
     "CHALK": {
       "call_name": "CHALK",
@@ -167,7 +169,7 @@
   },
   "host_pairs_about": "2026-10-21 (operator: \"design like a stereo left/right dial * range from 100% left (party brobots 1/2) to 100% (Doc/Pip) * dial pointing up = 50/50 * so 6 out of 10 = 40/60\"; \"same Stereo dial concept applies to all those new 'pairs'\"): each pair of hosts - partner, banter, stereo dial. dial = how far right, 0-100: 0 = all left (the base: left), 50 = pointing up (50/50), 100 = all right (the host persona); 60 = 40/60. voice: I (the Brobots' personas say I) or you (CHALK and PLAYHEAD's prompts say you). partner_as: how the partner is said in the prompt (empty = his name); {partner} in banter.",
   "host_pairs": {
-    "Doc & Pip": {"dial": 60},
+    "Brobot 1 & Brobot 2": {"dial": 60},
     "CHALK & PLAYHEAD": {"dial": 60},
     "Git Repo & Cache PYC": {"dial": 60},
     "Intel 404 PNFH & PNFT": {"dial": 60}

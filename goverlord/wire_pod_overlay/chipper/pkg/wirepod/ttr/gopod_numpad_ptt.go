@@ -306,12 +306,12 @@ func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 // body hosts (Brobot 1 -> DOC). Its call name when a card has none.
 func gopodPersonaNickname(who string, hosted bool) string {
 	if hosted {
-		if n := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[who].Nickname); n != "" {
+		if n := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodHostedPersona(who)].Nickname); n != "" {
 			return n
 		}
 		return gopodCallName(who)
 	}
-	if head, _ := gopodPersonaProfileReadOne(gopodPersonaProfileFile(who)); head != nil {
+	if head, _ := gopodPersonaProfileReadOne(gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, who)); head != nil {
 		if n := strings.TrimSpace(head["nickname"]); n != "" {
 			return n
 		}
