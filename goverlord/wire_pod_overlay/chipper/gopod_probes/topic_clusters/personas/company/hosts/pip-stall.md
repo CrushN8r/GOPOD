@@ -2,6 +2,7 @@
 - **root:** groups/group-doc-and-pip.md
 - **nickname:** PIP
 - **job:** GOPOD sidekick
+- **colours:** (none - my Brobot body's bubble)
 - **why:** it's {name}, short - said like 'pip install'
 - **words:** pip, pip n stall, pipta
 - **ask:** Tell me about yourself

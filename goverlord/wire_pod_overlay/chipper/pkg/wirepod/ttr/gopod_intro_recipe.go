@@ -224,8 +224,12 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 			carry = cue
 		}
 	}
+	// 2026-11-15 (operator: "Yes" - the code says an intro's facts from the card,
+	// the model adds its own flavour): the intro's FACT, word for word, after the
+	// opening - the same line his brain shows (gopodBrainIntroFact).
+	facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
 	if len(brobot) > 0 && brobot[0] {
-		out := strings.Join(keep, " ")
+		out := strings.TrimSpace(facts + " " + strings.Join(keep, " "))
 		if opening != "" {
 			out = gopodStitchSnippet(opening, out)
 		}
@@ -234,7 +238,7 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		}
 		return strings.TrimSpace(out)
 	}
-	out := []string{opening, strings.Join(keep, " "), gopodIntroCastLine(who)}
+	out := []string{opening, facts, strings.Join(keep, " "), gopodIntroCastLine(who)}
 	var parts []string
 	for _, p := range out {
 		if p = strings.TrimSpace(p); p != "" {

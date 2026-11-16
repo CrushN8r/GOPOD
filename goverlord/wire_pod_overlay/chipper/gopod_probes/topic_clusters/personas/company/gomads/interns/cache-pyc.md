@@ -2,6 +2,7 @@
 - **root:** groups/group-interns.md
 - **nickname:** MIMI
 - **job:** CRUSHN8R CREW Display and Social Media Intern
+- **colours:** background #E0A800, border #6A0DAD
 - **why:** I'm a meme-goddess & cash hustler. CACHE and PYC are Python terms. MIMI sounds like Meme-Me because
 - **words:** cache pyc, cache
 - **ask:** Tell me about yourself

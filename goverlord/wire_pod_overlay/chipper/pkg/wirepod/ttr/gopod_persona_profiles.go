@@ -218,6 +218,9 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 		if v := head["job"]; v != "" {
 			hp.JobName = v
 		}
+		if v := head["colours"]; v != "" {
+			hp.Colours = v
+		}
 		if s.HostPersonas == nil {
 			s.HostPersonas = map[string]gopodHostPersona{}
 		}

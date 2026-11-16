@@ -26,7 +26,9 @@ func TestIntroTemplate(t *testing.T) {
 		// The model said the opening anyway and listed the cast in a sentence.
 		middle := opening + " I keep things running. Helping me out are " + strings.Join(names[:3], ", ") + ". That's my job!"
 		got := gopodIntroWrap(who, middle)
-		if !strings.HasPrefix(got, opening+" I keep things running.") || !strings.HasSuffix(got, cast) {
+		// 2026-11-15: the card's facts, said by the code, between the opening and the model's line.
+		facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
+		if !strings.HasPrefix(got, opening+" "+facts+" I keep things running.") || !strings.HasSuffix(got, cast) {
 			t.Errorf("%s: %q", who, got)
 		}
 		if strings.Count(got, opening) != 1 || strings.Contains(got, "Helping me out") || !strings.Contains(got, "That's my job!") {
@@ -333,5 +335,19 @@ func TestDocLookup(t *testing.T) {
 		if !found {
 			t.Errorf("%q: no card from %s", ask, want)
 		}
+	}
+}
+
+// 2026-11-15 (operator: "Yes" - the code says an intro's facts): an intro says
+// its card's facts word for word, after the opening, the model's line after them.
+func TestIntroSaysCardFacts(t *testing.T) {
+	out := gopodIntroWrap("CHALK", "Boards are my canvas, darling.")
+	for _, want := range []string{"I'm the proud Display Gomad", "I answer to KEYNOTE, then Goverlord.", "I work with my long-time news partner PLAYHEAD ZUMINTU", "Answering to me: my intern CACHE PYC", "Boards are my canvas, darling."} {
+		if !strings.Contains(out, want) {
+			t.Errorf("no %q in %q", want, out)
+		}
+	}
+	if strings.Index(out, "I answer to") > strings.Index(out, "Boards are") {
+		t.Errorf("facts after the model's line: %q", out)
 	}
 }

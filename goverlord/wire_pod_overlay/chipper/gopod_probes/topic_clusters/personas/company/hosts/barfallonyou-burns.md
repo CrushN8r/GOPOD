@@ -2,6 +2,7 @@
 - **root:** groups/group-doc-and-pip.md
 - **nickname:** DOC
 - **job:** GOPOD host
+- **colours:** (none - my Brobot body's bubble)
 - **why:** I barf doctrine at problems until nonsense surrenders
 - **words:** doc, doctrine, barfallonyou, spewer, docbs
 - **ask:** Tell me about yourself

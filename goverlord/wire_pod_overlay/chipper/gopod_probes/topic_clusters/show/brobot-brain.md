@@ -36,9 +36,9 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 16. answer_part: ` - {to}: "{answer}"`
 17. asked_before: asked before (#{seq}) - {to}: "{answer}"
 
-## An intro's FACT, its pieces in order, looked up from my card (brain_chain.intro_fact)
+## An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
 1. I'm the proud {my_job_title}.
-2. My company: {my_company} - we sell GOPOD, CTA: GOPOD Yourself.
+2. I work for {my_company} - we sell GOPOD: GOPOD Yourself!
 3. I answer to {my_answer_to}.
 4. I work with {my_works_with}.
 5. Answering to me: {my_answers_to_me}.
@@ -52,7 +52,7 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 ## The guided task flow (brain_chain.flow)
 1. first: You're the first to speak this session - open it up.
 2. recent: Does the recent chat help me answer the question asked.
-3. task_intro: 1) is it my job? if not, name who does it - if I don't know, {BUTLER.nickname} - and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful
+3. task_intro: 1) my FACT is said for me, word for word - never say it again 2) add one proud, playful line of my own, my way 3) stop
 4. task_answer: 1) the time now, and what's asked of me, in my own words - does it fit the time? 2) is it my job? if not, name who does it - if I don't know, {BUTLER.nickname} - and stop 3) what do I know? my FACT and MEMORY 4) answer in kind, for the time it is - plain words someone new gets, a few sentences, my way
 5. task_intro_opener: 1) open the session - say our outline: what GOPOD is, Goverlord, the Gomads and the Gominions 2) stop - 2-3 sentences, proud and playful
 

@@ -39,6 +39,10 @@ type gopodHostPersona struct {
 	// 2026-10-30 (operator: "full name [first middle last], nickname, job name"):
 	// the persona's job name - its {job} (gopodPersonaFill).
 	JobName string `json:"job_name"`
+	// 2026-11-15 (operator: "The colouring of the bubbles should be dynamic
+	// per-persona everywhere"): its card's colours ("background #.., border #..,
+	// text #..") - the page colours every bubble it speaks or asks in.
+	Colours string `json:"colours,omitempty"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`

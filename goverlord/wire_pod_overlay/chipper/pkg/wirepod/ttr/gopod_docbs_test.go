@@ -194,8 +194,8 @@ func TestIntroRecipe(t *testing.T) {
 		t.Errorf("the Butler's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "NEW RULE: Gomad names in CAPS!!"; "nickname Chammy
-	// (cammy) * why, short for Chameleon").
-	if r := gopodIntroOpening("CAMEO"); !strings.Contains(r, `I'm CAMEO LOOKS, my nickname is CHAMMY, because it's short for Chameleon.`) {
+	// (cammy) * why, short for Chameleon"); 2026-11-15: "Chammy = Chamfer + Chameleon".
+	if r := gopodIntroOpening("CAMEO"); !strings.Contains(r, `I'm CAMEO LOOKS, my nickname is CHAMMY, because it's Chamfer plus Chameleon - I cut the edge and change faces at the same time.`) {
 		t.Errorf("CAMEO's opening: %q", r)
 	}
 	// 2026-11-04 (operator: "Git Repo nickname = 'Repo' * 'Repo' = repossesser
@@ -241,7 +241,7 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "FACT: I'm the proud GOPOD sidekick", "My company: Math Aftermath News Channel - we sell GOPOD, CTA: GOPOD Yourself.", "I answer to the Gomads, KEYNOTE, then Goverlord.", "TASK: 1) is it my job? if not, name who does it - if I don't know, KEYS - and stop 2) my job 3) who I answer to 4) who I work with 5) who answers to me, if anyone 6) stop - 2-3 sentences, proud and playful", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "FACT: I'm the proud GOPOD sidekick", "I work for Math Aftermath News Channel - we sell GOPOD: GOPOD Yourself!", "I answer to the Gomads, KEYNOTE, then Goverlord.", "TASK: 1) my FACT is said for me, word for word - never say it again 2) add one proud, playful line of my own, my way 3) stop", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}

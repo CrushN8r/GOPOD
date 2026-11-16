@@ -28,14 +28,6 @@
   --brobot-border: #33ED6D;            /* Wire-Pod's own green */
   --goverlord-border: #00C853;         /* traffic light green */
   --error-border: #FF1744;             /* traffic light red */
-  --chalk-border: #F5F5F0;
-  --playhead-border: #C0C0C0;
-  --git-repo-bg: #0D1117;   --git-repo-border: #2F81F7;
-  --cache-pyc-bg: #E0A800;  --cache-pyc-border: #6A0DAD;
-  --cameo-bg: #D6006F;      --cameo-border: #00E5FF;
-  /* 2026-10-30 (operator, the Butler: "deep dark royal purple background & and lighter yellow gold border"). */
-  --butler-bg: #2E0A57;     --butler-border: #F2D675;
-  --intel-404-bg: #1C3F94;  --intel-404-border: #FF2D2D;
   --white: #fff;
   --black: #000;
   --ink-111: #111;
@@ -81,10 +73,7 @@
   --marquee-gold-glow: rgba(255, 215, 0, 0.6);
   --marquee-warm-glow: rgba(255, 179, 71, 0.6);
   --marquee-cool-glow: rgba(224, 224, 255, 0.5);
-  --chalk-board: #2f4a3c;
   --chalk-text: #f2f2ea;
-  --playhead-board: #3b2a1e;
-  --playhead-text: #f2ece4;
   --reporter-suit-bg: #3a3d42;
   --focus-ring: #4af;
 }
@@ -1051,28 +1040,16 @@ img.gopod-qr2.zoomed { width: 240px; height: 240px; cursor: zoom-out; box-shadow
 .topic-pictures img.zoomed { order: 99; }
 /* 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
    chalkboard color background"): CHALK's bubbles and its egg on a chalkboard. */
-.brobot-bubble.host-chalk {
-  background: var(--chalk-board);
-  color: var(--chalk-text);
-}
 /* 2026-10-18 (operator: "PLAYHEAD ... his bubble background is tape ribbon color
    of vintage video tape cassettes"): PLAYHEAD's bubbles and eggs on tape brown. */
-.brobot-bubble.host-playhead {
-  background: var(--playhead-board);
-  color: var(--playhead-text);
-}
 /* 2026-10-30 (operator: "CHALK & PLAYHEAD are Indoor News Anchors * News Anchor
    background colour = current chalkboard & vintage tape colours"; "reporter
    bubbles: same background = dark outdoors-suit grey * border = Anchor background
    color"; "CHALK/PLAYHEAD = same mapping, 2 suits (indoor/outdoor)"): a run's
    reporter line wears the outdoor suit - the suit grey, its anchor's colour as
    the border. Its anchor is the persona the line belongs to (persona_reporters). */
-.suit-chalk { --suit-border: var(--chalk-board); }
-.suit-playhead { --suit-border: var(--playhead-board); }
 .brobot-bubble.reporter-suit,
 .brobot-bubble.host.reporter-suit { background: var(--reporter-suit-bg); color: var(--chalk-text); box-shadow: 0 0 0 var(--bubble-border-width) var(--suit-border, transparent); }
-/* CHALK's search-results box on its board too (it keeps its small size). */
-.brobot-bubble.search-results.host-chalk { background: var(--chalk-board); }
 /* 2026-10-18 (operator: "QR codes handled by CHALK"): CHALK's QR board - each
    code with its name under it, the magnifier on each. */
 .chalk-qr .chalk-qr-code { margin: 0 8px; text-align: center; }
@@ -1433,28 +1410,11 @@ body.gopod-visitor .gopod-layout-pick, body.gopod-visitor-page .gopod-layout-pic
    bg and border. The border is a thin ring (box-shadow), so no bubble moves. */
 .brobot-bubble[data-tier="gominion"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--brobot-border); }
 .brobot-bubble[data-tier="goverlord"] { box-shadow: 0 0 0 var(--bubble-border-width) var(--goverlord-border); }
-.brobot-bubble.host-chalk { box-shadow: 0 0 0 var(--bubble-border-width) var(--chalk-border); }
-.brobot-bubble.host-playhead { box-shadow: 0 0 0 var(--bubble-border-width) var(--playhead-border); }
-.brobot-bubble.host-git-repo { background: var(--git-repo-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--git-repo-border); }
-/* 2026-10-27 (operator: "Cache PYC Gomad bubble, text is black * messes with
-   highlighting * make it back to white"): white text, like every bubble. */
-.brobot-bubble.host-cache-pyc { background: var(--cache-pyc-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cache-pyc-border); }
-.brobot-bubble.host-cameo { background: var(--cameo-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--cameo-border); }
-.brobot-bubble.host-butler { background: var(--butler-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--butler-border); }
-.brobot-bubble.host-intel-404-pnfh,
-.brobot-bubble.host-intel-404-pnft { background: var(--intel-404-bg); box-shadow: 0 0 0 var(--bubble-border-width) var(--intel-404-border); }
+/* 2026-11-15: each persona's colours come from its card (personaColours, gopod_brobots_chat.js). */
 .brobot-bubble.is-error { box-shadow: 0 0 0 var(--bubble-border-width) var(--error-border); }
 
 /* 2026-10-27 (operator: "Make Gomad EYE Colour same as border"): each Gomad's
    icon eyes in its border colour - its own bubble, or its part inside a Brobot's. */
-.host-chalk .brobot-bubble-avatar, .brobot-bubble .host-chalk .brobot-bubble-avatar { --eye-fill: var(--chalk-border); }
-.host-playhead .brobot-bubble-avatar, .brobot-bubble .host-playhead .brobot-bubble-avatar { --eye-fill: var(--playhead-border); }
-.host-git-repo .brobot-bubble-avatar, .brobot-bubble .host-git-repo .brobot-bubble-avatar { --eye-fill: var(--git-repo-border); }
-.host-cache-pyc .brobot-bubble-avatar, .brobot-bubble .host-cache-pyc .brobot-bubble-avatar { --eye-fill: var(--cache-pyc-border); }
-.host-cameo .brobot-bubble-avatar, .brobot-bubble .host-cameo .brobot-bubble-avatar { --eye-fill: var(--cameo-border); }
-.host-butler .brobot-bubble-avatar, .brobot-bubble .host-butler .brobot-bubble-avatar { --eye-fill: var(--butler-border); }
-.host-intel-404-pnfh .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnfh .brobot-bubble-avatar,
-.host-intel-404-pnft .brobot-bubble-avatar, .brobot-bubble .host-intel-404-pnft .brobot-bubble-avatar { --eye-fill: var(--intel-404-border); }
 /* GOLDEN results template (2026-10-29, operator: "results outputs are center-aligned,
    not read friendly * can you set up a templated results output format?"): every
    system answer left-aligned - a bold title, then its lines; "<command>  <what it does>"

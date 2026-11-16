@@ -373,6 +373,9 @@ func gopodBrainFacts(self, question string) map[string]string {
 	return m
 }
 
+// gopodIntroFactAsk: an intro line, for an intro's facts (gopodBrainFacts).
+const gopodIntroFactAsk = "Introduce yourself"
+
 // gopodBrainIntroFact: an intro's one FACT line - the intro_fact pieces, filled
 // from his card; a piece whose value isn't on it is left out.
 func gopodBrainIntroFact(m map[string]string) string {

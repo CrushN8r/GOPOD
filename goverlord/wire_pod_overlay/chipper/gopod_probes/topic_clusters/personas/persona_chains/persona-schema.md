@@ -3,6 +3,7 @@
 - **hosts:** (robots only: the persona file this robot hosts at the dial's 100%; the robot's own file is his persona at 0%)
 - **nickname:** (to come: in caps)
 - **job:** (to come: the job name)
+- **colours:** (optional: background #RRGGBB, border #RRGGBB, text #RRGGBB - every bubble this persona speaks or asks in; none: a robot's own bubble)
 - **why:** (to come: the nickname's story, said after "because")
 - **words:** (to come: the words that name this persona, small letters, the settings key first)
 - **ask:** Tell me about yourself

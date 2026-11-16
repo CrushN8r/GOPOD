@@ -927,7 +927,7 @@
           .catch(function () { /* no list - names show as heard */ });
       }
 
-      function appendBubble(who, spoken, format, to, via, then) {
+      function appendBubble(who, spoken, format, to, via, then, byWho) {
         var next = function () { if (then) { then(); } };
         voiceLitNext = null; // the next voice is this bubble's (the Operator's), not an earlier line's
         if (!restoringChat) {
@@ -937,6 +937,8 @@
         }
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble " + (who === "Operator" ? "operator" : who === "Brobot 1" ? "brobot-1" : "brobot-2");
+        // 2026-11-15: a line a persona asks (the comm check's) wears its colours.
+        if (byWho) { bubble.classList.add("host-" + personaSlug(byWho)); }
         // 2026-09-29: Wire-Pod chat replies get the speaking highlight (gopod_chat_bubbles.css).
         if (format === "llm") { bubble.className += " brobot-bubble-live"; }
         // 2026-10-01: a scripted song line (split with the segment marker, the
@@ -1664,6 +1666,7 @@
             }
             window.gopodSystemLabel = systemLabel;
             systemVoicePersona = vp || "";
+            personaColours(settings.host_personas || {});
             // Every persona is a host on the page - its own voice or another's
             // (managers.personas, voice_of): the master list.
             personaVoiceOf = {};
@@ -1937,13 +1940,50 @@
       // brobot eyes 2] [icon brobot eyes 1], as a visual indicator"): the same
       // words Wire-Pod takes as "Brobot 2 first" (gopodAllStartsWith).
       var BROBOT2_FIRST = /\b(?:start(?:ing)?\s+with|begin(?:ning)?\s+with)\s+(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\b|\b(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\s+(?:goes\s+|answers\s+)?first\b/i;
+      // GOLDEN persona colours (2026-11-15, operator: "The colouring of the bubbles
+      // should be dynamic per-persona everywhere, as much as safely possible"):
+      // each persona's card colours (host_personas.<who>.colours, "background #..,
+      // border #.., text #..") make its rules - its bubbles, its eyes, its outdoor
+      // suit's border, its search box - one source, nothing hand-written per persona.
+      // A persona with none (DOC, PIP) keeps its Brobot body's bubble.
+      function personaSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+      function personaColours(hosts) {
+        var rules = [];
+        Object.keys(hosts).forEach(function (who) {
+          var c = {};
+          String(hosts[who].colours || "").split(",").forEach(function (part) {
+            var m = part.trim().match(/^(background|border|text)\s+(#[0-9a-fA-F]{3,8})$/);
+            if (m) { c[m[1]] = m[2]; }
+          });
+          if (!c.background && !c.border) { return; }
+          var s = personaSlug(who), b = ".brobot-bubble.host-" + s;
+          var body = [];
+          if (c.background) { body.push("background: " + c.background); }
+          if (c.text) { body.push("color: " + c.text); }
+          if (c.border) { body.push("box-shadow: 0 0 0 var(--bubble-border-width) " + c.border); }
+          rules.push(b + " { " + body.join("; ") + "; }");
+          if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar, .brobot-bubble .host-" + s + " .brobot-bubble-avatar { --eye-fill: " + c.border + "; }"); }
+          if (c.background) {
+            rules.push(".suit-" + s + " { --suit-border: " + c.background + "; }");
+            rules.push(".brobot-bubble.search-results.host-" + s + " { background: " + c.background + "; }");
+          }
+        });
+        var el = document.getElementById("gopod-persona-colours");
+        if (!el) { el = document.createElement("style"); el.id = "gopod-persona-colours"; document.head.appendChild(el); }
+        el.textContent = rules.join("\n");
+      }
       function operatorHead(to, via, text) {
         if (to === SYSTEM_TARGET) {
-          var toSystem = systemHead("Operator to " + to);
+          // 2026-11-15 (operator: "bubbles ... to show the persona"): the system
+          // voice's persona (system_bubble.label - KEYNOTE), not "Goverlord".
+          var toSystem = systemHead("Operator to " + (systemLabel || to));
           toSystem.firstChild.classList.add("from-operator");
           return toSystem;
         }
-        var head = bubbleHead(keyShown(via || "Operator") + " to " + (brobotTo[to] || to), true);
+        // 2026-11-15 (live: "GOVERLORD to BUTLER"): a line to the system voice's
+        // persona names it the way its own bubbles do (KEYNOTE).
+        var toShown = brobotTo[to] || (to && to === systemVoicePersona ? systemLabel : to);
+        var head = bubbleHead(keyShown(via || "Operator") + " to " + toShown, true);
         head.firstChild.classList.add("from-operator");
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
@@ -5339,7 +5379,7 @@
         // 2026-11-04 (operator: "Keys will now do the round robin"): a comm check
         // line wears its asker's label too - Keys (a persona) or Goverlord (the system).
         else if (e.who === "Operator" && e.by && (hostNames[e.by] || personaVoiceOf.hasOwnProperty(e.by) || e.by === systemRole)) {
-          appendBubble("Operator", e.text, undefined, e.to, hostHeader(e.by), done);
+          appendBubble("Operator", e.text, undefined, e.to, hostHeader(e.by), done, e.by);
           return;
         }
         else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via, done); return; }
