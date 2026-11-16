@@ -221,6 +221,11 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 		if v := head["colours"]; v != "" {
 			hp.Colours = v
 		}
+		// 2026-11-15: a Brobot - his own colours and his hosted persona's, whatever
+		// the dial is at load (gopod_eye_colors.go).
+		if who == "Brobot 1" || who == "Brobot 2" {
+			hp.BodyColours, hp.Colours = gopodBrobotCardColoursIn(s.PersonaProfiles.Folder, who)
+		}
 		if s.HostPersonas == nil {
 			s.HostPersonas = map[string]gopodHostPersona{}
 		}

@@ -3,7 +3,7 @@
 - **hosts:** pip-stall.md
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
-- **colours:** (none - my Brobot body's bubble)
+- **colours:** background #454545, border #d4af37
 - **words:** brobot 2, brobot two
 - **ask:** Tell me about yourself
 - **chain:** Gominion - the robot, Vector 2, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts the persona in pip-stall.md

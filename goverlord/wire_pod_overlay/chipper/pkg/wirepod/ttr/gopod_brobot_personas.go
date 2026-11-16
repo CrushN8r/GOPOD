@@ -43,6 +43,8 @@ type gopodHostPersona struct {
 	// per-persona everywhere"): its card's colours ("background #.., border #..,
 	// text #..") - the page colours every bubble it speaks or asks in.
 	Colours string `json:"colours,omitempty"`
+	// A Brobot body's own colours (his card), when Colours is the hosted persona's.
+	BodyColours string `json:"body_colours,omitempty"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`

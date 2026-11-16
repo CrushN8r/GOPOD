@@ -79,8 +79,13 @@ document.querySelectorAll("[data-units]").forEach(function (b) {
     render();
   });
 });
-fetch("gopod_brobot_eye_colors.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (e) {
-  eyes.brobot_1 = e.brobot_1; eyes.brobot_2 = e.brobot_2;
+// 2026-11-15: each Brobot's eye colour is his card's border (host_personas.<Brobot N>.body_colours).
+fetch("gopod_settings_full.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (s) {
+  var hp = (s && s.host_personas) || {};
+  [["brobot_1", "Brobot 1"], ["brobot_2", "Brobot 2"]].forEach(function (k) {
+    var m = String((hp[k[1]] || {}).body_colours || "").match(/border\s+(#[0-9a-fA-F]{6})/);
+    if (m) { eyes[k[0]] = m[1]; }
+  });
 }).catch(function () {});
 document.querySelector('[data-units="C"]').setAttribute("aria-pressed", "true");
 pick("vector");

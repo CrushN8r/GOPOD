@@ -45,8 +45,6 @@ func GopodLLMWarmupStart() {
 	gopodAudioLevelsStart()
 	// 2026-10-18 (step 4): every file the data names, looked for (GOPOD_CHECK).
 	go gopodSystemCheckAtStart()
-	// 2026-10-17: the bubbles' eye colours from Wire-Pod's own robot settings.
-	gopodEyeColorsStart()
 	// GOLDEN, locked (2026-10-13, operator: "Always Use System llm bubble 2
 	// with animation + system messages ... \"System llm bubble\" displays first
 	// and always stays at the bottom of what ever happens until LLM Ready";

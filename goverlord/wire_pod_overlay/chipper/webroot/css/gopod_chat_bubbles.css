@@ -283,22 +283,16 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
   align-items: center; /* the name sits vertically centred on the icon */
   gap: 12px;
 }
-/* 2026-09-01: background now matches each robot's own LIVE eye color
-   (custom_eye_color hue/saturation, jdocs.json) instead of a fixed
-   placeholder pair - see index.html's pollEyeColors() for how
-   --brobot-1-color/--brobot-2-color get set, and
-   _write_brobot_eye_colors_state() (run_section1_full_live_001.py) for
-   where the value comes from. The hex values here are only the fallback
-   for before that JS runs (or if the color file is ever missing) - the
-   robots' real colors as read live, 2026-09-01: Brobot 1 #FF001A,
-   Brobot 2 #0009FF. */
+/* 2026-11-15: a Brobot's bubble is his card's colours - his own, or the persona he
+   answers as (personaColours, gopod_brobots_chat.js); --brobot-N-bg/--brobot-N-color
+   (his own background and border, his eyes) are set from his card. */
 .brobot-bubble.brobot-1 {
-  background: var(--brobot-1-color, var(--brobot-1-default));
+  background: var(--brobot-1-bg, var(--brobot-1-default));
   align-self: flex-start;
   text-align: left;
 }
 .brobot-bubble.brobot-2 {
-  background: var(--brobot-2-color, var(--brobot-2-default));
+  background: var(--brobot-2-bg, var(--brobot-2-default));
   align-self: flex-end;
   /* 2026-09-29: inner text left-aligned (default), per the operator; the bubble
      itself stays on the right. */
@@ -437,11 +431,11 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
   line-height: 56px;
   text-align: center;
 }
-.juggle-ball.ball-b { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
-.juggle-ball.ball-i { --ball-color: var(--brobot-2-color, var(--brobot-2-default)); }
-.juggle-ball.ball-n { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
-.juggle-ball.ball-g { --ball-color: var(--brobot-2-color, var(--brobot-2-default)); }
-.juggle-ball.ball-o { --ball-color: var(--brobot-1-color, var(--brobot-1-default)); }
+.juggle-ball.ball-b { --ball-color: var(--brobot-1-default); }
+.juggle-ball.ball-i { --ball-color: var(--brobot-2-default); }
+.juggle-ball.ball-n { --ball-color: var(--brobot-1-default); }
+.juggle-ball.ball-g { --ball-color: var(--brobot-2-default); }
+.juggle-ball.ball-o { --ball-color: var(--brobot-1-default); }
 
 /* 2026-10-04 (operator: "make it like a horizontal battery power level
    indicator, horizontal with a series of vertical LEDs ... left to right, red to

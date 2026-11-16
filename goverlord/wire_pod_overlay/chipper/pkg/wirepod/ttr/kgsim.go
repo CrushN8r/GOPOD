@@ -1055,6 +1055,11 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 					// 2026-10-08: a draft answer's moves at their words (gopod_script_moves.go).
 					gopodScriptMoveAt(robot, robot.Cfg.SerialNo, act.Parameter)
 					piece := -1
+					// GOPOD 2026-11-15: his first words - his eyes in the colour of
+					// the persona he answers as (gopod_eye_colors.go).
+					if spokenCount == 0 {
+						gopodSetBrobotEyes(robot, robot.Cfg.SerialNo, true)
+					}
 					streamMu.Lock()
 					if spokenCount < len(pieceOfSpoken) {
 						piece = pieceOfSpoken[spokenCount]
@@ -1100,6 +1105,10 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			gopodMarkSpeakingInterrupted(robot.Cfg.SerialNo)
 		} else {
 			gopodWriteSpeakingNow(robot.Cfg.SerialNo, "", false, false)
+		}
+		// GOPOD 2026-11-15: his answer done - his eyes back to his own colour.
+		if spokenCount > 0 {
+			gopodSetBrobotEyes(robot, robot.Cfg.SerialNo, false)
 		}
 		// GOPOD 2026-10-23 (A4): the grand prize, once its last point has been said -
 		// 2026-10-24: and once every answer to the line is done (a follow-up's own

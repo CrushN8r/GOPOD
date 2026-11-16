@@ -937,8 +937,10 @@
         }
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble " + (who === "Operator" ? "operator" : who === "Brobot 1" ? "brobot-1" : "brobot-2");
-        // 2026-11-15: a line a persona asks (the comm check's) wears its colours.
+        // 2026-11-15: a line a persona asks (the comm check's) wears its colours;
+        // a Brobot's, the persona he answers as.
         if (byWho) { bubble.classList.add("host-" + personaSlug(byWho)); }
+        else if (/^Brobot [12]$/.test(who)) { brobotHostClass(bubble, who); }
         // 2026-09-29: Wire-Pod chat replies get the speaking highlight (gopod_chat_bubbles.css).
         if (format === "llm") { bubble.className += " brobot-bubble-live"; }
         // 2026-10-01: a scripted song line (split with the segment marker, the
@@ -1040,6 +1042,7 @@
           if (shellWho && brobotBy[who]) { shellWho.textContent = brobotBy[who] + ":"; }
           if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
           bubble.className.split(" ").forEach(function (c) { if (c) { shell.classList.add(c); } });
+          if (/^Brobot [12]$/.test(who)) { brobotHostClass(shell, who); }
           if (inPopup) { shell.classList.add("popup-winner"); }
           shell.appendChild(textEl);
           attachPendingBall(shell, spoken);
@@ -1947,14 +1950,35 @@
       // suit's border, its search box - one source, nothing hand-written per persona.
       // A persona with none (DOC, PIP) keeps its Brobot body's bubble.
       function personaSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+      function cardColours(line) {
+        var c = {};
+        String(line || "").split(",").forEach(function (part) {
+          var m = part.trim().match(/^(background|border|text)\s+(#[0-9a-fA-F]{3,8})$/);
+          if (m) { c[m[1]] = m[2]; }
+        });
+        return c;
+      }
       function personaColours(hosts) {
         var rules = [];
+        var root = document.documentElement.style;
+        var each = [];
         Object.keys(hosts).forEach(function (who) {
-          var c = {};
-          String(hosts[who].colours || "").split(",").forEach(function (part) {
-            var m = part.trim().match(/^(background|border|text)\s+(#[0-9a-fA-F]{3,8})$/);
-            if (m) { c[m[1]] = m[2]; }
-          });
+          // A Brobot body (2026-11-15): his own card's colours ("Brobot N") and the
+          // persona he hosts (its nickname: DOC, PIP) - his bubble wears whichever
+          // he answers as (brobotAs); --brobot-N-color is his own border (his eyes).
+          if (/^Brobot [12]$/.test(who)) {
+            var own = cardColours(hosts[who].body_colours);
+            each.push([who, own]);
+            if (hosts[who].nickname) { each.push([hosts[who].nickname, cardColours(hosts[who].colours)]); }
+            var n = who === "Brobot 2" ? "2" : "1";
+            if (own.border) { root.setProperty("--brobot-" + n + "-color", own.border); }
+            if (own.background) { root.setProperty("--brobot-" + n + "-bg", own.background); }
+            return;
+          }
+          each.push([who, cardColours(hosts[who].colours)]);
+        });
+        each.forEach(function (pair) {
+          var who = pair[0], c = pair[1];
           if (!c.background && !c.border) { return; }
           var s = personaSlug(who), b = ".brobot-bubble.host-" + s;
           var body = [];
@@ -1962,7 +1986,7 @@
           if (c.text) { body.push("color: " + c.text); }
           if (c.border) { body.push("box-shadow: 0 0 0 var(--bubble-border-width) " + c.border); }
           rules.push(b + " { " + body.join("; ") + "; }");
-          if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar, .brobot-bubble .host-" + s + " .brobot-bubble-avatar { --eye-fill: " + c.border + "; }"); }
+          if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar, .brobot-bubble .host-" + s + " .brobot-bubble-avatar, " + b + " > .brobot-bubble-head .brobot-bubble-avatar { --eye-fill: " + c.border + "; }"); }
           if (c.background) {
             rules.push(".suit-" + s + " { --suit-border: " + c.background + "; }");
             rules.push(".brobot-bubble.search-results.host-" + s + " { background: " + c.background + "; }");
@@ -1971,6 +1995,13 @@
         var el = document.getElementById("gopod-persona-colours");
         if (!el) { el = document.createElement("style"); el.id = "gopod-persona-colours"; document.head.appendChild(el); }
         el.textContent = rules.join("\n");
+      }
+      // A Brobot's bubble wears the persona he answers as (2026-11-15): the line's
+      // to_as, else his reply's "by", else his own name - its colours (personaColours).
+      function brobotAs(who) { return brobotTo[who] || brobotBy[who] || who; }
+      function brobotHostClass(shell, who) {
+        Array.prototype.slice.call(shell.classList).forEach(function (c) { if (/^host-/.test(c)) { shell.classList.remove(c); } });
+        shell.classList.add("host-" + personaSlug(brobotAs(who)));
       }
       function operatorHead(to, via, text) {
         if (to === SYSTEM_TARGET) {
@@ -3653,6 +3684,7 @@
         // placed the one way.
         shell = rawBubble({ kind: "shell", classes: (brobot === "Brobot 2" ? "brobot-2" : "brobot-1") + " nest-shell", head: bubbleHead(brobot) });
         shell.dataset.nest = brobot;
+        brobotHostClass(shell, brobot);
         nestShells[brobot] = shell;
         placeBubble(shell);
         return shell;
@@ -5390,29 +5422,6 @@
         done();
       }
 
-      // 2026-09-01: bubble background follows each robot's own real eye
-      // color instead of a fixed pair - _write_brobot_eye_colors_state()
-      // (run_section1_full_live_001.py) writes this file fresh once per
-      // run start (Robots.__init__), so a color change on the robot's own
-      // app is picked up by the NEXT run, never mid-run (operator
-      // direction). A small JSON file polled on a 500ms cadence - reapplying an unchanged value
-      // every tick is harmless.
-      var lastEyeColors = null;
-      function pollEyeColors() {
-        fetch("/gopod_brobot_eye_colors.json", { cache: "no-store" })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (colors) {
-            if (!colors) { return; }
-            var serialized = JSON.stringify(colors);
-            if (serialized === lastEyeColors) { return; }
-            lastEyeColors = serialized;
-            var root = document.documentElement.style;
-            if (colors.brobot_1) { root.setProperty("--brobot-1-color", colors.brobot_1); }
-            if (colors.brobot_2) { root.setProperty("--brobot-2-color", colors.brobot_2); }
-          })
-          .catch(function () { /* color file not written yet - CSS fallback holds */ });
-      }
-
       // 2026-09-29: light up the sentence a robot is saying right now. Wire-Pod writes
       // the sentence it is about to say to /gopod_speaking_now.json (active=false when
       // the reply ends; interrupted=true on a touch interrupt); the sentence in that robot's newest bubble that shares
@@ -6874,8 +6883,6 @@
       loadChat();
       showChat(chatWasOpen());
       setInterval(pollSpeakingNow, 250);
-      setInterval(pollEyeColors, 500);
-      pollEyeColors();
       // The name list and the settings load before the first bubbles, so none show
       // the misheard spelling or a cue marker.
       Promise.all([loadNameSpellings(), loadBrobotsSettings()]).then(function () {

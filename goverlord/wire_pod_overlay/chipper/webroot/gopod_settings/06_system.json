@@ -42,7 +42,6 @@
     "robot_call_seconds": 15,
     "picture_describe_delay_seconds": 30,
     "audio_levels_every_seconds": 30,
-    "eye_colors_every_seconds": 30,
     "chat_hold_check_seconds": 15,
     "replay_song_start_wait_seconds": 20,
     "thanks_reply_wait_max_seconds": 300

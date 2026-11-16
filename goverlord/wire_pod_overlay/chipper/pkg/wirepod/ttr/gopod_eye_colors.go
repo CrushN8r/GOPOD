@@ -2,68 +2,127 @@
 package wirepod_ttr
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"math"
-	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/fforchino/vector-go-sdk/pkg/vector"
+	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
-	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// The Brobots' eye colours from Wire-Pod itself (2026-10-17, operator: "eye
-// colours from native wire-pod"; survey E16: only the interview runner wrote
-// them, at its start). Each Brobot's own settings as Wire-Pod keeps them
-// (vic.RobotSettings, custom_eye_color hue/saturation, when it's on) become
-// webroot/gopod_brobot_eye_colors.json, the bubbles' colours - at Wire-Pod's
-// start and every 30 s, never while a run is going (2026-09-01, operator: "not
-// mid runs though"). A Brobot with no custom colour keeps the page's own.
+// The Brobots' eye colours - one colour value, the border on a card (2026-11-15,
+// operator: "ensure the robots' eye colours match their respective bubble's
+// border colours from a single colour value setting * when DOC/PIP respond,
+// their respective eye colours change as well, to match DOC/PIP bubbles * upon
+// DOC/PIP response completion, respective eye colours default back to brobot
+// bubble colours"). A Brobot's own card (brobot-1.md) holds his colours; the
+// persona he hosts (its "hosts" card, DOC or PIP) holds its own. The page's
+// bubbles and the robot's eyes read the same border. (Was, 2026-10-17: the
+// robot's own app colour read into gopod_brobot_eye_colors.json for the page -
+// two sources; gone.)
 
-var gopodEyeColorsPath = gopodPathWithEnvOverride("GOPOD_EYE_COLORS_PATH", "webroot/gopod_brobot_eye_colors.json")
+var gopodCardColourRE = regexp.MustCompile(`(?i)\b(background|border|text)\s+(#[0-9a-f]{6})\b`)
 
-func gopodEyeColorsStart() {
-	go func() {
-		last := ""
-		for {
-			if _, running := gopodRunNow(); !running {
-				if colors := gopodEyeColors(); len(colors) > 0 {
-					data, _ := json.Marshal(colors)
-					if string(data) != last {
-						tmp := gopodEyeColorsPath + ".tmp"
-						if gopodWriteFile(tmp, data, 0o644) == nil && os.Rename(tmp, gopodEyeColorsPath) == nil {
-							last = string(data)
-							logger.Println("GOPOD_EYE_COLORS " + last)
-						}
-					}
-				}
-			}
-			time.Sleep(gopodTiming("eye_colors_every_seconds"))
+// gopodCardColour: one colour ("border") from a card's colours line, "" for none.
+func gopodCardColour(colours, which string) string {
+	for _, m := range gopodCardColourRE.FindAllStringSubmatch(colours, -1) {
+		if strings.EqualFold(m[1], which) {
+			return m[2]
 		}
-	}()
+	}
+	return ""
 }
 
-// gopodEyeColors: {"brobot_1": "#RRGGBB", ...} for each Brobot with a custom colour on.
-func gopodEyeColors() map[string]string {
-	colors := map[string]string{}
-	for label, esn := range map[string]string{"brobot_1": gopodBrobot1ESN, "brobot_2": gopodBrobot2ESN} {
-		doc, ok := vars.GetJdoc("vic:"+esn, "vic.RobotSettings")
-		if !ok {
-			continue
-		}
-		var settings struct {
-			Custom struct {
-				Enabled    bool    `json:"enabled"`
-				Hue        float64 `json:"hue"`
-				Saturation float64 `json:"saturation"`
-			} `json:"custom_eye_color"`
-		}
-		if json.Unmarshal([]byte(doc.JsonDoc), &settings) != nil || !settings.Custom.Enabled {
-			continue
-		}
-		colors[label] = gopodHSVHex(settings.Custom.Hue, settings.Custom.Saturation, 1)
+// gopodBrobotCardColours: a Brobot body's colours (his own card) and the hosted
+// persona's (the card his "hosts" names), whatever the dial says now.
+func gopodBrobotCardColours(body string) (own, hosted string) {
+	return gopodBrobotCardColoursIn(gopodBrobotsSettings.PersonaProfiles.Folder, body)
+}
+
+func gopodBrobotCardColoursIn(folder, body string) (own, hosted string) {
+	path := gopodPersonaProfileFileIn(folder, body)
+	head, _ := gopodPersonaProfileReadOne(path)
+	if head == nil {
+		return "", ""
 	}
-	return colors
+	own = strings.TrimSpace(head["colours"])
+	if host := strings.TrimSpace(head["hosts"]); host != "" {
+		hp := filepath.Join(filepath.Dir(path), host)
+		if f := gopodTopicTreeFind(host); f != "" {
+			hp = f
+		}
+		if ph, _ := gopodPersonaProfileReadOne(hp); ph != nil {
+			hosted = strings.TrimSpace(ph["colours"])
+		}
+	}
+	return own, hosted
+}
+
+// gopodBrobotEyeHex: the eye colour for body now - the hosted persona's border
+// while he answers as it (the dial past 0%), else his own.
+func gopodBrobotEyeHex(body string, answering bool) string {
+	own, hosted := gopodBrobotCardColours(body)
+	if answering && !gopodAtDialZero(body) {
+		if c := gopodCardColour(hosted, "border"); c != "" {
+			return c
+		}
+	}
+	return gopodCardColour(own, "border")
+}
+
+// gopodSetBrobotEyes sets the robot's eyes to his colour now (answering: the
+// persona he answers as); nothing when the card has none.
+func gopodSetBrobotEyes(robot *vector.Vector, esn string, answering bool) {
+	hex := gopodBrobotEyeHex(gopodBrobotName(esn), answering)
+	h, s, ok := gopodHexHS(hex)
+	if robot == nil || !ok {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if _, err := robot.Conn.SetEyeColor(ctx, &vectorpb.SetEyeColorRequest{Hue: float32(h), Saturation: float32(s)}); err != nil {
+		logger.Println("GOPOD_EYES " + gopodBrobotName(esn) + " " + hex + ": " + err.Error())
+		return
+	}
+	logger.Println("GOPOD_EYES " + gopodBrobotName(esn) + " " + hex)
+}
+
+// gopodHexHS: "#RRGGBB" -> hue and saturation (0-1), the eyes' two numbers.
+func gopodHexHS(hex string) (h, s float64, ok bool) {
+	hex = strings.TrimPrefix(strings.TrimSpace(hex), "#")
+	if len(hex) != 6 {
+		return 0, 0, false
+	}
+	n, err := strconv.ParseUint(hex, 16, 32)
+	if err != nil {
+		return 0, 0, false
+	}
+	r, g, b := float64(n>>16&255)/255, float64(n>>8&255)/255, float64(n&255)/255
+	mx, mn := math.Max(r, math.Max(g, b)), math.Min(r, math.Min(g, b))
+	d := mx - mn
+	if mx > 0 {
+		s = d / mx
+	}
+	switch {
+	case d == 0:
+		h = 0
+	case mx == r:
+		h = math.Mod((g-b)/d, 6) / 6
+	case mx == g:
+		h = ((b-r)/d + 2) / 6
+	default:
+		h = ((r-g)/d + 4) / 6
+	}
+	if h < 0 {
+		h++
+	}
+	return h, s, true
 }
 
 // gopodHSVHex: hue, saturation, value (0-1) -> "#RRGGBB" (Python's colorsys).

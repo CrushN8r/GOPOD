@@ -19,7 +19,7 @@ import (
 // sentence the robot stopped on, so the page can show that outline solid. The page (webroot/index.html,
 // pollSpeakingNow) reads this file and outlines the matching sentence in that
 // robot's newest bubble. A plain file next to the page, the same way
-// gopod_brobot_eye_colors.json works, so nothing is added to the Logs page.
+// gopod_chat_feed.json works, so nothing is added to the Logs page.
 var gopodSpeakingNowPath = gopodPathWithEnvOverride(
 	"GOPOD_SPEAKING_NOW_PATH", "webroot/gopod_speaking_now.json",
 )
