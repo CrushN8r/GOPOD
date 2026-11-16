@@ -37,6 +37,9 @@ type gopodPersonaLock struct {
 
 func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 	_, _ = gopodRawSettingsForTest(t)
+	// 2026-11-16: the same lock whatever test ran before - no Brobot left at the
+	// dial's 0% (a body's name resolves through it, gopodAnswerer).
+	gopodDialZero.Range(func(k, _ any) bool { gopodDialZero.Delete(k); return true })
 	l := gopodPersonaLock{
 		Locked:             "2026-10-26",
 		PersonaLines:       gopodHostPersonaLines(),

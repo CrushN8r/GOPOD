@@ -173,8 +173,8 @@ func gopodVoicesArchive() {
 	gopodReporterInUse.Unlock()
 	kinds := gopodVoiceProfileKinds()
 	uses := gopodVoiceProfileUses()
+	lastUsed := gopodVoiceProfileLastUsed()
 	keep := map[string]float64{"system": rv.OperatorKeepDays, "scripted": rv.ScriptedKeepDays, "live": rv.LiveKeepDays}
-	archive := filepath.Join(gopodArchiveDir(), "voices")
 	moved := 0
 	for _, e := range entries {
 		name := e.Name()
@@ -207,20 +207,23 @@ func gopodVoicesArchive() {
 			days = rv.PopularKeepDays
 		}
 		info, err := e.Info()
-		if days <= 0 || err != nil || time.Since(info.ModTime()) < gopodSecondsToDuration(days*86400) {
+		last := info.ModTime()
+		if err == nil && lastUsed[name].After(last) {
+			last = lastUsed[name]
+		}
+		if days <= 0 || err != nil || time.Since(last) < gopodSecondsToDuration(days*86400) {
 			continue
 		}
-		if gopodMkdirAll(archive, 0o755) != nil {
-			return
-		}
-		if os.Rename(filepath.Join(dir, name), filepath.Join(archive, name)) == nil {
+		// 2026-11-16 (operator: "voice files & their jsons, older than a few days
+		// ... deleted off the jetson immediately * no archive backup"): deleted,
+		// not archived - a voice is made again the next time it's needed.
+		if os.Remove(filepath.Join(dir, name)) == nil {
 			moved++
 			gopodVoiceArchived(name)
-			words := strings.TrimSuffix(name, ".wav") + ".words.json"
-			os.Rename(filepath.Join(dir, words), filepath.Join(archive, words))
+			os.Remove(filepath.Join(dir, strings.TrimSuffix(name, ".wav")+".words.json"))
 		}
 	}
-	logger.Println(fmt.Sprintf("GOPOD_REPORTER_VOICES archived %d voices past their keep days (%s), kept %d in use", moved, archive, len(inUse)))
+	logger.Println(fmt.Sprintf("GOPOD_REPORTER_VOICES deleted %d voices past their keep days, kept %d in use", moved, len(inUse)))
 }
 
 // ## EOF

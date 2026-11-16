@@ -57,6 +57,9 @@ fi
 
 echo "DEPLOY_STEP backing up live binary -> $BACKUP"
 cp -p "$LIVE_BIN" "$BACKUP"
+# 2026-11-16 (operator: "clean up stale files ... no archive backup bullshit"):
+# one rollback binary only - the one just made; older ones go.
+find "${OVERLAY_DIR}/chipper_backups" -maxdepth 1 -type f -name 'chipper.bak_*' ! -path "$BACKUP" -delete
 
 echo "DEPLOY_STEP swapping new binary into place"
 mv "$TMP_OUT" "$LIVE_BIN"

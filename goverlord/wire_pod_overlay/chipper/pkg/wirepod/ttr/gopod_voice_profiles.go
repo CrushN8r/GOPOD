@@ -256,6 +256,22 @@ func gopodVoiceProfileUses() map[string]int {
 	return out
 }
 
+// gopodVoiceProfileLastUsed: each file's last play (2026-11-16: the sweep keeps
+// a voice by when it was last heard, not when it was made).
+func gopodVoiceProfileLastUsed() map[string]time.Time {
+	p := &gopodVoiceProfiles
+	p.Lock()
+	defer p.Unlock()
+	gopodVoiceProfilesLoadLocked()
+	out := map[string]time.Time{}
+	for name, prof := range p.files {
+		if t, err := time.Parse(time.RFC3339, prof.LastUsed); err == nil {
+			out[name] = t
+		}
+	}
+	return out
+}
+
 // gopodVoiceProfileKinds: each file's kind, for the archive's keep days.
 func gopodVoiceProfileKinds() map[string]string {
 	p := &gopodVoiceProfiles
