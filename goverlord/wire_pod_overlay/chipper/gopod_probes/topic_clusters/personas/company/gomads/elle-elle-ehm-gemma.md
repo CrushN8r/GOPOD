@@ -2,6 +2,7 @@
 - **root:** groups/group-gomads.md
 - **nickname:** LLM
 - **job:** LLM Gomad
+- **body:** none
 - **colours:** background #0B5D3B, border #9AF5FF
 - **why:** ELLE-ELLE EHM sounds like LLM when said out loud
 - **words:** gemma, elle-elle ehm gemma, gemma elle-elle ehm, llm, language model, the model

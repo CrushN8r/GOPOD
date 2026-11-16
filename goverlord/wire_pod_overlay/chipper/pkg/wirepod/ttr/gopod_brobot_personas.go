@@ -43,6 +43,11 @@ type gopodHostPersona struct {
 	// per-persona everywhere"): its card's colours ("background #.., border #..,
 	// text #..") - the page colours every bubble it speaks or asks in.
 	Colours string `json:"colours,omitempty"`
+	// 2026-11-15 (operator: "separate robot bodies from all personas * then
+	// assign/flag the robot body for use"): the robot body it speaks through, from
+	// its card's "body:" ("Brobot 1"; "" for a voice) - a body's ESN is only in the
+	// private ~/.gopod_esns.json (gopod_esn_labels.go).
+	Body string `json:"body,omitempty"`
 	// 2026-10-27: the name others call him by (gopodCallName).
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`

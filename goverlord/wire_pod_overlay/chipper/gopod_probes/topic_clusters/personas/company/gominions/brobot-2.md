@@ -1,8 +1,8 @@
 # Brobot 2
 - **root:** ../show/brobots.md
-- **hosts:** pip-stall.md
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
+- **body:** Brobot 2
 - **colours:** background #454545, border #c9a227
 - **words:** brobot 2, brobot two
 - **ask:** Tell me about yourself

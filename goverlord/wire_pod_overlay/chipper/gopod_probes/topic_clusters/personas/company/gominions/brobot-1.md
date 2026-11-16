@@ -1,8 +1,8 @@
 # Brobot 1
 - **root:** ../show/brobots.md
-- **hosts:** barfallonyou-burns.md
 - **nickname:** BRUH!
 - **job:** party-bro GOPOD rep
+- **body:** Brobot 1
 - **colours:** background #2f2f2f, border #c9a227
 - **words:** brobot 1, brobot one
 - **ask:** Tell me about yourself

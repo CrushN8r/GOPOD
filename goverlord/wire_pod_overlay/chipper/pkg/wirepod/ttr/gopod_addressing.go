@@ -2,7 +2,7 @@
 package wirepod_ttr
 
 import (
-	"path/filepath"
+	"sort"
 	"context"
 	"fmt"
 	"strings"
@@ -214,22 +214,23 @@ func gopodAnswerer(name string) string {
 // gopodIsBrobotBody: the name is one of the two robot bodies.
 func gopodIsBrobotBody(name string) bool { return name == "Brobot 1" || name == "Brobot 2" }
 
-// gopodHostedPersona: the persona a body hosts at the dial's 100% - the nickname
-// on the card his own card's "hosts" names ("DOC"); "" for none.
+// gopodHostedPersona: the persona a body hosts at the dial's 100% - the persona
+// (not the Brobot himself) whose card says "body: <this body>" ("DOC"); "" for none.
 func gopodHostedPersona(body string) string {
-	folder := gopodBrobotsSettings.PersonaProfiles.Folder
-	path := gopodPersonaProfileFileIn(folder, body)
-	head, _ := gopodPersonaProfileReadOne(path)
-	host := strings.TrimSpace(head["hosts"])
-	if host == "" {
+	var found []string
+	for who, hp := range gopodBrobotsSettings.HostPersonas {
+		if hp.Body == body && who != body {
+			found = append(found, who)
+		}
+	}
+	if len(found) == 0 {
 		return ""
 	}
-	hp := filepath.Join(filepath.Dir(path), host)
-	if f := gopodTopicTreeFind(host); f != "" {
-		hp = f
+	sort.Strings(found)
+	if len(found) > 1 {
+		logger.Println("GOPOD_CHECK more than one persona on " + body + ": " + strings.Join(found, ", ") + " - " + found[0] + " answers")
 	}
-	ph, _ := gopodPersonaProfileReadOne(hp)
-	return strings.TrimSpace(ph["nickname"])
+	return found[0]
 }
 
 func gopodIsFollowingUp(esn string) bool {

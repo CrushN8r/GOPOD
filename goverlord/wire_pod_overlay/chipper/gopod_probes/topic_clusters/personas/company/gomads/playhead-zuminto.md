@@ -2,6 +2,7 @@
 - **root:** groups/group-gomads.md
 - **nickname:** ZOOMY
 - **job:** CRUSHN8R CREW Session Gomad
+- **body:** none
 - **colours:** background #3B2A1E, border #C0C0C0, text #F2ECE4
 - **why:** ZUMINTU sounds like 'zoom into', so my long-time partner CHALK nicknamed me Zoomy
 - **words:** playhead, play head, zumintu, zoomy

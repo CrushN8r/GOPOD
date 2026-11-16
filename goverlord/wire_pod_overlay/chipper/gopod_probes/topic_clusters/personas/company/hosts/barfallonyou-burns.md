@@ -2,6 +2,7 @@
 - **root:** groups/group-doc-and-pip.md
 - **nickname:** DOC
 - **job:** GOPOD host
+- **body:** Brobot 1
 - **colours:** background #5c1a1a, border #ff3b30
 - **why:** I barf doctrine at problems until nonsense surrenders
 - **words:** doc, doctrine, barfallonyou, spewer, docbs

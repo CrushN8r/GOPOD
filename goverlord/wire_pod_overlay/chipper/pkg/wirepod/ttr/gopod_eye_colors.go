@@ -23,7 +23,7 @@ import (
 // their respective eye colours change as well, to match DOC/PIP bubbles * upon
 // DOC/PIP response completion, respective eye colours default back to brobot
 // bubble colours"). A Brobot's own card (brobot-1.md) holds his colours; the
-// persona he hosts (its "hosts" card, DOC or PIP) holds its own. The page's
+// persona on his body (DOC, PIP - its card's "body:") holds its own. The page's
 // bubbles and the robot's eyes read the same border. (Was, 2026-10-17: the
 // robot's own app colour read into gopod_brobot_eye_colors.json for the page -
 // two sources; gone.)

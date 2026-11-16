@@ -2,6 +2,7 @@
 - **root:** groups/group-gopod-system.md
 - **nickname:** KEYS
 - **job:** Butler
+- **body:** none
 - **colours:** background #2E0A57, border #F2D675
 - **why:** I hold all the keys
 - **words:** keynote, keynote vale, keys, butler

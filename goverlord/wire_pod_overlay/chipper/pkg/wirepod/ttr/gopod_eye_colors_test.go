@@ -89,6 +89,10 @@ func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	if hp["Brobot 1"].Nickname != "BRUH!" || hp["Brobot 1"].Name == hp["DOC"].Name || hp["Brobot 2"].Name == hp["PIP"].Name {
 		t.Errorf("a Brobot's own card: %+v / %+v", hp["Brobot 1"], hp["Brobot 2"])
 	}
+	// 2026-11-15: each card names its body; the voices have none.
+	if hp["DOC"].Body != "Brobot 1" || hp["Brobot 1"].Body != "Brobot 1" || hp["PIP"].Body != "Brobot 2" || hp["BUTLER"].Body != "" || hp["CHALK"].Body != "" {
+		t.Errorf("bodies: DOC %q, Brobot 1 %q, PIP %q, KEYNOTE %q, CHALK %q", hp["DOC"].Body, hp["Brobot 1"].Body, hp["PIP"].Body, hp["BUTLER"].Body, hp["CHALK"].Body)
+	}
 	if gopodHostedPersona("Brobot 1") != "DOC" || gopodHostedPersona("Brobot 2") != "PIP" {
 		t.Errorf("hosts: %q %q", gopodHostedPersona("Brobot 1"), gopodHostedPersona("Brobot 2"))
 	}

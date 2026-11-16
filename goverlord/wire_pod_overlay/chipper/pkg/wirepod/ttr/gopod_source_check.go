@@ -181,16 +181,6 @@ func gopodPersonaProfileRawSelf(who string) map[string]string {
 	out := map[string]string{}
 	path := gopodPersonaProfileFile(who)
 	data := gopodReadFileString(path)
-	// 2026-11-04: a robot's file and the persona it hosts (gopodPersonaProfileRead).
-	if head, _ := gopodPersonaProfileReadOne(path); strings.TrimSpace(head["hosts"]) != "" {
-		hosted := filepath.Join(filepath.Dir(path), strings.TrimSpace(head["hosts"]))
-		if _, err := os.Stat(hosted); err != nil {
-			if f := gopodTopicTreeFind(strings.TrimSpace(head["hosts"])); f != "" {
-				hosted = f
-			}
-		}
-		data += "\n" + gopodReadFileString(hosted)
-	}
 	inSelf := false
 	for _, line := range strings.Split(data, "\n") {
 		t := strings.TrimSpace(line)
@@ -308,13 +298,6 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 		for who := range whos {
 			p := gopodPersonaProfileFile(who)
 			files[p] = true
-			if head, _ := gopodPersonaProfileReadOne(p); head != nil {
-				if h := strings.TrimSpace(head["hosts"]); h != "" {
-					if f := gopodTopicTreeFind(h); f != "" {
-						files[f] = true
-					}
-				}
-			}
 		}
 		for p := range files {
 			shape, ok := gopodSchemaShapeOf(p)
@@ -324,7 +307,7 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 			}
 			name := filepath.Base(p)
 			for _, k := range schema.keys {
-				if k == "why" || k == "about" || k == "hosts" { // a story may be blank; only robots host
+				if k == "why" || k == "about" { // a story may be blank
 					continue
 				}
 				n++

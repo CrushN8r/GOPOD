@@ -199,6 +199,9 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 		if v := head["colours"]; v != "" {
 			hp.Colours = v
 		}
+		if v := strings.TrimSpace(head["body"]); v != "" && !strings.EqualFold(v, "none") {
+			hp.Body = v
+		}
 		if s.HostPersonas == nil {
 			s.HostPersonas = map[string]gopodHostPersona{}
 		}

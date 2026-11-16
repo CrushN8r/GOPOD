@@ -2,6 +2,7 @@
 - **root:** groups/group-security-guards.md
 - **nickname:** SWITCH
 - **job:** Security guard
+- **body:** none
 - **colours:** background #1C3F94, border #FF2D2D
 - **why:** it's my call-sign, like a light or system switch
 - **words:** switch, pnft, intel 404
