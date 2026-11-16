@@ -200,6 +200,11 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 	selfNames := gopodIntroSelfNames(who)
 	core := gopodIntroOpeningWith(who, false)
 	var keep []string
+	// What the code says in this intro - the opening and the facts - a sentence each.
+	var said []map[string]bool
+	for _, s := range gopodIntroSentences(opening + " " + gopodIntroFacts(who)) {
+		said = append(said, gopodContentWords(s))
+	}
 	carry := "" // a dropped sentence's animation cue, kept for the next one
 	for _, sentence := range gopodIntroSentences(middle) {
 		if carry != "" {
@@ -231,6 +236,16 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 			carry = cue
 			continue
 		}
+		// 2026-11-16 (operator: "Same repeat-loops in responses"; live: CHALK said
+		// "I answer to KEYNOTE, then Goverlord." twice - the code's, then the
+		// model's - and the twin line broke the highlight): a line of the model's
+		// that says again what the code just said (a fact, or a line he already
+		// said) is dropped (gopodSaysAgain).
+		if gopodSaysAgain(bare, said) {
+			carry = cue
+			continue
+		}
+		said = append(said, gopodContentWords(bare))
 		n := 0
 		for _, name := range names {
 			if name != "" && strings.Contains(strings.ToLower(sentence), strings.ToLower(name)) {
@@ -265,6 +280,37 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+// gopodContentWords: a sentence's words of 3+ letters, small letters.
+func gopodContentWords(s string) map[string]bool {
+	out := map[string]bool{}
+	for _, w := range strings.Fields(gopodLooseWords(s)) {
+		if len(w) >= 3 {
+			out[w] = true
+		}
+	}
+	return out
+}
+
+// gopodSaysAgain: a sentence whose words are mostly (70%) in one sentence already said.
+func gopodSaysAgain(sentence string, said []map[string]bool) bool {
+	words := gopodContentWords(sentence)
+	if len(words) == 0 {
+		return false
+	}
+	for _, s := range said {
+		in := 0
+		for w := range words {
+			if s[w] {
+				in++
+			}
+		}
+		if float64(in) >= 0.7*float64(len(words)) {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodLooseWords: text as its words only - small letters, no dashes or marks.
@@ -334,7 +380,9 @@ func gopodDropSelfIntro(sentence string, names []string) string {
 	for again := true; again; {
 		again = false
 		for _, n := range names {
-			if len(rest) >= len(n) && strings.EqualFold(rest[:len(n)], n) && (len(rest) == len(n) || strings.ContainsRune(" ,.!;-", rune(rest[len(n)]))) {
+			// A "-" is a boundary only before a space: "CHALK-RA" is one name
+			// (2026-11-16, live: "RA, the Display Gomad ...").
+			if len(rest) >= len(n) && strings.EqualFold(rest[:len(n)], n) && (len(rest) == len(n) || strings.ContainsRune(" ,.!;", rune(rest[len(n)])) || (rest[len(n)] == '-' && (len(rest) == len(n)+1 || rest[len(n)+1] == ' '))) {
 				rest = strings.TrimLeft(rest[len(n):], " ,;-")
 				matched, again = true, true
 			}

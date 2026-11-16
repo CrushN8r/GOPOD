@@ -372,3 +372,22 @@ func TestKeysIntroducesTheCompany(t *testing.T) {
 		t.Errorf("only KEYS says the company intro: %q", other)
 	}
 }
+
+// 2026-11-16 (operator: "Same repeat-loops in responses"; live: CHALK's model line
+// said the code's facts again, word for word, and "I'm CHALK-RA" left "RA,"): the
+// model's lines that repeat the code are dropped; its own line stays, once.
+func TestIntroDropsTheModelsRepeats(t *testing.T) {
+	middle := "I'm CHALK-RA, the Display Gomad at the CRUSHN8R CREW'd news station. We sell GOPOD - GOPOD Yourself! " +
+		"My job is to make this whole system feel alive - visually and textually - with surprise pops, QR codes, and a little bit of extra. " +
+		"I answer to KEYNOTE, then Goverlord. I work with my long-time news partner PLAYHEAD ZUMINTU - he runs the session, I run the display. " +
+		"My intern CACHE PYC keeps things running smoothly on the board."
+	out := gopodIntroWrap("CHALK", middle)
+	for _, twice := range []string{"I answer to KEYNOTE, then Goverlord.", "I work with my long-time news partner"} {
+		if strings.Count(out, twice) != 1 {
+			t.Errorf("%q said %d times: %q", twice, strings.Count(out, twice), out)
+		}
+	}
+	if strings.Contains(out, "RA, the Display") || !strings.Contains(out, "My job is to make this whole system feel alive") {
+		t.Errorf("the model's own line: %q", out)
+	}
+}
