@@ -27,7 +27,7 @@ func TestIntroTemplate(t *testing.T) {
 		middle := opening + " I keep things running. Helping me out are " + strings.Join(names[:3], ", ") + ". That's my job!"
 		got := gopodIntroWrap(who, middle)
 		// 2026-11-15: the card's facts, said by the code, between the opening and the model's line.
-		facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
+		facts := gopodIntroFacts(who)
 		if !strings.HasPrefix(got, opening+" "+facts+" I keep things running.") || !strings.HasSuffix(got, cast) {
 			t.Errorf("%s: %q", who, got)
 		}
@@ -349,5 +349,26 @@ func TestIntroSaysCardFacts(t *testing.T) {
 	}
 	if strings.Index(out, "I answer to") > strings.Index(out, "Boards are") {
 		t.Errorf("facts after the model's line: %q", out)
+	}
+}
+
+// 2026-11-16 (operator: "have Keys do like a brief self intro * then ... an intro
+// of the company & employee/employer relationship * then Keys continues his own
+// intro"): KEYS' intro - his opening, the company intro word for word, then his facts.
+func TestKeysIntroducesTheCompany(t *testing.T) {
+	keys := gopodBrobotsSettings.SystemBubble.VoicePersona
+	if len(gopodBrobotsSettings.CompanyIntro.Lines) == 0 {
+		t.Fatal("no company_intro.lines (math-aftermath-news-channel.md)")
+	}
+	out := gopodIntroWrap(keys, "A pleasure, as always.")
+	opening := gopodIntroOpening(keys)
+	company := gopodBrobotsSettings.CompanyIntro.Lines[0]
+	fact := "I'm the proud Butler."
+	a, b, c := strings.Index(out, opening), strings.Index(out, company), strings.Index(out, fact)
+	if a != 0 || b < a || c < b || !strings.HasSuffix(out, "A pleasure, as always.") {
+		t.Errorf("KEYS' intro order: %q", out)
+	}
+	if other := gopodIntroWrap("CHALK", "Hi."); strings.Contains(other, company) {
+		t.Errorf("only KEYS says the company intro: %q", other)
 	}
 }

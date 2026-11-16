@@ -156,6 +156,7 @@
           else if (b.format === "picture") { showPictures(b.text); }
           else if (b.format === "host") { showHostLine(b.who, b.text); }
           else if (b.format === "narrator") { showNarratorLine(b.text); }
+          else if (b.format === "notice") { bubbleNotice(b.who, b.text); }
           else { appendBubble(b.who, b.text, b.format, b.to, b.via); }
         });
         restoringChat = false;
@@ -2009,8 +2010,14 @@
         // 2026-11-15 (live: "GOVERLORD to BUTLER"): a line to the system voice's
         // persona names it the way its own bubbles do (KEYNOTE).
         var toShown = brobotTo[to] || (to && to === systemVoicePersona ? systemLabel : to);
+        // 2026-11-16 (operator: "Keyboard to Brobots / system-comm-check *
+        // system-comm-check to Brobots?"): a system command goes to the system's
+        // voice (KEYNOTE), whoever the picker was on.
+        var systemCmd = /^\s*system-/i.test(String(text || ""));
+        if (systemCmd) { toShown = systemLabel || toShown; }
         var head = bubbleHead(keyShown(via || "Operator") + " to " + toShown, true);
         head.firstChild.classList.add("from-operator");
+        if (systemCmd) { return head; }
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
         icons.forEach(function (cls) {
@@ -5403,7 +5410,13 @@
         else if (e.who === systemRole) { showScore(e.text, undefined, done); return; }
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to, done); return; }
-        else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) { bubbleNotice(e.to, String(e.text).slice(7)); }
+        else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) {
+          // 2026-11-16 (operator: "Where did the brain bubbles disappear to?" - a
+          // reloaded page rebuilt the chat without them): a brain line is saved
+          // with the chat, so a reload puts it back where it was.
+          recordBubble(e.to || "", String(e.text).slice(7), "notice");
+          bubbleNotice(e.to, String(e.text).slice(7));
+        }
         // 2026-10-25: his opener (Got it! / Nice try, ...!), the top of his bubble.
         else if (e.who === pictureRole && String(e.text).indexOf("opener:") === 0) { brobotOpener(e.to, String(e.text).slice(7), done); return; }
         // 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in highlighting
@@ -6519,7 +6532,6 @@
         });
       }
       function bubbleNotice(to, text, said) {
-        if (restoringChat) { return; }
         var bar = text.indexOf("|");
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
         if (!/^Brobot [12]$/.test(String(to || ""))) {

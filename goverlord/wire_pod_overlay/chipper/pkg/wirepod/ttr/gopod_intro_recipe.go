@@ -167,6 +167,25 @@ func gopodIntroCastLine(who string) string {
 // was never said. A Brobot's opening and cast line go in the way every code line
 // does (gopodStitchSnippet / gopodStitchEndSnippet: after his cue, on its own
 // line); a Gomad's (one voice, chunked by sentence) stay joined by spaces.
+// gopodIntroFacts: what the code says in who's intro after the opening - his
+// card's facts (gopodBrainIntroFact); for the system voice's persona (KEYS), the
+// company intro first, word for word (2026-11-16, operator: "have Keys do like a
+// brief self intro * then ... an intro of the company & employee/employer
+// relationship * then Keys continues his own intro"; company_intro.lines).
+func gopodIntroFacts(who string) string {
+	facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
+	if who != gopodBrobotsSettings.SystemBubble.VoicePersona {
+		return facts
+	}
+	var company []string
+	for _, l := range gopodBrobotsSettings.CompanyIntro.Lines {
+		if l = strings.TrimSpace(gopodPersonaFill(who, l)); l != "" {
+			company = append(company, l)
+		}
+	}
+	return strings.TrimSpace(strings.Join(company, " ") + " " + facts)
+}
+
 func gopodIntroWrap(who, middle string, brobot ...bool) string {
 	opening := gopodIntroOpening(who)
 	// 2026-11-05 (live 08:34: Doc's line came back wrapped in "*...*" and the
@@ -227,7 +246,7 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 	// 2026-11-15 (operator: "Yes" - the code says an intro's facts from the card,
 	// the model adds its own flavour): the intro's FACT, word for word, after the
 	// opening - the same line his brain shows (gopodBrainIntroFact).
-	facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
+	facts := gopodIntroFacts(who)
 	if len(brobot) > 0 && brobot[0] {
 		out := strings.TrimSpace(facts + " " + strings.Join(keep, " "))
 		if opening != "" {

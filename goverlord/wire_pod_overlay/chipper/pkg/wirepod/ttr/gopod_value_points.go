@@ -558,21 +558,27 @@ func gopodReminderLine(userMessage string) string {
 			gopodRemind(t)
 		}
 	}
-	// 2026-10-31: the names, for the brain bubble's Reminders (gopodReminderNames).
-	gopodReminderNames.Store(userMessage, append([]string(nil), chain...))
-	line := strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
 	// 2026-10-29 (operator: "then reps' reminders to prep for accessmath demo";
-	// "go reminders"): the reminder invites with one of Ron's probers for the
-	// first topic it names that has one (the probers list, gopod_probers_list.go).
-	if t := strings.TrimSpace(vp.ReminderProberText); t != "" {
-		for _, topic := range chainTopics {
+	// "go reminders"): the reminder invites with one of Ron's probers (the probers
+	// list, gopod_probers_list.go). 2026-11-16 (operator: "please ensure the 'try
+	// asking' suggestions match with the 'hey that reminds me'"): its topic is
+	// named first, so the question asked about is the first one reminded of.
+	prober := ""
+	if strings.TrimSpace(vp.ReminderProberText) != "" {
+		for i, topic := range chainTopics {
 			if pr := gopodProberFor(topic); pr != "" {
-				// 2026-11-03 (operator: "start \"Try asking: ... \" on a new
-				// line"): its own line under the reminder.
-				line += gopodThoughtGap() + strings.ReplaceAll(t, "{prober}", pr)
+				prober = pr
+				chain = append([]string{chain[i]}, append(append([]string(nil), chain[:i]...), chain[i+1:]...)...)
 				break
 			}
 		}
+	}
+	// 2026-10-31: the names, for the brain bubble's Reminders (gopodReminderNames).
+	gopodReminderNames.Store(userMessage, append([]string(nil), chain...))
+	line := strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
+	if prober != "" {
+		// 2026-11-03 (operator: "start \"Try asking: ... \" on a new line"): its own line.
+		line += gopodThoughtGap() + strings.ReplaceAll(strings.TrimSpace(vp.ReminderProberText), "{prober}", prober)
 	}
 	return line
 }

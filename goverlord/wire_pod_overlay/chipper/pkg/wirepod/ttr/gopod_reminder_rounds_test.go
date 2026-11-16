@@ -34,4 +34,33 @@ func TestRemindersStartAgain(t *testing.T) {
 	}
 }
 
+// 2026-11-16 (operator: "please ensure the 'try asking' suggestions match with the
+// 'hey that reminds me'"): the question to try is the first topic reminded of.
+func TestTryAskingMatchesTheReminder(t *testing.T) {
+	gopodGameReset("test")
+	defer gopodGameReset("test")
+	labels := gopodBrobotsSettings.InterviewChapters.TopicLabels
+	tpl := strings.TrimSpace(gopodBrobotsSettings.ValuePoints.ReminderProberText)
+	pre, post, _ := strings.Cut(tpl, "{prober}")
+	checked := 0
+	for i := 0; i < 40; i++ {
+		line := gopodReminderLine("Tell me about the contest")
+		at := strings.Index(line, pre)
+		if at < 0 {
+			continue
+		}
+		prober := strings.TrimSuffix(strings.TrimSpace(line[at+len(pre):]), strings.TrimSpace(post))
+		names, _ := gopodReminderNames.Load("Tell me about the contest")
+		list, _ := names.([]string)
+		goes := loadScenarioPacketsForMessage(prober)
+		if len(list) == 0 || len(goes) == 0 || labels[goes[0].Name] != list[0] {
+			t.Errorf("reminder %d: try asking %q isn't about the first topic named (%v): %q", i+1, prober, list, line)
+		}
+		checked++
+	}
+	if checked == 0 {
+		t.Error("no reminder with a try-asking line")
+	}
+}
+
 // ## EOF

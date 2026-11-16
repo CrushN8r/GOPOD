@@ -72,6 +72,7 @@ var gopodClusterLines = map[string]bool{
 	"brain_chain.lines":      true, // step 3: the brain's template, a line each
 	"brain_chain.intro_fact": true, // 2026-11-15: an intro's FACT, looked up from the card
 	"prebuild_context.lines": true,
+	"company_intro.lines":    true, // 2026-11-16: KEYS' company intro, a line each
 }
 
 type gopodClusterSection struct {
