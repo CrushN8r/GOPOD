@@ -208,3 +208,41 @@ func TestGoverlordOnlyWhenCalled(t *testing.T) {
 		t.Error("GOVERLORD should speak the system's lingo")
 	}
 }
+
+// 2026-11-16 (operator: "flag/process/try to keep: 'AI Wordplay! Explain the MAth!',
+// in a single raw chunk"): never cut - sentences, comma pieces or voice chunks.
+func TestKeepWholePhrase(t *testing.T) {
+	text := "GOPOD is AI Wordplay! Explain the MAth! It's a game."
+	for _, pieces := range [][]string{gopodWholeSentences(text), gopodSentences(text)} {
+		whole := false
+		for _, p := range pieces {
+			if strings.Contains(p, "AI Wordplay! Explain the MAth!") {
+				whole = true
+			}
+		}
+		if !whole {
+			t.Errorf("cut: %q", pieces)
+		}
+	}
+}
+
+// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat. No look ups from
+// where the info is coming from"): the bubble names where its FACT came from; the
+// prompt keeps the words; the score shows only when it changed.
+func TestBrainBubbleLooksUp(t *testing.T) {
+	q := "Next up, CHALKRA! Introduce yourself to the chat"
+	bubble := strings.Join(gopodBrainBubbleLines("CHALK", q), "\n")
+	if !strings.Contains(bubble, "LOOKED UP: chalk-bored.md") || strings.Contains(bubble, "FACT:") {
+		t.Errorf("the bubble: %q", bubble)
+	}
+	if prompt := gopodBrainText("CHALK", q); !strings.Contains(prompt, "FACT: I'm the proud Display Gomad") {
+		t.Errorf("the prompt lost its FACT: %q", prompt)
+	}
+	gopodBrainScoreShown.Store("")
+	if first := gopodBrainScoreRows(); len(first) == 0 {
+		t.Error("the score's first showing")
+	}
+	if again := gopodBrainScoreRows(); len(again) != 0 {
+		t.Errorf("the same score again: %q", again)
+	}
+}

@@ -72,6 +72,8 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"scripted_split"`
 	LiveSplit struct {
 		SentenceEnds string `json:"sentence_ends"`
+		// 2026-11-16: phrases never cut (gopodCutAt).
+		KeepWhole []string `json:"keep_whole"`
 		CommaEnds    string `json:"comma_ends"`
 		// 2026-10-08: short pieces said as one run (gopodJoinPieces).
 		JoinUpToWords int  `json:"join_up_to_words"`
@@ -659,6 +661,8 @@ type gopodBrobotsSettingsFile struct {
 		IntroOpener   string   `json:"intro_opener"`
 		Lines         []string `json:"lines"`
 		IntroFact     []string `json:"intro_fact"`
+		// 2026-11-16: the bubble's FACT line - where it was looked up ({sources}).
+		LookedUp string `json:"looked_up"`
 		CastItem      string   `json:"cast_item"`
 		Roster        string   `json:"roster"`
 		CastMe        string   `json:"cast_me"`

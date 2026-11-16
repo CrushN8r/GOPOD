@@ -540,6 +540,15 @@ func gopodCastGrouped(self string) string {
 func gopodBrainBubbleLines(self, question string) []string {
 	var out []string
 	for _, l := range gopodBrainLines(self, question) {
+		// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat. No look ups
+		// from where the info is coming from"): the bubble shows where the FACT was
+		// looked up (brain_chain.looked_up), not its words again - the prompt still
+		// gets them (gopodBrainText).
+		if strings.HasPrefix(l, "FACT:") {
+			if src := gopodBrainSources(self, question); src != "" {
+				l = strings.ReplaceAll(gopodBrobotsSettings.BrainChain.LookedUp, "{sources}", src)
+			}
+		}
 		hide := false
 		for _, h := range gopodBrobotsSettings.BrainChain.BubbleHide {
 			if h = strings.TrimSpace(h); h != "" && strings.HasPrefix(l, h) {
@@ -552,6 +561,38 @@ func gopodBrainBubbleLines(self, question string) []string {
 		}
 	}
 	return out
+}
+
+// gopodBrainSources: the files this answer's FACT was looked up in - an intro's,
+// his card (and the company card for KEYS' company intro); an answer's, the topic
+// card of each value point given ("what-gopod-is.md #1"). "" for none.
+func gopodBrainSources(self, question string) string {
+	var out []string
+	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
+		out = append(out, filepath.Base(gopodPersonaProfileFile(self)))
+		if self == gopodBrobotsSettings.SystemBubble.VoicePersona && len(gopodBrobotsSettings.CompanyIntro.Lines) > 0 {
+			if f := gopodTopicTreeFind("math-aftermath-news-channel.md"); f != "" {
+				out = append([]string{filepath.Base(f)}, out...)
+			}
+		}
+		return strings.Join(out, ", ")
+	}
+	esn := gopodBrobotESN(self)
+	if esn == "" {
+		return ""
+	}
+	for _, given := range gopodGivenPoints(esn) {
+		f := strings.Fields(given)
+		if len(f) != 2 {
+			continue
+		}
+		for _, e := range gopodTopicRegistry() {
+			if e.Name == f[0] {
+				out = append(out, filepath.Base(e.File)+" #"+strings.SplitN(f[1], "/", 2)[0])
+			}
+		}
+	}
+	return strings.Join(out, ", ")
 }
 
 // gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the

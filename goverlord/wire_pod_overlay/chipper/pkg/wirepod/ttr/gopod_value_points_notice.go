@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"sync/atomic"
 	"strconv"
 	"strings"
 	"sync"
@@ -267,6 +268,9 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 // gopodBrainScoreRows (2026-11-02, operator: "Add in the score in every brain
 // bubble"): the game's score rows (value_points.score - topics, value points,
 // eggs, each with its bar), for every brain bubble, a Brobot's or a Gomad's.
+// gopodBrainScoreShown: the score a brain bubble last showed.
+var gopodBrainScoreShown atomic.Value
+
 func gopodBrainScoreRows() []string {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 	if strings.TrimSpace(vp.Score) == "" {
@@ -274,6 +278,11 @@ func gopodBrainScoreRows() []string {
 	}
 	filled, _ := gopodCoverageScoreWith(vp.Score)
 	score, _ := gopodCoverageScoreText()
+	// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat"): the score
+	// rows only when the score has changed since a brain last showed them.
+	if prev, _ := gopodBrainScoreShown.Swap(score).(string); prev == score {
+		return nil
+	}
 	var out []string
 	for _, row := range strings.Split(gopodNoticeFill(filled, map[string]string{"score": score}), "\n") {
 		if strings.TrimSpace(row) != "" {

@@ -98,6 +98,23 @@ func gopodCutAt(text string, isEnd func([]rune, int) bool) []string {
 	var out []string
 	var current strings.Builder
 	runes := []rune(text)
+	// 2026-11-16 (operator: "flag/process/try to keep: 'AI Wordplay! Explain the
+	// MAth!', in a single raw chunk"): no cut inside a live_split.keep_whole phrase.
+	inside := make([]bool, len(runes))
+	low := []rune(strings.ToLower(text))
+	for _, p := range gopodBrobotsSettings.LiveSplit.KeepWhole {
+		pr := []rune(strings.ToLower(strings.TrimSpace(p)))
+		if len(pr) == 0 {
+			continue
+		}
+		for i := 0; i+len(pr) <= len(low); i++ {
+			if string(low[i:i+len(pr)]) == string(pr) {
+				for k := i; k < i+len(pr)-1; k++ {
+					inside[k] = true
+				}
+			}
+		}
+	}
 	flush := func() {
 		if piece := strings.TrimSpace(current.String()); piece != "" {
 			out = append(out, piece)
@@ -110,7 +127,7 @@ func gopodCutAt(text string, isEnd func([]rune, int) bool) []string {
 			continue
 		}
 		current.WriteRune(r)
-		if i+1 < len(runes) && (runes[i+1] == ' ' || runes[i+1] == '\n') && isEnd(runes, i) {
+		if i+1 < len(runes) && (runes[i+1] == ' ' || runes[i+1] == '\n') && isEnd(runes, i) && !inside[i] {
 			flush()
 		}
 	}

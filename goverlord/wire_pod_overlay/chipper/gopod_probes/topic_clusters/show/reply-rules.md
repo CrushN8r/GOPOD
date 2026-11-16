@@ -56,3 +56,6 @@
 33. communist
 34. fascist
 35. nazi
+
+## Phrases never cut into pieces - said and lit whole, a phrase a line (live_split.keep_whole)
+1. AI Wordplay! Explain the MAth!

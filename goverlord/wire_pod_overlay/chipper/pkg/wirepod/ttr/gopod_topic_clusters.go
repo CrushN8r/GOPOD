@@ -73,6 +73,7 @@ var gopodClusterLines = map[string]bool{
 	"brain_chain.intro_fact": true, // 2026-11-15: an intro's FACT, looked up from the card
 	"prebuild_context.lines": true,
 	"company_intro.lines":    true, // 2026-11-16: KEYS' company intro, a line each
+	"live_split.keep_whole":  true, // 2026-11-16: phrases never cut, a phrase a line
 }
 
 type gopodClusterSection struct {

@@ -158,6 +158,8 @@ func TestGomadAnswerMadeEarly(t *testing.T) {
 // 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
 // rows - topics, value points, eggs, each label then its bar.
 func TestBrainScoreRows(t *testing.T) {
+	// 2026-11-16: shown when the score changed since the last showing - fresh here.
+	gopodBrainScoreShown.Store("")
 	rows := gopodBrainScoreRows()
 	if len(rows) != 3 || !strings.HasPrefix(rows[0], "Topics ") || !strings.HasPrefix(rows[2], "Easter Eggs ") {
 		t.Fatalf("score rows: %q", rows)
