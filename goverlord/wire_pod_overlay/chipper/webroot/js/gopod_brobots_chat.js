@@ -2033,7 +2033,13 @@
         if (systemCmd) { toShown = systemLabel || toShown; }
         var head = bubbleHead(keyShown(via || "Operator") + " to " + toShown, true);
         head.firstChild.classList.add("from-operator");
-        if (systemCmd) { return head; }
+        if (systemCmd) {
+          // The system's icon at the end, as on every line to the system.
+          var sysIcon = document.createElement("div");
+          sysIcon.className = "brobot-bubble-avatar to-system";
+          head.appendChild(sysIcon);
+          return head;
+        }
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
         icons.forEach(function (cls) {
