@@ -60,6 +60,8 @@ func gopodReadmeCastTable() string {
 			shown = fill(rc.NumlockOff, "{key}", base)
 		}
 		switch {
+		case target == gopodTypedSystem:
+			row(shown, "**"+label+"** - GOPOD's brain", what(label))
 		case strings.HasPrefix(target, gopodDialZeroMark):
 			row(shown, "**"+nick+"** - "+label, what(label))
 		case strings.HasPrefix(target, gopodPersonaReporterMark):

@@ -227,6 +227,11 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 		base = strings.ToUpper(base)
 		entry, ok := m.NumlockOff[base]
 		host := gopodPersonaFor(entry.Persona)
+		// 2026-11-16 (operator's picker: "-0 Numlock OFF: Goverlord"): the system's
+		// key - its line goes to the system itself (gopodTypedToSystem).
+		if ok && entry.Status == "live" && entry.Suit == "system" {
+			return strings.TrimSpace(entry.Persona), gopodTypedSystem, nil
+		}
 		// 2026-11-09 (operator: "Gemma should also be available in system numpad
 		// mapping"): a live persona with no suit talks as itself, as on NumLock on.
 		if ok && entry.Status == "live" && entry.Suit == "" && host != "" {
@@ -290,7 +295,7 @@ func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 		return "", false
 	}
 	switch {
-	case target == gopodTypedAll:
+	case target == gopodTypedAll, target == gopodTypedSystem:
 		return label, true
 	case strings.HasPrefix(target, gopodDialZeroMark):
 		return gopodPersonaNickname(gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark)), false), true
@@ -357,6 +362,8 @@ func gopodKeyReaches(target string) string {
 		return strings.TrimPrefix(target, gopodPersonaMark)
 	case strings.HasPrefix(target, gopodDialZeroMark):
 		return gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark))
+	case target == gopodTypedSystem:
+		return gopodBrobotsSettings.SignOff.SystemRole
 	}
 	if body := gopodBrobotName(target); gopodIsBrobotBody(body) {
 		if p := gopodHostedPersona(body); p != "" {
@@ -373,6 +380,8 @@ func gopodKeyReaches(target string) string {
 // robot as himself (the dial's 0%, for this line only), or a robot's hosted persona.
 func gopodKeyLine(target, text, how string) error {
 	switch {
+	case target == gopodTypedSystem:
+		return gopodTypedToSystem(text, how)
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
 		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
 		// The answer comes as the reporter (CHALK reporter): that's who the queue waits for.

@@ -28,7 +28,8 @@ func TestNicknamesAndKeys(t *testing.T) {
 			t.Errorf("%s -> %q", in, k)
 		}
 	}
-	for _, in := range []string{"all", "kp:0", "kp:10", "ESN01"} {
+	// 2026-11-16: kp:0 is KEYS now (the picker's +0); the system is -0, "system".
+	for _, in := range []string{"all", "kp:10", "ESN01"} {
 		if _, ok := gopodTypedKey(in); ok {
 			t.Errorf("%s taken as a key", in)
 		}

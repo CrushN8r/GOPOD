@@ -107,8 +107,10 @@ func TestPickerIsTheMap(t *testing.T) {
 			t.Errorf("%s: %q %v", in, got, ok)
 		}
 	}
-	if _, ok := gopodTypedKey("kp:0"); ok {
-		t.Error("kp:0 is the system's line, not a key")
+	// 2026-11-16 (operator's picker: "+0 KEYS", "-0 Goverlord"): kp:0 is KEYS'
+	// key; the system's line is the picker's -0 ("system").
+	if got, ok := gopodTypedKey("kp:0"); !ok || got != "KP0" {
+		t.Errorf("kp:0: %q %v", got, ok)
 	}
 	data, err := GopodNumpadMapJSONFor("")
 	if err != nil {

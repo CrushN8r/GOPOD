@@ -111,8 +111,9 @@ func gopodTypedKey(esn string) (string, bool) {
 	if n == esn {
 		return "", false
 	}
-	num, off := strings.CutSuffix(n, gopodNumlockOffSuffix)
-	if len(num) != 1 || num < "0" || num > "9" || (num == "0" && !off) {
+	num, _ := strings.CutSuffix(n, gopodNumlockOffSuffix)
+	// 2026-11-16 (operator's picker: "+0 KEYS"): 0 too - NumLock on, KEYS.
+	if len(num) != 1 || num < "0" || num > "9" {
 		return "", false
 	}
 	return "KP" + n, true

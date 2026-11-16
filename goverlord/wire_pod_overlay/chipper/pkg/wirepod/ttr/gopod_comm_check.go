@@ -99,6 +99,10 @@ func gopodCommCheckLines() [][3]string {
 			// order, that an earlier step hasn't asked.
 			if strings.EqualFold(k, gopodCommCheckMapKeys) {
 				for _, mk := range gopodNumpadLiveKeys() {
+					// The system's key (Goverlord) isn't asked to introduce itself.
+					if _, t, _ := gopodNumpadBrobot(mk); t == gopodTypedSystem {
+						continue
+					}
 					if !asked[mk] && !strings.EqualFold(mk, gopodNumpadAllKey) {
 						asked[mk] = true
 						lines = append(lines, [3]string{mk, r.Text, r.Asker})

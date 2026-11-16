@@ -55,6 +55,7 @@ Two robot bodies, four Brobot personas, and a whole crew of voices - every one o
 | KP7 | **CHALKRA** - CHALK BORED | Display Gomad, the display and the board |
 | KP8 | **ZOOMY** - PLAYHEAD ZUMINTU | Session Gomad, the runs and the session |
 | KP9 | **CHAMMY** - CAMEO LOOKS | Content Gomad, social media |
+| KP0, NumLock off | **Goverlord** - GOPOD's brain |  |
 | KP1, NumLock off | **BRUH!** - Brobot 1 | grumpy, impatient |
 | KP2, NumLock off | **BRUH!** - Brobot 2 | clueless, happy |
 | KP3, NumLock off | **LLM** - ELLE-ELLE EHM GEMMA | the LLM Gomad - maximum wordplay fun |

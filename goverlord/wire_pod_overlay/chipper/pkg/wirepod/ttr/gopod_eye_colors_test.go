@@ -170,3 +170,22 @@ func TestGoverlordVoiceDeeper(t *testing.T) {
 		t.Errorf("Goverlord %v cents, KEYS %v cents", gopodReporterPitch(g), gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona))
 	}
 }
+
+// 2026-11-16 (operator's picker: "-0 Numlock OFF: Goverlord", "+0 KEYS"): KP0 with
+// NumLock off is Goverlord (the system), not asked in the comm check; a typed line
+// to KP0 with NumLock on reaches KEYS.
+func TestKP0OffIsGoverlord(t *testing.T) {
+	label, target, err := gopodNumpadBrobot("KP0off")
+	if err != nil || target != gopodTypedSystem || label != "Goverlord" {
+		t.Fatalf("KP0off: %q %q %v", label, target, err)
+	}
+	if l, ok := gopodNumpadKeyLabelIn(gopodNumpadLayout(), "KP0off"); !ok || l != "Goverlord" {
+		t.Errorf("KP0off's picker label: %q", l)
+	}
+	if k, ok := gopodTypedKey("kp:0"); !ok || k != "KP0" {
+		t.Errorf("kp:0: %q %v", k, ok)
+	}
+	if gopodKeyReaches(target) != gopodBrobotsSettings.SignOff.SystemRole {
+		t.Errorf("KP0off reaches %q", gopodKeyReaches(target))
+	}
+}

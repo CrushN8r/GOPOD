@@ -239,20 +239,34 @@
       // 0 the system (the admin's), 1-9 NumLock on, 0off-9off NumLock off - each
       // named by the persona the map gives its key (relabelPicker). It replaces the
       // All box and its 1/2 order menu. The visitor page is this same code.
-      var PICKER_KEYS = ["*", "*2", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-        "0off", "1off", "2off", "3off", "4off", "5off", "6off", "7off", "8off", "9off"];
-      function pickerKey(v) { return v === "*" || v === "*2" ? "KPmul" : "KP" + v; }
+      // 2026-11-16 (operator's picker: "+* BROBOTS 1,2 ... +0 KEYS ... +9 CHAMMY, -*
+      // BROBOTS 2,1, -0 Goverlord, -1 BRUH! ... -9 unassigned"): the picker is the
+      // numpad map, NumLock on (+) then NumLock off (-) - * all the Brobots (on:
+      // Brobot 1 first; off: Brobot 2 first), 0-9 each key's persona by its
+      // nickname, its title "N Numlock ON: <persona>"; -0 is Goverlord (the system,
+      // the admin's); a key with no one on it reads "unassigned", greyed out. Its
+      // words: numpad_ptt.picker (numpad-mapper.md).
+      var PICKER_KEYS = ["+*", "+0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9",
+        "-*", "-0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"];
+      function pickerKey(v) {
+        var n = String(v).slice(1), off = String(v).charAt(0) === "-";
+        return n === "*" ? "KPmul" : "KP" + n + (off ? "off" : "");
+      }
+      function pickerWords() { return ((typeof numpad !== "undefined" && numpad.cfg) || {}).picker || {}; }
       function relabelPicker() {
         if (!allFirstSelect) { return; }
         var targets = (typeof numpad !== "undefined" && numpad.targets) || {};
+        var map = (typeof numpad !== "undefined" && numpad.map) || {}, w = pickerWords();
         Array.prototype.forEach.call(allFirstSelect.options, function (o) {
-          if (o.value === "0") { return; }
-          var who = targets[pickerKey(o.value)] || "";
-          // 2026-11-13 (operator: "1on/2on = DOC/PIP * 1off/2off = Brobot 1/Brobot 2"):
-          // a NumLock-on key reads "1on".
-          var shown = /^\d$/.test(o.value) ? o.value + "on" : o.value;
-          o.textContent = shown + (who ? " " + who : "");
-          o.disabled = !who && o.value !== "*" && o.value !== "*2";
+          var n = o.value.slice(1), off = o.value.charAt(0) === "-";
+          if (n === "*") { o.textContent = (off ? w.all_second : w.all_first) || o.value; return; }
+          var key = pickerKey(o.value), who = targets[key] || "";
+          var entry = ((off ? map.numlock_off : map.numlock_on) || {})["KP" + n] || {};
+          var persona = entry.persona && entry.persona !== "-" ? entry.persona : "";
+          o.title = String((off ? w.off : w.on) || "{n} {persona}").replace("{n}", n).replace("{persona}", persona).trim();
+          o.textContent = who || (w.unassigned || "unassigned");
+          o.disabled = !who;
+          if (o.classList.contains("gopod-brain")) { o.disabled = o.disabled || !isAdminPage; o.hidden = !isAdminPage; }
         });
       }
       (function () {
@@ -265,10 +279,11 @@
           var o = document.createElement("option");
           o.value = n;
           o.textContent = n;
-          if (n === "0") { o.className = "gopod-all-system"; o.hidden = true; o.disabled = true; }
+          // -0 (Goverlord, the system) is the admin's alone.
+          if (n === "-0") { o.className = "gopod-brain"; o.hidden = true; o.disabled = true; }
           allFirstSelect.appendChild(o);
         });
-        allFirstSelect.value = savedRobot === "all" ? "*" : "1";
+        allFirstSelect.value = savedRobot === "all" ? "+*" : "+1";
         label.appendChild(allFirstSelect);
         typedRow.appendChild(label);
         // 2026-11-04 (operator: "duplicate existing 'All' drop down menu * assign PC
@@ -304,10 +319,11 @@
       })();
       // typedChoice: who the line goes to now - its serial, and who answers first.
       function typedChoice() {
-        var n = allFirstSelect ? allFirstSelect.value : "*";
-        if (n === "*") { return { serial: "all", first: "1" }; }
-        if (n === "*2") { return { serial: "all", first: "2" }; }
-        if (n === "0") { return { serial: "system", first: "" }; }
+        var v = allFirstSelect ? allFirstSelect.value : "+*";
+        if (v === "+*") { return { serial: "all", first: "1" }; }
+        if (v === "-*") { return { serial: "all", first: "2" }; }
+        if (v === "-0") { return { serial: "system", first: "" }; }
+        var n = v.slice(1) + (v.charAt(0) === "-" ? "off" : "");
         // 2026-11-13 (operator: "the admin menu doesn't fully reflect the numpad
         // mapping"; "separate robot bodies from personas"): 1 and 2 go through the
         // numpad map like 3-9 - the key's persona answers (KP1 Doc on Vector 1), not
@@ -2019,7 +2035,7 @@
         head.firstChild.classList.add("from-operator");
         if (systemCmd) { return head; }
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
-        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "2")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
+        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
         icons.forEach(function (cls) {
           var icon = document.createElement("div");
           icon.className = "brobot-bubble-avatar to-" + cls;
@@ -4877,11 +4893,11 @@
             if (!d || typeof d.main !== "boolean") { return; }
             isAdminPage = d.admin === true;
             // The All menu's 0 (the system) is the admin's alone.
-            var zero = allFirstSelect && allFirstSelect.querySelector(".gopod-all-system");
+            var zero = allFirstSelect && allFirstSelect.querySelector(".gopod-brain");
             if (zero) {
               zero.hidden = !isAdminPage;
               zero.disabled = !isAdminPage;
-              if (!isAdminPage && allFirstSelect.value === "0") { allFirstSelect.value = "*"; }
+              if (!isAdminPage && allFirstSelect.value === "-0") { allFirstSelect.value = "+*"; }
             }
             // A visitor's typing row is two lines (2026-10-24, operator: "remove
             // 3rd line: | Record? [] | 00:25:46 | 🔇"): the Brobots, then the text.
@@ -6677,7 +6693,7 @@
         return fetch("/api-sdk/gopod_numpad_ptt", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=" + action + "&key=" + encodeURIComponent(key) + "&layout=" + encodeURIComponent(numpadLayoutNow()) + (allFirstSelect && allFirstSelect.value === "*2" ? "&first=2" : "&first=1")
+          body: "action=" + action + "&key=" + encodeURIComponent(key) + "&layout=" + encodeURIComponent(numpadLayoutNow()) + (allFirstSelect && allFirstSelect.value === "-*" ? "&first=2" : "&first=1")
         }).then(function (r) { return r.json(); })
           .catch(function (e) { return { ok: false, error: String(e) }; });
       }
