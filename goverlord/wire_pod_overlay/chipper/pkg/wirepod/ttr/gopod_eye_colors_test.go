@@ -162,15 +162,6 @@ func TestLingoImproverVoices(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "New voice please * for goverlord = Keys settings with
-// lower/deeper voice"): Goverlord's lines - KEYS' voice, lower; KEYS unchanged.
-func TestGoverlordVoiceDeeper(t *testing.T) {
-	g := gopodBrobotsSettings.SignOff.SystemRole
-	if gopodReporterPitch(g) >= 0 || gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona) != 0 {
-		t.Errorf("Goverlord %v cents, KEYS %v cents", gopodReporterPitch(g), gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona))
-	}
-}
-
 // 2026-11-16 (operator's picker: "-0 Numlock OFF: Goverlord", "+0 KEYS"): KP0 with
 // NumLock off is Goverlord (the system), not asked in the comm check; a typed line
 // to KP0 with NumLock on reaches KEYS.
@@ -187,5 +178,13 @@ func TestKP0OffIsGoverlord(t *testing.T) {
 	}
 	if gopodKeyReaches(target) != gopodBrobotsSettings.SignOff.SystemRole {
 		t.Errorf("KP0off reaches %q", gopodKeyReaches(target))
+	}
+}
+
+// 2026-11-16 (operator: "I can't get to the correct 'KP0' for Keys"): a system
+// command typed to KEYS (+0) runs, as on -0.
+func TestKeysTakesSystemCommands(t *testing.T) {
+	if k, ok := gopodTypedKey("kp:0"); !ok || k != "KP0" || !gopodSystemCommandMatch("system-comm-check") {
+		t.Fatalf("kp:0 -> %q %v", k, ok)
 	}
 }

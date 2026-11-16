@@ -45,6 +45,12 @@ func GopodTypedInput(esn, text string) error {
 	// command typed to anyone but 0 doesn't run - its line, then Goverlord's sting.
 	// 2026-10-30 (live: "system-end-keep-recording" typed to All went to the
 	// Brobots): any system- line, a known command or not.
+	// 2026-11-16 (operator: "I can't get to the correct 'KP0' for Keys"; "Keys ...
+	// is supposed to be the voice of Goverlord"): KEYS (+0) takes a system command
+	// to Goverlord, as -0 does.
+	if key, ok := gopodTypedKey(esn); ok && key == "KP0" && gopodSystemCommandMatch(strings.TrimSpace(text)) {
+		return gopodTypedToSystem(text, "Typed text")
+	}
 	if gopodSystemSetMatch(strings.TrimSpace(text)) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "system-") {
 		gopodShowCommandLine(gopodTypedTo(esn), text, "Typed text")
 		GopodSystemSayHeard(gopodSystemText("typed_system.dial_zero"), 0)
