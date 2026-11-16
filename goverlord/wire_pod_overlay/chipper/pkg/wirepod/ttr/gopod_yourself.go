@@ -81,7 +81,7 @@ func gopodYourselfCommand(esn, text, how string) bool {
 		}
 		for _, b := range who {
 			if line := g.Lines[b]; line != "" {
-				gopodRecordSay(b, line)
+				gopodBodySay(b, line) // a scripted Brobot line: said as the Brobot (2026-11-16)
 			}
 		}
 	}()

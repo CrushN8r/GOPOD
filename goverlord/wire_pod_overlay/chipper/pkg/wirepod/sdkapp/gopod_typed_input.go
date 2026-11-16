@@ -23,6 +23,9 @@ func gopodTypedInputHandler(w http.ResponseWriter, r *http.Request) {
 	// page already shows what it heard).
 	// 2026-10-22: the page's All 1/2 menu - who answers first.
 	wirepod_ttr.GopodAllFirstPick(r.FormValue("text"), r.FormValue("first"))
+	// 2026-11-16 (operator: "ensure these selections are logged"): the keyboard
+	// picker's target with every typed line (its label, never a serial).
+	logger.Println("GOPOD_PICK typed to=" + wirepod_ttr.GopodESNLabel(r.FormValue("serial")))
 	// 2026-10-24: a visitor's line goes through the chat sign-up (gopod_visitors.go):
 	// passed under their username, or dropped with why ("Waiting for approval", "Muted").
 	if !wirepod_ttr.GopodIsAdmin(r.RemoteAddr) {
@@ -335,6 +338,8 @@ func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {
 	// 2026-11-04 (operator: "assign PC numpad mapping to menu-1 * assign USB-numpad
 	// mapping to menu-2"): the page's keyboard layout comes with every press.
 	wirepod_ttr.GopodNumpadLayoutPick(r.FormValue("layout"))
+	// 2026-11-16: every press's picks, logged (all-first above, the layout here).
+	logger.Println("GOPOD_PICK numpad " + r.FormValue("action") + " key=" + r.FormValue("key") + " layout=" + r.FormValue("layout"))
 	switch r.FormValue("action") {
 	case "start":
 		out = wirepod_ttr.GopodNumpadPTTStart(r.FormValue("key"))

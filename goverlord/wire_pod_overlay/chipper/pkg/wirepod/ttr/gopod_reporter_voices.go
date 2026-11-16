@@ -1181,7 +1181,9 @@ func gopodSignOffLines() {
 		if host := gopodReporterHost(l.Who); host != "" {
 			gopodReporterSay(host, l.Text, true, true)
 		} else if gopodBrobotESN(l.Who) != "" {
-			gopodRecordSay(l.Who, l.Text)
+			// 2026-11-16 (live: "Bro!" headed "DOC:"): a sign-off line written for
+			// Brobot N is the Brobot's own - said as him, whatever he last hosted.
+			gopodBodySay(l.Who, l.Text)
 		}
 	}
 }

@@ -501,9 +501,18 @@ var gopodAllFirstPick = struct {
 // GopodAllFirstPick: the menu's choice for a typed line ("" = the default).
 func GopodAllFirstPick(text, first string) {
 	first = strings.TrimSpace(first)
+	from := "the page's All menu"
 	if first == "" {
 		first = strings.TrimSpace(gopodBrobotsSettings.TypedLine.AllFirst)
+		from = "typed_line.all_first (no pick sent)"
 	}
+	// 2026-11-16 (operator: "ensure these selections are logged for later easy
+	// debug-reference"): every pick, with the line it came with.
+	line := "GOPOD_PICK all-first=" + first + " (" + from + ")"
+	if t := strings.TrimSpace(text); t != "" {
+		line += " for: " + gopodCut(t, 80)
+	}
+	logger.Println(line)
 	gopodAllFirstPick.Lock()
 	gopodAllFirstPick.text, gopodAllFirstPick.first = strings.TrimSpace(text), first
 	// 2026-10-24 (live: a numpad line to All with "2" picked went Brobot 1 first -
