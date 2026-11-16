@@ -20,7 +20,7 @@ func TestEyeColorHex(t *testing.T) {
 // 2026-11-15: a card's border is the robot's eye colour - hex to hue and
 // saturation and back; DOC's red while he answers, Brobot 1's gold after.
 func TestBrobotEyesFromCards(t *testing.T) {
-	for _, hex := range []string{"#FF3B30", "#42A5F5", "#D4AF37"} {
+	for _, hex := range []string{"#FF3B30", "#42A5F5", "#C9A227"} {
 		h, s, ok := gopodHexHS(hex)
 		if !ok || gopodHSVHex(h, s, 1) == "" {
 			t.Errorf("%s: %v %v %v", hex, h, s, ok)
@@ -30,13 +30,13 @@ func TestBrobotEyesFromCards(t *testing.T) {
 		t.Errorf("blue round trip: %v %v", h, s)
 	}
 	own, hosted := gopodBrobotCardColours("Brobot 1")
-	if gopodCardColour(own, "border") != "#d4af37" || gopodCardColour(hosted, "border") != "#ff3b30" {
+	if gopodCardColour(own, "border") != "#c9a227" || gopodCardColour(hosted, "border") != "#ff3b30" {
 		t.Errorf("Brobot 1's cards: %q / %q", own, hosted)
 	}
 	if !gopodAtDialZero("Brobot 1") && gopodBrobotEyeHex("Brobot 1", true) != "#ff3b30" {
 		t.Errorf("DOC answering: %s", gopodBrobotEyeHex("Brobot 1", true))
 	}
-	if gopodBrobotEyeHex("Brobot 1", false) != "#d4af37" {
+	if gopodBrobotEyeHex("Brobot 1", false) != "#c9a227" {
 		t.Errorf("Brobot 1 at rest: %s", gopodBrobotEyeHex("Brobot 1", false))
 	}
 }

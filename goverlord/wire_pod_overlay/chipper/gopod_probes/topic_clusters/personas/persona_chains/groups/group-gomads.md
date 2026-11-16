@@ -13,3 +13,4 @@
 1. {CHALK.call} - the Display Gomad, look manager (chalk.md)
 2. {PLAYHEAD.call} - the Session Gomad, session manager (playhead.md)
 3. {CAMEO.call} - the Content Gomad, social media manager (cameo.md)
+4. ELLE-ELLE EHM GEMMA - the LLM Gomad, maximum wordplay fun (elle-elle-ehm-gemma.md)

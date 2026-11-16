@@ -10,4 +10,3 @@
 
 ## Our members
 1. {BUTLER.name} - the Butler, Goverlord's voice (butler.md)
-2. ELLE-ELLE EHM GEMMA - GOPOD's LLM Gomad, maximum wordplay fun (company/elle-elle-ehm-gemma.md)
