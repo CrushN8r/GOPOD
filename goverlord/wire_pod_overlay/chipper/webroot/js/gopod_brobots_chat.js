@@ -1043,6 +1043,7 @@
           if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
           bubble.className.split(" ").forEach(function (c) { if (c) { shell.classList.add(c); } });
           if (/^Brobot [12]$/.test(who)) { brobotHostClass(shell, who); }
+          bubbleNote(shell, "filled");
           if (inPopup) { shell.classList.add("popup-winner"); }
           shell.appendChild(textEl);
           attachPendingBall(shell, spoken);
@@ -2492,12 +2493,30 @@
         if (img.complete) { if (img.naturalWidth) { there(); } else { again(); } }
       }
       function bubbleTask(b, promise) { (b._tasks = b._tasks || []).push(promise); return promise; }
+      // GOLDEN bubble log (2026-11-15, operator: "LOG IT ALL in ALL LOGS!! * log
+      // 100% everything we're having an issue with * stop redirecting me into
+      // forced labour"): every bubble the main page shows says, in the journal,
+      // what it shows - its header, its persona colours class, its background and
+      // ring as drawn - so a run is checked from the journal, not by the operator.
+      function bubbleNote(b, why) {
+        if (restoringChat || (pageRoleKnown && !isMainPage) || !b || !b.classList) { return; }
+        var head = b.querySelector(":scope > .brobot-bubble-head");
+        var hosts = Array.prototype.filter.call(b.classList, function (c) { return /^host-/.test(c); }).join(" ");
+        var cs = window.getComputedStyle(b);
+        var line = "bubble " + (why || "shown") + " " + (b.dataset.feed ? "#" + b.dataset.feed + " " : "") +
+          "head=\"" + (head ? head.textContent.replace(/\s+/g, " ").trim() : "") + "\" " +
+          "persona=" + (hosts || "-") + " bg=" + cs.backgroundColor + " ring=" + (cs.boxShadow || "none").replace(/\s+0px/g, "");
+        var body = new URLSearchParams();
+        body.set("note", line.slice(0, 400));
+        fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () {});
+      }
       function placeBubble(b, then, onPlaced) {
         var finished = false;
         function finish() {
           if (finished) { return; }
           finished = true;
           container.appendChild(b);
+          bubbleNote(b, "shown");
           if (onPlaced) { onPlaced(b); }
           if (!restoringChat) { revealWhenPlaced(b); }
           if (then) { then(); }

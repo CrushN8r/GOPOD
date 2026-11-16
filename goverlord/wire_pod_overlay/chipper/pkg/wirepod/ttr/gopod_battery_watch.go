@@ -225,7 +225,7 @@ func gopodBatterySay(name string, volts float64, onCharger bool) {
 	if guard != "" && gopodReporterSayTo(guard, "", warning, true, true) {
 		line = reply
 	}
-	gopodRecordSay(name, line)
+	gopodBodySay(name, line)
 }
 
 // gopodBatterySafeSpot: 2026-10-15 (operator: "This type of interjection would
@@ -247,7 +247,7 @@ func gopodBatterySafeSpot() func() {
 // gopodBatterySafeSay: his line alone, his bubble and voice, at the next safe spot.
 func gopodBatterySafeSay(name, line string) {
 	defer gopodBatterySafeSpot()()
-	gopodRecordSay(name, line)
+	gopodBodySay(name, line)
 }
 
 // gopodBatteryLines: what a low battery says - his guard (none: ""), the guard's

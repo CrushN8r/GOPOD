@@ -136,6 +136,13 @@ const gopodFeedLiveVia = "llm"
 // through Wire-Pod's 50-line UI log): a Brobot's live reply goes on the feed, in
 // order with every other line; the page shows it as a live bubble.
 func GopodChatFeedAddLive(esn, text string) {
+	gopodChatFeedAddLiveBy(esn, text, gopodPersonaShown(gopodBrobotName(esn)))
+}
+
+// gopodChatFeedAddLiveBy: a Brobot's live bubble headed by - the persona answering,
+// or (2026-11-15, live: Brobot 1's own battery line headed "DOC:") the body itself
+// for what the body says (gopodBodySay).
+func gopodChatFeedAddLiveBy(esn, text, by string) {
 	who := gopodBrobotName(esn)
 	// The same reply twice in a row from one Brobot: said in the journal.
 	words := strings.Join(strings.Fields(text), " ")
@@ -147,7 +154,7 @@ func GopodChatFeedAddLive(esn, text string) {
 	gopodLiveCheck.Unlock()
 	// 2026-11-06: "by" - the name he answers as (gopodCallName: his persona's, or
 	// "Brobot N" at the dial's 0%), the page's one source for his bubble's header.
-	gopodChatFeedAddEventVia(who, "", gopodPersonaShown(who), gopodFeedLiveVia, text)
+	gopodChatFeedAddEventVia(who, "", by, gopodFeedLiveVia, text)
 	gopodChatFeed.Lock()
 	id := gopodChatFeed.next
 	gopodChatFeed.Unlock()

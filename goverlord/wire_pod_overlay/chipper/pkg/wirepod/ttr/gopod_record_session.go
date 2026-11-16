@@ -707,7 +707,16 @@ func gopodBrobotESN(name string) string {
 }
 
 // gopodRecordSay shows the line on the page and has the Brobot say it.
+// gopodBodySay (2026-11-15, live: Brobot 1's own battery line headed "DOC:"):
+// a line the robot body says about itself (his battery, a freeze) - his own
+// bubble, always as the Brobot, whatever persona he hosts.
+func gopodBodySay(brobot, text string) { gopodRecordSayBy(brobot, text, brobot) }
+
 func gopodRecordSay(brobot, text string) {
+	gopodRecordSayBy(brobot, text, gopodPersonaShown(brobot))
+}
+
+func gopodRecordSayBy(brobot, text, by string) {
 	esn := gopodBrobotESN(brobot)
 	// 2026-10-24 (operator: "This is where Pip asks for an email, right? / Bro! *
 	// not highlighted"): his bubble the way an answer's goes (GopodChatFeedAddLive),
@@ -722,7 +731,7 @@ func gopodRecordSay(brobot, text string) {
 		// the space between them, the marker after it - as a live answer's bubble.
 		text = strings.Join(gopodSentences(text), " "+marker)
 	}
-	GopodChatFeedAddLive(esn, text)
+	gopodChatFeedAddLiveBy(esn, text, by)
 	var robot *vector.Vector
 	for _, bot := range vars.BotInfo.Robots {
 		if bot.Esn == esn {

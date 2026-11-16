@@ -2210,7 +2210,7 @@ func TestGameSweep(t *testing.T) {
 		t.Error(line)
 	}
 	src, _ := os.ReadFile(filepath.Join(os.Getenv("GOPOD_OVERLAY_CHIPPER"), "pkg/wirepod/ttr/gopod_record_session.go"))
-	if !strings.Contains(string(src), "GopodChatFeedAddLive(esn, text)") || !strings.Contains(string(src), "gopodWaitReplyShown(esn)") {
+	if !strings.Contains(string(src), "gopodChatFeedAddLiveBy(esn, text, by)") || !strings.Contains(string(src), "gopodWaitReplyShown(esn)") {
 		t.Error("the ending's Brobot lines no longer wait for their bubble (not lit)")
 	}
 }

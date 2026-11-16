@@ -105,3 +105,16 @@ func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 		t.Errorf("DOC's card has the Brobot in it: %q", s)
 	}
 }
+
+// 2026-11-15 (live: Brobot 1's own battery line headed "DOC:"): a line the body
+// says about itself is headed by the Brobot, whatever persona he hosts.
+func TestBodyLineIsTheBrobots(t *testing.T) {
+	gopodDialZero.Delete(gopodBrobot1ESN)
+	gopodChatFeedAddLiveBy(gopodBrobot1ESN, "Whoa, bro... I'm feeling dizzy.", "Brobot 1")
+	gopodChatFeed.Lock()
+	last := gopodChatFeed.events[len(gopodChatFeed.events)-1]
+	gopodChatFeed.Unlock()
+	if last.By != "Brobot 1" {
+		t.Errorf("body line by: %+v", last)
+	}
+}

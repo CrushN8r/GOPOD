@@ -269,8 +269,9 @@ func gopodPageNoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	note := strings.TrimSpace(r.FormValue("note"))
-	if len(note) > 200 {
-		note = note[:200]
+	// 2026-11-15: a bubble's log line (header, persona, colours) runs longer.
+	if len(note) > 400 {
+		note = note[:400]
 	}
 	if note != "" {
 		logger.Println("GOPOD_PAGE " + note)
