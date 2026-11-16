@@ -381,7 +381,7 @@ func gopodKeyReaches(target string) string {
 func gopodKeyLine(target, text, how string) error {
 	switch {
 	case target == gopodTypedSystem:
-		return gopodTypedToSystem(text, how)
+		return gopodGoverlordCall(text, how)
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
 		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
 		// The answer comes as the reporter (CHALK reporter): that's who the queue waits for.

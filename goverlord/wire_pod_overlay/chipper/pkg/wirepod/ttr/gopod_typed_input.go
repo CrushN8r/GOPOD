@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"sync/atomic"
 	"bytes"
 	"errors"
 	"os/exec"
@@ -37,7 +38,7 @@ func GopodTypedInput(esn, text string) error {
 	// 2026-10-29 (operator: "add a 0 to the All drop down menu for system calls *
 	// bypass '0' on app visitor pages"): the admin's 0 - the system.
 	if strings.EqualFold(strings.TrimSpace(esn), gopodTypedSystem) {
-		return gopodTypedToSystem(text, "Typed text")
+		return gopodGoverlordCall(text, "Typed text")
 	}
 	// 2026-10-29 (operator: "re: All with '0' NOT selected * when system-
 	// commandment is entered, should be a sting bubble, did you mean to dial '0'
@@ -79,6 +80,37 @@ const gopodTypedSystem = "system"
 func gopodSystemCommandMatch(text string) bool {
 	return gopodSystemSetMatch(text) || gopodScriptCommandMatch(text) || gopodStopRunMatch(text) ||
 		gopodStopSessionMatch(text) || gopodReplayMatch(text)
+}
+
+// GOLDEN Goverlord on -0 (2026-11-16, operator: "Goverlord only answers when
+// called"; "When you call Goverlord on -0, should he speak his answer out loud in
+// the deep voice? * yes"): a line to -0 (typed, or KP0 held with NumLock off)
+// runs as a line to the system, and the system's answer to it is said by
+// GOVERLORD (his own voice host, reporter_voices.hosts) - its first line, in his
+// deep voice, his own bubble. KEYS' line to the system (+0) runs it too, unsaid.
+const gopodGoverlordHost = "GOVERLORD"
+
+var gopodGoverlordCalledAt atomic.Int64 // unix ms of the last -0 line
+
+// gopodGoverlordCall: a line to Goverlord (-0).
+func gopodGoverlordCall(text, how string) error {
+	gopodGoverlordCalledAt.Store(time.Now().UnixMilli())
+	return gopodTypedToSystem(text, how)
+}
+
+// gopodGoverlordAnswer: the system's answer to a -0 line, said by Goverlord -
+// once, and only within a few seconds of the call.
+func gopodGoverlordAnswer(answer string) {
+	at := gopodGoverlordCalledAt.Load()
+	if at == 0 || time.Since(time.UnixMilli(at)) > 15*time.Second || !gopodGoverlordCalledAt.CompareAndSwap(at, 0) {
+		return
+	}
+	first := strings.TrimSpace(strings.SplitN(strings.TrimSpace(answer), "\n", 2)[0])
+	first = strings.Trim(first, "*# ")
+	if first == "" {
+		return
+	}
+	go gopodReporterSay(gopodGoverlordHost, first, true, true)
 }
 
 // gopodTypedToSystem: a line typed to 0 - a system command runs; anything else

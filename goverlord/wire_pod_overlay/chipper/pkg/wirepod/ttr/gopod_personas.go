@@ -218,7 +218,8 @@ func gopodSpeaksAsSystem(host string) bool {
 	if sr == "" {
 		return false
 	}
-	return host == sr || strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) == sr
+	// 2026-11-16: GOVERLORD (the overlord, -0) speaks the system's lingo too.
+	return host == sr || strings.EqualFold(host, sr) || strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) == sr
 }
 
 // gopodStripEcho: the reply without a leading copy of the question (its words,

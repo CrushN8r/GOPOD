@@ -188,3 +188,23 @@ func TestKeysTakesSystemCommands(t *testing.T) {
 		t.Fatalf("kp:0 -> %q %v", k, ok)
 	}
 }
+
+// 2026-11-16 (operator: "Goverlord only answers when called"; "speak his answer out
+// loud in the deep voice? * yes"): GOVERLORD has his own deeper voice; KEYS (the
+// system's lines) keeps his; Goverlord says an answer only right after a -0 call.
+func TestGoverlordOnlyWhenCalled(t *testing.T) {
+	if gopodBrobotsSettings.ReporterVoices.Hosts[gopodGoverlordHost] == "" || gopodReporterPitch(gopodGoverlordHost) >= 0 {
+		t.Errorf("GOVERLORD: voice %q, pitch %v", gopodBrobotsSettings.ReporterVoices.Hosts[gopodGoverlordHost], gopodReporterPitch(gopodGoverlordHost))
+	}
+	if gopodReporterPitch(gopodBrobotsSettings.SignOff.SystemRole) != 0 || gopodReporterPitch(gopodBrobotsSettings.SystemBubble.VoicePersona) != 0 {
+		t.Error("KEYS' voice (the system's lines) was changed")
+	}
+	gopodGoverlordCalledAt.Store(0)
+	gopodGoverlordAnswer("not called") // no call: nothing said, nothing stored
+	if gopodGoverlordCalledAt.Load() != 0 {
+		t.Error("an answer without a call")
+	}
+	if !gopodSpeaksAsSystem(gopodGoverlordHost) {
+		t.Error("GOVERLORD should speak the system's lingo")
+	}
+}

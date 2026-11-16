@@ -75,6 +75,10 @@ func GopodChatFeedStart() {
 // page shows it ("Brobot 1", "Brobot 2", "Operator"); an empty who or text is
 // ignored.
 func GopodChatFeedAdd(who, text string) {
+	// 2026-11-16: the system's answer to a line to Goverlord (-0) - he says it.
+	if who == gopodSystemSetRole() {
+		gopodGoverlordAnswer(text)
+	}
 	// 2026-10-09 (operator: "no 'LLM Ready for Bingo' voice audio"): a line from
 	// reporter_voices.system_say_role (a song's) is said in Goverlord's voice, with
 	// no bubble of its own (the song's warm-up bubble already shows it).
