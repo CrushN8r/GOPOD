@@ -737,6 +737,8 @@ func BeginServer() {
 	http.HandleFunc("/gopod_brobots_settings.json", wirepod_ttr.GopodSettingsHandler)
 	http.HandleFunc("/api-sdk/gopod_page_played", gopodPagePlayedHandler)
 	http.HandleFunc("/api-sdk/gopod_page_note", gopodPageNoteHandler)
+	// 2026-11-16: the lingo improver (gopod_lingo_improver.html).
+	http.HandleFunc("/api-sdk/gopod_lingo", gopodLingoHandler)
 	// GOPOD 2026-10-09: a song's system line, said and heard before it goes on (gopod_say_heard.go).
 	http.HandleFunc("/api-sdk/gopod_system_say", gopodSystemSayHandler)
 	http.HandleFunc("/api-sdk/gopod_voice_heard", gopodVoiceHeardHandler)

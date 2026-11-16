@@ -184,6 +184,20 @@ topics: {names}
 ## Thinking line (system_text)
 1. thinking_line.thinking_please_wait: Thinking, please wait.
 
+## Lingo improver (system_text)
+1. lingo_improver.title: Lingo improver
+2. lingo_improver.intro: Pick a voice, type a line, hear it. Try another spelling until it sounds right, then keep it - it goes into that voice's lingo.
+3. lingo_improver.voice: Voice
+4. lingo_improver.text: Text
+5. lingo_improver.placeholder: Type a word or a line
+6. lingo_improver.say: Say it
+7. lingo_improver.as_said: As said
+8. lingo_improver.word: Word
+9. lingo_improver.spelled: Say it as
+10. lingo_improver.keep: Keep in the {lingo} lingo
+11. lingo_improver.pick_and_type: Pick a voice and type something first.
+12. lingo_improver.no_voice_file: The voice file wasn't made - try again.
+
 ## Scrolls (system_text)
 1. torah.the_gopod_torah_is_written: The GOPOD System Scrolls are written again: GOPOD_SYSTEM_SCROLLS.md and its scriptures (system_scrolls/) match the system as it is now.
 

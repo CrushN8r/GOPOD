@@ -354,3 +354,25 @@ func gopodNumpadPTTHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ## EOF
+
+// gopodLingoHandler (2026-11-16, the lingo improver): GET - the voices and the
+// page's words; POST action=try voice text - said and heard; POST action=keep
+// voice word said - kept in that voice's lingo (system-lingo).
+func gopodLingoHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == http.MethodGet {
+		json.NewEncoder(w).Encode(map[string]any{"voices": wirepod_ttr.GopodLingoVoices(), "texts": wirepod_ttr.GopodSystemTexts("lingo_improver.")})
+		return
+	}
+	voice, text := r.FormValue("voice"), r.FormValue("text")
+	switch r.FormValue("action") {
+	case "keep":
+		note := wirepod_ttr.GopodLingoKeep(voice, r.FormValue("word"), r.FormValue("said"))
+		logger.Println("GOPOD_LINGO keep " + voice + ": " + note)
+		json.NewEncoder(w).Encode(map[string]string{"note": note})
+	default:
+		said, audio, note := wirepod_ttr.GopodLingoTry(voice, text)
+		logger.Println("GOPOD_LINGO try " + voice + ": " + text + " -> " + said)
+		json.NewEncoder(w).Encode(map[string]string{"said": said, "audio": audio, "note": note})
+	}
+}

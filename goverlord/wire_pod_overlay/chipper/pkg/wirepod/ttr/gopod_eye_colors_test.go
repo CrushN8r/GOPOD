@@ -137,3 +137,27 @@ func TestKeyReaches(t *testing.T) {
 		}
 	}
 }
+
+// 2026-11-16: the lingo improver - the robots, the system voice and every persona
+// voice, each with its lingo; its page words are system texts.
+func TestLingoImproverVoices(t *testing.T) {
+	want := map[string]string{"Brobot 1": "brobots", "Brobot 2": "brobots", gopodBrobotsSettings.SignOff.SystemRole: "butler", "CHALK": "reporters", "CHALK reporter": "reporters"}
+	got := map[string]string{}
+	for _, v := range GopodLingoVoices() {
+		got[v.Voice] = v.Lingo
+	}
+	for k, l := range want {
+		if got[k] != l {
+			t.Errorf("%s: lingo %q, want %q", k, got[k], l)
+		}
+	}
+	tx := GopodSystemTexts("lingo_improver.")
+	for _, k := range []string{"title", "intro", "voice", "say", "as_said", "keep", "pick_and_type"} {
+		if tx[k] == "" {
+			t.Errorf("no lingo_improver.%s text", k)
+		}
+	}
+	if said, _, note := GopodLingoTry("nobody", "hi"); said != "" || note == "" {
+		t.Errorf("unknown voice: %q %q", said, note)
+	}
+}

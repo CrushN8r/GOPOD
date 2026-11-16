@@ -1,0 +1,8 @@
+/* 2026-11-16: the lingo improver page - the chat's own colours (gopod_chat_bubbles.css tokens). */
+body { background: var(--ink-222); color: var(--chat-text-white); font-family: sans-serif; padding: 16px; max-width: 760px; margin: 0 auto; }
+.li-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.li-row input[type=text] { flex: 1 1 220px; padding: 8px; background: var(--ink-333); color: var(--chat-text-white); border: 1px solid var(--ink-555); border-radius: 6px; }
+.li-row select, .li-row button { padding: 8px 12px; background: var(--ink-333); color: var(--chat-text-white); border: 1px solid var(--ink-555); border-radius: 6px; }
+.li-row button { cursor: pointer; }
+.li-said { font-family: monospace; color: var(--menu-code-fg-default); }
+.li-note { color: var(--ink-bbb); min-height: 1.2em; }

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOPOD Lingo improver</title>
+<!-- 2026-11-16 (operator: "a system calibrator like the Say Text, where I can
+     assign voices and test how the spelling of a text input affects
+     pronunciation * Like a lingo improver"): pick a voice, type, hear it, see it
+     as said, keep the spelling that sounds right. Its words are system texts
+     (lingo_improver.*, system-texts.md); its engine is gopod_lingo_improver.go. -->
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/gopod_chat_bubbles.css">
+<link rel="stylesheet" href="css/gopod_lingo_improver.css">
+</head>
+<body>
+<h1 id="liTitle"></h1>
+<p class="li-note" id="liIntro"></p>
+<div class="li-row"><label id="liVoiceLabel" for="liVoice"></label><select id="liVoice"></select></div>
+<div class="li-row"><label id="liTextLabel" for="liText"></label><input id="liText" type="text" autocomplete="off"><button type="button" id="liSay"></button></div>
+<div class="li-row"><span id="liSaidLabel"></span> <span class="li-said" id="liSaid"></span></div>
+<div class="li-row"><label id="liWordLabel" for="liWord"></label><input id="liWord" type="text" autocomplete="off">
+  <label id="liSpelledLabel" for="liSpelled"></label><input id="liSpelled" type="text" autocomplete="off">
+  <button type="button" id="liKeep"></button></div>
+<div class="li-note" id="liNote"></div>
+<audio id="liAudio"></audio>
+<script src="js/gopod_lingo_improver.js"></script>
+</body>
+</html>
