@@ -364,6 +364,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
 		"{time}":     gopodBrainTime(),
 		"{day_part}": gopodDayPart(time.Now().Hour()),
+		// 2026-11-16: what GEMMA saw last, while it's fresh (gopod_gemma_eyes.go).
+		"{room}": gopodGemmaRoomLine(),
 	}
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		m["{fact}"] = gopodBrainIntroFact(m)

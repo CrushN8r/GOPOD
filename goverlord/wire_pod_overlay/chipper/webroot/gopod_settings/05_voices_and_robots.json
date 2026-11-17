@@ -1,4 +1,10 @@
 {
+  "gemma_eyes": {
+    "about": "2026-11-16 (operator: \"For GEMMA eyes, see: ... HD Pro Webcam C920 * for now, similar to get photo * Privacy: it keeps the line & the photo * no safe guarding * add a safe-guard toggle = OFF * I need the images to be displayed\"; \"fallback: brobot 1 camera, then brobot 2 camera\"): asked to look (easter_eggs.md ask_phrases, to GEMMA), she takes a photo - the C920 (device, its first skip_frames skipped while it settles), else Brobot 1's camera, then Brobot 2's - the vision model says what's there, the photo shows in the chat and is kept, she says what she sees, and the line is every brain's ROOM for keep_minutes. safeguard true: the photo is neither kept nor shown, the line only. Her words: her card (elle-elle-ehm-gemma.md).",
+    "skip_frames": 15,
+    "keep_minutes": 10,
+    "safeguard": false
+  },
   "touch_interrupt": {
     "about": "Touching a Brobot cuts its chat reply short - native Wire-Pod, on by default. A scripted song turns it off for its own run (\"touch_interrupt_off\": true in its knobs.json, the Bingo test): the song engine creates off_file in GOPOD's overlay chipper folder when a live run starts and deletes it when the run ends; kill-bingo-test deletes it too. While off_file exists, touch does not interrupt. The wake-word interrupt is never changed (operator 2026-10-01: \"Touch interrupt ON/OFF to default ON again\").",
     "off_file": "gopod_touch_interrupt_off"

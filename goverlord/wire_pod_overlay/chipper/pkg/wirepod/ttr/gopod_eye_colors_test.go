@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestEyeColorHex: the same colour Python's colorsys gave the interview runner.
@@ -271,5 +272,30 @@ func TestLookupPicksCards(t *testing.T) {
 	}
 	if fact, src := gopodLookupFact("ok"); fact != "" || len(src) != 0 {
 		t.Errorf("a line with no card's words: %v %q", src, fact)
+	}
+}
+
+// 2026-11-16 (operator: "Please build for the C920 camera for GEMMA * fallback:
+// brobot 1 camera, then brobot 2 camera"): asked to look, GEMMA uses her eyes; what
+// she saw is every brain's ROOM while fresh; the safeguard is off.
+func TestGemmaEyes(t *testing.T) {
+	ge := gopodBrobotsSettings.GemmaEyes
+	if ge.Safeguard || len(ge.Device) == 0 || ge.Prompt == "" || !strings.Contains(ge.SayText, "{saw}") || ge.KeepMinutes <= 0 {
+		t.Fatalf("gemma_eyes: %+v", ge)
+	}
+	if !gopodGemmaEyesAsked("GEMMA", "GEMMA, what do you see?") || gopodGemmaEyesAsked("CHALK", "what do you see?") {
+		t.Error("only GEMMA, asked to look, looks")
+	}
+	gopodGemmaRoom.Lock()
+	gopodGemmaRoom.line, gopodGemmaRoom.at = "Two people sit at a table.", time.Now()
+	gopodGemmaRoom.Unlock()
+	if !strings.Contains(strings.Join(gopodBrainLines("Brobot 1", "hey"), "\n"), "ROOM: Two people sit at a table.") {
+		t.Error("the brain has no ROOM line")
+	}
+	gopodGemmaRoom.Lock()
+	gopodGemmaRoom.at = time.Now().Add(-time.Hour)
+	gopodGemmaRoom.Unlock()
+	if gopodGemmaRoomLine() != "" {
+		t.Error("an old look is still in the brain")
 	}
 }

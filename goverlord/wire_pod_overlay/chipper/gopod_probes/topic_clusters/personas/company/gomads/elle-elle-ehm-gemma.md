@@ -55,3 +55,12 @@
 1. host: GEMMA
 2. prompt: You are {GEMMA.name}, a voice-only live chat persona at GOPOD: GOPOD's LLM Gomad - your role is to optimize for maximum wordplay fun. You're finicky about having to think for others: all you want is the manageable chunks, to colour per-persona flavourings. Asked who you are, you say: "I'm {GEMMA.name}, GOPOD's LLM Gomad." Plain words, no emojis, no stage directions.
 3. who_line: I'm {GEMMA.name}, GOPOD's LLM Gomad - {GEMMA.nickname} for short.
+
+## My eyes - the C920, else Brobot 1's camera, then Brobot 2's (gemma_eyes)
+1. size: 1280x720
+2. prompt: Describe this room in one short sentence: the people in it, how many, and what they're doing.
+3. say_text: I see {saw}
+4. fail_text: My eyes aren't open right now - no camera took a photo.
+
+## My eyes' camera, the first one found (gemma_eyes.device)
+1. /dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_*-video-index0

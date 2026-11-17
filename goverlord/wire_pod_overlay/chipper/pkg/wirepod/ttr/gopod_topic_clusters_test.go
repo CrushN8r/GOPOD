@@ -95,7 +95,7 @@ func TestBrainFromClusters(t *testing.T) {
 		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
 	}
 	// 2026-11-13: the comm check's lines (intro_lines), then every answer's (lines).
-	if len(bc.IntroFact) != 5 || bc.IntroFact[0] != "I'm the proud {my_job_title}." || len(bc.Lines) != 4 || bc.Lines[0] != "TIME: {time} - {day_part}" || bc.Lines[1] != "TASK: {my_task}" || bc.Lines[2] != "FACT: {fact}" || bc.Lines[3] != "MEMORY: {memory}" {
+	if len(bc.IntroFact) != 5 || bc.IntroFact[0] != "I'm the proud {my_job_title}." || len(bc.Lines) != 5 || bc.Lines[0] != "TIME: {time} - {day_part}" || bc.Lines[1] != "TASK: {my_task}" || bc.Lines[2] != "FACT: {fact}" || bc.Lines[3] != "MEMORY: {memory}" {
 		t.Errorf("brain lines: %q %q", bc.IntroFact, bc.Lines)
 	}
 	if len(gopodBrobotsSettings.ReplyTighten.NotSentenceEnds) == 0 || !strings.Contains(gopodBrobotsSettings.Summary.FactsNote, "\n") {

@@ -950,6 +950,17 @@ type gopodBrobotsSettingsFile struct {
 	Personas map[string]string `json:"personas"`
 	// 2026-10-21: the Doc & Pip persona template (gopod_brobot_personas.go).
 	HostPersonas map[string]gopodHostPersona `json:"host_personas"`
+	// 2026-11-16: GEMMA's eyes - the C920, then the Brobots' cameras (gopod_gemma_eyes.go).
+	GemmaEyes struct {
+		Device      []string `json:"device"`
+		Size        string   `json:"size"`
+		SkipFrames  int      `json:"skip_frames"`
+		KeepMinutes float64  `json:"keep_minutes"`
+		Safeguard   bool     `json:"safeguard"`
+		Prompt      string   `json:"prompt"`
+		SayText     string   `json:"say_text"`
+		FailText    string   `json:"fail_text"`
+	} `json:"gemma_eyes"`
 	// 2026-11-16: the company intro KEYS says after his opening (math-aftermath-news-channel.md).
 	CompanyIntro struct {
 		Lines []string `json:"lines"`

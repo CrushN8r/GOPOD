@@ -490,6 +490,10 @@ func gopodGomadAnswerStart(host, sayAs, text string) *gopodGomadEarlyAnswer {
 // gopodGomadReplyMade: host's answer to text from the model, wrapped - the
 // intro template, then its chain.
 func gopodGomadReplyMade(host, text string) (string, error) {
+	// 2026-11-16: GEMMA asked to look - her eyes, not the model (gopod_gemma_eyes.go).
+	if gopodGemmaEyesAsked(host, text) {
+		return gopodGemmaEyesLook(), nil
+	}
 	reply, err := gopodPersonaAsk(host, text)
 	if err != nil {
 		return "", err
