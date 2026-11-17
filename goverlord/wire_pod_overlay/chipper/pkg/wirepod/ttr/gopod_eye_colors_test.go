@@ -3,6 +3,8 @@ package wirepod_ttr
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -244,5 +246,30 @@ func TestBrainBubbleLooksUp(t *testing.T) {
 	}
 	if again := gopodBrainScoreRows(); len(again) != 0 {
 		t.Errorf("the same score again: %q", again)
+	}
+}
+
+// 2026-11-16 (operator: "matching topic clusters to the question's key words *
+// repo's md files in topic-cluster format as the search pool"): a question picks
+// the pool's cards by the words it says; the brain names them and says their lines.
+func TestLookupPicksCards(t *testing.T) {
+	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
+		t.Skip("not in the repo here")
+	}
+	if len(gopodLookupCards()) < 20 {
+		t.Fatalf("the pool: %d cards", len(gopodLookupCards()))
+	}
+	for q, want := range map[string]string{
+		"How do I book the Brobots for a birthday party?": "05_birthday_and_merch.md",
+		"How much does booking cost?":                     "BOOKING.md",
+		"When is the next livestream?":                    "LIVESTREAM.md",
+	} {
+		fact, src := gopodLookupFact(q)
+		if !strings.Contains(strings.Join(src, ","), want) || fact == "" {
+			t.Errorf("%q: looked up %v, fact %q", q, src, fact)
+		}
+	}
+	if fact, src := gopodLookupFact("ok"); fact != "" || len(src) != 0 {
+		t.Errorf("a line with no card's words: %v %q", src, fact)
 	}
 }

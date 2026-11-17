@@ -663,6 +663,11 @@ type gopodBrobotsSettingsFile struct {
 		IntroFact     []string `json:"intro_fact"`
 		// 2026-11-16: the bubble's FACT line - where it was looked up ({sources}).
 		LookedUp string `json:"looked_up"`
+		// 2026-11-16: the look-up's pool (repo paths), how many cards, how long each (gopod_lookup.go).
+		LookupFiles []string `json:"lookup_files"`
+		LookupMax   int      `json:"lookup_max"`
+		LookupChars int      `json:"lookup_chars"`
+		LookupSkip  []string `json:"lookup_skip"`
 		CastItem      string   `json:"cast_item"`
 		Roster        string   `json:"roster"`
 		CastMe        string   `json:"cast_me"`

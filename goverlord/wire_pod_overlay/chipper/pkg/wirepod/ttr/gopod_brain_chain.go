@@ -369,6 +369,10 @@ func gopodBrainFacts(self, question string) map[string]string {
 		m["{fact}"] = gopodBrainIntroFact(m)
 	} else {
 		m["{fact}"] = gopodBrainFact(self)
+		// 2026-11-16: no value point - the look-up's cards (gopod_lookup.go).
+		if m["{fact}"] == "" {
+			m["{fact}"], _ = gopodLookupFact(question)
+		}
 	}
 	return m
 }
@@ -577,9 +581,11 @@ func gopodBrainSources(self, question string) string {
 		}
 		return strings.Join(out, ", ")
 	}
+	// 2026-11-16: no value point given - the look-up's cards (gopod_lookup.go).
 	esn := gopodBrobotESN(self)
-	if esn == "" {
-		return ""
+	if esn == "" || len(gopodGivenPoints(esn)) == 0 {
+		_, looked := gopodLookupFact(question)
+		return strings.Join(looked, ", ")
 	}
 	for _, given := range gopodGivenPoints(esn) {
 		f := strings.Fields(given)
