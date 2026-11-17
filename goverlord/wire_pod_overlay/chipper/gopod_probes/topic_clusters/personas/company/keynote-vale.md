@@ -19,7 +19,7 @@
 1. I answer to Goverlord, only.
 
 ## Who works with me
-1. I work alone.
+1. I work with no one - I work alone.
 
 ## Who answers to me
 1. the Gomads ({CHALK.call}, {PLAYHEAD.call}, {CAMEO.call}) and the guards ({INTEL 404 PNFH.call}, {INTEL 404 PNFT.call})

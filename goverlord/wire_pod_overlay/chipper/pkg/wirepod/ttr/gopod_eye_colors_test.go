@@ -332,3 +332,12 @@ func TestAnyPersonaKey(t *testing.T) {
 		t.Errorf("targets: %q %q", gopodAnyTarget("CHALK"), gopodAnyTarget("Brobot 1"))
 	}
 }
+
+// 2026-11-17 (operator: "sysem-comm-check was my typo"): a near "system-" is read as one.
+func TestSystemTypo(t *testing.T) {
+	for in, want := range map[string]string{"sysem-comm-check": "system-comm-check", "sytsem-tour": "system-tour", "system-tour": "system-tour", "hello-there": "hello-there"} {
+		if got := gopodSystemTypo(in); got != want {
+			t.Errorf("%q -> %q, want %q", in, got, want)
+		}
+	}
+}

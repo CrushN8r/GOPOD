@@ -2,13 +2,13 @@
 package wirepod_ttr
 
 import (
-	"sync/atomic"
 	"bytes"
 	"errors"
 	"os/exec"
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -110,7 +110,21 @@ func gopodGoverlordAnswer(answer string) {
 	if first == "" {
 		return
 	}
-	go gopodReporterSay(gopodGoverlordHost, first, true, true)
+	// 2026-11-17 (operator: "system-comm-check to Goverlord produced some weird
+	// overlap"): said before the command goes on - the command's own lines
+	// (the comm check's first call, the tour's first scripture) wait for him.
+	gopodReporterSay(gopodGoverlordHost, first, true, true)
+}
+
+// gopodSystemTypo: "sysem-comm-check" read as "system-comm-check" (2026-11-17,
+// operator: "sysem-comm-check was my typo * got a little wonky") - a first word
+// within two letters of "system", before its "-", is "system".
+func gopodSystemTypo(text string) string {
+	head, rest, ok := strings.Cut(strings.TrimSpace(text), "-")
+	if !ok || strings.EqualFold(head, "system") || len(head) < 4 || gopodEditDistance(strings.ToLower(head), "system") > 2 {
+		return text
+	}
+	return "system-" + rest
 }
 
 // gopodTypedToSystem: a line typed to 0 - a system command runs; anything else
@@ -119,6 +133,10 @@ func gopodTypedToSystem(text, how string) error {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return errors.New("empty text")
+	}
+	if fixed := gopodSystemTypo(text); fixed != text && gopodSystemCommandMatch(fixed) {
+		logger.Println("GOPOD_TYPED typo read as: " + text + " -> " + fixed)
+		text = fixed
 	}
 	if gopodSystemCommandMatch(text) {
 		return gopodOperatorLine(gopodTypedAll, text, how)

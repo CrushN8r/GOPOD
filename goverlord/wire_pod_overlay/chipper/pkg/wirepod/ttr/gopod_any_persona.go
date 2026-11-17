@@ -16,6 +16,8 @@ package wirepod_ttr
 
 import (
 	"path/filepath"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"sort"
 	"strings"
 )
@@ -93,13 +95,17 @@ func gopodAnyTarget(who string) string {
 func gopodAnyPersonaLine(text, how string) error {
 	ap := gopodBrobotsSettings.NumpadPTT.Any
 	named := gopodAnyNamed(text)
+	// 2026-11-17 (live: "keys where do i start" - KEYS handed it to the default
+	// owner): only a topic the look-up finds has an owner to hand over to; the
+	// default owner is for a line naming no one.
 	owner := gopodAnyOwner(text)
-	if owner == "" {
-		owner = strings.TrimSpace(ap.DefaultOwner)
-	}
+	logger.Println("GOPOD_PICK any persona: named=" + named + " owner=" + owner + " for: " + text)
 	who := named
 	if who == "" {
 		who = owner
+		if who == "" {
+			who = strings.TrimSpace(ap.DefaultOwner)
+		}
 	} else if owner != "" && owner != named && strings.TrimSpace(ap.RedirectText) != "" {
 		// Not the named one's job: he says whose it is, then the owner answers.
 		line := strings.ReplaceAll(ap.RedirectText, "{owner}", gopodCallName(owner))

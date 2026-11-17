@@ -209,7 +209,7 @@ func TestClusterFormatNestedAndTyped(t *testing.T) {
 	}
 	_ = json.Unmarshal(gopodClustersOverlay(merged), &page)
 	menu := page.SystemMenu.Groups
-	if len(menu) != 10 || len(menu[0].Tour) == 0 || menu[0].Items[2].Cmd != "system-status" || !menu[0].Items[2].Run {
+	if len(menu) != 11 || len(menu[0].Tour) == 0 || menu[0].Items[2].Cmd != "system-status" || !menu[0].Items[2].Run {
 		t.Errorf("system menu from system-menu.md: %d groups", len(menu))
 	}
 	if len(gopodBrobotsSettings.Managers.Takes) != 4 || len(gopodBrobotsSettings.HereNow.Cast) == 0 {

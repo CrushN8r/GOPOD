@@ -22,6 +22,7 @@ running settings, so they always match the system as it grows - `system-check` s
 - [Scripture 8, Tune moves](system_scrolls/scripture-08-tune-moves/README.md) - A move looks off?
 - [Scripture 9, Test one thing](system_scrolls/scripture-09-test-one-thing/README.md) - Something acting up?
 - [Scripture 10, Wrap up](system_scrolls/scripture-10-wrap-up/README.md) - End the show.
+- [Scripture 11, Local network visitors and the phone app](system_scrolls/scripture-11-local-network-visitors-and-the-phone-app/README.md) - Phones and computers on your local network can join the chat - each shows up under "Local network visitors", with the count.
 
 ## The Commandments
 
