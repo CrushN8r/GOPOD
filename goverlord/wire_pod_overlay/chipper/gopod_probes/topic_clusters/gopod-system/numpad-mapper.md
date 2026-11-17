@@ -8,12 +8,18 @@
 - **the keys today, NumLock on:** KP0 Butler (Keys) - KP1 Doc - KP2 Pip - KP3 Git Repo - KP4 Cache PYC - KP5 Buzzer - KP6 Switch - KP7 CHALK - KP8 PLAYHEAD - KP9 CAMEO - * all the Brobots - / skip - 000 exit.
 - **NumLock off:** KP7 CHALK and KP8 PLAYHEAD on location, as their reporters, the dial at 0% (live; NumLock on: the Gomads, indoors, the dial at 100%); KP1 Brobot 1 and KP2 Brobot 2 at dial zero (live, 2026-11-13); KP3 GEMMA, the language model (live); KP4-KP6 and KP9 free (reserved).
 ---
+## The "." key - any persona: name who you ask; no name, the topic's owner answers (numpad_ptt.any)
+1. label: ANY PERSONA
+2. default_owner: Brobot 1
+3. redirect_text: That's {owner}'s job - {owner}, over to you!
+
 ## The keyboard picker's words (numpad_ptt.picker)
 1. all_first: BROBOTS 1,2
 2. all_second: BROBOTS 2,1
 3. unassigned: unassigned
 4. on: `{n} Numlock ON: {persona}`
 5. off: `{n} Numlock OFF: {persona}`
+6. any: `. Any persona: name who you ask`
 
 ## The README's cast table (readme_cast)
 1. head: `| Key | Who | What they do |`

@@ -299,3 +299,36 @@ func TestGemmaEyes(t *testing.T) {
 		t.Error("an old look is still in the brain")
 	}
 }
+
+// 2026-11-17 (operator: "numpad-map the '.' to 'any-persona', where I call the
+// persona by name ... the group also know who should answer"): "." names who's
+// asked; no name, the topic's owner; the typed picker's "." is the same key.
+func TestAnyPersonaKey(t *testing.T) {
+	label, target, err := gopodNumpadBrobot(gopodNumpadAnyKey)
+	if err != nil || target != gopodTypedAny || label == "" {
+		t.Fatalf("KPdot: %q %q %v", label, target, err)
+	}
+	if k, ok := gopodTypedKey("kp:dot"); !ok || k != gopodNumpadAnyKey {
+		t.Errorf("kp:dot -> %q %v", k, ok)
+	}
+	for line, want := range map[string]string{
+		"CHALKRA, what's on the board?": "CHALK",
+		"Hey Zoomy, how's the session?": "PLAYHEAD",
+		"DOC, explain the math":         "DOC",
+		"Brobot 2, you there?":          "Brobot 2",
+		"Keys, how do I start a show?":  "BUTLER",
+	} {
+		if got := gopodAnyNamed(line); got != want {
+			t.Errorf("%q names %q, want %q", line, got, want)
+		}
+	}
+	if gopodAnyNamed("what's the weather like?") != "" {
+		t.Error("no one named")
+	}
+	if o := gopodAnyOwner("how do I replay a session from the scrolls?"); o != "" && o != gopodBrobotsSettings.SystemBubble.VoicePersona && o != "Brobot 1" {
+		t.Errorf("a system topic's owner: %q", o)
+	}
+	if gopodAnyTarget("CHALK") != gopodPersonaMark+"CHALK" || !strings.HasPrefix(gopodAnyTarget("Brobot 1"), gopodDialZeroMark) {
+		t.Errorf("targets: %q %q", gopodAnyTarget("CHALK"), gopodAnyTarget("Brobot 1"))
+	}
+}

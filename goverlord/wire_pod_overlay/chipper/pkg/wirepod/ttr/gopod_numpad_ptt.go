@@ -184,6 +184,9 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 			if label, _, err := gopodNumpadBrobotIn(layout, gopodNumpadAllKey); err == nil {
 				targets[gopodNumpadAllKey] = label
 			}
+			if label, _, err := gopodNumpadBrobotIn(layout, gopodNumpadAnyKey); err == nil {
+				targets[gopodNumpadAnyKey] = label
+			}
 		}
 		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
 		if label, ok := gopodNumpadKeyLabelIn(layout, key+gopodNumlockOffSuffix); ok {
@@ -211,6 +214,14 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
 	// exit) * * hold -> all Brobots, in the order selected * / -> skip"): that is
 	// the * key now (gopodNumpadAllKey); KP0 is the map's (the Butler).
+	// 2026-11-17: "." - any persona (gopod_any_persona.go).
+	if strings.EqualFold(key, gopodNumpadAnyKey) {
+		label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.Any.Label)
+		if label == "" {
+			label = "Any persona"
+		}
+		return label, gopodTypedAny, nil
+	}
 	if strings.EqualFold(key, gopodNumpadAllKey) {
 		label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.AllLabel)
 		if label == "" {
@@ -295,7 +306,7 @@ func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 		return "", false
 	}
 	switch {
-	case target == gopodTypedAll, target == gopodTypedSystem:
+	case target == gopodTypedAll, target == gopodTypedSystem, target == gopodTypedAny:
 		return label, true
 	case strings.HasPrefix(target, gopodDialZeroMark):
 		return gopodPersonaNickname(gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark)), false), true
@@ -382,6 +393,8 @@ func gopodKeyLine(target, text, how string) error {
 	switch {
 	case target == gopodTypedSystem:
 		return gopodGoverlordCall(text, how)
+	case target == gopodTypedAny:
+		return gopodAnyPersonaLine(text, how)
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
 		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
 		// The answer comes as the reporter (CHALK reporter): that's who the queue waits for.

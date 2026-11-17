@@ -127,6 +127,12 @@ type gopodBrobotsSettingsFile struct {
 		Texts map[string]string `json:"texts"`
 		// 2026-10-16: 0 held talks to all the Brobots (gopod_numpad_ptt.go).
 		AllLabel string `json:"all_label"`
+		// 2026-11-17: the "." key - any persona (gopod_any_persona.go).
+		Any struct {
+			Label        string `json:"label"`
+			DefaultOwner string `json:"default_owner"`
+			RedirectText string `json:"redirect_text"`
+		} `json:"any"`
 	} `json:"numpad_ptt"`
 	RecordSession struct {
 		SessionsDir       string   `json:"sessions_dir"`

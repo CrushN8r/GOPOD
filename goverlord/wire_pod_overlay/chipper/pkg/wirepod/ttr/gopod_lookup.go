@@ -28,6 +28,7 @@ type gopodLookupCard struct {
 	Path  string
 	Words []string
 	Lines []string
+	Owner string // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
 }
 
 var gopodLookupCache = struct {
@@ -115,6 +116,9 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			// A card's summary head line is its lines (a chapter card's).
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "summary" && cluster && strings.TrimSpace(v) != "" {
 				c.Lines = []string{strings.TrimSpace(v)}
+			}
+			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
+				c.Owner = strings.TrimSpace(v)
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "words" && cluster {
 				for _, w := range strings.Split(v, ",") {
