@@ -519,31 +519,43 @@ func gopodReminderLine(userMessage string) string {
 	}
 	used := map[string]bool{current: true}
 	var chain, chainTopics []string
+	// GOLDEN merry-go-round (2026-11-16, operator: "I see the reminders list like
+	// a merry-go-round * wherever you step onto the merry-go-round, you're in the
+	// GOPOD tour * you can explore all around the merry-go-round until you've sat
+	// in every seat * reminders list still has an order of information, from
+	// opener, what is GOPOD, to more specific details"): the seats are the topics
+	// in the chapters' order; the next ones named are those after the seat you're
+	// on, round and round from the top again - each open, not just reminded. A
+	// topic's own links (topic_links, the designed ride) go first.
+	at := -1
+	for i, t := range order {
+		if t == current {
+			at = i
+		}
+	}
+	seat := func(t string) bool {
+		return !used[t] && !skip[t] && open(t) && ic.TopicLabels[t] != "" && !gopodReminded(t)
+	}
 	for from := current; len(chain) < want; {
-		best, bestSim := "", -1.0
-		// 2026-10-23 (operator: "Answer chain!! Start at what is GOPOD * GOPOD =
-		// 'AI Wordplay! Explain the MAth!' = live stream > contest > ... = content
-		// engine for websites * recipes > chocolate bingo > foodmath website"): the
-		// map first - the first open topic linked from this one (topic_links).
+		best := ""
 		for _, t := range gopodTopicLinksFor(from) {
-			if !used[t] && !skip[t] && open(t) && ic.TopicLabels[t] != "" && !gopodReminded(t) {
-				best, bestSim = t, 2
+			if seat(t) {
+				best = t
 				break
 			}
 		}
-		for _, t := range order {
-			if best != "" && bestSim == 2 {
-				break
-			}
-			if used[t] || skip[t] || !open(t) || ic.TopicLabels[t] == "" || gopodReminded(t) {
-				continue
-			}
-			if sim := gopodTopicLikeness(from, t); sim > bestSim {
-				best, bestSim = t, sim
+		for k := 1; best == "" && k <= len(order); k++ {
+			if t := order[(at+k+len(order))%len(order)]; seat(t) {
+				best = t
 			}
 		}
 		if best == "" {
 			break
+		}
+		for i, t := range order {
+			if t == best {
+				at = i
+			}
 		}
 		used[best] = true
 		chain = append(chain, ic.TopicLabels[best])
@@ -581,43 +593,6 @@ func gopodReminderLine(userMessage string) string {
 		line += gopodThoughtGap() + strings.ReplaceAll(strings.TrimSpace(vp.ReminderProberText), "{prober}", prober)
 	}
 	return line
-}
-
-// The 3d grid: how alike two topics are - the share of their packs' words
-// they have in common. Worked out once, by the code, not by the LLM.
-var gopodTopicWords = struct {
-	sync.Once
-	words map[string]map[string]bool
-}{}
-
-var gopodLikenessWord = regexp.MustCompile(`[a-z][a-z0-9']{3,}`)
-
-func gopodTopicLikeness(a, b string) float64 {
-	gopodTopicWords.Do(func() {
-		gopodTopicWords.words = map[string]map[string]bool{}
-		for _, p := range gopodTopicRegistry() {
-			data, err := gopodReadTopicFacts(p.File)
-			if err != nil {
-				continue
-			}
-			set := map[string]bool{}
-			for _, w := range gopodLikenessWord.FindAllString(strings.ToLower(string(data)), -1) {
-				set[w] = true
-			}
-			gopodTopicWords.words[p.Name] = set
-		}
-	})
-	wa, wb := gopodTopicWords.words[a], gopodTopicWords.words[b]
-	if len(wa) == 0 || len(wb) == 0 {
-		return 0
-	}
-	shared := 0
-	for w := range wa {
-		if wb[w] {
-			shared++
-		}
-	}
-	return float64(shared) / float64(len(wa)+len(wb)-shared)
 }
 
 // gopodCoverageScoreText is the session score and the list behind it.

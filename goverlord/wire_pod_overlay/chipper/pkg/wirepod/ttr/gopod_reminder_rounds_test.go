@@ -64,3 +64,39 @@ func TestTryAskingMatchesTheReminder(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-16 (operator: "I see the reminders list like a merry-go-round *
+// wherever you step onto the merry-go-round, you're in the GOPOD tour * ... until
+// you've sat in every seat"): the topics named next are the ones after the topic
+// asked about, in the chapters' order (or its own links first).
+func TestRemindersRideInOrder(t *testing.T) {
+	gopodGameReset("test")
+	defer gopodGameReset("test")
+	ic := gopodBrobotsSettings.InterviewChapters
+	var order []string
+	for _, c := range ic.Chapters {
+		order = append(order, c.Topics...)
+	}
+	pos := map[string]int{}
+	for i, tp := range order {
+		pos[ic.TopicLabels[tp]] = i
+	}
+	q := "Tell me about the contest"
+	gopodReminderLine(q)
+	names, _ := gopodReminderNames.Load(q)
+	list, _ := names.([]string)
+	if len(list) < 2 {
+		t.Fatalf("reminder names: %v", list)
+	}
+	// After any topic's own links, the seats come in order, round from the top.
+	seen := 0
+	for i := 1; i < len(list); i++ {
+		a, b := pos[list[i-1]], pos[list[i]]
+		if b <= a {
+			seen++
+		}
+	}
+	if seen > 1 {
+		t.Errorf("more than one turn back in a short ride: %v", list)
+	}
+}
