@@ -1692,6 +1692,7 @@
             window.gopodSystemLabel = systemLabel;
             systemVoicePersona = vp || "";
             personaColours(settings.persona_colours || {});
+            personaHeads(settings.persona_colours || {}, settings.persona_heads || {});
             // Every persona is a host on the page - its own voice or another's
             // (managers.personas, voice_of): the master list.
             personaVoiceOf = {};
@@ -1972,6 +1973,54 @@
       // suit's border, its search box - one source, nothing hand-written per persona.
       // A persona with none (DOC, PIP) keeps its Brobot body's bubble.
       function personaSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+      // 2026-11-18 (operator: "yes, replace all except brobots & reporters * Make
+      // field news reporters 1 & 2 heads, from CHALK & PLAYHEAD heads * so only
+      // brobots have the brobots eyes icon * make other icons same size as brobots
+      // eyes icon"): every persona's icon is one head, coloured from its
+      // persona_colours (the one colour source), with its props (persona_heads);
+      // the Brobots and the operator (Brobot 0) keep the eyes. "system" is the
+      // system icon's head (KEYS, the system's voice).
+      function headProp(name, ring, badge) {
+        switch (name) {
+          case "crown": return '<path d="M30 30 L36 14 L46 26 L50 10 L54 26 L64 14 L70 30 Z" fill="' + ring + '"/><circle cx="50" cy="10" r="3" fill="#fff"/>';
+          case "bowtie": return '<path d="M38 82 L50 88 L62 82 L62 94 L50 88 L38 94 Z" fill="' + ring + '"/><g transform="translate(70 18) rotate(30)"><circle cx="0" cy="0" r="5" fill="none" stroke="' + ring + '" stroke-width="3"/><rect x="4" y="-1.5" width="14" height="3" fill="' + ring + '"/></g>';
+          case "gem": return '<path d="M44 22 L56 22 L60 28 L50 38 L40 28 Z" fill="' + ring + '" stroke="#fff" stroke-width="1"/>';
+          case "cap": return '<path d="M24 34 Q50 12 76 34 Z" fill="#11204d"/><rect x="20" y="32" width="60" height="6" rx="3" fill="#11204d"/><circle cx="50" cy="26" r="6" fill="' + ring + '"/><text x="50" y="29" font-size="8" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">' + (badge || "") + '</text>';
+          case "glasses": return '<g fill="none" stroke="' + ring + '" stroke-width="3"><circle cx="38" cy="52" r="10"/><circle cx="62" cy="52" r="10"/><path d="M48 52 L52 52"/></g>';
+          case "partyhat": return '<path d="M38 30 L50 4 L62 30 Z" fill="' + ring + '"/><circle cx="50" cy="4" r="4" fill="#ffd54a"/><path d="M42 22 L58 22" stroke="#fff" stroke-width="2"/>';
+          case "tiara": return '<path d="M34 28 L40 20 L45 26 L50 16 L55 26 L60 20 L66 28 Z" fill="' + ring + '"/>';
+          case "headphones": return '<path d="M22 54 Q22 18 50 18 Q78 18 78 54" fill="none" stroke="' + ring + '" stroke-width="4"/><rect x="16" y="48" width="10" height="16" rx="4" fill="' + ring + '"/><rect x="74" y="48" width="10" height="16" rx="4" fill="' + ring + '"/>';
+          case "shades": return '<g fill="' + ring + '"><path d="M28 46 L46 46 L44 58 L30 58 Z"/><path d="M54 46 L72 46 L70 58 L56 58 Z"/></g><path d="M46 49 L54 49" stroke="' + ring + '" stroke-width="3"/>';
+          case "beanie": return '<path d="M26 36 Q50 6 74 36 Z" fill="#1f6feb"/><rect x="24" y="33" width="52" height="7" rx="3" fill="' + ring + '"/>';
+          case "cash": return '<rect x="24" y="28" width="52" height="8" rx="4" fill="' + ring + '"/><text x="50" y="35" font-size="8" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">$ $ $</text>';
+          case "mic": return '<rect x="76" y="66" width="10" height="16" rx="5" fill="#d9d9d9"/><rect x="79" y="82" width="4" height="14" fill="#9a9a9a"/>';
+        }
+        return "";
+      }
+      function headSVG(c, props, badge) {
+        var bg = c.background || "#333", ring = c.border || "#ccc";
+        var eyes = props.indexOf("shades") >= 0 ? "" : '<circle cx="38" cy="52" r="' + (props.indexOf("glasses") >= 0 ? 3.5 : 4.5) + '" fill="' + ring + '"/><circle cx="62" cy="52" r="' + (props.indexOf("glasses") >= 0 ? 3.5 : 4.5) + '" fill="' + ring + '"/>';
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="56" r="34" fill="' + bg + '" stroke="' + ring + '" stroke-width="4"/>' + eyes +
+          '<path d="M40 70 Q50 76 60 70" fill="none" stroke="' + ring + '" stroke-width="3" stroke-linecap="round"/>' +
+          props.map(function (p) { return headProp(p, ring, badge); }).join("") + '</svg>';
+      }
+      function personaHeads(colours, heads) {
+        var rules = [];
+        Object.keys(heads).forEach(function (who) {
+          var h = heads[who] || {};
+          var c = colours[h.from || who] || {};
+          var url = "url(\"data:image/svg+xml," + encodeURIComponent(headSVG(c, h.props || [], h.badge)) + "\")";
+          var s = personaSlug(who);
+          var sel = who === "system"
+            ? ".brobot-bubble-avatar.to-system"
+            : ".brobot-bubble.host-" + s + " > .brobot-bubble-head .brobot-bubble-avatar:not(.from-operator), .brobot-bubble-avatar.head-" + s;
+          rules.push(sel + " { background: " + url + " center / contain no-repeat; }");
+        });
+        var el = document.getElementById("gopod-persona-heads");
+        if (!el) { el = document.createElement("style"); el.id = "gopod-persona-heads"; document.head.appendChild(el); }
+        el.textContent = rules.join("\n");
+        window.gopodPersonaHeads = heads;
+      }
       function personaColours(colours) {
         var rules = [];
         var root = document.documentElement.style;
@@ -2046,6 +2095,14 @@
         }
         var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
+        // 2026-11-18: a line to a persona ends with that persona's head.
+        var headOf = (window.gopodPersonaHeads || {})[toShown] ? toShown : ((window.gopodPersonaHeads || {})[to] ? to : "");
+        if (headOf && to !== "Brobots" && !/^Brobot [12]$/.test(String(to))) {
+          var pIcon = document.createElement("div");
+          pIcon.className = "brobot-bubble-avatar head-" + personaSlug(headOf);
+          head.appendChild(pIcon);
+          return head;
+        }
         icons.forEach(function (cls) {
           var icon = document.createElement("div");
           icon.className = "brobot-bubble-avatar to-" + cls;

@@ -466,3 +466,43 @@ func TestIntroGuides(t *testing.T) {
 		t.Errorf("PIP: %q", gopodBrobotsSettings.HostPersonas["PIP"].Name)
 	}
 }
+
+// 2026-11-18 (operator: "replace all except brobots & reporters * Make field news
+// reporters 1 & 2 heads, from CHALK & PLAYHEAD heads * so only brobots have the
+// brobots eyes icon"): every persona has a head (persona_heads), coloured from
+// persona_colours; the Brobots keep the eyes; the reporters' heads come from
+// CHALK's and PLAYHEAD's.
+func TestPersonaHeads(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_settings", "03_chat_page.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var page struct {
+		Colours map[string]json.RawMessage `json:"persona_colours"`
+		Heads   map[string]struct {
+			From  string   `json:"from"`
+			Props []string `json:"props"`
+		} `json:"persona_heads"`
+	}
+	if err := json.Unmarshal(data, &page); err != nil {
+		t.Fatal(err)
+	}
+	for who := range page.Colours {
+		_, has := page.Heads[who]
+		if brobot := who == "Brobot 1" || who == "Brobot 2"; brobot == has {
+			t.Errorf("%s: head %v (only the Brobots keep the eyes)", who, has)
+		}
+	}
+	for who, h := range page.Heads {
+		from := h.From
+		if from == "" {
+			from = who
+		}
+		if _, ok := page.Colours[from]; !ok || len(h.Props) == 0 {
+			t.Errorf("%s: no colours (%s) or no props", who, from)
+		}
+	}
+	if page.Heads["CHALK reporter"].From != "CHALK" || page.Heads["PLAYHEAD reporter"].From != "PLAYHEAD" {
+		t.Error("the reporters' heads come from CHALK's and PLAYHEAD's")
+	}
+}

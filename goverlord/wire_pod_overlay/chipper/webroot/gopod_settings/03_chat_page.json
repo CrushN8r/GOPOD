@@ -12,7 +12,25 @@
     "GIT REPO": {"background": "#0D1117", "border": "#2F81F7"},
     "CACHE PYC": {"background": "#E0A800", "border": "#6A0DAD"},
     "INTEL 404 PNFH": {"background": "#1C3F94", "border": "#FF2D2D"},
-    "INTEL 404 PNFT": {"background": "#1C3F94", "border": "#FF2D2D"}
+    "INTEL 404 PNFT": {"background": "#1C3F94", "border": "#FF2D2D"},
+    "GOVERLORD": {"background": "#1b1b1f", "border": "#c9a227"}
+  },
+  "persona_heads": {
+    "GOVERLORD": {"props": ["crown"]},
+    "BUTLER": {"props": ["bowtie"]},
+    "system": {"from": "BUTLER", "props": ["bowtie"]},
+    "GEMMA": {"props": ["gem"]},
+    "INTEL 404 PNFH": {"props": ["cap"], "badge": "H"},
+    "INTEL 404 PNFT": {"props": ["cap"], "badge": "T"},
+    "DOC": {"props": ["glasses"]},
+    "PIP": {"props": ["partyhat"]},
+    "CHALK": {"props": ["tiara"]},
+    "CHALK reporter": {"from": "CHALK", "props": ["tiara", "mic"]},
+    "PLAYHEAD": {"props": ["headphones"]},
+    "PLAYHEAD reporter": {"from": "PLAYHEAD", "props": ["headphones", "mic"]},
+    "CAMEO": {"props": ["shades"]},
+    "GIT REPO": {"props": ["beanie"]},
+    "CACHE PYC": {"props": ["cash"]}
   },
   "scripted_split": {
     "segment_marker": "⁣",
