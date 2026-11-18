@@ -235,7 +235,8 @@ func TestKeepWholePhrase(t *testing.T) {
 func TestBrainBubbleLooksUp(t *testing.T) {
 	q := "Next up, CHALKRA! Introduce yourself to the chat"
 	bubble := strings.Join(gopodBrainBubbleLines("CHALK", q), "\n")
-	if !strings.Contains(bubble, "LOOKED UP: chalk-bored.md") || strings.Contains(bubble, "FACT:") {
+	// 2026-11-18 (operator: "Prune all brains: [name] Brain LOOKED UP: [name].md"): not his own card.
+	if strings.Contains(bubble, "chalk-bored.md") || strings.Contains(bubble, "FACT:") {
 		t.Errorf("the bubble: %q", bubble)
 	}
 	if prompt := gopodBrainText("CHALK", q); !strings.Contains(prompt, "FACT: I'm the proud Display Gomad") {

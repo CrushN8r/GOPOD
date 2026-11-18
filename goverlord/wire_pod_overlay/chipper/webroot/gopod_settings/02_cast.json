@@ -68,8 +68,7 @@
     "parts": [
       {"name": "morning", "from": 5, "to": 12},
       {"name": "afternoon", "from": 12, "to": 17},
-      {"name": "evening", "from": 17, "to": 22},
-      {"name": "night", "from": 22, "to": 5}
+      {"name": "evening", "from": 17, "to": 5}
     ]
   },
   "host_personas": {

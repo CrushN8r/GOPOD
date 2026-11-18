@@ -81,11 +81,9 @@
 6. goverlord
 
 ## The brain's lines, in order (brain_chain.lines)
-1. TIME: {time} - {day_part}
-2. TASK: {my_task}
-3. FACT: {fact}
-4. MEMORY: {memory}
-5. ROOM: {room}
+1. FACT: {fact}
+2. MEMORY: {memory}
+3. ROOM: {room}
 
 ## The guided task flow (brain_chain.flow)
 1. first: You're the first to speak this session - open it up.

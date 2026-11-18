@@ -557,9 +557,11 @@ func gopodBrainBubbleLines(self, question string) []string {
 		// looked up (brain_chain.looked_up), not its words again - the prompt still
 		// gets them (gopodBrainText).
 		if strings.HasPrefix(l, "FACT:") {
-			if src := gopodBrainSources(self, question); src != "" {
-				l = strings.ReplaceAll(gopodBrobotsSettings.BrainChain.LookedUp, "{sources}", src)
+			src := gopodBrainSources(self, question)
+			if src == "" {
+				continue // nothing looked up: the FACT's words stay in the prompt only
 			}
+			l = strings.ReplaceAll(gopodBrobotsSettings.BrainChain.LookedUp, "{sources}", src)
 		}
 		hide := false
 		for _, h := range gopodBrobotsSettings.BrainChain.BubbleHide {
@@ -581,7 +583,8 @@ func gopodBrainBubbleLines(self, question string) []string {
 func gopodBrainSources(self, question string) string {
 	var out []string
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
-		out = append(out, filepath.Base(gopodPersonaProfileFile(self)))
+		// 2026-11-18 (operator: "Prune all brains: [name] Brain LOOKED UP:
+		// [name].md"): his own card isn't named - only what he looked up.
 		if self == gopodBrobotsSettings.SystemBubble.VoicePersona && len(gopodBrobotsSettings.CompanyIntro.Lines) > 0 {
 			if f := gopodTopicTreeFind("math-aftermath-news-channel.md"); f != "" {
 				out = append([]string{filepath.Base(f)}, out...)

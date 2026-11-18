@@ -237,13 +237,14 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
 	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	if b := gopodBrainText("Brobot 1", "hey"); !strings.Contains(b, "TASK: 1) the time now, and what's asked of me, in my own words - does it fit the time? 2) is it my job? if not, name who does it - if I don't know, KEYS - and stop 3) what do I know? my FACT and MEMORY 4) answer in kind, for the time it is - plain words someone new gets, a few sentences, my way") || strings.Contains(b, "WHO DOES WHAT:") {
-		t.Errorf("an answer's task: %q", b)
+	// 2026-11-18 (operator: "Remove this from all brains: TIME ... TASK ..."): no TIME, no TASK.
+	if b := gopodBrainText("Brobot 1", "hey"); strings.Contains(b, "TASK:") || strings.Contains(b, "TIME:") || strings.Contains(b, "WHO DOES WHAT:") {
+		t.Errorf("an answer's brain: %q", b)
 	}
 	gopodBrainAdd("Keys", "Hey Keys! Introduce yourself fully to the chat", "intro")
 	gopodBrainAdd("Doc", "What is GOPOD?", "answer")
 	b := gopodBrainText("Brobot 2", "Hey Pip! Introduce yourself fully")
-	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "FACT: I'm the proud GOPOD sidekick", "I work for Math Aftermath News Channel - we sell GOPOD: GOPOD Yourself!", "I answer to the Gomads, KEYNOTE, then Goverlord.", "TASK: 1) my FACT is said for me, word for word - never say it again 2) add one proud, playful line of my own, my way 3) stop", "Recent chat (newest last):"} {
+	for _, want := range []string{"#1 Master CrushN8r to Keys", "#2 Master CrushN8r to Doc", "Spoken so far: Keys, Doc", "Introduced: Keys", "FACT: I'm the proud GOPOD sidekick", "I work for Math Aftermath News Channel - we sell GOPOD: GOPOD Yourself!", "I answer to the Gomads, KEYNOTE, then Goverlord.", "Recent chat (newest last):"} {
 		if !strings.Contains(b, want) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
@@ -253,14 +254,14 @@ func TestBrainChain(t *testing.T) {
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
 	// 2026-11-13: an answer's brain is the time and the task; the comm-check
 	// lines (who I am) are an intro's.
-	if a := gopodBrainLines("Brobot 2", "hey"); len(a) != 2 || !strings.HasPrefix(a[0], "TIME: ") || !strings.HasPrefix(a[1], "TASK: ") {
+	if a := gopodBrainLines("Brobot 2", "hey"); strings.Contains(strings.Join(a, "|"), "TIME:") || strings.Contains(strings.Join(a, "|"), "TASK:") {
 		t.Errorf("an answer's brain lines: %q", a)
 	}
 	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
 	// 2026-11-15: an intro's brain is the same four lines, its FACT looked up from
 	// his card; PIP has nobody answering to him, so that piece is left out.
-	if len(l) != 3 || !strings.HasPrefix(l[0], "TIME: ") || !strings.HasPrefix(l[1], "TASK: ") || !strings.Contains(l[2], "I work with my host DOCTRINE BARFALLONYOU SPEWER") || strings.Contains(l[2], "Answering to me") || strings.Contains(l[2], "..") {
+	if len(l) != 1 || !strings.HasPrefix(l[0], "FACT: ") || !strings.Contains(l[0], "I work with my host DOCTRINE BARFALLONYOU SPEWER") || strings.Contains(l[0], "Answering to me") || strings.Contains(l[0], "..") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
 	for _, line := range append(l, b) {

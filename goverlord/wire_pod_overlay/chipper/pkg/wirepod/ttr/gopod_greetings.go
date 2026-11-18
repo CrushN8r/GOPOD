@@ -48,6 +48,12 @@ func gopodGreetingLine(esn, text string, now time.Time) string {
 	}
 	g := gopodBrobotsSettings.Greetings
 	tmpl := g.RightText
+	// 2026-11-18 (operator: "use 'night' to close with, as in good night, see you
+	// tomorrow * otherwise its 'evening'"): "good night" in the evening is a
+	// closing - said back as one.
+	if said == "night" && part == "evening" {
+		part = said
+	}
 	if said != part {
 		tmpl = g.WrongText
 	}
