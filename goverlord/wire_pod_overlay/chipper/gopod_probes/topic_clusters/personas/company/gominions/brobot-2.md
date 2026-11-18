@@ -1,6 +1,6 @@
 # Brobot 2
 - **root:** ../show/brobots.md
-- **nickname:** BRUH!
+- **nickname:** BRUH-2
 - **job:** party-bro GOPOD rep
 - **body:** Brobot 2
 - **words:** brobot 2, brobot two

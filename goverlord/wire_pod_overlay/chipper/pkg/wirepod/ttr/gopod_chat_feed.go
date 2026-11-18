@@ -35,14 +35,14 @@ func gopodChatFeedMax() int {
 var gopodChatFeedPath = gopodPathWithEnvOverride("GOPOD_CHAT_FEED_PATH", "webroot/gopod_chat_feed.json")
 
 type gopodChatFeedEvent struct {
-	ID     int    `json:"id"`
-	Who    string `json:"who"`
-	To     string `json:"to,omitempty"`
-	By     string `json:"by,omitempty"`  // a draft question: the reporter who reads it (the page's label)
-	Via    string `json:"via,omitempty"` // an operator line's input: "Keyboard", "KP1", "Backpack" (the page's label)
+	ID  int    `json:"id"`
+	Who string `json:"who"`
+	To  string `json:"to,omitempty"`
+	By  string `json:"by,omitempty"`  // a draft question: the reporter who reads it (the page's label)
+	Via string `json:"via,omitempty"` // an operator line's input: "Keyboard", "KP1", "Backpack" (the page's label)
 	// ToAs (2026-11-14): a line to a Brobot body names the persona it reaches
 	// (gopodPersonaShown) - the page's label; To stays the body (its place, icon).
-	ToAs string `json:"to_as,omitempty"`
+	ToAs   string `json:"to_as,omitempty"`
 	Text   string `json:"text"`
 	TimeMS int64  `json:"time_ms"`
 	// 2026-10-29: the turn it belongs to (the master chat queue, gopod_chat_queue.go).
@@ -76,8 +76,14 @@ func GopodChatFeedStart() {
 // ignored.
 func GopodChatFeedAdd(who, text string) {
 	// 2026-11-16: the system's answer to a line to Goverlord (-0) - he says it.
-	if who == gopodSystemSetRole() {
-		gopodGoverlordAnswer(text)
+	// 2026-11-17 (operator, review: "remove duplicate"): said by him in his own
+	// bubble, a one-line answer isn't shown again as the system's.
+	if who == gopodSystemSetRole() && gopodGoverlordAnswer(text) {
+		_, rest, more := strings.Cut(strings.TrimSpace(text), "\n")
+		if !more || strings.TrimSpace(rest) == "" {
+			return
+		}
+		text = rest
 	}
 	// 2026-10-09 (operator: "no 'LLM Ready for Bingo' voice audio"): a line from
 	// reporter_voices.system_say_role (a song's) is said in Goverlord's voice, with

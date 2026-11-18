@@ -2,12 +2,69 @@
   "song_id": "brobots_comm_check",
   "song_type": "comm_check",
   "story_ref": "story.md",
-  "about": "2026-11-04 (operator: \"Make system-comm-check a GOPOD song\"): system-comm-check plays this song (gopod_comm_check.go, settings comm_check.song): each \"ask\" step's line from story.md, asked on each of its keys in order. A wake_both step wakes both Brobots first (control taken, the settle, given back - gopodRobotCall). 2026-11-04 (operator: \"Goverlord, to orchestrate, delegates butler Keys to get the party started * Keys > Gomads > ... * Keys will now do the round robin\"): \"asker\" is whose bubble and voice the line is - Goverlord hands it to Keys (KP0), then BUTLER (Keys) calls everyone in: the Gomads CHALK, PLAYHEAD, CAMEO (KP7-9), the Brobots Doc and Pip (KP1-2), the interns Git Repo and Cache PYC (KP3-4), the guards Buzzer and Switch (KP5-6), then the Brobots together (*).",
+  "about": "2026-11-04 (operator: \"Make system-comm-check a GOPOD song\"): system-comm-check plays this song (gopod_comm_check.go, settings comm_check.song): each \"ask\" step's line from story.md, asked on each of its keys in order. A wake_both step wakes both Brobots first (control taken, the settle, given back - gopodRobotCall). 2026-11-04 (operator: \"Goverlord, to orchestrate, delegates butler Keys to get the party started * Keys > Gomads > ... * Keys will now do the round robin\"): \"asker\" is whose bubble and voice the line is - Goverlord hands it to Keys (KP0), then BUTLER (Keys) calls everyone in: the Gomads CHALK, PLAYHEAD, CAMEO (KP7-9), the Brobots Doc and Pip (KP1-2), the interns Git Repo and Cache PYC (KP3-4), the guards Buzzer and Switch (KP5-6), then the Brobots together (*). 2026-11-17 (operator, review: \"GOVERLORD to KEYNOTE: KEYS! Get the party started: get everyone to introduce themselves ... Start with me, then yourself, our Hosts, Gomads and their Interns, Gominions\"; the crews: System Crew - GOVERLORD, KEYS, LLM; System Crew (Security) - BUZZER, SWITCH; Gomads Crew (Show Hosts) - DOC, PIP; Gomads Crew - CHALKRA, ZOOMY, CHAMMY; Gomads Crew (Interns) - REPO, MIMI; Gominions Crew (GOPOD reps) - BRUH 1, BRUH 2; \"leave them out\" - the reporter calls): GOVERLORD hands it to KEYS (KEYS answers with his Got it and the crew brain bubble), KEYS calls GOVERLORD (persona:GOVERLORD), then answers himself (self), then calls the crews in order, then the Brobots together. No numpad status bubbles.",
   "steps": [
-    {"step_id": "brobots_wake_0101", "note": "wake_both", "section": "OPENING"},
-    {"step_id": "keys_ask_0201", "note": "ask", "asker": "Goverlord", "keys": ["KP0"], "section": "ROUND ROBIN"},
-    {"step_id": "brobots_ask_0202", "note": "ask", "asker": "BUTLER", "keys": ["KP1off", "KP2off"], "section": "ROUND ROBIN"},
-    {"step_id": "map_ask_0203", "note": "ask", "asker": "BUTLER", "keys": ["map"], "section": "ROUND ROBIN"},
-    {"step_id": "all_ask_0206", "note": "ask", "asker": "BUTLER", "keys": ["KPmul"], "section": "ROUND ROBIN"}
+    {
+      "step_id": "brobots_wake_0101",
+      "note": "wake_both",
+      "section": "OPENING"
+    },
+    {
+      "step_id": "keys_ask_0201",
+      "note": "ask",
+      "asker": "GOVERLORD",
+      "keys": [
+        "KP0"
+      ],
+      "section": "ROUND ROBIN"
+    },
+    {
+      "step_id": "goverlord_ask_0202",
+      "note": "ask",
+      "asker": "BUTLER",
+      "keys": [
+        "persona:GOVERLORD"
+      ],
+      "section": "ROUND ROBIN"
+    },
+    {
+      "step_id": "keys_self_0203",
+      "note": "ask",
+      "asker": "BUTLER",
+      "keys": [
+        "KP0"
+      ],
+      "self": true,
+      "section": "ROUND ROBIN"
+    },
+    {
+      "step_id": "crews_ask_0204",
+      "note": "ask",
+      "asker": "BUTLER",
+      "keys": [
+        "KP3off",
+        "KP5",
+        "KP6",
+        "KP1",
+        "KP2",
+        "KP7",
+        "KP8",
+        "KP9",
+        "KP3",
+        "KP4",
+        "KP1off",
+        "KP2off"
+      ],
+      "section": "ROUND ROBIN"
+    },
+    {
+      "step_id": "all_ask_0206",
+      "note": "ask",
+      "asker": "BUTLER",
+      "keys": [
+        "KPmul"
+      ],
+      "section": "ROUND ROBIN"
+    }
   ]
 }

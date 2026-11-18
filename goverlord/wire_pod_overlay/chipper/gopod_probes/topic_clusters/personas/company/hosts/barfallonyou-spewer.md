@@ -55,7 +55,7 @@
 1. DOCTRINE = Doctrine
 2. BARFY = Barfy
 3. BARFALLONYOU = Barf-all-on-you
-4. SPEWER = Spewer
+4. SPEWER = Spew-er
 
 ## DocBS (docbs)
 1. share: 0

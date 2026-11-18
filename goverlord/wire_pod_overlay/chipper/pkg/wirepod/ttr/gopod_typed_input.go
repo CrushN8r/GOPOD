@@ -95,25 +95,35 @@ var gopodGoverlordCalledAt atomic.Int64 // unix ms of the last -0 line
 // gopodGoverlordCall: a line to Goverlord (-0).
 func gopodGoverlordCall(text, how string) error {
 	gopodGoverlordCalledAt.Store(time.Now().UnixMilli())
+	// 2026-11-17 (operator: "next will be responses from new goverlord-brain.md"):
+	// a line that isn't a command is for Goverlord himself - he answers, as a
+	// persona, in his own voice (his card, personas/goverlord-brain.md).
+	if t := gopodSystemTypo(strings.TrimSpace(text)); t != "" && !gopodSystemCommandMatch(t) {
+		if _, ok := gopodBrobotsSettings.Managers.Personas[gopodGoverlordHost]; ok {
+			gopodGoverlordCalledAt.Store(0)
+			return gopodKeyLine(gopodPersonaMark+gopodGoverlordHost, text, how)
+		}
+	}
 	return gopodTypedToSystem(text, how)
 }
 
 // gopodGoverlordAnswer: the system's answer to a -0 line, said by Goverlord -
 // once, and only within a few seconds of the call.
-func gopodGoverlordAnswer(answer string) {
+func gopodGoverlordAnswer(answer string) bool {
 	at := gopodGoverlordCalledAt.Load()
 	if at == 0 || time.Since(time.UnixMilli(at)) > 15*time.Second || !gopodGoverlordCalledAt.CompareAndSwap(at, 0) {
-		return
+		return false
 	}
 	first := strings.TrimSpace(strings.SplitN(strings.TrimSpace(answer), "\n", 2)[0])
 	first = strings.Trim(first, "*# ")
 	if first == "" {
-		return
+		return false
 	}
 	// 2026-11-17 (operator: "system-comm-check to Goverlord produced some weird
 	// overlap"): said before the command goes on - the command's own lines
 	// (the comm check's first call, the tour's first scripture) wait for him.
 	gopodReporterSay(gopodGoverlordHost, first, true, true)
+	return true
 }
 
 // gopodSystemTypo: "sysem-comm-check" read as "system-comm-check" (2026-11-17,

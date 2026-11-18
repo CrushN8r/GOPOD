@@ -19,6 +19,16 @@
 1. text: Tell me about your interns.
 2. keys: KP7 | KP8
 
+## The crew brain bubble - KEYS' once, at the handover; the company is said here, not in every intro (comm_check.crew[])
+1. --- System Crew --- GOVERLORD, KEYS (Myself), LLM
+2. --- System Crew (Security) --- BUZZER, SWITCH
+3. --- Gomads Crew (Show Hosts) --- DOC, PIP
+4. --- Gomads Crew --- CHALKRA, ZOOMY, CHAMMY
+5. --- Gomads Crew (Interns) --- REPO, MIMI
+6. --- Gominions Crew (GOPOD reps) --- BRUH 1, BRUH 2
+7. Company: MATH AFTERMATH NEWS CHANNEL
+8. Cast: CRUSHN8R CREW
+
 ## The game welcome (comm_check.game_welcome)
 1. about: 2026-11-04 (operator: "Hey, that reminds me... coming up > reminder > GOPOD game"; "GOPOD game = 1st reminder, however coloured/flavoured"; "you've now reached the playable game level"; "brobot 2 ends the song * point robust per-persona flavour mechanism at brobot 2"): the comm song's last answer - by's - ends with the game welcome instead of a chapter reminder, once: base word for word, or one of his flavours (comm_check.game_welcome.flavours, in each persona's own file), at random. Then the game's own reminders take over.
 2. by: Brobot 2

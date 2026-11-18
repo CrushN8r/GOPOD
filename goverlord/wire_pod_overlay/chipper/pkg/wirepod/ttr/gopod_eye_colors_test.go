@@ -90,7 +90,7 @@ func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	if hp["DOC"].Name != "DOCTRINE BARFALLONYOU SPEWER" || hp["PIP"].Name != "PIP N STALL" {
 		t.Errorf("DOC and PIP's own cards: %q %q", hp["DOC"].Name, hp["PIP"].Name)
 	}
-	if hp["Brobot 1"].Nickname != "BRUH!" || hp["Brobot 1"].Name == hp["DOC"].Name || hp["Brobot 2"].Name == hp["PIP"].Name {
+	if hp["Brobot 1"].Nickname != "BRUH-1" || hp["Brobot 1"].Name == hp["DOC"].Name || hp["Brobot 2"].Name == hp["PIP"].Name {
 		t.Errorf("a Brobot's own card: %+v / %+v", hp["Brobot 1"], hp["Brobot 2"])
 	}
 	// 2026-11-15: each card names its body; the voices have none.
@@ -265,12 +265,12 @@ func TestLookupPicksCards(t *testing.T) {
 		"How much does booking cost?":                     "BOOKING.md",
 		"When is the next livestream?":                    "LIVESTREAM.md",
 	} {
-		fact, src := gopodLookupFact(q)
+		fact, src := gopodLookupFact("", q)
 		if !strings.Contains(strings.Join(src, ","), want) || fact == "" {
 			t.Errorf("%q: looked up %v, fact %q", q, src, fact)
 		}
 	}
-	if fact, src := gopodLookupFact("ok"); fact != "" || len(src) != 0 {
+	if fact, src := gopodLookupFact("", "ok"); fact != "" || len(src) != 0 {
 		t.Errorf("a line with no card's words: %v %q", src, fact)
 	}
 }
@@ -338,6 +338,38 @@ func TestSystemTypo(t *testing.T) {
 	for in, want := range map[string]string{"sysem-comm-check": "system-comm-check", "sytsem-tour": "system-tour", "system-tour": "system-tour", "hello-there": "hello-there"} {
 		if got := gopodSystemTypo(in); got != want {
 			t.Errorf("%q -> %q, want %q", in, got, want)
+		}
+	}
+}
+
+// 2026-11-17 (operator: "Gap 3, privacy? Fix first * Gap 1, coverage? Aim for
+// full coverage"): the look-up's cards are the whole public repo - every tracked
+// md file, and only those.
+func TestLookupTrackedOnly(t *testing.T) {
+	tracked := gopodLookupTracked()
+	cards := gopodLookupCards()
+	if len(cards) < 120 {
+		t.Errorf("only %d cards - the whole tracked repo has more", len(cards))
+	}
+	for _, c := range cards {
+		if !tracked[filepath.Clean(c.Path)] {
+			t.Errorf("an untracked file is a card: %s", c.Path)
+		}
+	}
+}
+
+// 2026-11-17 (operator: "Add sufficient depth without repeating"): a card gives
+// its lines that say the question's words, not only its first ones; a persona's
+// own card is never looked up for him.
+func TestLookupDepth(t *testing.T) {
+	fact, src := gopodLookupFact("", "how do I book the brobots for a birthday party?")
+	if len(fact) < 200 {
+		t.Errorf("a shallow look-up (%d letters): %v %q", len(fact), src, fact)
+	}
+	_, src = gopodLookupFact("Brobot 1", "Brobot 1, tell me about brobot 1")
+	for _, s := range src {
+		if s == "brobot-1.md" {
+			t.Error("his own card, looked up again")
 		}
 	}
 }

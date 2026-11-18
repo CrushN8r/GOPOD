@@ -2,8 +2,6 @@
 package wirepod_ttr
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -12,26 +10,40 @@ import (
 // the comm check asks the operator's tester once per key - KP0 to KP9 and * -
 // each key reaches someone; the page draws a "held" key's bubbles.
 func TestCommCheck(t *testing.T) {
-	lines := gopodCommCheckLines()
-	keys := map[string]int{}
-	for _, l := range lines {
-		keys[l[0]]++
+	// 2026-11-17 (operator's review: "GOVERLORD to KEYNOTE ... Start with me, then
+	// yourself, our Hosts, Gomads and their Interns, Gominions"; the crews in
+	// order; "leave them out" - the reporter calls): Goverlord hands it to KEYS,
+	// KEYS calls Goverlord, answers himself, then the crews, then All.
+	var keys []string
+	for _, l := range gopodCommCheckLines() {
+		keys = append(keys, l[0])
+		if strings.HasPrefix(l[0], gopodCommCheckPersonaKey) {
+			continue
+		}
 		if _, _, err := gopodNumpadBrobot(l[0]); err != nil {
 			t.Errorf("%s: %v", l[0], err)
 		}
 	}
-	for n := 0; n <= 9; n++ {
-		if keys["KP"+string(rune('0'+n))] != 1 {
-			t.Errorf("KP%d asked %d times, want once", n, keys["KP"+string(rune('0'+n))])
-		}
+	want := "KP0 persona:GOVERLORD KP0 KP3off KP5 KP6 KP1 KP2 KP7 KP8 KP9 KP3 KP4 KP1off KP2off KPmul"
+	if got := strings.Join(keys, " "); got != want {
+		t.Errorf("comm check keys:\n %s\nwant\n %s", got, want)
 	}
-	// 2026-11-04 (operator: "Keys will now do the round robin"): Goverlord hands it to Keys first, then Keys asks.
-	if keys[gopodNumpadAllKey] != 1 || lines[0][0] != "KP0" || lines[0][2] != "Goverlord" || lines[1][2] != "BUTLER" {
-		t.Errorf("comm check lines: %v", keys)
+	lines := gopodCommCheckLines()
+	if lines[0][2] != "GOVERLORD" || lines[1][2] != "BUTLER" || lines[2][3] != "self" || !strings.Contains(lines[0][1], "Start with me, then yourself") {
+		t.Errorf("who asks: %v", lines[:3])
 	}
-	js, _ := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "js", "gopod_brobots_chat.js"))
-	if !strings.Contains(string(js), `indexOf("numpad_sim|")`) {
-		t.Errorf("the page doesn't draw a held key's bubbles")
+	if len(gopodBrobotsSettings.CommCheck.Crew) < 8 || !strings.Contains(strings.Join(gopodBrobotsSettings.CommCheck.Crew, "|"), "MATH AFTERMATH NEWS CHANNEL") {
+		t.Errorf("crew bubble: %v", gopodBrobotsSettings.CommCheck.Crew)
+	}
+	gopodCommCheckRunning.Store(true)
+	defer gopodCommCheckRunning.Store(false)
+	gopodCommCheckAsking.Store([2]string{"hand over", "GOVERLORD"})
+	defer gopodCommCheckAsking.Store([2]string{})
+	if !gopodCommCheckHandover(gopodBrobotsSettings.SystemBubble.VoicePersona, "hand over") || gopodCommCheckHandover("CHALK", "hand over") {
+		t.Error("the handover is KEYS', from Goverlord")
+	}
+	if f := gopodBrainIntroFact(gopodBrainFacts("CHALK", gopodIntroFactAsk)); strings.Contains(f, "Math Aftermath") || !strings.Contains(f, "News Anchors") {
+		t.Errorf("CHALK's comm check intro: %q", f)
 	}
 }
 
@@ -59,34 +71,13 @@ func TestGameWelcome(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-13 (operator: "make it dynamic so it runs off the same core numpad
-// mapping of all live/active keys * start with keys, then brobots"): the comm
-// check asks Keys first, then the map's live keys in order, then all the Brobots.
-func TestCommCheckRunsOffTheMap(t *testing.T) {
-	var keys []string
-	for _, l := range gopodCommCheckLines() {
-		keys = append(keys, l[0])
-	}
-	got := strings.Join(keys, " ")
-	if !strings.HasPrefix(got, "KP0 KP1off KP2off KP1 KP2 ") || !strings.HasSuffix(got, " KPmul") || !strings.Contains(got, "KP7off") {
-		t.Errorf("comm check keys: %s", got)
-	}
-	seen := map[string]bool{}
-	for _, k := range keys {
-		if seen[k] {
-			t.Errorf("%s asked twice", k)
-		}
-		seen[k] = true
-	}
-}
-
 // 2026-11-14 (live: after "hey all!! weather please" the comm check called KP1
 // "Brobot 1" - the dial left at 0% from the line to all): a key's name comes
 // from the map alone (gopodNumpadKeyLabelIn), whatever the dial was left at.
 func TestCommCheckNamesFromTheMap(t *testing.T) {
 	gopodDialZero.Store(gopodBrobot1ESN, true)
 	defer gopodDialZero.Delete(gopodBrobot1ESN)
-	for key, want := range map[string]string{"KP1": "DOC", "KP2": "PIP", "KP1off": "BRUH!", "KP2off": "BRUH!"} {
+	for key, want := range map[string]string{"KP1": "DOC", "KP2": "PIP", "KP1off": "BRUH-1", "KP2off": "BRUH-2"} {
 		if got, ok := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key); !ok || got != want {
 			t.Errorf("%s: %q, want %q", key, got, want)
 		}

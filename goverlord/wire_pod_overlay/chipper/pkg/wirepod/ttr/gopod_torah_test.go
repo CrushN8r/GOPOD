@@ -62,7 +62,7 @@ func TestReadmeCastMatches(t *testing.T) {
 		t.Errorf("README.md's cast table doesn't match the numpad map - GOPOD_WRITE_TORAH=1 (or system-scrolls) writes it again")
 	}
 	table := gopodReadmeCastTable()
-	for _, want := range []string{"**DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1", "| KP1, NumLock off | **BRUH!** - Brobot 1 |", "**All the Brobots**"} {
+	for _, want := range []string{"**DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1", "| KP1, NumLock off | **BRUH-1** - Brobot 1 |", "**All the Brobots**"} {
 		if !strings.Contains(table, want) {
 			t.Errorf("the cast table has no %q:\n%s", want, table)
 		}

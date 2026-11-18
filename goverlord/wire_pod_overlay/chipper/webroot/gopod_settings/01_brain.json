@@ -171,7 +171,7 @@
     "recent_minutes": 10,
     "lookup_about": "2026-11-16 (operator: \"do a swap in/out of topic clusters for the task at hand (based on key value words/phrases) * do look ups from the repo read me files * in the brain bubble, list which topic clusters were aggregated\"): an answer with no value point gets its FACT from the look-up - the pool's cards (brain_chain.lookup_files, brobot-brain.md) whose words the question says, at most lookup_max of them, lookup_chars each; the bubble names them (LOOKED UP).",
     "lookup_max": 2,
-    "lookup_chars": 280,
+    "lookup_chars": 600,
     "deep_minutes": 30,
     "flow_about": "Guided Task Flow, made by code: intro (the line asks for one), then first (nobody has spoken yet) or recent (there's recent chat; 2026-10-31, operator: \"remove: [chat participant] just spoke - build on it, don't repeat it\", then \"Guided Task Flow: Does the recent chat help me answer the question asked.\").",
     "question_chars": 90,

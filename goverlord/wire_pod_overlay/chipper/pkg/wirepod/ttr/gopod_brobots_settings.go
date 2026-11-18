@@ -74,7 +74,7 @@ type gopodBrobotsSettingsFile struct {
 		SentenceEnds string `json:"sentence_ends"`
 		// 2026-11-16: phrases never cut (gopodCutAt).
 		KeepWhole []string `json:"keep_whole"`
-		CommaEnds    string `json:"comma_ends"`
+		CommaEnds string   `json:"comma_ends"`
 		// 2026-10-08: short pieces said as one run (gopodJoinPieces).
 		JoinUpToWords int  `json:"join_up_to_words"`
 		ThoughtLines  bool `json:"thought_lines"`
@@ -582,9 +582,9 @@ type gopodBrobotsSettingsFile struct {
 	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
 	// 2026-10-29: the system window tour (gopod_system_tour.go).
 	SystemTour struct {
-		QuietSeconds float64  `json:"quiet_seconds"`
-		StartText    string   `json:"start_text"`
-		EndText      string   `json:"end_text"`
+		QuietSeconds float64 `json:"quiet_seconds"`
+		StartText    string  `json:"start_text"`
+		EndText      string  `json:"end_text"`
 	} `json:"system_tour"`
 	// 2026-10-29: the single-bot setup (gopod_brobots_setup.go).
 	BrobotsSetup struct {
@@ -644,36 +644,36 @@ type gopodBrobotsSettingsFile struct {
 		// lines starting with bubble_hide (the prompt keeps them); whos_here_host
 		// says whos_here_text when the chat's people change; visitors_label heads
 		// the approved visitors in In the chat.
-		BubbleHide    []string          `json:"bubble_hide"`
-		WhosHereHost  string            `json:"whos_here_host"`
-		WhosHereText  string            `json:"whos_here_text"`
-		VisitorsLabel string            `json:"visitors_label"`
-		Header        string            `json:"header"`
-		ShortHeader   string            `json:"short_header"`
+		BubbleHide    []string `json:"bubble_hide"`
+		WhosHereHost  string   `json:"whos_here_host"`
+		WhosHereText  string   `json:"whos_here_text"`
+		VisitorsLabel string   `json:"visitors_label"`
+		Header        string   `json:"header"`
+		ShortHeader   string   `json:"short_header"`
 		// 2026-11-13 (operator: "chat look back time ranges? Local recent lookup
 		// (10 minutes), if not sufficient, look back deeper (30 minutes)").
 		RecentMinutes float64 `json:"recent_minutes"`
 		DeepMinutes   float64 `json:"deep_minutes"`
-		RecordLine    string            `json:"record_line"`
+		RecordLine    string  `json:"record_line"`
 		// 2026-11-13: the after-answer notes (gopodBrainNote).
-		AnswerPart  string `json:"answer_part"`
-		AskedBefore string `json:"asked_before"`
-		AnswerChars int    `json:"answer_chars"`
-		LongLine      string            `json:"long_line"`
-		FlowLine      string            `json:"flow_line"`
-		Flow          map[string]string `json:"flow"`
+		AnswerPart  string            `json:"answer_part"`
+		AskedBefore string            `json:"asked_before"`
+		AnswerChars int               `json:"answer_chars"`
+		LongLine    string            `json:"long_line"`
+		FlowLine    string            `json:"flow_line"`
+		Flow        map[string]string `json:"flow"`
 		// 2026-11-03 (operator: "c) Keys will be the first to speak, to open up
 		// the session"): his call name; his own intro flow is flow.intro_first.
-		IntroOpener   string   `json:"intro_opener"`
-		Lines         []string `json:"lines"`
-		IntroFact     []string `json:"intro_fact"`
+		IntroOpener string   `json:"intro_opener"`
+		Lines       []string `json:"lines"`
+		IntroFact   []string `json:"intro_fact"`
 		// 2026-11-16: the bubble's FACT line - where it was looked up ({sources}).
 		LookedUp string `json:"looked_up"`
 		// 2026-11-16: the look-up's pool (repo paths), how many cards, how long each (gopod_lookup.go).
-		LookupFiles []string `json:"lookup_files"`
-		LookupMax   int      `json:"lookup_max"`
-		LookupChars int      `json:"lookup_chars"`
-		LookupSkip  []string `json:"lookup_skip"`
+		LookupFiles   []string `json:"lookup_files"`
+		LookupMax     int      `json:"lookup_max"`
+		LookupChars   int      `json:"lookup_chars"`
+		LookupSkip    []string `json:"lookup_skip"`
 		CastItem      string   `json:"cast_item"`
 		Roster        string   `json:"roster"`
 		CastMe        string   `json:"cast_me"`
@@ -733,12 +733,19 @@ type gopodBrobotsSettingsFile struct {
 			// 2026-11-04 (operator: "Keys will now do the round robin"): who asks
 			// it - its bubble and voice (empty: the Operator, as before).
 			Asker string `json:"asker"`
+			// 2026-11-17 (operator: "Start with me, then yourself"): the asker's
+			// own turn - no line shown or said, he just answers it.
+			Self bool `json:"self"`
 		} `json:"rounds"`
-		QuietSeconds   float64 `json:"quiet_seconds"`
-		LineMaxSeconds float64 `json:"line_max_seconds"`
-		RecordSeconds  float64 `json:"record_seconds"`
-		StartText      string  `json:"start_text"`
-		DoneText       string  `json:"done_text"`
+		// 2026-11-17 (operator: "a brain bubble for that once, so as not to be
+		// repeated by everyone"): the crews, the company and the cast - KEYS'
+		// brain bubble once, at the handover.
+		Crew           []string `json:"crew"`
+		QuietSeconds   float64  `json:"quiet_seconds"`
+		LineMaxSeconds float64  `json:"line_max_seconds"`
+		RecordSeconds  float64  `json:"record_seconds"`
+		StartText      string   `json:"start_text"`
+		DoneText       string   `json:"done_text"`
 		// 2026-11-02: {name} for the line to All ("Hey Brobots!").
 		AllName string `json:"all_name"`
 		// 2026-11-04: the song the rounds come from (gopodApplyCommCheckSong).
@@ -776,7 +783,7 @@ type gopodBrobotsSettingsFile struct {
 		Exclamations       []string `json:"exclamations"`
 	} `json:"spice"`
 	PrebuildContext struct {
-		Header string   `json:"header"`
+		Header string `json:"header"`
 		// 2026-11-15 (operator: "'My role is a GOPOD rep' is fine for Brobots"):
 		// his {role} at the dial's 0%; hosting DOC or PIP, it's the persona's job.
 		RepRole string   `json:"rep_role"`
@@ -1118,15 +1125,15 @@ type gopodBrobotsSettingsFile struct {
 			Who  string `json:"who"`
 			Line string `json:"line"`
 		} `json:"cast"`
-		CastJoin     string            `json:"cast_join"`
-		BrotherLine  string            `json:"brother_line"`
-		BatteryText  string            `json:"battery_text"`
-		ClockFormat  string            `json:"clock_format"`
-		Place        string            `json:"place"`
-		ChatNote     string            `json:"chat_note"`
-		ChatAnswer   string            `json:"chat_answer"`
-		BatteryNote  string            `json:"battery_note"`
-		Genders      map[string]string `json:"genders"`
+		CastJoin    string            `json:"cast_join"`
+		BrotherLine string            `json:"brother_line"`
+		BatteryText string            `json:"battery_text"`
+		ClockFormat string            `json:"clock_format"`
+		Place       string            `json:"place"`
+		ChatNote    string            `json:"chat_note"`
+		ChatAnswer  string            `json:"chat_answer"`
+		BatteryNote string            `json:"battery_note"`
+		Genders     map[string]string `json:"genders"`
 
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`

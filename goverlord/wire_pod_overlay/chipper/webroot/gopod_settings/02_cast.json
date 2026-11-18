@@ -117,6 +117,7 @@
     "Brobot 2": {},
     "PIP": {"call_name": "PIP"},
     "GEMMA": {"call_name": "GEMMA"},
+    "GOVERLORD": {"call_name": "GOVERLORD"},
     "CHALK": {
       "call_name": "CHALK",
       "role": "",

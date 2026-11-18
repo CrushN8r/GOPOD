@@ -144,7 +144,7 @@ func TestFourPersonasTwoBodies(t *testing.T) {
 		Targets map[string]string `json:"targets"`
 	}
 	_ = json.Unmarshal(data, &d)
-	if d.Targets["KP1"] != "DOC" || d.Targets["KP2"] != "PIP" || d.Targets["KP1off"] != "BRUH!" || d.Targets["KP2off"] != "BRUH!" {
+	if d.Targets["KP1"] != "DOC" || d.Targets["KP2"] != "PIP" || d.Targets["KP1off"] != "BRUH-1" || d.Targets["KP2off"] != "BRUH-2" {
 		t.Errorf("the picker's names: %v", d.Targets)
 	}
 }

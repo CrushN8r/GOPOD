@@ -27,5 +27,6 @@
 2. INTEL 404 PNFT: Brobot 2's battery
 
 ## GOPOD System
-1. KEYNOTE: Butler, Goverlord's voice
-2. {GEMMA.call}: the LLM Gomad - maximum wordplay fun
+1. GOVERLORD: GOPOD's brain
+2. KEYNOTE: Butler, Goverlord's voice
+3. {GEMMA.call}: the LLM Gomad - maximum wordplay fun

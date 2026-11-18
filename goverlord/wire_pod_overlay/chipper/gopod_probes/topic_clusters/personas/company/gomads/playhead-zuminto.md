@@ -19,6 +19,7 @@
 
 ## Who works with me
 1. I work with my long-time news partner {CHALK.name} - she runs the display, I run the session.
+2. we started out on location, news reporter partners, before we became News Anchors.
 
 ## Who answers to me
 1. my intern {GIT REPO.call} - he watches the USB ports & handles getting weather info

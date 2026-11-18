@@ -19,6 +19,7 @@
 
 ## Who works with me
 1. I work with my long-time news partner {PLAYHEAD.name} - he runs the session, I run the display.
+2. we started out on location, news reporter partners, before we became News Anchors.
 
 ## Who answers to me
 1. my intern {CACHE PYC.call} - she gets things on the board

@@ -14,8 +14,10 @@ package wirepod_ttr
 // names them (LOOKED UP). Nothing is copied - each card is read where it lives.
 
 import (
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -28,7 +30,8 @@ type gopodLookupCard struct {
 	Path  string
 	Words []string
 	Lines []string
-	Owner string // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
+	Owner string   // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
+	Body  []string // every point and paragraph line, for the depth a question asks (gopodLookupFact)
 }
 
 var gopodLookupCache = struct {
@@ -47,9 +50,13 @@ func gopodLookupCards() []gopodLookupCard {
 		return gopodLookupCache.cards
 	}
 	var cards []gopodLookupCard
+	// 2026-11-17 (operator: "Gap 3, privacy? Fix first"): only the public repo -
+	// the files git tracks; a work file on disk (untracked, ignored) is never a
+	// card. No list from git (git missing, not a repo): no cards, said in the log.
+	tracked := gopodLookupTracked()
 	add := func(path string) {
 		base := filepath.Base(path)
-		if !strings.HasSuffix(base, ".md") || strings.HasPrefix(base, "z") || strings.HasSuffix(base, ".local.md") {
+		if !strings.HasSuffix(base, ".md") || strings.HasPrefix(base, "z") || strings.HasSuffix(base, ".local.md") || !tracked[filepath.Clean(path)] {
 			return
 		}
 		if c, ok := gopodLookupRead(path); ok {
@@ -82,6 +89,23 @@ func gopodLookupCards() []gopodLookupCard {
 	}
 	gopodLookupCache.cards, gopodLookupCache.at = cards, time.Now()
 	return cards
+}
+
+// gopodLookupTracked: the repo's tracked files (git ls-files), by full path.
+func gopodLookupTracked() map[string]bool {
+	root := gopodRepoRoot()
+	out, err := gopodAsOperator(exec.Command("git", "-C", root, "ls-files", "-z")).Output()
+	tracked := map[string]bool{}
+	if err != nil {
+		logger.Println("GOPOD_LOOKUP no tracked-file list, no cards: " + err.Error())
+		return tracked
+	}
+	for _, f := range strings.Split(string(out), "\x00") {
+		if f != "" {
+			tracked[filepath.Clean(filepath.Join(root, f))] = true
+		}
+	}
+	return tracked
 }
 
 // gopodLookupRead: a card - its words, then its first lines (a topic cluster's
@@ -117,6 +141,14 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "summary" && cluster && strings.TrimSpace(v) != "" {
 				c.Lines = []string{strings.TrimSpace(v)}
 			}
+			// A cluster's title and its head's own lines (not its words, its ask or
+			// its build notes) are lines too - a settings card says what it is.
+			if cluster && strings.HasPrefix(t, "# ") {
+				c.Body = append(c.Body, strings.TrimPrefix(t, "# "))
+			}
+			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && k != "about" && k != "owner" && strings.TrimSpace(v) != "" {
+				c.Body = append(c.Body, strings.TrimSpace(v))
+			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
 				c.Owner = strings.TrimSpace(v)
 			}
@@ -130,6 +162,9 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if t == "---" && cluster {
 				inBody = true
 			}
+			if !cluster && t != "" && !strings.HasPrefix(t, "#") && !strings.HasPrefix(t, "|") && !strings.HasPrefix(t, "<") && !strings.HasPrefix(t, "!") && t != "---" {
+				c.Body = append(c.Body, strings.TrimLeft(t, "-*> "))
+			}
 			if t != "" && !strings.HasPrefix(t, "#") && !strings.HasPrefix(t, "-") && !strings.HasPrefix(t, ">") && !strings.HasPrefix(t, "|") && !strings.HasPrefix(t, "<") && !strings.HasPrefix(t, "!") {
 				para = append(para, t)
 			} else if len(para) > 0 && c.Lines == nil {
@@ -140,6 +175,11 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 		if strings.HasPrefix(t, "## ") {
 			sections++
 			continue
+		}
+		if m := gopodProfilePointRE.FindStringSubmatch(t); m != nil {
+			c.Body = append(c.Body, m[1])
+		} else if t != "" && !strings.HasPrefix(t, "#") && !strings.HasPrefix(t, "|") && !strings.HasPrefix(t, "<") && !strings.HasPrefix(t, "!") && t != "---" {
+			c.Body = append(c.Body, strings.TrimLeft(t, "-*> "))
 		}
 		// Its first section's points (or those before any section), unless a summary said it.
 		if m := gopodProfilePointRE.FindStringSubmatch(t); m != nil && sections <= 1 && !summary {
@@ -218,6 +258,29 @@ func gopodLookup(question string) []gopodLookupCard {
 			hits = append(hits, hit{c, best})
 		}
 	}
+	// 2026-11-17 (operator: "Aim for full coverage"): no card's words said - the
+	// cards whose lines say the most of the question's meaningful words (two or
+	// more of them), by the letters matched.
+	if len(hits) == 0 {
+		words := gopodLookupMeaningful(question)
+		for _, c := range gopodLookupCards() {
+			seen := map[string]bool{}
+			for _, l := range c.Body {
+				for _, w := range gopodLookupTokens(l) {
+					if words[w] {
+						seen[w] = true
+					}
+				}
+			}
+			if len(seen) >= 2 {
+				score := 0
+				for w := range seen {
+					score += len(w)
+				}
+				hits = append(hits, hit{c, score})
+			}
+		}
+	}
 	sort.SliceStable(hits, func(i, j int) bool { return hits[i].score > hits[j].score })
 	most := gopodBrobotsSettings.BrainChain.LookupMax
 	var out []gopodLookupCard
@@ -231,14 +294,66 @@ func gopodLookup(question string) []gopodLookupCard {
 	return out
 }
 
-// gopodLookupFact: what the brain's FACT says from the cards - their first lines,
-// at most brain_chain.lookup_chars each; and their names, for LOOKED UP.
-func gopodLookupFact(question string) (fact string, sources []string) {
+// gopodLookupFact: what the brain's FACT says from the cards - each card's first
+// lines, then (2026-11-17, operator: "Gap 2, depth? Add sufficient depth without
+// repeating (fix brains, the selves within the group)") its other lines that say
+// the question's words, no line twice, at most brain_chain.lookup_chars a card;
+// and their names, for LOOKED UP. self's own card and the company's card are
+// already in his prompt - never looked up again.
+func gopodLookupFact(self, question string) (fact string, sources []string) {
 	chars := gopodBrobotsSettings.BrainChain.LookupChars
+	skipCard := map[string]bool{}
+	if self != "" {
+		if f := gopodPersonaProfileFile(self); f != "" {
+			skipCard[filepath.Clean(f)] = true
+		}
+	}
+	if f := gopodTopicTreeFind("math-aftermath-news-channel.md"); f != "" {
+		skipCard[filepath.Clean(f)] = true
+	}
+	words := gopodLookupMeaningful(question)
 	var facts []string
+	said := map[string]bool{}
 	for _, c := range gopodLookup(question) {
+		if skipCard[filepath.Clean(c.Path)] {
+			continue
+		}
+		var lines []string
+		add := func(l string) {
+			l = strings.TrimSpace(l)
+			key := strings.ToLower(l)
+			// A setting ("label: ANY PERSONA") or a dated build note is the
+			// machine's, not a fact to say.
+			if l == "" || said[key] || gopodLookupMachineRE.MatchString(l) {
+				return
+			}
+			said[key] = true
+			lines = append(lines, l)
+		}
+		for _, l := range c.Lines {
+			add(l)
+		}
+		for _, l := range c.Body {
+			for _, w := range gopodLookupTokens(l) {
+				if words[w] {
+					add(l)
+					break
+				}
+			}
+		}
+		if len(lines) == 0 {
+			// Nothing here to say (a settings card): its title and head, then.
+			for _, l := range c.Body {
+				if len(lines) < 2 {
+					add(l)
+				}
+			}
+		}
+		if len(lines) == 0 {
+			continue
+		}
 		sources = append(sources, gopodLookupName(c.Path))
-		t := strings.Join(c.Lines, " ")
+		t := strings.NewReplacer("**", "", "`", "").Replace(strings.Join(lines, ". "))
 		if chars > 0 && len(t) > chars {
 			t = gopodCut(t, chars)
 		}
@@ -247,6 +362,26 @@ func gopodLookupFact(question string) (fact string, sources []string) {
 		}
 	}
 	return strings.Join(facts, " "), sources
+}
+
+// gopodLookupMachineRE: a line that's a setting (a key: value), a build note
+// (dated, or quoting the operator) or a path - not a fact to say.
+var gopodLookupMachineRE = regexp.MustCompile(`^_?[a-z][a-z0-9_.\[\]]*:\s|\b20\d\d-\d\d-\d\d\b|operator:|[\w-]+/[\w./-]+\.(md|go|js|json|py)\b`)
+
+// gopodLookupMeaningful: a question's words worth matching a line on (stemmed;
+// not the little words, not lookup_skip's).
+func gopodLookupMeaningful(question string) map[string]bool {
+	skip := map[string]bool{}
+	for _, w := range gopodBrobotsSettings.BrainChain.LookupSkip {
+		skip[gopodLookupStem(strings.ToLower(strings.TrimSpace(w)))] = true
+	}
+	out := map[string]bool{}
+	for _, t := range gopodLookupTokens(question) {
+		if len(t) >= 4 && !skip[t] && !gopodLookupLittle[t] {
+			out[t] = true
+		}
+	}
+	return out
 }
 
 // gopodLookupName: a card as the bubble names it - its file, or its folder for a README.

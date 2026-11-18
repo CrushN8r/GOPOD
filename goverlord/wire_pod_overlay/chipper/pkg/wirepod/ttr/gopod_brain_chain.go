@@ -373,7 +373,7 @@ func gopodBrainFacts(self, question string) map[string]string {
 		m["{fact}"] = gopodBrainFact(self)
 		// 2026-11-16: no value point - the look-up's cards (gopod_lookup.go).
 		if m["{fact}"] == "" {
-			m["{fact}"], _ = gopodLookupFact(question)
+			m["{fact}"], _ = gopodLookupFact(self, question)
 		}
 	}
 	return m
@@ -387,6 +387,12 @@ const gopodIntroFactAsk = "Introduce yourself"
 func gopodBrainIntroFact(m map[string]string) string {
 	var out []string
 	for _, piece := range gopodBrobotsSettings.BrainChain.IntroFact {
+		// 2026-11-17 (operator: "looked up and added to the chat, so no sense
+		// repeating it"): in the comm check the company is in the crew bubble
+		// once - no intro says it again.
+		if gopodCommCheckRunning.Load() && strings.Contains(piece, "{my_company}") && len(gopodBrobotsSettings.CommCheck.Crew) > 0 {
+			continue
+		}
 		keep := true
 		for k, v := range m {
 			if strings.Contains(piece, k) && strings.TrimSpace(v) == "" {
@@ -586,7 +592,7 @@ func gopodBrainSources(self, question string) string {
 	// 2026-11-16: no value point given - the look-up's cards (gopod_lookup.go).
 	esn := gopodBrobotESN(self)
 	if esn == "" || len(gopodGivenPoints(esn)) == 0 {
-		_, looked := gopodLookupFact(question)
+		_, looked := gopodLookupFact(self, question)
 		return strings.Join(looked, ", ")
 	}
 	for _, given := range gopodGivenPoints(esn) {

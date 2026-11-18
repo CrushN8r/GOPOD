@@ -83,9 +83,9 @@ func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 
 // gopodCommCheckLines: every round's text on each of its keys, in order, with
 // who asks it.
-func gopodCommCheckLines() [][3]string {
+func gopodCommCheckLines() [][4]string {
 	cc := gopodBrobotsSettings.CommCheck
-	var lines [][3]string // key, text, asker
+	var lines [][4]string // key, text, asker, "self" for the asker's own turn
 	asked := map[string]bool{}
 	for _, r := range cc.Rounds {
 		keys := r.Keys
@@ -105,13 +105,17 @@ func gopodCommCheckLines() [][3]string {
 					}
 					if !asked[mk] && !strings.EqualFold(mk, gopodNumpadAllKey) {
 						asked[mk] = true
-						lines = append(lines, [3]string{mk, r.Text, r.Asker})
+						lines = append(lines, [4]string{mk, r.Text, r.Asker, ""})
 					}
 				}
 				continue
 			}
 			asked[k] = true
-			lines = append(lines, [3]string{k, r.Text, r.Asker})
+			self := ""
+			if r.Self {
+				self = "self"
+			}
+			lines = append(lines, [4]string{k, r.Text, r.Asker, self})
 		}
 	}
 	return lines
@@ -119,6 +123,39 @@ func gopodCommCheckLines() [][3]string {
 
 // gopodCommCheckMapKeys: a comm check step's keys word for every live map key.
 const gopodCommCheckMapKeys = "map"
+
+// gopodCommCheckPersonaKey: a comm check step's key for a persona by name ("persona:GOVERLORD").
+const gopodCommCheckPersonaKey = "persona:"
+
+// gopodCommCheckSelf: the asker's own turn is being answered (no Got it line).
+var gopodCommCheckSelf atomic.Bool
+
+// gopodPersonaNick: a persona's nickname (its card), else its call name.
+func gopodPersonaNick(who string) string {
+	if n := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[who].Nickname); n != "" {
+		return n
+	}
+	return gopodCallName(who)
+}
+
+// gopodCommCheckHandover (2026-11-17, operator: "GOVERLORD to KEYNOTE ... KEYNOTE:
+// Message received, sir. --- System Crew --- ..."): Goverlord's line handing the
+// comm check to KEYS - KEYS answers it with his Got it and the crew brain bubble
+// only (comm_check.crew), not an intro.
+func gopodCommCheckHandover(host, text string) bool {
+	return gopodCommCheckRunning.Load() && host == gopodBrobotsSettings.SystemBubble.VoicePersona &&
+		strings.EqualFold(gopodCommCheckAsker(text), gopodGoverlordHost)
+}
+
+// gopodCommCheckCrew: the crew brain bubble, in KEYS' bubble.
+func gopodCommCheckCrew(host, to string) {
+	title := strings.ReplaceAll(strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title), "{name}", gopodCallName(host))
+	for _, line := range gopodBrobotsSettings.CommCheck.Crew {
+		if line = strings.TrimSpace(line); line != "" && title != "" {
+			gopodBubbleNotice(to, title, line)
+		}
+	}
+}
 
 // gopodCommCheckAsking (2026-11-04, operator: "Goverlord, to orchestrate,
 // delegates butler Keys to get the party started * Keys will now do the round
@@ -214,14 +251,22 @@ func gopodSystemCommCheck() string {
 				return
 			}
 			key := strings.ToUpper(strings.TrimSpace(l[0]))
-			label, target, err := gopodNumpadBrobot(key)
-			if err != nil {
-				logger.Println("GOPOD_COMM_CHECK " + key + ": " + err.Error())
-				continue
+			var label, target, name string
+			// 2026-11-17 (operator: "Start with me"): "persona:<name>" - a persona
+			// with no key of its own (Goverlord), called by name.
+			if p, ok := strings.CutPrefix(strings.TrimSpace(l[0]), gopodCommCheckPersonaKey); ok {
+				label, target, name = p, gopodPersonaMark+p, gopodPersonaNick(p)
+			} else {
+				var err error
+				label, target, err = gopodNumpadBrobot(key)
+				if err != nil {
+					logger.Println("GOPOD_COMM_CHECK " + key + ": " + err.Error())
+					continue
+				}
+				// 2026-11-15 (operator: "KP# = [nickname]"): the key's name as the
+				// picker shows it - its persona's nickname (gopodNumpadKeyLabelIn).
+				name, _ = gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
 			}
-			// 2026-11-15 (operator: "KP# = [nickname]"): the key's name as the
-			// picker shows it - its persona's nickname (gopodNumpadKeyLabelIn).
-			name, _ := gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
 			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
 			// back): the line to both is to the Brobots (comm_check.all_name).
 			if n := strings.TrimSpace(cc.AllName); n != "" && strings.EqualFold(label, "All") {
@@ -229,11 +274,9 @@ func gopodSystemCommCheck() string {
 			}
 			text := gopodSpellNames(strings.ReplaceAll(l[1], "{name}", name))
 			logger.Println("GOPOD_COMM_CHECK " + strconv.Itoa(i+1) + "/" + strconv.Itoa(len(lines)) + " " + key + " -> " + label + ": " + text)
-			// The page draws the key's bubbles, as if it were held.
-			// 2026-11-16 (bubble log: "Numpad to DOC" over a KP1off line): its fourth
-			// part is the persona the key reaches (gopodKeyReaches) - the status names it.
-			GopodChatFeedAdd(gopodBrobotsSettings.ReporterVoices.Role, "numpad_sim|"+key+"|"+label+"|"+gopodKeyReaches(target))
-			gopodCommCheckWaitPage(gopodFeedLastID(), 30*time.Second)
+			// 2026-11-17 (operator, review: "remove - Numpad to KEYS ... keep holding
+			// ... Recording ... transcribing"; "yes, include KEYS & GOVERLORD"): no
+			// numpad status bubbles - the asker's line is the call.
 			gopodNumpadLastKey.Store(key)
 			gopodCommCheckAsking.Store([2]string{text, strings.TrimSpace(l[2])})
 			// 2026-11-04: the last line's answer ends with the game welcome.
@@ -262,8 +305,13 @@ func gopodSystemCommCheck() string {
 					answerer = "Brobot 1"
 				}
 			}
-			// The one key path (gopodKeyLine) - the same as a typed or held key.
-			if err := gopodKeyLine(target, text, "Numpad text"); err != nil {
+			// The asker's own turn: he just answers, no line to himself.
+			if l[3] == "self" && strings.HasPrefix(target, gopodPersonaMark) {
+				gopodCommCheckSelf.Store(true)
+				gopodGomadAnswer(strings.TrimPrefix(target, gopodPersonaMark), text)
+				gopodCommCheckSelf.Store(false)
+			} else if err := gopodKeyLine(target, text, "Numpad text"); err != nil {
+				// The one key path (gopodKeyLine) - the same as a typed or held key.
 				logger.Println("GOPOD_COMM_CHECK " + err.Error())
 			}
 			gopodCommCheckWaitAnswer(from, answerer, max)
@@ -272,7 +320,8 @@ func gopodSystemCommCheck() string {
 		gopodGameReset("comm check")
 		logger.Println("GOPOD_COMM_CHECK done: " + strconv.Itoa(len(lines)) + " lines")
 		if t := strings.TrimSpace(cc.DoneText); t != "" {
-			if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" {
+			// 2026-11-17 (operator, review: "KEYNOTE - Comm check complete"): KEYS says it.
+			if role := gopodBrobotsSettings.SystemBubble.VoicePersona; role != "" {
 				gopodReporterSay(role, strings.ReplaceAll(t, "{n}", strconv.Itoa(len(lines))), true, false)
 			}
 		}
@@ -339,6 +388,7 @@ func gopodApplyCommCheckSong(s *gopodBrobotsSettingsFile) {
 			Note   string   `json:"note"`
 			Keys   []string `json:"keys"`
 			Asker  string   `json:"asker"`
+			Self   bool     `json:"self"`
 		} `json:"steps"`
 	}
 	if err != nil || json.Unmarshal(knobs, &k) != nil {
@@ -355,7 +405,8 @@ func gopodApplyCommCheckSong(s *gopodBrobotsSettingsFile) {
 				Text  string   `json:"text"`
 				Keys  []string `json:"keys"`
 				Asker string   `json:"asker"`
-			}{texts[st.StepID], st.Keys, st.Asker})
+				Self  bool     `json:"self"`
+			}{texts[st.StepID], st.Keys, st.Asker, st.Self})
 		}
 	}
 }

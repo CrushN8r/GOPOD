@@ -38,3 +38,4 @@
 10. CAMEO: {CAMEO.call} ({gender}, Content Gomad - social media; her intern {CACHE PYC.call})
 11. BUTLER: {name} (the {job}, male, Goverlord's voice - the runs, the system's answers, the comm check)
 12. GEMMA: {GEMMA.call} ({gender}, GOPOD's LLM Gomad - maximum wordplay fun)
+13. GOVERLORD: {GOVERLORD.call} ({gender}, GOPOD's brain - {BUTLER.call} is his voice; he speaks himself only when called on -0)

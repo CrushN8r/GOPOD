@@ -494,6 +494,10 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	if gopodGemmaEyesAsked(host, text) {
 		return gopodGemmaEyesLook(), nil
 	}
+	// 2026-11-17: the comm check's handover - KEYS' Got it and crew bubble only.
+	if gopodCommCheckHandover(host, text) {
+		return "", nil
+	}
 	reply, err := gopodPersonaAsk(host, text)
 	if err != nil {
 		return "", err
@@ -542,10 +546,15 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 		// they're asked a question, the bubble can say, message received, sir, and
 		// then the process can go on"): the Brobots' order - his Got it, said at
 		// once (the voice template), then his brain, then his answer when it's made.
-		if got := strings.TrimSpace(gopodGotItNamed(host).Text); got != "" {
+		if got := strings.TrimSpace(gopodGotItNamed(host).Text); got != "" && !gopodCommCheckSelf.Load() {
 			gopodReporterSay(sayAs, got, true, true)
 		}
 		gopodGomadBrain(host, sayAs, text)
+		if gopodCommCheckHandover(host, text) {
+			gopodCommCheckCrew(host, sayAs)
+			gopodBrainAdd(gopodCallName(host), text, "answer", "")
+			return true
+		}
 		var reply string
 		var err error
 		seq := gopodStopSeq.Load()
