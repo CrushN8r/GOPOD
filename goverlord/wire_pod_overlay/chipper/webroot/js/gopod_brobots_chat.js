@@ -2086,6 +2086,10 @@
         if (systemCmd) { toShown = systemLabel || toShown; }
         var head = bubbleHead(keyShown(via || "Operator") + " to " + toShown, true);
         head.firstChild.classList.add("from-operator");
+        // 2026-11-18 (operator: "make a brobot 0 + numpad * make a brobot 0 +
+        // mic"): the operator's icon wears how the line came in.
+        if (/^(KP|Numpad)/i.test(String(via || ""))) { head.firstChild.classList.add("via-numpad"); }
+        else if (/mic|heard|voice/i.test(String(via || ""))) { head.firstChild.classList.add("via-mic"); }
         if (systemCmd) {
           // The system's icon at the end, as on every line to the system.
           var sysIcon = document.createElement("div");
@@ -6951,7 +6955,13 @@
             timer: setTimeout(function () {
               numpad.zeroDown = null;
               if (numpad.active) { return; }
-              if (!ev.getModifierState("NumLock")) { systemStatus(numpadText("numlock_off", { key: "KP0" }), 3000, "Brobots"); return; }
+              if (!ev.getModifierState("NumLock")) {
+                // 2026-11-18 (operator: "Numlock OFF + KP0 didn't get me to
+                // Goverlord"): KP0 with NumLock off talks to its own layer (-0,
+                // Goverlord) when the map has it - like KP7/KP8 off.
+                if (numpad.targets.KP0off) { numpadStart("KP0off", numpad.targets.KP0off); numpad.active.at = downAt; return; }
+                systemStatus(numpadText("numlock_off", { key: "KP0" }), 3000, "Brobots"); return;
+              }
               if (!numpad.targets.KP0) { systemStatus(numpadText("not_live", { key: "KP0", persona: "-", body: "-" }), 3000, "KP0"); return; }
               numpadStart("KP0", numpad.targets.KP0);
               numpad.active.at = downAt;

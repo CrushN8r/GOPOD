@@ -835,6 +835,19 @@ func gopodReporterOpening(warm bool) {
 	if len(opening) == 0 {
 		return
 	}
+	// 2026-11-18 (operator: "can this be visually/indicated somehow, so I know
+	// what's happening in these gaps?"; live: "Language Model Loading" stood for
+	// 97 s while the voice engine loaded): while the voice engine still loads, the
+	// warm-up bubble says so (llm.voices_engine_text) - shown, not said (no voice
+	// can be made yet).
+	select {
+	case <-gopodReporterBookendsMade:
+	default:
+		if t := strings.TrimSpace(gopodBrobotsSettings.LLM.VoicesEngineText); t != "" && warm {
+			logger.Println("GOPOD_REPORTER_VOICES waiting for the voice engine - shown: " + t)
+			gopodWarmupMessage(t)
+		}
+	}
 	// The voice worker ready (not every line made - each is made as it comes:
 	// generate once, use many - 2026-11-14, operator: "If they're there & no
 	// diffs, skip to play-readiness").

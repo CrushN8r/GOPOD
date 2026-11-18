@@ -169,8 +169,10 @@ type gopodBrobotsSettingsFile struct {
 	LLM struct {
 		WarmupText string `json:"warmup_text"`
 		// 2026-10-16: the opener song (gopod_opener_song.go).
-		OpenerSongID       string  `json:"opener_song_id"`
-		VoicesText         string  `json:"voices_text"`
+		OpenerSongID string `json:"opener_song_id"`
+		VoicesText   string `json:"voices_text"`
+		// 2026-11-18: shown while the voice engine still loads (the opening waits for it).
+		VoicesEngineText   string  `json:"voices_engine_text"`
 		WaitText           string  `json:"wait_text"`
 		WarmupCheckSeconds float64 `json:"warmup_check_seconds"`
 		ReadyText          string  `json:"ready_text"`

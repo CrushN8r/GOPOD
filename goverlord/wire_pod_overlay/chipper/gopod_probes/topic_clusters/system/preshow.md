@@ -47,6 +47,7 @@
 5. no_llm_text: No Language Model Required
 6. run_ready_end: Let's Begin. (music)
 7. warmup_done_text: ``
+8. voices_engine_text: Voices warming up - about a minute or two.
 
 ## The sign-off, in order (sign_off.lines) (sign_off.lines)
 1. Brobot 2: This is where Pip asks for an email, right?

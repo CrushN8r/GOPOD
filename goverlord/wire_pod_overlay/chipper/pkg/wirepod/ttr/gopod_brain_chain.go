@@ -580,7 +580,26 @@ func gopodBrainBubbleLines(self, question string) []string {
 // gopodBrainSources: the files this answer's FACT was looked up in - an intro's,
 // his card (and the company card for KEYS' company intro); an answer's, the topic
 // card of each value point given ("what-gopod-is.md #1"). "" for none.
+// 2026-11-18 (operator: "GOVERLORD Brain * has no lookups"; "all files looked up
+// are listed"): every brain names its own card first, whatever else it looked up.
 func gopodBrainSources(self, question string) string {
+	own := filepath.Base(gopodPersonaProfileFile(self))
+	list := gopodBrainSourcesLooked(self, question)
+	if own == "" || own == "." {
+		return list
+	}
+	for _, s := range strings.Split(list, ", ") {
+		if strings.TrimSpace(s) == own {
+			return list
+		}
+	}
+	if list == "" {
+		return own
+	}
+	return own + ", " + list
+}
+
+func gopodBrainSourcesLooked(self, question string) string {
 	var out []string
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		// 2026-11-18 (operator: "Yes to own card under LOOKED UP * all files
