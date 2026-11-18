@@ -2,7 +2,7 @@
 # for each value point - topic, point, shape, fill, checked. Same format as the
 # probers list: the question, " | ", the topic it lands on first.
 Hold on. Doc? What's the deal with Doc and Pip? | doc_and_pip
-Real talk. Pip N Stall, from terminal command, pip install - is that true about Doc and Pip? | doc_and_pip
+Real talk. Pippen Stall, from terminal command, pip install - is that true about Doc and Pip? | doc_and_pip
 Real talk. orphaned when our maker folded - is that true about our whole story? | background
 Walk a real day. Where does Doc is a strict funny teacher fit in with how we teach? | teaching_method
 Nice try. And our local brain? Tell me about local brain. | local_ai

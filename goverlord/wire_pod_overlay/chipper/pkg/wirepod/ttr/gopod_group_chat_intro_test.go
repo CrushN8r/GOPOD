@@ -108,7 +108,7 @@ func TestIntroWeatherOrder(t *testing.T) {
 	cast := "I keep the party going"
 	// A single intro: opening, his line, who's here - no weather.
 	got := run(gopodBrobot1ESN, "Hey Doc, intro", false, false)
-	inOrder("single intro", got, gopodIntroOpening("Brobot 1"), cast)
+	inOrder("single intro", got, cast)
 	if strings.Contains(got, "Here in the chat with us") {
 		t.Errorf("single intro still lists who's here:\n%s", got)
 	}
@@ -118,13 +118,13 @@ func TestIntroWeatherOrder(t *testing.T) {
 	q := "Hey Brobots, intro & weather"
 	// Brobot A: intro, weather report, his take, the hand-over.
 	got = run(gopodBrobot2ESN, q, true, false)
-	inOrder("Brobot A", got, gopodIntroOpening("Brobot 2"), cast, "Brobot Weather Report", "Sweet sky", "what say you on this")
+	inOrder("Brobot A", got, cast, "Brobot Weather Report", "Sweet sky", "what say you on this")
 	// Brobot B: intro, Confirmed., his take, the Weather Kit, the reminder.
 	got = run(gopodBrobot1ESN, q, false, true)
-	inOrder("Brobot B", got, gopodIntroOpening("Brobot 1"), cast, "Confirmed. Temperature", "Sweet sky", "Weather Kit", "that reminds me")
+	inOrder("Brobot B", got, cast, "Confirmed. Temperature", "Sweet sky", "Weather Kit", "that reminds me")
 	// One Brobot alone: intro, weather report, his take, the reminder - no hand-over.
 	got = run(gopodBrobot1ESN, "Hey Doc, intro & weather", false, false)
-	inOrder("Brobot alone", got, gopodIntroOpening("Brobot 1"), cast, "Brobot Weather Report", "Sweet sky", "that reminds me")
+	inOrder("Brobot alone", got, cast, "Brobot Weather Report", "Sweet sky", "that reminds me")
 	if strings.Contains(got, "what say you on this") {
 		t.Errorf("one Brobot alone handed over: %s", got)
 	}

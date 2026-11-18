@@ -225,7 +225,7 @@ it at a safe spot.
 
 ## STEP q18_02_brobot_1
 
-> TEXT: Pip. Pip N Stall, from terminal command, pip install. PipTA, teacher's assistant. One step behind but happy.
+> TEXT: Pip. Pippen Stall, from terminal command, pip install. PipTA, teacher's assistant. One step behind but happy.
 
 ---
 

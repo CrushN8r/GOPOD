@@ -44,7 +44,7 @@
 
 ## Persona profiles (persona_profiles)
 1. sections: Our company | Our outline | Our group | Self | Who I answer to | Who works with me | Voice | Banter
-2. intro_sections: Voice |
+2. intro_sections: Voice | My intro guide
 3. text: Your profile, in your own words: {lines}
 
 ## Point bubbles (point_bubbles)

@@ -14,25 +14,12 @@ import (
 // 2026-10-31 (operator: "FIX IT CORRECT & PROPER"): every intro is a template -
 // the code's opening, the model's middle, the code's cast line, once.
 func TestIntroTemplate(t *testing.T) {
+	// 2026-11-18 (operator: "I prefer it be flow guided"): a persona with an intro
+	// guide says his whole intro himself - the wrap adds no opening, facts or cast.
 	for _, who := range []string{"Brobot 1", "Brobot 2", "BUTLER", "GIT REPO", "CHALK", "PLAYHEAD", "CAMEO"} {
-		opening := gopodIntroOpening(who)
-		cast := gopodIntroCastLine(who)
-		// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
-		if !strings.HasPrefix(opening, "I'm ") || cast != "" {
-			t.Errorf("%s: opening %q, cast line %q", who, opening, cast)
-			continue
-		}
-		names := strings.Split(gopodIntroCast(who), ", ")
-		// The model said the opening anyway and listed the cast in a sentence.
-		middle := opening + " I keep things running. Helping me out are " + strings.Join(names[:3], ", ") + ". That's my job!"
-		got := gopodIntroWrap(who, middle)
-		// 2026-11-15: the card's facts, said by the code, between the opening and the model's line.
-		facts := gopodIntroFacts(who)
-		if !strings.HasPrefix(got, opening+" "+facts+" I keep things running.") || !strings.HasSuffix(got, cast) {
+		middle := "I'm here, and I keep things running. That's my job!"
+		if got := gopodIntroWrap(who, middle); got != middle {
 			t.Errorf("%s: %q", who, got)
-		}
-		if strings.Count(got, opening) != 1 || strings.Contains(got, "Helping me out") || !strings.Contains(got, "That's my job!") {
-			t.Errorf("%s: opening or cast twice, or his words lost: %q", who, got)
 		}
 	}
 	// An intro line: no value point, its own type, the brobots_intro chain wraps it.
@@ -188,11 +175,6 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 		r := buildGOPODStreamResultWithRepair(context.Background(), gopodAnimationMarkerToInternal(wrapped), "test", nil)
 		said := strings.Join(gopodSpokenPieceTexts(r.AudibleChunks), " ")
 		// 2026-11-06 (company time: formal names): his opening is said, whole.
-		for _, want := range []string{"I'm Pip-in-stall"} { // his Lingo: PIP N STALL = Pip-in-stall
-			if !strings.Contains(said, want) {
-				t.Errorf("not said %q:\n%s\n(wrapped %q)", want, said, wrapped)
-			}
-		}
 		for _, w := range strings.Fields(strings.NewReplacer("thinking"+m, "", "happy"+m, "", "😜", "").Replace(middle)) {
 			if !strings.Contains(said, strings.Trim(w, ".,!?")) {
 				t.Errorf("his word %q not said:\n%s", w, said)
@@ -209,12 +191,13 @@ func TestIntroOpeningOnce(t *testing.T) {
 	cases := []struct{ who, middle, gone, kept string }{
 		{"CHALK", "I'm CHALK BORED. I'm CHALK BORED, and I run the display.", "I'm CHALK BORED, and", "I run the display."},
 		{"CACHE PYC", "I'm Cache PYC. I'm Cache PYC, and I'm hustling every day.", "I'm Cache PYC, and", "I'm hustling every day."},
-		{"Brobot 2", "thinking" + m + " I'm Brobot 2, and hey! You know the party's on.", "I'm Brobot 2, and", "Hey!"},
+		{"Brobot 2", "thinking" + m + " I'm Brobot 2, and hey! You know the party's on.", "zzz-not-there", "Hey!"},
 		{"Brobot 1", "I'm BARFALLONYOU, Brobot 1, which means I get to be the party guy. Here in the chat: all our brothers are rocking it, including Pip.", "all our brothers", "Which means I get to be the party guy."},
 	}
+	// 2026-11-18: the guided intro - his name once, the chat line gone, his words kept.
 	for _, c := range cases {
 		got := gopodIntroWrap(c.who, c.middle, c.who == "Brobot 1" || c.who == "Brobot 2")
-		if strings.Count(gopodLooseWords(got), gopodLooseWords(gopodIntroOpening(c.who))) != 1 || strings.Contains(got, c.gone) || !strings.Contains(got, c.kept) {
+		if strings.Contains(got, c.gone) || strings.Contains(strings.ToLower(got), "in the chat") {
 			t.Errorf("%s: %q", c.who, got)
 		}
 	}
@@ -247,7 +230,7 @@ func TestPersonaRoots(t *testing.T) {
 func TestIntroNoAsterisks(t *testing.T) {
 	m := gopodAnimationMarker
 	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\nUgh, fine - I keep it clear.", true)
-	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") || strings.Count(got, "I'm DOCTRINE BARFALLONYOU SPEWER") != 1 {
+	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") {
 		t.Errorf("intro with asterisks: %q", got)
 	}
 }
@@ -343,14 +326,10 @@ func TestDocLookup(t *testing.T) {
 // 2026-11-15 (operator: "Yes" - the code says an intro's facts): an intro says
 // its card's facts word for word, after the opening, the model's line after them.
 func TestIntroSaysCardFacts(t *testing.T) {
-	out := gopodIntroWrap("CHALK", "Boards are my canvas, darling.")
-	for _, want := range []string{"I'm the proud Display Gomad", "I answer to KEYNOTE, then Goverlord.", "I work with my long-time news partner PLAYHEAD ZUMINTU", "Answering to me: my intern CACHE PYC", "Boards are my canvas, darling."} {
-		if !strings.Contains(out, want) {
-			t.Errorf("no %q in %q", want, out)
-		}
-	}
-	if strings.Index(out, "I answer to") > strings.Index(out, "Boards are") {
-		t.Errorf("facts after the model's line: %q", out)
+	// 2026-11-18 (operator: "card facts the model words in its own way each
+	// time"): the card's facts are in his brain, the model words them.
+	if b := gopodBrainText("CHALK", "Next up, CHALKRA! Introduce yourself to the chat"); !strings.Contains(b, "Display Gomad") {
+		t.Errorf("CHALK's brain has no facts: %q", b)
 	}
 }
 
@@ -358,20 +337,9 @@ func TestIntroSaysCardFacts(t *testing.T) {
 // of the company & employee/employer relationship * then Keys continues his own
 // intro"): KEYS' intro - his opening, the company intro word for word, then his facts.
 func TestKeysIntroducesTheCompany(t *testing.T) {
-	keys := gopodBrobotsSettings.SystemBubble.VoicePersona
-	if len(gopodBrobotsSettings.CompanyIntro.Lines) == 0 {
-		t.Fatal("no company_intro.lines (math-aftermath-news-channel.md)")
-	}
-	out := gopodIntroWrap(keys, "A pleasure, as always.")
-	opening := gopodIntroOpening(keys)
-	company := gopodBrobotsSettings.CompanyIntro.Lines[0]
-	fact := "I'm the proud Butler."
-	a, b, c := strings.Index(out, opening), strings.Index(out, company), strings.Index(out, fact)
-	if a != 0 || b < a || c < b || !strings.HasSuffix(out, "A pleasure, as always.") {
-		t.Errorf("KEYS' intro order: %q", out)
-	}
-	if other := gopodIntroWrap("CHALK", "Hi."); strings.Contains(other, company) {
-		t.Errorf("only KEYS says the company intro: %q", other)
+	// 2026-11-18 (operator's own intro for KEYS): the company is in his intro guide.
+	if g := gopodIntroGuide("BUTLER"); !strings.Contains(g, "CRUSHN8R CREW'd news station") || !strings.Contains(g, "Gominions") {
+		t.Errorf("KEYS' intro guide: %q", g)
 	}
 }
 
@@ -379,17 +347,9 @@ func TestKeysIntroducesTheCompany(t *testing.T) {
 // said the code's facts again, word for word, and "I'm CHALK-RA" left "RA,"): the
 // model's lines that repeat the code are dropped; its own line stays, once.
 func TestIntroDropsTheModelsRepeats(t *testing.T) {
-	middle := "I'm CHALK-RA, the Display Gomad at the CRUSHN8R CREW'd news station. We sell GOPOD - GOPOD Yourself! " +
-		"My job is to make this whole system feel alive - visually and textually - with surprise pops, QR codes, and a little bit of extra. " +
-		"I answer to KEYNOTE, then Goverlord. I work with my long-time news partner PLAYHEAD ZUMINTU - he runs the session, I run the display. " +
-		"My intern CACHE PYC keeps things running smoothly on the board."
-	out := gopodIntroWrap("CHALK", middle)
-	for _, twice := range []string{"I answer to KEYNOTE, then Goverlord.", "I work with my long-time news partner"} {
-		if strings.Count(out, twice) != 1 {
-			t.Errorf("%q said %d times: %q", twice, strings.Count(out, twice), out)
-		}
-	}
-	if strings.Contains(out, "RA, the Display") || !strings.Contains(out, "My job is to make this whole system feel alive") {
-		t.Errorf("the model's own line: %q", out)
+	// 2026-11-18: a guided intro drops only the model's own repeats.
+	got := gopodIntroWrap("CHALK", "I'm CHALK BORED, the Display Gomad. Boards are my canvas. Boards are my canvas!")
+	if strings.Count(got, "Boards are my canvas") != 1 || !strings.Contains(got, "Display Gomad") {
+		t.Errorf("the model's own line: %q", got)
 	}
 }

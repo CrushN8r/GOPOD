@@ -47,7 +47,7 @@ Two robot bodies, four Brobot personas, and a whole crew of voices - every one o
 |---|---|---|
 | KP0 | **KEYS** - KEYNOTE VALE | Butler, Goverlord's voice |
 | KP1 | **DOC** - DOCTRINE BARFALLONYOU SPEWER, on Brobot 1 | the host - explains too hard, on purpose |
-| KP2 | **PIP** - PIP N STALL, on Brobot 2 | the sidekick - the room's pied piper |
+| KP2 | **PIP** - PIPPEN STALL, on Brobot 2 | the sidekick - the room's pied piper |
 | KP3 | **REPO** - Git Repo | Tech Intern - the USB ports & getting weather info |
 | KP4 | **MIMI** - Cache PYC | Display and Social Media Intern - the weather, ready to say |
 | KP5 | **BUZZER** - Intel 404 PNFH | Brobot 1's battery |

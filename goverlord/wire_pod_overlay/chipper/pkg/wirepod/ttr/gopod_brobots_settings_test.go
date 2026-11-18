@@ -24,7 +24,7 @@ func TestBrobotsSettingsReachTheCode(t *testing.T) {
 	if gopodAnimationMarker != s.AnimationMarker || gopodSharedBrobotChatExchanges != s.SharedChat.MaxQuestions || gopodBingoSnapshotNote != s.Bingo.SnapshotNote {
 		t.Fatal("a setting did not reach the code")
 	}
-	if gopodBrobotPersonaLines["Brobot 1"] != gopodPersonaFillAs("Brobot 1", s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"])) || !strings.Contains(gopodBrobotPersonaLines["PIP"], "PIP N STALL") || strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "PIP N STALL") || gopodBrobotsSettings.Bingo.Takes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
+	if gopodBrobotPersonaLines["Brobot 1"] != gopodPersonaFillAs("Brobot 1", s.Personas["Brobot 1"]+" "+gopodHostPersonaText("Brobot 1", s.Personas["Brobot 1"])) || !strings.Contains(gopodBrobotPersonaLines["PIP"], "PIPPEN STALL") || strings.Contains(gopodBrobotPersonaLines["Brobot 2"], "PIPPEN STALL") || gopodBrobotsSettings.Bingo.Takes["Brobot 2"] != s.Bingo.Takes["Brobot 2"] {
 		t.Fatal("personas or Bingo takes did not reach the code")
 	}
 	got := gopodFillPromptTokens("$PLACEHOLDER_WORD$ANIMATION_MARKER spoken thought, marker: $ANIMATION_MARKER")
@@ -860,7 +860,7 @@ func TestSpokenSymbols(t *testing.T) {
 // highlight ("PipTA" said "Pip-T-A", "crushn8r.ca" said "Crush-Ehnaydir-dotseeay").
 func TestHighlightRenamedWords(t *testing.T) {
 	for text, spoken := range map[string][]string{
-		"Pip is Pip N Stall — pip install, PipTA, the teacher's assistant.": {"Pip is Pip N Stall,", "pip install,", "Pip-T-A,", "the teacher's assistant."},
+		"Pip is Pippen Stall — pip install, PipTA, the teacher's assistant.": {"Pip is Pippen Stall,", "pip install,", "Pip-T-A,", "the teacher's assistant."},
 		"crushn8r.ca. The CREW'd newsletter — you're joining the crew.":     {"Crush-Ehnaydir-dotseeay.", "The crewd newsletter,", "you're joining the crew."},
 	} {
 		_, seg := gopodSegmentDisplay(text, spoken)

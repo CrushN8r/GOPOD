@@ -9,5 +9,5 @@
 3. We perform for the room; we answer to the Gomads, {BUTLER.call}, then Goverlord.
 
 ## Our members
-1. the host and teacher (barfallonyou-burns.md, hosted by Brobot 1)
-2. the sidekick and teacher's assistant (pip-stall.md, hosted by Brobot 2)
+1. the host and teacher (barfallonyou-spewer.md, hosted by DOC)
+2. the sidekick and teacher's assistant (pip-stall.md, hosted by PIP)

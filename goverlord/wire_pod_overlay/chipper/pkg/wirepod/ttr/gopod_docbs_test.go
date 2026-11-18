@@ -183,7 +183,7 @@ func TestIntroRecipe(t *testing.T) {
 		// every response"); his working relationships are in his facts.
 		// 2026-11-17 (operator: "CLEAR OUT YOUR ... BLOAT"): the facts are said by
 		// code (FACT) - the recipe never lists them again.
-		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || strings.Contains(r, "I answer to ") || !strings.Contains(r, "already said for you") {
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || strings.Contains(r, "I answer to ") || !strings.Contains(r, "intro guide") {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {

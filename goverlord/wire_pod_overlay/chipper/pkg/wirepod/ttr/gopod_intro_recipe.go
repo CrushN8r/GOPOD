@@ -187,6 +187,29 @@ func gopodIntroFacts(who string) string {
 }
 
 func gopodIntroWrap(who, middle string, brobot ...bool) string {
+	// 2026-11-18 (operator: "I prefer it be flow guided * card facts the model
+	// words in its own way each time * but as close to what I have"): a persona
+	// with an intro guide on his card says his whole intro himself, guided by it
+	// (intro_sections) - no code opening, facts or cast line around it.
+	if gopodIntroGuide(who) != "" {
+		// Still his once: a later "I'm <name>," start goes, a sentence saying again
+		// what an earlier one said goes, and so does a "here in the chat" line.
+		selfNames := gopodIntroSelfNames(who)
+		var keep []string
+		var said []map[string]bool
+		for i, sentence := range gopodIntroSentences(strings.ReplaceAll(middle, "*", "")) {
+			if i > 0 {
+				sentence = gopodDropSelfIntro(sentence, selfNames)
+			}
+			bare := strings.TrimSpace(sentence)
+			if bare == "" || strings.Contains(strings.ToLower(bare), "in the chat") || gopodSaysAgain(bare, said) {
+				continue
+			}
+			said = append(said, gopodContentWords(bare))
+			keep = append(keep, sentence)
+		}
+		return strings.TrimSpace(strings.Join(keep, " "))
+	}
 	opening := gopodIntroOpening(who)
 	// 2026-11-05 (live 08:34: Doc's line came back wrapped in "*...*" and the
 	// code's opening landed inside it - "*I'm Brobot 1, my nickname is Doc. *"):
@@ -280,6 +303,11 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+// gopodIntroGuide: the operator's own intro on who's card ("## My intro guide"), "" for none.
+func gopodIntroGuide(who string) string {
+	return strings.TrimSpace(strings.Join(gopodPersonaProfileSections(who)["My intro guide"], " "))
 }
 
 // gopodContentWords: a sentence's words of 3+ letters, small letters.

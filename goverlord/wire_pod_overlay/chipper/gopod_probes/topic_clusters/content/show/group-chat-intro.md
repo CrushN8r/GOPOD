@@ -12,7 +12,7 @@
 2. opening: I'm {name}{nickname_part}.
 3. nickname_part: , my nickname is {nickname}
 4. why_part: , because {why}
-5. text: Your name, nickname, job, boss and team are already said for you - never say them again. Add one or two short sentences of your own, proud and playful, about your job. Plain words, no stage directions.
+5. text: Introduce yourself in your own words, following your intro guide - close to it, its pieces in a fresh order, never word for word. Plain words, emojis welcome, no stage directions.
 6. weather_text: Then, on a new line, react to the weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report and the hand-over are said for you.
 7. weather_text_next: Then, on a new line, react to your brother's weather report in one or two short lines, your way. No numbers, no dates, no names, no hand-over - the report is said for you.
 8. cast_line: ``

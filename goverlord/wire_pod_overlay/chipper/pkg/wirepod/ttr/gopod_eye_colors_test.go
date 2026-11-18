@@ -88,7 +88,7 @@ func TestKeysSaysCrushN8rHisWay(t *testing.T) {
 // persona answering from it only through gopodAnswerer.
 func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	hp := gopodBrobotsSettings.HostPersonas
-	if hp["DOC"].Name != "DOCTRINE BARFALLONYOU SPEWER" || hp["PIP"].Name != "PIP N STALL" {
+	if hp["DOC"].Name != "DOCTRINE BARFALLONYOU SPEWER" || hp["PIP"].Name != "PIPPEN STALL" {
 		t.Errorf("DOC and PIP's own cards: %q %q", hp["DOC"].Name, hp["PIP"].Name)
 	}
 	if hp["Brobot 1"].Nickname != "BRUH-1" || hp["Brobot 1"].Name == hp["DOC"].Name || hp["Brobot 2"].Name == hp["PIP"].Name {
@@ -441,5 +441,28 @@ func TestGovOrLord(t *testing.T) {
 	text := gopodSpellNames("gov or lord what say you owe grand master")
 	if !strings.HasPrefix(text, "Goverlord") || gopodAnyNamed(text) != "GOVERLORD" {
 		t.Errorf("%q -> %q", text, gopodAnyNamed(text))
+	}
+}
+
+// 2026-11-18 (operator: "I prefer it be flow guided ... as close to what I have"):
+// every persona's card has his intro guide; an intro is the model's own, guided
+// by it - no code opening around it; PIP is PIPPEN STALL.
+func TestIntroGuides(t *testing.T) {
+	for _, who := range []string{"GOVERLORD", "BUTLER", "GEMMA", "INTEL 404 PNFH", "INTEL 404 PNFT", "DOC", "PIP", "CHALK", "PLAYHEAD", "CAMEO", "GIT REPO", "CACHE PYC"} {
+		if gopodIntroGuide(who) == "" {
+			t.Errorf("%s has no intro guide", who)
+		}
+	}
+	if !strings.Contains(gopodIntroGuide("INTEL 404 PNFT"), "My partner Buzzer") {
+		t.Error("SWITCH's partner is Buzzer")
+	}
+	if got := gopodIntroWrap("CHALK", "I'm the Display Gomad, CHALK BORED. *waves*"); got != "I'm the Display Gomad, CHALK BORED. waves" {
+		t.Errorf("guided intro: %q", got)
+	}
+	if !strings.Contains(gopodPersonaPromptFor("CHALK", true), "Zoomy gave me") {
+		t.Error("the guide isn't in the intro prompt")
+	}
+	if gopodBrobotsSettings.HostPersonas["PIP"].Name != "PIPPEN STALL" {
+		t.Errorf("PIP: %q", gopodBrobotsSettings.HostPersonas["PIP"].Name)
 	}
 }
