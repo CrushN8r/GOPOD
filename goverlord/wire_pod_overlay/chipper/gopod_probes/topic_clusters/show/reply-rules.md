@@ -3,7 +3,6 @@
 - **ask:** What gets cut from a Brobot's answer?
 - **chain:** Gominions (Doc and Pip) - how their answer is cleaned before it's said
 - **see also:** brobot-brain, golden_answers
-- **about:** 2026-11-03 (step 3): reply_tighten's word lists, from 01_brain.json. The sentence counts, the switches and brand_words stay in the settings for now.
 ---
 
 ## The word lists (reply_tighten)

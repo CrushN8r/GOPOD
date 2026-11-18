@@ -42,7 +42,10 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 	b.WriteString(gopodPersonaFill(host, p.Prompt))
 	// 2026-10-21 (operator: "One persona shape for all four hosts"): its host
 	// persona and its pair's banter and stereo dial (gopod_brobot_personas.go).
-	if t := gopodHostPersonaText(host, p.Prompt); t != "" {
+	// 2026-11-17 (operator: "CLEAR OUT YOUR ... BLOAT"): an intro gets its prompt,
+	// its voice and the brain only - no banter dial, no cast, no bits, no
+	// scripted reporter lines (CHALK mixed her pre-show lines into her intro).
+	if t := gopodHostPersonaText(host, p.Prompt); t != "" && !intro {
 		b.WriteString(" " + t)
 	}
 	// 2026-10-30: its profile - self, voice, banter (gopod_persona_profiles.go).
@@ -54,11 +57,11 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 		b.WriteString(" " + profile)
 	}
 	// 2026-10-26: who, where, when, who else, what's happening (gopod_here_now.go).
-	if n := gopodHereNow(host); n != "" {
+	if n := gopodHereNow(host); n != "" && !intro {
 		b.WriteString(" " + n)
 	}
 	// 2026-10-28: its bits in the works, to try when the moment fits.
-	if w := gopodPersonaWIP(host); w != "" {
+	if w := gopodPersonaWIP(host); w != "" && !intro {
 		b.WriteString(" " + w)
 	}
 	var lines []string
@@ -67,7 +70,7 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 			lines = append(lines, "- "+l.Text)
 		}
 	}
-	if len(lines) > 0 {
+	if len(lines) > 0 && !intro {
 		b.WriteString("\n" + p.LinesNote + "\n" + strings.Join(lines, "\n"))
 	}
 	return b.String()

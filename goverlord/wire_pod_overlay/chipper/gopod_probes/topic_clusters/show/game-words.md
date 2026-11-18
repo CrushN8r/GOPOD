@@ -3,7 +3,6 @@
 - **ask:** What does the game say?
 - **chain:** Other (outside the chain) - the game of value points the live chat plays
 - **see also:** easter_eggs, golden_answers, topic-pictures, bubble-notices, brobot-brain
-- **about:** 2026-11-03 (step 6 of GOPOD_CLUSTERS_PLAN_002.md): from 04_game.json game, value_points and topic_asks. A value in backticks is that text exactly ("\n" a break). The numbers, switches, roles and nested groups stay in the settings for the format step.
 ---
 
 ## The game (game)

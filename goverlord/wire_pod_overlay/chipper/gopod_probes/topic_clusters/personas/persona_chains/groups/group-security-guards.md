@@ -1,7 +1,6 @@
 # The Security Guards - the shared guard persona
 - **root:** ../../company/math-aftermath-news-channel.md
 - **chain:** Security guards - GOPOD's guards on shift; each adds his own on top
-- **about:** 2026-11-04 (operator: "Security Guards should be rooted in the same way, a shared 'Security Guards' persona"; "shared root persona > individual personas"): what the guards share. Lines come from the repo's own facts; edit freely, then wpr 2.
 ---
 
 ## Our group

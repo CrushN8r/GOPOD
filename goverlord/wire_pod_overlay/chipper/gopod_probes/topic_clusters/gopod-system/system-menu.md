@@ -3,7 +3,6 @@
 - **ask:** What's in the system menu?
 - **chain:** Goverlord - the shell window's menu: its scriptures (groups), their tours and commands
 - **see also:** system-help (the same commands, as a list), system-texts (what each answers)
-- **about:** 2026-11-03 (step 7 of GOPOD_CLUSTERS_PLAN_002.md, the format step; operator: "then a shell window scaffolding loads accordingly"): 06_system.json system_menu.groups. Each scripture is a section; its tour is a line list ("[]", a line each); each command is its own section, headed by the command (about, and run: true to run at once, or fill: the words left in the text box). The window's look, themes and copy buttons stay in the settings (the design). A value in backticks is that text exactly.
 ---
 
 ## 1. Restart and check (system_menu.groups.0)

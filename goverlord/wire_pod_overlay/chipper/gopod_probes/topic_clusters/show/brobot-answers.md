@@ -3,7 +3,6 @@
 - **ask:** What else shapes a Brobot's answer?
 - **chain:** Gominions (Doc and Pip) - the notes, frames and lines around their answers
 - **see also:** brobot-brain, reply-rules, nicknames, spice, host-pairs
-- **about:** 2026-11-03 (step 8b of GOPOD_CLUSTERS_PLAN_002.md: the words left in the settings): from the settings blocks named in each heading. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list; (.) is the settings' top level.
 ---
 
 ## answer_shapes marks (answer_shapes.marks)
@@ -45,7 +44,7 @@
 
 ## Persona profiles (persona_profiles)
 1. sections: Our company | Our outline | Our group | Self | Who I answer to | Who works with me | Voice | Banter
-2. intro_sections: Our company | Our outline | Our group | Who I answer to | Who works with me | Voice
+2. intro_sections: Voice |
 3. text: Your profile, in your own words: {lines}
 
 ## Point bubbles (point_bubbles)

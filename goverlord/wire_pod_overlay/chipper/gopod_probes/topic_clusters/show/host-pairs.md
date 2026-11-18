@@ -3,7 +3,6 @@
 - **ask:** Who are the partners, and how do they banter?
 - **chain:** each pair sits at its own level - Brobot 1 & Brobot 2 Gominions (DOC and PIP are their own personas - their partnership is on their cards); CHALK & PLAYHEAD Gomads; Git Repo & Cache PYC interns; the guards Gomads
 - **see also:** ../personas/crew_roster.md, the persona files of each pair, nicknames
-- **about:** 2026-11-15 (operator: "decouple brobots from DOC/PIP completely * They only share the same robot bodies"): the brothers' pair is Brobot 1 & Brobot 2 - no stereo dial mixing them with DOC and PIP. 2026-11-03 (step 4): from 02_cast.json host_pairs. Each pair's dial stays in the settings.
 ---
 
 ## Brobot 1 & Brobot 2 (host_pairs.Brobot 1 & Brobot 2)

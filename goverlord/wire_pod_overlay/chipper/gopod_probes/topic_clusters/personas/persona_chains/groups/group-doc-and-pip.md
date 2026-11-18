@@ -1,7 +1,6 @@
 # Doc and Pip - the shared host persona
 - **root:** ../../company/math-aftermath-news-channel.md
 - **chain:** Gominions - the host and his sidekick, hosted by the Brobots (doc.md on Brobot 1, pip.md on Brobot 2); each adds his own on top
-- **about:** 2026-11-04 (operator: "Doc/Pip > DocBS/PipTA host-sidekick/teacher-assistant"; "shared root persona > individual personas"): what Doc and Pip share. Lines come from the repo's own facts; edit freely, then wpr 2.
 ---
 
 ## Our group

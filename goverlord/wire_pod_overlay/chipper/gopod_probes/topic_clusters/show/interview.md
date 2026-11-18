@@ -3,7 +3,6 @@
 - **ask:** How does the interview start?
 - **chain:** Goverlord - the scripted interview's own words
 - **see also:** game-runs, gopod-system/preshow
-- **about:** 2026-11-03 (step 8b of GOPOD_CLUSTERS_PLAN_002.md: the words left in the settings): from the settings blocks named in each heading. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list; (.) is the settings' top level.
 ---
 
 ## Interview script (interview_script)

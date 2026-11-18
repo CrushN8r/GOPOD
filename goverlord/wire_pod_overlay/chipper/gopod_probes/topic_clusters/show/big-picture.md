@@ -3,7 +3,6 @@
 - **ask:** What do you guys do?
 - **chain:** Gominions (Doc and Pip) - the short summary across what GOPOD does
 - **see also:** golden_answers, brobot-brain
-- **about:** 2026-11-03 (step 3): the summary answer, from 01_brain.json summary. min_topics and max_topics stay in the settings. A value in backticks is that text exactly ("\n" a break).
 ---
 
 ## The summary (summary)

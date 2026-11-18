@@ -2,7 +2,6 @@
 - **words:** system text, system messages, system window, terminal bubble
 - **ask:** What does the system say back to a system- command?
 - **see also:** system-help (the commands these answer), dizzy-brobots, weather_run
-- **about:** 2026-11-03 (operator: "the whole GOPOD system can be that, correct? * then a shell window scaffolding loads accordingly * let's do that as a planned group of steps"; step 1 of GOPOD_CLUSTERS_PLAN_001.md). Every line the system window answers with, by command; {name} is filled by the code. A " | " here is words, never a list. Was 06_system.json system_text.
 ---
 
 ## Comm check (system_text)

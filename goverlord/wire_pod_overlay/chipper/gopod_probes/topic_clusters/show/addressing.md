@@ -3,7 +3,6 @@
 - **ask:** How do the Brobots know who was called?
 - **chain:** Gominions - the words that call Doc or Pip, and the follow-up note
 - **see also:** nicknames, host-pairs
-- **about:** 2026-11-03 (step 7b of GOPOD_CLUSTERS_PLAN_002.md): 02_cast.json addressing: its texts and the names each Brobot answers to (what the mic hears, misheard ones too). A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list.
 ---
 
 ## Addressing (addressing)

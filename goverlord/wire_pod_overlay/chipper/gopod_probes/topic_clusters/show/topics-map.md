@@ -3,7 +3,6 @@
 - **ask:** How do the topics hang together?
 - **chain:** Other - the game's topics: the core chapters, the funnels and the links between topics
 - **see also:** game-words, easter_eggs
-- **about:** 2026-11-03 (step 7b of GOPOD_CLUSTERS_PLAN_002.md): 04_game.json value_points core_topics, funnels and topic_links. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list.
 ---
 
 ## The core topics, by chapter (value_points.core_topics)

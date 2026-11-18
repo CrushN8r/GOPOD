@@ -1,6 +1,5 @@
 # LLM warm schema
 
-- **about:** 2026-11-06 (operator: "LLM warming should be smart enough to know * schema the opener llm warming * then per run after opener llm warming, smart-llm-warm-check/bypass per run vs opener llm warming"): the master opener warm-up - a song with `"song_type": "llm_warm"` (00_llm_warming, played by Wire-Pod at its start) has these steps, in this order. The system check (`gopodSchemaCheck`, every restart) lists a gap "to fix".
 
 ---
 

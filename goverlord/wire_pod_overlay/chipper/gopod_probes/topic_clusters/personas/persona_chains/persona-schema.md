@@ -7,7 +7,6 @@
 - **words:** (to come: the words that name this persona, small letters, the settings key first)
 - **ask:** Tell me about yourself
 - **chain:** (to come: who this persona answers to, in the chain of command)
-- **about:** 2026-11-06 (operator: "see persona-schema.md * make it the master sterile scaffolding"): the master scaffolding - every persona file fills these, in this order. Nothing reads this file; copy it to make a persona.
 ---
 
 ## Self

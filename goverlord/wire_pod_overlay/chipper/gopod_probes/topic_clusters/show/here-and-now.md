@@ -3,7 +3,6 @@
 - **ask:** Where are the Brobots, and who are they chatting with?
 - **chain:** Gominions (Doc and Pip) - the here-and-now line the code writes for them
 - **see also:** brobot-brain (before I answer), ../personas/crew_roster.md, dizzy-brobots (the batteries)
-- **about:** 2026-11-13 (live: "how are you both doing this morning?" at 3:05 PM got "it's the mornin'"): the parts of the day - the brain's TIME line names the one it is now ({day_part}, from greetings.parts in 02_cast.json since 2026-11-15, one source), so the model reads "afternoon", not only "3:05 PM". 2026-11-03 (step 4): from 02_cast.json here_now. The clock format and the cast list (grouped fields) stay in the settings. A value in backticks is that text exactly.
 ---
 
 ## Here and now (here_now) (here_now)
@@ -27,8 +26,8 @@
 
 ## The cast, in order (here_now.cast)
 1. Brobot 0: Master CrushN8r ({gender}, Brobot 0, the operator, talking to you)
-2. Brobot 1: Doc ({gender}, Brobot 1, a Brobot)
-3. Brobot 2: Pip ({gender}, Brobot 2, a Brobot)
+2. Brobot 1: Brobot 1 ({gender}, {Brobot 1.nickname}, a GOPOD rep Brobot)
+3. Brobot 2: Brobot 2 ({gender}, {Brobot 2.nickname}, a GOPOD rep Brobot)
 4. CHALK: {CHALK.name} ({gender}, Display Gomad - the display and the board; her intern {CACHE PYC.call})
 5. PLAYHEAD: {PLAYHEAD.name} ({gender}, Session Gomad - the runs, the time and place; his intern {GIT REPO.call})
 6. GIT REPO: {GIT REPO.call} ({gender}, {PLAYHEAD.call}'s Tech Intern - the USB ports, the raw weather)

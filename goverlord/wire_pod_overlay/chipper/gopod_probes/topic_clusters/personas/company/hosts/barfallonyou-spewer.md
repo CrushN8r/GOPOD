@@ -8,7 +8,6 @@
 - **ask:** Tell me about yourself
 - **chain:** Gominion - performs; the host persona, on Brobot 1 at the dial's 100%; answers to the Gomads, KEYNOTE and Goverlord
 - **see also:** brobot-1.md (Brobot 1, the DocBS dial at zero), pip.md (PipTA, developed from DocBS), ../show/roast-dial.md, ../show/spice.md
-- **about:** The persona Doc, hosted by Brobot 1 (brobot-1.md, the robot) - operator 2026-11-04: "Pull all Doc & Pip from brobots md files"; "Doc is not Brobot 1. Doc is the persona hosted by Brobot 1." Below: his own sections, then his DocBS dial. 2026-11-04 (operator: "brobots 1 md file = DocBS Dial @ zero"; "DocBS dial > doc.md"): Doc's DocBS dial, moved here from clusters/docbs.md - the sections in brackets are its settings (02_cast.json docbs, but its folder), read as before. share is the dial (0 = at zero). A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list.
 ---
 
 ## Self

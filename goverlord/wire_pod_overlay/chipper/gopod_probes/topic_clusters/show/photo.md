@@ -3,7 +3,6 @@
 - **ask:** What do the Brobots say about a photo?
 - **chain:** Other - the photo egg (what a Brobot sees)
 - **see also:** easter_eggs, topic-pictures
-- **about:** 2026-11-03 (step 6 of GOPOD_CLUSTERS_PLAN_002.md): from 03_chat_page.json photo. A value in backticks is that text exactly ("\n" a break). The numbers, switches, roles and nested groups stay in the settings for the format step.
 ---
 
 ## Photo (photo)

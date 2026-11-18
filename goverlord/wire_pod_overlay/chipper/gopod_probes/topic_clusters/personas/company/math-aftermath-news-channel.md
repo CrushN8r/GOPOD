@@ -3,7 +3,6 @@
 - **ask:** What does the company expect from the group intro?
 - **chain:** Goverlord > KEYNOTE > the Gomads and the guards > the interns; {DOC.call} and {PIP.call} perform, under the Gomads
 - **see also:** company-schema.md (the master scaffolding this fills), crew_roster.md (who's here), every persona file (each one's job), ../show/group-chat-intro.md (the intro's template)
-- **about:** 2026-11-16 (operator: "Keys should say a bit about GOPOD & GOPOD under the hood * GOPOD Company, under the hood = Goverlord > Gomads > Gominions * once the company is introduced, there is less for each persona and the llm to keep in their brains * the company intro establishes the game"): company_intro - KEYS says it in his intro, word for word; everyone works within it (## Our company is in every persona's prompt). 2026-11-06 (operator: "company.md = master sterile scaffolding * math-aftermath-news-channel.md = company.md GOPOD version"): GOPOD's company, filled from company-schema.md - every group root sits under it, so every persona's prompt reads ## Our company first (persona_profiles.sections), then its group, then itself.
 ---
 
 ## Our company

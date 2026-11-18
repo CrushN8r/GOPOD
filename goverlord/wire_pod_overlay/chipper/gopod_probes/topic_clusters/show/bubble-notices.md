@@ -3,7 +3,6 @@
 - **ask:** What does a Brobot's notice bubble say?
 - **chain:** Gominions - the notice inside a Brobot's bubble, built by the code
 - **see also:** brobot-brain, game-words, weather_run (got_it_again)
-- **about:** 2026-11-03 (step 6 of GOPOD_CLUSTERS_PLAN_002.md): from 03_chat_page.json bubble_notices. A value in backticks is that text exactly ("\n" a break). The numbers, switches, roles and nested groups stay in the settings for the format step.
 ---
 
 ## Notices: egg (bubble_notices.egg)

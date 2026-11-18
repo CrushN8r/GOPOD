@@ -3,7 +3,6 @@
 - **ask:** How does the chat window scroll?
 - **chain:** Goverlord - the chat page's one scroller, on the admin, visitor and app pages alike (the same page code)
 - **see also:** brobot-bubbles (the bubble order it follows), chat-page-words
-- **about:** 2026-11-04 (operator: "Scroller Topic cluster * pull all GOPOD scroll stuff into one file * for admin & visitor pages"): every scroll value the page runs on, from 03_chat_page.json chat_window and highlight_scroll, read by the page on F5. The rules below are how the page code (gopod_brobots_chat.js) uses them.
 - **rule - one scroller:** one controller is the only thing that moves the chat; each move eases in and out over scroll_ms; a new target mid-move carries on smoothly into it.
 - **rule - a new bubble:** built hidden, its pictures loaded, then placed - the chat scrolls once and the bubble shows; the next bubble waits its turn (the baton) until the one above has finished, at most baton_max_ms; a reply shows reply_delay_ms after its question.
 - **rule - where it lands:** an operator line goes to the top (top_gap_px above it), or as high as the chat below lets it; lines after it keep the newest line's end in view.

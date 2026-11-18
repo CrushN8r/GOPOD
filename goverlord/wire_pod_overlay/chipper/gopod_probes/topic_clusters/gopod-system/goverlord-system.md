@@ -3,7 +3,6 @@
 - **ask:** What else does the system say?
 - **chain:** Goverlord - the numpad's and the system window's other words
 - **see also:** system-texts, system-menu, system-help, ../personas/butler.md
-- **about:** 2026-11-03 (step 8b of GOPOD_CLUSTERS_PLAN_002.md: the words left in the settings): from the settings blocks named in each heading. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list; (.) is the settings' top level.
 ---
 
 ## numpad_ptt texts (numpad_ptt.texts)

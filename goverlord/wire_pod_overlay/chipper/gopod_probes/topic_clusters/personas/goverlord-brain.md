@@ -7,7 +7,6 @@
 - **words:** goverlord, the brain, gopod's brain, system brain, brain chain
 - **ask:** Tell me about yourself
 - **chain:** Goverlord - GOPOD's brain; the Butler is his voice (Goverlord > Butler > Gomads/Interns > Gominions)
-- **about:** 2026-11-17 (operator: "Please give Goverlord a matching persona in: .../personas/goverlord-brain.md * pull out whatever system brain related stuff & import into goverlord-brain.md"; "Keys remains Goverlord's voice"): Goverlord's card, and the brain every persona thinks with (brain_chain, moved here from ../show/brobot-brain.md). Called on -0, he answers himself, in his own deep voice (reporter_voices.hosts GOVERLORD); the system's answers stay {BUTLER.call}'s to say.
 ---
 
 ## Self

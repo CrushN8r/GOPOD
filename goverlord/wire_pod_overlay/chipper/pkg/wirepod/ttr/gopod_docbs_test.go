@@ -181,7 +181,9 @@ func TestIntroRecipe(t *testing.T) {
 		// 2026-10-31: the facts without their labels, and no operator in the list.
 		// 2026-11-04: no cast line (operator: "remove who's here in the chat from
 		// every response"); his working relationships are in his facts.
-		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || (who != "BUTLER" && !strings.Contains(r, "I answer to ")) || (who == "BUTLER" && !strings.Contains(r, "GOPOD is AI Wordplay! Explain the Math!")) {
+		// 2026-11-17 (operator: "CLEAR OUT YOUR ... BLOAT"): the facts are said by
+		// code (FACT) - the recipe never lists them again.
+		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || strings.Contains(r, "I answer to ") || !strings.Contains(r, "already said for you") {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
 		if strings.Contains(r, "{") {
@@ -200,7 +202,7 @@ func TestIntroRecipe(t *testing.T) {
 	}
 	// 2026-11-04 (operator: "Git Repo nickname = 'Repo' * 'Repo' = repossesser
 	// (wordplay, lol), not repository"): his why ends on its own "!!'" - no extra stop.
-	if r := gopodIntroOpening("GIT REPO"); !strings.Contains(r, `I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'`) || !strings.Contains(gopodIntroRecipe("GIT REPO", tester), "I answer to PLAYHEAD ZUMINTU") {
+	if r := gopodIntroOpening("GIT REPO"); !strings.Contains(r, `I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'`) {
 		t.Errorf("Git Repo's opening: %q", r)
 	}
 	if r := gopodIntroRecipe("Brobot 2", "what's the weather"); r != "" {

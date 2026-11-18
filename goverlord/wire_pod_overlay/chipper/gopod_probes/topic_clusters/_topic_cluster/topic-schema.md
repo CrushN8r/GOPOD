@@ -1,5 +1,4 @@
 # Topic schema
-- **about:** 2026-11-06 (operator: "build schemas for the other places in GOPOD where a schema would earn its keep, most useful first"): the master game card - every topic (a "Game card:" in a root doc, `topic_clusters.root_docs`) fills these lines; README.md here tells what each one is. The system check (`gopodSchemaCheck`, every restart) lists a card missing a required line "to fix". Nothing reads this file as a topic.
 
 ---
 

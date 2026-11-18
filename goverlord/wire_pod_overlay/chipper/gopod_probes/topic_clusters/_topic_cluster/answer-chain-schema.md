@@ -1,6 +1,5 @@
 # Answer chain schema
 
-- **about:** 2026-11-06 (operator: "Please do: Schemas for run cards and answer chains"): the master answer chain - every chain (`answer_chains`, 01_brain.json and the clusters) is `parts` in order, or `from` another chain. Each part is one of the known parts below (a new part is added here when the code learns it). The system check (`gopodSchemaCheck`, every restart) lists an unknown part or a missing `from` chain "to fix".
 
 ---
 

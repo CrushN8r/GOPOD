@@ -3,7 +3,6 @@
 - **ask:** What does the chat page itself say?
 - **chain:** Goverlord - the page's own words (buttons, titles, the thanks)
 - **see also:** system-texts, preshow
-- **about:** 2026-11-03 (step 5): from 03_chat_page.json page_text and chat_hold. {words} are filled by the page.
 ---
 
 ## The page's words (page_text) (page_text)

@@ -2,7 +2,6 @@
 - **words:** system-help, help, commands, system commands
 - **ask:** What system- commands are there?
 - **see also:** system-texts (what each command answers)
-- **about:** 2026-11-03 (step 1 of GOPOD_CLUSTERS_PLAN_001.md): system-help's list, one line each, in order - the spaces after the number are kept (the columns). Was 06_system.json system_help.lines.
 ---
 
 ## The help list, in order (system_help.lines)

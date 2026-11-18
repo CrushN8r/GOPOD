@@ -3,7 +3,6 @@
 - **ask:** Which manager takes which job?
 - **chain:** Gomads and interns - a take hands a question to a manager or his intern (PLAYHEAD to Cache PYC for the weather)
 - **see also:** ../personas/playhead.md, ../personas/cache-pyc.md, ../personas/chalk.md, ../personas/git-repo.md, weather_run
-- **about:** 2026-11-03 (step 7): 02_cast.json managers.takes, a section each, in order (the code tries them in this order). why is the take's own note.
 ---
 
 ## Take 1: weather (CACHE PYC) (managers.takes.0)

@@ -3,7 +3,6 @@
 - **ask:** What runs can the game start?
 - **chain:** Goverlord - the runs Goverlord starts and stops (songs, the draft, the interview)
 - **see also:** game-words, gopod-system/system-menu
-- **about:** 2026-11-03 (step 7b of GOPOD_CLUSTERS_PLAN_002.md): 04_game.json game.runs, a section per run and its parts, in order. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list.
 ---
 
 ## Run 1: Interview (game.runs.0)

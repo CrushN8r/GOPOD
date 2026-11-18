@@ -4,7 +4,6 @@
 - **ask:** Who are the Brobots?
 - **chain:** Gominions - the persona both Brobots share at dial zero ("cute bratty GOPOD reps"); Doc (../personas/doc.md) and Pip (../personas/pip.md) add their own on top
 - **see also:** ../personas/brobot-1.md, ../personas/brobot-2.md (the robots), ../personas/doc.md, ../personas/pip.md, brobot-brain
-- **about:** 2026-11-04 (operator: "brobot md files are basically the shared wire-pod ollama prompt * cute bratty GOPOD reps"; "The shared Brobots persona * go on its own topic-cluster file"): the shared Wire-Pod Ollama prompt, moved here from wire-pod_brobots_prompt.txt - the first part of every Brobot's prompt. Each section is one block, a line each; the blocks are joined with a blank line between them, in order.
 ---
 
 ## The name (brobots_prompt.blocks.0[])

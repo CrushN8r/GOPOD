@@ -3,7 +3,6 @@
 - **ask:** What cube commands do the Brobots know?
 - **chain:** Gominions - Vector's own cube moves, by the words that ask for them
 - **see also:** addressing
-- **about:** 2026-11-03 (step 8b of GOPOD_CLUSTERS_PLAN_002.md: the words left in the settings): from the settings blocks named in each heading. A value in backticks is that text exactly; a bare number or true/false is that value; a heading ending in [] is a line list; (.) is the settings' top level.
 ---
 
 ## intent_play_pickupcube (native_cube.intents.0)

@@ -1,7 +1,6 @@
 # Company schema
 - **words:** company schema
 - **ask:** What does every company file fill in?
-- **about:** 2026-11-06 (operator: "company.md = master sterile scaffolding"; "company.md rename = company-schema.md"): the master scaffolding - the points every company file fills, in this order (math-aftermath-news-channel.md is GOPOD's). Nothing reads this file; copy it to make a company.
 ---
 
 ## Our company

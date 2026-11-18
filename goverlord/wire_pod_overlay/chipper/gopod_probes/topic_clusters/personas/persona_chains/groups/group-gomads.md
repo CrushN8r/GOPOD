@@ -1,7 +1,6 @@
 # The Gomads - the shared manager persona
 - **root:** ../../company/math-aftermath-news-channel.md
 - **chain:** Gomads - Goverlord's managers at the CRUSHN8R CREW'd news station; each adds his own on top
-- **about:** 2026-11-04 (operator: "Gomads should be rooted in the same way, a shared Gomads persona"; "shared root persona > individual personas"): what the Gomads share. Lines come from the repo's own facts; edit freely, then wpr 2.
 ---
 
 ## Our group

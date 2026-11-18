@@ -3,7 +3,6 @@
 - **ask:** How do the Brobots swear?
 - **chain:** Gominions (Doc and Pip) - the spice they may use, their way
 - **see also:** nicknames, brobot-brain, reply-rules
-- **about:** 2026-11-03 (step 4 of GOPOD_CLUSTERS_PLAN_002.md): from 02_cast.json spice. pick, pick_exclamations and the private swears file stay in the settings.
 ---
 
 ## The spice (spice) (spice)

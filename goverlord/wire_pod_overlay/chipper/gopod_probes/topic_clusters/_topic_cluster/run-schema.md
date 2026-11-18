@@ -1,6 +1,5 @@
 # Run schema
 
-- **about:** 2026-11-06 (operator: "Please do: Schemas for run cards and answer chains"): the master run card - every run Goverlord can start (`game.runs`, show/game-runs.md) fills these. A run still `pending: true` needs only its name and title. A run's `song` is a song folder in `goverlord/runtime/songs/`. The system check (`gopodSchemaCheck`, every restart) lists a gap "to fix".
 
 ---
 
