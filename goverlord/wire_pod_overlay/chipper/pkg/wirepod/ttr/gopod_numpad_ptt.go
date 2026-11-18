@@ -23,7 +23,7 @@ import (
 // key goes down and stop when it comes up. The mic service records (golden mic
 // pick, 48 kHz master per capture, 16 kHz Vosk) and the words go to the key's
 // Brobot like a typed line. Which key is which Brobot comes from the golden
-// persona map (clusters/gopod-system/numpad-mapper.md, the settings numpad_map; was ~/.gopod_alias_lib/numpad_persona_map_001.json):
+// persona map (clusters/system/numpad-mapper.md, the settings numpad_map; was ~/.gopod_alias_lib/numpad_persona_map_001.json):
 // NumLock-on keys with status "live", their body named in numpad_ptt.body_to_brobot.
 
 const gopodPTTStopWait = time.Minute // the release tail + Vosk on up to max_hold_seconds of audio
@@ -122,7 +122,7 @@ func gopodNumpadMap() (gopodNumpadMapFile, []byte, error) {
 func gopodNumpadMapIn(layout string) (gopodNumpadMapFile, []byte, error) {
 	var m gopodNumpadMapFile
 	// 2026-11-04 (operator: "build numpad-mapper.md as the one source"): the map is
-	// the settings' numpad_map (clusters/gopod-system/numpad-mapper.md); the old
+	// the settings' numpad_map (clusters/system/numpad-mapper.md); the old
 	// map_file only when there's none.
 	data := []byte(gopodBrobotsSettings.NumpadMaps[layout])
 	if len(data) <= 2 {

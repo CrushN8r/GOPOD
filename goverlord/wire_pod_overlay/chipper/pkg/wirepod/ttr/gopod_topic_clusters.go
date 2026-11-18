@@ -4,7 +4,7 @@ package wirepod_ttr
 // Topic-clusters for settings (2026-10-31, operator: "What else now, can be
 // topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The
 // Butler's lines * Nicknames"). A cluster is one md file in the master format
-// (gopod_probes/topic_clusters/show/*.md): "# <title>", its head, "---", then sections. Each
+// (gopod_probes/topic_clusters/content/show/*.md): "# <title>", its head, "---", then sections. Each
 // section's heading ends with the settings place it fills, in brackets -
 // "## Run lines (session)" - and each point is "key: value":
 //
@@ -180,9 +180,9 @@ func gopodTopicPath(rel string) string {
 	return p
 }
 
-// gopodClusterFiles (2026-11-04, operator: "Build clusters/gopod-system/ as the
+// gopodClusterFiles (2026-11-04, operator: "Build clusters/system/ as the
 // one gopod-system topic clusters source folder"): every cluster md in folder and
-// its sub-folders (clusters/gopod-system/), in path order.
+// its sub-folders (clusters/system/), in path order.
 func gopodClusterFiles(folder string) []string {
 	var files []string
 	_ = filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {

@@ -2,7 +2,7 @@
 - **words:** interview, start lines, interview ready
 - **ask:** How does the interview start?
 - **chain:** Goverlord - the scripted interview's own words
-- **see also:** game-runs, gopod-system/preshow
+- **see also:** game-runs, system/preshow
 ---
 
 ## Interview script (interview_script)

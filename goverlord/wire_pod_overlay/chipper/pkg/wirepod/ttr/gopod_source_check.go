@@ -393,7 +393,7 @@ func gopodSchemaCheckGame() ([]string, int) {
 	// Chapters: their titles, each with its required lines.
 	chapters := map[string]bool{}
 	if req := gopodSchemaRequired(filepath.Join(tpl, "chapter-schema.md"))["Required"]; req != nil {
-		files, _ := filepath.Glob(filepath.Join(gopodTopicRoot(), "chapters", "*", "chapter.md"))
+		files, _ := filepath.Glob(filepath.Join(gopodTopicRoot(), "content", "chapters", "*", "chapter.md"))
 		for _, f := range files {
 			head := gopodSchemaHead(f)
 			chapters[strings.ToLower(head["label"])] = true

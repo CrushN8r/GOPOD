@@ -132,7 +132,7 @@
     "max_sentences": 4
   },
   "brain_chain": {
-    "roster": "gopod_probes/topic_clusters/personas/crew_roster.md",
+    "roster": "gopod_probes/topic_clusters/content/personas/crew_roster.md",
     "recent_minutes": 10,
     "lookup_max": 2,
     "lookup_chars": 600,

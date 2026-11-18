@@ -32,9 +32,9 @@ func TestGopodNumpadBrobot(t *testing.T) {
 
 // The real golden map file, as the page will get it.
 func TestGopodNumpadRealMap(t *testing.T) {
-	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
-		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
+		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}
 	if _, esn, err := gopodNumpadBrobot("KP1"); err != nil || esn != gopodBrobot1ESN {
 		t.Fatalf("KP1 -> %q, %v", esn, err)
@@ -45,9 +45,9 @@ func TestGopodNumpadRealMap(t *testing.T) {
 // everything goes through 1 place"; "if a KPN is voice assigned, make it chat
 // ready"): the page's targets come from gopodNumpadBrobot - every live key one.
 func TestGopodNumpadTargetsOnePlace(t *testing.T) {
-	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
-		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
+		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}
 	data, err := GopodNumpadMapJSON()
 	if err != nil {

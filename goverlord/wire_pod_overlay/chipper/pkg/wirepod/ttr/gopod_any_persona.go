@@ -73,7 +73,7 @@ func gopodCardOwner(c gopodLookupCard) string {
 			return who
 		}
 	}
-	if strings.Contains(c.Path, "/"+gopodTorahDir+"/") || strings.Contains(c.Path, "/gopod-system/") {
+	if strings.Contains(c.Path, "/"+gopodTorahDir+"/") || strings.Contains(c.Path, "/topic_clusters/system/") {
 		return gopodBrobotsSettings.SystemBubble.VoicePersona
 	}
 	return ""

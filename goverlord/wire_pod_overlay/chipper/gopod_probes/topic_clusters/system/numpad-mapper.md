@@ -32,7 +32,7 @@
 
 
 ## USB numpad - The map (numpad_maps.usb)
-1. _note: Golden numpad/NumLock persona mapping - single source of truth: gopod_probes/topic_clusters/gopod-system/numpad-mapper.md (was ~/.gopod_alias_lib/numpad_persona_map_001.json until 2026-11-04). See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.
+1. _note: Golden numpad/NumLock persona mapping - single source of truth: gopod_probes/topic_clusters/system/numpad-mapper.md (was ~/.gopod_alias_lib/numpad_persona_map_001.json until 2026-11-04). See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.
 
 ## USB numpad - The fixed lanes - not part of the KP0-9 grid (numpad_maps.usb.fixed_lanes)
 1. _note: Not part of the KP0-9 persona grid - always-on, independent of NumLock state. Two separate lanes on the same physical numpad, per operator: '000' and 'KP0' are NOT the same lane.
@@ -179,7 +179,7 @@
 
 
 ## PC keyboard - The map (numpad_maps.pc)
-1. _note: Golden numpad/NumLock persona mapping - the PC keyboard layout - a copy of the USB numpad layout to start (2026-11-04), yours to change; gopod_probes/topic_clusters/gopod-system/numpad-mapper.md (was ~/.gopod_alias_lib/numpad_persona_map_001.json until 2026-11-04). See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.
+1. _note: Golden numpad/NumLock persona mapping - the PC keyboard layout - a copy of the USB numpad layout to start (2026-11-04), yours to change; gopod_probes/topic_clusters/system/numpad-mapper.md (was ~/.gopod_alias_lib/numpad_persona_map_001.json until 2026-11-04). See gopod_notes/NUMPAD_NUMLOCK_GOLDEN_MAPPING_001.md for the design behind the NumLock ON/OFF doubling scheme.
 
 ## PC keyboard - The fixed lanes - not part of the KP0-9 grid (numpad_maps.pc.fixed_lanes)
 1. _note: Not part of the KP0-9 persona grid - always-on, independent of NumLock state. Two separate lanes on the same physical numpad, per operator: '000' and 'KP0' are NOT the same lane.

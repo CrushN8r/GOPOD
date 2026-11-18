@@ -2,7 +2,7 @@
 - **words:** runs, run cards, interview, bingo, songs
 - **ask:** What runs can the game start?
 - **chain:** Goverlord - the runs Goverlord starts and stops (songs, the draft, the interview)
-- **see also:** game-words, gopod-system/system-menu
+- **see also:** game-words, system/system-menu
 ---
 
 ## Run 1: Interview (game.runs.0)
@@ -122,7 +122,7 @@
 7. pitch_pack: ``
 8. no_run_note: No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.
 9. pack: nap
-10. pack_about: The nap's own value points (gopod_probes/topic_clusters/chapters/_always/05_nap.md; operator: "another scoped set of value points for the sleep song"), loaded for its questions before and after the nap, outside the chapters.
+10. pack_about: The nap's own value points (gopod_probes/topic_clusters/content/chapters/_always/05_nap.md; operator: "another scoped set of value points for the sleep song"), loaded for its questions before and after the nap, outside the chapters.
 11. closing: {}
 12. takes_about: 2026-10-25 (operator: "they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party").
 

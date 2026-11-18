@@ -14,7 +14,7 @@ import (
 // LOCKED 2026-11-03 (operator: "company-persona-orientation-introduction-group-
 // chat"; "Lock in a * single intro run * duo intro + weather run * brobot A:
 // intro + weather * brobot B: intro + weather (follow up)"): the group chat
-// intro is gopod_probes/topic_clusters/show/group-chat-intro.md and only that. The deploy
+// intro is gopod_probes/topic_clusters/content/show/group-chat-intro.md and only that. The deploy
 // fails when it changed without the operator's relock (GOPOD_RELOCK=1 saves its
 // fingerprint, gopod_probes/locks/group_chat_intro.lock) or a settings file
 // holds a copy.

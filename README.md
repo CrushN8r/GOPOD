@@ -151,7 +151,7 @@ the Wire-Pod community comes in. Open lanes, ready for you:
 |---|---|
 | **Your own game** - your chapters, your topics, your scoring | the topic template, [`gopod_probes/topic_clusters/_topic_cluster/`](goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/_topic_cluster/README.md) |
 | **Your own songs and scripted shows** | `goverlord/runtime/songs/_new_song/`, and [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) |
-| **Your own cast** - new personas, new voices | [`gopod_probes/topic_clusters/personas/`](goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/README.md) |
+| **Your own cast** - new personas, new voices | [`gopod_probes/topic_clusters/content/personas/`](goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md) |
 | **Bodies for the voice-only cast** - the Cozmo interns, the Moorebot Scout guards | not wired yet: wide open |
 | **More robots on stage** - GOPOD casts two Vectors today | [GOPOD_YOURSELF.md, how many robots](GOPOD_YOURSELF.md#how-many-robots) |
 | **Other machines** - a PC, a Pi, a TV box | not tested yet: tell us what works |

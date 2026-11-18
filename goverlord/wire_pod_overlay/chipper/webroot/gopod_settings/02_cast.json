@@ -22,13 +22,13 @@
     "brobot_2": ""
   },
   "intro_recipe": {
-    "where": "2026-11-03: the intro recipe lives in gopod_probes/topic_clusters/show/group-chat-intro.md (the group chat intro, locked)."
+    "where": "2026-11-03: the intro recipe lives in gopod_probes/topic_clusters/content/show/group-chat-intro.md (the group chat intro, locked)."
   },
   "persona_profiles": {
-    "folder": "gopod_probes/topic_clusters/personas"
+    "folder": "gopod_probes/topic_clusters/content/personas"
   },
   "persona_chains": {
-    "folder": "gopod_probes/topic_clusters/personas/persona_chains",
+    "folder": "gopod_probes/topic_clusters/content/personas/persona_chains",
     "personas": {
       "Brobot 1": {"share": 0, "chains": []},
       "Brobot 2": {"share": 0, "chains": []},
@@ -43,7 +43,7 @@
     }
   },
   "docbs": {
-    "folder": "gopod_probes/topic_clusters/personas/docbs"
+    "folder": "gopod_probes/topic_clusters/dials/docbs"
   },
   "roast_dial": {
     "level": 0,

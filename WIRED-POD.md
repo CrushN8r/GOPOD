@@ -185,7 +185,7 @@ when).
 - **You need:** Part 2's Wire-Pod (the studio drives the robots through its `/api-sdk/*`
   endpoints), Python 3, bash.
 - **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/`. The numpad's key map
-  stays in the repo (`gopod_probes/topic_clusters/gopod-system/numpad-mapper.md`), and so does the
+  stays in the repo (`gopod_probes/topic_clusters/system/numpad-mapper.md`), and so does the
   songs folder, where the aliases find it.
 - **Load:** in `~/.bash_aliases`, source `brobots.sh` (pha0b, phcal, score, gobingo),
   `llm.sh` and `wirepod_logs.sh` from `~/.gopod_alias_lib/`.

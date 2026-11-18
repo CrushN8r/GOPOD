@@ -24,7 +24,7 @@ import (
 var canonicalBrobotResponsePromptPath = gopodPathWithEnvOverride("GOPOD_BROBOT_RESPONSE_PROMPT_PATH", "wire-pod_response_prompt.txt")
 
 // The shared Brobots prompt is clusters/brobots.md now (gopodBrobotsPromptBytes); this names it in the log.
-var canonicalBrobotIdentityPromptPath = "gopod_probes/topic_clusters/show/brobots.md"
+var canonicalBrobotIdentityPromptPath = "gopod_probes/topic_clusters/content/show/brobots.md"
 var canonicalGOPODCorePromptPath = gopodPathWithEnvOverride("GOPOD_CORE_PROMPT_PATH", "gopod_probes/foundation_packs/gopod_core.txt")
 
 // defaultPrompt is derived from system_speech_content.json - see
@@ -624,7 +624,7 @@ func gopodReplyShapeSection(brobot string) string {
 }
 
 // gopodQuestionFacts is what this question needs to know: the topic packs its
-// words trigger (gopod_probes/topic_clusters/chapters/) and the Bingo note. 2026-10-05:
+// words trigger (gopod_probes/topic_clusters/content/chapters/) and the Bingo note. 2026-10-05:
 // it sits nearest the question, after "who I am" and before the reply shape
 // (CreateAIReq); placed earlier, gemma2:2b often answered past it
 // (SOCIAL_DEMO_REPLAY_001.md: 44% of answers landed their value point, 66% with
@@ -947,7 +947,7 @@ func gopodBrobotsPromptBytes() ([]byte, error) {
 		blocks = append(blocks, strings.Join(b, "\n"))
 	}
 	if len(blocks) == 0 {
-		return nil, errors.New("brobots_prompt has no blocks (gopod_probes/topic_clusters/show/brobots.md)")
+		return nil, errors.New("brobots_prompt has no blocks (gopod_probes/topic_clusters/content/show/brobots.md)")
 	}
 	return []byte(strings.Join(blocks, "\n\n") + "\n"), nil
 }
@@ -993,7 +993,7 @@ func loadCanonicalBrobotPrompt(userMessage string) (string, int, bool) {
 // brobot to help me with the GOPOD system * Brobot N, how do I raise the volume
 // for ... ? * Can the request be sent to gemma, + a look up guide, for a helpful
 // response?"): a line with a how-to word (help_lookup.words) gets the system
-// menu's best matching commands (gopod-system/system-menu.md, the Torah) as
+// menu's best matching commands (system/system-menu.md, the Torah) as
 // facts - each command scored by the line's words found in its own cmd (3) or about
 // (2), and in its scripture's tour sentences that name it (1 each); the top
 // help_lookup.max, each as help_lookup.item, under help_lookup.header.

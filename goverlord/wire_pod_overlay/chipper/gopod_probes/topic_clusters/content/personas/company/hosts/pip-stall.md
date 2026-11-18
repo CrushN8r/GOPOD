@@ -63,7 +63,7 @@
 1. (to come)
 
 ## The dial - DocBS's share is its dial; PipTA's
-1. share: (to come)
+1. share: 0
 
 ## PipTA chains - one for each DocBS chain
 1. equation roast - (to come)
@@ -78,5 +78,5 @@
 2. colour prompt: (to come)
 3. colour prompt, 18+: (to come)
 
-## PipTA's line pools - DocBS's are in gopod_probes/topic_clusters/personas/docbs/
+## PipTA's line pools - DocBS's are in gopod_probes/topic_clusters/dials/docbs/
 1. (to come)

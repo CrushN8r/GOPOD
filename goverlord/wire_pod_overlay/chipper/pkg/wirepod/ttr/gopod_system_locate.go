@@ -63,7 +63,7 @@ func gopodLocateClusterWord(word string) []string {
 	data, _ := gopodSettingsMerged()
 	var all map[string]json.RawMessage
 	_ = json.Unmarshal(data, &all)
-	files := gopodClusterFiles(gopodClustersFolder(all)) // and its sub-folders (gopod-system/)
+	files := gopodClusterFiles(gopodClustersFolder(all)) // and its sub-folders (system/)
 	var out []string
 	for _, f := range files {
 		raw, err := os.ReadFile(f)

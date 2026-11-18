@@ -2,7 +2,7 @@
 - **words:** brobot bubble, gominion bubble, bubble orchestration, both brobots, a responds b follows up
 - **ask:** How do both Brobots' bubbles play out for one ask?
 - **chain:** Gominions - the task-doer bubble, the core shell every bubble grew from; Goverlord orders it, the Gomads and interns work inside it
-- **see also:** weather_run (the locked order and every code line), gopod-system/scroller (every scroll rule and value), bubble-notices (the brain bubble's words), brobot-brain (what the brain says), manager-takes (PLAYHEAD to Cache PYC, from Git Repo)
+- **see also:** weather_run (the locked order and every code line), system/scroller (every scroll rule and value), bubble-notices (the brain bubble's words), brobot-brain (what the brain says), manager-takes (PLAYHEAD to Cache PYC, from Git Repo)
 - **0 - the ask (12:44:48):** the Operator's bubble is placed (scroll: it fits - its bottom at the window's bottom), "Generating..." and the hourglass while the voice is made, then read out (3.5 s) and heard (12:44:56). Nothing below starts on the page before it's heard.
 - **A1 - Brobot A, "Got it!" (12:44:56-12:45:01):** his model starts the moment the ask is heard; the robot takes control, the thinking moves and searching loop run, and he says "Got it!" (1 s).
 - **A2 - A's bubble opens (12:45:01):** his opener "Got it!" and his brain notice - Response-chain (answer 1 of 2), who he is, So far and the Guided Task Flow, his relationships, the score rows - built hidden, then placed (scroll: it fits - its bottom at the window's bottom).

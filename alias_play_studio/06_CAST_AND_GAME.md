@@ -108,7 +108,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 - **The Brobots' profiles (2026-10-30):** `brobot-1.md` (Doc) and `brobot-2.md` (Pip), the master
   format - each Brobot's own words for his "WHO I AM" (Who I am, Role, My way through an answer,
   Signature) live there, out of the settings; his prompt reads them, word for word as before. The
-  shared party-bro base stays in `gopod_probes/topic_clusters/show/brobots.md` (the shared Brobots persona), the pair's banter and dial in
+  shared party-bro base stays in `gopod_probes/topic_clusters/content/show/brobots.md` (the shared Brobots persona), the pair's banter and dial in
   `host_pairs`.
 - **The master format (2026-10-30):** every persona profile is a topic-cluster md, GOPOD's one
   format (`gopod_probes/topic_clusters/_topic_cluster/README.md`): its head is the persona's labels - `# <full
@@ -117,7 +117,7 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   `system_bubble.label` "{first}" from `voice_persona` (BUTLER): "KEYNOTE" (2026-11-06; was "KEYNOTE: Butler"). Every
   persona in `managers.personas` is a host on the page, its own voice or another's. A persona's
   answer is at most `managers.answer_num_predict` tokens (400), ending at a whole sentence.
-- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/topic_clusters/personas/<name>.md` - CHALK,
+- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/topic_clusters/content/personas/<name>.md` - CHALK,
   PLAYHEAD, Git Repo, Cache PYC, the Butler (`butler.md`), Cameo - the same sections for everyone: **Self** (my informal name
   (nickname), my name, my job title, my role, who helps me), **Voice**, **Partner and banter**,
   **The name**. Its prompt looks up the sections in `persona_profiles.sections` (Self, Voice,
@@ -278,11 +278,11 @@ roast around his reply: the `docbs` part puts the frame in front - an opener, a 
 nickname, the equation (A × B) ÷ (C), the plug-in with meme numbers, the ERROR, the hidden multiplier
 ("currently sitting at 69,420"), the corrected formula - each its own thought bubble; his reply (the
 value point, his colour) is the kill shot; `docbs_close` ends it: "The math has spoken. And it's
-...". The frame comes from `gopod_probes/topic_clusters/personas/docbs/` - one pool file per beat, shuffled, never repeated
+...". The frame comes from `gopod_probes/topic_clusters/dials/docbs/` - one pool file per beat, shuffled, never repeated
 until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only one short line (the
 equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
 the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
-steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/topic_clusters/personas/docbs/DOCBS_LIBRARY.md`
+steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/topic_clusters/dials/docbs/DOCBS_LIBRARY.md`
 is Doctrine Spewer's library; its catchphrase bank is in pools (roasts, riddles, insights,
 dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is one **chain**
 (`docbs.chains`): its beats in order before his reply, picked from a shuffled deck, never the same
@@ -290,7 +290,7 @@ chain twice until the deck runs out. The dial sets the length: a chain needs `mi
 short ones (equation roast; roast, riddle, reveal; roast, ratio, riddle) from 0, the chaos calculus
 loop at 50, the full response pipeline at 80, and 11/10 (`docbs.share` 110) with the crew hype and
 the sign-off. `TestDocBSChainsByDial`. **Persona chains (2026-10-30):** the same template for every chat participant
-(`persona_chains`, `gopod_probes/topic_clusters/personas/persona_chains/<persona>/`): a persona's answer can be one of its
+(`persona_chains`, `gopod_probes/topic_clusters/content/personas/persona_chains/<persona>/`): a persona's answer can be one of its
 chains, its pool lines around its reply (the beats before `reply` first, the ones after it close),
 as often as its `share`. The Brobots get it through the answer-chain parts `persona_chain` /
 `persona_chain_close`, the Gomads around their answer. Empty to start: the lines are the
@@ -298,7 +298,7 @@ operator's. DocBS stays Brobot 1's own. `TestPersonaChains`.
 
 **Public GOPOD, the top shelf**: everything 18+ is in the public repo, expletives starred
 (f\*ck) - the human swear list and the DocBS `_18` pools; their uncensored copies are private and
-gitignored (`zgopod_human_swears.json`, `gopod_probes/topic_clusters/personas/docbs/z*.txt`, the zKnobs.json pattern) and used
+gitignored (`zgopod_human_swears.json`, `gopod_probes/topic_clusters/dials/docbs/z*.txt`, the zKnobs.json pattern) and used
 when there. Quotes in comments and setting descriptions are starred too.
 The working lists are starred the same way and still work: a pronunciation entry keeps its
 vowels in order (`"from": "sh*t", "vowels": "i"`), so it matches the word said and the word written
@@ -347,7 +347,7 @@ line. (`gopodEggSummaryPost`; the bubble notice template: `gopodBubbleNotice`, p
 Value points are what GOPOD sells; chapter > topics > value points. A value point is each numbered
 line (`1. ...`) after a topic file's `---`, or - for a topic with none - its whole text as one point.
 Each has an id, `<topic>#<n>` (e.g. `bingo#1`). Their words are locked in
-`gopod_probes/topic_clusters/chapters/value_points_golden.json` with a checksum (written the first time Wire-Pod
+`gopod_probes/topic_clusters/content/chapters/value_points_golden.json` with a checksum (written the first time Wire-Pod
 starts without one). `system-check` flags a point whose words changed, a new point not locked yet,
 and a locked point that's gone. `system-value-points` shows the state, `system-value-points
 <topic>` lists a topic's points, `system-value-points lock` locks changes on purpose
@@ -636,7 +636,7 @@ cluster starts from `gopod_probes/topic_clusters/_topic_cluster/`.
 
 **Root docs hold game cards (2026-11-04, operator: "The root docs are the source"; "Make the md files compatible"; "ignore chapters").** The public repo docs (`topic_clusters.root_docs`: BOOKING, LIVESTREAM, SOCIAL_MEDIA, ACCESSMATH, MOBILE_GEAR, WIRED-POD, README, songs/README) hold their topics as folded game cards - `<details><summary>Game card: ...</summary>`, a `<!-- gopod topic: NN_name -->` mark, then the topic file's text, whole, with a `- **chapter:** <title>` line. A visitor reads the doc; the Brobots read the card; `system-topic` writes back into the doc. One copy, so no "changed after the topic" check.
 
-**The topic_clusters tree (2026-11-04).** Every cluster sits under `gopod_probes/topic_clusters/` - `gopod-system/` (system lines, the menu, `numpad-mapper.md`: the numpad map, both layouts usb/pc, one source), `show/`, `personas/`, `places/`, `chapters/` - and is found by its file name anywhere in the tree.
+**The topic_clusters tree (2026-11-04).** Every cluster sits under `gopod_probes/topic_clusters/` - `system/` (system lines, the menu, `numpad-mapper.md`: the numpad map, both layouts usb/pc, one source), `show/`, `personas/`, `places/`, `chapters/` - and is found by its file name anywhere in the tree.
 
 **Shared root personas (2026-11-04, operator: "shared root persona > individual personas"; "company.md > all have a job/role/obligation at the company").** Each persona file names its group's root (`- **root:** groups/group-gomads.md`); the root's sections come first, then the persona's own (`gopodPersonaProfileReadRooted`, at most three deep), and every root's own root is `company.md`. Groups (`personas/groups/`): Doc and Pip (host-sidekick, teacher-assistant: DocBS/PipTA), the Gomads, the Interns, the Security Guards, the GOPOD System (Keys); the Brobots' root is `show/brobots.md`. A root's `## Our group` is in every member's prompt (`persona_profiles.sections`). `TestPersonaRoots`. The comm song's last answer, Brobot 2's, ends with the game welcome (`comm_check.game_welcome`: the base word for word or one of his flavours, in his own file, at random, once).
 

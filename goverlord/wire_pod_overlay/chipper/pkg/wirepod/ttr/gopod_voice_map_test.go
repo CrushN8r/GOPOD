@@ -9,9 +9,9 @@ import (
 // to KP9: KPN-TEMPLATE ... KP7 to KP9, Operator: KPN-TEMPLATE"): robot-bodied
 // keys need no voice; the rest have a persona host and its voice; the Operator last.
 func TestVoiceMapRows(t *testing.T) {
-	// 2026-11-04: the map is clusters/gopod-system/numpad-mapper.md (settings numpad_map).
+	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
-		t.Fatal("no numpad_map in the settings (clusters/gopod-system/numpad-mapper.md)")
+		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}
 	rows := gopodVoiceRows()
 	if len(rows) != 11 || rows[10].Key != "Operator" {
