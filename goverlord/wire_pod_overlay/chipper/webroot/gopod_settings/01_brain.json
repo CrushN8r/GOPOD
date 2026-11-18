@@ -136,6 +136,7 @@
     "recent_minutes": 10,
     "lookup_max": 2,
     "lookup_chars": 600,
+    "lookup_link_chars": 200,
     "deep_minutes": 30,
     "question_chars": 90,
     "answer_chars": 140,

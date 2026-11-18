@@ -1,6 +1,7 @@
 # GOPOD crew roster
 - **words:** crew, roster, who's here, the crew
 - **ask:** Who's in the chat?
+- **see also:** goverlord-brain.md, keynote-vale.md, group-gopod-system.md, group-gomads.md, group-interns.md, duo-handoff.md
 - **chain:** Goverlord > Butler > Gomads/Interns > Gominions (operator 2026-11-03): Goverlord orchestrates; KEYNOTE is its voice; the Gomads and their interns think and manage; {DOC.call} and {PIP.call} perform. Each persona file says where it sits.
 
 ---

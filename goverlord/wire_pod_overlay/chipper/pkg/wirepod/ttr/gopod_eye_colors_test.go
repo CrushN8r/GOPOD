@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -235,8 +236,8 @@ func TestKeepWholePhrase(t *testing.T) {
 func TestBrainBubbleLooksUp(t *testing.T) {
 	q := "Next up, CHALKRA! Introduce yourself to the chat"
 	bubble := strings.Join(gopodBrainBubbleLines("CHALK", q), "\n")
-	// 2026-11-18 (operator: "Prune all brains: [name] Brain LOOKED UP: [name].md"): not his own card.
-	if strings.Contains(bubble, "chalk-bored.md") || strings.Contains(bubble, "FACT:") {
+	// 2026-11-18 (operator: "all files looked up are listed"): his own card too.
+	if !strings.Contains(bubble, "LOOKED UP: chalk-bored.md") || strings.Contains(bubble, "FACT:") {
 		t.Errorf("the bubble: %q", bubble)
 	}
 	if prompt := gopodBrainText("CHALK", q); !strings.Contains(prompt, "FACT: I'm the proud Display Gomad") {
@@ -371,6 +372,30 @@ func TestLookupDepth(t *testing.T) {
 	for _, s := range src {
 		if s == "brobot-1.md" {
 			t.Error("his own card, looked up again")
+		}
+	}
+}
+
+// 2026-11-18 (operator: "build the 'see also' multi-look-up with weather.md,
+// duo-handoff.md, booking.md, crew-roster.md, numpad-map.md, photos.md"): a hub
+// brings its "see also" cards along, one step out.
+func TestLookupHubs(t *testing.T) {
+	for q, want := range map[string][]string{
+		"who gets the weather?":                  {"weather.md", "git-repo.md", "cache-pyc.md"},
+		"who hands off to whom?":                 {"duo-handoff.md", "chalk-bored.md"},
+		"how do I book the brobots?":             {"booking.md", "BOOKING.md"},
+		"who takes the photos?":                  {"photos.md", "elle-elle-ehm-gemma.md"},
+		"which key talks to whom on the numpad?": {"numpad-map.md", "numpad-mapper.md"},
+	} {
+		fact, src := gopodLookupFact("", q)
+		got := strings.Join(src, " ")
+		for _, w := range want {
+			if !strings.Contains(" "+got+" ", " "+w+" ") {
+				t.Errorf("%q: no %s in %v", q, w, src)
+			}
+		}
+		if regexp.MustCompile(`[^.]\.\.[^.]`).MatchString(fact) || strings.Contains(fact, "My informal name") {
+			t.Errorf("%q: junk in %q", q, fact)
 		}
 	}
 }

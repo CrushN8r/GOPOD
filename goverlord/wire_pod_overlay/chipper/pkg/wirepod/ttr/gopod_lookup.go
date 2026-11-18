@@ -32,6 +32,9 @@ type gopodLookupCard struct {
 	Lines []string
 	Owner string   // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
 	Body  []string // every point and paragraph line, for the depth a question asks (gopodLookupFact)
+	// 2026-11-18 (operator: "build the 'see also' multi-look-up"): its "see also"
+	// cards' file names - looked up with it, one step out.
+	SeeAlso []string
 }
 
 var gopodLookupCache = struct {
@@ -146,8 +149,17 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if cluster && strings.HasPrefix(t, "# ") {
 				c.Body = append(c.Body, strings.TrimPrefix(t, "# "))
 			}
-			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && k != "about" && k != "owner" && strings.TrimSpace(v) != "" {
+			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && k != "about" && k != "owner" && k != "see also" && strings.TrimSpace(v) != "" {
 				c.Body = append(c.Body, strings.TrimSpace(v))
+			}
+			if k, v, ok := gopodTopicHeadKV(t); ok && k == "see also" && cluster {
+				for _, part := range strings.Split(v, ",") {
+					name := strings.TrimSpace(strings.SplitN(strings.TrimSpace(part), " ", 2)[0])
+					name = strings.TrimSuffix(strings.Trim(name, "()`"), ".md")
+					if name = filepath.Base(name); name != "" && name != "." {
+						c.SeeAlso = append(c.SeeAlso, name+".md")
+					}
+				}
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
 				c.Owner = strings.TrimSpace(v)
@@ -314,14 +326,28 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	words := gopodLookupMeaningful(question)
 	var facts []string
 	said := map[string]bool{}
-	for _, c := range gopodLookup(question) {
-		if skipCard[filepath.Clean(c.Path)] {
-			continue
-		}
+	byName := map[string]gopodLookupCard{}
+	for _, c := range gopodLookupCards() {
+		byName[strings.ToLower(filepath.Base(c.Path))] = c
+	}
+	listed := map[string]bool{}
+	// one card's lines: its first lines, then those that say the question's words;
+	// at most chars, no line said twice.
+	cardText := func(c gopodLookupCard, chars int) string {
 		var lines []string
 		add := func(l string) {
-			l = strings.TrimSpace(l)
+			l = strings.TrimSpace(strings.NewReplacer("**", "", "`", "").Replace(l))
 			key := strings.ToLower(l)
+			// A card label with nothing filled in ("My informal name (nickname): .").
+			l = strings.TrimRight(l, ". ")
+			// "My job title: X" - the value, not the label; an empty value ("{job}"
+			// unfilled) is dropped.
+			if v, ok := strings.CutPrefix(l, "My job title:"); ok {
+				l = strings.TrimLeft(strings.TrimSpace(v), "- ")
+			}
+			if gopodLookupEmptyLabelRE.MatchString(l) || gopodLookupNameLabelRE.MatchString(l) {
+				return
+			}
 			// A setting ("label: ANY PERSONA") or a dated build note is the
 			// machine's, not a fact to say.
 			if l == "" || said[key] || gopodLookupMachineRE.MatchString(l) {
@@ -349,16 +375,31 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 				}
 			}
 		}
-		if len(lines) == 0 {
-			continue
-		}
-		sources = append(sources, gopodLookupName(c.Path))
-		t := strings.NewReplacer("**", "", "`", "").Replace(strings.Join(lines, ". "))
+		t := strings.NewReplacer("**", "", "`", "").Replace(strings.Join(lines, ". ") + ".")
 		if chars > 0 && len(t) > chars {
 			t = gopodCut(t, chars)
 		}
-		if t = strings.TrimSpace(gopodPersonaFill("", t)); t != "" {
+		return strings.TrimSpace(gopodPersonaFill("", t))
+	}
+	take := func(c gopodLookupCard, chars int) {
+		name := filepath.Clean(c.Path)
+		if skipCard[name] || listed[name] {
+			return
+		}
+		listed[name] = true
+		if t := cardText(c, chars); t != "" {
+			sources = append(sources, gopodLookupName(c.Path))
 			facts = append(facts, t)
+		}
+	}
+	linkChars := gopodBrobotsSettings.BrainChain.LookupLinkChars
+	for _, c := range gopodLookup(question) {
+		take(c, chars)
+		// 2026-11-18: its "see also" cards, one step out - each shorter.
+		for _, l := range c.SeeAlso {
+			if lc, ok := byName[strings.ToLower(l)]; ok {
+				take(lc, linkChars)
+			}
 		}
 	}
 	return strings.Join(facts, " "), sources
@@ -367,6 +408,12 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 // gopodLookupMachineRE: a line that's a setting (a key: value), a build note
 // (dated, or quoting the operator) or a path - not a fact to say.
 var gopodLookupMachineRE = regexp.MustCompile(`^_?[a-z][a-z0-9_.\[\]]*:\s|\b20\d\d-\d\d-\d\d\b|operator:|[\w-]+/[\w./-]+\.(md|go|js|json|py)\b`)
+
+// gopodLookupEmptyLabelRE: a label line whose value is empty.
+var gopodLookupEmptyLabelRE = regexp.MustCompile(`^[^:]{1,40}:\s*\.?\s*$`)
+
+// gopodLookupNameLabelRE: a card's own name labels - said for him, not a fact.
+var gopodLookupNameLabelRE = regexp.MustCompile(`^My (informal name|name)\b`)
 
 // gopodLookupMeaningful: a question's words worth matching a line on (stemmed;
 // not the little words, not lookup_skip's).

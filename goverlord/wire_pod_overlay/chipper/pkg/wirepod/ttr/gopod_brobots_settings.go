@@ -670,18 +670,20 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-11-16: the bubble's FACT line - where it was looked up ({sources}).
 		LookedUp string `json:"looked_up"`
 		// 2026-11-16: the look-up's pool (repo paths), how many cards, how long each (gopod_lookup.go).
-		LookupFiles   []string `json:"lookup_files"`
-		LookupMax     int      `json:"lookup_max"`
-		LookupChars   int      `json:"lookup_chars"`
-		LookupSkip    []string `json:"lookup_skip"`
-		CastItem      string   `json:"cast_item"`
-		Roster        string   `json:"roster"`
-		CastMe        string   `json:"cast_me"`
-		RemindersPart string   `json:"reminders_part"`
-		Asked         string   `json:"asked"`
-		None          string   `json:"none"`
-		QuestionChars int      `json:"question_chars"`
-		GomadsRawChat bool     `json:"gomads_raw_chat"`
+		LookupFiles []string `json:"lookup_files"`
+		LookupMax   int      `json:"lookup_max"`
+		LookupChars int      `json:"lookup_chars"`
+		// 2026-11-18: a "see also" card's share of the look-up (shorter).
+		LookupLinkChars int      `json:"lookup_link_chars"`
+		LookupSkip      []string `json:"lookup_skip"`
+		CastItem        string   `json:"cast_item"`
+		Roster          string   `json:"roster"`
+		CastMe          string   `json:"cast_me"`
+		RemindersPart   string   `json:"reminders_part"`
+		Asked           string   `json:"asked"`
+		None            string   `json:"none"`
+		QuestionChars   int      `json:"question_chars"`
+		GomadsRawChat   bool     `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").

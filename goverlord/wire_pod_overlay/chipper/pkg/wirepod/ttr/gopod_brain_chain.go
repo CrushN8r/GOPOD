@@ -583,8 +583,9 @@ func gopodBrainBubbleLines(self, question string) []string {
 func gopodBrainSources(self, question string) string {
 	var out []string
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
-		// 2026-11-18 (operator: "Prune all brains: [name] Brain LOOKED UP:
-		// [name].md"): his own card isn't named - only what he looked up.
+		// 2026-11-18 (operator: "Yes to own card under LOOKED UP * all files
+		// looked up are listed"): his own card is named too.
+		out = append(out, filepath.Base(gopodPersonaProfileFile(self)))
 		if self == gopodBrobotsSettings.SystemBubble.VoicePersona && len(gopodBrobotsSettings.CompanyIntro.Lines) > 0 {
 			if f := gopodTopicTreeFind("math-aftermath-news-channel.md"); f != "" {
 				out = append([]string{filepath.Base(f)}, out...)
