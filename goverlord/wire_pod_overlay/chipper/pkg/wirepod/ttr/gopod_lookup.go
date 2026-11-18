@@ -333,7 +333,7 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	listed := map[string]bool{}
 	// one card's lines: its first lines, then those that say the question's words;
 	// at most chars, no line said twice.
-	cardText := func(c gopodLookupCard, chars int) string {
+	cardText := func(c gopodLookupCard, chars int, swept bool) string {
 		var lines []string
 		add := func(l string) {
 			l = strings.TrimSpace(strings.NewReplacer("**", "", "`", "").Replace(l))
@@ -356,8 +356,10 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			said[key] = true
 			lines = append(lines, l)
 		}
-		for _, l := range c.Lines {
-			add(l)
+		if !swept {
+			for _, l := range c.Lines {
+				add(l)
+			}
 		}
 		for _, l := range c.Body {
 			for _, w := range gopodLookupTokens(l) {
@@ -367,7 +369,7 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 				}
 			}
 		}
-		if len(lines) == 0 {
+		if len(lines) == 0 && !swept {
 			// Nothing here to say (a settings card): its title and head, then.
 			for _, l := range c.Body {
 				if len(lines) < 2 {
@@ -375,30 +377,53 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 				}
 			}
 		}
+		if len(lines) == 0 {
+			return ""
+		}
 		t := strings.NewReplacer("**", "", "`", "").Replace(strings.Join(lines, ". ") + ".")
 		if chars > 0 && len(t) > chars {
 			t = gopodCut(t, chars)
 		}
 		return strings.TrimSpace(gopodPersonaFill("", t))
 	}
-	take := func(c gopodLookupCard, chars int) {
+	take := func(c gopodLookupCard, chars int, swept bool) {
 		name := filepath.Clean(c.Path)
-		if skipCard[name] || listed[name] {
+		if listed[name] {
 			return
 		}
 		listed[name] = true
-		if t := cardText(c, chars); t != "" {
-			sources = append(sources, gopodLookupName(c.Path))
+		// Every card looked up is named (operator: "all files looked up are
+		// listed"); his own card and the company's add no words - they're in his prompt.
+		sources = append(sources, gopodLookupName(c.Path))
+		if skipCard[name] {
+			return
+		}
+		if t := cardText(c, chars, swept); t != "" {
 			facts = append(facts, t)
 		}
 	}
 	linkChars := gopodBrobotsSettings.BrainChain.LookupLinkChars
+	most := gopodBrobotsSettings.BrainChain.LookupChainMax
+	// 2026-11-18 (operator: "look ups load to the end of the chain ... then sweep
+	// for information required and how to answer the question"): the picked
+	// cards, then their "see also" cards, theirs in turn, to the chain's end - each
+	// card once, at most lookup_chain_max of them; a linked card gives only its
+	// lines that say the question's words.
+	var queue []gopodLookupCard
 	for _, c := range gopodLookup(question) {
-		take(c, chars)
-		// 2026-11-18: its "see also" cards, one step out - each shorter.
+		take(c, chars, false)
+		queue = append(queue, c)
+	}
+	for len(queue) > 0 && (most <= 0 || len(listed) < most) {
+		c := queue[0]
+		queue = queue[1:]
 		for _, l := range c.SeeAlso {
-			if lc, ok := byName[strings.ToLower(l)]; ok {
-				take(lc, linkChars)
+			if most > 0 && len(listed) >= most {
+				break
+			}
+			if lc, ok := byName[strings.ToLower(l)]; ok && !listed[filepath.Clean(lc.Path)] {
+				take(lc, linkChars, true)
+				queue = append(queue, lc)
 			}
 		}
 	}

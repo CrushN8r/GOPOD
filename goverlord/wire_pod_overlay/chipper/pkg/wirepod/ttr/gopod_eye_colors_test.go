@@ -399,3 +399,47 @@ func TestLookupHubs(t *testing.T) {
 		}
 	}
 }
+
+// 2026-11-18 (operator: "'start [run-name]', should be only honoured when '0'
+// (KEYS) is selected"): a run command runs only when it came on 0.
+func TestRunOnlyOnZero(t *testing.T) {
+	gopodRunFromZero.Store(false)
+	if gopodRunAllowed("start fart joke") {
+		t.Error("a run command off 0 ran")
+	}
+	gopodRunFromZero.Store(true)
+	if !gopodRunAllowed("start fart joke") || gopodRunFromZero.Load() {
+		t.Error("a run command on 0 didn't run, or the flag stayed")
+	}
+	if gopodRunAllowed("what's the weather") {
+		t.Error("talk counted as a run")
+	}
+	if _, target, _ := gopodNumpadBrobot("KP0"); target != gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona {
+		t.Errorf("KP0's target %q isn't KEYS", target)
+	}
+}
+
+// 2026-11-18 (operator: "look ups load to the end of the chain"): the weather
+// look-up walks weather.md's chain - the station, the hand-offs, PLAYHEAD, GIT
+// REPO, CACHE PYC, the Brobot - each once, all named.
+func TestLookupFullChain(t *testing.T) {
+	fact, src := gopodLookupFact("Brobot 1", "who gets the weather?")
+	got := " " + strings.Join(src, " ") + " "
+	for _, w := range []string{"weather.md", "crushn8r_crewd_news_station.md", "duo-handoff.md", "playhead-zuminto.md", "git-repo.md", "cache-pyc.md", "brobot-1.md"} {
+		if !strings.Contains(got, " "+w+" ") {
+			t.Errorf("no %s in %v", w, src)
+		}
+	}
+	if strings.Contains(fact, ". .") || len(src) > gopodBrobotsSettings.BrainChain.LookupChainMax {
+		t.Errorf("chain: %d cards, %q", len(src), fact)
+	}
+}
+
+// 2026-11-18 (live: "gov or lord what say you" - Goverlord misheard): the
+// mishearing is spelled back, so the "." key finds him.
+func TestGovOrLord(t *testing.T) {
+	text := gopodSpellNames("gov or lord what say you owe grand master")
+	if !strings.HasPrefix(text, "Goverlord") || gopodAnyNamed(text) != "GOVERLORD" {
+		t.Errorf("%q -> %q", text, gopodAnyNamed(text))
+	}
+}

@@ -78,7 +78,7 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 
 var gopodPersonaEmojiRE = regexp.MustCompile(`[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{FE0F}\x{200D}]`)
 
-// gopodPersonaAsk: the persona's answer from the language model (short, no emojis).
+// gopodPersonaAsk: the persona's answer from the language model (short; emojis welcome).
 var gopodPersonaAsk = func(host, text string) (string, error) {
 	base, model, ok := gopodWarmupOllama()
 	if !ok || model == "" {
@@ -103,7 +103,9 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return "", err
 	}
-	reply := strings.TrimSpace(gopodPersonaEmojiRE.ReplaceAllString(out.Message.Content, ""))
+	// 2026-11-18 (operator: "allow/encourage emojis"): emojis stay in the
+	// answer's bubble; the voice skips them (gopodSpeakNoEmojis).
+	reply := strings.TrimSpace(out.Message.Content)
 	reply = strings.Join(strings.Fields(strings.ReplaceAll(reply, "*", "")), " ")
 	// 2026-10-26 (live: "thinking___ Party's in full swing..." - CHALK, PNFT):
 	// the Brobots' shared chat keeps their animation cues (word___), and a

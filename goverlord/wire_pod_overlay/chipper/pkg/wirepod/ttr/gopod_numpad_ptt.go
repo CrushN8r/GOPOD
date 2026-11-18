@@ -390,6 +390,13 @@ func gopodKeyReaches(target string) string {
 // the map's target says: a voice-only persona, a persona in its reporter suit, a
 // robot as himself (the dial's 0%, for this line only), or a robot's hosted persona.
 func gopodKeyLine(target, text, how string) error {
+	// 2026-11-18 (operator: "'start [run-name]', should be only honoured when '0'
+	// (KEYS) is selected, like GOPOD 'system-[text]' commands"): a run command
+	// on 0 runs; on any other key it's just talk (gopodRunFromZero).
+	if gopodRunCommandLine(text) && (target == gopodTypedSystem || target == gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona) {
+		gopodRunFromZero.Store(true)
+		return gopodOperatorLine(gopodTypedAll, text, how)
+	}
 	switch {
 	case target == gopodTypedSystem:
 		return gopodGoverlordCall(text, how)

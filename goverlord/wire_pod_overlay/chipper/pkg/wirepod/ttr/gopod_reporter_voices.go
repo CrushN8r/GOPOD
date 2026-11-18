@@ -1011,7 +1011,14 @@ func gopodSaysFor(host, text string) string {
 			words[k] = v
 		}
 	}
-	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakFlags(text)), words)
+	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakNoEmojis(gopodSpeakFlags(text))), words)
+}
+
+// gopodSpeakNoEmojis (2026-11-18, operator: "allow/encourage emojis"): emojis are
+// shown, not said - the voice skips them (a flag is said as its country first,
+// gopodSpeakFlags).
+func gopodSpeakNoEmojis(text string) string {
+	return strings.Join(strings.Fields(gopodPersonaEmojiRE.ReplaceAllString(text, "")), " ")
 }
 
 // gopodReporterSays: gopodSaysFor a voice that isn't the system's.
@@ -1021,7 +1028,7 @@ func gopodReporterSays(text string) string {
 	// The same rules as the Brobots' speech for a time: "1405 Hours Military
 	// Time" said "fourteen oh five hours military time" (gopodSpeakMilitaryTime).
 	// 2026-11-02: the shared lingo list plus every persona's own (gopodLingoWords).
-	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakFlags(text)), gopodLingoWords())
+	return gopodSaySwap(gopodSpeakMilitaryTime(gopodSpeakNoEmojis(gopodSpeakFlags(text))), gopodLingoWords())
 }
 
 // gopodSaySwap: each whole word in words (any case) said as its value. The

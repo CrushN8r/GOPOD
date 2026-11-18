@@ -354,16 +354,17 @@ func gopodOperatorAsk(esn, text, how string) error {
 	// (gopod_interview_chapters.go; shown once, so the reply doesn't repeat it).
 	gopodShowChapter(gopodSpellNames(text))
 	gopodOperatorShow(gopodBrobotName(esn), text, how)
+	run := gopodRunAllowed(text)
 	// 2026-10-10 (operator: "\"start bingo test\" not spoken"): a typed run
 	// command is read out first, then the run starts.
-	if gopodTypedCommandMatch(text) {
+	if run && gopodTypedCommandMatch(text) {
 		go func() {
 			gopodOperatorRead(gopodBrobotName(esn), text, how)
 			gopodRunTypedCommand(esn, text)
 		}()
 		return nil
 	}
-	if gopodStartNotFound(text, func() { gopodOperatorRead(gopodBrobotName(esn), text, how) }) {
+	if run && gopodStartNotFound(text, func() { gopodOperatorRead(gopodBrobotName(esn), text, how) }) {
 		return nil
 	}
 	if gopodRunNativeCube(esn, text) {
@@ -391,17 +392,18 @@ func gopodTypedInputAll(text, how string) error {
 	logger.Println("Bot " + gopodBrobot1ESN + " " + how + " (all): " + text)
 	gopodShowChapter(gopodSpellNames(text))
 	gopodOperatorShow("Brobots", text, how)
-	if gopodTypedCommandMatch(text) {
+	run := gopodRunAllowed(text)
+	if run && gopodTypedCommandMatch(text) {
 		go func() {
 			gopodOperatorRead("Brobots", text, how)
 			gopodRunTypedCommand(gopodBrobot1ESN, text)
 		}()
 		return nil
 	}
-	if gopodStartNotFound(text, func() { gopodOperatorRead("Brobots", text, how) }) {
+	if run && gopodStartNotFound(text, func() { gopodOperatorRead("Brobots", text, how) }) {
 		return nil
 	}
-	if gopodRunTypedCommand(gopodBrobot1ESN, text) {
+	if run && gopodRunTypedCommand(gopodBrobot1ESN, text) {
 		return nil
 	}
 	// A cube command to all: each Brobot runs it with his own cube.
@@ -631,6 +633,28 @@ func gopodStartNotFound(text string, readOut func()) bool {
 		gopodSessionSay(strings.ReplaceAll(gopodBrobotsSettings.Session.NotFoundText, "{run}", name))
 	}()
 	return true
+}
+
+// gopodRunFromZero: the next run command came on 0 (KEYS) - the only key that
+// runs one (2026-11-18); taken once by the line it came with.
+var gopodRunFromZero atomic.Bool
+
+// gopodRunCommandLine: a run command or a "start ..." line.
+func gopodRunCommandLine(text string) bool {
+	return gopodTypedCommandMatch(text) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "start ")
+}
+
+// gopodRunAllowed: this line's run command came on 0; taken once. Any other
+// key's run command is talk.
+func gopodRunAllowed(text string) bool {
+	if !gopodRunCommandLine(text) {
+		return false
+	}
+	if gopodRunFromZero.CompareAndSwap(true, false) {
+		return true
+	}
+	logger.Println("GOPOD_TYPED run command off 0 - talk: " + text)
+	return false
 }
 
 // gopodTypedCommandMatch: text is a run command gopodRunTypedCommand would run.

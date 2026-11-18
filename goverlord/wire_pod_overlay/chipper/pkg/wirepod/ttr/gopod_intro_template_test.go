@@ -274,7 +274,7 @@ func TestDialZeroBrobots(t *testing.T) {
 	}
 	gopodDialZero.Store(gopodBrobot1ESN, true)
 	defer gopodDialZero.Delete(gopodBrobot1ESN)
-	if got := gopodIntroOpening("Brobot 1"); got != "I'm Brobot 1, my nickname is BRUH!" {
+	if got := gopodIntroOpening("Brobot 1"); got != "I'm Brobot 1, my nickname is BRUH-1." {
 		t.Errorf("All round opening: %q", got)
 	}
 }

@@ -2,7 +2,7 @@
 - **words:** weather, the weather, forecast, temperature, weather details
 - **ask:** Who gets the weather?
 - **chain:** Goverlord > KEYS > PLAYHEAD > GIT REPO > CACHE PYC
-- **see also:** keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, live-weather.md
+- **see also:** company-schema.md, crushn8r_crewd_news_station.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, live-weather.md
 ---
 
 ## The weather chain
