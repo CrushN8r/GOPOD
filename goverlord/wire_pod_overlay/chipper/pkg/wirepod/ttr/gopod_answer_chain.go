@@ -546,6 +546,12 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 		// they're asked a question, the bubble can say, message received, sir, and
 		// then the process can go on"): the Brobots' order - his Got it, said at
 		// once (the voice template), then his brain, then his answer when it's made.
+		// 2026-11-19 (live: GEMMA said "Got it!" after the stop): an answer begun
+		// before a stop run says nothing at all.
+		if early != nil && gopodStopSeq.Load() != early.seq {
+			logger.Println("GOPOD_PERSONA " + host + ": answer dropped - stop run before it was said")
+			return true
+		}
 		if got := strings.TrimSpace(gopodGotItNamed(host).Text); got != "" && !gopodCommCheckSelf.Load() {
 			gopodReporterSay(sayAs, got, true, true)
 		}

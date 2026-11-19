@@ -19,8 +19,8 @@
 9. relations: Who I answer to| | Who works with me| | Who answers to me|Answering to me:
 
 ## Guided Task Flow (brain_chain.flow)
-1. intro: a) Introduce yourself - who you answer to and who works with you. b) {BUTLER.call} opened the session.
-2. intro_first: a) Introduce yourself - who you answer to and who works with you. b) You're the first to speak - open up the session.
+1. intro: a) Introduce yourself to the group chat - more about you, less about who you work with. b) {BUTLER.call} opened the session.
+2. intro_first: a) Introduce yourself to the group chat - more about you, less about who you work with. b) You're the first to speak - open up the session.
 
 ## Who opens the session (brain_chain)
 1. intro_opener: {BUTLER.call}

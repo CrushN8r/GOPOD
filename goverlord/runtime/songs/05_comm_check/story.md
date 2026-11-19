@@ -31,13 +31,13 @@ the waits are the settings' `comm_check` (quiet_seconds, line_max_seconds).
 > TEXT: {name}! Get the party started: get everyone to introduce themselves to the chat - what they do, who they answer to and who works for who. Start with me, then yourself, our Hosts, Gomads and their Interns, Gominions
 
 ## STEP goverlord_ask_0202
-> TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
+> TEXT: Next up, {name}! Introduce yourself to the group chat.
 
 ## STEP keys_self_0203
-> TEXT: Introduce yourself to the chat - what you do, who you answer to and who works with you.
+> TEXT: Introduce yourself to the group chat.
 
 ## STEP crews_ask_0204
-> TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
+> TEXT: Next up, {name}! Introduce yourself to the group chat.
 
 ## STEP all_ask_0206
 > TEXT: And now, {name}! You party animals! What's the weather like today?
