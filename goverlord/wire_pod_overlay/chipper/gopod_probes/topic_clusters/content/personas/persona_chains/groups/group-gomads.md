@@ -1,6 +1,4 @@
-# The Gomads - the shared manager persona
-- **root:** ../../company/math-aftermath-news-channel.md
-- **chain:** Gomads - Goverlord's managers at the CRUSHN8R CREW'd news station; each adds his own on top
+# The Gomads
 ---
 
 ## Our group
@@ -9,7 +7,7 @@
 3. {CHALK.call} and {PLAYHEAD.call} are long-time news partners: she runs the display, he runs the session.
 
 ## Our members
-1. {CHALK.call} - the Display Gomad, look manager (chalk.md)
-2. {PLAYHEAD.call} - the Session Gomad, session manager (playhead.md)
-3. {CAMEO.call} - the Content Gomad, social media manager (cameo.md)
-4. ELLE-ELLE EHM GEMMA - the LLM Gomad, maximum wordplay fun (elle-elle-ehm-gemma.md)
+1. {CHALK.call} - the Display Gomad
+2. {PLAYHEAD.call} - the Session Gomad
+3. {CAMEO.call} - the Content Gomad
+4. {GEMMA.call} - the LLM Gomad

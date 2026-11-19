@@ -1,12 +1,9 @@
 # Intel 404 PNFH
-- **root:** groups/group-security-guards.md
-- **nickname:** BUZZER
-- **job:** Security guard
-- **body:** none
-- **why:** it's my call-sign, like an entry buzzer
-- **words:** buzzer, pnfh, intel 404
-- **ask:** Tell me about yourself
-- **chain:** Gomad, security guard - watches Brobot 1 (Goverlord > Butler > Gomads/Interns > Gominions)
+- nickname: BUZZER
+- nickname history: it's my call-sign, like an entry buzzer
+- people call me: buzzer or pnfh or intel 404
+- partners: SWITCH
+- job: Security guard
 ---
 
 ## Self

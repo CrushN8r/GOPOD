@@ -131,7 +131,8 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			}
 		}
 	}
-	cluster := len(heads) == 2 && strings.HasPrefix(heads[0], "# ") && strings.HasPrefix(heads[1], "- **")
+	// 2026-11-18: a plain-topped card ("- nickname: DOC") is a card too.
+	cluster := len(heads) == 2 && strings.HasPrefix(heads[0], "# ") && (strings.HasPrefix(heads[1], "- **") || (strings.HasPrefix(heads[1], "- ") && strings.Contains(heads[1], ":")))
 	var para []string
 	summary := false
 	for _, line := range strings.Split(string(data), "\n") {
@@ -163,6 +164,14 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
 				c.Owner = strings.TrimSpace(v)
+			}
+			if k, v, ok := gopodTopicHeadKV(t); ok && k == "people call me" && cluster {
+				v = strings.ReplaceAll(v, " or ", ", ")
+				for _, w := range strings.Split(v, ",") {
+					if w = strings.TrimSpace(strings.ToLower(w)); w != "" {
+						c.Words = append(c.Words, w)
+					}
+				}
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "words" && cluster {
 				for _, w := range strings.Split(v, ",") {

@@ -113,6 +113,28 @@ func gopodPersonaProfileReadRooted(path string, depth int) (head map[string]stri
 
 // gopodPersonaProfileReadOne: one profile file's head and sections.
 func gopodPersonaProfileReadOne(path string) (head map[string]string, sections map[string][]string) {
+	head, sections = gopodPersonaProfileReadFile(path)
+	// 2026-11-18: a card's group and robot from persona_cards, when it doesn't say.
+	if head != nil {
+		if pc, ok := gopodPersonaCards[filepath.Base(path)]; ok {
+			if head["root"] == "" && pc.Group != "" {
+				head["root"] = pc.Group
+			}
+			if head["body"] == "" && pc.Body != "" {
+				head["body"] = pc.Body
+			}
+		}
+	}
+	return head, sections
+}
+
+// gopodPersonaCards: persona_cards, set before the cards are read (settings load).
+var gopodPersonaCards map[string]struct {
+	Group string `json:"group"`
+	Body  string `json:"body"`
+}
+
+func gopodPersonaProfileReadFile(path string) (head map[string]string, sections map[string][]string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, nil
@@ -127,6 +149,14 @@ func gopodPersonaProfileReadOne(path string) (head map[string]string, sections m
 				continue
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok {
+				// 2026-11-18: the card's plain words for the code's keys.
+				switch k {
+				case "nickname history":
+					k = "why"
+				case "people call me":
+					k = "words"
+					v = strings.ReplaceAll(v, " or ", ", ")
+				}
 				head[k] = v
 			}
 			continue
@@ -162,6 +192,7 @@ func gopodPersonaProfileSections(who string) map[string][]string {
 // name (the "# " label), nickname, job name - into host_personas, so the profile
 // is the one place a persona's name is written.
 func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
+	gopodPersonaCards = s.PersonaCards
 	for _, who := range gopodPersonaProfileHosts(s) {
 		head, sections := gopodPersonaProfileRead(gopodPersonaProfileFileIn(s.PersonaProfiles.Folder, who))
 		if head == nil {

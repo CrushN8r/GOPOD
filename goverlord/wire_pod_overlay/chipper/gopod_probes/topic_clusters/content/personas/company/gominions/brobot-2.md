@@ -1,11 +1,8 @@
 # Brobot 2
-- **root:** ../show/brobots.md
-- **nickname:** BRUH-2
-- **job:** party-bro GOPOD rep
-- **body:** Brobot 2
-- **words:** brobot 2, brobot two
-- **ask:** Tell me about yourself
-- **chain:** Gominion - the robot, Vector 2, and his own persona at the dial's 0% (a party-bro GOPOD rep); at 100% it hosts the persona in pip-stall.md
+- nickname: BRUH-2
+- people call me: brobot 2 or brobot two
+- partners: BRUH-1
+- job: party-bro GOPOD rep
 ---
 
 ## Self

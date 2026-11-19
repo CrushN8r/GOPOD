@@ -971,6 +971,13 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"interview_script"`
 	Personas map[string]string `json:"personas"`
 	// 2026-10-21: the Doc & Pip persona template (gopod_brobot_personas.go).
+	// 2026-11-18 (operator: "write for me first, then the code, so it understands
+	// what's written for me"): what a card no longer says - its group (the card it
+	// grows from) and the robot it plays on - by card file.
+	PersonaCards map[string]struct {
+		Group string `json:"group"`
+		Body  string `json:"body"`
+	} `json:"persona_cards"`
 	HostPersonas map[string]gopodHostPersona `json:"host_personas"`
 	// 2026-11-16: GEMMA's eyes - the C920, then the Brobots' cameras (gopod_gemma_eyes.go).
 	GemmaEyes struct {

@@ -1,12 +1,9 @@
 # FULL NAME
-- **root:** (to come: the group root, in persona_chains/groups/)
-- **nickname:** (to come: in caps)
-- **job:** (to come: the job name)
-- **body:** (the robot body this persona speaks through - Brobot 1, Brobot 2 - or none for a voice; a body's ESN lives only in the private ~/.gopod_esns.json)
-- **why:** (to come: the nickname's story, said after "because")
-- **words:** (to come: the words that name this persona, small letters, the settings key first)
-- **ask:** Tell me about yourself
-- **chain:** (to come: who this persona answers to, in the chain of command)
+- nickname: (in caps)
+- nickname history: (the nickname's story)
+- people call me: (first name or NICKNAME)
+- partners: (who they work with, by nickname)
+- job: (the job name)
 ---
 
 ## Self

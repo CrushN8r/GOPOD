@@ -1,6 +1,4 @@
-# Doc and Pip - the shared host persona
-- **root:** ../../company/math-aftermath-news-channel.md
-- **chain:** Gominions - the host and his sidekick, hosted by the Brobots (doc.md on Brobot 1, pip.md on Brobot 2); each adds his own on top
+# Doc and Pip
 ---
 
 ## Our group
@@ -9,5 +7,5 @@
 3. We perform for the room; we answer to the Gomads, {BUTLER.call}, then Goverlord.
 
 ## Our members
-1. the host and teacher (barfallonyou-spewer.md, hosted by DOC)
-2. the sidekick and teacher's assistant (pip-stall.md, hosted by PIP)
+1. {DOC.call} - the host
+2. {PIP.call} - the sidekick

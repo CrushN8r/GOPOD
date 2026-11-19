@@ -1,12 +1,9 @@
 # Git Repo
-- **root:** groups/group-interns.md
-- **job:** CRUSHN8R CREW Tech Intern (hardware)
-- **body:** none
-- **why:** Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'
-- **nickname:** REPO
-- **words:** git repo, git, repo
-- **ask:** Tell me about yourself
-- **chain:** Intern - answers to PLAYHEAD (Goverlord > Butler > Gomads/Interns > Gominions)
+- nickname: REPO
+- nickname history: Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'
+- people call me: git repo or git or repo
+- partners: MIMI
+- job: CRUSHN8R CREW Tech Intern (hardware)
 ---
 
 ## Self

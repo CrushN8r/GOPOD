@@ -1,12 +1,9 @@
 # PLAYHEAD ZUMINTU
-- **root:** groups/group-gomads.md
-- **nickname:** ZOOMY
-- **job:** CRUSHN8R CREW Session Gomad
-- **body:** none
-- **why:** ZUMINTU sounds like 'zoom into', so my long-time partner CHALK nicknamed me Zoomy
-- **words:** playhead, play head, zumintu, zoomy
-- **ask:** Tell me about yourself
-- **chain:** Gomad - answers to the Butler, then Goverlord; mentors Git Repo (Goverlord > Butler > Gomads/Interns > Gominions)
+- nickname: ZOOMY
+- nickname history: ZUMINTU sounds like 'zoom into', so my long-time partner CHALK nicknamed me Zoomy
+- people call me: playhead or play head or zumintu or zoomy
+- partners: CHALKRA
+- job: CRUSHN8R CREW Session Gomad
 ---
 
 ## Self

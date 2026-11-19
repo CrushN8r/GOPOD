@@ -307,7 +307,7 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 			}
 			name := filepath.Base(p)
 			for _, k := range schema.keys {
-				if k == "why" || k == "about" { // a story may be blank
+				if k == "why" || k == "about" || k == "nickname history" { // a story may be blank
 					continue
 				}
 				n++
