@@ -266,4 +266,61 @@ func gopodBatteryLines(name string, volts float64, line string) (guard, warning,
 	return guard, strings.TrimSpace(warn + " " + hand), reply, line
 }
 
+// gopodSecuritySweep (2026-11-19, operator: "add into any starting run (low
+// level template change), a security check * security sweep 1 = BUZZER sweeps
+// brobot 1 detection & sufficient battery power to proceed * security sweep 2 =
+// SWITCH sweeps brobot 2"): before a run checks in, each Brobot's guard
+// (battery_watch.guards) sweeps him - found, and above low_volts. Any sweep
+// failing holds the run. Robots off (a run on purpose without them) skips it.
+func gopodSecuritySweep() bool {
+	bw := gopodBrobotsSettings.BatteryWatch
+	if GopodRobotsOff() || bw.SweepClear == "" {
+		return true
+	}
+	// No Brobot known to Wire-Pod and none ever read (a test, a fresh setup): nothing to sweep.
+	gopodBatteryLast.Lock()
+	read := len(gopodBatteryLast.text) > 0
+	gopodBatteryLast.Unlock()
+	if len(vars.BotInfo.Robots) == 0 && !read {
+		return true
+	}
+	// A reading from the battery watch is fresh for two of its rounds; an old or
+	// missing one is read now, both Brobots at once.
+	fresh := 2 * gopodSecondsToDuration(bw.IntervalSeconds)
+	var wg sync.WaitGroup
+	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
+		gopodBatteryLast.Lock()
+		old := time.Since(gopodBatteryLast.at[esn]) > fresh
+		gopodBatteryLast.Unlock()
+		if old {
+			wg.Add(1)
+			go func(esn string) { defer wg.Done(); gopodBatteryCheck(esn) }(esn)
+		}
+	}
+	wg.Wait()
+	ok := true
+	for n, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
+		name := gopodBrobotName(esn)
+		gopodBatteryLast.Lock()
+		last := gopodBatteryLast.text[esn]
+		gopodBatteryLast.Unlock()
+		gopodBatteryLow.Lock()
+		volts := gopodBatteryLow.prev[esn]
+		gopodBatteryLow.Unlock()
+		line := bw.SweepClear
+		switch {
+		case last == "" || strings.HasPrefix(last, "unknown"):
+			line, ok = bw.SweepMissing, false
+		case volts > 0 && volts < bw.LowVolts:
+			line, ok = bw.SweepLow, false
+		}
+		line = strings.NewReplacer("{n}", fmt.Sprint(n+1), "{brobot}", name, "{volts}", fmt.Sprintf("%.2f", volts)).Replace(line)
+		logger.Println("GOPOD_SECURITY_SWEEP " + name + ": " + line)
+		if guard := bw.Guards[name]; guard != "" {
+			gopodReporterSay(guard, line, true, false)
+		}
+	}
+	return ok
+}
+
 // ## EOF

@@ -2772,3 +2772,47 @@ func TestAnswerOpensWithGreetingOfTheDay(t *testing.T) {
 		t.Errorf("stitched: %q", out)
 	}
 }
+
+// 2026-11-19 (operator: "the reaction should match the non-sense ... let's start
+// at README.md; rather than engage the nonsense query"): nonsense gets the
+// nonsense line; a real question never does.
+func TestNonsenseGetsReadme(t *testing.T) {
+	if got := gopodNonsenseLine("rgvthrtgh$^$%^gfdgdrfg"); !strings.Contains(got, "README.md") || !strings.Contains(got, "rgvthrtgh") {
+		t.Errorf("nonsense: %q", got)
+	}
+	for _, q := range []string{"do you agree with the weather?", "where do I start", "bingo", "Next up, DOC! Introduce yourself to the group chat."} {
+		if got := gopodNonsenseLine(q); got != "" {
+			t.Errorf("%q read as nonsense: %q", q, got)
+		}
+	}
+}
+
+// 2026-11-19 (live: "<thinking>", "emoji: ... note: ..."): the model's
+// scaffolding never reaches a bubble; line breaks stay.
+func TestLeaksStripped(t *testing.T) {
+	got := gopodStripLeaks("Hi! <thinking> Party time. emoji: 🎉\nnote: bye")
+	for _, bad := range []string{"<thinking>", "emoji:", "note:"} {
+		if strings.Contains(got, bad) {
+			t.Errorf("%q kept in %q", bad, got)
+		}
+	}
+	if !strings.Contains(got, "\n") {
+		t.Errorf("line break lost: %q", got)
+	}
+}
+
+// 2026-11-19 (operator: "menu had KEYS selected * they must all match"): a
+// command line from a key names that key's persona, not "Brobots".
+func TestCommandLineNamesTheKey(t *testing.T) {
+	if got := gopodTargetName(gopodPersonaMark + "BUTLER"); got != "BUTLER" {
+		t.Errorf("KEYS' key named %q", got)
+	}
+	done := gopodCommandFrom(gopodPersonaMark + "BUTLER")
+	if got := gopodLineTo("Brobots"); got != "BUTLER" {
+		t.Errorf("header %q, want BUTLER", got)
+	}
+	done()
+	if got := gopodLineTo("Brobots"); got != "Brobots" {
+		t.Errorf("header left over: %q", got)
+	}
+}

@@ -20,3 +20,8 @@
 1. guard_warning: Security warning: {brobot}'s battery is running low.
 2. guard_handover: {brobot}, what say you on this, {title} {nickname}?
 3. reply: Yeah... {line}
+
+## Before every run: the guards' security sweep (battery_watch)
+1. sweep_clear: Security sweep {n}: {brobot} detected, {volts} volts. Clear to proceed.
+2. sweep_missing: Security sweep {n}: {brobot} not detected. Run on hold.
+3. sweep_low: Security sweep {n}: {brobot} at {volts} volts. Not enough power to proceed.

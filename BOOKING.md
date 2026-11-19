@@ -16,6 +16,10 @@ needed.
 For a birthday video, use the request page on crushn8r.ca. The CRUSHN8R CREW'd newsletter hears
 first about live events.
 
+**When we play.** Morning, afternoon, evening and custom event sessions. At night: anything for
+a general audience, plus bars and comedy clubs, casinos and other 18+ controlled rooms. Want more
+than that? GOPOD Yourself - subscribe to the CRUSHN8R CREW'd newsletter at crushn8r.ca.
+
 **Paid and volunteer.** Paid rooms keep the lights on; volunteer rooms give back - birthdays and
 BBQs are where it starts.
 

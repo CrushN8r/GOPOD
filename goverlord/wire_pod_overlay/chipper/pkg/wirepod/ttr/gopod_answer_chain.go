@@ -498,6 +498,10 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	if gopodCommCheckHandover(host, text) {
 		return "", nil
 	}
+	// 2026-11-19: a nonsense line gets the nonsense answer, not the model's riff.
+	if line := gopodNonsenseLine(text); line != "" {
+		return line, nil
+	}
 	reply, err := gopodPersonaAsk(host, text)
 	if err != nil {
 		return "", err

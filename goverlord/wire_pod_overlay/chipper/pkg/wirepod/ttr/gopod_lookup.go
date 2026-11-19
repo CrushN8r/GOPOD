@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 )
 
 type gopodLookupCard struct {
@@ -491,6 +492,28 @@ func gopodLookupName(path string) string {
 		return filepath.Base(filepath.Dir(path)) + "/README.md"
 	}
 	return filepath.Base(path)
+}
+
+// gopodNonsenseLine (2026-11-19, operator: "I input for [persona-name]:
+// rgvthrtgh$^$%^gfdgdrfg * the reaction should match the non-sense * like; what is
+// 'rgvthrtgh$^$%^gfdgdrfg'? I don't know, let's start at README.md; rather than
+// engage the nonsense query"): a line with none of brain_chain.real_words and no
+// card its words pick gets brain_chain.nonsense_line, said as is; "" otherwise.
+func gopodNonsenseLine(text string) string {
+	bc := gopodBrobotsSettings.BrainChain
+	t := strings.TrimSpace(text)
+	if bc.NonsenseLine == "" || t == "" || gopodIsIntro(t) || len(gopodLookup(t)) > 0 {
+		return ""
+	}
+	words := strings.FieldsFunc(strings.ToLower(t), func(r rune) bool { return !unicode.IsLetter(r) && r != '\'' })
+	for _, w := range words {
+		for _, real := range strings.Split(bc.RealWords, ",") {
+			if w == strings.ToLower(strings.TrimSpace(real)) {
+				return ""
+			}
+		}
+	}
+	return strings.ReplaceAll(bc.NonsenseLine, "{asked}", t)
 }
 
 // ## EOF

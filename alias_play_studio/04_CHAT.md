@@ -183,6 +183,9 @@ after an edit. The face photo as a prize is not built yet. `system-faces` lists 
 
 ### 7.7 Who answers: addressing and All
 
+- **The picker, the key and the header match.** A command line ("start fart joke", "stop run")
+  sent with KEYS picked shows "Keyboard to KEYS" - the header names whoever the numpad map puts on
+  that key, never a hard-coded "Brobots" (`TestCommandLineNamesTheKey`).
 - The Brobot named in the first two words answers. With no name, the one who heard it first
   answers, and his brother stays quiet (a glance).
 - **All = all Brobots in sequence, everywhere, eggs too.** A typed or numpad line to All with no
@@ -275,6 +278,12 @@ Locked by the `TestGopodAddressed…`, `TestGopodShouldAnswer…`, `TestHighligh
   sentence with a political word (`clean_politics.words`) goes; political content is allowed
   only in the roast battle (`clean_politics.allowed_topics`). `gopod_clean_politics.go`,
   `TestCleanPolitics`.
+- **No scaffolding:** a tag like `<thinking>` or a working label ("emoji:", "note:") is the
+  model talking to itself - it never reaches a bubble (`gopodStripLeaks`, `TestLeaksStripped`).
+- **Nonsense gets nonsense:** a line with no real words and no card its words pick
+  (a keyboard mash) isn't played along with. Whoever's asked says "What is '[the mash]'? I
+  don't know - let's start at README.md." - the words are in
+  Goverlord's card (`nonsense_line`, `real_words`); `TestNonsenseGetsReadme`.
 - **Song/system lines said by a Brobot** (`gopodRecordSay`, for example the photo's second "I
   see ...") go through `GopodSpeakSentences`: lit while said, shown as said after.
 
@@ -342,6 +351,8 @@ by `TestMath*`).
 
 ### 8.6 Weather
 
+- **Weather only:** a weather question gets the weather and nothing riding along - no booking
+  point because the line said "party" or "today".
 - **The take:** "weather" in a line goes to PLAYHEAD ([12](06_CAST_AND_GAME.md#12-managers-chalk-and-playhead)):
   "I'll help you with that.", then the weather line. The Brobots keep the facts in their prompt
   but don't open with the weather. Weather is not an egg.

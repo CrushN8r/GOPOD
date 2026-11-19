@@ -99,6 +99,11 @@ func GopodRunStart(name, kind string, pid int) (bool, string) {
 		gopodSessionSay(gopodBrobotsSettings.Session.BusyText)
 		return false, r.Name
 	}
+	// 2026-11-19: the guards' security sweep - both Brobots found and powered.
+	if !gopodSecuritySweep() {
+		logger.Println("GOPOD_SESSION run " + name + " refused: security sweep")
+		return false, "security sweep"
+	}
 	gopodSession.Lock()
 	gopodSession.run = &gopodRun{Name: name, Kind: kind, PID: pid, Started: time.Now()}
 	gopodSession.Unlock()

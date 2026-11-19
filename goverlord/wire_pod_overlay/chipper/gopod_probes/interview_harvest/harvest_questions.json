@@ -804,19 +804,19 @@
       "chapter": "Booking",
       "topic": "bookings",
       "to": "Brobot 1",
-      "ask": "Brobot 1, how can I party with GOPOD?"
+      "ask": "Brobot 1, do you do morning & afternoon bookings?"
     },
     {
       "chapter": "Booking",
       "topic": "bookings",
       "to": "Brobot 2",
-      "ask": "Brobot 2, walk me through a normal day - morning first."
+      "ask": "Brobot 2, what do you do at night?"
     },
     {
       "chapter": "Booking",
       "topic": "bookings",
       "to": "Brobot 1",
-      "ask": "Brobot 1, and your evening - rapid fire?"
+      "ask": "Brobot 1, more than that - how do I party with GOPOD?"
     },
     {
       "chapter": "Booking",

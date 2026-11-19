@@ -227,6 +227,11 @@ func gopodSystemCommCheck() string {
 			}
 			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
 		}
+		// 2026-11-19: the guards' security sweep, as every run's (gopodSecuritySweep).
+		if !gopodSecuritySweep() {
+			logger.Println("GOPOD_COMM_CHECK held: security sweep")
+			return
+		}
 		// 2026-11-04 (operator: "Add in wake calls to new songs"): the song's
 		// wake_both - each Brobot woken (control taken, the settle, given back).
 		if cc.Wake {

@@ -4,6 +4,7 @@ package wirepod_ttr
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 // The battery watchdog says its line once per drop - below low_volts, or a dip
@@ -66,5 +67,36 @@ func TestBatteryBackAfterFreeze(t *testing.T) {
 	}
 	if len(bw.Lines["Brobot 1"]) == 0 || bw.HomeLines["Brobot 1"] == "" || !strings.Contains(bw.BackLines["Brobot 1"], "Then, Bam!") {
 		t.Errorf("dizzy-brobots.md not laid over the settings: %q %q %q", bw.Lines, bw.HomeLines, bw.BackLines)
+	}
+}
+
+// 2026-11-19 (operator: "security sweep 1 = BUZZER sweeps brobot 1 detection &
+// sufficient battery power to proceed * security sweep 2 = SWITCH"): a missing or
+// low Brobot holds the run; both found and powered, it goes.
+func TestSecuritySweepHoldsTheRun(t *testing.T) {
+	low := gopodBrobotsSettings.BatteryWatch.LowVolts
+	t.Cleanup(func() {
+		gopodBatteryLast.Lock()
+		gopodBatteryLast.text, gopodBatteryLast.at = map[string]string{}, map[string]time.Time{}
+		gopodBatteryLast.Unlock()
+	})
+	set := func(esn, text string, volts float64) {
+		gopodBatteryRemember(esn, text)
+		gopodBatteryLow.Lock()
+		gopodBatteryLow.prev[esn] = volts
+		gopodBatteryLow.Unlock()
+	}
+	set(gopodBrobot1ESN, "unknown: off", 0)
+	set(gopodBrobot2ESN, "4.0 V", low+0.3)
+	if gopodSecuritySweep() {
+		t.Error("Brobot 1 missing, the run went")
+	}
+	set(gopodBrobot1ESN, "4.0 V", low-0.1)
+	if gopodSecuritySweep() {
+		t.Error("Brobot 1 low, the run went")
+	}
+	set(gopodBrobot1ESN, "4.0 V", low+0.3)
+	if !gopodSecuritySweep() {
+		t.Error("both found and powered, the run was held")
 	}
 }

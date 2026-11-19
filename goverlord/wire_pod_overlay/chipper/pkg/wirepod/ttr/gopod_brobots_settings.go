@@ -683,14 +683,17 @@ type gopodBrobotsSettingsFile struct {
 		LookupDefault     string   `json:"lookup_default"`
 		LookupDefaultLine string   `json:"lookup_default_line"`
 		LookupSkip        []string `json:"lookup_skip"`
-		CastItem          string   `json:"cast_item"`
-		Roster            string   `json:"roster"`
-		CastMe            string   `json:"cast_me"`
-		RemindersPart     string   `json:"reminders_part"`
-		Asked             string   `json:"asked"`
-		None              string   `json:"none"`
-		QuestionChars     int      `json:"question_chars"`
-		GomadsRawChat     bool     `json:"gomads_raw_chat"`
+		// 2026-11-19: a nonsense line's answer, and the words that make a line real.
+		NonsenseLine  string `json:"nonsense_line"`
+		RealWords     string `json:"real_words"`
+		CastItem      string `json:"cast_item"`
+		Roster        string `json:"roster"`
+		CastMe        string `json:"cast_me"`
+		RemindersPart string `json:"reminders_part"`
+		Asked         string `json:"asked"`
+		None          string `json:"none"`
+		QuestionChars int    `json:"question_chars"`
+		GomadsRawChat bool   `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
@@ -1192,7 +1195,11 @@ type gopodBrobotsSettingsFile struct {
 		Guards          map[string]string `json:"guards"`
 		GuardWarning    string            `json:"guard_warning"`
 		GuardHandover   string            `json:"guard_handover"`
-		Reply           string            `json:"reply"`
+		// 2026-11-19: the guards' security sweep before a run (gopodSecuritySweep).
+		SweepClear   string `json:"sweep_clear"`
+		SweepMissing string `json:"sweep_missing"`
+		SweepLow     string `json:"sweep_low"`
+		Reply        string `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {

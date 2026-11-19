@@ -748,6 +748,10 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 					// GOPOD 2026-10-06: tighter - no lists, no stage directions, and
 					// 2026-10-07 the question's response budget (gopod_reply_tighten.go).
 					rawRespText = gopodTightenReply(rawRespText, transcribedText, esn)
+					// GOPOD 2026-11-19: a nonsense line gets the nonsense answer.
+					if line := gopodNonsenseLine(transcribedText); line != "" {
+						rawRespText = line
+					}
 					// GOPOD 2026-10-15: each of gemma's emoji-closed thoughts on its own line.
 					rawRespText = gopodThoughtBreaks(rawRespText)
 					gopodRememberOwnWords(esn, rawRespText)

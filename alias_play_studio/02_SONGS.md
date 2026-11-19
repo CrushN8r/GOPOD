@@ -264,6 +264,12 @@ For weather in the live chat (place names, countries, flags) see [8.6](04_CHAT.m
 - **Direct-SDK tools** (`gopod_probes/tools/`, built with `build_direct_sdk_tool.sh`): the
   rattle on a robot, "Brobots ready" in sync, the cube's light blip, a robot's info, putting a
   robot to sleep.
+- **The security sweep, before every run:** no run starts blind. Before a song, the interview,
+  phcal or the comm check goes, BUZZER sweeps Brobot 1 and SWITCH sweeps Brobot 2 - is he there,
+  and does he have the power to go? Each guard says his sweep in the chat ("Security sweep 1:
+  Brobot 1 detected, 3.95 volts. Clear to proceed."). A Brobot missing or low holds the run, so
+  a song never plays three minutes of music to robots that aren't there. Robots off skips it. The
+  words are in `dizzy-brobots.md`; `gopodSecuritySweep`, `TestSecuritySweepHoldsTheRun`.
 - **phcal, the bench:** tunes one move or sound on one robot and saves it: arm (speed, hold,
   cycles), nod, rattle and danger volume, animation hold, stay-in-place, reverse, the cube.
   The starting values are `goverlord/alias_lib_overlay/phcal_master_tweaks.json`; a tuned value
