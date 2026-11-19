@@ -25,7 +25,7 @@
 4. --- Gomads Crew --- CHALKRA, ZOOMY, CHAMMY
 5. --- Gomads Crew (Interns) --- REPO, MIMI
 6. --- Gominions Crew (GOPOD reps) --- BRUH 1, BRUH 2
-7. Company: MATH AFTERMATH NEWS CHANNEL
+7. Company: MATH AFTERMATH NEWS
 8. Cast: CRUSHN8R CREW
 
 ## The game welcome (comm_check.game_welcome)
