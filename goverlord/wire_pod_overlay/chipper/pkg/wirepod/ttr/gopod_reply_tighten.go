@@ -80,6 +80,7 @@ func gopodTightenReply(reply, question, esn string) string {
 		cue, body = reply[:loc[1]], reply[loc[1]:]
 	}
 	before := len(strings.Fields(body))
+	body = gopodStripLeaks(body)
 	body = gopodBracketPlaceholderPattern.ReplaceAllString(body, "")
 	// A run of stars on its own ("***", 2026-10-07 dry run) is never speech.
 	body = gopodStarRunPattern.ReplaceAllString(body, " ")
@@ -234,5 +235,20 @@ func gopodNotSentenceEnd(upTo []rune) bool {
 	}
 	return false
 }
+
+// gopodLeakTagRE / gopodLeakLabelRE (2026-11-19, live: Brobot 2 said "<thinking>",
+// GIT REPO "emoji: ... note: ..."): a tag or a working label in a reply is the
+// model's scaffolding, not speech - it goes.
+var gopodLeakTagRE = regexp.MustCompile(`</?[a-zA-Z_]{2,20}>`)
+var gopodLeakLabelRE = regexp.MustCompile(`(?i)(^|[.!?\s])(?:note|notes|emoji|emojis|response|answer|reply|output)\s*:\s*`)
+
+func gopodStripLeaks(s string) string {
+	s = gopodLeakTagRE.ReplaceAllString(s, "")
+	s = gopodLeakLabelRE.ReplaceAllString(s, "$1")
+	return gopodLeakSpacesRE.ReplaceAllString(s, " ")
+}
+
+// gopodLeakSpacesRE: runs of spaces a removed tag leaves - line breaks stay.
+var gopodLeakSpacesRE = regexp.MustCompile(`[ \t]{2,}`)
 
 // ## EOF

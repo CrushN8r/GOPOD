@@ -51,8 +51,8 @@
 1. prompt: Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: a hype line naming {title}; then one line for each - {numbered}. Each line uses its own words from that note, said your way.
 
 ## point_bubbles hype (point_bubbles.hype)
-1. Brobot 1: NGL, bro! | Real talk, bro.
-2. Brobot 2: Woo, bro! | Oh yeah!
+1. Brobot 1: NGL, bro! | Real talk, bro. | Listen up, bro. | Okay, okay, bro. | Fine, bro - here it is. | Straight up, bro. | Heads up, bro. | Bro, seriously.
+2. Brobot 2: Woo, bro! | Oh yeah! | Let's gooo! | No way, bro! | Ooh, bro! | Yesss! | Party time, bro! | Get this, bro!
 
 ## Reply examples (reply_examples)
 1. Brobot 1: `confused___ The weather, Brobot 0? Ugh, fine - it's sunny and warm, so everyone will want to dance and I'll have to watch, bro... 😒☀️\ndartingEyes___ Pizza or tacos? Pizza, obviously - round, sliced, and nobody argues over the last taco, bro... 🙄🍕`

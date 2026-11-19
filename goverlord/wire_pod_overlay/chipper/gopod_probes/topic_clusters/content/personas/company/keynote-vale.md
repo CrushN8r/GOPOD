@@ -36,7 +36,7 @@
 ## Lingo
 1. KEYNOTE = Keynote
 2. KEYNOTE VALE = Keynote Vale
-3. KEYS = Keys
+3. KEYS = keez
 
 ## My settings (managers.personas.BUTLER)
 1. host: BUTLER

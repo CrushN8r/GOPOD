@@ -677,7 +677,16 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	// 2026-10-26: a summary ask riffs on the topic's summary (in the notice);
 	// a detail ask, or "tell me more" about the last topic, gets its value points
 	// (gopod_topic_asks.go).
-	for _, packet := range gopodTopicPackets(userMessage) {
+	// 2026-11-19 (live: "What's the weather like today?" matched the booking
+	// topic's "a normal day" - "Morning! Seniors' bingo ... Evening! Bar top" in
+	// every weather answer): a weather question is about the weather - no topic
+	// packets, no value point with it.
+	weatherAsk := gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)
+	packets := gopodTopicPackets(userMessage)
+	if weatherAsk {
+		packets = nil
+	}
+	for _, packet := range packets {
 		// 2026-10-26: the topic's pre or post note, by whether the room has covered it.
 		if note := gopodTopicPrePost(packet.Name, gopodTopicTouched(packet.Name)); note != "" && !gopodExperiencePitchSkipped(packet.Name) {
 			facts = appendPromptSection(facts, []byte(note))

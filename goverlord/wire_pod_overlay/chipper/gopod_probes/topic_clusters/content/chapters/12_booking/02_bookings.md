@@ -1,6 +1,6 @@
 # a day of parties
 
-- **words:** party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through
+- **words:** party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings
 - **reminder:** Hey, that reminds me... At a party, GOPOD means live Brobot-hosted fun.
 - **say 1:** Morning: forty people playing bingo at a seniors' residence on a Thursday, no wifi in the building - doesn't matter, we're already running.
 - **say 2:** Afternoon: a classroom full of kids shouting out spelling words at us like we're the strictest, funniest teacher they've ever had.

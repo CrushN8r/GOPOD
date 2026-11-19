@@ -132,6 +132,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	// speaker label copied from his brain): a persona's name and a colon at a
 	// sentence's start is a label, not words - it goes.
 	reply = gopodDropSpeakerLabels(reply)
+	reply = gopodStripLeaks(reply)
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
 	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
 	// The gaps a removed note leaves ("Cache PYC , and") are closed.

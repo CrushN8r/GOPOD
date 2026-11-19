@@ -974,7 +974,21 @@
           var opText = document.createElement("span");
           opText.className = "brobot-bubble-text";
           opText.dataset.raw = who + ": " + spoken;
-          opText.textContent = spoken;
+          // 2026-11-19 (operator: "upon bubble display text appears as solid white,
+          // then is set to 0% solid ... correct is text goes in as 0% solid before,
+          // not after bubble display"): a live line goes in hidden - the highlight
+          // template's own span and mark - and lights when it's heard.
+          if (!restoringChat) {
+            var opSay = document.createElement("span");
+            opSay.className = "brobot-say";
+            opSay.textContent = spoken;
+            opText.appendChild(opSay);
+            bubble.classList.add("voice-lit");
+            // Its voice never came (voices off, an error): shown after 30 s anyway.
+            setTimeout(function () { if (!opSay.classList.contains("speaking") && !opSay.classList.contains("spoken")) { opSay.classList.add("spoken"); } }, 30000);
+          } else {
+            opText.textContent = spoken;
+          }
           // 2026-10-24 (link 4): the Operator's line names itself for its voice.
           if (!restoringChat) { voiceLineAhead(spoken, opText); }
           var opHead = operatorHead(to || operatorTarget(spoken), via, spoken);
@@ -4560,6 +4574,11 @@
       var voiceForText = {};
       function voiceLineWords(t) { return String(t).replace(/\s+/g, " ").trim(); }
       function voiceLineSpan(el, t) {
+        // 2026-11-19: a line that went in hidden already has its span - that one.
+        var ready = el.querySelectorAll(".brobot-say:not(.spoken):not(.speaking)");
+        for (var r = 0; r < ready.length; r++) {
+          if (voiceLineKey(ready[r].textContent) === voiceLineKey(t)) { return ready[r]; }
+        }
         var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
         while ((n = walker.nextNode())) {
           if (n.parentNode && n.parentNode.closest && n.parentNode.closest(".brobot-say")) { continue; }
