@@ -395,6 +395,7 @@ func gopodKeyLine(target, text, how string) error {
 	// on 0 runs; on any other key it's just talk (gopodRunFromZero).
 	if gopodRunCommandLine(text) && (target == gopodTypedSystem || target == gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona) {
 		gopodRunFromZero.Store(true)
+		defer gopodCommandFrom(target)()
 		return gopodOperatorLine(gopodTypedAll, text, how)
 	}
 	switch {
@@ -576,6 +577,44 @@ func GopodNumpadPTTStop(key string) map[string]any {
 func gopodNumpadPTTError(key, step, msg string) map[string]any {
 	logger.Println("GOPOD_NUMPAD_PTT error key=" + key + " " + step + ": " + msg)
 	return map[string]any{"ok": false, "error": msg}
+}
+
+// gopodCommandTo (2026-11-19, live: "start fart joke" with KEYS picked showed
+// "Keyboard to Brobots"): a command line from a key is shown to the one the
+// numpad map puts on that key - the picker, the key and the header all match.
+var gopodCommandTo atomic.Value
+
+// gopodCommandFrom: the header for the command line now being routed from
+// target (a numpad map target); call the result when done.
+func gopodCommandFrom(target string) func() {
+	name := gopodTargetName(target)
+	gopodCommandTo.Store(name)
+	return func() { gopodCommandTo.Store("") }
+}
+
+// gopodTargetName: who a numpad map target is, as the chat's headers name them.
+func gopodTargetName(target string) string {
+	switch {
+	case target == gopodTypedSystem:
+		return gopodGoverlordHost
+	case target == gopodTypedAll:
+		return "Brobots"
+	case strings.HasPrefix(target, gopodPersonaReporterMark):
+		return gopodBrobotsSettings.Managers.Personas[strings.TrimPrefix(target, gopodPersonaReporterMark)].Reporter
+	case strings.HasPrefix(target, gopodPersonaMark):
+		return strings.TrimPrefix(target, gopodPersonaMark)
+	case strings.HasPrefix(target, gopodDialZeroMark):
+		return gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark))
+	}
+	return gopodBrobotName(target)
+}
+
+// gopodLineTo: the header name for a command line - the key's, else def.
+func gopodLineTo(def string) string {
+	if v, _ := gopodCommandTo.Load().(string); v != "" {
+		return v
+	}
+	return def
 }
 
 // ## EOF

@@ -80,7 +80,7 @@ func gopodSystemSetMatch(text string) bool {
 func gopodSystemSetLine(esn, text, how string) {
 	to := gopodBrobotName(esn)
 	if esn == gopodTypedAll {
-		to = "Brobots"
+		to = gopodLineTo("Brobots")
 	}
 	gopodOperatorShow(to, text, how)
 	answer := ""

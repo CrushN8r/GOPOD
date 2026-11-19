@@ -50,6 +50,9 @@ func GopodTypedInput(esn, text string) error {
 	// is supposed to be the voice of Goverlord"): KEYS (+0) takes a system command
 	// to Goverlord, as -0 does.
 	if key, ok := gopodTypedKey(esn); ok && key == "KP0" && gopodSystemCommandMatch(strings.TrimSpace(text)) {
+		if _, target, err := gopodNumpadBrobot(key); err == nil {
+			defer gopodCommandFrom(target)()
+		}
 		return gopodTypedToSystem(text, "Typed text")
 	}
 	if gopodSystemSetMatch(strings.TrimSpace(text)) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "system-") {
@@ -203,6 +206,9 @@ func gopodTypedToKey(key, text, how string) error {
 		return errors.New("empty text")
 	}
 	if gopodSystemCommandMatch(text) {
+		if _, target, err := gopodNumpadBrobot(key); err == nil {
+			defer gopodCommandFrom(target)()
+		}
 		return gopodOperatorLine(gopodTypedAll, text, how)
 	}
 	_, target, err := gopodNumpadBrobot(key)
@@ -391,16 +397,17 @@ const gopodTypedAllGap = 100 * time.Millisecond
 func gopodTypedInputAll(text, how string) error {
 	logger.Println("Bot " + gopodBrobot1ESN + " " + how + " (all): " + text)
 	gopodShowChapter(gopodSpellNames(text))
-	gopodOperatorShow("Brobots", text, how)
+	to := gopodLineTo("Brobots")
+	gopodOperatorShow(to, text, how)
 	run := gopodRunAllowed(text)
 	if run && gopodTypedCommandMatch(text) {
 		go func() {
-			gopodOperatorRead("Brobots", text, how)
+			gopodOperatorRead(to, text, how)
 			gopodRunTypedCommand(gopodBrobot1ESN, text)
 		}()
 		return nil
 	}
-	if run && gopodStartNotFound(text, func() { gopodOperatorRead("Brobots", text, how) }) {
+	if run && gopodStartNotFound(text, func() { gopodOperatorRead(to, text, how) }) {
 		return nil
 	}
 	if run && gopodRunTypedCommand(gopodBrobot1ESN, text) {
@@ -415,7 +422,7 @@ func gopodTypedInputAll(text, how string) error {
 	// 2026-10-06: the reporter voice reads the line out once, before both answer.
 	read := make(chan struct{})
 	go func() {
-		gopodOperatorRead("Brobots", text, how)
+		gopodOperatorRead(to, text, how)
 		// 2026-10-13: the pictures once the question has been read out;
 		// the Brobot answering first carries the pop-up.
 		gopodShowTopicPictures(gopodAllFirst(text), text)
@@ -609,7 +616,7 @@ func gopodAllFirstPicked(text string) string {
 func gopodShowCommandLine(esn, text, how string) {
 	to := gopodBrobotName(esn)
 	if esn == gopodTypedAll {
-		to = "Brobots"
+		to = gopodLineTo("Brobots")
 	}
 	gopodOperatorShow(to, text, how)
 	gopodOperatorRead(to, text, how) // made if new, then heard
