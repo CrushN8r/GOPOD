@@ -410,7 +410,27 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	// card once, at most lookup_chain_max of them; a linked card gives only its
 	// lines that say the question's words.
 	var queue []gopodLookupCard
-	for _, c := range gopodLookup(question) {
+	picked := gopodLookup(question)
+	// 2026-11-18 (operator: "Since GOPOD game is essentially a git repo tour, have
+	// 'duh' responses, default to look up the README.md file ... gravitate to GOPOD
+	// Yourself * I don't know. GOPOD Yourself!"): a question no card matches gets
+	// the repo's README (brain_chain.lookup_default, a path from the repo's top),
+	// and its line (lookup_default_line).
+	if len(picked) == 0 {
+		if d := strings.TrimSpace(gopodBrobotsSettings.BrainChain.LookupDefault); d != "" {
+			want := filepath.Clean(filepath.Join(gopodRepoRoot(), d))
+			for _, c := range gopodLookupCards() {
+				if filepath.Clean(c.Path) == want {
+					take(c, chars, false)
+					if line := strings.TrimSpace(gopodBrobotsSettings.BrainChain.LookupDefaultLine); line != "" {
+						facts = append(facts, line)
+					}
+					break
+				}
+			}
+		}
+	}
+	for _, c := range picked {
 		take(c, chars, false)
 		queue = append(queue, c)
 	}

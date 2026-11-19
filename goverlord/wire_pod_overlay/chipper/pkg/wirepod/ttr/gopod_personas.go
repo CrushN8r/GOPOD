@@ -78,6 +78,19 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 
 var gopodPersonaEmojiRE = regexp.MustCompile(`[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{FE0F}\x{200D}]`)
 
+var gopodSpeakerLabelRE = regexp.MustCompile(`(^|[.!?]\s+)([A-Z][A-Za-z0-9 ]{1,30}):\s+`)
+
+// gopodDropSpeakerLabels: "KEYNOTE: " at a sentence's start goes when it names a persona.
+func gopodDropSpeakerLabels(reply string) string {
+	return gopodSpeakerLabelRE.ReplaceAllStringFunc(reply, func(m string) string {
+		sub := gopodSpeakerLabelRE.FindStringSubmatch(m)
+		if gopodAnyNamed(sub[2]) != "" && len(strings.Fields(sub[2])) <= 4 {
+			return sub[1]
+		}
+		return m
+	})
+}
+
 // gopodPersonaAsk: the persona's answer from the language model (short; emojis welcome).
 var gopodPersonaAsk = func(host, text string) (string, error) {
 	base, model, ok := gopodWarmupOllama()
@@ -115,6 +128,10 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	// flatly", answers in quote marks): a voice answer is the words said - no
 	// bracketed stage notes, no quote marks around it, no "I say" tags.
 	reply = gopodPersonaStageRE.ReplaceAllString(reply, "")
+	// 2026-11-18 (live: GOVERLORD "... brain. KEYNOTE: The chat began, ..." - a
+	// speaker label copied from his brain): a persona's name and a colon at a
+	// sentence's start is a label, not words - it goes.
+	reply = gopodDropSpeakerLabels(reply)
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
 	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
 	// The gaps a removed note leaves ("Cache PYC , and") are closed.

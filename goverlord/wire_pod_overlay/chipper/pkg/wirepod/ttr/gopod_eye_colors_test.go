@@ -272,7 +272,8 @@ func TestLookupPicksCards(t *testing.T) {
 			t.Errorf("%q: looked up %v, fact %q", q, src, fact)
 		}
 	}
-	if fact, src := gopodLookupFact("", "ok"); fact != "" || len(src) != 0 {
+	// 2026-11-18: a line with no card's words gets the README (lookup_default).
+	if fact, src := gopodLookupFact("", "ok"); len(src) != 1 || src[0] != "README.md" || fact == "" {
 		t.Errorf("a line with no card's words: %v %q", src, fact)
 	}
 }
@@ -504,5 +505,28 @@ func TestPersonaHeads(t *testing.T) {
 	}
 	if page.Heads["CHALK reporter"].From != "CHALK" || page.Heads["PLAYHEAD reporter"].From != "PLAYHEAD" {
 		t.Error("the reporters' heads come from CHALK's and PLAYHEAD's")
+	}
+}
+
+// 2026-11-18 (operator: "trailing emojis appear in the next chunk"; "Some
+// response leakage"): an emoji after a sentence's end stays with it; a persona's
+// name-and-colon label at a sentence's start goes.
+func TestEmojiStaysAndLabelGoes(t *testing.T) {
+	got := gopodCutAt("Think social media, for the internet itself. 🌎 I'll be taking care of it. 😎👀 Done.", gopodHardEnd)
+	if len(got) != 3 || got[0] != "Think social media, for the internet itself. 🌎" || got[1] != "I'll be taking care of it. 😎👀" {
+		t.Errorf("pieces: %q", got)
+	}
+	if r := gopodDropSpeakerLabels("I am GOVERLORD, GOPOD's brain. KEYNOTE: The chat began. Note: keep it."); r != "I am GOVERLORD, GOPOD's brain. The chat began. Note: keep it." {
+		t.Errorf("labels: %q", r)
+	}
+}
+
+// 2026-11-18 (operator: "have 'duh' responses, default to look up the README.md
+// file ... I don't know. GOPOD Yourself!"): a question no card matches gets the
+// repo's README and that line.
+func TestLookupDefaultsToReadme(t *testing.T) {
+	fact, src := gopodLookupFact("Brobot 1", "so what's new with you?")
+	if len(src) == 0 || src[0] != "README.md" || !strings.Contains(fact, "I don't know. GOPOD Yourself!") {
+		t.Errorf("default: %v %q", src, fact)
 	}
 }

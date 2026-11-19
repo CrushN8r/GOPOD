@@ -61,6 +61,8 @@
 16. answer_part: ` - {to}: "{answer}"`
 17. asked_before: asked before (#{seq}) - {to}: "{answer}"
 18. looked_up: LOOKED UP: {sources}
+19. lookup_default: README.md
+20. lookup_default_line: I don't know. GOPOD Yourself!
 
 ## An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
 1. I'm the proud {my_job_title}.

@@ -1445,7 +1445,8 @@ body.gopod-visitor .gopod-layout-pick, body.gopod-visitor-page .gopod-layout-pic
    numpad * make a brobot 0 + mic"): the operator (Brobot 0) keeps the eyes; a
    line from the numpad or the mic adds a small badge at the icon's corner. */
 .brobot-bubble-avatar.from-operator.via-numpad,
-.brobot-bubble-avatar.from-operator.via-mic {
+.brobot-bubble-avatar.from-operator.via-mic,
+.brobot-bubble-avatar.from-operator.via-keyboard {
   background:
     var(--via-badge) 100% 100% / 42% 42% no-repeat,
     url('/assets/brobot_eyes.webp') center / contain no-repeat,
@@ -1456,5 +1457,9 @@ body.gopod-visitor .gopod-layout-pick, body.gopod-visitor-page .gopod-layout-pic
 }
 .brobot-bubble-avatar.from-operator.via-mic {
   --via-badge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%23222'/%3E%3Crect x='9' y='4' width='6' height='10' rx='3' fill='%23fff'/%3E%3Cpath d='M6.5 11.5a5.5 5.5 0 0 0 11 0' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Crect x='11.2' y='17' width='1.6' height='3.5' fill='%23fff'/%3E%3C/svg%3E");
+}
+/* 2026-11-18 (operator: "'Keyboard to' icons not matching device input"): Brobot 0 + keyboard. */
+.brobot-bubble-avatar.from-operator.via-keyboard {
+  --via-badge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='5' width='22' height='14' rx='3' fill='%23222'/%3E%3Cg fill='%23fff'%3E%3Crect x='3.5' y='8' width='2.5' height='2.5'/%3E%3Crect x='7.5' y='8' width='2.5' height='2.5'/%3E%3Crect x='11.5' y='8' width='2.5' height='2.5'/%3E%3Crect x='15.5' y='8' width='2.5' height='2.5'/%3E%3Crect x='3.5' y='12' width='2.5' height='2.5'/%3E%3Crect x='7.5' y='12' width='2.5' height='2.5'/%3E%3Crect x='11.5' y='12' width='2.5' height='2.5'/%3E%3Crect x='15.5' y='12' width='5' height='2.5'/%3E%3Crect x='6' y='15.5' width='12' height='2'/%3E%3C/g%3E%3C/svg%3E");
 }
 

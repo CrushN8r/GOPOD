@@ -2157,6 +2157,7 @@
           icon.classList.add("from-operator");
           if (/^(KP|Numpad)/i.test(String(via || ""))) { icon.classList.add("via-numpad"); }
           else if (/mic|heard|voice/i.test(String(via || ""))) { icon.classList.add("via-mic"); }
+          else if (/keyboard|typed/i.test(String(via || ""))) { icon.classList.add("via-keyboard"); }
           return;
         }
         if (name === HEAD_SYSTEM) { icon.classList.add("to-system"); return; }

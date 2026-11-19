@@ -551,7 +551,20 @@ func gopodCastGrouped(self string) string {
 // PLAYHEAD's to say; every prompt still gets it, gopodBrainText).
 func gopodBrainBubbleLines(self, question string) []string {
 	var out []string
-	for _, l := range gopodBrainLines(self, question) {
+	// 2026-11-18 (operator: "where are the brains?" - small talk looked nothing
+	// up, its FACT was empty, so no LOOKED UP line came): the bubble always opens
+	// with what was looked up - his own card at least.
+	lines := gopodBrainLines(self, question)
+	hasFact := false
+	for _, l := range lines {
+		hasFact = hasFact || strings.HasPrefix(l, "FACT:")
+	}
+	if !hasFact {
+		if src := gopodBrainSources(self, question); src != "" {
+			out = append(out, strings.ReplaceAll(gopodBrobotsSettings.BrainChain.LookedUp, "{sources}", src))
+		}
+	}
+	for _, l := range lines {
 		// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat. No look ups
 		// from where the info is coming from"): the bubble shows where the FACT was
 		// looked up (brain_chain.looked_up), not its words again - the prompt still

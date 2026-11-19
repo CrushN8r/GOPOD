@@ -92,6 +92,11 @@ func gopodSoftEnd(runes []rune, i int) bool {
 	return strings.ContainsRune(gopodBrobotsSettings.LiveSplit.CommaEnds, r) || r == '\u2026' || (r == '.' && i > 0 && runes[i-1] == '.')
 }
 
+// gopodIsEmojiRune: an emoji or its joiners/variation marks (gopodPersonaEmojiRE's set).
+func gopodIsEmojiRune(r rune) bool {
+	return gopodPersonaEmojiRE.MatchString(string(r))
+}
+
 // gopodCutAt cuts text after every rune isEnd marks that is followed by a space
 // or a line break, and at every line break.
 func gopodCutAt(text string, isEnd func([]rune, int) bool) []string {
@@ -121,13 +126,35 @@ func gopodCutAt(text string, isEnd func([]rune, int) bool) []string {
 		}
 		current.Reset()
 	}
+	skip := -1
 	for i, r := range runes {
+		if i <= skip {
+			continue
+		}
 		if r == '\n' {
 			flush()
 			continue
 		}
 		current.WriteRune(r)
 		if i+1 < len(runes) && (runes[i+1] == ' ' || runes[i+1] == '\n') && isEnd(runes, i) && !inside[i] {
+			// 2026-11-18 (operator: "trailing emojis appear in the next chunk"):
+			// emojis right after a sentence's end belong to it - taken in before
+			// the cut ("itself. 🌎" stays one piece).
+			j := i + 1
+			for j < len(runes) && runes[j] == ' ' {
+				j++
+			}
+			end := i
+			for j < len(runes) && (gopodIsEmojiRune(runes[j]) || (runes[j] == ' ' && end > i)) {
+				if runes[j] != ' ' {
+					end = j
+				}
+				j++
+			}
+			if end > i {
+				current.WriteString(string(runes[i+1 : end+1]))
+				skip = end
+			}
 			flush()
 		}
 	}
