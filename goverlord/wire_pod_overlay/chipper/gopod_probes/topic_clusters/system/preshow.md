@@ -12,7 +12,7 @@
 4. PLAYHEAD reporter: Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash have an actual conversation.
 5. CHALK reporter: Rescued. The word is rescued.
 6. PLAYHEAD reporter: Okay. Rescued. The point is, something is being prepared right now, live, as we speak. And we are going to be here, to make it feel like an epic event. Because it is truly an event of a lifetime.
-7. CHALK reporter: And it's our job to make it happen. I'm so excited. Do you feel that?
+7. CHALK reporter: And it's our job to make it happen. I'm so excited. Wait. Do you feel that?
 8. PLAYHEAD reporter: My hands are full. I am a professional.
 9. CHALK reporter: That is not nerves. That is anticipation.
 
@@ -28,10 +28,10 @@
 2. nickname_label: ``
 
 ## Their bubble labels (reporter_voices.labels) (reporter_voices.labels)
-1. CHALK reporter: {CHALK.call} – reporter
-2. PLAYHEAD reporter: {PLAYHEAD.call} – reporter
-3. CHALK: {CHALK.call} – news anchor
-4. PLAYHEAD: {PLAYHEAD.call} – news anchor
+1. CHALK reporter: {CHALK.call} – reporter 1
+2. PLAYHEAD reporter: {PLAYHEAD.call} – reporter 2
+3. CHALK: {CHALK.call} – news anchor 1
+4. PLAYHEAD: {PLAYHEAD.call} – news anchor 2
 5. Goverlord: GOVERLORD
 6. GIT REPO: {GIT REPO.call}
 7. CACHE PYC: {CACHE PYC.call}
@@ -47,7 +47,7 @@
 5. no_llm_text: No Language Model Required
 6. run_ready_end: Let's Begin. (music)
 7. warmup_done_text: ``
-8. voices_engine_text: Voices warming up - about a minute or two.
+8. voices_engine_text: Voice files generating.
 
 ## The sign-off, in order (sign_off.lines) (sign_off.lines)
 1. Brobot 2: This is where Pip asks for an email, right?

@@ -109,6 +109,7 @@ hidden in code.
 | **`wpr 2`, F5** | Restart Wire-Pod (picks up a deploy), reload the chat page. |
 | **Desk start** | `source ~/.bashrc; gorepo; lsusb; wpr 2`, then F5 (below). |
 | **`pha0b`** | Plays a range of a song's steps, live or dry. |
+| **`gocones`** | GOPOD VR/AR: one C920 photo, the Brobots found by the cones on their backs (red = Brobot 1, orange = Brobot 2); saves the marked photo. Close ffplay first. |
 | **`score`** | Prints a song's steps, on screen. |
 | **phcal** | The bench: tune one move or sound on one robot. |
 
