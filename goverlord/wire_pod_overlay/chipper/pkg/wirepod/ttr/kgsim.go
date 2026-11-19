@@ -264,6 +264,11 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if h := gopodHelpLookup(transcribedText); h != "" {
 			facts = strings.TrimSpace(facts + "\n" + h)
 		}
+		// GOPOD 2026-11-18 (operator: "GIVE ME A SOLID TEMPLATED GOPOD!!"; live:
+		// "tell me about GOPOD" got the AccessMath card as FACT beside the GOPOD
+		// summary): one fact source - the question's own facts win; the brain's
+		// look-up runs only when there are none.
+		gopodQuestionHasFacts.Store(esn, facts != "")
 		if b := gopodBrainText(gopodBrobotName(esn), transcribedText); b != "" {
 			smsg.Content += "\n\n" + b
 		}

@@ -372,7 +372,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 	} else {
 		m["{fact}"] = gopodBrainFact(self)
 		// 2026-11-16: no value point - the look-up's cards (gopod_lookup.go).
-		if m["{fact}"] == "" {
+		// 2026-11-18: not when the question already has its own facts (one source).
+		if m["{fact}"] == "" && !gopodHasQuestionFacts(self) {
 			m["{fact}"], _ = gopodLookupFact(self, question)
 		}
 	}
@@ -881,5 +882,19 @@ func gopodPersonaCompany() string {
 	return name
 }
 
+
+// gopodQuestionHasFacts: this Brobot's question came with its own facts (value
+// points, help) - his brain's look-up stays out (2026-11-18, one fact source).
+var gopodQuestionHasFacts sync.Map // esn -> bool
+
+func gopodHasQuestionFacts(self string) bool {
+	esn := gopodBrobotESN(self)
+	if esn == "" {
+		return false
+	}
+	v, _ := gopodQuestionHasFacts.Load(esn)
+	b, _ := v.(bool)
+	return b
+}
 
 // ## EOF
