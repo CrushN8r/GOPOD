@@ -29,6 +29,12 @@ func gopodSummaryQuery(question string) bool {
 	lower := strings.ToLower(strings.Join(strings.Fields(question), " "))
 	for _, q := range s.Queries {
 		if q = strings.ToLower(strings.TrimSpace(q)); q != "" && strings.Contains(lower, q) {
+			// 2026-11-19 (operator's deep sweep: "What do you do at night?"): the
+			// overview only when the rest of the question names no topic of its
+			// own - "at night" asks deeper, not wider.
+			if rest := strings.Replace(lower, q, " ", 1); len(loadScenarioPacketsForMessage(rest)) > 0 {
+				continue
+			}
 			return true
 		}
 	}

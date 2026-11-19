@@ -2816,3 +2816,14 @@ func TestCommandLineNamesTheKey(t *testing.T) {
 		t.Errorf("header left over: %q", got)
 	}
 }
+
+// 2026-11-19 (operator's wide/deep sweep): "what do you do" alone is the
+// overview; "what do you do at night?" asks deeper - the bookings point.
+func TestOverviewOnlyWhenNothingDeeper(t *testing.T) {
+	if !gopodSummaryQuery("What do you do?") {
+		t.Error("\"What do you do?\" isn't the overview")
+	}
+	if gopodSummaryQuery("What do you do at night?") {
+		t.Error("\"What do you do at night?\" was taken as the overview")
+	}
+}

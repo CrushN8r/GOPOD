@@ -3350,9 +3350,15 @@
       var qrCodes = [];
       function addQrCodes(bubble) {
         if (!qrCodes.length || !bubble.classList || !bubble.classList.contains("brobot-bubble") || bubble.querySelector("img.gopod-qr")) { return; }
+        // 2026-11-19 (operator: "shouldn't be in Keyboard to Brobot 1 bubble";
+        // "roots up template driven"): the template's rule - a QR goes with an
+        // answer's own spoken words (ownSays: never a brain or notice line, never the
+        // opener, never a manager's part) and never with the question asked.
+        if (bubble.classList.contains("operator")) { return; }
         var textEl = bubble.querySelector(".brobot-bubble-text");
-        if (!textEl) { return; }
-        var said = String(textEl.textContent || "").toLowerCase();
+        var says = ownSays(bubble);
+        if (!textEl || !says.length) { return; }
+        var said = says.map(function (x) { return String(x.textContent || ""); }).join(" ").toLowerCase();
         var found = qrCodes.filter(function (code) {
           var text = said;
           (code.not_words || []).forEach(function (w) { text = text.split(String(w).toLowerCase()).join(" "); });
@@ -3383,7 +3389,9 @@
       // CHALK's QR bubble: each code with its title, the magnifier on each.
       function chalkQrs(bubble, found) {
         var codes = found.slice();
-        chalkCta(bubble);
+        // 2026-11-19 (live: "Newsletter: crushn8r.ca/subscribe" twice on one line):
+        // the call to action's QR, once it's shown, is never on the board too.
+        if (chalkCta(bubble) || bubble.querySelector(".chalk-cta")) { codes = codes.filter(function (code) { return code.image !== secondQr.image; }); }
         // 2026-10-25 (operator: "duplicate qr display bug * 1st CHALK should be single
         // crushn8r.ca/subscribe qr * 2nd CHALK should be single crushn8r.ca qr"): a QR
         // the call to action's part already shows isn't on the board again.
@@ -3458,6 +3466,7 @@
         // newsletter line - after it when it opens the answer, before it otherwise.
         if (hit === says[0] && ctaEnd !== says[says.length - 1]) { ctaEnd.parentNode.insertBefore(box, ctaEnd.nextSibling); }
         else { hit.parentNode.insertBefore(box, hit); }
+        return true;
       }
       var secondQr = null;
       function addSecondQr(bubble) {

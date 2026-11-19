@@ -118,16 +118,24 @@
    "sum": "a4230e046892"
   },
   "bookings#1": {
-   "words": "Yes, we do morning, afternoon, evening and custom event sessions - get CREW'd by subscribing to our newsletter for dates.",
-   "sum": "53b2d5c3e3e8"
+   "words": "Yes - we do sessions in the mornings, afternoons and evenings, and custom events too. Which time of day suits your crowd?",
+   "sum": "83c149fe460a"
   },
   "bookings#2": {
-   "words": "At night it's anything for a general audience, plus bars and comedy clubs, casinos and other 18+ controlled rooms.",
-   "sum": "be87addb9b77"
+   "words": "Mornings: seniors' bingo at residences and day programs - Chocolate Bingo too. Dates go out first in the CRUSHN8R CREW'd newsletter.",
+   "sum": "1f24c6bcb046"
   },
   "bookings#3": {
-   "words": "Want more than that? GOPOD Yourself - subscribe to the CRUSHN8R CREW'd newsletter at crushn8r.ca for more info.",
-   "sum": "4af505b16de4"
+   "words": "Afternoons: classrooms and kids' groups - they shout wordplay at us, we shout it back. Dates go out first in the CRUSHN8R CREW'd newsletter.",
+   "sum": "9efa67a9f39f"
+  },
+  "bookings#4": {
+   "words": "Evenings and nights: anything for a general audience, plus bars and comedy clubs, casinos and other 18+ controlled rooms. Dates go out first in the CRUSHN8R CREW'd newsletter.",
+   "sum": "fad47a817edc"
+  },
+  "bookings#5": {
+   "words": "Custom events: birthdays, BBQs, fundraisers - your room, your time. Ask about it in the CRUSHN8R CREW'd newsletter, or email contact@crushn8r.ca.",
+   "sum": "e579c587065b"
   },
   "brobot_zero#1": {
    "words": "Ron used to make the nightlife look good on camera - bars, clubs, packed rooms all over Mississauga and the GTA, lights up, cameras rolling, real scale.",
@@ -410,8 +418,8 @@
    "sum": "244732f379d7"
   },
   "newsletter#1": {
-   "words": "The CRUSHN8R CREW'd newsletter, at crushn8r.ca - your own take: behind the scenes, Brobot experiments, live sessions - you're not subscribing, you're joining the crew.",
-   "sum": "76cd1f3b2789"
+   "words": "How to join: Scan the QR code on the screen, or head to crushn8r.ca/subscribe - that's it, you're CREW'd.\nThe CRUSHN8R CREW'd newsletter - your own take: behind the scenes, Brobot experiments, live sessions - you're not subscribing, you're joining the crew.",
+   "sum": "d73f966d903a"
   },
   "niche_pillars#1": {
    "words": "Niche pillars: content for Pinterest - recipes, fashion, anything - unique among AI slop. Foodmath is one.",

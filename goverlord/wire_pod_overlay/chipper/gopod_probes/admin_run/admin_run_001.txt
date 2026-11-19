@@ -49,9 +49,11 @@ Accessmath|Brobot 1|What does borrowing a stage mean?
 Accessmath|Brobot 2|Where do you teach?
 Accessmath|Brobot 1|What about rural schools with low connectivity?
 Accessmath|Brobot 2|Who benefits from your teaching?
-Book us|Brobot 1|Walk me through a normal day - morning first.
-Book us|Brobot 2|And the afternoon of your typical day?
-Book us|Brobot 1|And your evening - rapid fire?
+Book us|Brobot 1|What times of day do you play?
+Book us|Brobot 2|What about mornings?
+Book us|Brobot 1|And afternoons?
+Book us|Brobot 2|What do you do at night?
+Book us|Brobot 1|Can you do a custom event?
 Book us|Brobot 2|What rooms do you play - comedy clubs?
 Book us|Brobot 1|Do you play bingo halls and casinos?
 Book us|Brobot 2|Do you do hospital visits and school visits?

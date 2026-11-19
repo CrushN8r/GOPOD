@@ -804,7 +804,19 @@
       "chapter": "Booking",
       "topic": "bookings",
       "to": "Brobot 1",
-      "ask": "Brobot 1, do you do morning & afternoon bookings?"
+      "ask": "Brobot 1, what times of day do you play?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bookings",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what about mornings?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "bookings",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, and afternoons?"
     },
     {
       "chapter": "Booking",
@@ -816,7 +828,7 @@
       "chapter": "Booking",
       "topic": "bookings",
       "to": "Brobot 1",
-      "ask": "Brobot 1, more than that - how do I party with GOPOD?"
+      "ask": "Brobot 1, can you do a custom event?"
     },
     {
       "chapter": "Booking",
