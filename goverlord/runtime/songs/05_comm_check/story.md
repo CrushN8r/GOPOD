@@ -40,4 +40,4 @@ the waits are the settings' `comm_check` (quiet_seconds, line_max_seconds).
 > TEXT: Next up, {name}! Introduce yourself to the chat - what you do, who you answer to and who works with you.
 
 ## STEP all_ask_0206
-> TEXT: And now, {name}! You party animals! Introduce yourself to the chat, & what's the weather like today?
+> TEXT: And now, {name}! You party animals! What's the weather like today?

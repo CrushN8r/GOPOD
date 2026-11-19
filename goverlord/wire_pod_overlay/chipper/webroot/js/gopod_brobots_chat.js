@@ -977,7 +977,13 @@
           opText.textContent = spoken;
           // 2026-10-24 (link 4): the Operator's line names itself for its voice.
           if (!restoringChat) { voiceLineAhead(spoken, opText); }
-          bubble.appendChild(operatorHead(to || operatorTarget(spoken), via, spoken));
+          var opHead = operatorHead(to || operatorTarget(spoken), via, spoken);
+          bubble.appendChild(opHead);
+          // 2026-11-18 (operator: "All, KEYNOTE to [name] ... don't seem to have
+          // Keys' colours * can they also be built dynamically?"): a line a persona
+          // sends (an asker - KEYNOTE, GOVERLORD) wears that persona's colours
+          // (persona_colours, the same host-<slug> rules as its own bubbles).
+          if (opHead.dataset.sender) { bubble.classList.add("host-" + personaSlug(opHead.dataset.sender)); }
           bubble.appendChild(opText);
           bubbleSound("Operator");
           bubble.dataset.own = "1"; // the operator's own line
@@ -1947,12 +1953,10 @@
       var SYSTEM_TARGET = "Goverlord";
       var systemLabel;
       function systemHead(label) {
-        var sysHead = bubbleHead(label, true);
+        // 2026-11-18: the one header (makeHead) - its icon is whoever the label
+        // names (KEYNOTE: KEYS' head; "CHALK Brain": CHALK's), else the system's.
+        var sysHead = makeHead(label, label, [], true);
         sysHead.classList.add("system-head");
-        sysHead.firstChild.classList.add("to-system");
-        var endIcon = document.createElement("div");
-        endIcon.className = "brobot-bubble-avatar to-system";
-        sysHead.appendChild(endIcon);
         return sysHead;
       }
       // 2026-10-08: the first icon of an operator line is the operator's own
@@ -2000,7 +2004,7 @@
       function headSVG(c, props, badge) {
         var bg = c.background || "#333", ring = c.border || "#ccc";
         var eyes = props.indexOf("shades") >= 0 ? "" : '<circle cx="38" cy="52" r="' + (props.indexOf("glasses") >= 0 ? 3.5 : 4.5) + '" fill="' + ring + '"/><circle cx="62" cy="52" r="' + (props.indexOf("glasses") >= 0 ? 3.5 : 4.5) + '" fill="' + ring + '"/>';
-        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="56" r="34" fill="' + bg + '" stroke="' + ring + '" stroke-width="4"/>' + eyes +
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="54" r="42" fill="' + bg + '" stroke="' + ring + '" stroke-width="4"/>' + eyes +
           '<path d="M40 70 Q50 76 60 70" fill="none" stroke="' + ring + '" stroke-width="3" stroke-linecap="round"/>' +
           props.map(function (p) { return headProp(p, ring, badge); }).join("") + '</svg>';
       }
@@ -2013,7 +2017,7 @@
           var s = personaSlug(who);
           var sel = who === "system"
             ? ".brobot-bubble-avatar.to-system"
-            : ".brobot-bubble.host-" + s + " > .brobot-bubble-head .brobot-bubble-avatar:not(.from-operator), .brobot-bubble-avatar.head-" + s;
+            : ".brobot-bubble.host-" + s + " > .brobot-bubble-head > .brobot-bubble-avatar:first-child:not(.from-operator):not([class*='to-brobot']), .brobot-bubble-avatar.head-" + s;
           rules.push(sel + " { background: " + url + " center / contain no-repeat; }");
         });
         var el = document.getElementById("gopod-persona-heads");
@@ -2045,7 +2049,9 @@
           if (c.text) { body.push("color: " + c.text); }
           if (c.border) { body.push("box-shadow: 0 0 0 var(--bubble-border-width) " + c.border); }
           rules.push(b + " { " + body.join("; ") + "; }");
-          if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar, .brobot-bubble .host-" + s + " .brobot-bubble-avatar, " + b + " > .brobot-bubble-head .brobot-bubble-avatar { --eye-fill: " + c.border + "; }"); }
+          // 2026-11-18: the sender's icon only - a receiver's icon (a Brobot's eyes
+          // in "KEYNOTE to Brobot 1") keeps its own colours.
+          if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar:first-child, .brobot-bubble .host-" + s + " .brobot-bubble-avatar:first-child, " + b + " > .brobot-bubble-head > .brobot-bubble-avatar:first-child { --eye-fill: " + c.border + "; }"); }
           if (c.background) {
             rules.push(".suit-" + s + " { --suit-border: " + c.background + "; }");
             rules.push(".brobot-bubble.search-results.host-" + s + " { background: " + c.background + "; }");
@@ -2067,52 +2073,37 @@
         shell.classList.add("host-" + personaSlug(as));
         var w = shell.querySelector(":scope > .brobot-bubble-head .brobot-bubble-who");
         if (w) { w.textContent = as + ":"; }
+        var ic = shell.querySelector(":scope > .brobot-bubble-head .brobot-bubble-avatar");
+        if (ic) { headIconClass(ic, as); }
       }
       function operatorHead(to, via, text) {
+        // 2026-11-18 (operator: "[sender-icon] [header text] [receiver-icon(s)]"):
+        // the sender is who the line says it's from (an asker - KEYNOTE, GOVERLORD
+        // - or the operator, Brobot 0, by input); the receivers are who it reaches.
+        var senderKey = headNameKey(via);
+        var sender = senderKey ? via : HEAD_OPERATOR;
+        var made = operatorHeadMade(to, via, text, sender);
+        if (senderKey && !/^Brobot [12]$/.test(senderKey)) { made.dataset.sender = senderKey; }
+        return made;
+      }
+      function operatorHeadMade(to, via, text, sender) {
         if (to === SYSTEM_TARGET) {
-          // 2026-11-15 (operator: "bubbles ... to show the persona"): the system
-          // voice's persona (system_bubble.label - KEYNOTE), not "Goverlord".
-          var toSystem = systemHead("Operator to " + (systemLabel || to));
-          toSystem.firstChild.classList.add("from-operator");
-          return toSystem;
+          // 2026-11-15: the system voice's persona (system_bubble.label - KEYNOTE).
+          return makeHead(sender, keyShown(via || "Operator") + " to " + (systemLabel || to), [HEAD_SYSTEM], true, via);
         }
         // 2026-11-15 (live: "GOVERLORD to BUTLER"): a line to the system voice's
         // persona names it the way its own bubbles do (KEYNOTE).
         var toShown = brobotTo[to] || (to && to === systemVoicePersona ? systemLabel : to);
-        // 2026-11-16 (operator: "Keyboard to Brobots / system-comm-check *
-        // system-comm-check to Brobots?"): a system command goes to the system's
-        // voice (KEYNOTE), whoever the picker was on.
+        // 2026-11-16: a system command goes to the system's voice (KEYNOTE).
         var systemCmd = /^\s*system-/i.test(String(text || ""));
         if (systemCmd) { toShown = systemLabel || toShown; }
-        var head = bubbleHead(keyShown(via || "Operator") + " to " + toShown, true);
-        head.firstChild.classList.add("from-operator");
-        // 2026-11-18 (operator: "make a brobot 0 + numpad * make a brobot 0 +
-        // mic"): the operator's icon wears how the line came in.
-        if (/^(KP|Numpad)/i.test(String(via || ""))) { head.firstChild.classList.add("via-numpad"); }
-        else if (/mic|heard|voice/i.test(String(via || ""))) { head.firstChild.classList.add("via-mic"); }
-        if (systemCmd) {
-          // The system's icon at the end, as on every line to the system.
-          var sysIcon = document.createElement("div");
-          sysIcon.className = "brobot-bubble-avatar to-system";
-          head.appendChild(sysIcon);
-          return head;
-        }
-        var icons = to === "Brobots" ? ["brobot-1", "brobot-2"] : [to === "Brobot 2" ? "brobot-2" : "brobot-1"];
-        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { icons.reverse(); }
-        // 2026-11-18: a line to a persona ends with that persona's head.
-        var headOf = (window.gopodPersonaHeads || {})[toShown] ? toShown : ((window.gopodPersonaHeads || {})[to] ? to : "");
-        if (headOf && to !== "Brobots" && !/^Brobot [12]$/.test(String(to))) {
-          var pIcon = document.createElement("div");
-          pIcon.className = "brobot-bubble-avatar head-" + personaSlug(headOf);
-          head.appendChild(pIcon);
-          return head;
-        }
-        icons.forEach(function (cls) {
-          var icon = document.createElement("div");
-          icon.className = "brobot-bubble-avatar to-" + cls;
-          head.appendChild(icon);
-        });
-        return head;
+        var text0 = keyShown(via || "Operator") + " to " + toShown;
+        if (systemCmd) { return makeHead(sender, text0, [HEAD_SYSTEM], true, via); }
+        var receivers = to === "Brobots" ? ["Brobot 1", "Brobot 2"] : [to];
+        if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { receivers.reverse(); }
+        // A line to a Brobot hosting a persona (DOC on Brobot 1) shows that persona.
+        if (receivers.length === 1 && brobotTo[to]) { receivers = [brobotTo[to]]; }
+        return makeHead(sender, text0, receivers, true, via);
       }
 
       // 2026-10-13 (operator: "Reporter & Brobot bubbles: [white/transparent EYED
@@ -2120,31 +2111,87 @@
       // \"Goverlord: GOPOD Brain\""): a reporter's header, its label as written
       // (no colon after it), white-eyed icons at both ends.
       function reporterHead(label) {
-        var head = bubbleHead(label, true);
+        // 2026-11-18: the one header - the reporter's own head ("CHALK – reporter").
+        var head = makeHead(label, label, [], true);
         head.classList.add("system-head");
-        head.firstChild.classList.add("from-operator");
-        var endIcon = document.createElement("div");
-        endIcon.className = "brobot-bubble-avatar from-operator";
-        head.appendChild(endIcon);
         return head;
       }
       function bubbleHead(who, noColon) {
-        var head = document.createElement("div");
-        head.className = "brobot-bubble-head";
-        var avatar = document.createElement("div");
-        avatar.className = "brobot-bubble-avatar";
-        var name = document.createElement("span");
-        name.className = "brobot-bubble-who";
         // 2026-11-06 (operator: "page's header names should be running through a
         // templated pathway to a single source of truth"): a Brobot's bubble wears
-        // the name Wire-Pod answered as (his reply's "by": gopodCallName - his
-        // persona's call name, or "Brobot N" at the dial's 0%), else his call name
+        // the name Wire-Pod answered as (his reply's "by"), else his call name
         // (host_personas.<who>.call_name), else who.
         var shown = brobotBy[who] || ((hostPersonasNow || {})[who] || {}).call_name || who;
-        name.textContent = noColon ? shown : shown + ":";
-        head.appendChild(avatar);
+        return makeHead(brobotBy[who] || who, noColon ? shown : shown + ":", [], true);
+      }
+      // THE ONE HEADER (2026-11-18, operator: "the header mechanism isn't
+      // responsive dynamically * icons appear to be transposed * [sender-icon]
+      // [header text] [receiver-icon(s)] * isolate the header as an independent
+      // process that gets called into each chat bubble * account for
+      // internal-headers"): every bubble's header and every header inside one -
+      // the sender's icon, the text, then each receiver's icon (none for a
+      // bubble's own speaker). headIcon picks every icon: the Brobots' eyes in
+      // their colours, the operator's (Brobot 0) eyes with the input's badge, a
+      // persona's head (persona_heads), else the system's.
+      var HEAD_OPERATOR = "\u0000operator", HEAD_SYSTEM = "\u0000system";
+      function makeHead(from, text, to, noColon, via) {
+        var head = document.createElement("div");
+        head.className = "brobot-bubble-head";
+        head.appendChild(headIcon(from, via));
+        var name = document.createElement("span");
+        name.className = "brobot-bubble-who";
+        name.textContent = noColon ? String(text) : String(text) + ":";
         head.appendChild(name);
+        (to || []).forEach(function (r) { head.appendChild(headIcon(r, "", true)); });
         return head;
+      }
+      function headIcon(name, via, receiver) {
+        var icon = document.createElement("div");
+        icon.className = "brobot-bubble-avatar";
+        headIconClass(icon, name, via, receiver);
+        return icon;
+      }
+      function headIconClass(icon, name, via, receiver) {
+        Array.prototype.slice.call(icon.classList).forEach(function (c) { if (c !== "brobot-bubble-avatar") { icon.classList.remove(c); } });
+        if (name === HEAD_OPERATOR) {
+          icon.classList.add("from-operator");
+          if (/^(KP|Numpad)/i.test(String(via || ""))) { icon.classList.add("via-numpad"); }
+          else if (/mic|heard|voice/i.test(String(via || ""))) { icon.classList.add("via-mic"); }
+          return;
+        }
+        if (name === HEAD_SYSTEM) { icon.classList.add("to-system"); return; }
+        var m = /^Brobot ([12])$/.exec(String(name || ""));
+        if (m) { icon.classList.add("to-brobot-" + m[1]); return; }
+        var k = headNameKey(name);
+        // "Brobot 1 Brain" names Brobot 1: his eyes, not a head.
+        var mk = /^Brobot ([12])$/.exec(k);
+        if (mk) { icon.classList.add("to-brobot-" + mk[1]); return; }
+        if (k && (window.gopodPersonaHeads || {})[k]) { icon.classList.add("head-" + personaSlug(k)); return; }
+        icon.classList.add("to-system");
+      }
+      // headNameKey: the persona a header's text names (its key in persona_heads,
+      // or a Brobot) - by key, call name, nickname or name, the longest first, at
+      // the text's start ("CHALK – reporter" -> "CHALK reporter", "PLAYHEAD Brain"
+      // -> "PLAYHEAD", "KEYNOTE" -> the system voice's persona).
+      function headNameKey(label) {
+        var norm = function (x) { return String(x || "").toLowerCase().replace(/[\u2013\u2014]/g, "-").replace(/[^a-z0-9]+/g, " ").trim(); };
+        var n = norm(label);
+        if (!n) { return ""; }
+        var heads = window.gopodPersonaHeads || {}, hp = hostPersonasNow || {};
+        var cands = [];
+        Object.keys(heads).forEach(function (k) { cands.push([norm(k), k]); });
+        Object.keys(hp).forEach(function (k) { var p = hp[k] || {}; [k, p.call_name, p.nickname, p.name].forEach(function (x) { if (x) { cands.push([norm(x), k]); } }); });
+        if (systemLabel && systemVoicePersona) { cands.push([norm(systemLabel), systemVoicePersona]); }
+        cands.sort(function (a, b) { return b[0].length - a[0].length; });
+        for (var i = 0; i < cands.length; i++) {
+          var c = cands[i][0];
+          if (c && (n === c || n.indexOf(c + " ") === 0)) {
+            var k = cands[i][1];
+            if (/\breporter\b/.test(n) && heads[k + " reporter"]) { return k + " reporter"; }
+            return k;
+          }
+        }
+        return "";
       }
 
       // 2026-10-04 (operator: "timer too fast to hear rattle audio - have visuals

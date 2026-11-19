@@ -784,7 +784,7 @@
       "CACHE PYC": {"pitch_cents": 160, "robot_fx": "intern", "carrier": 62},
       "Brobot 1 demo": {"pitch_cents": -60, "robot_fx": "brobot", "carrier": 45},
       "Brobot 2 demo": {"pitch_cents": 60, "robot_fx": "brobot", "carrier": 50},
-      "GOVERLORD": {"pitch_cents": -300}
+      "GOVERLORD": {"pitch_cents": -400}
     },
     "system_say_words": {
       "lifetime": "life-time",

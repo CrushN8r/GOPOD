@@ -281,8 +281,9 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
 .brobot-bubble-head {
   display: flex;
   align-items: center; /* the name sits vertically centred on the icon */
-  gap: 12px;
+  gap: clamp(6px, 1.6vw, 12px);
 }
+.brobot-bubble-head > .brobot-bubble-who { min-width: 0; overflow-wrap: anywhere; }
 /* 2026-11-15: a Brobot's bubble is his card's colours - his own, or the persona he
    answers as (personaColours, gopod_brobots_chat.js); --brobot-N-bg/--brobot-N-color
    (his own background and border, his eyes) are set from his card. */
@@ -309,7 +310,9 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
    icon only sets --eye-fill (below): a Brobot's own colour, the operator's
    white, the system grey. */
 .brobot-bubble-avatar {
-  --avatar-size: 50px;
+  /* 2026-11-18 (operator: "the header mechanism isn't responsive dynamically"):
+     50px on a wide window, down to 30px on a phone - every icon, eyes and heads alike. */
+  --avatar-size: clamp(30px, 7vw, 50px);
   --eye-fill: transparent;
   width: var(--avatar-size);
   height: var(--avatar-size);
@@ -947,7 +950,11 @@ html.gopod-own-scrollbar #brobot-chat-bubbles-container.expanded::-webkit-scroll
    2nd & 3rd icons to start at the 1/2 loop point, if doable"): every icon after a
    header's first plays brobot_eyes_half.webp - the same animation, its frames
    starting at the loop's half (2.72 s of 5.36 s); the eye colour is unchanged. */
-.brobot-bubble-head > .brobot-bubble-avatar ~ .brobot-bubble-avatar {
+/* 2026-11-18: only the eyes icons (a Brobot's, the operator's) - a persona's or
+   the system's receiver icon keeps its head (persona_heads). */
+.brobot-bubble-head > .brobot-bubble-avatar ~ .brobot-bubble-avatar.to-brobot-1,
+.brobot-bubble-head > .brobot-bubble-avatar ~ .brobot-bubble-avatar.to-brobot-2,
+.brobot-bubble-head > .brobot-bubble-avatar ~ .brobot-bubble-avatar.from-operator {
   background:
     url('/assets/brobot_eyes_half.webp') center / contain no-repeat,
     linear-gradient(var(--eye-fill), var(--eye-fill)) 50% 57.5% / 75% 50% no-repeat;
