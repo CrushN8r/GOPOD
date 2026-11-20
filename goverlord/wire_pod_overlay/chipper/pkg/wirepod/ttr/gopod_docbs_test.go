@@ -319,7 +319,7 @@ func TestBrainFactLine(t *testing.T) {
 	esn := gopodBrobotESN("Brobot 1")
 	gopodGiven.Lock()
 	saved := gopodGiven.points[esn]
-	gopodGiven.points[esn] = []string{"booking 2/3"}
+	gopodGiven.points[esn] = []string{"booking 3/4"} // 2026-11-20: point 1 is now the wide line
 	gopodGiven.Unlock()
 	defer func() { gopodGiven.Lock(); gopodGiven.points[esn] = saved; gopodGiven.Unlock() }()
 	found := ""

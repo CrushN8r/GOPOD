@@ -14,6 +14,7 @@ Who we are|Brobot 2|Tell me about Doc and Pip
 Who we are|Brobot 1|And Pip's full name - and what's he like?
 What GOPOD is|Brobot 2|Tell me about GOPOD
 What GOPOD is|Brobot 1|What brain do you run on - is there a monthly bill?
+What GOPOD is|Brobot 1|What's in your rig?
 What GOPOD is|Brobot 2|Tell me about the rig
 What GOPOD is|Brobot 1|What's in front of you?
 What GOPOD is|Brobot 1|Where can people see more - your websites?
@@ -34,6 +35,7 @@ The livestream|Brobot 1|What's the channel goal for 2027?
 Social media|Brobot 2|Tell me about your socials
 Social media|Brobot 1|Which social media platform does what?
 Social media|Brobot 2|Where does every post on your socials lead?
+Social media|Brobot 2|Are you looking for help?
 Social media|Brobot 1|Is Brobot 0 looking for help?
 Social media|Brobot 2|What's the job - is livestream help part of it?
 Social media|Brobot 1|Where is he looking for help, and how do I reach him?
@@ -59,9 +61,11 @@ Book us|Brobot 1|Do you play bingo halls and casinos?
 Book us|Brobot 2|Do you do hospital visits and school visits?
 Book us|Brobot 1|Could you two make a birthday video for my sister?
 Book us|Brobot 2|Could you make a video ad for my business?
+Book us|Brobot 2|How does booking work?
 Book us|Brobot 1|How do I book you?
 Book us|Brobot 2|And on quiet days, with nothing booked?
 Book us|Brobot 1|Between gigs, are you ever idle?
+Book us|Brobot 1|Do you do birthdays?
 Book us|Brobot 2|Any Hot Wheels for my big day?
 Book us|Brobot 1|Would you do a live birthday show?
 Book us|Brobot 2|Any merch?

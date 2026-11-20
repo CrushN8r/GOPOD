@@ -71,14 +71,19 @@ Roll in. Open lids. Power on. Session starts. *(GOPOD layer — not built yet.)*
 - **words:** rig, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile, gig, gigs
 - **pictures:** gear/crate_2_display.jpg
 - **reminder:** Hey, that reminds me... One dolly, two crates - roll in, plug in, party.
-- **say 1:** One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras.
-- **notes 1:** Ron's rig | one dolly, two crates | gear on top of battery | upon arrival, party
+- **say 1:** Our rig: one dolly, two crates - the power station below, GOPOD Compute on top. Want the power side or the brains?
+- **notes 1:** our rig | one dolly, two crates | power below, brains on top
+- **say 2:** One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras.
+- **notes 2:** Ron's rig | one dolly, two crates | gear on top of battery | upon arrival, party
 - **summary:** One dolly, two crates | Lower Crate 1 - Power Station | Upper Crate 2 - GOPOD Compute | roll in, plug in, party
 - **source:** MOBILE_GEAR.md
 
 ---
 
 The rig: mobile gear for high-paying local gigs. One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras. No internet needed - roll in, plug in, party.
+Wide first, then deeper when asked - reveal these, in order, in your own words:
+1. Our rig: one dolly, two crates - the power station below, GOPOD Compute on top. Want the power side or the brains?
+2. One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras.
 
 </details>
 
@@ -186,20 +191,23 @@ This matters because venue networking can't be assumed. A restaurant guest netwo
 
 - **words:** no internet, offline, battery, power, outdoors, park, basement, in a car, where can you go, anywhere
 - **reminder:** Hey, that reminds me... GOPOD defaults to boring. Boring works.
-- **say 1:** GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
-- **say 3:** Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.
-- **notes 1:** boring works | no internet, all local | basement, car, park
-- **notes 2:** internet is a bonus | never the engine
-- **notes 3:** power | big battery, car, any outlet | runs all day
+- **say 1:** No internet needed - GOPOD runs anywhere. Want to know where, or what powers it?
+- **notes 1:** no internet needed | runs anywhere | where, or what powers it?
+- **say 2:** GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
+- **say 4:** Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.
+- **notes 2:** boring works | no internet, all local | basement, car, park
+- **notes 3:** internet is a bonus | never the engine
+- **notes 4:** power | big battery, car, any outlet | runs all day
 - **summary:** boring works: no internet, all local, basement, car, park | internet is a bonus: never the engine | power: big battery, car, any outlet, runs all day
 - **source:** MOBILE_GEAR.md
 
 ---
 
 Offline first. Reveal these, in order, in your own words:
-1. GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
-2. Mobile internet enhances the session; it is not the engine. Venue Wi-Fi is a bonus, not a dependency.
-3. Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.
+1. No internet needed - GOPOD runs anywhere. Want to know where, or what powers it?
+2. GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.
+3. Mobile internet enhances the session; it is not the engine. Venue Wi-Fi is a bonus, not a dependency.
+4. Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.
 
 </details>
 

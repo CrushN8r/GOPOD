@@ -119,6 +119,7 @@
   "system_tests": {
     "admin_run": {"file": "gopod_probes/admin_run/admin_run_001.txt"},
     "probers_list": {"file": "gopod_probes/probers_list/probers_list_001.txt", "pass_share": 0.5},
+    "lookups_list": {"file": "gopod_probes/probers_list/lookups_list_001.txt"},
     "tpu": {"picture": "legacy/gangster_granny.jpg", "expect": "person"},
     "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "admin-run", "replay", "page", "robots"],
     "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}

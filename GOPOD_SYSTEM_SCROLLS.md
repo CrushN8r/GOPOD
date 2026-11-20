@@ -111,6 +111,7 @@ Each checks one thing, nothing said or moved (`system-test-<name>`; `system-test
 | `admin-run` | the 100% admin run, every line in order through the game: every value point, egg and prize, and no dry reminder (no robots, no model; the live game is put back) |
 | `preshow` | the pre-show pass, simulated: the comm check's KP1-9 routes and prompts, a Doc's BS answer's beats, a low battery's guard warning and dizzy reply (no robots, no model) |
 | `probers-list` | the probers list - the operator's own probers from his saved sessions, through the topic loader: the right topic first, lightning against the word triggers (no robots, no model) |
+| `lookups` | the lookups list - each persona's question looks up the cards it should, in order: look-up drift caught (no robots, no model) |
 | `eggvoice` | an Easter egg voice is made from its kept pieces and a live title, joined |
 | `replay` | the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots |
 | `llm` | the language model answers (Ollama has the model) |

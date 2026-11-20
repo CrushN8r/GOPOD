@@ -265,6 +265,10 @@ type gopodBrobotsSettingsFile struct {
 			File      string  `json:"file"`
 			PassShare float64 `json:"pass_share"`
 		} `json:"probers_list"`
+		// 2026-11-20: the lookups list (gopod_lookups_list.go).
+		LookupsList struct {
+			File string `json:"file"`
+		} `json:"lookups_list"`
 		Tpu struct {
 			Picture string `json:"picture"`
 			Expect  string `json:"expect"`

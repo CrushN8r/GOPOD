@@ -74,8 +74,12 @@
    "sum": "90f2cbad56c6"
   },
   "bingo#1": {
-   "words": "GOPOD turns Bingo from “someone calls numbers” into a tiny live Brobot-hosted event.\n\nGOPOD can host Bingo games for seniors while keeping the game familiar.\n\nThe Brobot can call numbers, speak, react, celebrate small wins, and help the room feel more alive.\n\nBingo events can also create simple merch and print-shop value through cards, signs, winner photos, posters, and promotional pieces routed through Mission Promotional Products.\n\nChocolate Bingo: a printable party game with real chocolate recipes, for kids of all ages - the math in the recipes is on foodmath.crushn8r.net.",
-   "sum": "a0d7716786e4"
+   "words": "We host bingo - seniors' bingo nights, Chocolate Bingo for kids of all ages, and bingo merch. Which one?",
+   "sum": "f0ede6548945"
+  },
+  "bingo#2": {
+   "words": "GOPOD can host Bingo games for seniors while keeping the game familiar. The Brobot can call numbers, speak, react, celebrate small wins, and help the room feel more alive.",
+   "sum": "e47a95b80eb7"
   },
   "bingo_test#1": {
    "words": "We ran a test before the real Bingo game.",
@@ -90,30 +94,38 @@
    "sum": "24712bd50240"
   },
   "birthday_and_merch#1": {
+   "words": "Birthdays and merch - foodie cars, birthday shows, merch ideas and a cake. Which one?",
+   "sum": "eaf1665965a1"
+  },
+  "birthday_and_merch#2": {
    "words": "Seven pizza-boxes of food-shaped Hot Wheels cars - donuts, cupcakes, cake slices, candy and party cars - plus LEGO ice-cream minifigures, already bought, already sorted.",
    "sum": "59bf350a57ce"
   },
-  "birthday_and_merch#2": {
+  "birthday_and_merch#3": {
    "words": "A live happy-birthday performance is coming - not filmed, not run, not yet.",
    "sum": "98bd0e5362a6"
   },
-  "birthday_and_merch#3": {
+  "birthday_and_merch#4": {
    "words": "Merch ideas, none of it printed, priced or sold yet: Doc \u0026 Pip crew tees, a chocolate-bingo pin, a LEGO-adapter wheel keychain, a mug.",
    "sum": "92d4b8538ea6"
   },
-  "birthday_and_merch#4": {
+  "birthday_and_merch#5": {
    "words": "Brobot 0 wants to ask a local bakery to make him a big cake based on his foodie cars - not asked yet.",
    "sum": "b7c4f92c6823"
   },
   "booking#1": {
+   "words": "Live or scripted, catered to your room. Want to hear about the busy weeks or the quiet days?",
+   "sum": "6573c6b9e340"
+  },
+  "booking#2": {
    "words": "Some weeks it's three rooms a day. Some weeks it's quiet - bookings are feast or famine, that's just live entertainment.",
    "sum": "21f0d633f18b"
   },
-  "booking#2": {
+  "booking#3": {
    "words": "So on the quiet days, we don't sit in a closet. We're on set, making the ad for the bar that booked us last week, or the ad for GOPOD's own channel that books the next room.",
    "sum": "ea6ae3c9f527"
   },
-  "booking#3": {
+  "booking#4": {
    "words": "The machine's never idle. If we're not performing, we're building the next performance.",
    "sum": "a4230e046892"
   },
@@ -138,10 +150,14 @@
    "sum": "e579c587065b"
   },
   "brobot_zero#1": {
+   "words": "Brobot 0 is Ron - the human at the mic behind the Brobots. Want his story?",
+   "sum": "426789a30b2a"
+  },
+  "brobot_zero#2": {
    "words": "Ron used to make the nightlife look good on camera - bars, clubs, packed rooms all over Mississauga and the GTA, lights up, cameras rolling, real scale.",
    "sum": "9b4dbf65c665"
   },
-  "brobot_zero#2": {
+  "brobot_zero#3": {
    "words": "Then 2020 happened. Every one of those rooms went dark in the same few weeks. All of it - gone.",
    "sum": "0d9102a1de95"
   },
@@ -162,14 +178,18 @@
    "sum": "51cb81ca32d5"
   },
   "call_for_help#1": {
+   "words": "Brobot 0 is looking for social media help - one person or a small team, here at home. Want to hear the job?",
+   "sum": "73d75163c1cc"
+  },
+  "call_for_help#2": {
    "words": "One person, or a small team - coaching (teach him to run it) or hands-on (run it for him).",
    "sum": "22039d315da1"
   },
-  "call_for_help#2": {
+  "call_for_help#3": {
    "words": "The job: the social accounts set up and on a schedule, a posting template he can repeat, two Shorts and one long cut a week - and clips from the livestream.",
    "sum": "41b7243c5778"
   },
-  "call_for_help#3": {
+  "call_for_help#4": {
    "words": "He's looking for help here in Windsor-Essex. The way in: contact@crushn8r.ca.",
    "sum": "b46d9e4701d1"
   },
@@ -190,10 +210,14 @@
    "sum": "37ee7e85cb3a"
   },
   "community_path#1": {
+   "words": "The community path - from the Windsor Downtown Mission, and back again ready. Want the plan?",
+   "sum": "4550c1beddc2"
+  },
+  "community_path#2": {
    "words": "Start at the Windsor Downtown Mission and return to the Mission ready - not as a stage, but as a launch pad.",
    "sum": "0662b2f5466c"
   },
-  "community_path#2": {
+  "community_path#3": {
    "words": "Two lanes: community (trust) and paid - bars and comedy clubs, 18+. The room is adult, the material isn't. Gambling is never raised.",
    "sum": "e6b269689e86"
   },
@@ -234,14 +258,18 @@
    "sum": "247c5f41eff6"
   },
   "doc_and_pip_workbook#1": {
+   "words": "The Doc \u0026 Pip workbook - Pip's Clueless Workbook and Doc's Answer Key. Want to see how it works?",
+   "sum": "28700b1d3f76"
+  },
+  "doc_and_pip_workbook#2": {
    "words": "Pip works it out - confidently, charmingly wrong. Doc's key names the mistake and fixes it. The errors aren't random: they're the ones real learners actually make.",
    "sum": "d492dc0c6f42"
   },
-  "doc_and_pip_workbook#2": {
+  "doc_and_pip_workbook#3": {
    "words": "Pip's Clueless Workbook: \"pretty sure factoring means adding. i'll ask Doc.\" Doc's Answer Key: \"The Answers. Obviously.\"",
    "sum": "41dc1b8f5ff2"
   },
-  "doc_and_pip_workbook#3": {
+  "doc_and_pip_workbook#4": {
    "words": "Doc's Rule: \"No credit for close.\" \"E for Effort. Which is an F. Here's how you actually do it.\"",
    "sum": "bb96645b6c50"
   },
@@ -402,8 +430,12 @@
    "sum": "6b6ee4c9ab9d"
   },
   "mobile_gear#1": {
-   "words": "The rig: mobile gear for high-paying local gigs. One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras. No internet needed - roll in, plug in, party.",
-   "sum": "b46625d25032"
+   "words": "Our rig: one dolly, two crates - the power station below, GOPOD Compute on top. Want the power side or the brains?",
+   "sum": "a251836145b7"
+  },
+  "mobile_gear#2": {
+   "words": "One dolly, two crates. Lower crate 1 is the power station: the portable Anker Solix C1000, the battery backbone. Upper crate 2 is GOPOD Compute: the Jetson Orin NX 16GB that runs the local AI, Wire-Pod and the orchestration, the T560 laptop for the operator, the mobile modem and the Wi-Fi hotspot that links the two Vectors, the Coral Edge TPU for local vision, the mic, the numpad, a USB hub, a power bar, a fan to keep it all cool, and the cables, hubs and SSDs - plus Brobot 1 and Brobot 2, the Cozmos, their chargers and the cameras.",
+   "sum": "279f3568cc65"
   },
   "nap#1": {
    "words": "They remember little before napping, cupped in a pair of hands after finally being rescued by Ron.",
@@ -450,14 +482,18 @@
    "sum": "80b8c9dc31e2"
   },
   "offline_modes#1": {
+   "words": "No internet needed - GOPOD runs anywhere. Want to know where, or what powers it?",
+   "sum": "57c0ea99de83"
+  },
+  "offline_modes#2": {
    "words": "GOPOD defaults to boring. Boring works. No internet, nothing in the cloud - everything runs locally, in a basement, a moving car, a park.",
    "sum": "1f75793a60ff"
   },
-  "offline_modes#2": {
+  "offline_modes#3": {
    "words": "Mobile internet enhances the session; it is not the engine. Venue Wi-Fi is a bonus, not a dependency.",
    "sum": "085d297d1d9c"
   },
-  "offline_modes#3": {
+  "offline_modes#4": {
    "words": "Power: the Anker Solix C1000 battery, vehicle power, or plug into any outlet and run indefinitely.",
    "sum": "8f01e9b50758"
   },
@@ -630,10 +666,14 @@
    "sum": "f12a77f6cd94"
   },
   "websites#1": {
+   "words": "The CRUSHN8R websites - the hubs, and the content sites. Which do you want: the hubs or the content?",
+   "sum": "4e68df86bc84"
+  },
+  "websites#2": {
    "words": "crushn8r.ca is the contact hub - the newsletter sign-up, a GOPOD word search and sudoku, and the birthday-video request page. crushn8r.com is the communication hub, crushn8r.net the network hub.",
    "sum": "95dca133a670"
   },
-  "websites#2": {
+  "websites#3": {
    "words": "mathaftermath.crushn8r.net is the news channel - AI Wordplay! Explain the MAth! recaps. foodmath.crushn8r.net is Pinterest content aimed to be unique in a pool of AI slop - the math hiding in real recipes, like the Chocolate Bingo kit's fudge, cookies and pudding. accessmath.crushn8r.net is the GOPOD app's home.",
    "sum": "b14636b5e6fd"
   },

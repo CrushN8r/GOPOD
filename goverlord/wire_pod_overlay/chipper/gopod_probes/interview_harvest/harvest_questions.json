@@ -42,6 +42,12 @@
       "chapter": "Brobot 0 and the comeback",
       "topic": "brobot_zero",
       "to": "Brobot 1",
+      "ask": "Brobot 1, who's behind the Brobots?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "brobot_zero",
+      "to": "Brobot 1",
       "ask": "Brobot 1, what was Brobot 0's job before you - behind a camera?"
     },
     {
@@ -67,6 +73,12 @@
       "topic": "mission_comeback",
       "to": "Brobot 1",
       "ask": "Brobot 1, where did he come back through - the Mission?"
+    },
+    {
+      "chapter": "Brobot 0 and the comeback",
+      "topic": "community_path",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, what's the community path?"
     },
     {
       "chapter": "Brobot 0 and the comeback",
@@ -133,6 +145,12 @@
       "topic": "teaching_method",
       "to": "Brobot 2",
       "ask": "Brobot 2, so when you teach, which one does the class root for?"
+    },
+    {
+      "chapter": "How Doc and Pip teach",
+      "topic": "doc_and_pip_workbook",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, is there a Doc and Pip workbook?"
     },
     {
       "chapter": "How Doc and Pip teach",
@@ -221,6 +239,12 @@
     {
       "chapter": "The brain and the rig",
       "topic": "offline_modes",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, can you run offline?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "offline_modes",
       "to": "Brobot 1",
       "ask": "Brobot 1, can you run offline?"
     },
@@ -239,8 +263,14 @@
     {
       "chapter": "The brain and the rig",
       "topic": "mobile_gear",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, what's the rig?"
+    },
+    {
+      "chapter": "The brain and the rig",
+      "topic": "mobile_gear",
       "to": "Brobot 2",
-      "ask": "Brobot 2, what's the rig?"
+      "ask": "Brobot 2, what's in your rig?"
     },
     {
       "chapter": "The brain and the rig",
@@ -497,6 +527,12 @@
     {
       "chapter": "Bingo and foodmath",
       "topic": "bingo",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, do you do bingo?"
+    },
+    {
+      "chapter": "Bingo and foodmath",
+      "topic": "bingo",
       "to": "Brobot 1",
       "ask": "Brobot 1, tell me about bingo for seniors."
     },
@@ -505,6 +541,12 @@
       "topic": "foodmath_recipes",
       "to": "Brobot 2",
       "ask": "Brobot 2, what recipes do you have?"
+    },
+    {
+      "chapter": "Websites",
+      "topic": "websites",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, do you have websites?"
     },
     {
       "chapter": "Websites",
@@ -695,6 +737,12 @@
     {
       "chapter": "Social media",
       "topic": "call_for_help",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, are you looking for help?"
+    },
+    {
+      "chapter": "Social media",
+      "topic": "call_for_help",
       "to": "Brobot 2",
       "ask": "Brobot 2, Is Brobot 0 looking for help?"
     },
@@ -785,6 +833,12 @@
     {
       "chapter": "Booking",
       "topic": "booking",
+      "to": "Brobot 2",
+      "ask": "Brobot 2, how does booking work?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "booking",
       "to": "Brobot 1",
       "ask": "Brobot 1, can I book you?"
     },
@@ -859,6 +913,12 @@
       "topic": "cameo",
       "to": "Brobot 1",
       "ask": "Brobot 1, could you make a video ad for my bar?"
+    },
+    {
+      "chapter": "Booking",
+      "topic": "birthday_and_merch",
+      "to": "Brobot 1",
+      "ask": "Brobot 1, do you do birthdays?"
     },
     {
       "chapter": "Booking",

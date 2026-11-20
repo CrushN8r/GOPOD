@@ -153,7 +153,9 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 	// without its dial-0% persona blocks (gopodBrobotsPersonaFor).
 	brobotIndex := strings.Index(systemPrompt, gopodBrobotsPersonaFor(string(brobotBytes)))
 	coreIndex := strings.Index(systemPrompt, string(coreBytes))
-	scenarioIndex := strings.Index(systemPrompt, bingoPacket)
+	// 2026-11-20 (wide/deep cards): the bingo pack gives its wide point first.
+	_ = bingoPacket
+	scenarioIndex := strings.Index(systemPrompt, "GOPOD turns Bingo")
 	esnIndex := strings.Index(systemPrompt, "WHO I AM:\n"+gopodBrobotPersonaLines[gopodAnswerer("Brobot 1")])
 	if strings.Contains(systemPrompt, gopodBrobot1ESN) || strings.Contains(systemPrompt, gopodBrobot2ESN) {
 		t.Fatal("a robot ID (ESN) is in the prompt; it gets said out loud")

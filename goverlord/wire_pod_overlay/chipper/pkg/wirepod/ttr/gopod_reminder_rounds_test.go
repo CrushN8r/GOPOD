@@ -16,6 +16,7 @@ func TestRemindersStartAgain(t *testing.T) {
 	labels := gopodBrobotsSettings.InterviewChapters.TopicLabels
 	// "the rig" covered: never named again.
 	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig")
+	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig") // 2026-11-20: wide, then deep
 	rig := labels["mobile_gear"]
 	for i := 0; i < 60; i++ {
 		line := gopodReminderLine("Tell me about the contest")

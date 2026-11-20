@@ -171,6 +171,7 @@ var gopodSystemTests = []gopodSystemTest{
 	// keep me physically out of the loop"): gopod_preshow.go.
 	{"preshow", "the pre-show pass, simulated: the comm check's KP1-9 routes and prompts, a Doc's BS answer's beats, a low battery's guard warning and dizzy reply (no robots, no model)", gopodPreshowLine},
 	{"probers-list", "the probers list - the operator's own probers from his saved sessions, through the topic loader: the right topic first, lightning against the word triggers (no robots, no model)", gopodProbersListLine},
+	{"lookups", "the lookups list - each persona's question looks up the cards it should, in order: look-up drift caught (no robots, no model)", gopodLookupsListLine},
 	{"eggvoice", "an Easter egg voice is made from its kept pieces and a live title, joined", gopodEggVoiceCheck},
 	{"replay", "the chat page plays every egg kind, both prizes and the Operator voices, and a visitor's page mirrors it, with no robots", func() (bool, string) {
 		return gopodPageReplayLine(gopodPageReplayRun())
