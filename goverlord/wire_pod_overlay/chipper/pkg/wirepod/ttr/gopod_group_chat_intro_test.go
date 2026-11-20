@@ -75,7 +75,8 @@ func TestIntroWeatherOrder(t *testing.T) {
 	}}
 	gopodWeatherCache.Unlock()
 	defer func() { gopodWeatherCache.Lock(); gopodWeatherCache.places = savedWx; gopodWeatherCache.Unlock() }()
-	raw := "happy___ I keep the party going with my brother.\nhappy___ Sweet sky out there, bro!"
+	// 2026-11-19: an intro is his guide coloured - the guides are its base.
+	raw := "happy___ " + gopodIntroGuide("Brobot 1") + " " + gopodIntroGuide("Brobot 2") + " I keep the party going with my brother.\nhappy___ Sweet sky out there, bro!"
 	inOrder := func(name, got string, parts ...string) {
 		at := 0
 		for _, p := range parts {

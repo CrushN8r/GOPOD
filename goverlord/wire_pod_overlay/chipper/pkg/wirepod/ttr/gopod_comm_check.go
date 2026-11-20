@@ -217,6 +217,7 @@ func gopodSystemCommCheck() string {
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
 		gopodCommCheckStop.Store(false)
+		gopodIntroHeardReset()
 		// 2026-11-02 (live 16:38-16:41: KP0's answer was over, but the check sat
 		// still - the voice library was still being made at start, and every
 		// answer counts as going while any voice is being made): it starts once

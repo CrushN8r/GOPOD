@@ -13,6 +13,8 @@ package wirepod_ttr
 // intro, a Brobot's or a Gomad's, is wrapped the same way (gopodIntroWrap).
 
 import (
+	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -197,18 +199,24 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		selfNames := gopodIntroSelfNames(who)
 		var keep []string
 		var said []map[string]bool
+		// 2026-11-19 (live comm check: KEYS and GEMMA each ended with Goverlord's
+		// "Few words, each one final."): a sentence another persona already said in
+		// an intro is his, not theirs - it goes; a "<name>'s voice ...:" narration goes.
+		others := gopodIntroHeardBy(who)
+		middle = gopodVoiceNarrationRE.ReplaceAllString(middle, "")
 		for i, sentence := range gopodIntroSentences(strings.ReplaceAll(middle, "*", "")) {
 			if i > 0 {
 				sentence = gopodDropSelfIntro(sentence, selfNames)
 			}
 			bare := strings.TrimSpace(sentence)
-			if bare == "" || strings.Contains(strings.ToLower(bare), "in the chat") || gopodSaysAgain(bare, said) {
+			if bare == "" || strings.Contains(strings.ToLower(bare), "in the chat") || gopodSaysAgain(bare, said) || gopodSaysAgain(bare, others) {
 				continue
 			}
 			said = append(said, gopodContentWords(bare))
 			keep = append(keep, sentence)
 		}
-		return strings.TrimSpace(strings.Join(keep, " "))
+		gopodIntroHeardAdd(who, said)
+		return gopodIntroGuideWithColour(who, keep)
 	}
 	opening := gopodIntroOpening(who)
 	// 2026-11-05 (live 08:34: Doc's line came back wrapped in "*...*" and the
@@ -498,5 +506,76 @@ func gopodSaysNameAndNickname(who, sentence string) bool {
 	s := gopodLooseWords(sentence)
 	return name != "" && nick != "" && strings.Contains(s, name) && strings.Contains(" "+s+" ", " "+nick+" ")
 }
+
+// gopodIntroHeard: each persona's intro sentences said this session (content
+// words), so one persona never repeats another's (gopodIntroWrap).
+var gopodIntroHeard = struct {
+	sync.Mutex
+	by map[string][]map[string]bool
+}{by: map[string][]map[string]bool{}}
+
+func gopodIntroHeardBy(who string) []map[string]bool {
+	if !gopodCommCheckRunning.Load() {
+		return nil
+	}
+	gopodIntroHeard.Lock()
+	defer gopodIntroHeard.Unlock()
+	var out []map[string]bool
+	for host, s := range gopodIntroHeard.by {
+		if host != who {
+			out = append(out, s...)
+		}
+	}
+	return out
+}
+
+func gopodIntroHeardAdd(who string, said []map[string]bool) {
+	if !gopodCommCheckRunning.Load() {
+		return
+	}
+	gopodIntroHeard.Lock()
+	gopodIntroHeard.by[who] = said
+	gopodIntroHeard.Unlock()
+}
+
+// gopodIntroHeardReset: a new comm check, a clean slate.
+func gopodIntroHeardReset() {
+	gopodIntroHeard.Lock()
+	gopodIntroHeard.by = map[string][]map[string]bool{}
+	gopodIntroHeard.Unlock()
+}
+
+// gopodVoiceNarrationRE: "GOVERLORD's voice, deep and resonant:" - the model
+// describing a voice instead of using it.
+var gopodVoiceNarrationRE = regexp.MustCompile(`(?i)\b[\p{L} ]{0,30}'s voice[^:.!?]{0,60}:\s*`)
+
+// gopodIntroGuideWithColour (2026-11-19, operator: "Use each of my word for
+// word intros, as the base for the llm colour * either as a whole phrase or in a
+// few manageable chunks"): the model says the guide itself, coloured in its own
+// voice; when its words wander off the guide (under intro_base_share of the
+// guide's words kept), the guide is said word for word instead.
+func gopodIntroGuideWithColour(who string, coloured []string) string {
+	guide := strings.TrimSpace(gopodIntroGuide(who))
+	said := strings.TrimSpace(strings.Join(coloured, " "))
+	if guide == "" {
+		return said
+	}
+	base := gopodContentWords(guide)
+	got := gopodContentWords(said)
+	kept := 0
+	for w := range base {
+		if got[w] {
+			kept++
+		}
+	}
+	if len(base) == 0 || float64(kept)/float64(len(base)) < gopodIntroBaseShare {
+		logger.Println(fmt.Sprintf("GOPOD_INTRO %s: the colour kept %d of %d of the guide's words - the guide, word for word", who, kept, len(base)))
+		return guide
+	}
+	return said
+}
+
+// gopodIntroBaseShare: how much of the guide a coloured intro keeps, at least.
+const gopodIntroBaseShare = 0.6
 
 // ## EOF

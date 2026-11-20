@@ -457,7 +457,9 @@ func TestIntroGuides(t *testing.T) {
 	if !strings.Contains(gopodIntroGuide("INTEL 404 PNFT"), "My partner Buzzer") {
 		t.Error("SWITCH's partner is Buzzer")
 	}
-	if got := gopodIntroWrap("CHALK", "I'm the Display Gomad, CHALK BORED. *waves*"); got != "I'm the Display Gomad, CHALK BORED. waves" {
+	// 2026-11-19 (operator: "Use each of my word for word intros, as the base for
+	// the llm colour"): the guide word for word, the model's colour line with it.
+	if got := gopodIntroWrap("CHALK", "Chalk dust everywhere! *waves*"); got != gopodIntroGuide("CHALK") {
 		t.Errorf("guided intro: %q", got)
 	}
 	if !strings.Contains(gopodPersonaPromptFor("CHALK", true), "Zoomy gave me") {

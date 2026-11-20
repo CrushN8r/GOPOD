@@ -17,8 +17,11 @@ func TestIntroTemplate(t *testing.T) {
 	// 2026-11-18 (operator: "I prefer it be flow guided"): a persona with an intro
 	// guide says his whole intro himself - the wrap adds no opening, facts or cast.
 	for _, who := range []string{"Brobot 1", "Brobot 2", "BUTLER", "GIT REPO", "CHALK", "PLAYHEAD", "CAMEO"} {
-		middle := "I'm here, and I keep things running. That's my job!"
-		if got := gopodIntroWrap(who, middle); got != middle {
+		// 2026-11-19: the guide, word for word, is the base; the model's line its colour.
+		middle := "Party mode is on, bro!"
+		guide := gopodIntroGuide(who)
+		got := gopodIntroWrap(who, middle)
+		if guide == "" || got != guide {
 			t.Errorf("%s: %q", who, got)
 		}
 	}
@@ -167,7 +170,8 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 		"thinking" + m + " Let me tell you a little something about myself! You know the party's on.",
 		"Okay, so long story short, I'm the party guy! 😜\nhappy" + m + " Our gig? We help folks get it.",
 	} {
-		wrapped := gopodIntroWrap("Brobot 2", middle, true)
+		// 2026-11-19: an intro is his guide coloured - the guide is its base.
+		wrapped := gopodIntroWrap("Brobot 2", gopodIntroGuide("Brobot 2")+" "+middle, true)
 		// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
 		if strings.Contains(wrapped, "Here in the chat with us") {
 			t.Errorf("still lists who's here: %q", wrapped)
@@ -229,7 +233,7 @@ func TestPersonaRoots(t *testing.T) {
 // 2026-11-05 (live 08:34): a model line wrapped in asterisks never wraps the opening.
 func TestIntroNoAsterisks(t *testing.T) {
 	m := gopodAnimationMarker
-	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\nUgh, fine - I keep it clear.", true)
+	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\n"+gopodIntroGuide("Brobot 1")+" Ugh, fine - I keep it clear.", true)
 	if strings.Contains(got, "*") || !strings.Contains(got, "Ugh, fine") {
 		t.Errorf("intro with asterisks: %q", got)
 	}
@@ -348,8 +352,29 @@ func TestKeysIntroducesTheCompany(t *testing.T) {
 // model's lines that repeat the code are dropped; its own line stays, once.
 func TestIntroDropsTheModelsRepeats(t *testing.T) {
 	// 2026-11-18: a guided intro drops only the model's own repeats.
-	got := gopodIntroWrap("CHALK", "I'm CHALK BORED, the Display Gomad. Boards are my canvas. Boards are my canvas!")
+	got := gopodIntroWrap("CHALK", gopodIntroGuide("CHALK")+" Boards are my canvas. Boards are my canvas!")
 	if strings.Count(got, "Boards are my canvas") != 1 || !strings.Contains(got, "Display Gomad") {
 		t.Errorf("the model's own line: %q", got)
+	}
+}
+
+// 2026-11-19 (live comm check: KEYS and GEMMA ended with Goverlord's "Few words,
+// each one final."; "GOVERLORD's voice deep and resonant:"): one persona's intro
+// line is never another's, and a voice described is never said.
+func TestIntroNeverRepeatsAnother(t *testing.T) {
+	was := gopodCommCheckRunning.Swap(true)
+	defer func() { gopodIntroHeardReset(); gopodCommCheckRunning.Store(was) }()
+	gopodIntroHeardAdd("GOVERLORD", []map[string]bool{gopodContentWords("Few words, each one final.")})
+	for _, who := range []string{"BUTLER", "GEMMA"} {
+		if gopodIntroGuide(who) == "" {
+			continue
+		}
+		got := gopodIntroWrap(who, "I keep GOPOD running. Few words, each one final.")
+		if strings.Contains(got, "Few words") {
+			t.Errorf("%s kept Goverlord's line: %q", who, got)
+		}
+	}
+	if got := gopodVoiceNarrationRE.ReplaceAllString("GOVERLORD's voice deep and resonant: I am the brain.", ""); got != "I am the brain." {
+		t.Errorf("narration kept: %q", got)
 	}
 }

@@ -49,6 +49,13 @@ func GopodTypedInput(esn, text string) error {
 	// 2026-11-16 (operator: "I can't get to the correct 'KP0' for Keys"; "Keys ...
 	// is supposed to be the voice of Goverlord"): KEYS (+0) takes a system command
 	// to Goverlord, as -0 does.
+	// 2026-11-19 (live: "sytem-comm-check" typed to KEYS was answered as talk):
+	// KEYS reads a system command's typo the way Goverlord does (gopodSystemTypo).
+	if key, ok := gopodTypedKey(esn); ok && key == "KP0" {
+		if fixed := gopodSystemTypo(strings.TrimSpace(text)); fixed != "" && gopodSystemCommandMatch(fixed) {
+			text = fixed
+		}
+	}
 	if key, ok := gopodTypedKey(esn); ok && key == "KP0" && gopodSystemCommandMatch(strings.TrimSpace(text)) {
 		if _, target, err := gopodNumpadBrobot(key); err == nil {
 			defer gopodCommandFrom(target)()
