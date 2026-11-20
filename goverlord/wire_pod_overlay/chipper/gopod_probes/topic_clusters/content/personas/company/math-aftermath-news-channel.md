@@ -1,5 +1,5 @@
 # Math Aftermath News
-- people call us: company or math aftermath news or the company or house rules or staff or who works for who
+- people call us: company or math aftermath news or the company or company name or house rules or staff or who works for who or who works at the company or who all works
 ---
 
 ## Our roles

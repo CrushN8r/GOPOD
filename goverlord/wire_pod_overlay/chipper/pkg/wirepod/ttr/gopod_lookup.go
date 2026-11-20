@@ -172,7 +172,7 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
 				c.Owner = strings.TrimSpace(v)
 			}
-			if k, v, ok := gopodTopicHeadKV(t); ok && k == "people call me" && cluster {
+			if k, v, ok := gopodTopicHeadKV(t); ok && (k == "people call me" || k == "people call us") && cluster {
 				v = strings.ReplaceAll(v, " or ", ", ")
 				for _, w := range strings.Split(v, ",") {
 					if w = strings.TrimSpace(strings.ToLower(w)); w != "" {
@@ -604,27 +604,21 @@ func gopodLookupVocab() []gopodVocabEntry {
 	if gopodVocabCache.entries != nil && time.Since(gopodVocabCache.at) < time.Minute {
 		return gopodVocabCache.entries
 	}
-	chapters, always, _ := gopodReadChaptersFolder()
-	topics := append([]gopodTopicFile{}, always...)
-	for _, ch := range chapters {
-		topics = append(topics, ch.Topics...)
-	}
+	// 2026-11-20 (operator: "from repo-index 2, generate Index 1, the words people
+	// say"): index 1 is its own file, written from index 2 (gopod_repo_index.go).
 	var out []gopodVocabEntry
-	for _, t := range topics {
-		var paths []string
-		for _, s := range t.Sources {
-			if s = strings.TrimSpace(strings.SplitN(s, "#", 2)[0]); s != "" {
-				paths = append(paths, filepath.Join(gopodRepoRoot(), s))
-			}
-		}
-		if len(paths) == 0 {
-			paths = []string{strings.SplitN(t.Path, "#", 2)[0]}
-		}
-		for _, w := range t.Words {
+	index := gopodReadWordsIndex()
+	var rels []string
+	for rel := range index {
+		rels = append(rels, rel)
+	}
+	sort.Strings(rels) // a fixed order: ties land the same way every time
+	for _, rel := range rels {
+		words := index[rel]
+		path := filepath.Join(gopodRepoRoot(), rel)
+		for _, w := range words {
 			if toks := gopodLookupTokens(w); len(toks) > 0 {
-				for _, p := range paths {
-					out = append(out, gopodVocabEntry{toks, p})
-				}
+				out = append(out, gopodVocabEntry{toks, path})
 			}
 		}
 	}

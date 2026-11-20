@@ -82,6 +82,13 @@
 4. robots
 5. robot
 6. goverlord
+7. about
+8. history
+9. overview
+10. notes
+11. summary
+12. intro
+13. contents
 
 ## The brain's lines, in order (brain_chain.lines)
 1. FACT: {fact}

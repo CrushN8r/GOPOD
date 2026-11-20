@@ -72,6 +72,12 @@ func gopodLookupsListLine() (bool, string) {
 		}
 	}
 	line := fmt.Sprintf("%s, %d look-ups: %d as listed", file, len(cases), len(cases)-len(drift))
+	// 2026-11-20: the index questions - each card found by its own words.
+	right, total, misses := gopodIndexQuestionsScore()
+	line += fmt.Sprintf(" · index questions: %d of %d find their card", right, total)
+	if len(misses) > 0 && len(misses) <= 10 {
+		line += " (missed: " + strings.Join(misses, "; ") + ")"
+	}
 	if len(drift) > 0 {
 		line += "\n  drift: " + strings.Join(drift, "\n  drift: ")
 	}

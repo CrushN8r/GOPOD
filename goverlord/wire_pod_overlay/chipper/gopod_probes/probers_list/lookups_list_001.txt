@@ -13,5 +13,8 @@ GIT REPO | who gets the weather details? | weather.md, weather_run.md, duo-hando
 CACHE PYC | who shows the weather? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
 Brobot 1 | how do I book the brobots? | BOOKING.md, booking.md, 02_bookings.md, 05_birthday_and_merch.md, brobot-1.md, brobot-2.md
 Brobot 2 | what do you do at night? | 02_bookings.md
-Brobot 1 | tell me about the rig | MOBILE_GEAR.md
+Brobot 1 | tell me about the rig | MOBILE_GEAR.md, README.md
 Brobot 2 | sdrtgdthgdrtgrg | README.md
+BUTLER | who does the weather? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
+BUTLER | who all works at the company? | crew_roster.md, math-aftermath-news-channel.md, goverlord-brain.md, keynote-vale.md, group-gopod-system.md, group-gomads.md, group-interns.md, duo-handoff.md, brobot-1.md, brobot-2.md
+BUTLER | what is the company name? | math-aftermath-news-channel.md
