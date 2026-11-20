@@ -61,7 +61,7 @@
 17. asked_before: asked before (#{seq}) - {to}: "{answer}"
 18. looked_up: LOOKED UP: {sources}
 19. lookup_default: README.md
-20. lookup_default_line: I don't know. GOPOD Yourself!
+20. lookup_default_line: I don't know. GOPOD Yourself - start at README.md, and get CREW'd: crushn8r.ca/subscribe.
 21. nonsense_line: What is '{asked}'? I don't know - let's start at README.md.
 22. real_words: what, who, where, when, why, how, which, whose, do, does, did, is, are, was, were, can, could, will, would, should, have, has, had, you, your, i, me, my, we, our, us, he, she, they, it, this, that, the, a, an, and, or, but, not, no, yes, of, to, in, on, at, for, with, about, from, hi, hello, hey, thanks, please, ok, okay, tell, show, give, say, start, stop, go, get, make, like, good, bad
 

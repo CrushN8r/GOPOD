@@ -528,7 +528,7 @@ func TestEmojiStaysAndLabelGoes(t *testing.T) {
 // repo's README and that line.
 func TestLookupDefaultsToReadme(t *testing.T) {
 	fact, src := gopodLookupFact("Brobot 1", "so what's new with you?")
-	if len(src) == 0 || src[0] != "README.md" || !strings.Contains(fact, "I don't know. GOPOD Yourself!") {
+	if len(src) == 0 || src[0] != "README.md" || !strings.Contains(fact, "I don't know. GOPOD Yourself") {
 		t.Errorf("default: %v %q", src, fact)
 	}
 }

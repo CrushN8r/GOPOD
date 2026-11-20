@@ -36,6 +36,9 @@ type gopodLookupCard struct {
 	// 2026-11-18 (operator: "build the 'see also' multi-look-up"): its "see also"
 	// cards' file names - looked up with it, one step out.
 	SeeAlso []string
+	// 2026-11-20 (operator: "Build 2 indexes ... index-2 an actual repo lookup of
+	// whatever wordage is there"): its headings - the repo file's own topics.
+	Headings []string
 }
 
 var gopodLookupCache = struct {
@@ -138,6 +141,9 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 	summary := false
 	for _, line := range strings.Split(string(data), "\n") {
 		t := strings.TrimSpace(line)
+		if h := strings.TrimSpace(strings.TrimLeft(t, "#")); strings.HasPrefix(t, "#") && h != "" && len(c.Headings) < 40 {
+			c.Headings = append(c.Headings, strings.NewReplacer("**", "", "`", "").Replace(h))
+		}
 		if !inBody {
 			if k, _, ok := gopodTopicHeadKV(t); ok && k == "summary" && cluster {
 				summary = true
@@ -280,6 +286,61 @@ func gopodLookup(question string) []gopodLookupCard {
 			hits = append(hits, hit{c, best})
 		}
 	}
+	// 2026-11-20 (operator: "Build 2 indexes"): index 1, the words people say -
+	// each topic's words point to its repo file ("rig" -> MOBILE_GEAR.md); index 2,
+	// the repo's own words - a file's name and headings. A card either index
+	// picks counts at its best score.
+	at := map[string]int{}
+	for i, h := range hits {
+		at[filepath.Clean(h.card.Path)] = i
+	}
+	byPath := map[string]gopodLookupCard{}
+	for _, c := range gopodLookupCards() {
+		byPath[filepath.Clean(c.Path)] = c
+	}
+	bump := func(path string, score int) {
+		c, ok := byPath[filepath.Clean(path)]
+		if !ok || score <= 0 {
+			return
+		}
+		if i, seen := at[filepath.Clean(path)]; seen {
+			if score > hits[i].score {
+				hits[i].score = score
+			}
+			return
+		}
+		at[filepath.Clean(path)] = len(hits)
+		hits = append(hits, hit{c, score})
+	}
+	for _, v := range gopodLookupVocab() {
+		if !strings.Contains(q, " "+strings.Join(v.tokens, " ")+" ") {
+			continue
+		}
+		score := 0
+		for _, t := range v.tokens {
+			if !skip[t] && !gopodLookupLittle[t] {
+				score += len(t)
+			}
+		}
+		if score >= 3 {
+			bump(v.path, score)
+		}
+	}
+	// Index 2 only when the words people say found nothing.
+	meaningful := map[string]bool{}
+	if len(hits) == 0 {
+		meaningful = gopodLookupMeaningful(question)
+	}
+	for _, c := range gopodLookupCards() {
+		score := 0
+		heads := " " + strings.Join(gopodLookupTokens(strings.TrimSuffix(filepath.Base(c.Path), ".md")+" "+strings.Join(c.Headings, " ")), " ") + " "
+		for w := range meaningful {
+			if strings.Contains(heads, " "+w+" ") {
+				score += len(w)
+			}
+		}
+		bump(c.Path, score)
+	}
 	// 2026-11-17 (operator: "Aim for full coverage"): no card's words said - the
 	// cards whose lines say the most of the question's meaningful words (two or
 	// more of them), by the letters matched.
@@ -369,6 +430,14 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 		if !swept {
 			for _, l := range c.Lines {
 				add(l)
+			}
+			// 2026-11-20: the wide look - the repo file's own topics, its headings.
+			if len(c.Headings) > 1 {
+				h := c.Headings
+				if len(h) > 8 {
+					h = h[:8]
+				}
+				add("Its topics: " + strings.Join(h, ", "))
 			}
 		}
 		for _, l := range c.Body {
@@ -514,6 +583,53 @@ func gopodNonsenseLine(text string) string {
 		}
 	}
 	return strings.ReplaceAll(bc.NonsenseLine, "{asked}", t)
+}
+
+// gopodLookupVocab: index 1 - each topic's words (the words people say) and
+// the repo file its topic tells (its source, else its own card), read with the cards.
+type gopodVocabEntry struct {
+	tokens []string
+	path   string
+}
+
+var gopodVocabCache = struct {
+	sync.Mutex
+	at      time.Time
+	entries []gopodVocabEntry
+}{}
+
+func gopodLookupVocab() []gopodVocabEntry {
+	gopodVocabCache.Lock()
+	defer gopodVocabCache.Unlock()
+	if gopodVocabCache.entries != nil && time.Since(gopodVocabCache.at) < time.Minute {
+		return gopodVocabCache.entries
+	}
+	chapters, always, _ := gopodReadChaptersFolder()
+	topics := append([]gopodTopicFile{}, always...)
+	for _, ch := range chapters {
+		topics = append(topics, ch.Topics...)
+	}
+	var out []gopodVocabEntry
+	for _, t := range topics {
+		var paths []string
+		for _, s := range t.Sources {
+			if s = strings.TrimSpace(strings.SplitN(s, "#", 2)[0]); s != "" {
+				paths = append(paths, filepath.Join(gopodRepoRoot(), s))
+			}
+		}
+		if len(paths) == 0 {
+			paths = []string{strings.SplitN(t.Path, "#", 2)[0]}
+		}
+		for _, w := range t.Words {
+			if toks := gopodLookupTokens(w); len(toks) > 0 {
+				for _, p := range paths {
+					out = append(out, gopodVocabEntry{toks, p})
+				}
+			}
+		}
+	}
+	gopodVocabCache.entries, gopodVocabCache.at = out, time.Now()
+	return out
 }
 
 // ## EOF
