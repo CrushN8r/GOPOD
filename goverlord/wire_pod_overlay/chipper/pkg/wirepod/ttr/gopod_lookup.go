@@ -63,7 +63,8 @@ func gopodLookupCards() []gopodLookupCard {
 	tracked := gopodLookupTracked()
 	add := func(path string) {
 		base := filepath.Base(path)
-		if !strings.HasSuffix(base, ".md") || strings.HasPrefix(base, "z") || strings.HasSuffix(base, ".local.md") || !tracked[filepath.Clean(path)] {
+		// 2026-11-20: a "-schema.md" is a blank template ("(to come)"), not a fact.
+		if !strings.HasSuffix(base, ".md") || strings.HasPrefix(base, "z") || strings.HasSuffix(base, ".local.md") || strings.HasSuffix(base, "-schema.md") || !tracked[filepath.Clean(path)] {
 			return
 		}
 		if c, ok := gopodLookupRead(path); ok {
@@ -474,14 +475,13 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 		// Every card looked up is named (operator: "all files looked up are
 		// listed"); his own card and the company's add no words - they're in his prompt.
 		sources = append(sources, gopodLookupName(c.Path))
-		if skipCard[name] {
+		if skipCard[name] || chars < 0 { // listed only: the link budget is spent
 			return
 		}
 		if t := cardText(c, chars, swept); t != "" {
 			facts = append(facts, t)
 		}
 	}
-	linkChars := gopodBrobotsSettings.BrainChain.LookupLinkChars
 	most := gopodBrobotsSettings.BrainChain.LookupChainMax
 	// 2026-11-18 (operator: "look ups load to the end of the chain ... then sweep
 	// for information required and how to answer the question"): the picked
@@ -509,6 +509,12 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			}
 		}
 	}
+	// Two (or more) cards tie for the question: both briefly, his job's part only.
+	if len(picked) >= 2 {
+		if line := strings.TrimSpace(gopodBrobotsSettings.BrainChain.TwoMatchesLine); line != "" {
+			facts = append(facts, line)
+		}
+	}
 	for _, c := range picked {
 		take(c, chars, false)
 		queue = append(queue, c)
@@ -521,7 +527,11 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 				break
 			}
 			if lc, ok := byName[strings.ToLower(l)]; ok && !listed[filepath.Clean(lc.Path)] {
-				take(lc, linkChars, true)
+				// 2026-11-20 (operator: "CAMEO was a wide/deep probe"; live: fed nine
+				// linked cards' "I" lines, she said "Goverlord (aka ME)"): the wide
+				// answer is the card asked about - its "see also" cards are listed
+				// (LOOKED UP), not said; asking about one of them is the deep look.
+				take(lc, -1, true)
 				queue = append(queue, lc)
 			}
 		}

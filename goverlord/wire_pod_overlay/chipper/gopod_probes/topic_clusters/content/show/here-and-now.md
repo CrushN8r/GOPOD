@@ -2,7 +2,7 @@
 - **words:** here and now, time, place, who am I chatting with
 - **ask:** Where are the Brobots, and who are they chatting with?
 - **chain:** Gominions (Doc and Pip) - the here-and-now line the code writes for them
-- **see also:** brobot-brain (before I answer), ../personas/crew_roster.md, dizzy-brobots (the batteries)
+- **see also:** brobot-brain (before I answer), math-aftermath-news-channel.md, dizzy-brobots (the batteries)
 ---
 
 ## Here and now (here_now) (here_now)

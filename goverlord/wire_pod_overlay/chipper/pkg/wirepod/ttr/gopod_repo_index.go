@@ -137,6 +137,9 @@ func gopodWordsIndexText() string {
 		for _, w := range gold[rel] {
 			add(w)
 		}
+		for _, w := range gopodSameWordsExpand(words) {
+			add(w)
+		}
 		if len(words) == 0 {
 			continue
 		}
@@ -223,6 +226,40 @@ func gopodIndexQuestionsScore() (right, total int, misses []string) {
 		}
 	}
 	return right, total, misses
+}
+
+// gopodSameWords: brain_chain.same_words, set as the settings load (the topics
+// are read while they load - gopodApplyChaptersFolder).
+var gopodSameWords string
+
+// gopodSameWordsExpand: words plus every word that means the same
+// (brain_chain.same_words) - "rig" brings "gear", "equipment", "junk".
+func gopodSameWordsExpand(words []string) []string {
+	out := append([]string{}, words...)
+	seen := map[string]bool{}
+	for _, w := range words {
+		seen[strings.ToLower(strings.TrimSpace(w))] = true
+	}
+	for _, line := range strings.Split(gopodSameWords, "/") {
+		var group []string
+		hit := false
+		for _, g := range strings.Split(line, ",") {
+			if g = strings.ToLower(strings.TrimSpace(g)); g != "" {
+				group = append(group, g)
+				hit = hit || seen[g]
+			}
+		}
+		if !hit {
+			continue
+		}
+		for _, g := range group {
+			if !seen[g] {
+				seen[g] = true
+				out = append(out, g)
+			}
+		}
+	}
+	return out
 }
 
 // ## EOF

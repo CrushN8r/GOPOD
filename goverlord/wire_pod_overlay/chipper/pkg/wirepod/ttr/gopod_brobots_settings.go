@@ -679,8 +679,6 @@ type gopodBrobotsSettingsFile struct {
 		LookupFiles []string `json:"lookup_files"`
 		LookupMax   int      `json:"lookup_max"`
 		LookupChars int      `json:"lookup_chars"`
-		// 2026-11-18: a "see also" card's share of the look-up (shorter).
-		LookupLinkChars int `json:"lookup_link_chars"`
 		// 2026-11-18: the most cards one look-up follows down its "see also" chain.
 		LookupChainMax int `json:"lookup_chain_max"`
 		// 2026-11-18: nothing matched - this card (a repo path: the README) and its line.
@@ -688,16 +686,23 @@ type gopodBrobotsSettingsFile struct {
 		LookupDefaultLine string   `json:"lookup_default_line"`
 		LookupSkip        []string `json:"lookup_skip"`
 		// 2026-11-19: a nonsense line's answer, and the words that make a line real.
-		NonsenseLine  string `json:"nonsense_line"`
-		RealWords     string `json:"real_words"`
-		CastItem      string `json:"cast_item"`
-		Roster        string `json:"roster"`
-		CastMe        string `json:"cast_me"`
-		RemindersPart string `json:"reminders_part"`
-		Asked         string `json:"asked"`
-		None          string `json:"none"`
-		QuestionChars int    `json:"question_chars"`
-		GomadsRawChat bool   `json:"gomads_raw_chat"`
+		NonsenseLine string `json:"nonsense_line"`
+		// 2026-11-20 (operator: "'Many-words-one-meaning' words people may use for
+		// the same"): one meaning per " / ", its words with commas between.
+		SameWords string `json:"same_words"`
+		// 2026-11-20 (operator: "Two matches that are tied, the brobot answers both
+		// briefly, and only as far as his job allows, otherwise redirect"): said
+		// to the model when the look-up's best two cards tie.
+		TwoMatchesLine string `json:"two_matches_line"`
+		RealWords      string `json:"real_words"`
+		CastItem       string `json:"cast_item"`
+		Roster         string `json:"roster"`
+		CastMe         string `json:"cast_me"`
+		RemindersPart  string `json:"reminders_part"`
+		Asked          string `json:"asked"`
+		None           string `json:"none"`
+		QuestionChars  int    `json:"question_chars"`
+		GomadsRawChat  bool   `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
@@ -1130,9 +1135,13 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"photo"`
 	// 2026-10-16: clean GOPOD - flags and politics (gopod_clean_politics.go).
 	CleanPolitics struct {
-		AllowedTopics []string          `json:"allowed_topics"`
-		Words         []string          `json:"words"`
-		Countries     map[string]string `json:"countries"`
+		AllowedTopics []string `json:"allowed_topics"`
+		Words         []string `json:"words"`
+		// 2026-11-20 (operator: "stay the fuck away from anything Palestine ...
+		// BLOCK THAT SHIT AWAY FROM MY CLEAN GOPOD!!"): never said, by anyone,
+		// anywhere - the roast battle too.
+		NeverWords []string          `json:"never_words"`
+		Countries  map[string]string `json:"countries"`
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
 		Capitals map[string]string `json:"capitals"`
 		// 2026-11-03: a US state or Canadian province alone is its capital

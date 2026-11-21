@@ -132,11 +132,10 @@
     "max_sentences": 4
   },
   "brain_chain": {
-    "roster": "gopod_probes/topic_clusters/content/personas/crew_roster.md",
+    "roster": "gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md",
     "recent_minutes": 10,
     "lookup_max": 2,
     "lookup_chars": 600,
-    "lookup_link_chars": 200,
     "lookup_chain_max": 10,
     "deep_minutes": 30,
     "question_chars": 90,

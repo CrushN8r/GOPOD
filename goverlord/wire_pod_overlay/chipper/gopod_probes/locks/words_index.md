@@ -7,10 +7,10 @@
 - words: alias play studio, contents, play studio, alias studio, the manual, reference manual, golden rules
 
 ## BOOKING.md
-- words: booking, book the brobots, booking us, rooms we play, birthdays bbqs printables and affiliates, printables and affiliates, bbqs, book, hire, cost, price, event, events, gig, gigs, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings, bar, bars, club, clubs, nightclub, nightclubs, comedy club, comedy clubs, nightlife, comedy, casino, casinos, bingo hall, bingo halls, seniors' residence, school visit, school visits, hospital visit, hospital visits, windsor, book a cameo, birthday video, happy birthday video, birthday message, personal video, video for my, shout out, shoutout, video ad, video ads, an ad, make an ad, commercial, printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print, party supplies, balloons, bakery, local businesses, bbq, barbecue, barbecues, cookout, cookouts, burger, burgers, hot dog, hot dogs, wiener, wieners
+- words: booking, book the brobots, booking us, rooms we play, birthdays bbqs printables and affiliates, printables and affiliates, bbqs, book, hire, cost, price, event, events, gig, gigs, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings, session, sessions, bookings, assignment, bar, bars, club, clubs, nightclub, nightclubs, comedy club, comedy clubs, nightlife, comedy, casino, casinos, bingo hall, bingo halls, seniors' residence, school visit, school visits, hospital visit, hospital visits, windsor, book a cameo, birthday video, happy birthday video, birthday message, personal video, video for my, shout out, shoutout, video ad, video ads, an ad, make an ad, commercial, printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print, party supplies, balloons, bakery, local businesses, bbq, barbecue, barbecues, cookout, cookouts, burger, burgers, hot dog, hot dogs, wiener, wieners
 
 ## BROBOT_ASKS.md
-- words: brobot asks, three ways to ask, topics, warm up, brobot 0 and the comeback, gopod is, doc and pip teach, brain and the rig, show and tell, bingo and foodmath, websites, social media, accessmath gopod for everyone, booking, legacy and wrap up
+- words: brobot asks, three ways to ask, topics, warm up, brobot 0 and the comeback, gopod is, doc and pip teach, brain and the rig, show and tell, bingo and foodmath, websites, social media, accessmath gopod for everyone, booking, legacy and wrap up, gig, gigs, session, sessions, bookings, assignment
 
 ## GOPOD_SYSTEM_SCROLLS.md
 - words: gopod system scrolls, scriptures, tests, runs, looks
@@ -22,10 +22,10 @@
 - words: livestream, loop, contest, contest wheel, nine themes, contest season, round plays, gets explained, almost doc approved, where it lands, websites, channel, website, site, sites, online, foodmath, food math, mathaftermath, math aftermath, crushn8r.com, crushn8r.net, see more, learn more, contests, competition, who wins, the wheel, funniest explanation, this week's theme, wordplay, ai wordplay, themes, pillars, kinds of math, everyday math, money math, moneymath, sport math, sports math, sportsmath, fashion math, fashionmath, survival math, survivalmath, access math, language math, languagemath, bad at math, youtube, subscribers, subs, 1000 subs, 1k, viral, go viral, ai math, season, weekly winner, weekly winners, monthly winner, quarterly, championship, year opener, year-end, league, prize ladder, how a round plays, a round, rounds, explain my math, explain this graph, the room votes, superchat, superchats, submissions, ways to win, best visual, smartest, most surprising, what gets explained, explain the math, headlines, headline, graphs, graph, memes, meme, sports stats, statistics, surveys, survey, viral chart, misleading, bad logic, who's right, your opinion, doc approved, award, awards, trophy, near miss, almost right, good enough
 
 ## MOBILE_GEAR.md
-- words: mobile gear, gopod mobile, travels with gopod, rig, three networking modes, where it deploys, gopod layer, power modes, one deployment produces, offline first doctrine, running offline, vehicle as a staging area, current state, gopod yahmm, no internet, offline, battery, power, outdoors, park, basement, in a car, where can you go, anywhere, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile, gig, gigs
+- words: mobile gear, gopod mobile, travels with gopod, rig, three networking modes, where it deploys, gopod layer, power modes, one deployment produces, offline first doctrine, running offline, vehicle as a staging area, current state, gopod yahmm, no internet, offline, battery, power, outdoors, park, basement, in a car, where can you go, anywhere, gear, crate, crates, dolly, jetson, power station, hardware, setup, mobile, gig, gigs, equipment, junk, session, sessions, booking, bookings, assignment
 
 ## README.md
-- words: gopod, pick your door, i want this, meet the cast, rest of the cast, gopod really is, try these, rig, build it with me, where it leads, privacy and safety, where it stands, builders, credits, other robots, more robots, cozmo, cozmos, reporter, reporters, chalk, playhead, git repo, cache pyc, pnfh, pnft, intel 404, who else is here, who else is coming, six robots, the cast, moorebot, scout, scouts, intern, interns
+- words: gopod, pick your door, i want this, meet the cast, rest of the cast, gopod really is, try these, rig, build it with me, where it leads, privacy and safety, where it stands, builders, credits, other robots, more robots, cozmo, cozmos, reporter, reporters, chalk, playhead, git repo, cache pyc, pnfh, pnft, intel 404, who else is here, who else is coming, six robots, the cast, moorebot, scout, scouts, intern, interns, gear, equipment, junk
 
 ## SOCIAL_MEDIA.md
 - words: social media, channel, socials, one platform one job, niche pillars, help wanted, call for help, social accounts, tiktok, instagram, facebook, linkedin, twitter, reddit, follow you, your handle, niche pillar, content pillars, pinterest, niche content, need help, looking for help, hiring, social media help, livestream help, volunteer, join the team, work with you
@@ -43,7 +43,7 @@
 - words: songs, making a song, song folder, folder and its files, step names, knobs json the top keys, knobs json each step, notes, played by the song engine, played by the brobots chat, played by wire pod, weather in a line, toolbox and the songs, shared golden pieces, each song s own pieces, parked not lost, making and editing a song, editing a song, multi line words, step goverlord warm 0102, making a new song, llm warm song, llm song run, standard s check, make a song, knobs json, song engine
 
 ## alias_play_studio/03_SESSION.md
-- words: session, session and runs, session and its phases, runs, every run s warm up, page away pause and continue, stopping a run, skip, replay a session, record session, thanks ending, mic missing usb watch, battery watchdog, the session, a session, the thanks ending, stop run
+- words: session, session and runs, session and its phases, runs, every run s warm up, page away pause and continue, stopping a run, skip, replay a session, record session, thanks ending, mic missing usb watch, battery watchdog, the session, a session, the thanks ending, stop run, gig, gigs, sessions, booking, bookings, assignment
 
 ## alias_play_studio/04_CHAT.md
 - words: chat, one door, lanes, numpad push to talk, native wire pod answers, face recognition, answers addressing and all, live reply, steps of a reply, reply clean up, brobots math, explain the math, weather, search, pictures described to the brobots, chat page and its bubbles, chat bubbles window the machine, bubble kinds and headers, chat rules, golden the generating template, highlight and word reveal, pictures, system window, the one door, ways in, answer chain, thought bubbles
@@ -55,7 +55,7 @@
 - words: cast and game, cast and the game, gopod game, managers chalk and playhead, three personas three jobs, does what, eggs, two kinds of eggs, when eggs pop, golden the egg process, egg names cards and triggers, egg list and reminders, found eggs give a summary, value points golden and locked, game engine, the game, value points, grand prize
 
 ## alias_play_studio/07_SYSTEM.md
-- words: system, system menu and commands, system commands work, system menu, editing from the chat, finding things, status checks and tests, cameras and the edge tpu, brobots from the chat, restart and switches, every command at a glance, stuff no code, settings file reference, gopod system, the system, system commands, system command
+- words: system, gopod system, system menu and commands, system commands work, system menu, editing from the chat, finding things, status checks and tests, cameras and the edge tpu, brobots from the chat, restart and switches, every command at a glance, stuff no code, settings file reference, the system, system commands, system command
 
 ## alias_play_studio/08_RULES_AND_TESTS.md
 - words: rules and tests, golden rules troubleshooting tests, golden rules, troubleshooting, tests that lock behaviour, the golden path, tests that lock
@@ -193,7 +193,7 @@
 - words: newsletter, keeping up with us, keep up, subscribe, email, crew, crew'd, mailing list, keep up with
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/chapters/12_booking/02_bookings.md
-- words: bookings, bookings a day of parties, party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, time of day, custom event
+- words: bookings, bookings a day of parties, party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, time of day, custom event, gig, gigs, session, sessions, booking, assignment
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/chapters/12_booking/05_birthday_and_merch.md
 - words: birthday and merch, birthdays and merch, birthday, birthdays, hot wheels, merch, t-shirt, t-shirts, tee, tees, mug, mugs, cameo, gift, gifts
@@ -208,7 +208,7 @@
 - words: gopod yourself, to gopod yourself, interview over, what have we learned, what have we learnt, what did we learn, sum it up, recap
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/booking.md
-- words: booking, booking the brobots
+- words: booking, booking the brobots, gig, gigs, session, sessions, bookings, assignment
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/duo-handoff.md
 - words: duo handoff, hand offs
@@ -224,12 +224,6 @@
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
 - words: personas
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/company-schema.md
-- words: company schema, roles, company, house rules, outline
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/crew_roster.md
-- words: crew roster, gopod crew roster, gopod party brobot reps, gopod security guards
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
 - words: chalk bored
@@ -265,7 +259,7 @@
 - words: keynote vale, my run lines, language model lines
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
-- words: math aftermath news channel, math aftermath news, roles, company, house rules, outline
+- words: math aftermath news channel, math aftermath news, roles, employees gopod party brobot reps, employees gopod security guards, employees gopod system, company, house rules, outline
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnfh.md
 - words: intel 404 pnfh
@@ -286,16 +280,13 @@
 - words: group gomads, gomads
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gopod-system.md
-- words: group gopod system
+- words: group gopod system, gopod system
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-interns.md
 - words: group interns, interns
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-security-guards.md
 - words: group security guards, security guards
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/persona-schema.md
-- words: persona schema, full name
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 - words: crushn8r crewd news station, crushn8r crew d news station, about, crew here, history

@@ -1,7 +1,7 @@
 # Dizzy Brobots
 - **words:** dizzy, battery, low battery, freeze, reboot
 - **ask:** What do the Brobots say when their battery runs low?
-- **see also:** nicknames (the comeback's {title} {nickname}), weather_run (the same hand-over), ../personas/crew_roster.md (the guards)
+- **see also:** nicknames (the comeback's {title} {nickname}), weather_run (the same hand-over), math-aftermath-news-channel.md (the guards)
 ---
 
 ## Before a freeze, reboot or battery drain: his dizzy line (battery_watch.lines)

@@ -75,8 +75,6 @@ Tell me about numpad map | goverlord/wire_pod_overlay/chipper/gopod_probes/topic
 Tell me about photos | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/photos.md
 Tell me about weather | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/weather.md
 Tell me about personas | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
-Tell me about company schema | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/company-schema.md
-Tell me about crew roster | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/crew_roster.md
 Tell me about chalk bored | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
 Tell me about cache pyc | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/cache-pyc.md
 Tell me about git repo | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/git-repo.md
@@ -98,7 +96,6 @@ Tell me about group gomads | goverlord/wire_pod_overlay/chipper/gopod_probes/top
 Tell me about group gopod system | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gopod-system.md
 Tell me about group interns | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-interns.md
 Tell me about group security guards | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-security-guards.md
-Tell me about persona schema | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/persona-schema.md
 Tell me about crushn8r crewd news station | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 Tell me about addressing | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/addressing.md
 Tell me about big picture | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/big-picture.md

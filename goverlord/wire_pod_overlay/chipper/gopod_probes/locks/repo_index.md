@@ -682,22 +682,6 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
 - Persona profiles - self and chat awareness
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/company-schema.md
-- Company schema
-- Our roles
-- Our company
-- House rules
-- Our outline
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/crew_roster.md
-- GOPOD crew roster
-- GOPOD hosts, on the two Brobots (the dial at 100%)
-- GOPOD party-brobot reps (the dial at 0%)
-- CRUSHN8R CREW'd news station Gomads mentoring interns
-- CRUSHN8R CREW'd news station Interns in training
-- GOPOD security guards
-- GOPOD System
-
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
 - CHALK BORED
 - Self
@@ -880,6 +864,12 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
 - Math Aftermath News
 - Our roles
+- Our employees - GOPOD hosts, on the two Brobots (the dial at 100%)
+- Our employees - GOPOD party-brobot reps (the dial at 0%)
+- Our employees - CRUSHN8R CREW'd news station Gomads mentoring interns
+- Our employees - CRUSHN8R CREW'd news station Interns in training
+- Our employees - GOPOD security guards
+- Our employees - GOPOD System
 - Our company
 - House rules
 - Our outline
@@ -957,17 +947,6 @@
 - The Security Guards
 - Our group
 - Our members
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/persona-schema.md
-- FULL NAME
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 - The CRUSHN8R CREW'd news station
@@ -1188,6 +1167,7 @@
 - Brand words, "from: to" (reply_tighten.brand_words)
 - Clean politics (clean_politics)
 - clean_politics words (clean_politics.words[])
+- Never said, by anyone, anywhere - the roast battle too (clean_politics.never_words[])
 - Phrases never cut into pieces - said and lit whole, a phrase a line (live_split.keep_whole)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/roast-dial.md
@@ -1219,6 +1199,7 @@
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/weather_run.md
 - The weather run (GOLDEN, locked)
+- The run, as it plays - A is the Brobot asked first, B his brother; [model] is his own line, the rest the code says
 - Step 3: PLAYHEAD hands it to Cache PYC (managers)
 - Step 4: Thanks to the intern (bubble_notices.value_points)
 - Steps 5 and 9: Doc reports, Pip confirms (weather_lines)

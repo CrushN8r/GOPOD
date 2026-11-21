@@ -568,6 +568,14 @@ func gopodIntroGuideWithColour(who string, coloured []string) string {
 			kept++
 		}
 	}
+	// 2026-11-20 (live comm check: BRUH-2 said BRUH-1's whole intro - "I'm the
+	// party-bro GOPOD rep, Brobot 1. My nickname is BRUH-1"): the colour must name
+	// its own speaker the way his guide does, never his brother.
+	nick := strings.ToLower(strings.TrimSpace(gopodPersonaNickname(who, false)))
+	if nick != "" && strings.Contains(strings.ToLower(guide), nick) && !strings.Contains(strings.ToLower(said), nick) {
+		logger.Println("GOPOD_INTRO " + who + ": the colour doesn't name him - the guide, word for word")
+		return guide
+	}
 	if len(base) == 0 || float64(kept)/float64(len(base)) < gopodIntroBaseShare {
 		logger.Println(fmt.Sprintf("GOPOD_INTRO %s: the colour kept %d of %d of the guide's words - the guide, word for word", who, kept, len(base)))
 		return guide

@@ -133,6 +133,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	// sentence's start is a label, not words - it goes.
 	reply = gopodDropSpeakerLabels(reply)
 	reply = gopodStripLeaks(reply)
+	reply = gopodDropNeverWords(reply)
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
 	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
 	// The gaps a removed note leaves ("Cache PYC , and") are closed.

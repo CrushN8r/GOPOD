@@ -70,6 +70,8 @@ func gopodCleanPoliticsAllowed(question string) bool {
 // gopodCleanPolitics: the reply, clean (see above).
 func gopodCleanPolitics(reply, question string) string {
 	cp := gopodBrobotsSettings.CleanPolitics
+	// The never words go first, always - no topic allows them.
+	reply = gopodDropNeverWords(reply)
 	if len(cp.Countries) == 0 && len(cp.Words) == 0 {
 		return reply
 	}
@@ -103,6 +105,25 @@ func gopodCleanPolitics(reply, question string) string {
 		})
 	}
 	return strings.TrimSpace(regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(reply, " "))
+}
+
+// gopodDropNeverWords: every sentence saying a never word goes - any voice,
+// any topic (clean_politics.never_words).
+func gopodDropNeverWords(text string) string {
+	words := gopodBrobotsSettings.CleanPolitics.NeverWords
+	if len(words) == 0 {
+		return text
+	}
+	out := gopodEchoSentenceRe.ReplaceAllStringFunc(text, func(sentence string) string {
+		lower := strings.ToLower(sentence)
+		for _, w := range words {
+			if w = strings.ToLower(strings.TrimSpace(w)); w != "" && strings.Contains(lower, w) {
+				return ""
+			}
+		}
+		return sentence
+	})
+	return strings.TrimSpace(regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(out, " "))
 }
 
 // ## EOF

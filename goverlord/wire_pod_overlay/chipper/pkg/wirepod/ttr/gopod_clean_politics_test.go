@@ -1,7 +1,10 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_clean_politics_test.go
 package wirepod_ttr
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // TestCleanPolitics (live 2026-10-16: 🇵🇸 in a "Jerusalem, Israel" reply): the
 // right flag for the country named; political sentences go, except in a roast
@@ -29,3 +32,17 @@ func TestCleanPolitics(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-20 (operator: "stay the fuck away from anything Palestine"; live:
+// Brobot 1 said "I hear you want to know about Palestine too"): a never word's
+// sentence goes from every reply, the roast battle too; the place asked keeps.
+func TestNeverWordsNeverSaid(t *testing.T) {
+	reply := "We got the weather for Jerusalem. Also, I hear you want to know about Palestine too because bro you gotta stay informed. That's how GOPOD rolls!"
+	got := gopodCleanPolitics(reply, "weather for jerusalem Israel, please")
+	if strings.Contains(strings.ToLower(got), "palestin") || !strings.Contains(got, "Jerusalem") || !strings.Contains(got, "GOPOD rolls") {
+		t.Errorf("clean: %q", got)
+	}
+	if got := gopodDropNeverWords("Roast time! The Gaza line is next. You're slow, bro."); strings.Contains(got, "Gaza") || !strings.Contains(got, "slow") {
+		t.Errorf("never words: %q", got)
+	}
+}

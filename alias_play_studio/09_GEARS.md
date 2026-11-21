@@ -156,9 +156,10 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
   spoken, N introduced themselves. Guided Task Flow: Does the recent chat help me answer the question
   asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`; the score rows (topics, value points, eggs) under them, every bubble (2026-11-02). Every brain bubble (Brobots
   and Gomads) shows it - left to right, header too - and every prompt gets the same lines.
-- **The crew roster** (2026-10-31): `gopod_probes/personas/crew_roster.md`, a topic-cluster in the
-  master format (`## Crew`, one `Name: description` point each). "In the chat" reads it; system-check
-  names anyone in the chat without a line (`TestCrewRoster`).
+- **The crew roster** (2026-10-31; merged 2026-11-20): the company card's "Our employees" sections
+  (`personas/company/math-aftermath-news-channel.md` - company, then employee roles, then employees),
+  one `Name: description` point each. "In the chat" reads it; system-check names anyone in the chat
+  without a line (`TestCrewRoster`).
 - **Topic-clusters for settings** (2026-10-31): `gopod_probes/clusters/` - `easter_eggs.md`,
   `golden_answers.md`, `butler_lines.md`, `nicknames.md`, in the master format. Each section names the
   settings place it fills in brackets (`## Run lines (session)`); each point is `key: value` (a list

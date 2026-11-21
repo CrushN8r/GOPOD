@@ -23,6 +23,7 @@
 8. Effort at the job, introductions included: (to come)
 9. How we help: (to come)
 10. Who answers the room: (to come)
+11. (to come)
 
 ## House rules
 1. (to come)

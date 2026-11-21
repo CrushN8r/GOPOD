@@ -64,6 +64,8 @@
 20. lookup_default_line: I don't know. GOPOD Yourself - start at README.md, and get CREW'd: crushn8r.ca/subscribe.
 21. nonsense_line: What is '{asked}'? I don't know - let's start at README.md.
 22. real_words: what, who, where, when, why, how, which, whose, do, does, did, is, are, was, were, can, could, will, would, should, have, has, had, you, your, i, me, my, we, our, us, he, she, they, it, this, that, the, a, an, and, or, but, not, no, yes, of, to, in, on, at, for, with, about, from, hi, hello, hey, thanks, please, ok, okay, tell, show, give, say, start, stop, go, get, make, like, good, bad
+23. same_words: rig, gear, equipment, junk / gig, gigs, session, sessions, booking, bookings, assignment
+24. two_matches_line: Two things match this question - answer both, briefly, only as far as your job allows; for the rest, name who does it.
 
 ## An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
 1. I'm the proud {my_job_title}.

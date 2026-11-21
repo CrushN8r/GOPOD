@@ -56,5 +56,24 @@
 34. fascist
 35. nazi
 
+## Never said, by anyone, anywhere - the roast battle too (clean_politics.never_words[])
+1. palestin
+2. gaza
+3. west bank
+4. two-state
+5. two state
+6. israeli-palestinian
+7. settler
+8. zionis
+9. hamas
+10. hezbollah
+11. intifada
+12. from the river to the sea
+13. genocide
+14. apartheid
+15. occupation
+16. occupied territor
+17. netanyahu
+
 ## Phrases never cut into pieces - said and lit whole, a phrase a line (live_split.keep_whole)
 1. AI Wordplay! Explain the MAth!

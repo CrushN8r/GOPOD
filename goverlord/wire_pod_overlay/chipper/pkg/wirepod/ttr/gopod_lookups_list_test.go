@@ -48,3 +48,33 @@ func TestLookupsList(t *testing.T) {
 }
 
 // ## EOF
+
+// 2026-11-20 (live: CAMEO said "Goverlord (aka ME)" - nine linked cards' lines
+// fed in): the wide answer is the card asked about; its linked cards are listed, not said.
+func TestLinkedCardsShareOneBudget(t *testing.T) {
+	fact, src := gopodLookupFact("CAMEO", "who all works in your company?")
+	// The company card answers it (and it's already in her prompt - no words again).
+	if len(src) == 0 || src[0] != "math-aftermath-news-channel.md" || strings.Contains(fact, "I think alone") {
+		t.Errorf("cards %v, fact %q", src, gopodCut(fact, 200))
+	}
+}
+
+// ## EOF
+
+// 2026-11-20 (operator: "The company has GOPOD reps who demo the GOPOD repo via a
+// game engine - via self look-ups that let the GOPOD brain give a tour of
+// itself"; "declare it and ensure its implemented that way"): a rep's question
+// gets a game topic told from a repo file, and the brain's look-up of the repo.
+func TestRepsTourTheRepo(t *testing.T) {
+	q := "tell me about the rig"
+	packets := gopodTopicPackets(q)
+	if len(packets) == 0 || !strings.Contains(packets[0].File, "MOBILE_GEAR.md") {
+		t.Errorf("game topic for %q: %v", q, packets)
+	}
+	if _, src := gopodLookupFact("Brobot 1", q); len(src) == 0 || src[0] != "MOBILE_GEAR.md" {
+		t.Errorf("look-up for %q: %v", q, src)
+	}
+	if _, src := gopodLookupFact("Brobot 2", "so what's new with you?"); len(src) == 0 || src[0] != "README.md" {
+		t.Errorf("no topic: the README, got %v", src)
+	}
+}

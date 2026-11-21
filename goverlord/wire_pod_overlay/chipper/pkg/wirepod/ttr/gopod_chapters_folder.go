@@ -203,7 +203,7 @@ func gopodReadTopicFiles(dir, chapter string) []gopodTopicFile {
 			case key == "label":
 				t.Label = value
 			case key == "words":
-				t.Words = gopodCommaList(value)
+				t.Words = gopodSameWordsExpand(gopodCommaList(value))
 			case key == "pictures":
 				t.Pictures = gopodCommaList(value)
 			case key == "reminder":
@@ -407,6 +407,7 @@ func gopodReadTopicFacts(path string) ([]byte, error) {
 // chapters and labels, the pictures, the say-lines and reminders, the sentence
 // budgets, and the topics' scripted lines (ahead of the settings' own lines).
 func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
+	gopodSameWords = s.BrainChain.SameWords
 	gopodTopicRootDocsSetting.Store(s.TopicClusters.RootDocs) // the game cards, while the settings load
 	chapters, always, summary := gopodReadChaptersFolder()
 	if len(chapters) == 0 && len(always) == 0 {

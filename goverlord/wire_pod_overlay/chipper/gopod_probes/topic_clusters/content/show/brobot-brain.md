@@ -2,7 +2,7 @@
 - **words:** brain, brain bubble, the brain, what do you know, chat memory
 - **ask:** What do the Brobots know about this chat?
 - **chain:** Gominions (Doc and Pip) - what the code tells them before they answer
-- **see also:** ../personas/crew_roster.md (the descriptions), group-chat-intro (the intro), reply-rules (how the answer is cut), big-picture
+- **see also:** math-aftermath-news-channel.md (the descriptions), group-chat-intro (the intro), reply-rules (how the answer is cut), big-picture
 ---
 ## Boundaries - the frozen root, 2026-11-13, read first
 

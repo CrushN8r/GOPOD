@@ -378,3 +378,17 @@ func TestIntroNeverRepeatsAnother(t *testing.T) {
 		t.Errorf("narration kept: %q", got)
 	}
 }
+
+// 2026-11-20 (live: BRUH-2 said BRUH-1's intro): an intro that doesn't name its
+// own speaker is his guide, word for word.
+func TestIntroNamesItsOwnSpeaker(t *testing.T) {
+	// BRUH-1 and BRUH-2: the robots themselves (the dial's 0%).
+	gopodDialZero.Store(gopodBrobot1ESN, true)
+	gopodDialZero.Store(gopodBrobot2ESN, true)
+	defer gopodDialZero.Delete(gopodBrobot1ESN)
+	defer gopodDialZero.Delete(gopodBrobot2ESN)
+	copied := gopodIntroGuide("Brobot 1") + " Party on!"
+	if got := gopodIntroWrap("Brobot 2", copied, true); strings.Contains(got, "BRUH-1") || !strings.Contains(got, "BRUH-2") {
+		t.Errorf("Brobot 2 said: %q", got)
+	}
+}

@@ -459,6 +459,9 @@ type gopodRosterGroup struct {
 	Descs []string
 }
 
+// gopodEmployeesPrefix: a company card section listing employees.
+const gopodEmployeesPrefix = "Our employees - "
+
 // gopodRosterGroups (2026-11-02, operator: "GOPOD party-brobot reps: Brobot 1
 // [grumpy, impatient], Brobot 2 [clueless, happy]. CRUSHN8R CREW'd news station
 // Gomads mentoring interns: ..."): the roster's groups in file order.
@@ -472,19 +475,25 @@ func gopodRosterGroups() []gopodRosterGroup {
 		return nil
 	}
 	var out []gopodRosterGroup
-	inBody := false
+	inBody, group := false, false
 	for _, line := range strings.Split(string(data), "\n") {
 		t := strings.TrimSpace(gopodPersonaFill("", line)) // {Brobot 1.call}: names from their profiles
 		if !inBody {
 			inBody = t == "---"
 			continue
 		}
+		// 2026-11-20 (operator: "company > employee roles > employees"): the
+		// roster is the company card's "## Our employees - <group>" sections.
 		if strings.HasPrefix(t, "## ") {
-			out = append(out, gopodRosterGroup{Label: strings.TrimSpace(t[3:])})
+			label, isGroup := strings.CutPrefix(strings.TrimSpace(t[3:]), gopodEmployeesPrefix)
+			group = isGroup
+			if isGroup {
+				out = append(out, gopodRosterGroup{Label: strings.TrimSpace(label)})
+			}
 			continue
 		}
 		m := gopodProfilePointRE.FindStringSubmatch(t)
-		if m == nil || len(out) == 0 || strings.HasSuffix(m[1], "(to come)") {
+		if m == nil || !group || len(out) == 0 || strings.HasSuffix(m[1], "(to come)") {
 			continue
 		}
 		if at := strings.Index(m[1], ":"); at > 0 {

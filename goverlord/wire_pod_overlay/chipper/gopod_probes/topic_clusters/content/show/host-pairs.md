@@ -2,7 +2,7 @@
 - **words:** host pairs, partners, banter, brothers
 - **ask:** Who are the partners, and how do they banter?
 - **chain:** each pair sits at its own level - Brobot 1 & Brobot 2 Gominions (DOC and PIP are their own personas - their partnership is on their cards); CHALK & PLAYHEAD Gomads; Git Repo & Cache PYC interns; the guards Gomads
-- **see also:** ../personas/crew_roster.md, the persona files of each pair, nicknames
+- **see also:** math-aftermath-news-channel.md, the persona files of each pair, nicknames
 ---
 
 ## Brobot 1 & Brobot 2 (host_pairs.Brobot 1 & Brobot 2)
