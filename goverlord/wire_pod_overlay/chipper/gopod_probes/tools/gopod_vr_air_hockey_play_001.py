@@ -68,8 +68,15 @@ GOAL_SHARE = 0.5
 # that tracks my fingers ... on my side of the arena"): a bright blue marker on a
 # fingertip, found in his half; a round paddle the size of VectAR's.
 PADDLE_R = 25.0
-PADDLE_HUE = (95, 130)      # OpenCV hue: blue
-PADDLE_MIN_AREA = 60        # pixels, on the half-size search copy
+# 2026-11-23 (operator: "my black object I'll be using for my deflector"): the
+# paddle is the dark compact thing in his half that isn't the Brobot.
+PADDLE_DARK = 0.6           # darker than this share of the table's brightness
+PADDLE_SIZE = (0.04, 0.3)   # its width, in bar-lengths
+# 2026-11-23 (operator: "I put a light green square sticky note on the brobot"
+# - the red cone and the flag tracked poorly live): Brobot 1's marker. Under this
+# light it reads pale yellow-green (hue ~25, saturation ~20, bright).
+NOTE_HSV = ((15, 12, 150), (45, 255, 255))
+NOTE_SIZE = (0.08, 0.25)    # its width, in bar-lengths
 # --home: off the charger and to the middle of his goal line, in short bursts.
 HOME_Y = VECTOR_BODY_R + 15.0   # mm up from the bar - just in front of his net
 HOME_NEAR = 30.0                # mm - close enough
@@ -333,6 +340,25 @@ def main():
     FIELD_Y = (0.0, bar["top_mm"])
     puck = Puck()
 
+    def find_note(img):
+        """Brobot 1's light-green note: the biggest note-coloured square in the rink."""
+        crop = img[cy0:cy1, cx0:cx1]
+        small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
+        m = cv2.inRange(cv2.cvtColor(small, cv2.COLOR_BGR2HSV), np.array(NOTE_HSV[0]), np.array(NOTE_HSV[1]))
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        best = None
+        for c in cs:
+            x, y, w, h = cv2.boundingRect(c)
+            size = 2 * max(w, h) / bar["w"]
+            if NOTE_SIZE[0] <= size <= NOTE_SIZE[1] and 0.5 <= w / max(1, h) <= 2.0:
+                if best is None or cv2.contourArea(c) > cv2.contourArea(best[0]):
+                    best = (c, x, y, w, h)
+        if best is None:
+            return None
+        _, x, y, w, h = best
+        return to_mm(cx0 + (x + w / 2) * 2, cy0 + (y + h / 2) * 2)
+
     # Only the rink's area is searched (2026-11-22, live: 17 fps on the whole frame).
     cx0, cy0 = rink["x"], rink["y"]
     cx1, cy1 = rink["x"] + rink["w"], rink["y"] + rink["h"]
@@ -341,6 +367,8 @@ def main():
     bar_c, rink_c = shift(bar), shift(rink)
 
     def seen(img):
+        if args.brobot == "Brobot 1":
+            return find_note(img)
         crop = img[cy0:cy1, cx0:cx1]
         small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
         c = find_brobots(cv2.cvtColor(small, cv2.COLOR_BGR2HSV), cv2.cvtColor(small, cv2.COLOR_BGR2GRAY),
@@ -392,17 +420,28 @@ def main():
     hx0, hy0 = to_px(FIELD_X[0], FIELD_Y[1])
     hx1, hy1 = to_px(FIELD_X[1], (FIELD_Y[0] + FIELD_Y[1]) / 2)
 
-    def find_paddle(img):
-        crop = img[max(0, hy0):hy1, max(0, hx0):hx1]
+    def find_paddle(img, body):
+        """The operator's black deflector: the dark compact thing in his half
+        (a little past his end too) that isn't the Brobot."""
+        top = max(0, hy0 - int(0.15 * bar["w"]))
+        crop = img[top:hy1, max(0, hx0):hx1]
         small = cv2.resize(crop, (max(1, crop.shape[1] // 2), max(1, crop.shape[0] // 2)))
-        hsv2 = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
-        m = cv2.inRange(hsv2, np.array((PADDLE_HUE[0], 100, 80)), np.array((PADDLE_HUE[1], 255, 255)))
+        grey = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        m = cv2.inRange(grey, 0, int(PADDLE_DARK * np.percentile(grey, 75)))
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
         cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cs = [c for c in cs if cv2.contourArea(c) >= PADDLE_MIN_AREA]
-        if not cs:
-            return None
-        x, y, w, h = cv2.boundingRect(max(cs, key=cv2.contourArea))
-        return to_mm(max(0, hx0) + (x + w / 2) * 2, max(0, hy0) + (y + h / 2) * 2)
+        best = None
+        for c in cs:
+            x, y, w, h = cv2.boundingRect(c)
+            size = 2 * max(w, h) / bar["w"]
+            if not PADDLE_SIZE[0] <= size <= PADDLE_SIZE[1] or not 0.5 <= w / max(1, h) <= 2.0:
+                continue
+            p = to_mm(max(0, hx0) + (x + w / 2) * 2, top + (y + h / 2) * 2)
+            if body and math.hypot(p[0] - body[0], p[1] - body[1]) < VECTOR_BODY_R * 1.5:
+                continue  # that's the Brobot
+            if best is None or cv2.contourArea(c) > best[0]:
+                best = (cv2.contourArea(c), p)
+        return best[1] if best else None
     while True:
         ok, frame = cap.read()
         if not ok:
@@ -435,7 +474,7 @@ def main():
             target = max(-room, min(room, target))
             goalie.drive_to(body[0], target, now)
         fps = 1.0 / dt if dt > 0 else 0
-        paddle = find_paddle(frame)
+        paddle = find_paddle(frame, body)
         paddle_v = (0.0, 0.0)
         if paddle and last_paddle and dt > 0:
             paddle_v = ((paddle[0] - last_paddle[0]) / dt, (paddle[1] - last_paddle[1]) / dt)
