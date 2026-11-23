@@ -44,7 +44,10 @@ def find_bar(img):
     h, w = img.shape[:2]
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     dark = cv2.inRange(grey, 0, BAR_DARK)
-    dark[: h // 3, :] = 0  # it sits low in the frame
+    dark[: h // 3, :] = 0
+    # 2026-11-22 (live: the bar touched a robot parked at each end and read as one
+    # big shape): only long level dark runs are kept - a bar is one, a robot isn't.
+    dark = cv2.morphologyEx(dark, cv2.MORPH_OPEN, np.ones((1, max(20, int(0.06 * w))), np.uint8))  # it sits low in the frame
     # Smoothing sized to the frame (tuned at 3840 wide: 5 x 25), so 1080p finds it too.
     k = w / 3840.0
     dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((max(2, int(5 * k)), max(5, int(25 * k))), np.uint8))
