@@ -312,16 +312,25 @@ def main():
 
     # The field stops just short of the orange track (the operator's end): the
     # lowest track pixel above the bar, between its ends - 1.3 bars at most.
-    from gopod_vr_cone_probe_001 import WARM
-    warm = np.zeros(frame.shape[:2], np.uint8)
-    for lo, hi in WARM:
-        warm |= cv2.inRange(hsv0, np.array(lo), np.array(hi))
-    cols = warm[: bar["y"], bar["x"]: bar["x"] + bar["w"]]
-    rows = np.nonzero(cols.sum(axis=1) > 0.3 * 255 * bar["w"])[0]
-    if len(rows):
-        track_mm = (bar["cy"] - rows.max()) * mm_px
-        global FIELD_Y
-        FIELD_Y = (0.0, min(FIELD_Y[1], track_mm - TRACK_GAP_MM))
+    # 2026-11-23 (live: "arena is off the table again" - an arm over the track at
+    # start hid it, so the field ran off the table): found once and locked with
+    # the bar (the anchor file); never looked for again unless --recalibrate.
+    global FIELD_Y
+    if "top_mm" not in bar:
+        from gopod_vr_cone_probe_001 import WARM
+        warm = np.zeros(frame.shape[:2], np.uint8)
+        for lo, hi in WARM:
+            warm |= cv2.inRange(hsv0, np.array(lo), np.array(hi))
+        cols = warm[: bar["y"], bar["x"]: bar["x"] + bar["w"]]
+        rows = np.nonzero(cols.sum(axis=1) > 0.3 * 255 * bar["w"])[0]
+        if not len(rows):
+            print("the orange track isn't in view (an arm over it?) - clear it and start again")
+            cap.release()
+            return 1
+        bar["top_mm"] = min(FIELD_Y[1], (bar["cy"] - rows.max()) * mm_px - TRACK_GAP_MM)
+        json.dump(bar, open(anchor, "w"))
+        print("anchor: the field's far end locked too")
+    FIELD_Y = (0.0, bar["top_mm"])
     puck = Puck()
 
     # Only the rink's area is searched (2026-11-22, live: 17 fps on the whole frame).
