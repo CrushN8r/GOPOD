@@ -30,9 +30,9 @@ from gopod_vr_cone_probe_001 import CONES, warm_blobs  # noqa: E402 - the one co
 RINK_WIDE = 0.9       # the rink reaches this many bar-lengths past each end of the bar
 RINK_TALL = 1.4       # and this many bar-lengths above it
 CONE_FILL = 0.35      # a cone fills its box at least this much; a curved track piece less
-CONE_MAX = 0.12       # a cone is at most this many bar-lengths wide or tall
+CONE_MAX = 0.22       # a marker is at most this many bar-lengths wide or tall (2026-11-23: a flag, ~0.17, not just a cone)
 RINK_BELOW = 0.15     # the rink reaches this many bar-lengths below the bar - the Brobots park level with it
-CONE_RING_DARK = 105  # a cone sits on a dark robot: the ring around it is darker than this (cones ~60-95;
+CONE_RING_DARK = 135  # a marker sits on a dark robot: the ring around it is darker than this (cones ~60-95, the flag ~127;
                       # pink tape on the white table ~140 - under bright light the same colour as the red cone)
 ALONE_RED_BELOW = 1.0  # one cone alone: a shifted hue under this is the red cone (Brobot 1)
 BAR_DARK = 115        # the bar reads mid-grey under bright light (~90 of 255; the table ~170)
