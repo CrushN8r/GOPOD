@@ -436,7 +436,10 @@ def main():
             size = 2 * max(w, h) / bar["w"]
             if not PADDLE_SIZE[0] <= size <= PADDLE_SIZE[1] or not 0.5 <= w / max(1, h) <= 2.0:
                 continue
-            p = to_mm(max(0, hx0) + (x + w / 2) * 2, top + (y + h / 2) * 2)
+            # 2026-11-23 (operator: "reposition my blue puck-deflector forward a bit,
+            # so it sits half & half on the arena border line"): the paddle's centre
+            # is the deflector's front edge, the side facing the Brobot.
+            p = to_mm(max(0, hx0) + (x + w / 2) * 2, top + (y + h) * 2)
             if body and math.hypot(p[0] - body[0], p[1] - body[1]) < VECTOR_BODY_R * 1.5:
                 continue  # that's the Brobot
             if best is None or cv2.contourArea(c) > best[0]:
@@ -461,6 +464,10 @@ def main():
             goalie.stop()  # out of sight: he stops (2026-11-22, live: he ran on and on)
         elif goalie and abs(body[0]) > (FIELD_X[1] - FIELD_X[0]) / 2 + VECTOR_BODY_R:
             goalie.stop()  # past the field's side: he stops
+        elif goalie and puck.vy >= 0:
+            # 2026-11-23 (operator: "after the brobot deflects the puck, stop until
+            # I hit the puck or it hits my end"): going away from him, he waits.
+            goalie.stop()
         elif goalie and body:
             # Where the puck will cross his line; held inside the field's sides.
             target = puck.x
