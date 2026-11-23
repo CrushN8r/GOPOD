@@ -40,6 +40,7 @@ from gopod_vr_air_hockey_001 import find_bar, find_brobots, rink_of  # noqa: E40
 from gopod_vr_cone_probe_001 import CONES  # noqa: E402
 
 CAMERA_GLOB = "usb-Wasintek_Wasintek_camera_*-video-index0"  # the RunCam, by name
+ANCHOR_FILE = "~/.gopod_air_hockey_anchor.json"  # the locked bar - this machine's, never the repo's
 BAR_MM = 304.8          # the ruler's black bar: 12 inches
 # The field, in mm from the bar's middle (x right, y up the table toward the
 # operator) - 2026-11-22 (operator: "a simple, like 1:1.3 ratio rectangle,
@@ -60,6 +61,19 @@ WIN_SCORE = 5
 # 2026-11-22 (operator: "give both sides goal posts"): a goal mouth at each end,
 # this share of the field's width, a post at each edge; the rest of the end a wall.
 GOAL_SHARE = 0.5
+# The operator's paddle (2026-11-22, operator: "a sliding rounded puck deflector,
+# that tracks my fingers ... on my side of the arena"): a bright blue marker on a
+# fingertip, found in his half; a round paddle the size of VectAR's.
+PADDLE_R = 25.0
+PADDLE_HUE = (95, 130)      # OpenCV hue: blue
+PADDLE_MIN_AREA = 60        # pixels, on the half-size search copy
+# --home: off the charger and to the middle of his goal line, in short bursts.
+HOME_Y = VECTOR_BODY_R + 15.0   # mm up from the bar - just in front of his net
+HOME_NEAR = 30.0                # mm - close enough
+BURST_SPEED = 60.0              # mm/s forward bursts
+BURST_SECONDS = 0.5
+TURN_SPEED = 40.0               # mm/s each wheel, opposite ways
+TURN_RATE = 2 * TURN_SPEED / 48.0  # rad/s - Vector's wheels are about 48 mm apart
 PHYSICS_STEP = 1 / 120.0  # the puck moves in even small steps - no jumps on a slow frame
 BODY_SMOOTH = 0.5         # his seen position, smoothed (camera jitter isn't motion)
 BODY_V_MIN = 40.0         # mm/s - slower than this he's standing still (no push)
@@ -101,17 +115,17 @@ class Puck:
         k = min(max(s, PUCK_MIN_SPEED), PUCK_MAX_SPEED) / s
         self.vx, self.vy = self.vx * k, self.vy * k
 
-    def advance(self, dt, body, body_v):
+    def advance(self, dt, movers):
         """dt seconds in even small steps; "his" (past him, the bar end), "far"
         (past the operator's end) or "" - no goal."""
         steps = max(1, int(math.ceil(dt / PHYSICS_STEP)))
         for _ in range(steps):
-            goal = self.step(dt / steps, body, body_v)
+            goal = self.step(dt / steps, movers)
             if goal:
                 return goal
         return ""
 
-    def step(self, dt, body, body_v):
+    def step(self, dt, movers):
         """Move dt seconds; bounce off the side walls, the far (operator's) end and
         the robot's body. True when it crosses his goal line, the bar end."""
         self.x += self.vx * dt
@@ -126,12 +140,12 @@ class Puck:
             self.y, self.vy = FIELD_Y[1] - PUCK_R, -abs(self.vy) * WALL_RESTITUTION
         if self.y - PUCK_R < FIELD_Y[0] and not in_mouth:
             self.y, self.vy = FIELD_Y[0] + PUCK_R, abs(self.vy) * WALL_RESTITUTION
-        if body is not None:
+        for body, body_v, r in movers:  # the Brobot, the operator's paddle
             dx, dy = self.x - body[0], self.y - body[1]
             d = math.hypot(dx, dy)
-            if 0 < d < PUCK_R + VECTOR_BODY_R:
+            if 0 < d < PUCK_R + r:
                 nx, ny = dx / d, dy / d
-                self.x, self.y = body[0] + nx * (PUCK_R + VECTOR_BODY_R), body[1] + ny * (PUCK_R + VECTOR_BODY_R)
+                self.x, self.y = body[0] + nx * (PUCK_R + r), body[1] + ny * (PUCK_R + r)
                 dot = self.vx * nx + self.vy * ny
                 if dot < 0:  # moving into him: reflect along the contact normal, once
                     self.vx -= 2 * dot * nx
@@ -171,8 +185,58 @@ class Goalie:
         self.send("/api-sdk/assume_behavior_control", {"priority": "high"})
         time.sleep(SETTLE_AFTER_ASSUME)
 
-    def wheels(self, speed):
-        self.send("/api-sdk/move_wheels", {"lw": int(speed), "rw": int(speed)})
+    def wheels(self, lw, rw=None):
+        self.send("/api-sdk/move_wheels", {"lw": int(lw), "rw": int(lw if rw is None else rw)})
+
+    def stop(self):
+        if self.speed != 0:
+            self.wheels(0)
+            self.speed = 0
+
+    def home(self, seen):
+        """Off the charger and to the middle of his goal line, then sideways -
+        short forward bursts show which way he faces; turns between them."""
+        def burst():
+            before = seen()
+            self.wheels(BURST_SPEED)
+            time.sleep(BURST_SECONDS)
+            self.wheels(0)
+            time.sleep(0.3)
+            after = seen()
+            if before and after and math.hypot(after[0] - before[0], after[1] - before[1]) > 8:
+                return after, math.atan2(after[1] - before[1], after[0] - before[0])
+            return after, None
+
+        def turn(err):
+            err = (err + math.pi) % (2 * math.pi) - math.pi
+            sgn = 1 if err > 0 else -1  # left (counter-clockwise, seen from above) when positive
+            self.wheels(-sgn * TURN_SPEED, sgn * TURN_SPEED)
+            time.sleep(abs(err) / TURN_RATE)
+            self.wheels(0)
+            time.sleep(0.3)
+
+        for _ in range(25):
+            pos, heading = burst()
+            if pos is None:
+                print("home: he's out of sight - stopping")
+                return False
+            if math.hypot(pos[0], pos[1] - HOME_Y) < HOME_NEAR:
+                break
+            if heading is not None:
+                turn(math.atan2(HOME_Y - pos[1], -pos[0]) - heading)
+        # Sideways, along his goal line: the nearer of facing right or left.
+        for _ in range(4):
+            pos, heading = burst()
+            if heading is None:
+                continue
+            err = min((0 - heading, math.pi - heading), key=lambda e: abs((e + math.pi) % (2 * math.pi) - math.pi))
+            if abs((err + math.pi) % (2 * math.pi) - math.pi) < math.radians(12):
+                self.facing = 1 if abs(heading) < math.pi / 2 else -1
+                print("home: in front of his net, facing %s" % ("right" if self.facing > 0 else "left"))
+                return True
+            turn(err)
+        print("home: close - couldn't square him up")
+        return True
 
     def drive_to(self, robot_x, target_x, now):
         if now - self.last < DRIVE_EVERY:
@@ -196,6 +260,8 @@ def main():
     ap.add_argument("--width", type=int, default=1920)  # 1080p: the bar stands clear of the speaker
     ap.add_argument("--height", type=int, default=1080)
     ap.add_argument("--drive", action="store_true", help="he plays goalie (live robot)")
+    ap.add_argument("--home", action="store_true", help="with --drive: off the charger and to his net first")
+    ap.add_argument("--recalibrate", action="store_true", help="find the ruler bar again (after the camera moved)")
     ap.add_argument("--frames", type=int, default=0, help="stop after this many (0: until q)")
     ap.add_argument("--out", default="", help="save the drawn run to this video")
     args = ap.parse_args()
@@ -206,13 +272,22 @@ def main():
     cap = open_camera(args.width, args.height)
     # 2026-11-22 (live: "no ruler bar in view" - the first frames, before the
     # exposure settles, are too dark or bright): it keeps looking, up to 3 s.
+    # 2026-11-22 (live: a Brobot parked at the bar's end made it read too long):
+    # the bar is found once, while clear, and locked (the camera doesn't move);
+    # --recalibrate finds it again.
+    anchor = os.path.expanduser(ANCHOR_FILE)
     bar, frame = None, None
+    if os.path.exists(anchor) and not args.recalibrate:
+        bar = json.load(open(anchor))
     for _ in range(90):
         ok, frame = cap.read()
-        if ok:
+        if ok and bar is None:
             bar = find_bar(frame)
             if bar is not None:
-                break
+                json.dump(bar, open(anchor, "w"))
+                print("anchor: the ruler bar locked (%d px wide) - --recalibrate if the camera moves" % bar["w"])
+        if ok and bar is not None:
+            break
     if frame is None:
         print("the camera gave no frame")
         return 1
@@ -264,24 +339,28 @@ def main():
     if args.drive:
         goalie = Goalie(args.brobot)
         goalie.hold()
-        # Which way is forward: a short nudge, watched from above.
-        before = None
-        for _ in range(10):
-            ok, img = cap.read()
-            before = seen(img) if ok else before
-        goalie.wheels(60)
-        time.sleep(0.6)
-        goalie.wheels(0)
-        time.sleep(0.3)
-        after = None
-        for _ in range(10):
-            ok, img = cap.read()
-            after = seen(img) if ok else after
-        if before and after and abs(after[0] - before[0]) > 5:
-            goalie.facing = 1 if after[0] > before[0] else -1
-            print("goalie: forward is %s" % ("right" if goalie.facing > 0 else "left"))
+        def seen_now():
+            got = None
+            for _ in range(6):
+                ok, img = cap.read()
+                got = seen(img) if ok else got
+            return got
+
+        if args.home:
+            goalie.home(seen_now)
         else:
-            print("goalie: couldn't tell which way he faces - is he turned sideways, on the red line?")
+            # Which way is forward: a short nudge, watched from above.
+            before = seen_now()
+            goalie.wheels(60)
+            time.sleep(0.6)
+            goalie.wheels(0)
+            time.sleep(0.3)
+            after = seen_now()
+            if before and after and abs(after[0] - before[0]) > 5:
+                goalie.facing = 1 if after[0] > before[0] else -1
+                print("goalie: forward is %s" % ("right" if goalie.facing > 0 else "left"))
+            else:
+                print("goalie: couldn't tell which way he faces - is he turned sideways, on the red line?")
     score = {"Brobot": 0, "Room": 0}
     writer = None
     if args.out:
@@ -296,7 +375,22 @@ def main():
                                    "-video_size", "%dx%d" % (frame.shape[1] // 2, frame.shape[0] // 2), "-i", "-"],
                                   stdin=subprocess.PIPE)
 
-    last_body, last_t, n = None, time.time(), 0
+    last_body, last_paddle, last_t, n = None, None, time.time(), 0
+    # The operator's half: the paddle is looked for there only.
+    hx0, hy0 = to_px(FIELD_X[0], FIELD_Y[1])
+    hx1, hy1 = to_px(FIELD_X[1], (FIELD_Y[0] + FIELD_Y[1]) / 2)
+
+    def find_paddle(img):
+        crop = img[max(0, hy0):hy1, max(0, hx0):hx1]
+        small = cv2.resize(crop, (max(1, crop.shape[1] // 2), max(1, crop.shape[0] // 2)))
+        hsv2 = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
+        m = cv2.inRange(hsv2, np.array((PADDLE_HUE[0], 100, 80)), np.array((PADDLE_HUE[1], 255, 255)))
+        cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cs = [c for c in cs if cv2.contourArea(c) >= PADDLE_MIN_AREA]
+        if not cs:
+            return None
+        x, y, w, h = cv2.boundingRect(max(cs, key=cv2.contourArea))
+        return to_mm(max(0, hx0) + (x + w / 2) * 2, max(0, hy0) + (y + h / 2) * 2)
     while True:
         ok, frame = cap.read()
         if not ok:
@@ -312,7 +406,11 @@ def main():
             if math.hypot(*body_v) < BODY_V_MIN:
                 body_v = (0.0, 0.0)
         last_body = body or last_body
-        if goalie and body:
+        if goalie and not body:
+            goalie.stop()  # out of sight: he stops (2026-11-22, live: he ran on and on)
+        elif goalie and abs(body[0]) > (FIELD_X[1] - FIELD_X[0]) / 2 + VECTOR_BODY_R:
+            goalie.stop()  # past the field's side: he stops
+        elif goalie and body:
             # Where the puck will cross his line; held inside the field's sides.
             target = puck.x
             if puck.vy < 0:
@@ -325,7 +423,17 @@ def main():
             target = max(-room, min(room, target))
             goalie.drive_to(body[0], target, now)
         fps = 1.0 / dt if dt > 0 else 0
-        goal = puck.advance(dt, body, body_v)
+        paddle = find_paddle(frame)
+        paddle_v = (0.0, 0.0)
+        if paddle and last_paddle and dt > 0:
+            paddle_v = ((paddle[0] - last_paddle[0]) / dt, (paddle[1] - last_paddle[1]) / dt)
+        last_paddle = paddle
+        movers = []
+        if body:
+            movers.append((body, body_v, VECTOR_BODY_R))
+        if paddle:
+            movers.append((paddle, paddle_v, PADDLE_R))
+        goal = puck.advance(dt, movers)
         if goal:
             score["Room" if goal == "his" else "Brobot"] += 1
             if max(score.values()) >= WIN_SCORE:
@@ -344,6 +452,8 @@ def main():
             cv2.circle(frame, b, 8, (255, 255, 255), -1)
         if body:
             cv2.circle(frame, to_px(*body), int(VECTOR_BODY_R / mm_px), CONES[args.brobot]["draw"], 3)
+        if paddle:
+            cv2.circle(frame, to_px(*paddle), int(PADDLE_R / mm_px), (255, 120, 0), -1)
         cv2.circle(frame, to_px(puck.x, puck.y), int(PUCK_R / mm_px), (0, 255, 255), -1)
         cv2.putText(frame, "%s %d - %d Room - %.0f fps" % (args.brobot, score["Brobot"], score["Room"], fps), (x0, max(40, y0 - 15)),
                     cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 3)
