@@ -92,6 +92,9 @@ GOALIE_GAIN = 2.5         # mm/s of wheel speed per mm he's off the target
 GOALIE_MAX = 120.0        # mm/s
 GOALIE_DEADBAND = 12.0    # mm - this close, he stops
 DRIVE_EVERY = 0.12        # s between wheel commands
+LINE_GAIN = 0.6           # wheel-speed difference per mm off his goal line
+LINE_DAMP = 0.3           # less as he's already heading back
+LINE_MAX = 35.0           # mm/s at most between the wheels
 SETTLE_AFTER_ASSUME = 1.5 # s - a fresh hold needs a moment before the first move (CLAUDE.md gotcha)
 
 
@@ -199,9 +202,9 @@ class Goalie:
         self.send("/api-sdk/move_wheels", {"lw": int(lw), "rw": int(lw if rw is None else rw)})
 
     def stop(self):
-        if self.speed != 0:
+        if self.speed != (0, 0):
             self.wheels(0)
-            self.speed = 0
+            self.speed = (0, 0)
 
     def home(self, seen):
         """Off the charger and to the middle of his goal line, then sideways -
@@ -248,16 +251,26 @@ class Goalie:
         print("home: close - couldn't square him up")
         return True
 
-    def drive_to(self, robot_x, target_x, now):
+    def drive_to(self, body, body_v, target_x, now):
+        """Slide along his goal line to target_x - and steer back onto the line
+        (2026-11-23, live: "Brobot is all over the place" - not quite sideways,
+        each slide took him up or down the field and nothing brought him back)."""
         if now - self.last < DRIVE_EVERY:
             return
         self.last = now
-        err = target_x - robot_x
+        err = target_x - body[0]
         speed = 0.0 if abs(err) < GOALIE_DEADBAND else max(-GOALIE_MAX, min(GOALIE_MAX, GOALIE_GAIN * err))
         speed *= self.facing
-        if self.speed is None or abs(speed - self.speed) > 5:
-            self.wheels(speed)
-            self.speed = speed
+        # Off his line: one wheel a little faster bends him back.
+        steer = 0.0
+        if speed:
+            steer = LINE_GAIN * (HOME_Y - body[1]) - LINE_DAMP * body_v[1]
+            # Moving toward +x, turning counter-clockwise lifts him; toward -x, it lowers him.
+            steer = max(-LINE_MAX, min(LINE_MAX, steer)) * (1 if speed * self.facing > 0 else -1)
+        lw, rw = speed - steer, speed + steer
+        if self.speed is None or abs(lw - self.speed[0]) > 4 or abs(rw - self.speed[1]) > 4:
+            self.wheels(lw, rw)
+            self.speed = (lw, rw)
 
     def let_go(self):
         self.wheels(0)
@@ -479,7 +492,7 @@ def main():
                     target = 2 * lo - target if target < lo else 2 * hi - target
             room = (FIELD_X[1] - FIELD_X[0]) / 2 - VECTOR_BODY_R / 2
             target = max(-room, min(room, target))
-            goalie.drive_to(body[0], target, now)
+            goalie.drive_to(body, body_v, target, now)
         fps = 1.0 / dt if dt > 0 else 0
         paddle = find_paddle(frame, body)
         paddle_v = (0.0, 0.0)
