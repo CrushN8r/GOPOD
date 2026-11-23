@@ -116,15 +116,26 @@ def main():
     ap.add_argument("--frames", type=int, default=0, help="stop after this many (0: until q)")
     ap.add_argument("--out", default="", help="save the drawn run to this video")
     args = ap.parse_args()
+    # The camera's "Corrupt JPEG data" notes are harmless - kept off the terminal
+    # (our own lines go to stdout).
+    quiet = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(quiet, 2)
     cap = open_camera(args.width, args.height)
-    ok, frame = cap.read()
-    for _ in range(10):  # let the exposure settle
+    # 2026-11-22 (live: "no ruler bar in view" - the first frames, before the
+    # exposure settles, are too dark or bright): it keeps looking, up to 3 s.
+    bar, frame = None, None
+    for _ in range(90):
         ok, frame = cap.read()
-    if not ok:
-        sys.exit("the camera gave no frame")
-    bar = find_bar(frame)
+        if ok:
+            bar = find_bar(frame)
+            if bar is not None:
+                break
+    if frame is None:
+        print("the camera gave no frame")
+        return 1
     if bar is None:
-        sys.exit("no ruler bar in view")
+        print("no ruler bar in view - is the ruler clear of anything dark touching it?")
+        return 1
     rink = rink_of(bar, frame.shape)
     hsv0 = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mm_px = BAR_MM / bar["w"]
@@ -161,9 +172,7 @@ def main():
                                    "-f", "rawvideo", "-pixel_format", "bgr24",
                                    "-video_size", "%dx%d" % (frame.shape[1], frame.shape[0]), "-i", "-"],
                                   stdin=subprocess.PIPE)
-    # The camera's "Corrupt JPEG data" notes are harmless - kept off the terminal.
-    devnull = os.open(os.devnull, os.O_WRONLY)
-    os.dup2(devnull, 2)
+
     last_body, last_t, n = None, time.time(), 0
     while True:
         ok, frame = cap.read()
