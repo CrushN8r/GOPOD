@@ -32,9 +32,9 @@ WARM = [((168, 100, 150), (179, 255, 255)), ((0, 100, 150), (11, 255, 255))]  # 
 ALONE_RED_BELOW = 3.0  # one cone only: redder than this (shifted hue) is the red one
 
 
-def warm_blobs(hsv, min_area, piece_area=25, gap=40):
+def warm_blobs(hsv, min_area, piece_area=25, gap=40, top=2):
     """The two biggest cones: warm pieces (a cone's white stripes and glare cut it
-    into several) grouped when their boxes come within gap pixels."""
+    into several) grouped when they lie within gap pixels of each other."""
     mask = None
     for lo, hi in WARM:
         m = cv2.inRange(hsv, np.array(lo), np.array(hi))
@@ -43,16 +43,24 @@ def warm_blobs(hsv, min_area, piece_area=25, gap=40):
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     pieces = [c for c in contours if cv2.contourArea(c) >= piece_area]
-    groups = []  # [x0, y0, x1, y1, [contours]]
+    # 2026-11-22 (a U-shaped orange track's box covered the whole rink and
+    # swallowed the red cone inside it): pieces group when they are actually
+    # within gap pixels of each other (the mask grown by gap), never because one's
+    # box covers the other.
+    near = cv2.dilate(mask, np.ones((gap, gap), np.uint8))
+    _, labels = cv2.connectedComponents(near)
+    by_label = {}
     for c in pieces:
         x, y, w, h = cv2.boundingRect(c)
-        for g in groups:
-            if x <= g[2] + gap and x + w >= g[0] - gap and y <= g[3] + gap and y + h >= g[1] - gap:
-                g[0], g[1], g[2], g[3] = min(g[0], x), min(g[1], y), max(g[2], x + w), max(g[3], y + h)
-                g[4].append(c)
-                break
+        px, py = c[0][0]
+        lab = int(labels[py, px])
+        g = by_label.get(lab)
+        if g is None:
+            by_label[lab] = [x, y, x + w, y + h, [c]]
         else:
-            groups.append([x, y, x + w, y + h, [c]])
+            g[0], g[1], g[2], g[3] = min(g[0], x), min(g[1], y), max(g[2], x + w), max(g[3], y + h)
+            g[4].append(c)
+    groups = list(by_label.values())  # [x0, y0, x1, y1, [contours]]
     hue = hsv[:, :, 0].astype(np.float32)
     shifted = np.where(hue > 90, hue - 180, hue)  # 178 -> -2: red sits below orange
     blobs = []
@@ -64,8 +72,10 @@ def warm_blobs(hsv, min_area, piece_area=25, gap=40):
         cv2.drawContours(one, cs, -1, 255, -1)
         sel = (one > 0) & (mask > 0)
         blobs.append({"x": int(x0), "y": int(y0), "w": int(x1 - x0), "h": int(y1 - y0), "cx": int((x0 + x1) / 2), "cy": int((y0 + y1) / 2),
-                      "area": int(area), "hue": round(float(shifted[sel].mean()), 1)})
-    return sorted(blobs, key=lambda b: -b["area"])[:2]
+                      "area": int(area), "hue": round(float(shifted[sel].mean()), 1),
+                      # how solid its box is: a cone fills it, a curved track piece doesn't
+                      "fill": round(float(area) / max(1, (x1 - x0) * (y1 - y0)), 2)})
+    return sorted(blobs, key=lambda b: -b["area"])[:top]
 
 
 def find_brobots(hsv, min_area):
