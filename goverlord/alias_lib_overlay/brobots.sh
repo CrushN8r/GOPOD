@@ -1894,3 +1894,12 @@ gocones() {
   rm -f "$tmp"
   echo "Marked photo: $out"
 }
+
+# gohockey - GOPOD VR/AR air hockey (2026-11-23, operator: "I'M NOT A CODER" - one
+# word, nothing to remember). gohockey = Brobot 1 drives from his charger to his
+# net and plays goalie; gohockey 2 = Brobot 2. Close the game window to stop.
+gohockey() {
+  local who="Brobot 1"
+  [ "$1" = "2" ] && who="Brobot 2"
+  ~/miniforge3/envs/gopod-coral39/bin/python ~/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey_play_001.py --brobot "$who" --drive --home
+}
