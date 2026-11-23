@@ -332,7 +332,7 @@ def main():
         crop = img[cy0:cy1, cx0:cx1]
         small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
         c = find_brobots(cv2.cvtColor(small, cv2.COLOR_BGR2HSV), cv2.cvtColor(small, cv2.COLOR_BGR2GRAY),
-                         bar_c, rink_c, 40).get(args.brobot)
+                         bar_c, rink_c, 15).get(args.brobot)  # a cone is small at half size
         return to_mm(c["cx"] * 2 + cx0, c["cy"] * 2 + cy0) if c else None
 
     goalie = None
