@@ -81,6 +81,8 @@ NOTE_HSV = ((22, 12, 150), (40, 70, 255))  # 2026-11-23, live: skin (hue ~17, sa
 NOTE_SIZE = (0.08, 0.25)    # its width, in bar-lengths
 # --home: off the charger and to the middle of his goal line, in short bursts.
 HOME_Y = VECTOR_BODY_R + 15.0   # mm up from the bar - just in front of his net
+HOME_LEAVE_SECONDS = 2.0        # straight off the charger first, room to turn (2026-11-23: he turned too soon)
+HOME_MM_PER_S = 30.0            # how far a second of BURST_SPEED really takes him (measured)
 HOME_NEAR = 30.0                # mm - close enough
 # Measured live 2026-11-23 on Brobot 1: 80 mm/s for 1 s moves him ~30 mm (60 for
 # 0.5 s moved him ~1 mm - too little to read his direction); wheels at 100 opposite
@@ -90,7 +92,10 @@ BURST_SECONDS = 1.0
 TURN_SPEED = 100.0              # mm/s each wheel, opposite ways
 TURN_RATE = math.radians(34.0)  # rad/s, measured
 PHYSICS_STEP = 1 / 120.0  # the puck moves in even small steps - no jumps on a slow frame
-BODY_SMOOTH = 0.5         # his seen position, smoothed (camera jitter isn't motion)
+BODY_SMOOTH = 0.3         # his seen position, smoothed (camera jitter isn't motion; 0.5 looked jittery live)
+FRAME_DT = 1 / 30.0       # the puck moves a steady 1/30 s a frame (2026-11-23: real frame timing jittered it)
+STUCK_SECONDS = 0.5       # the puck pressed against him this long: it's trapped
+BACK_OFF_SECONDS = 0.6    # then he backs away this long
 BODY_V_MIN = 40.0         # mm/s - slower than this he's standing still (no push)
 # The goalie (--drive): wheel speed toward the puck's line, held to the field.
 GOALIE_GAIN = 1.5         # mm/s of wheel speed per mm he's off the target (2.5 overshot, live)
@@ -215,18 +220,24 @@ class Goalie:
             self.speed = (0, 0)
 
     def home(self, seen):
-        """Off the charger and to the middle of his goal line, then sideways -
-        short forward bursts show which way he faces; turns between them."""
-        def burst():
-            before = seen()
+        """Off the charger, to just in front of his net, squared up along his goal
+        line (2026-11-23, operator: "have the brobot reposition itself correct &
+        proper in front of his net"). His direction is read without moving him -
+        a push forward and back, watched from above - before every turn."""
+        def heading():
+            a = seen()
             self.wheels(BURST_SPEED)
             time.sleep(BURST_SECONDS)
             self.wheels(0)
-            time.sleep(0.3)
-            after = seen()
-            if before and after and math.hypot(after[0] - before[0], after[1] - before[1]) > 8:
-                return after, math.atan2(after[1] - before[1], after[0] - before[0])
-            return after, None
+            time.sleep(0.4)
+            b = seen()
+            self.wheels(-BURST_SPEED)  # back where he was
+            time.sleep(BURST_SECONDS)
+            self.wheels(0)
+            time.sleep(0.4)
+            if a and b and math.hypot(b[0] - a[0], b[1] - a[1]) > 8:
+                return math.atan2(b[1] - a[1], b[0] - a[0])
+            return None
 
         def turn(err):
             err = (err + math.pi) % (2 * math.pi) - math.pi
@@ -234,30 +245,46 @@ class Goalie:
             self.wheels(-sgn * TURN_SPEED, sgn * TURN_SPEED)
             time.sleep(abs(err) / TURN_RATE)
             self.wheels(0)
-            time.sleep(0.3)
+            time.sleep(0.4)
 
-        for _ in range(25):
-            pos, heading = burst()
+        def wrap(a):
+            return (a + math.pi) % (2 * math.pi) - math.pi
+
+        # Straight off the charger first, with room to turn.
+        self.wheels(BURST_SPEED)
+        time.sleep(HOME_LEAVE_SECONDS)
+        self.wheels(0)
+        time.sleep(0.4)
+        # To the spot in front of his net: read, turn, drive a little, again.
+        for _ in range(15):
+            pos = seen()
             if pos is None:
                 print("home: he's out of sight - stopping")
                 return False
-            if math.hypot(pos[0], pos[1] - HOME_Y) < HOME_NEAR:
+            dist = math.hypot(pos[0], pos[1] - HOME_Y)
+            if dist < HOME_NEAR:
                 break
-            if heading is not None:
-                turn(math.atan2(HOME_Y - pos[1], -pos[0]) - heading)
-        # Sideways, along his goal line: the nearer of facing right or left.
-        for _ in range(4):
-            pos, heading = burst()
-            if heading is None:
+            h = heading()
+            if h is None:
                 continue
-            err = min((0 - heading, math.pi - heading), key=lambda e: abs((e + math.pi) % (2 * math.pi) - math.pi))
-            if abs((err + math.pi) % (2 * math.pi) - math.pi) < math.radians(12):
-                self.facing = 1 if abs(heading) < math.pi / 2 else -1
+            turn(math.atan2(HOME_Y - pos[1], -pos[0]) - h)
+            self.wheels(BURST_SPEED)
+            time.sleep(min(2.0, max(0.5, dist / HOME_MM_PER_S)))
+            self.wheels(0)
+            time.sleep(0.4)
+        # Squared up along his goal line: facing right or left, whichever is nearer.
+        for _ in range(8):
+            h = heading()
+            if h is None:
+                continue
+            err = min((wrap(0 - h), wrap(math.pi - h)), key=abs)
+            if abs(err) < math.radians(10):
+                self.facing = 1 if abs(h) < math.pi / 2 else -1
                 print("home: in front of his net, facing %s" % ("right" if self.facing > 0 else "left"))
                 return True
             turn(err)
-        print("home: close - couldn't square him up")
-        return True
+        print("home: near his net - couldn't square him up")
+        return False
 
     def drive_to(self, body, body_v, target_x, now):
         """Slide along his goal line to target_x - and steer back onto the line
@@ -393,8 +420,9 @@ def main():
     bar_c, rink_c = shift(bar), shift(rink)
 
     def seen(img):
-        if args.brobot == "Brobot 1":
-            return find_note(img)
+        # 2026-11-23 (operator: switching Brobots as one runs low): the light-green
+        # note is the marker, on whichever Brobot plays - move it with him.
+        return find_note(img)
         crop = img[cy0:cy1, cx0:cx1]
         small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
         c = find_brobots(cv2.cvtColor(small, cv2.COLOR_BGR2HSV), cv2.cvtColor(small, cv2.COLOR_BGR2GRAY),
@@ -412,9 +440,8 @@ def main():
                 got = seen(img) if ok else got
             return got
 
-        if args.home:
-            goalie.home(seen_now)
-        if True:
+        squared = goalie.home(seen_now) if args.home else False
+        if not squared:
             # Which way is forward: a short nudge, watched from above - always,
             # homed or not (2026-11-23, live: the homing's own guess was wrong).
             before = seen_now()
@@ -447,6 +474,7 @@ def main():
                                   stdin=subprocess.PIPE)
 
     last_body, last_paddle, last_t, n = None, None, time.time(), 0
+    stuck_for = 0.0
     log = open(os.path.expanduser(RUN_LOG), "w")
     log.write("# t  seen_x seen_y  puck_x puck_y puck_vy  wheels_l wheels_r  (mm, mm/s) - field x %.0f..%.0f y %.0f..%.0f\n"
               % (FIELD_X[0], FIELD_X[1], FIELD_Y[0], FIELD_Y[1]))
@@ -529,7 +557,23 @@ def main():
             movers.append((body, body_v, VECTOR_BODY_R))
         if paddle:
             movers.append((paddle, paddle_v, PADDLE_R))
-        goal = puck.advance(dt, movers)
+        goal = puck.advance(FRAME_DT if dt < 3 * FRAME_DT else dt, movers)
+        # The puck trapped against him (2026-11-23, live: "caught/trapped the puck in
+        # the corner"): he backs away from it and it's nudged back into play.
+        if body and math.hypot(puck.x - body[0], puck.y - body[1]) < PUCK_R + VECTOR_BODY_R + 4:
+            stuck_for += dt
+        else:
+            stuck_for = 0.0
+        if stuck_for > STUCK_SECONDS:
+            stuck_for = 0.0
+            puck.vx, puck.vy = -puck.vx if puck.x * puck.vx > 0 else puck.vx, abs(puck.vy) + PUCK_MIN_SPEED / 2
+            puck.clamp_speed()
+            if goalie:
+                away = -1 if puck.x > body[0] else 1
+                goalie.wheels(away * goalie.facing * BURST_SPEED)
+                time.sleep(BACK_OFF_SECONDS)
+                goalie.wheels(0)
+                goalie.speed = (0, 0)
         if goal:
             score["Room" if goal == "his" else "Brobot"] += 1
             if max(score.values()) >= WIN_SCORE:
@@ -538,23 +582,23 @@ def main():
         # Draw: the field, his goal, him, the puck, the score.
         x0, y0 = to_px(FIELD_X[0], FIELD_Y[1])
         x1, y1 = to_px(FIELD_X[1], FIELD_Y[0])
-        cv2.rectangle(frame, (x0, y0), (x1, y1), (255, 255, 0), 3)
+        cv2.rectangle(frame, (x0, y0), (x1, y1), (255, 255, 0), 3, cv2.LINE_AA)
         # The goal mouths, a post at each edge: his at the bar end (red), the far one (green).
         mouth = GOAL_SHARE * (FIELD_X[1] - FIELD_X[0]) / 2
         for gy, col in ((FIELD_Y[0], (0, 0, 255)), (FIELD_Y[1], (0, 200, 0))):
             a, b = to_px(-mouth, gy), to_px(mouth, gy)
-            cv2.line(frame, a, b, col, 8)
+            cv2.line(frame, a, b, col, 8, cv2.LINE_AA)
             cv2.circle(frame, a, 8, (255, 255, 255), -1)
             cv2.circle(frame, b, 8, (255, 255, 255), -1)
         if body:
-            cv2.circle(frame, to_px(*body), int(VECTOR_BODY_R / mm_px), CONES[args.brobot]["draw"], 3)
+            cv2.circle(frame, to_px(*body), int(VECTOR_BODY_R / mm_px), CONES[args.brobot]["draw"], 3, cv2.LINE_AA)
         if paddle:
-            cv2.circle(frame, to_px(*paddle), int(PADDLE_R / mm_px), (255, 120, 0), -1)
-        cv2.circle(frame, to_px(puck.x, puck.y), int(PUCK_R / mm_px), (0, 255, 255), -1)
+            cv2.circle(frame, to_px(*paddle), int(PADDLE_R / mm_px), (255, 120, 0), -1, cv2.LINE_AA)
+        cv2.circle(frame, to_px(puck.x, puck.y), int(PUCK_R / mm_px), (0, 255, 255), -1, cv2.LINE_AA)
         cv2.putText(frame, "%s %d - %d Room - %.0f fps" % (args.brobot, score["Brobot"], score["Room"], fps), (x0, max(40, y0 - 15)),
                     cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 3)
         # Shown at half size (2026-11-22: full 1080p frames to the window held it to 17 fps).
-        shown = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2))
+        shown = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2), interpolation=cv2.INTER_AREA)
         if writer:
             writer.write(shown)
         if window:
