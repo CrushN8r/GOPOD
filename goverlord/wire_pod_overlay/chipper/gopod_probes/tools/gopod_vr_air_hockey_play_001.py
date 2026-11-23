@@ -41,6 +41,8 @@ from gopod_vr_cone_probe_001 import CONES  # noqa: E402
 
 CAMERA_GLOB = "usb-Wasintek_Wasintek_camera_*-video-index0"  # the RunCam, by name
 ANCHOR_FILE = "~/.gopod_air_hockey_anchor.json"  # the locked bar - this machine's, never the repo's
+RUN_LOG = "~/.gopod_air_hockey_last_run.log"     # each frame: where he was seen, the puck, his wheels (private)
+JUMP_MM = 80.0   # a marker seen this far from where he just was is a mistake, not him
 BAR_MM = 304.8          # the ruler's black bar: 12 inches
 # The field, in mm from the bar's middle (x right, y up the table toward the
 # operator) - 2026-11-22 (operator: "a simple, like 1:1.3 ratio rectangle,
@@ -184,6 +186,7 @@ class Goalie:
         self.facing = 1  # +1: his forward is +x (right on the screen)
         self.last = 0.0
         self.speed = None
+        self.sent = (0, 0)
 
     def send(self, path, form):
         form = dict(form, serial=self.serial)
@@ -199,7 +202,9 @@ class Goalie:
         time.sleep(SETTLE_AFTER_ASSUME)
 
     def wheels(self, lw, rw=None):
-        self.send("/api-sdk/move_wheels", {"lw": int(lw), "rw": int(lw if rw is None else rw)})
+        rw = lw if rw is None else rw
+        self.sent = (int(lw), int(rw))
+        self.send("/api-sdk/move_wheels", {"lw": int(lw), "rw": int(rw)})
 
     def stop(self):
         if self.speed != (0, 0):
@@ -260,6 +265,11 @@ class Goalie:
         self.last = now
         err = target_x - body[0]
         speed = 0.0 if abs(err) < GOALIE_DEADBAND else max(-GOALIE_MAX, min(GOALIE_MAX, GOALIE_GAIN * err))
+        # 2026-11-23 (live: "going back & forth blindly off boundaries"): never
+        # outward past the field's sides - only back in.
+        room = (FIELD_X[1] - FIELD_X[0]) / 2 - VECTOR_BODY_R / 2
+        if (body[0] >= room and err > 0) or (body[0] <= -room and err < 0):
+            speed = 0.0
         speed *= self.facing
         # Off his line: one wheel a little faster bends him back.
         steer = 0.0
@@ -429,6 +439,9 @@ def main():
                                   stdin=subprocess.PIPE)
 
     last_body, last_paddle, last_t, n = None, None, time.time(), 0
+    log = open(os.path.expanduser(RUN_LOG), "w")
+    log.write("# t  seen_x seen_y  puck_x puck_y puck_vy  wheels_l wheels_r  (mm, mm/s) - field x %.0f..%.0f y %.0f..%.0f\n"
+              % (FIELD_X[0], FIELD_X[1], FIELD_Y[0], FIELD_Y[1]))
     # The operator's half: the paddle is looked for there only.
     hx0, hy0 = to_px(FIELD_X[0], FIELD_Y[1])
     hx1, hy1 = to_px(FIELD_X[1], (FIELD_Y[0] + FIELD_Y[1]) / 2)
@@ -465,6 +478,8 @@ def main():
         now = time.time()
         dt, last_t = min(0.1, now - last_t), now
         body = seen(frame)
+        if body and last_body and math.hypot(body[0] - last_body[0], body[1] - last_body[1]) > JUMP_MM:
+            body = None  # a jump: not him (2026-11-23)
         if body and last_body:
             body = (last_body[0] + BODY_SMOOTH * (body[0] - last_body[0]), last_body[1] + BODY_SMOOTH * (body[1] - last_body[1]))
         body_v = (0.0, 0.0)
@@ -494,6 +509,8 @@ def main():
             target = max(-room, min(room, target))
             goalie.drive_to(body, body_v, target, now)
         fps = 1.0 / dt if dt > 0 else 0
+        log.write("%.2f  %s  %.0f %.0f %.0f  %s\n" % (now % 1000, "%.0f %.0f" % body if body else "- -",
+                                                     puck.x, puck.y, puck.vy, "%d %d" % goalie.sent if goalie else "- -"))
         paddle = find_paddle(frame, body)
         paddle_v = (0.0, 0.0)
         if paddle and last_paddle and dt > 0:
@@ -540,6 +557,7 @@ def main():
         n += 1
         if args.frames and n >= args.frames:
             break
+    log.close()
     if goalie:
         goalie.let_go()
     cap.release()
