@@ -77,21 +77,24 @@ PADDLE_SIZE = (0.04, 0.3)   # its width, in bar-lengths
 # 2026-11-23 (operator: "I put a light green square sticky note on the brobot"
 # - the red cone and the flag tracked poorly live): Brobot 1's marker. Under this
 # light it reads pale yellow-green (hue ~25, saturation ~20, bright).
-NOTE_HSV = ((15, 12, 150), (45, 255, 255))
+NOTE_HSV = ((22, 12, 150), (40, 70, 255))  # 2026-11-23, live: skin (hue ~17, saturation 60-120) passed the old window
 NOTE_SIZE = (0.08, 0.25)    # its width, in bar-lengths
 # --home: off the charger and to the middle of his goal line, in short bursts.
 HOME_Y = VECTOR_BODY_R + 15.0   # mm up from the bar - just in front of his net
 HOME_NEAR = 30.0                # mm - close enough
-BURST_SPEED = 60.0              # mm/s forward bursts
-BURST_SECONDS = 0.5
-TURN_SPEED = 40.0               # mm/s each wheel, opposite ways
-TURN_RATE = 2 * TURN_SPEED / 48.0  # rad/s - Vector's wheels are about 48 mm apart
+# Measured live 2026-11-23 on Brobot 1: 80 mm/s for 1 s moves him ~30 mm (60 for
+# 0.5 s moved him ~1 mm - too little to read his direction); wheels at 100 opposite
+# ways turn him ~34 degrees a second.
+BURST_SPEED = 80.0              # mm/s forward bursts
+BURST_SECONDS = 1.0
+TURN_SPEED = 100.0              # mm/s each wheel, opposite ways
+TURN_RATE = math.radians(34.0)  # rad/s, measured
 PHYSICS_STEP = 1 / 120.0  # the puck moves in even small steps - no jumps on a slow frame
 BODY_SMOOTH = 0.5         # his seen position, smoothed (camera jitter isn't motion)
 BODY_V_MIN = 40.0         # mm/s - slower than this he's standing still (no push)
 # The goalie (--drive): wheel speed toward the puck's line, held to the field.
-GOALIE_GAIN = 2.5         # mm/s of wheel speed per mm he's off the target
-GOALIE_MAX = 120.0        # mm/s
+GOALIE_GAIN = 1.5         # mm/s of wheel speed per mm he's off the target (2.5 overshot, live)
+GOALIE_MAX = 100.0        # mm/s
 GOALIE_DEADBAND = 12.0    # mm - this close, he stops
 DRIVE_EVERY = 0.12        # s between wheel commands
 LINE_GAIN = 0.6           # wheel-speed difference per mm off his goal line
@@ -411,14 +414,19 @@ def main():
 
         if args.home:
             goalie.home(seen_now)
-        else:
-            # Which way is forward: a short nudge, watched from above.
+        if True:
+            # Which way is forward: a short nudge, watched from above - always,
+            # homed or not (2026-11-23, live: the homing's own guess was wrong).
             before = seen_now()
-            goalie.wheels(60)
-            time.sleep(0.6)
+            goalie.wheels(BURST_SPEED)
+            time.sleep(BURST_SECONDS)
             goalie.wheels(0)
-            time.sleep(0.3)
+            time.sleep(0.4)
             after = seen_now()
+            goalie.wheels(-BURST_SPEED)  # and back where he was
+            time.sleep(BURST_SECONDS)
+            goalie.wheels(0)
+            time.sleep(0.4)
             if before and after and abs(after[0] - before[0]) > 5:
                 goalie.facing = 1 if after[0] > before[0] else -1
                 print("goalie: forward is %s" % ("right" if goalie.facing > 0 else "left"))
