@@ -1875,31 +1875,10 @@ gobingo() {
     )
 }
 
-# gocones - GOPOD VR/AR, first test (2026-11-18, operator: "can I run the cone
-# probe tool from an alias?"): one C920 photo, the Brobots found by their cones
-# (red = Brobot 1, orange = Brobot 2), the marked photo saved to gopod_notes.
-# Close ffplay first - the camera can be used by one program at a time.
-gocones() {
-  local dev tmp out
-  dev=$(ls /dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_*-video-index0 2>/dev/null | head -1)
-  [ -z "$dev" ] && { echo "No C920 found."; return 1; }
-  tmp=$(mktemp --suffix=.jpg)
-  out="$HOME/crushn8r_git/gopod_notes/VR_AR_CONES_$(date +%Y%m%d_%H%M%S).jpg"
-  if ! ffmpeg -loglevel error -f v4l2 -video_size 1280x720 -i "$dev" -vf "select=gte(n\,15)" -frames:v 1 -y "$tmp"; then
-    echo "The camera is busy (close ffplay first)."; rm -f "$tmp"; return 1
-  fi
-  "$HOME/miniforge3/envs/gopod-coral39/bin/python" \
-    "$HOME/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_cone_probe_001.py" \
-    --photo "$tmp" --out "$out" --min-area 120
-  rm -f "$tmp"
-  echo "Marked photo: $out"
-}
-
-# gohockey - GOPOD VR/AR air hockey (2026-11-23, operator: "I'M NOT A CODER" - one
-# word, nothing to remember). gohockey = Brobot 1 drives from his charger to his
-# net and plays goalie; gohockey 2 = Brobot 2. Close the game window to stop.
+# gohockey - GOPOD VR/AR air hockey. gohockey: Brobot 1 plays (wearing the green
+# note), Brobot 2 referees; gohockey 2: the other way round. Close the window to stop.
 gohockey() {
   local who="Brobot 1"
   [ "$1" = "2" ] && who="Brobot 2"
-  ~/miniforge3/envs/gopod-coral39/bin/python ~/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey_play_001.py --brobot "$who" --drive --home
+  ~/miniforge3/envs/gopod-coral39/bin/python ~/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey.py --player "$who"
 }
