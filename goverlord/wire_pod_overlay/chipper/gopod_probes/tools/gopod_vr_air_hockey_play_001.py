@@ -91,6 +91,10 @@ BURST_SPEED = 80.0              # mm/s forward bursts
 BURST_SECONDS = 1.0
 TURN_SPEED = 100.0              # mm/s each wheel, opposite ways
 TURN_RATE = math.radians(34.0)  # rad/s, measured
+BODY_SEARCH_MM = 110.0   # his body is looked for this far around the note
+BODY_DARK = 0.45         # darker than this share of the table: his body (the ruler bar is masked out)
+BODY_MIN_MM = 25.0       # half-sizes at least this...
+BODY_MAX_MM = 75.0       # ...and at most this (bigger: joined to something else)
 PHYSICS_STEP = 1 / 120.0  # the puck moves in even small steps - no jumps on a slow frame
 BODY_SMOOTH = 0.3         # his seen position, smoothed (camera jitter isn't motion; 0.5 looked jittery live)
 FRAME_DT = 1 / 30.0       # the puck moves a steady 1/30 s a frame (2026-11-23: real frame timing jittered it)
@@ -163,12 +167,22 @@ class Puck:
             self.y, self.vy = FIELD_Y[1] - PUCK_R, -abs(self.vy) * WALL_RESTITUTION
         if self.y - PUCK_R < FIELD_Y[0] and not in_mouth:
             self.y, self.vy = FIELD_Y[0] + PUCK_R, abs(self.vy) * WALL_RESTITUTION
-        for body, body_v, r in movers:  # the Brobot, the operator's paddle
-            dx, dy = self.x - body[0], self.y - body[1]
+        for body, body_v, r in movers:  # the Brobot (his whole body, a box), the operator's paddle (a circle)
+            if isinstance(r, tuple):
+                # The nearest point of his body's box to the puck (2026-11-23, operator:
+                # "account for brobot body, not just the green square").
+                px = max(body[0] - r[0], min(body[0] + r[0], self.x))
+                py = max(body[1] - r[1], min(body[1] + r[1], self.y))
+                reach = PUCK_R
+            else:
+                px, py, reach = body[0], body[1], PUCK_R + r
+            dx, dy = self.x - px, self.y - py
             d = math.hypot(dx, dy)
-            if 0 < d < PUCK_R + r:
+            if d == 0:
+                dx, dy, d = 0.0, 1.0, 1.0
+            if d < reach:
                 nx, ny = dx / d, dy / d
-                self.x, self.y = body[0] + nx * (PUCK_R + r), body[1] + ny * (PUCK_R + r)
+                self.x, self.y = px + nx * reach, py + ny * reach
                 dot = self.vx * nx + self.vy * ny
                 if dot < 0:  # moving into him: reflect along the contact normal, once
                     self.vx -= 2 * dot * nx
@@ -410,7 +424,33 @@ def main():
         if best is None:
             return None
         _, x, y, w, h = best
-        return to_mm(cx0 + (x + w / 2) * 2, cy0 + (y + h / 2) * 2)
+        nx_, ny_ = cx0 + (x + w / 2) * 2, cy0 + (y + h / 2) * 2
+        return find_body(img, int(nx_), int(ny_))
+
+    def find_body(img, nx_, ny_):
+        """His whole body: the dark shape the note sits on (the ruler bar masked
+        out). Its centre is his position; its half-sizes, his reach (body_box)."""
+        r = int(BODY_SEARCH_MM / mm_px)
+        x0, y0 = max(0, nx_ - r), max(0, ny_ - r)
+        crop = cv2.cvtColor(img[y0:ny_ + r, x0:nx_ + r], cv2.COLOR_BGR2GRAY)
+        dark = cv2.inRange(crop, 0, int(BODY_DARK * table_level))
+        bx0, by0 = bar["x"] - x0, bar["y"] - y0  # the ruler bar isn't him
+        dark[max(0, by0 - 4): max(0, by0 + bar["h"] + 4), max(0, bx0): max(0, bx0 + bar["w"])] = 0
+        cv2.circle(dark, (nx_ - x0, ny_ - y0), int(0.04 * bar["w"]), 255, -1)  # the note is on him
+        dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+        _, lab, st, _ = cv2.connectedComponentsWithStats(dark)
+        k = lab[ny_ - y0, nx_ - x0]
+        x, y, w, h = st[k][:4]
+        half = (max(BODY_MIN_MM, w * mm_px / 2), max(BODY_MIN_MM, h * mm_px / 2))
+        if max(half) > BODY_MAX_MM:  # joined to something else: just around the note
+            half = (VECTOR_BODY_R * 0.6, VECTOR_BODY_R * 0.6)
+            body_box["half"] = half
+            return to_mm(nx_, ny_)
+        body_box["half"] = half
+        return to_mm(x0 + x + w / 2, y0 + y + h / 2)
+
+    body_box = {"half": (VECTOR_BODY_R * 0.6, VECTOR_BODY_R * 0.6)}
+    table_level = float(np.percentile(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), 75))
 
     # Only the rink's area is searched (2026-11-22, live: 17 fps on the whole frame).
     cx0, cy0 = rink["x"], rink["y"]
@@ -554,7 +594,7 @@ def main():
         last_paddle = paddle
         movers = []
         if body:
-            movers.append((body, body_v, VECTOR_BODY_R))
+            movers.append((body, body_v, body_box["half"]))
         if paddle:
             movers.append((paddle, paddle_v, PADDLE_R))
         goal = puck.advance(FRAME_DT if dt < 3 * FRAME_DT else dt, movers)
@@ -591,7 +631,9 @@ def main():
             cv2.circle(frame, a, 8, (255, 255, 255), -1)
             cv2.circle(frame, b, 8, (255, 255, 255), -1)
         if body:
-            cv2.circle(frame, to_px(*body), int(VECTOR_BODY_R / mm_px), CONES[args.brobot]["draw"], 3, cv2.LINE_AA)
+            hw, hh = body_box["half"]
+            cv2.rectangle(frame, to_px(body[0] - hw, body[1] + hh), to_px(body[0] + hw, body[1] - hh),
+                          CONES[args.brobot]["draw"], 3, cv2.LINE_AA)
         if paddle:
             cv2.circle(frame, to_px(*paddle), int(PADDLE_R / mm_px), (255, 120, 0), -1, cv2.LINE_AA)
         cv2.circle(frame, to_px(puck.x, puck.y), int(PUCK_R / mm_px), (0, 255, 255), -1, cv2.LINE_AA)
