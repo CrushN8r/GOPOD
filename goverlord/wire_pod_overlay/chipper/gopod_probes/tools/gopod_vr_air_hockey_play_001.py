@@ -33,10 +33,13 @@ from gopod_vr_cone_probe_001 import CONES  # noqa: E402
 
 CAMERA_GLOB = "usb-Wasintek_Wasintek_camera_*-video-index0"  # the RunCam, by name
 BAR_MM = 304.8          # the ruler's black bar: 12 inches
-# The table-top field, in mm from the bar's middle (x right, y up the table) -
-# "fit my table-top, just for now": inside the orange track, the bar its base.
-FIELD_X = (-380.0, 380.0)
-FIELD_Y = (0.0, 330.0)
+# The field, in mm from the bar's middle (x right, y up the table toward the
+# operator) - 2026-11-22 (operator: "a simple, like 1:1.3 ratio rectangle,
+# portrait orientation from the bar"): as wide as the bar, 1.3 times that tall.
+# The Brobot's goal is the bar end; the operator's end is a wall for now.
+FIELD_X = (-BAR_MM / 2, BAR_MM / 2)
+FIELD_Y = (0.0, 1.3 * BAR_MM)  # capped just short of the orange track, where the operator sits
+TRACK_GAP_MM = 20.0
 # From VectAR-Airhokey's GameConfig.ts.
 PUCK_R = 15.0
 VECTOR_BODY_R = 55.0
@@ -62,15 +65,14 @@ def open_camera(width, height):
 
 
 class Puck:
-    def __init__(self, toward):
-        self.toward = toward  # +1: serve toward the right goal, -1 the left
+    def __init__(self):
         self.serve()
 
     def serve(self):
         self.x, self.y = 0.0, (FIELD_Y[0] + FIELD_Y[1]) / 2
         a = math.radians(random.uniform(-30, 30))
-        self.vx = self.toward * PUCK_SERVE_SPEED * math.cos(a)
-        self.vy = PUCK_SERVE_SPEED * math.sin(a)
+        self.vx = PUCK_SERVE_SPEED * math.sin(a)
+        self.vy = -PUCK_SERVE_SPEED * math.cos(a)  # toward his goal, the bar end
 
     def clamp_speed(self):
         s = math.hypot(self.vx, self.vy)
@@ -80,12 +82,14 @@ class Puck:
         self.vx, self.vy = self.vx * k, self.vy * k
 
     def step(self, dt, body, body_v):
-        """Move dt seconds; bounce off the side walls and the robot's body; a goal
-        when it crosses an end. Returns "left", "right" or ""."""
+        """Move dt seconds; bounce off the side walls, the far (operator's) end and
+        the robot's body. True when it crosses his goal line, the bar end."""
         self.x += self.vx * dt
         self.y += self.vy * dt
-        if self.y - PUCK_R < FIELD_Y[0]:
-            self.y, self.vy = FIELD_Y[0] + PUCK_R, abs(self.vy) * WALL_RESTITUTION
+        if self.x - PUCK_R < FIELD_X[0]:
+            self.x, self.vx = FIELD_X[0] + PUCK_R, abs(self.vx) * WALL_RESTITUTION
+        if self.x + PUCK_R > FIELD_X[1]:
+            self.x, self.vx = FIELD_X[1] - PUCK_R, -abs(self.vx) * WALL_RESTITUTION
         if self.y + PUCK_R > FIELD_Y[1]:
             self.y, self.vy = FIELD_Y[1] - PUCK_R, -abs(self.vy) * WALL_RESTITUTION
         if body is not None:
@@ -101,16 +105,7 @@ class Puck:
                 self.vx += PADDLE_VEL_TRANSFER * body_v[0]
                 self.vy += PADDLE_VEL_TRANSFER * body_v[1]
                 self.clamp_speed()
-        # One Brobot: only his end is a goal; the far end bounces, a practice wall.
-        if self.toward > 0 and self.x - PUCK_R < FIELD_X[0]:
-            self.x, self.vx = FIELD_X[0] + PUCK_R, abs(self.vx) * WALL_RESTITUTION
-        if self.toward < 0 and self.x + PUCK_R > FIELD_X[1]:
-            self.x, self.vx = FIELD_X[1] - PUCK_R, -abs(self.vx) * WALL_RESTITUTION
-        if self.x > FIELD_X[1]:
-            return "right"
-        if self.x < FIELD_X[0]:
-            return "left"
-        return ""
+        return self.y < FIELD_Y[0]
 
 
 def main():
@@ -131,6 +126,7 @@ def main():
     if bar is None:
         sys.exit("no ruler bar in view")
     rink = rink_of(bar, frame.shape)
+    hsv0 = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mm_px = BAR_MM / bar["w"]
 
     def to_mm(px, py):
@@ -139,11 +135,19 @@ def main():
     def to_px(x, y):
         return int(bar["cx"] + x / mm_px), int(bar["cy"] - y / mm_px)
 
-    # His goal is the end he stands nearer to; the puck serves toward it.
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    first = find_brobots(hsv, cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), bar, rink, 150).get(args.brobot)
-    his_end = "right" if first is None or to_mm(first["cx"], first["cy"])[0] >= 0 else "left"
-    puck = Puck(+1 if his_end == "right" else -1)
+    # The field stops just short of the orange track (the operator's end): the
+    # lowest track pixel above the bar, between its ends - 1.3 bars at most.
+    from gopod_vr_cone_probe_001 import WARM
+    warm = np.zeros(frame.shape[:2], np.uint8)
+    for lo, hi in WARM:
+        warm |= cv2.inRange(hsv0, np.array(lo), np.array(hi))
+    cols = warm[: bar["y"], bar["x"]: bar["x"] + bar["w"]]
+    rows = np.nonzero(cols.sum(axis=1) > 0.3 * 255 * bar["w"])[0]
+    if len(rows):
+        track_mm = (bar["cy"] - rows.max()) * mm_px
+        global FIELD_Y
+        FIELD_Y = (0.0, min(FIELD_Y[1], track_mm - TRACK_GAP_MM))
+    puck = Puck()
     score = {"saves": 0, "goals": 0}
     writer = None
     if args.out:
@@ -163,9 +167,9 @@ def main():
         if body and last_body and dt > 0:
             body_v = ((body[0] - last_body[0]) / dt, (body[1] - last_body[1]) / dt)
         last_body = body
-        was_vx = puck.vx
+        was_vy = puck.vy
         goal = puck.step(dt, body, body_v)
-        if (was_vx > 0) != (puck.vx > 0) and body and abs(puck.x - body[0]) < VECTOR_BODY_R + PUCK_R + 5:
+        if was_vy < 0 <= puck.vy and body and abs(puck.y - body[1]) < VECTOR_BODY_R + PUCK_R + 5:
             score["saves"] += 1  # it turned back off him
         if goal:
             score["goals"] += 1  # one Brobot: a goal is past him
@@ -176,8 +180,7 @@ def main():
         x0, y0 = to_px(FIELD_X[0], FIELD_Y[1])
         x1, y1 = to_px(FIELD_X[1], FIELD_Y[0])
         cv2.rectangle(frame, (x0, y0), (x1, y1), (255, 255, 0), 3)
-        gx = x1 if his_end == "right" else x0
-        cv2.line(frame, (gx, y0), (gx, y1), (0, 0, 255), 8)
+        cv2.line(frame, (x0, y1), (x1, y1), (0, 0, 255), 8)  # his goal: the bar end
         if body:
             cv2.circle(frame, to_px(*body), int(VECTOR_BODY_R / mm_px), CONES[args.brobot]["draw"], 3)
         cv2.circle(frame, to_px(puck.x, puck.y), int(PUCK_R / mm_px), (0, 255, 255), -1)
@@ -195,7 +198,7 @@ def main():
     cap.release()
     if writer:
         writer.release()
-    print("frames %d, score %s, mm per pixel %.3f, his goal: %s end" % (n, score, mm_px, his_end))
+    print("frames %d, score %s, mm per pixel %.3f" % (n, score, mm_px))
     return 0
 
 
