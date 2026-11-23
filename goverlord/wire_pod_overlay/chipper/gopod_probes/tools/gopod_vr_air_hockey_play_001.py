@@ -53,9 +53,12 @@ TRACK_GAP_MM = 20.0
 PUCK_R = 15.0
 VECTOR_BODY_R = 55.0
 WALL_RESTITUTION = 0.98
-PUCK_SERVE_SPEED = 135.0
-PUCK_MIN_SPEED = 150.0
-PUCK_MAX_SPEED = 235.0
+# 2026-11-23 (operator: "slow down the puck, so I and the brobot have a chance to
+# react"): VectAR's speeds times PUCK_PACE - raise it as the arena grows.
+PUCK_PACE = 0.5
+PUCK_SERVE_SPEED = 135.0 * PUCK_PACE
+PUCK_MIN_SPEED = 150.0 * PUCK_PACE
+PUCK_MAX_SPEED = 235.0 * PUCK_PACE
 PADDLE_VEL_TRANSFER = 0.6
 WIN_SCORE = 5
 # 2026-11-22 (operator: "give both sides goal posts"): a goal mouth at each end,
