@@ -45,7 +45,9 @@ def find_bar(img):
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     dark = cv2.inRange(grey, 0, BAR_DARK)
     dark[: h // 3, :] = 0  # it sits low in the frame
-    dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((5, 25), np.uint8))
+    # Smoothing sized to the frame (tuned at 3840 wide: 5 x 25), so 1080p finds it too.
+    k = w / 3840.0
+    dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((max(2, int(5 * k)), max(5, int(25 * k))), np.uint8))
     contours, _ = cv2.findContours(dark, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     best = None
     for c in contours:
