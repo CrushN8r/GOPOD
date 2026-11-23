@@ -15,7 +15,7 @@
 # counts and Snap Spectacles; ours sees his cone from above (no drift).
 #
 # This step only watches and plays the puck - it never drives a robot.
-#   python gopod_vr_air_hockey_play_001.py --brobot "Brobot 1"            (a window)
+#   python gopod_vr_air_hockey_play_001.py --brobot "Brobot 1"            (a window - close it to stop)
 #   python gopod_vr_air_hockey_play_001.py --frames 150 --out test.mp4     (no window)
 import argparse
 import math
@@ -152,7 +152,18 @@ def main():
     writer = None
     if args.out:
         writer = cv2.VideoWriter(args.out, cv2.VideoWriter_fourcc(*"mp4v"), 30, (frame.shape[1], frame.shape[0]))
-    window = not args.out and os.environ.get("DISPLAY")
+    # 2026-11-22 (live: this env's OpenCV has no window support): the frames go
+    # to ffplay, which shows them; closing its window (or q in it) ends the game.
+    window = None
+    if not args.out and os.environ.get("DISPLAY"):
+        import subprocess
+        window = subprocess.Popen(["ffplay", "-loglevel", "quiet", "-window_title", "GOPOD air hockey",
+                                   "-f", "rawvideo", "-pixel_format", "bgr24",
+                                   "-video_size", "%dx%d" % (frame.shape[1], frame.shape[0]), "-i", "-"],
+                                  stdin=subprocess.PIPE)
+    # The camera's "Corrupt JPEG data" notes are harmless - kept off the terminal.
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, 2)
     last_body, last_t, n = None, time.time(), 0
     while True:
         ok, frame = cap.read()
@@ -189,13 +200,20 @@ def main():
         if writer:
             writer.write(frame)
         if window:
-            cv2.imshow("GOPOD air hockey", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+            try:
+                window.stdin.write(frame.tobytes())
+            except (BrokenPipeError, OSError):
+                break  # its window was closed
         n += 1
         if args.frames and n >= args.frames:
             break
     cap.release()
+    if window:
+        try:
+            window.stdin.close()
+        except OSError:
+            pass
+        window.terminate()
     if writer:
         writer.release()
     print("frames %d, score %s, mm per pixel %.3f" % (n, score, mm_px))
