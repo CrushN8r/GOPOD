@@ -384,6 +384,9 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/docbs/README.md
 - words: docbs, docbs doc s brain wiring, master library
 
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/pipta/README.md
+- words: pipta, pipta pip s brain wiring
+
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/system/chat-page-words.md
 - words: chat page words, chat page s words
 

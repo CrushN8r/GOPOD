@@ -128,6 +128,7 @@ Tell me about weather run | goverlord/wire_pod_overlay/chipper/gopod_probes/topi
 Tell me about docbs | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/docbs/DOCBS.md
 Tell me about docbs library | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/docbs/DOCBS_LIBRARY.md
 Tell me about docbs | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/docbs/README.md
+Tell me about pipta | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/pipta/README.md
 Tell me about chat page words | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/system/chat-page-words.md
 Tell me about comm check | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/system/comm-check.md
 Tell me about goverlord system | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/system/goverlord-system.md

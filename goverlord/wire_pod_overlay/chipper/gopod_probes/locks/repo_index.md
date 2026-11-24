@@ -1239,6 +1239,9 @@
 - DocBS - Doc's brain wiring
 - The Master Library (2026-10-30)
 
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/dials/pipta/README.md
+- PipTA - Pip's brain wiring
+
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/system/chat-page-words.md
 - The chat page's words
 - The page's words (page_text) (page_text)
