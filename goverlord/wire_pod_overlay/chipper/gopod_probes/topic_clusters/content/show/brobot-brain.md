@@ -17,7 +17,7 @@ A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, ME
 
 
 ## The brain chain - moved to Goverlord's card (2026-11-17)
-1. Every persona's brain bubble, its lines, its TASK flow and the look-up now live on Goverlord's card: ../personas/goverlord-brain.md - GOPOD's brain is his.
+1. Every persona's brain bubble, its lines, its TASK flow and the look-up now live on Goverlord's card: ../personas/company/1_system/goverlord-brain.md - GOPOD's brain is his.
 
 ## Before I answer (prebuild_context)
 1. header: BEFORE I ANSWER:

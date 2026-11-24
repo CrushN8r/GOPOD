@@ -682,8 +682,8 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
 - Persona profiles - self and chat awareness
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
-- CHALK BORED
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/goverlord-brain.md
+- GOVERLORD
 - Self
 - Who I answer to
 - Who works with me
@@ -692,11 +692,22 @@
 - Banter
 - The name
 - Lingo
-- My settings (managers.personas.CHALK)
+- My settings (managers.personas.GOVERLORD)
+- The brain bubble (brain_chain)
+- An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
+- The look-up's pool - every md file here is a card, picked by the words a question says; only the files git tracks - the public repo (brain_chain.lookup_files)
+- Words too common to pick a card on their own (brain_chain.lookup_skip)
+- The brain's lines, in order (brain_chain.lines)
+- The guided task flow (brain_chain.flow)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/cache-pyc.md
-- Cache PYC
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/group-gopod-system.md
+- GOPOD System
+- Our group
+- Our members
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/keynote-vale.md
+- KEYNOTE VALE
 - Self
 - Who I answer to
 - Who works with me
@@ -705,36 +716,19 @@
 - Banter
 - The name
 - Lingo
-- My settings (managers.personas.CACHE PYC)
+- My settings (managers.personas.BUTLER)
+- My system persona (reporter_voices)
+- My run lines (session)
+- Comm check lines (comm_check)
+- Language model lines (llm)
+- USB device lines (numpad_ptt)
+- Numpad lines (numpad_ptt.texts)
+- host_personas BUTLER (host_personas.BUTLER)
+- host_personas BUTLER - handover (host_personas.BUTLER.handover)
+- My Got it (chat_moves.got_it.BUTLER)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/git-repo.md
-- Git Repo
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.GIT REPO)
-- My intro guide
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/player/playhead-zuminto.md
-- PLAYHEAD ZUMINTU
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.PLAYHEAD)
-- My intro guide
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/social_media/cameo-looks.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/cameo-looks.md
 - CAMEO LOOKS
 - Self
 - Who I answer to
@@ -747,7 +741,20 @@
 - My settings (managers.personas.CAMEO)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/system/elle-elle-ehm-gemma.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/chalk-bored.md
+- CHALK BORED
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Banter
+- The name
+- Lingo
+- My settings (managers.personas.CHALK)
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/elle-elle-ehm-gemma.md
 - ELLE-ELLE EHM GEMMA
 - Self
 - Who I answer to
@@ -763,38 +770,87 @@
 - My eyes' camera, the first one found (gemma_eyes.device)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-1.md
-- Brobot 1
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/group-gomads.md
+- The Gomads
+- Our group
+- Our members
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/playhead-zuminto.md
+- PLAYHEAD ZUMINTU
 - Self
 - Who I answer to
 - Who works with me
 - Who answers to me
 - Voice
-- Who I am
-- The robot
 - Banter
-- The DocBS dial at zero - the shared Brobots persona
 - The name
 - Lingo
+- My settings (managers.personas.PLAYHEAD)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-2.md
-- Brobot 2
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/group-security-guards.md
+- The Security Guards
+- Our group
+- Our members
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnfh.md
+- Intel 404 PNFH
 - Self
 - Who I answer to
 - Who works with me
 - Who answers to me
 - Voice
-- Who I am
-- The robot
 - Banter
-- The PipTA dial at zero - the shared Brobots persona
-- My game welcome (comm_check.game_welcome.flavours)
 - The name
 - Lingo
+- My settings (managers.personas.INTEL 404 PNFH)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/barfallonyou-spewer.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnft.md
+- Intel 404 PNFT
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Banter
+- The name
+- Lingo
+- My settings (managers.personas.INTEL 404 PNFT)
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/cache-pyc.md
+- Cache PYC
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Banter
+- The name
+- Lingo
+- My settings (managers.personas.CACHE PYC)
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/git-repo.md
+- Git Repo
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Banter
+- The name
+- Lingo
+- My settings (managers.personas.GIT REPO)
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/group-interns.md
+- The Interns
+- Our group
+- Our members
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/barfallonyou-spewer.md
 - DOCTRINE BARFALLONYOU SPEWER
 - Self
 - Who I answer to
@@ -817,7 +873,43 @@
 - 11/10 (docbs.chains.5)
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/pippen-stall.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-1.md
+- Brobot 1
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Who I am
+- The robot
+- Banter
+- The DocBS dial at zero - the shared Brobots persona
+- The name
+- Lingo
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-2.md
+- Brobot 2
+- Self
+- Who I answer to
+- Who works with me
+- Who answers to me
+- Voice
+- Who I am
+- The robot
+- Banter
+- The PipTA dial at zero - the shared Brobots persona
+- My game welcome (comm_check.game_welcome.flavours)
+- The name
+- Lingo
+- My intro guide
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/group-doc-and-pip.md
+- Doc and Pip
+- Our group
+- Our members
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/pippen-stall.md
 - PIPPEN STALL
 - Self
 - Who I answer to
@@ -839,28 +931,6 @@
 - PipTA's line pools - DocBS's are in gopod_probes/topic_clusters/dials/docbs/
 - My intro guide
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/keynote-vale.md
-- KEYNOTE VALE
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.BUTLER)
-- My system persona (reporter_voices)
-- My run lines (session)
-- Comm check lines (comm_check)
-- Language model lines (llm)
-- USB device lines (numpad_ptt)
-- Numpad lines (numpad_ptt.texts)
-- host_personas BUTLER (host_personas.BUTLER)
-- host_personas BUTLER - handover (host_personas.BUTLER.handover)
-- My Got it (chat_moves.got_it.BUTLER)
-- My intro guide
-
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
 - Math Aftermath News
 - Our roles
@@ -875,78 +945,8 @@
 - Our outline
 - The company, as KEYS introduces it - said by the code after his opening, before the rest of his intro (company_intro.lines)
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnfh.md
-- Intel 404 PNFH
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.INTEL 404 PNFH)
-- My intro guide
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnft.md
-- Intel 404 PNFT
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.INTEL 404 PNFT)
-- My intro guide
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/goverlord-brain.md
-- GOVERLORD
-- Self
-- Who I answer to
-- Who works with me
-- Who answers to me
-- Voice
-- Banter
-- The name
-- Lingo
-- My settings (managers.personas.GOVERLORD)
-- The brain bubble (brain_chain)
-- An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
-- The look-up's pool - every md file here is a card, picked by the words a question says; only the files git tracks - the public repo (brain_chain.lookup_files)
-- Words too common to pick a card on their own (brain_chain.lookup_skip)
-- The brain's lines, in order (brain_chain.lines)
-- The guided task flow (brain_chain.flow)
-- My intro guide
-
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/README.md
 - Persona chains - every participant's thought chains
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-doc-and-pip.md
-- Doc and Pip
-- Our group
-- Our members
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gomads.md
-- The Gomads
-- Our group
-- Our members
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gopod-system.md
-- GOPOD System
-- Our group
-- Our members
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-interns.md
-- The Interns
-- Our group
-- Our members
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-security-guards.md
-- The Security Guards
-- Our group
-- Our members
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 - The CRUSHN8R CREW'd news station

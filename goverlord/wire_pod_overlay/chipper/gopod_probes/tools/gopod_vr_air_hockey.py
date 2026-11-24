@@ -72,14 +72,31 @@ PADDLE_SIZE = (0.04, 0.3)  # its width, in bar-lengths
 # brightness 219-234) - three times the green note's colour; the red track reads pale
 # (saturation ~42), the orange track's hue is ~2. Was a light-green note (hue ~29,
 # saturation ~28); skin (hue ~17, saturation 60-120) stays out.
-NOTE_HSV = ((160, 85, 170), (176, 175, 255))
+NOTE_HSV = ((160, 85, 170), (179, 175, 255))  # 2026-11-23 brighter room: hue 177 (176 lost him all game)
 NOTE_SIZE = (0.08, 0.25)  # its width, in bar-lengths
-# His whole body: the dark shape the note sits on.
-BODY_SEARCH_MM = 90.0     # his body is looked for within a Vector's size around the note (~10 cm long) -
-BODY_DARK = 0.55          # so dark things beside him (the LEGO tower, his charger) can't join in
-BODY_HALF = (25.0, 75.0)  # half-sizes, at least / at most (more: joined to something else)
+# His whole body: the arena is light, he is the dark shape in it. The pink square is
+# his flag, stuck on his back: it says which way he faces, and its size scales his box.
+VECTOR_IN_SQUARES = (1.4, 2.3)  # his 60 x 100 mm (width, length), in pink-square sides (measured 2026-11-23)
+SQUARE_MM = 43.0          # the square's side as the camera sees it, until it's seen
+BODY_DARK = 0.7           # darker than this share of the arena's own light (each frame): him (0.6 fit him only ~0.35)
+BODY_AREA = (1.5, 8.0)    # his dark shape's area, in pink squares (measured ~2.4: the flag covers part)
 BODY_HALF_DEFAULT = 33.0
-BODY_SMOOTH = 0.3         # camera jitter isn't motion
+# Tracking (operator 2026-11-23: "better smoother smarter"): his real-size box is slid
+# and turned over the dark pixels at full camera detail near where he should be, then
+# steadied with his speed in mind. On his charger, the charger's white stripe (locked
+# with the arena as "charger") gives his spot and facing.
+FIT_TURN_DEG = (-24, -16, -8, 0, 8, 16, 24)  # facings tried around his last one
+FIT_MARGIN_MM = 30.0      # how far round his expected spot the box is tried (finding him: twice)
+FIT_MIN = 0.3             # the box at best this much more dark than light, or it isn't him
+TRACK_GAIN = (0.6, 0.15)  # how fast his position / his speed follow what's seen
+HEADING_GAIN = 0.4        # how fast his facing follows
+TRACK_LOST_S = 0.5        # unseen this long: found afresh
+SPEED_MAX = 400.0         # mm/s - faster is a mis-sighting, not him
+ON_CHARGER_MM = 60.0      # his flag this near his charger's middle: he's on it
+# The chargers aren't fixed to the table (operator: "they may move slightly"): his
+# charger's white stripe is looked for again near its last spot whenever he's off it.
+STRIPE_MM = (85.0, 25.0)  # its length, width as seen (measured 2026-11-23)
+STRIPE_LOOK_MM = 80.0     # looked for this far round its last spot
 PADDLE_SMOOTH = 0.4
 STILL_MM = 4.0            # a move smaller than this is the camera's own wobble - it stays put
 BODY_V_MIN = 40.0         # mm/s - slower than this he's standing still
@@ -103,11 +120,21 @@ PATH_REAL_MM_S = 50.0     # how far he really gets per second at PATH_SPEED, sta
 PATH_LEG_MIN, PATH_LEG_MAX = 0.6, 1.5  # seconds of each straight leg
 PATH_TURN_DEG = 12.0      # off by more than this: turn toward the point before the leg
 PATH_LANE = 45.0          # mm - this close to a point: on to the next
-PATH_LEAVE_SECONDS = 1.5  # straight off the charger first - his direction is read from it
 PATH_TIMEOUT = 45.0       # s, the whole drive at most
-CHARGER_OUT_MM = 90.0     # going home: the point this far out from his charger, then backed in
-CHARGER_BACK_SECONDS = 2.5
+# Parking (operator's plan, 2026-11-23): out to a spot up the table on his home side,
+# back in toward the ruler's bar on that side (the taped ruler lines him up parallel),
+# then back along it to the middle.
+PARK_OUT = (322.0, 82.0)   # point 1, mm (x mirrored to his home side) - where the flag sat
+PARK_BACK_IN_X = 100.0     # mm from the middle: where he backs in to the ruler
+TURN_STEP_MAX = math.radians(50.0)  # one turn at most ~1 s; more is done over legs
+DOCK_NEAR = 130.0         # this close to his charger: his own dock move takes over
 NET_Y = 55.0              # his spot, mm up from the bar (70 parked him a little far out, live)
+# Goalie creases, one in front of each net (operator 2026-11-23). The operator's is drawn
+# only; A's keeps his middle in it - his slides stop at its sides, his line steering
+# pulls him back onto his spot. Its half-width less his half-length: his body still
+# covers the whole goal mouth.
+CREASE = (100.0, 100.0)   # half-width, depth (mm)
+CREASE_ROOM = CREASE[0] - 50.0  # his middle stays this near the middle
 # Goalie.
 GOALIE_GAIN = 1.5
 GOALIE_MAX = 100.0
@@ -121,8 +148,7 @@ BACK_OFF_SECONDS = 0.6
 # The referee's golden moves (gopod_arm_cue.go: the arm per Brobot; chat_moves: the nod).
 ARM_CUE = {"Brobot 1": (2.0, 1.2), "Brobot 2": (3.0, 0.5)}  # speed, hold seconds
 NOD = (4.0, 0.18)
-CHEER_NEAR_MM = 110.0     # the puck this near A's net, coming at it: B cheers
-CHEER_EVERY = 3.0
+ARM_NEAR_MM = 110.0       # the puck this near A's net, coming at it: B's arm goes up; going away: down
 ROUND_TEXT = "Round {n}, go!"
 SCORE_TEXT = "{a}, {s}. Room, {r}."
 WIN_TEXT = "{w} wins the game!"
@@ -242,6 +268,7 @@ class Robot:
         self.speed = None
         self.sent = (0, 0)
         self.last_stop = 0.0
+        self.arm_up = False
 
     def send(self, path, form):
         req = urllib.request.Request(self.base + path + "?" + urllib.parse.urlencode(dict(form, serial=self.serial)),
@@ -291,10 +318,11 @@ class Robot:
         self.axis("move_head", -NOD[0], NOD[1])
         self.axis("move_head", NOD[0], NOD[1])
 
-    def cheer(self):
+    def arm(self, up):
+        """Arm up (the puck nears A's net) or down to rest (it goes away, or a goal)."""
         speed, hold = ARM_CUE[self.name]
-        self.axis("move_lift", speed, hold)
-        self.axis("move_lift", -speed, hold)
+        self.axis("move_lift", speed if up else -speed, hold)
+        self.arm_up = up
 
     def say(self, text):
         self.send("/api-sdk/say_text", {"text": text})
@@ -316,79 +344,83 @@ class Robot:
             pos = frame_pos() or pos
         return pos
 
-    def drive_path(self, frame_pos, points, arrive_along_x=False):
+    def drive_path(self, frame_pos, points, lane=PATH_LANE):
         """Through the points in short straight legs, like steering a car in small
-        corrections: each leg shows which way he really points (where he went), then a
-        small turn toward the next point, then the next leg. Within PATH_LANE of a
-        point: on to the next. (Steering while rolling made him spin in place, live.)"""
-        self.plan = points
+        corrections: a small turn toward the point, a leg, look again. His facing is
+        the camera's (his flag on his back). A point (x, y, "back") is backed into, as
+        in parallel parking. Within lane of a point: on to the next. (Steering while
+        rolling made him spin in place, live.)"""
+        self.plan = [p[:2] for p in points]
         log = open(os.path.expanduser(DRIVE_LOG), "a")
-        log.write("# drive to %s\n" % ", ".join("%.0f,%.0f" % p for p in points))
-        k, heading, still, t0 = 0, None, 0, time.time()
+        log.write("# drive to %s\n" % ", ".join("%.0f,%.0f%s" % (p[0], p[1], " back" if len(p) > 2 else "") for p in points))
+        k, still, t0 = 0, 0, time.time()
         pos = self.watch(frame_pos, 0.2)
         while k < len(points) and time.time() - t0 < PATH_TIMEOUT and pos is not None:
-            target = points[k]
+            target, back = points[k], len(points[k]) > 2
             dist = math.hypot(target[0] - pos[0], target[1] - pos[1])
-            if dist < PATH_LANE:
+            if dist < lane:
                 print("drive: point %d of %d reached at %.0f, %.0f mm" % (k + 1, len(points), pos[0], pos[1]))
                 k += 1
                 continue
-            err = 0.0
+            err, heading = 0.0, frame_pos.seen["heading"]
             if heading is not None:
-                err = (math.atan2(target[1] - pos[1], target[0] - pos[0]) - heading + math.pi) % (2 * math.pi) - math.pi
+                going = heading + (math.pi if back else 0.0)  # backing: his back leads
+                err = (math.atan2(target[1] - pos[1], target[0] - pos[0]) - going + math.pi) % (2 * math.pi) - math.pi
                 if abs(err) > math.radians(PATH_TURN_DEG):
-                    self.turn(err)
+                    # small turns only - long spins slip and land wrong (live); the next leg corrects
+                    self.turn(max(-TURN_STEP_MAX, min(TURN_STEP_MAX, err)))
+                    pos = self.watch(frame_pos, 0.2) or pos
             leg = min(PATH_LEG_MAX, max(PATH_LEG_MIN, dist / PATH_REAL_MM_S))
-            self.wheels(PATH_SPEED)
+            self.wheels(-PATH_SPEED if back else PATH_SPEED)
             self.watch(frame_pos, leg)
             self.wheels(0)
             after = self.watch(frame_pos, 0.3)
             if after is None:
                 break
             moved = math.hypot(after[0] - pos[0], after[1] - pos[1])
-            log.write("%.1f  at %.0f,%.0f  point %d  turned %.0f deg  leg %.1f s  moved %.0f mm\n"
-                      % (time.time() - t0, after[0], after[1], k + 1, math.degrees(err), leg, moved))
-            if moved > 8:
-                heading, still = math.atan2(after[1] - pos[1], after[0] - pos[0]), 0
-            else:
-                still += 1
-                if still >= 3:  # told to drive, he hasn't moved: the wrong Brobot, or stuck
-                    print("drive: he isn't moving - is the pink square on %s?" % self.name)
-                    break
+            log.write("%.1f  at %.0f,%.0f  point %d%s  turned %.0f deg  leg %.1f s  moved %.0f mm\n"
+                      % (time.time() - t0, after[0], after[1], k + 1, " back" if back else "", math.degrees(err), leg, moved))
+            still = 0 if moved > 8 else still + 1
+            if still >= 3:  # told to drive, he hasn't moved: the wrong Brobot, or stuck
+                print("drive: he isn't moving - is the pink square on %s?" % self.name)
+                break
             pos = after
         self.wheels(0)
         log.close()
-        if arrive_along_x and heading is not None:
-            self.facing = 1 if math.cos(heading) > 0 else -1
         return k >= len(points)
 
-    def park(self, frame_pos):
-        """In front of his net in three points, like parking a car."""
-        self.wheels(PATH_SPEED)
-        time.sleep(PATH_LEAVE_SECONDS)  # straight off the charger
-        pos = frame_pos()
-        if pos is None:
-            self.wheels(0)
-            print("park: he's out of sight")
-            return False
-        side = 1 if pos[0] >= 0 else -1
-        points = [(side * 0.75 * BAR_MM, 2.2 * NET_Y), (side * 0.4 * BAR_MM, 1.3 * NET_Y), (0.0, NET_Y)]
-        ok = self.drive_path(frame_pos, points, arrive_along_x=True)
+    def charger(self, move):
+        """His own charger move ("off" / "on") over GOPOD's direct robot connection
+        (direct_sdk_charger_001 - gopoddirect, as brobots ready uses). The web hold
+        is let go for it and taken again after "off"."""
+        self.send("/api-sdk/release_behavior_control", {})
+        tool = os.path.join(os.path.dirname(os.path.abspath(__file__)), "direct_sdk_charger_001")
+        env = dict(os.environ, WIREPOD_HOME=os.path.expanduser("~/wire-pod"))
+        out = subprocess.run([tool, move, "ESN01" if self.name == "Brobot 1" else "ESN02"],
+                             capture_output=True, text=True, env=env, timeout=70)
+        print((out.stdout or out.stderr).strip())
+        if move == "off":
+            self.send("/api-sdk/assume_behavior_control", {"priority": "high"})
+            time.sleep(SETTLE_AFTER_ASSUME)
+
+    def park(self, frame_pos, home):
+        """Part 1 (operator's plan): off his charger by himself, out up the table,
+        back in toward the ruler's bar on his home side, then back along it to the
+        middle of his goal line - facing along it."""
+        self.charger("off")
+        side = 1 if home[0] >= 0 else -1
+        ok = self.drive_path(frame_pos, [(side * PARK_OUT[0], PARK_OUT[1]), (side * PARK_BACK_IN_X, NET_Y, "back"), (0.0, NET_Y, "back")])
+        heading = frame_pos.seen["heading"]
+        if heading is not None:
+            self.facing = 1 if math.cos(heading) > 0 else -1
         print("park: %s, facing %s" % ("in front of his net" if ok else "near his net", "right" if self.facing > 0 else "left"))
         return ok
 
     def go_home(self, frame_pos, charger):
-        """Back to his charger: the same kind of drive to a point out in front of
-        it, then backed in (Vector docks backwards)."""
-        out = (charger[0], charger[1] + CHARGER_OUT_MM) if abs(charger[0]) < BAR_MM / 2 else \
-              (charger[0] - math.copysign(CHARGER_OUT_MM, charger[0]), charger[1] + CHARGER_OUT_MM / 2)
-        self.wheels(PATH_SPEED)
-        ok = self.drive_path(frame_pos, [out, (out[0] + (charger[0] - out[0]) * 0.3, out[1] + 25)])
-        self.wheels(-PATH_SPEED)
-        time.sleep(CHARGER_BACK_SECONDS)
-        self.wheels(0)
-        print("home: %s" % ("backed onto his charger" if ok else "near his charger"))
-        return ok
+        """Part 3: drive near his charger (legs, small turns - he ends facing it, so
+        he sees it), then his own dock move."""
+        self.drive_path(frame_pos, [charger[:2]], lane=DOCK_NEAR)
+        self.charger("on")
 
     def guard(self, body, body_v, target_x, now):
         """Slide along his goal line to target_x, steering back onto the line;
@@ -398,8 +430,7 @@ class Robot:
         self.last = now
         err = target_x - body[0]
         speed = 0.0 if abs(err) < GOALIE_DEADBAND else max(-GOALIE_MAX, min(GOALIE_MAX, GOALIE_GAIN * err))
-        room = (FIELD_X[1] - FIELD_X[0]) / 2 - BODY_HALF_DEFAULT
-        if (body[0] >= room and err > 0) or (body[0] <= -room and err < 0):
+        if (body[0] >= CREASE_ROOM and err > 0) or (body[0] <= -CREASE_ROOM and err < 0):
             speed = 0.0
         speed *= self.facing
         steer = 0.0
@@ -459,40 +490,24 @@ def main():
         json.dump(bar, open(anchor, "w"))
         print("the arena is locked - --recalibrate only if the camera moves")
     FIELD_Y = (0.0, bar["top_mm"])
-    table_level = float(np.percentile(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), 75))
-    # Searched near the arena only (the whole frame held it to 17 fps).
+    # His flag is searched near the arena and home only (the whole frame held it to 17 fps).
     sx0, sy0 = to_px(FIELD_X[0] - BAR_MM, FIELD_Y[1] + 60)
     sx1, sy1 = to_px(FIELD_X[1] + BAR_MM, -150)  # down past the ruler: his charger sits there
     sx0, sy0 = max(0, sx0), max(0, sy0)
     body_half = {"v": (BODY_HALF_DEFAULT, BODY_HALF_DEFAULT)}
-    seen = {"mark": None}
+    seen = {"pos": None, "v": (0.0, 0.0), "heading": math.pi / 2, "square": SQUARE_MM}  # on his charger he faces up the table
+    ax0, ay0 = to_px(FIELD_X[0], FIELD_Y[1])  # the arena, down to the ruler bar
+    ax1, ay1 = to_px(FIELD_X[1], 0)
+    ax0, ay0, ay1 = max(0, ax0), max(0, ay0), bar["y"] + bar["h"]
+    bar_row = max(0, (bar["y"] - ay0) // 2 - 2)
 
-    def find_body(img, nx, ny, sq):
-        """A's whole body: the dark shape his pink square sits on (the ruler masked out)."""
-        r = int(BODY_SEARCH_MM / mm_px)
-        x0, y0 = max(0, nx - r), max(0, ny - r)
-        dark = cv2.inRange(cv2.cvtColor(img[y0:ny + r, x0:nx + r], cv2.COLOR_BGR2GRAY), 0, int(BODY_DARK * table_level))
-        bx, by = bar["x"] - x0, bar["y"] - y0
-        dark[max(0, by - 4): max(0, by + bar["h"] + 4), max(0, bx): max(0, bx + bar["w"])] = 0
-        window = np.zeros_like(dark)
-        cv2.circle(window, (nx - x0, ny - y0), r, 255, -1)
-        dark &= window  # only within his own size
-        # the square itself, a little wider, joins the body it sits on (2026-11-23: the
-        # big pink square cut the old small seed off from his body)
-        cv2.rectangle(dark, (sq[0] - x0 - 6, sq[1] - y0 - 6), (sq[0] + sq[2] - x0 + 6, sq[1] + sq[3] - y0 + 6), 255, -1)
-        dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
-        _, lab, st, _ = cv2.connectedComponentsWithStats(dark)
-        x, y, w, h = st[lab[ny - y0, nx - x0]][:4]
-        half = (max(BODY_HALF[0], w * mm_px / 2), max(BODY_HALF[0], h * mm_px / 2))
-        if max(half) > BODY_HALF[1]:
-            body_half["v"] = (BODY_HALF_DEFAULT, BODY_HALF_DEFAULT)
-            return to_mm(nx, ny)
-        body_half["v"] = half
-        return to_mm(x0 + x + w / 2, y0 + y + h / 2)
+    def body_size():
+        """His box (width, length) in mm: his real 60 x 100, scaled by his pink square."""
+        return VECTOR_IN_SQUARES[0] * seen["square"], VECTOR_IN_SQUARES[1] * seen["square"]
 
-    def find_a(img, whole=True):
-        """Brobot A: his pink square, then his body around it (whole=False: the
-        square's own middle - steadier for driving)."""
+    def find_pink(img):
+        """His pink square - the flag on his back - near the arena or at home: its
+        middle (mm), and its side is kept for his box."""
         crop = img[sy0:sy1, sx0:sx1]
         small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
         m = cv2.inRange(cv2.cvtColor(small, cv2.COLOR_BGR2HSV), np.array(NOTE_HSV[0]), np.array(NOTE_HSV[1]))
@@ -502,15 +517,143 @@ def main():
             x, y, w, h = cv2.boundingRect(c)
             if NOTE_SIZE[0] <= 2 * max(w, h) / bar["w"] <= NOTE_SIZE[1] and 0.5 <= w / max(1, h) <= 2.0:
                 if best is None or cv2.contourArea(c) > best[0]:
-                    best = (cv2.contourArea(c), x, y, w, h)
+                    best = (cv2.contourArea(c), x + w / 2, y + h / 2, max(cv2.minAreaRect(c)[1]))  # its own sides: turned, its outline reads bigger
         if best is None:
             return None
-        _, x, y, w, h = best
-        seen["mark"] = to_mm(sx0 + (x + w / 2) * 2, sy0 + (y + h / 2) * 2)
-        if not whole:
-            return seen["mark"]
-        return find_body(img, int(sx0 + (x + w / 2) * 2), int(sy0 + (y + h / 2) * 2),
-                         (sx0 + 2 * x, sy0 + 2 * y, 2 * w, 2 * h))
+        seen["square"] += 0.1 * (best[3] * 2 * mm_px - seen["square"])  # steady, not jumpy
+        return to_mm(sx0 + 2 * best[1], sy0 + 2 * best[2])
+
+    track = {"t": None, "seen": 0.0, "jumps": 0}
+    dock = bar.get("charger")  # his charger, from its white stripe
+
+    def fit_box(img, guess, headings, margin, dark_below):
+        """His real-size box slid and turned over the dark pixels near guess, at full
+        camera detail: (x, y, facing, fit). The facing is along him, either end."""
+        w, l = body_size()
+        r = int((l / 2 + margin) / mm_px)
+        gx, gy = to_px(*guess)
+        x0, y0 = max(0, gx - r), max(0, gy - r)
+        patch = img[y0:gy + r, x0:gx + r]
+        if patch.shape[0] < 10 or patch.shape[1] < 10:
+            return None
+        score = np.where(cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY) < dark_below, 1.0, -1.0).astype(np.float32)
+        score[cv2.inRange(cv2.cvtColor(patch, cv2.COLOR_BGR2HSV), np.array(NOTE_HSV[0]), np.array(NOTE_HSV[1])) > 0] = 0.0  # his flag: neither
+        b0, b1 = bar["y"] - y0 - 4, bar["y"] + bar["h"] - y0 + 4
+        score[max(0, b0):max(0, b1), :] = -1.0  # the ruler bar is dark, not him
+        ph, pw = score.shape
+        size = (max(3, int(l / mm_px)), max(3, int(w / mm_px)))
+        best = None
+        for h in headings:
+            m = cv2.getRotationMatrix2D((pw / 2, ph / 2), -math.degrees(h), 1.0)  # him lengthwise along x
+            fit = cv2.boxFilter(cv2.warpAffine(score, m, (pw, ph), borderValue=-1.0), -1, size)
+            _, val, _, loc = cv2.minMaxLoc(fit)
+            if best is None or val > best[0]:
+                best = (val, loc, m, h)
+        val, (u, v), m, h = best
+        mi = cv2.invertAffineTransform(m)
+        x, y = to_mm(x0 + mi[0, 0] * u + mi[0, 1] * v + mi[0, 2], y0 + mi[1, 0] * u + mi[1, 1] * v + mi[1, 2])
+        return x, y, h, val
+
+    def find_stripe(img):
+        """His charger's white stripe near its last spot: its middle and the way he'd
+        face on it (along it, up the table, nearest its last facing) - kept in dock."""
+        r = int((STRIPE_LOOK_MM + STRIPE_MM[0] / 2) / mm_px)
+        cx, cy = to_px(dock["x"], dock["y"])
+        x0, y0 = max(0, cx - r), max(0, cy - r)
+        patch = img[y0:cy + r, x0:cx + r]
+        if patch.size == 0:
+            return
+        white = ((cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY) > 170) & (cv2.cvtColor(patch, cv2.COLOR_BGR2HSV)[..., 1] < 40)).astype(np.uint8)
+        white = cv2.morphologyEx(white, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+        for c in cv2.findContours(white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
+            (sx, sy), (w, h), _ = cv2.minAreaRect(c)
+            length, width = max(w, h) * mm_px, min(w, h) * mm_px
+            if not (0.7 * STRIPE_MM[0] <= length <= 1.3 * STRIPE_MM[0] and 0.5 * STRIPE_MM[1] <= width <= 1.6 * STRIPE_MM[1]):
+                continue
+            pts = c.reshape(-1, 2).astype(np.float64)
+            pts[:, 1] *= -1  # y up, as mm
+            vals, vecs = np.linalg.eigh(np.cov(pts.T))
+            ang = math.atan2(vecs[1, 1], vecs[0, 1])
+            was = math.radians(dock["facing_deg"])
+            if math.cos(ang - was) < 0:
+                ang += math.pi
+            x, y = to_mm(x0 + sx, y0 + sy)
+            dock.update(x=x, y=y, facing_deg=math.degrees(ang))
+            return
+
+    def find_a(img):
+        """Brobot A: his pose (x, y; facing in seen) from the newest frame, steadied.
+        On his charger: the charger's own spot and facing. Else his box fitted near
+        where he should be - or, finding him afresh, near his flag, or on the dark
+        shape in the light arena nearest his net. His flag on his back says which end
+        is his front."""
+        now = time.time()
+        pink = find_pink(img)
+        crop = img[ay0:ay1, ax0:ax1]
+        small = cv2.resize(crop, (crop.shape[1] // 2, crop.shape[0] // 2))
+        grey = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        dark_below = int(BODY_DARK * np.median(grey))  # the arena's own light, each frame
+        if track["t"] is not None and now - track["seen"] > TRACK_LOST_S:
+            track["t"] = None
+        meas = None
+        if dock and not (pink and math.hypot(pink[0] - dock["x"], pink[1] - dock["y"]) < ON_CHARGER_MM):
+            find_stripe(img)  # he's off it: where it is now
+        if pink and dock and math.hypot(pink[0] - dock["x"], pink[1] - dock["y"]) < ON_CHARGER_MM:
+            meas = (dock["x"], dock["y"], math.radians(dock["facing_deg"]))
+        else:
+            if track["t"] is not None:  # where he should be by now
+                dt = now - track["t"]
+                guess = (seen["pos"][0] + seen["v"][0] * dt, seen["pos"][1] + seen["v"][1] * dt)
+                headings, margin = [seen["heading"] + math.radians(d) for d in FIT_TURN_DEG], FIT_MARGIN_MM
+            else:  # found afresh: every facing, a wider look
+                guess = None
+                if pink:
+                    guess = pink
+                else:
+                    dark = cv2.inRange(grey, 0, dark_below)
+                    dark[bar_row:, :] = 0
+                    best = None
+                    for c in cv2.findContours(dark, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
+                        squares = cv2.contourArea(c) * (2 * mm_px) ** 2 / seen["square"] ** 2
+                        if BODY_AREA[0] <= squares <= BODY_AREA[1]:
+                            mo = cv2.moments(c)
+                            p = to_mm(ax0 + 2 * mo["m10"] / mo["m00"], ay0 + 2 * mo["m01"] / mo["m00"])
+                            if best is None or p[1] < best[1]:
+                                best = p
+                    guess = best
+                headings, margin = [math.radians(d) for d in range(0, 180, 15)], 2 * FIT_MARGIN_MM
+            fit = guess and fit_box(img, guess, headings, margin, dark_below)
+            if fit and fit[3] >= FIT_MIN:
+                x, y, h, _ = fit
+                if pink:  # his flag is on his back
+                    flip = math.cos(h - math.atan2(y - pink[1], x - pink[0])) < 0
+                else:
+                    flip = math.cos(h - seen["heading"]) < 0
+                meas = (x, y, h + math.pi if flip else h)
+        if meas is None:
+            return None
+        if track["t"] is None:
+            seen["pos"], seen["v"], seen["heading"], track["jumps"] = meas[:2], (0.0, 0.0), meas[2], 0
+        else:
+            dt = max(1e-3, now - track["t"])
+            pred = (seen["pos"][0] + seen["v"][0] * dt, seen["pos"][1] + seen["v"][1] * dt)
+            rx, ry = meas[0] - pred[0], meas[1] - pred[1]
+            if math.hypot(rx, ry) > JUMP_MM and track["jumps"] + 1 < JUMP_FRAMES:
+                track["jumps"] += 1  # far from where he should be: a mis-sighting, unless it lasts
+                return seen["pos"]
+            if math.hypot(rx, ry) > JUMP_MM:
+                seen["pos"], seen["v"] = meas[:2], (0.0, 0.0)
+            else:
+                seen["pos"] = (pred[0] + TRACK_GAIN[0] * rx, pred[1] + TRACK_GAIN[0] * ry)
+                vx, vy = seen["v"][0] + TRACK_GAIN[1] * rx / dt, seen["v"][1] + TRACK_GAIN[1] * ry / dt
+                k = min(1.0, SPEED_MAX / max(1e-6, math.hypot(vx, vy)))
+                seen["v"] = (vx * k, vy * k)
+            track["jumps"] = 0
+            seen["heading"] += HEADING_GAIN * ((meas[2] - seen["heading"] + math.pi) % (2 * math.pi) - math.pi)
+        track["t"] = track["seen"] = now
+        (w, l), h = body_size(), seen["heading"]
+        body_half["v"] = ((abs(l * math.cos(h)) + abs(w * math.sin(h))) / 2, (abs(l * math.sin(h)) + abs(w * math.cos(h))) / 2)
+        return seen["pos"]
 
     hx0, hy0 = to_px(FIELD_X[0], FIELD_Y[1])
     hx1, hy1 = to_px(FIELD_X[1], (FIELD_Y[0] + FIELD_Y[1]) / 2)
@@ -537,13 +680,6 @@ def main():
                 best = (cv2.contourArea(c), p)
         return best[1] if best else None
 
-    def seen_now():
-        got = None
-        for _ in range(6):
-            ok, img = cap.read()
-            got = find_a(img) if ok else got
-        return got
-
     window = writer = None
     w2, h2 = frame.shape[1] // 2, frame.shape[0] // 2
     if args.out:
@@ -562,12 +698,18 @@ def main():
             cv2.line(img, p, q, col, 8, cv2.LINE_AA)
             cv2.circle(img, p, 8, (255, 255, 255), -1)
             cv2.circle(img, q, 8, (255, 255, 255), -1)
+        for gy, d, col in ((FIELD_Y[0], CREASE[1], (0, 0, 255)), (FIELD_Y[1], -CREASE[1], (0, 200, 0))):
+            cv2.rectangle(img, to_px(-CREASE[0], gy + d), to_px(CREASE[0], gy), col, 2, cv2.LINE_AA)  # the creases
         return x0, y0
 
     def draw_body(img, body):
-        if body:
-            hw, hh = body_half["v"]
-            cv2.rectangle(img, to_px(body[0] - hw, body[1] + hh), to_px(body[0] + hw, body[1] - hh), (0, 150, 255), 3, cv2.LINE_AA)
+        if body:  # his real size, scaled by his pink square, turned his way; a dot on his front
+            (w, l), h = body_size(), seen["heading"] or 0.0
+            w, l, c, s_ = w / 2, l / 2, math.cos(h), math.sin(h)
+            corners = [to_px(body[0] + u * l * c - v * w * s_, body[1] + u * l * s_ + v * w * c) for u, v in ((1, 1), (1, -1), (-1, -1), (-1, 1))]
+            cv2.polylines(img, [np.array(corners, np.int32)], True, (0, 150, 255), 3, cv2.LINE_AA)
+            if seen["heading"] is not None:
+                cv2.circle(img, to_px(body[0] + l * c, body[1] + l * s_), 8, (0, 150, 255), -1, cv2.LINE_AA)
 
     def show(img):
         """Out to the window (or the test video); False once the window is closed."""
@@ -582,8 +724,8 @@ def main():
         return True
 
     def frame_pos():
-        """His position (his square's middle - steadiest for driving) from the newest
-        frame, shown with the field, his body and the parking points."""
+        """His position (his body's middle) from the newest frame, shown with the
+        field, his body and the parking points."""
         cap.grab()
         ok, img = cap.read()
         if not ok:
@@ -596,14 +738,18 @@ def main():
             cv2.circle(img, to_px(*pt), int(PATH_LANE / mm_px), (255, 0, 255), 2, cv2.LINE_AA)
             cv2.putText(img, str(k + 1), to_px(pt[0] - 6, pt[1] - 8), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 2, cv2.LINE_AA)
         show(img)
-        return seen["mark"] if body else None
+        return body
+    frame_pos.seen = seen  # his facing, for driving
 
     # The Brobots: A parks (his charger's spot kept for the way home), B gets ready.
     a, b = Robot(args.player), Robot(referee_name)
     a.hold()
     b.hold()
-    charger = seen_now()
-    a.park(frame_pos)
+    charger = a.watch(frame_pos, 0.5)  # where his charger is: where he starts
+    if not charger:
+        print("Brobot A isn't in view")
+        return 1
+    a.park(frame_pos, charger)
     if args.part == 1:  # part 1 only: parked, then stop
         a.let_go()
         b.let_go()
@@ -627,6 +773,9 @@ def main():
         puck.held = False
 
     def call_goal(scorer):
+        arm["t"].join()
+        if b.arm_up:  # a goal: his arm back to rest, then the call
+            b.arm(False)
         b.nod()
         if max(score.values()) >= WIN_SCORE:
             # The game is won: B announces it, then A drives back to his charger.
@@ -641,51 +790,36 @@ def main():
         start_round()
 
     referee = background(start_round)
-    last_cheer = 0.0
+    arm = {"t": background(lambda: None)}
 
     log = open(os.path.expanduser(RUN_LOG), "w")
     log.write("# t  a_x a_y  puck_x puck_y puck_vy  wheels_l wheels_r - field x %.0f..%.0f y %.0f..%.0f\n"
               % (FIELD_X[0], FIELD_X[1], FIELD_Y[0], FIELD_Y[1]))
-    last_body = last_paddle = None
-    last_t, stuck_for, n, jumps = time.time(), 0.0, 0, 0
+    last_paddle = None
+    last_t, stuck_for, n = time.time(), 0.0, 0
     while True:
         ok, frame = cap.read()
         if not ok:
             break
         now = time.time()
         dt, last_t = min(0.1, now - last_t), now
-        body = find_a(frame)
-        if body and last_body and math.hypot(body[0] - last_body[0], body[1] - last_body[1]) > JUMP_MM:
-            jumps += 1  # far from where he was: a mistake - unless he stays there (live: lost for good)
-            if jumps < JUMP_FRAMES:
-                body = None
-            else:
-                last_body, jumps = None, 0
-        else:
-            jumps = 0
-        if body and last_body and math.hypot(body[0] - last_body[0], body[1] - last_body[1]) < STILL_MM:
-            body = last_body  # the camera's own wobble: he's still
-        elif body and last_body:
-            body = (last_body[0] + BODY_SMOOTH * (body[0] - last_body[0]), last_body[1] + BODY_SMOOTH * (body[1] - last_body[1]))
-        body_v = (0.0, 0.0)
-        if body and last_body and dt > 0:
-            body_v = ((body[0] - last_body[0]) / dt, (body[1] - last_body[1]) / dt)
-            if math.hypot(*body_v) < BODY_V_MIN:
-                body_v = (0.0, 0.0)
-        last_body = body or last_body
+        body = find_a(frame)  # steadied inside, with his speed
+        body_v = seen["v"] if body and math.hypot(*seen["v"]) >= BODY_V_MIN else (0.0, 0.0)
         # A: guard while the puck comes at him; wait while it goes away.
-        if not body or puck.held or puck.vy >= 0:
+        if not body:
             a.stop(now)
+        elif puck.held or puck.vy >= 0:
+            a.guard(body, body_v, 0.0, now)  # the puck going away: back to the middle (operator: "that's what I do")
         else:
             target = puck.x + puck.vx * (puck.y - body[1]) / -puck.vy
             while target < FIELD_X[0] or target > FIELD_X[1]:  # banked off the sides
                 target = 2 * FIELD_X[0] - target if target < FIELD_X[0] else 2 * FIELD_X[1] - target
-            room = (FIELD_X[1] - FIELD_X[0]) / 2 - BODY_HALF_DEFAULT
-            a.guard(body, body_v, max(-room, min(room, target)), now)
-        # B: cheer as the puck nears A's net.
-        if not puck.held and puck.vy < 0 and puck.y < CHEER_NEAR_MM and now - last_cheer > CHEER_EVERY and not referee.is_alive():
-            last_cheer = now
-            background(b.cheer)
+            a.guard(body, body_v, max(-CREASE_ROOM, min(CREASE_ROOM, target)), now)
+        # B's arm: up as the puck nears A's net (net to net - side bounces don't count),
+        # down to rest as it goes away.
+        want = not puck.held and puck.vy < 0 and puck.y < ARM_NEAR_MM
+        if want != b.arm_up and not arm["t"].is_alive() and not referee.is_alive():
+            arm["t"] = background(b.arm, want)
         paddle = find_paddle(frame, body)
         if paddle:
             # Held to the operator's half of the arena (operator: "use the arena border as a
@@ -708,7 +842,13 @@ def main():
         stuck_for = stuck_for + dt if near else 0.0
         if stuck_for > STUCK_SECONDS:
             stuck_for = 0.0
-            puck.vy = abs(puck.vy) + PUCK_MIN_SPEED / 2
+            # Out beside him on the open side (toward the middle), heading up the table -
+            # pushed straight up it hit him again (live: caught between him and the end wall).
+            side = -1 if body[0] > 0 else 1
+            room = FIELD_X[1] - PUCK_R
+            puck.x = max(-room, min(room, body[0] + side * (body_half["v"][0] + PUCK_R + 5)))
+            puck.y = max(puck.y, body[1])
+            puck.vx, puck.vy = side * PUCK_MIN_SPEED / 2, PUCK_MIN_SPEED
             puck.clamp_speed()
             background(lambda away: (a.wheels(away * BURST_SPEED), time.sleep(BACK_OFF_SECONDS), a.wheels(0)),
                        (-1 if puck.x > body[0] else 1) * a.facing)
@@ -733,7 +873,7 @@ def main():
             break
     log.close()
     if game["over"] and charger:
-        a.go_home(frame_pos, charger)
+        a.go_home(frame_pos, (dock["x"], dock["y"]) if dock else charger)  # where his charger is now
     a.let_go()
     b.let_go()
     cap.release()

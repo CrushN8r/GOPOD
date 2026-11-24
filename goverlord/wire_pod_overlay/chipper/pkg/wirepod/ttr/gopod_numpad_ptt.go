@@ -398,6 +398,16 @@ func gopodKeyLine(target, text, how string) error {
 		defer gopodCommandFrom(target)()
 		return gopodOperatorLine(gopodTypedAll, text, how)
 	}
+	// 2026-11-23 (operator: "that persona knows & respects its employee limits"):
+	// is it his job? Not, three times running: the GOPOD rep answers (gopod_job_route.go).
+	for _, mark := range []string{gopodPersonaReporterMark, gopodPersonaMark} {
+		if host, ok := strings.CutPrefix(target, mark); ok {
+			if who := gopodJobRoute(host, text); who != host {
+				target = gopodAnyTarget(who)
+			}
+			break
+		}
+	}
 	switch {
 	case target == gopodTypedSystem:
 		return gopodGoverlordCall(text, how)

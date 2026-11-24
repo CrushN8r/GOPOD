@@ -428,6 +428,18 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			said[key] = true
 			lines = append(lines, l)
 		}
+		// 2026-11-23 (operator: "I sort those value-points into meaningful
+		// sequence, from which, to then formulate my final response"): the lines
+		// that say the question's words first, then the card's own first lines and
+		// topics - the most to the point leads, and survives the cut.
+		for _, l := range c.Body {
+			for _, w := range gopodLookupTokens(l) {
+				if words[w] {
+					add(l)
+					break
+				}
+			}
+		}
 		if !swept {
 			for _, l := range c.Lines {
 				add(l)
@@ -439,14 +451,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 					h = h[:8]
 				}
 				add("Its topics: " + strings.Join(h, ", "))
-			}
-		}
-		for _, l := range c.Body {
-			for _, w := range gopodLookupTokens(l) {
-				if words[w] {
-					add(l)
-					break
-				}
 			}
 		}
 		if len(lines) == 0 && !swept {
@@ -490,6 +494,12 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	// lines that say the question's words.
 	var queue []gopodLookupCard
 	picked := gopodLookup(question)
+	// 2026-11-23: asked a third time outside another's job, the rep gives a short
+	// GOPOD welcome from the README (gopod_job_route.go).
+	welcome := gopodJobRouteWelcome(self)
+	if welcome {
+		picked = nil
+	}
 	// 2026-11-18 (operator: "Since GOPOD game is essentially a git repo tour, have
 	// 'duh' responses, default to look up the README.md file ... gravitate to GOPOD
 	// Yourself * I don't know. GOPOD Yourself!"): a question no card matches gets
@@ -501,7 +511,11 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			for _, c := range gopodLookupCards() {
 				if filepath.Clean(c.Path) == want {
 					take(c, chars, false)
-					if line := strings.TrimSpace(gopodBrobotsSettings.BrainChain.LookupDefaultLine); line != "" {
+					line := strings.TrimSpace(gopodBrobotsSettings.BrainChain.LookupDefaultLine)
+					if w := strings.TrimSpace(gopodBrobotsSettings.BrainChain.RouteWelcome); welcome && w != "" {
+						line = w
+					}
+					if line != "" {
 						facts = append(facts, line)
 					}
 					break

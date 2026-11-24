@@ -66,6 +66,11 @@
 22. real_words: what, who, where, when, why, how, which, whose, do, does, did, is, are, was, were, can, could, will, would, should, have, has, had, you, your, i, me, my, we, our, us, he, she, they, it, this, that, the, a, an, and, or, but, not, no, yes, of, to, in, on, at, for, with, about, from, hi, hello, hey, thanks, please, ok, okay, tell, show, give, say, start, stop, go, get, make, like, good, bad
 23. same_words: rig, gear, equipment, junk / gig, gigs, session, sessions, booking, bookings, assignment
 24. two_matches_line: Two things match this question - answer both, briefly, only as far as your job allows; for the rest, name who does it.
+25. route_rep: Brobot 1
+26. route_other: Not my job - {owner} handles this: say so in one line, send them to {owner}, and stop.
+27. route_again: Asked again, still not my job: send them to {rep}, our GOPOD rep, or README.md - one line, and stop.
+28. route_handoff: {rep}, our GOPOD rep, takes it from here.
+29. route_welcome: Give a short GOPOD welcome from README.md - what GOPOD is - then GOPOD Yourself.
 
 ## An intro's FACT, its pieces in order, looked up from my card - the code says it, word for word (brain_chain.intro_fact)
 1. I'm the proud {my_job_title}.
@@ -96,6 +101,7 @@
 1. FACT: {fact}
 2. MEMORY: {memory}
 3. ROOM: {room}
+4. ROUTE: {route}
 
 ## The guided task flow (brain_chain.flow)
 1. first: You're the first to speak this session - open it up.

@@ -2,8 +2,15 @@
 
 One profile per chat participant (2026-10-30, operator: "fatten up all these personas for self & chat
 awareness * offload to persona profile md files for look ups"; "These will be your first workings of a
-brain bubble template for scaffolding for the other personas"). The file name is the persona's name in
-small letters with dashes: `brobot-1.md` (Doc), `brobot-2.md` (Pip), `chalk.md`, `playhead.md`, `git-repo.md`, `cache-pyc.md`, `butler.md` (the persona ID, his job name), `cameo.md`, `intel-404-pnfh.md`, `intel-404-pnft.md`. A profile can use `{name}`, `{nickname}` and `{job}`, filled from the persona's labels (`host_personas`).
+brain bubble template for scaffolding for the other personas"). The file name is the persona's full name in
+small letters with dashes (`chalk-bored.md`, `keynote-vale.md`); a card is found by its file name wherever it sits.
+
+**The folders follow the chain of command (2026-11-23, operator: "clarify & solidify company structure"):**
+`company/math-aftermath-news-channel.md` (the company and its chain of command), then
+`company/1_system/` (Goverlord, KEYS, their group) > `company/2_gomads/` (CHALK, PLAYHEAD, CAMEO, GEMMA, their
+group) and `company/2_guards/` (the security guards, their group) > `company/3_interns/` (GIT REPO, CACHE PYC,
+their group) > `company/4_gominions/` (Brobot 1, Brobot 2, DOC, PIP, the DOC and PIP group). Each card says its one
+boss in **Who I answer to**; the whole chain is told once, in the company file. A profile can use `{name}`, `{nickname}` and `{job}`, filled from the persona's labels (`host_personas`).
 
 Every profile is a topic-cluster md, GOPOD's master format (`../_topic_cluster/README.md`):
 
@@ -31,17 +38,17 @@ prompt's "WHO I AM" is built from: **Who I am** (his persona), **Role**, **My wa
 (his steps), **Signature** - and a **Self** like everyone's, for the intro recipe. The pair's banter and stereo dial stay in `host_pairs`; the shared
 party-bro base stays in `../show/brobots.md` (the shared Brobots persona).
 
-Each persona file names its group's shared root (`- **root:**`, in `groups/`), and every root sits under
+Each persona file names its group's shared root (`- **root:**`, the `group-*.md` in its own folder), and every root sits under
 `company/math-aftermath-news-channel.md` (GOPOD's company, filled from `company/company-schema.md`): the root's lines come first, then the persona's own.
 
 **The schemas (2026-11-06, operator: "Consistency would then get checked on every restart instead of by you reading runs"):**
-`personas/persona_chains/persona-schema.md` is the master persona card and `personas/company/company-schema.md` the master
+`personas/company/persona-schema.md` is the master persona card and `personas/company/company-schema.md` the master
 company - sterile scaffolding, copied to make a new one. The system check (`gopodSchemaCheck`, every restart) measures every
 persona file (each participant's, and the persona a robot hosts) and every company file (one with `## Our company`) against
 them: a missing head line, section, Self line or company point is listed "to fix" in the journal.
 
 **Decoupled (2026-11-15, operator: "decouple brobots from DOC/PIP completely * They only share the same robot bodies * All else is unique to the respective personas"):** four personas, four cards, four keys - `Brobot 1`, `Brobot 2`, `DOC`, `PIP`. A body's card names the persona it hosts (`hosts:`); the code turns a body into the persona answering from it in one place (gopodAnswerer: the dial's 0% the Brobot, 100% DOC or PIP) - nothing is ever read from one persona's card for another.
 
-**4 personas, 2 robots (2026-11-06, operator: "ensure DOC & PIP are split from brobots * 4 personas, DOC, PIP, 2 BROBOTS"):** `company/gominions/brobot-1.md` / `brobot-2.md` are the Brobots' own personas (party-bro GOPOD reps, BRUH!) at the dial's 0% - a line to both (KP*). `company/hosts/barfallonyou-burns.md` (DOC) and `pip-stall.md` (PIP) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am"; the robot's file names it in `hosts:`.
+**4 personas, 2 robots (2026-11-06, operator: "ensure DOC & PIP are split from brobots * 4 personas, DOC, PIP, 2 BROBOTS"):** `company/4_gominions/brobot-1.md` / `brobot-2.md` are the Brobots' own personas (party-bro GOPOD reps, BRUH!) at the dial's 0% - a line to both (KP*). `company/4_gominions/barfallonyou-spewer.md` (DOC) and `pippen-stall.md` (PIP) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am"; the robot's file names it in `hosts:`.
 
 **Names are variables, never quoted (2026-11-08):** a persona's name, nickname and job are written once, in its own file's head. Everywhere else - its own sections (`{name}`, `{nickname}`, `{job}`) and other files (`{DOC.name}`, `{BUTLER.nickname}`, `{CHALK.job}`, `{DOC.call}` for the call name) - they're variables, filled from that one source - in every setting and every cluster laid over them, and in the settings the page gets (`gopodApplyNameVars`, `gopodPersonaFill`). Left literal on purpose: a persona's own head (the source), its Lingo (the words a voice must match), search words, the numpad map (its values are lookup keys), and the operator's dated quotes.

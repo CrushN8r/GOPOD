@@ -50,13 +50,16 @@ func gopodAnyNamed(text string) string {
 	return ""
 }
 
-// gopodAnyOwner: who owns the topic a line asks about - the look-up's first card's owner.
+// gopodAnyOwner: who owns the topic a line asks about - the first of the look-up's
+// cards that has an owner (2026-11-23, live: "booking" found the repo's BOOKING.md
+// first, ownerless, then the booking card that names the GOPOD rep).
 func gopodAnyOwner(text string) string {
-	cards := gopodLookup(text)
-	if len(cards) == 0 {
-		return ""
+	for _, c := range gopodLookup(text) {
+		if o := gopodCardOwner(c); o != "" {
+			return o
+		}
 	}
-	return gopodCardOwner(cards[0])
+	return ""
 }
 
 // gopodCardOwner: a card's owner - its "owner" head line, else the persona whose

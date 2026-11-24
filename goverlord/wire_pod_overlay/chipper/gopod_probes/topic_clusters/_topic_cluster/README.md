@@ -15,7 +15,7 @@ This folder itself is never loaded: only `chapters/` is.
 `answer-chain-schema.md` (an answer chain) list the required and optional lines; the
 system check (`gopodSchemaCheck`, every restart) measures every game card in the root docs and every chapter against
 them, and lists a gap "to fix". Songs have theirs in `goverlord/runtime/songs/_new_song/song-schema.md`, personas in
-`personas/persona_chains/persona-schema.md`, the company in `personas/company/company-schema.md`.
+`personas/company/persona-schema.md`, the company in `personas/company/company-schema.md`.
 
 ## `chapter.md`
 

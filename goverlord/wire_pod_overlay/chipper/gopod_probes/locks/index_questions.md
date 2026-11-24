@@ -75,27 +75,27 @@ Tell me about numpad map | goverlord/wire_pod_overlay/chipper/gopod_probes/topic
 Tell me about photos | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/photos.md
 Tell me about weather | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/hubs/weather.md
 Tell me about personas | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
-Tell me about chalk bored | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
-Tell me about cache pyc | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/cache-pyc.md
-Tell me about git repo | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/git-repo.md
-Tell me about playhead zuminto | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/player/playhead-zuminto.md
-Tell me about cameo looks | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/social_media/cameo-looks.md
-Tell me about elle elle ehm gemma | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/system/elle-elle-ehm-gemma.md
-Tell me about brobot 1 | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-1.md
-Tell me about brobot 2 | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-2.md
-Tell me about barfallonyou spewer | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/barfallonyou-spewer.md
-Tell me about pippen stall | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/pippen-stall.md
-Tell me about keynote vale | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/keynote-vale.md
+Tell me about goverlord brain | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/goverlord-brain.md
+Tell me about group gopod system | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/group-gopod-system.md
+Tell me about keynote vale | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/keynote-vale.md
+Tell me about cameo looks | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/cameo-looks.md
+Tell me about chalk bored | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/chalk-bored.md
+Tell me about elle elle ehm gemma | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/elle-elle-ehm-gemma.md
+Tell me about group gomads | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/group-gomads.md
+Tell me about playhead zuminto | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/playhead-zuminto.md
+Tell me about group security guards | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/group-security-guards.md
+Tell me about intel 404 pnfh | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnfh.md
+Tell me about intel 404 pnft | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnft.md
+Tell me about cache pyc | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/cache-pyc.md
+Tell me about git repo | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/git-repo.md
+Tell me about group interns | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/group-interns.md
+Tell me about barfallonyou spewer | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/barfallonyou-spewer.md
+Tell me about brobot 1 | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-1.md
+Tell me about brobot 2 | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-2.md
+Tell me about group doc and pip | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/group-doc-and-pip.md
+Tell me about pippen stall | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/pippen-stall.md
 Tell me about math aftermath news channel | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
-Tell me about intel 404 pnfh | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnfh.md
-Tell me about intel 404 pnft | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnft.md
-Tell me about goverlord brain | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/goverlord-brain.md
 Tell me about persona chains | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/README.md
-Tell me about group doc and pip | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-doc-and-pip.md
-Tell me about group gomads | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gomads.md
-Tell me about group gopod system | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gopod-system.md
-Tell me about group interns | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-interns.md
-Tell me about group security guards | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-security-guards.md
 Tell me about crushn8r crewd news station | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 Tell me about addressing | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/addressing.md
 Tell me about big picture | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/big-picture.md

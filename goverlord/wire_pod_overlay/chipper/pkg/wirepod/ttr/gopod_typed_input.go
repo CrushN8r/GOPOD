@@ -107,7 +107,7 @@ func gopodGoverlordCall(text, how string) error {
 	gopodGoverlordCalledAt.Store(time.Now().UnixMilli())
 	// 2026-11-17 (operator: "next will be responses from new goverlord-brain.md"):
 	// a line that isn't a command is for Goverlord himself - he answers, as a
-	// persona, in his own voice (his card, personas/goverlord-brain.md).
+	// persona, in his own voice (his card, personas/company/1_system/goverlord-brain.md).
 	if t := gopodSystemTypo(strings.TrimSpace(text)); t != "" && !gopodSystemCommandMatch(t) {
 		if _, ok := gopodBrobotsSettings.Managers.Personas[gopodGoverlordHost]; ok {
 			gopodGoverlordCalledAt.Store(0)

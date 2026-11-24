@@ -694,6 +694,14 @@ type gopodBrobotsSettingsFile struct {
 		// briefly, and only as far as his job allows, otherwise redirect"): said
 		// to the model when the look-up's best two cards tie.
 		TwoMatchesLine string `json:"two_matches_line"`
+		// 2026-11-23 (operator's loop: once, redirect; twice, Brobot 1 & README.md;
+		// three times, Brobot 1 & README.md's welcome): the ROUTE lines, the rep,
+		// the third strike's hand-off line and the rep's welcome (gopod_job_route.go).
+		RouteRep     string `json:"route_rep"`
+		RouteOther   string `json:"route_other"`
+		RouteAgain   string `json:"route_again"`
+		RouteHandoff string `json:"route_handoff"`
+		RouteWelcome string `json:"route_welcome"`
 		RealWords      string `json:"real_words"`
 		CastItem       string `json:"cast_item"`
 		Roster         string `json:"roster"`

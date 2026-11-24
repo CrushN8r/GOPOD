@@ -225,68 +225,68 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
 - words: personas
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/display/chalk-bored.md
-- words: chalk bored
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/goverlord-brain.md
+- words: goverlord brain, goverlord
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/cache-pyc.md
-- words: cache pyc
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/group-gopod-system.md
+- words: group gopod system, gopod system
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/interns/git-repo.md
-- words: git repo
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/keynote-vale.md
+- words: keynote vale, my run lines, language model lines
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/player/playhead-zuminto.md
-- words: playhead zuminto, playhead zumintu
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/social_media/cameo-looks.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/cameo-looks.md
 - words: cameo looks
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gomads/system/elle-elle-ehm-gemma.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/chalk-bored.md
+- words: chalk bored
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/elle-elle-ehm-gemma.md
 - words: elle elle ehm gemma, where my settings live
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-1.md
-- words: brobot 1, robot
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/group-gomads.md
+- words: group gomads, gomads
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/gominions/brobot-2.md
-- words: brobot 2, robot
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/playhead-zuminto.md
+- words: playhead zuminto, playhead zumintu
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/barfallonyou-spewer.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/group-security-guards.md
+- words: group security guards, security guards
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnfh.md
+- words: intel 404 pnfh
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnft.md
+- words: intel 404 pnft
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/cache-pyc.md
+- words: cache pyc
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/git-repo.md
+- words: git repo
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/group-interns.md
+- words: group interns, interns
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/barfallonyou-spewer.md
 - words: barfallonyou spewer, doctrine barfallonyou spewer, role, my way through an answer, signature, docbs
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/hosts/pippen-stall.md
-- words: pippen stall, role, my way through an answer, signature, pipta stands for
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-1.md
+- words: brobot 1, robot
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/keynote-vale.md
-- words: keynote vale, my run lines, language model lines
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-2.md
+- words: brobot 2, robot
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/group-doc-and-pip.md
+- words: group doc and pip, doc and pip
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/pippen-stall.md
+- words: pippen stall, role, my way through an answer, signature, pipta stands for
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
 - words: math aftermath news channel, math aftermath news, roles, employees gopod party brobot reps, employees gopod security guards, employees gopod system, company, house rules, outline
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnfh.md
-- words: intel 404 pnfh
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/security/intel-404-pnft.md
-- words: intel 404 pnft
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/goverlord-brain.md
-- words: goverlord brain, goverlord
-
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/README.md
 - words: persona chains
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-doc-and-pip.md
-- words: group doc and pip, doc and pip
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gomads.md
-- words: group gomads, gomads
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-gopod-system.md
-- words: group gopod system, gopod system
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-interns.md
-- words: group interns, interns
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/groups/group-security-guards.md
-- words: group security guards, security guards
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
 - words: crushn8r crewd news station, crushn8r crew d news station, about, crew here, history

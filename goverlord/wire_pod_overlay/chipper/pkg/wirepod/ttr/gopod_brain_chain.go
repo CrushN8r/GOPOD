@@ -223,6 +223,7 @@ func gopodBrainReset(keepPerformed ...bool) {
 	}
 	gopodBrainChain.recs = kept
 	gopodBrainChain.Unlock()
+	gopodJobRouteReset() // 2026-11-23: a new session, no strikes
 }
 
 // gopodBrainPerformedKind: a run the Brobots performed (a song, the interview).
@@ -366,6 +367,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{day_part}": gopodDayPart(time.Now().Hour()),
 		// 2026-11-16: what GEMMA saw last, while it's fresh (gopod_gemma_eyes.go).
 		"{room}": gopodGemmaRoomLine(),
+		// 2026-11-23: is it my job? - not, the line saying where to send them (gopod_job_route.go).
+		"{route}": gopodJobRouteNote(self),
 	}
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		m["{fact}"] = gopodBrainIntroFact(m)

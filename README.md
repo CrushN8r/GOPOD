@@ -58,7 +58,7 @@ Two robot bodies, four Brobot personas, and a whole crew of voices - every one o
 | KP0, NumLock off | **Goverlord** - GOPOD's brain | GOPOD's brain |
 | KP1, NumLock off | **BRUH-1** - Brobot 1 | grumpy, impatient |
 | KP2, NumLock off | **BRUH-2** - Brobot 2 | clueless, happy |
-| KP3, NumLock off | **LLM** - ELLE-ELLE EHM GEMMA | the LLM Gomad - maximum wordplay fun |
+| KP3, NumLock off | **LLM** - ELLE-ELLE EHM GEMMA | LLM Gomad - maximum wordplay fun |
 | KP7, NumLock off | **CHALKRA** - CHALK BORED, on location | Display Gomad, the display and the board |
 | KP8, NumLock off | **ZOOMY** - PLAYHEAD ZUMINTU, on location | Session Gomad, the runs and the session |
 | * | **All the Brobots** | One line, both answer. |
