@@ -11,6 +11,10 @@
 - **notes 3:** two books | Pip's Clueless Workbook | Doc's Answer Key
 - **notes 4:** Doc's Rule | no credit for close | here's how you actually do it
 - **summary:** the workbook: Pip, charmingly wrong, Doc's key fixes it, the mistakes real learners make | two books: Pip's Clueless Workbook, Doc's Answer Key | Doc's Rule: no credit for close, here's how you actually do it
+- **ask 1:** Brobot 1, is there a Doc and Pip workbook?
+- **ask 2:** Brobot 1, what's the Doc and Pip workbook?
+- **ask 3:** Brobot 2, what's in Pip's workbook and Doc's answer key?
+- **ask 4:** Brobot 1, what's Doc's rule in the workbook?
 
 ---
 

@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
 var gopodUnfilledRE = regexp.MustCompile(`\{(name|nickname|job|self|cast|first|middle|last|fullname|task|asked)\}`)
@@ -82,6 +84,18 @@ func gopodSourceCheck() ([]string, int) {
 		p, n := gopodSchemaCheck(whos)
 		add(p...)
 		count(n)
+	}()
+	// 8 grid (2026-11-25, operator: "set up an automated GOPOD system checker for
+	// this"): the value grid the cards make (gopodValueGridCheck).
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		breaks, gaps, n := gopodValueGridCheck(gopodValueGrid())
+		add(breaks...)
+		count(n)
+		for _, g := range gaps { // the cards' to-do, not a break
+			logger.Println("GOPOD_GRID " + g)
+		}
 	}()
 	wg.Wait()
 	// 6 roster: everyone in the chat but the operator is on the crew roster (gopodCrewRoster).

@@ -159,10 +159,10 @@ func TestSharedBrobotChatKeeps13QuestionsAndTheBingoSnapshot(t *testing.T) {
 	}
 }
 
-// The Bingo hosting pitch stays apart from a Bingo test run (operator
-// 2026-10-01): with a run in memory the pitch pack is left out; with none, a
-// Bingo question gets the "still working on it" note.
-func TestBingoPitchPackAndNoRunNote(t *testing.T) {
+// 2026-11-24 (operator: "Q: did you have [this] experience? y/n * if no, say so
+// and move on or redirect * if yes, give your take"): a Bingo question's facts are
+// its one line - not played, then played - and never the pitch pack.
+func TestBingoExperienceOneLine(t *testing.T) {
 	gopodBingoPlayed.Store(false)
 	t.Cleanup(func() { gopodBingoPlayed.Store(false) })
 	savedStart := gopodSharedBrobotChatStart
@@ -176,24 +176,24 @@ func TestBingoPitchPackAndNoRunNote(t *testing.T) {
 	gopodChatFeed.Unlock()
 	defer func() { gopodChatFeed.Lock(); gopodChatFeed.events = savedEvents; gopodChatFeed.Unlock() }()
 
-	prompt := gopodQuestionFacts("did you have fun with bingo")
-	if !strings.Contains(prompt, gopodBrobotsSettings.Bingo.NoRunNote) {
-		t.Fatal("no run in memory: the no-run note is missing")
+	q := "did you have fun with bingo"
+	no := gopodExperienceFacts(gopodBrobot1ESN, q)
+	if len(no) != 1 || !strings.Contains(no[0], "not played") {
+		t.Fatalf("no run: want its one not-played line, got %q", no)
 	}
-	pack, packOK := loadScenarioPacketForMessage("did you have fun with bingo")
-
+	pack, packOK := loadScenarioPacketForMessage(q)
+	prompt := gopodQuestionFacts(q)
+	if packOK && pack.Name == gopodBrobotsSettings.Bingo.PitchPack && strings.Contains(prompt, string(pack.Content)) {
+		t.Fatal("an experience question loaded the Bingo pitch pack")
+	}
 	gopodChatFeed.Lock()
 	gopodChatFeed.events = []gopodChatFeedEvent{
 		{ID: 1, Who: "Operator", Text: "Bingo Test Live", TimeMS: now.Add(-5 * time.Minute).UnixMilli()},
 		{ID: 2, Who: "Brobot 1", Text: "Bingo ball captured. Number B-1!", TimeMS: now.Add(-5*time.Minute + 10*time.Second).UnixMilli()},
 	}
 	gopodChatFeed.Unlock()
-	prompt = gopodQuestionFacts("did you have fun with bingo")
-	if strings.Contains(prompt, gopodBrobotsSettings.Bingo.NoRunNote) {
-		t.Fatal("run in memory: the no-run note was added")
-	}
-	if packOK && pack.Name == gopodBrobotsSettings.Bingo.PitchPack && strings.Contains(prompt, string(pack.Content)) {
-		t.Fatal("run in memory: the Bingo pitch pack was loaded")
+	if yes := gopodExperienceFacts(gopodBrobot1ESN, q); len(yes) != 1 || !strings.Contains(yes[0], "you played it") {
+		t.Fatalf("run in memory: want its one played line, got %q", yes)
 	}
 }
 
@@ -229,9 +229,5 @@ func TestBingoPlayedFlag(t *testing.T) {
 	GopodChatFeedAdd("Brobot 1", "Bingo Test Begins. Round 1!")
 	if !gopodBingoPlayed.Load() {
 		t.Fatal("the song's line did not set the flag")
-	}
-	chat := gopodAddExperienceTakes(gopodBrobot2ESN, nil)
-	if len(chat) != 1 || !strings.Contains(chat[0].Content, gopodBingoSnapshotNote) || !strings.Contains(chat[0].Content, gopodBrobotsSettings.Bingo.Takes["Brobot 2"]) {
-		t.Fatalf("played but forgotten: want the snapshot and Brobot 2's take, got %+v", chat)
 	}
 }

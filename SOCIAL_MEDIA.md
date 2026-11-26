@@ -22,6 +22,9 @@ where the help comes in.
 - **ask:** Tell me about your socials
 - **summary:** the channel: CrushN8r - "Crazy Off-Course Crash-Courses!" | one platform, one job: TikTok clips, Instagram reels, Pinterest search | every post leads home: crushn8r.com
 - **source:** SOCIAL_MEDIA.md
+- **ask 1:** Brobot 1, what are your socials - what's the channel called?
+- **ask 2:** Brobot 2, which social media platform does what?
+- **ask 3:** Brobot 1, where does every post on your socials lead?
 
 ---
 
@@ -59,6 +62,7 @@ Math Aftermath write-up, a lesson - and the next contest prompt.
 - **ask:** Tell me about the niche pillars
 - **source:** SOCIAL_MEDIA.md
 - **summary:** content for Pinterest: recipes, fashion, anything, unique among AI slop, foodmath
+- **ask 1:** Brobot 1, what are the niche pillars?
 
 ---
 
@@ -95,6 +99,10 @@ contact@crushn8r.ca.
 - **notes 4:** here at home | Windsor-Essex | contact@crushn8r.ca
 - **summary:** help wanted: social media, coach or hands-on | the job: accounts on a schedule, two Shorts and one long cut a week, livestream clips | here at home: Windsor-Essex, contact@crushn8r.ca
 - **source:** SOCIAL_MEDIA.md
+- **ask 1:** Brobot 1, are you looking for help?
+- **ask 2:** Brobot 2, Is Brobot 0 looking for help?
+- **ask 3:** Brobot 1, what's the job - is livestream help part of it?
+- **ask 4:** Brobot 2, where is he looking for help, and how do I reach him?
 
 ---
 

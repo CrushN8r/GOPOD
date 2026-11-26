@@ -3,6 +3,9 @@
 - **words:** granny, gangster granny, gangsta, grandma, due credit, who helped, sparkly bling cap, driving her around
 - **pictures:** legacy/gangster_granny.jpg
 - **summary:** Gangster Granny: a 93-year-old woman always willing to help others | she helped Master CrushN8r, he drove her around town | his thanks to his sweet, adorable, gangster granny in a sparkly bling cap
+- **ask 1:** Brobot 1, who's Gangster Granny?
+- **ask 2:** Brobot 2, how did Gangster Granny help Master CrushN8r, and how did he help her?
+- **ask 3:** Brobot 1, what's Master CrushN8r's thanks to Gangster Granny?
 
 ---
 

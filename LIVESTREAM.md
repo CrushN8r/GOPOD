@@ -39,6 +39,9 @@ One session in. Many doorways out.
 - **notes 2:** winners | funniest, clearest, best analogy | written up on Math Aftermath
 - **summary:** the contest: wordplay is thrown at the hosts, hosts fire back | winners: funniest, clearest, best analogy, written up on Math Aftermath | the wheel: a new theme each stretch, nine themes
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 2, what's the contest?
+- **ask 2:** Brobot 1, how do you win the contest - and where do winners show up?
+- **ask 3:** Brobot 2, how does the contest wheel work?
 
 ---
 
@@ -80,6 +83,9 @@ Nine themes, not nine businesses - one format, spun nine ways.
 - **notes 3:** Access | maths for anyone told they were bad at it
 - **summary:** nine pillars: food, money, sport, fashion, language, personality, survival, access, aftermath | everyday maths: hiding in ordinary moments, not a maths class | Access: maths for anyone told they were bad at it
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 1, what are the nine themes?
+- **ask 2:** Brobot 2, what kinds of math are the themes?
+- **ask 3:** Brobot 1, what's access math in the themes?
 
 ---
 
@@ -116,6 +122,9 @@ Not one-off streams - a season, like a sports league (the design; it hasn't run 
 - **notes 3:** the long game | a monthly best-of | a quarterly face-off | a year-end championship
 - **summary:** the season: a year opener, the theme, the rules, the prize ladder | every week: a livestream challenge, Doc takes them live, the room votes, a badge or a shout-out | the long game: a monthly best-of, a quarterly face-off, a year-end championship
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 2, is the contest season a one-off stream, or more like a sports league?
+- **ask 2:** Brobot 1, what happens every week in the contest season?
+- **ask 3:** Brobot 2, how does the contest season end - monthly, quarterly, year-end?
 
 ---
 
@@ -156,6 +165,9 @@ right), **best analogy** (hard math made simple), **best visual** (a diagram or 
 - **notes 3:** seven ways to win | funniest, clearest, smartest | most surprising, best analogy, best visual, best AI collaboration
 - **summary:** the ask: the room sends Doc its submissions, SuperChat-style, "Explain my math", "Explain this graph" | the round: Doc the host takes it live, Pip the sidekick, the silent pied piper, the room votes | seven ways to win: funniest, clearest, smartest, most surprising, best analogy, best visual, best AI collaboration
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 1, in a round, what does the room send Doc - SuperChat-style submissions?
+- **ask 2:** Brobot 2, in a round, who's the host and who's the sidekick?
+- **ask 3:** Brobot 1, how many ways are there to win a round, and what are they?
 
 ---
 
@@ -187,6 +199,9 @@ misleading stats and confusing explanations - never at people.
 - **notes 3:** comedy without cruelty | laugh at bad logic | never at people
 - **summary:** the math: not your opinion, not who's right | anything with a number: headlines, graphs, memes, sports stats, prices, surveys, viral charts | comedy without cruelty: laugh at bad logic, never at people
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 2, in the contest, do you explain opinions or who's right?
+- **ask 2:** Brobot 1, what kinds of things get explained - headlines, graphs, memes?
+- **ask 3:** Brobot 2, in the contest, who do you laugh at - bad logic or people?
 
 ---
 
@@ -218,6 +233,9 @@ certificate - and one day a trophy. None of them are made yet.
 - **notes 3:** planned keepsakes | a sticker, a badge, a certificate | one day a trophy, none made yet
 - **summary:** Doc's award: for a near miss, clever, useful or funny | the line: you were almost right, that's good enough | planned keepsakes: a sticker, a badge, a certificate, one day a trophy, none made yet
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 1, what's the Almost Doc Approved award for?
+- **ask 2:** Brobot 2, what does Doc say when it's Almost Doc Approved?
+- **ask 3:** Brobot 1, what Almost Doc Approved keepsakes are planned - a trophy?
 
 ---
 
@@ -256,6 +274,9 @@ Doc's near-miss award (an idea - nothing is made yet). Reveal these, in order, i
 - **notes 3:** the content sites | mathaftermath the news channel | foodmath, Pinterest content unique in a pool of AI slop | accessmath, the GOPOD app's home
 - **summary:** the CRUSHN8R sites: crushn8r.ca the contact hub, crushn8r.com the communication hub, crushn8r.net the network hub | mathaftermath: the news channel | foodmath: Pinterest content, unique in a pool of AI slop | accessmath: the GOPOD app's home
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 2, do you have websites?
+- **ask 2:** Brobot 1, where can people see more - your websites?
+- **ask 3:** Brobot 2, and what are mathaftermath and foodmath for?
 
 ---
 
@@ -288,6 +309,9 @@ is the starting gate, not the finish line. Two Shorts and one long cut a week.
 - **notes 3:** Doc's Take | 1k subs for 2027 | the starting gate
 - **summary:** real Vector Brobots: in a feed full of AI slop, stops the scroll | subscriber goals: 500 first, then 1,000, no flops | Doc's Take: 1k subs for 2027, the starting gate
 - **source:** LIVESTREAM.md
+- **ask 1:** Brobot 1, what's on the channel that stops a scroll?
+- **ask 2:** Brobot 2, how many subscribers are you going for on the channel?
+- **ask 3:** Brobot 1, what's the channel goal for 2027?
 
 ---
 

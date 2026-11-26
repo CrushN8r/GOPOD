@@ -5,6 +5,7 @@
 - **say 1:** GOPOD is AI Wordplay! Explain the Math! - a teaching tool first: two Brobots turning confusion into clarity, with laughs.
 - **notes 1:** GOPOD | AI wordplay! You gotta know all the rules, before you can break them | GOPOD teaches the mind to be like 'The Great Filter' of real-world b*llsh*t | Explain the MAth! Comedic b*llsh*tt*ng | hence, the 'AI wordplay! Explain the MAth!' livestream
 - **summary:** GOPOD: AI wordplay! You gotta know all the rules, before you can break them, GOPOD teaches the mind to be like 'The Great Filter' of real-world b*llsh*t, Explain the MAth! Comedic b*llsh*tt*ng, hence, the 'AI wordplay! Explain the MAth!' livestream
+- **ask 1:** Brobot 2, tell me all about GOPOD.
 
 ---
 

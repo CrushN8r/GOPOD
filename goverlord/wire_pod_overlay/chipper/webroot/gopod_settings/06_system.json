@@ -61,6 +61,7 @@
     "pause_after_ms": 2000,
     "page_hidden_file": "gopod_page_hidden",
     "page_present_seconds": 20,
+    "comm_check_wait_seconds": 120,
     "run_names": {}
   },
   "app": {
@@ -122,6 +123,7 @@
     "lookups_list": {"file": "gopod_probes/probers_list/lookups_list_001.txt"},
     "tpu": {"picture": "legacy/gangster_granny.jpg", "expect": "person"},
     "audit": ["files", "python", "voices", "audio", "tpu", "llm", "search", "weather-live", "weather-offline", "time-place", "takes", "qr", "personas", "eggs", "game", "admin-run", "replay", "page", "robots"],
-    "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"}
+    "audio": {"sink": "alsa_output.platform-sound.analog-stereo", "source_has": "usb-TTGK"},
+    "full_audit": {"go_test_minutes": 40, "system_test_minutes": 15}
   }
 }

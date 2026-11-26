@@ -3,6 +3,7 @@
 - **words:** are you on, you on, are you chatgpt, are you chat gpt, are you gpt, are you alexa, are you siri, are you an ai, are you ai
 - **start line:** No - I'm on GOPOD!
 - **summary:** GOPOD | AI Wordplay! Explain the Math! | a local brain right here, no cloud
+- **ask 1:** Brobot 2, are you on ChatGPT?
 
 ---
 

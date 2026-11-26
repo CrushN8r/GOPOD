@@ -5,6 +5,7 @@
 - **say 1:** Brobot 0 came up through the Windsor Downtown Mission's Enterprise program.
 - **notes 1:** the comeback | the Windsor Downtown Mission's Enterprise program | back with something built
 - **summary:** the comeback: the Windsor Downtown Mission's Enterprise program, back with something built
+- **ask 1:** Brobot 1, where did he come back through - the Mission?
 
 ---
 

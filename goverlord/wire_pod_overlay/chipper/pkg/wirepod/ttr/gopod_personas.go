@@ -84,7 +84,7 @@ var gopodSpeakerLabelRE = regexp.MustCompile(`(^|[.!?]\s+)([A-Z][A-Za-z0-9 ]{1,3
 func gopodDropSpeakerLabels(reply string) string {
 	return gopodSpeakerLabelRE.ReplaceAllStringFunc(reply, func(m string) string {
 		sub := gopodSpeakerLabelRE.FindStringSubmatch(m)
-		if gopodAnyNamed(sub[2]) != "" && len(strings.Fields(sub[2])) <= 4 {
+		if (gopodAnyNamed(sub[2]) != "" || strings.EqualFold(strings.TrimSpace(sub[2]), gopodBrobotsSettings.BrainChain.Asked)) && len(strings.Fields(sub[2])) <= 4 {
 			return sub[1]
 		}
 		return m
@@ -132,6 +132,11 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	// speaker label copied from his brain): a persona's name and a colon at a
 	// sentence's start is a label, not words - it goes.
 	reply = gopodDropSpeakerLabels(reply)
+	// 2026-11-24 (live: KEYS "Right away, sir. Master CrushN8r: Are you hiring? ..."):
+	// the question read back word for word is never his answer.
+	if q := strings.TrimSpace(text); len(strings.Fields(q)) >= 3 {
+		reply = strings.Replace(reply, q, "", 1)
+	}
 	reply = gopodStripLeaks(reply)
 	reply = gopodDropNeverWords(reply)
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")

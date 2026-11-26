@@ -1,5 +1,6 @@
 # The 100% admin run (operator 2026-10-28: "I want to 100% capture a full 'admin' GOPOD game run to cover all songs, topics, value points, easter eggs"; "Make the 100% admin run a standing self-check").
 # One line each: part|to|line - to is Brobot 1, Brobot 2, a numpad key (KP1-KP9, as holding it), or empty (a run). system-test-admin-run plays it through the game (gopod_admin_run.go). The interview is skipped.
+Bingo Test|Brobot 1|Do you do bingo?
 Bingo Test|Brobot 1|How was the Bingo test?
 Bingo Test||start bingo test
 Bingo Test|Brobot 2|How was the Bingo test?

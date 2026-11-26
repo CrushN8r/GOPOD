@@ -22,6 +22,9 @@ set-up says so.
 - **ask:** Tell me about the GOPOD Yourself guide
 - **summary:** the guide to put your own Vectors on stage | perform or compose | ten steps, each with a done when
 - **source:** GOPOD_YOURSELF.md
+- **ask 1:** Brobot 1, tell me about the GOPOD Yourself guide
+- **ask 2:** Brobot 2, GOPOD Yourself guide - perform or compose, which lane do I pick?
+- **ask 3:** Brobot 1, how many steps to build your own, and when is each one done?
 
 ---
 

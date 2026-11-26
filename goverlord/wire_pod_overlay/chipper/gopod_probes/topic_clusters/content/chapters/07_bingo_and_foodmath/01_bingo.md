@@ -8,6 +8,8 @@
 - **end line:** Hey, you can also play Chocolate Bingo, for kids of all ages!
 - **notes 2:** Brobot Bingo Live Hosting | Chocolate Bingo too! | Merch too!
 - **summary:** Brobot Bingo Live Hosting: Chocolate Bingo too!, Merch too!
+- **ask 1:** Brobot 2, do you do bingo?
+- **ask 2:** Brobot 1, tell me about bingo for seniors.
 
 ---
 

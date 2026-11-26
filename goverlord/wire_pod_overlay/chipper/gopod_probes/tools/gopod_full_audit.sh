@@ -33,6 +33,9 @@ report="$notes/AUDIT_REPORT_${stamp}.md"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 pass=0; fail=0; lines=()
+# 2026-11-26: the audit's time limits live in the settings folder (06_system.json
+# system_tests.full_audit) - 40 and 15 minutes when it can't be read.
+read -r go_minutes sys_minutes < <(python3 -I -c 'import json,sys; a=json.load(open(sys.argv[1]))["system_tests"].get("full_audit",{}); print(int(a.get("go_test_minutes",40)), int(a.get("system_test_minutes",15)))' "$chipper/webroot/gopod_settings/06_system.json" 2>/dev/null || echo "40 15")
 
 check() { # check <area> <name> <ok 0|1> <detail>
   local mark="PASS"
@@ -79,7 +82,7 @@ echo "... Go tests (a minute or two)"
 cp "$overlay/overlay.json" "$tmp/ov.json"
 # A clean build setting (run from inside Wire-Pod, its own point at root's Vosk folder).
 if env -u CGO_CFLAGS -u CGO_LDFLAGS -u CGO_ENABLED -u LD_LIBRARY_PATH -u C_INCLUDE_PATH -u LIBRARY_PATH -u GOLDFLAGS -u GOTAGS \
-  GOPOD_OVERLAY_CHIPPER="$chipper" go -C "$wirepod_chipper" test -count=1 -tags nolibopusfile -overlay="$tmp/ov.json" ./pkg/wirepod/ttr/ >"$tmp/go.log" 2>&1; then
+  GOPOD_OVERLAY_CHIPPER="$chipper" go -C "$wirepod_chipper" test -count=1 -timeout "${go_minutes}m" -tags nolibopusfile -overlay="$tmp/ov.json" ./pkg/wirepod/ttr/ >"$tmp/go.log" 2>&1; then
   check "Go tests" "the Brobots chat" 0 "$(tail -1 "$tmp/go.log")"
 else
   why="$(grep -m3 -E '^--- FAIL|_test.go:[0-9]+:|\.go:[0-9]+:[0-9]+:' "$tmp/go.log" | tr '\n' ' ')"
@@ -123,12 +126,12 @@ fi
 # 6. System tests (inside Wire-Pod) -------------------------------------------
 run_system() { # run_system <command> -> the GOPOD_SYSTEM_SET result line
   local at; at="$(date '+%Y-%m-%d %H:%M:%S')"
-  curl -s -X POST --max-time 15 --data-urlencode "serial=ESN01" --data-urlencode "text=$1" "$base/api-sdk/gopod_typed_input" >/dev/null
-  for i in $(seq 1 120); do
+  curl -s -X POST --max-time 15 --data-urlencode "serial=system" --data-urlencode "text=$1" "$base/api-sdk/gopod_typed_input" >/dev/null
+  for i in $(seq 1 $((sys_minutes * 20))); do
     sleep 3
     out="$(journalctl -a -u wire-pod --since "$at" --no-pager | grep -a -m1 "GOPOD_SYSTEM_SET system-test")" && [ -n "$out" ] && { echo "${out#*GOPOD_SYSTEM_SET }"; return; }
   done
-  echo "no result in 6 minutes"
+  echo "no result in $sys_minutes minutes"
 }
 echo "... system tests inside Wire-Pod (a few minutes)"
 for cmd in "system-test-all" "system-test-eggvoice"; do

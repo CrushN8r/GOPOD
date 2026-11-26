@@ -2,17 +2,14 @@
 package wirepod_ttr
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
 // The game sweep (2026-10-24, operator: "Test every: Topic, Value Point, Easter
 // Egg * fullest run without live brobots"): every topic is found by its own
 // words; every value point is picked by its own question (the interview's
-// golden questions, interview_harvest/harvest_questions.json); every Easter egg
+// golden questions, each topic card's "ask N" lines); every Easter egg
 // on the list is reachable (its chapter's topics, or its topic). Each topic's
 // questions are asked in order, the points already revealed set aside. Nothing is
 // said, no model asked, the game's score untouched. system-test-game, and a
@@ -57,16 +54,10 @@ func gopodGameSweep() []gopodSweepItem {
 	// (gopodQuestionFactsFor - the point a live question is given), each topic's
 	// questions in order, the way the game plays them. The live score is put back
 	// as it was after.
-	var qfile struct {
-		Questions []struct {
-			Topic string `json:"topic"`
-			To    string `json:"to"`
-			Ask   string `json:"ask"`
-		} `json:"questions"`
-	}
-	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "gopod_probes/interview_harvest/harvest_questions.json"))
-	if err != nil || json.Unmarshal(data, &qfile) != nil {
-		out = append(out, gopodSweepItem{"value point", "harvest_questions.json", false, "can't read it"})
+	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
+	qfile := struct{ Questions []gopodGameQuestion }{gopodBrobotsSettings.GameQuestions}
+	if len(qfile.Questions) == 0 {
+		out = append(out, gopodSweepItem{"value point", "the cards' ask lines", false, "no game questions on the cards"})
 	}
 	// As at a session's start: no experience played yet (it changes its pitch).
 	for _, e := range gopodExperienceList() {
@@ -97,8 +88,8 @@ func gopodGameSweep() []gopodSweepItem {
 		if gopodBackgroundTopic(q.Topic) || !gopodCorePoint(q.Topic, n) {
 			continue
 		}
-		// A Bingo run in the chat memory answers bingo from the run, not its pitch.
-		if gopodExperiencePitchSkipped(q.Topic) {
+		// A run's own pack is reached by asking how the run went (an experience ask), not swept here.
+		if gopodIsRunPack(q.Topic) {
 			continue
 		}
 		esn := esnOf[q.To]

@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** How does a line reach the Brobots?
 - **summary:** every line meets in one door | a live reply is built from the answer chain | every bubble on one template
 - **source:** alias_play_studio/04_CHAT.md
+- **ask 1:** Brobot 1, tell me about the one door
+- **ask 2:** Brobot 2, how is a live reply built - the answer chain?
+- **ask 3:** Brobot 1, thought bubbles - is every bubble built on one template?
 
 ---
 

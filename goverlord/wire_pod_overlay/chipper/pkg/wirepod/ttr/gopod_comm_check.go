@@ -23,6 +23,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -150,11 +151,152 @@ func gopodCommCheckHandover(host, text string) bool {
 // gopodCommCheckCrew: the crew brain bubble, in KEYS' bubble.
 func gopodCommCheckCrew(host, to string) {
 	title := strings.ReplaceAll(strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title), "{name}", gopodCallName(host))
-	for _, line := range gopodBrobotsSettings.CommCheck.Crew {
+	for _, line := range gopodCommCheckCrewLines(host) {
 		if line = strings.TrimSpace(line); line != "" && title != "" {
 			gopodBubbleNotice(to, title, line)
 		}
 	}
+}
+
+// gopodCommCheckCrewLines (2026-11-24, operator: "I want lookups to be dynamic";
+// "I want to be able to rename a folder and/or move it, and new build from new
+// lookup will be no problem"): the crew bubble from the company's folders - the
+// folder a persona card sits in is its crew. The line "{crews}" (comm_check.crew)
+// becomes one line per folder holding persona cards, in folder order: its top
+// folder names the crew ("2_gomads" -> "Gomads Crew"), the folders under it its
+// part ("system/security" -> "(System Security)"); the nicknames in the company
+// roster's order, the asker marked (Myself). Move or rename a folder and the
+// bubble follows; nothing here names anyone. {company} comes from the company card.
+func gopodCommCheckCrewLines(host string) []string {
+	company := gopodTopicPath(gopodBrobotsSettings.BrainChain.Roster)
+	dir := filepath.Dir(company)
+	// Order: where each one first appears in the company card's chain of command
+	// (operator: "Operator > Goverlord > Keys > Gomads/Interns > Gominions"), then
+	// the company roster's order, then the file name.
+	chain, roster := "", ""
+	if data, err := os.ReadFile(company); err == nil {
+		for _, l := range strings.Split(string(data), "\n") {
+			if m := gopodProfilePointRE.FindStringSubmatch(strings.TrimSpace(l)); m != nil && strings.HasPrefix(m[1], "Chain of command:") {
+				chain = strings.ToLower(gopodPersonaFill("", m[1]))
+			}
+		}
+	}
+	for _, g := range gopodRosterGroups() {
+		roster += " " + strings.ToLower(strings.Join(g.Names, " | "))
+	}
+	at := func(names []string) (int, int) {
+		c, r := 1<<30, 1<<30
+		for _, n := range names {
+			if n = strings.ToLower(strings.TrimSpace(n)); n == "" {
+				continue
+			}
+			if i := strings.Index(chain, n); i >= 0 && i < c {
+				c = i
+			}
+			if i := strings.Index(roster, n); i >= 0 && i < r {
+				r = i
+			}
+		}
+		return c, r
+	}
+	title := ""
+	if data, err := os.ReadFile(company); err == nil {
+		for _, l := range strings.Split(string(data), "\n") {
+			if l = strings.TrimSpace(l); strings.HasPrefix(l, "# ") {
+				title = strings.ToUpper(strings.TrimSpace(l[2:]))
+				break
+			}
+		}
+	}
+	// Each persona card by the folder it sits in - any card in a folder under the
+	// company's, but a group's ("group-") or a schema; named by its nickname.
+	type card struct{ path, nick string; names []string }
+	hostFile := filepath.Clean(gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, host))
+	byDir := map[string][]card{}
+	_ = filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(p, ".md") || strings.HasPrefix(d.Name(), "group-") || strings.Contains(d.Name(), "schema") {
+			return nil
+		}
+		rel, err := filepath.Rel(dir, filepath.Dir(p))
+		if err != nil || rel == "." {
+			return nil
+		}
+		head, _ := gopodPersonaProfileReadFile(p)
+		nick := strings.TrimSpace(head["nickname"])
+		if nick == "" {
+			return nil
+		}
+		name := ""
+		if data, err := os.ReadFile(p); err == nil {
+			if first := strings.SplitN(string(data), "\n", 2)[0]; strings.HasPrefix(first, "# ") {
+				name = strings.TrimSpace(first[2:])
+			}
+		}
+		c := card{path: filepath.Clean(p), nick: nick, names: []string{nick, name}}
+		for w := range gopodBrobotsSettings.HostPersonas {
+			if f := gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, w); f != "" && filepath.Clean(f) == c.path {
+				c.names = append(c.names, w, gopodCallName(w))
+			}
+		}
+		byDir[rel] = append(byDir[rel], c)
+		return nil
+	})
+	var dirs []string
+	for d := range byDir {
+		dirs = append(dirs, d)
+	}
+	sort.Strings(dirs)
+	words := func(seg string) string {
+		seg = strings.TrimLeft(seg, "0123456789")
+		seg = strings.TrimLeft(seg, "_- ")
+		var out []string
+		for _, w := range strings.FieldsFunc(seg, func(r rune) bool { return r == '_' || r == '-' || r == ' ' }) {
+			out = append(out, gopodCapFirst(w))
+		}
+		return strings.Join(out, " ")
+	}
+	var crews []string
+	for _, d := range dirs {
+		segs := strings.Split(filepath.ToSlash(d), "/")
+		label := words(segs[0]) + " Crew"
+		if len(segs) > 1 {
+			var part []string
+			for _, s := range segs[1:] {
+				part = append(part, words(s))
+			}
+			label += " (" + strings.Join(part, " ") + ")"
+		}
+		who := byDir[d]
+		sort.SliceStable(who, func(i, j int) bool {
+			ci, ri := at(who[i].names)
+			cj, rj := at(who[j].names)
+			if ci != cj {
+				return ci < cj
+			}
+			if ri != rj {
+				return ri < rj
+			}
+			return who[i].path < who[j].path
+		})
+		var names []string
+		for _, c := range who {
+			n := c.nick
+			if c.path == hostFile {
+				n += " (Myself)"
+			}
+			names = append(names, n)
+		}
+		crews = append(crews, "--- "+label+" --- "+strings.Join(names, ", "))
+	}
+	var out []string
+	for _, line := range gopodBrobotsSettings.CommCheck.Crew {
+		if strings.TrimSpace(line) == "{crews}" {
+			out = append(out, crews...)
+			continue
+		}
+		out = append(out, strings.ReplaceAll(line, "{company}", title))
+	}
+	return out
 }
 
 // gopodCommCheckAsking (2026-11-04, operator: "Goverlord, to orchestrate,

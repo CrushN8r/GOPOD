@@ -199,13 +199,14 @@
   },
   "qr_codes": {
     "codes": [
-      { "words": ["crushn8r.ca"], "not_words": ["crushn8r.ca/subscribe"], "url": "https://crushn8r.ca", "image": "qr/crushn8r_ca.png", "title": "crushn8r.ca" },
+      { "words": ["crushn8r.ca"], "not_words": ["crushn8r.ca/subscribe", "contact@crushn8r.ca"], "url": "https://crushn8r.ca", "image": "qr/crushn8r_ca.png", "title": "crushn8r.ca" },
+      { "words": ["contact@crushn8r.ca", "contact info", "contact us", "reach us"], "url": "mailto:contact@crushn8r.ca", "image": "qr/contact_crushn8r_ca.png", "title": "Contact: contact@crushn8r.ca", "about": "2026-11-24 (operator: \"contact info * make this its own golden process to be called by any persona * golden process is like with the qr codes\"): any persona's own words naming the contact put its QR up on CHALK's board - scanned, it opens an email to us." },
       { "words": ["newsletter", "crushn8r.ca/subscribe"], "url": "https://crushn8r.ca/subscribe", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" },
       { "words": ["nightlife", "mississauga"], "url": "https://flare4.com", "image": "qr/flare4_com.png", "title": "flare4.com", "about": "2026-10-18 (operator: \"For 'crushn8r' easter egg in response bubble talking about ron's past, add a QR to flare4.com\"): the Brobot 0 topic's past (\"Ron used to make the nightlife look good on camera ... Mississauga and the GTA\")." }
     ]
   },
   "point_bubbles": {
-    "fallback": {"title": "{title}!", "note": "{Note}."},
+    "fallback": {"title": "{say}", "note": "{Note}."},
     "keep_lead_lines": 1
   },
   "visual_sources": {

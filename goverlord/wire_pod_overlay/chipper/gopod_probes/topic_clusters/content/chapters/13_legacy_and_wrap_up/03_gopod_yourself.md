@@ -3,6 +3,7 @@
 - **words:** interview over, what have we learned, what have we learnt, what did we learn, sum it up, recap
 - **reminder:** Hey, that reminds me... When you're ready, just GOPOD Yourself!
 - **start line:** Press to click my backpack, then say to me GOPOD Yourself. Your move.
+- **ask 1:** Brobot 1, thank you. Interview over. What have we learned about GOPOD?
 
 ---
 

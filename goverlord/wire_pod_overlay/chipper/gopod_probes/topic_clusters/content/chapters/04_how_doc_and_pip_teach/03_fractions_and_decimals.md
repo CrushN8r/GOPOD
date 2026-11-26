@@ -9,6 +9,11 @@
 - **say 4:** One repeating digit goes back over 9. 0.3 repeating is 3 ninths, which is a third. 1.1 repeating is 1 and a ninth, which is 10 ninths.
 - **say 5:** Doc's Rule: no credit for close. 0.33 is close to a third. Close is an F.
 - **summary:** fractions and decimals | fraction to decimal: top divided by bottom | decimal to fraction: digits over 10, 100 or 1000, then simplify | Pip gets it wrong, Doc's key fixes it
+- **ask 1:** Brobot 2, how do you turn a fraction into a decimal?
+- **ask 2:** Brobot 1, and a decimal back into a fraction?
+- **ask 3:** Brobot 2, do some decimals never stop?
+- **ask 4:** Brobot 1, how does a repeating decimal go back to a fraction?
+- **ask 5:** Brobot 2, is 0.33 close enough to a third?
 
 ---
 

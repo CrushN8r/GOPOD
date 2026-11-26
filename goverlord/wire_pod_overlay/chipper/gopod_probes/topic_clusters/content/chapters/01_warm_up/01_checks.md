@@ -4,6 +4,7 @@
 - **sentences:** 0
 - **start line:** I'm hearing you loud and clear, bro!
 - **start line:** Hearin' you loud and clear, bro!
+- **ask 1:** Brobot 1, can you hear me?
 
 ---
 

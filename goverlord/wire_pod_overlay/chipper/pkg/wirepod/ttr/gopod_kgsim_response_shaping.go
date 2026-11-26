@@ -686,14 +686,21 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	if weatherAsk {
 		packets = nil
 	}
+	// 2026-11-24 (operator: "Q: did you have [this] experience? y/n"): the run's
+	// own pack only with an experience ask once it has played; never with a gig question.
+	packets = gopodExperiencePacks(userMessage, packets)
+	// 2026-11-24 (live: the third strike's hand-over gave Brobot 1 the booking
+	// topic's points, not the welcome): handed a line on the third strike, his
+	// facts are README.md's welcome alone (gopod_job_route.go).
+	if gopodJobRouteWelcomeDue(gopodBrobotName(esn)) {
+		packets = nil
+	}
 	for _, packet := range packets {
 		// 2026-10-26: the topic's pre or post note, by whether the room has covered it.
-		if note := gopodTopicPrePost(packet.Name, gopodTopicTouched(packet.Name)); note != "" && !gopodExperiencePitchSkipped(packet.Name) {
+		if note := gopodTopicPrePost(packet.Name, gopodTopicTouched(packet.Name)); note != "" {
 			facts = appendPromptSection(facts, []byte(note))
 		}
-		if gopodExperiencePitchSkipped(packet.Name) {
-			logger.Println("BROBOT_SCENARIO_PACKET_SKIPPED=" + packet.Name + " reason=run_in_memory")
-		} else if line, sf, ok := gopodTopicSummary(packet.Name, userMessage); ok {
+		if line, sf, ok := gopodTopicSummary(packet.Name, userMessage); ok {
 			// 2026-10-26 (operator: "Yes a summary still scores"): its next value
 			// point counts, but he riffs on the summary, not the point's words.
 			if _, point := gopodCoverageRevealFor(packet.Name, packet.Content, userMessage); point != "" {
@@ -829,7 +836,7 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 			}
 			continue
 		}
-		match := loaded[s.When] || gopodExperienceNotPlayed(s.When, userMessage) ||
+		match := loaded[s.When] ||
 			(s.When == "thanks" && gopodIsThanks(userMessage)) || s.When == "any"
 		if s.When == "reply_mentions" {
 			for _, w := range s.Words {

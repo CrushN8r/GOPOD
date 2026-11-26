@@ -1,5 +1,5 @@
 # Weather - who does what
-- **words:** weather, the weather, forecast, temperature, weather details
+- **words:** weather, the weather, forecast, temperature, weather details, whether, location
 - **ask:** Who gets the weather?
 - **chain:** Goverlord > KEYS > PLAYHEAD > GIT REPO > CACHE PYC
 - **owner:** Brobot 1

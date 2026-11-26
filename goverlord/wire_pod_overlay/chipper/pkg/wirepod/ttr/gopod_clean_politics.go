@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
 // Clean GOPOD (2026-10-16, operator, on Brobot 2's 🇵🇸 flag in a "Jerusalem,
@@ -105,6 +107,20 @@ func gopodCleanPolitics(reply, question string) string {
 		})
 	}
 	return strings.TrimSpace(regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(reply, " "))
+}
+
+// gopodNeverIn (2026-11-24, operator: "Extend never-list to guards what comes
+// in"): a line coming in names a never word - it goes no further. Logged
+// without its words, from where it came.
+func gopodNeverIn(text, from string) bool {
+	lower := strings.ToLower(text)
+	for _, w := range gopodBrobotsSettings.CleanPolitics.NeverWords {
+		if w = strings.ToLower(strings.TrimSpace(w)); w != "" && strings.Contains(lower, w) {
+			logger.Println("GOPOD_CLEAN_IN a line from " + from + " named a never word - dropped before the page and the model")
+			return true
+		}
+	}
+	return false
 }
 
 // gopodDropNeverWords: every sentence saying a never word goes - any voice,

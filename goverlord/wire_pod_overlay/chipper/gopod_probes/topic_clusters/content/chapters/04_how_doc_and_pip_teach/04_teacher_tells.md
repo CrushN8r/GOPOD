@@ -7,6 +7,9 @@
 - **notes 2:** seven tells | laughers, leaners, Pip defenders | shouters and still ones
 - **notes 3:** not diagnoses | hunches to test next class
 - **summary:** the teacher: stops performing, starts watching | seven tells: laughers, leaners, Pip defenders, shouters and still ones | not diagnoses: hunches to test next class
+- **ask 1:** Brobot 2, what does the teacher do?
+- **ask 2:** Brobot 1, what are the seven tells a teacher watches for?
+- **ask 3:** Brobot 2, are the teacher's tells a diagnosis?
 
 ---
 

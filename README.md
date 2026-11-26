@@ -78,6 +78,9 @@ Two robot bodies, four Brobot personas, and a whole crew of voices - every one o
 - **notes 3:** the security guards | Intel 404 PNFH and PNFT | KP5 and KP6 | voices now, Moorebot Scout bodies coming
 - **summary:** CHALK and PLAYHEAD: the news crew, live | the interns Git Repo and Cache PYC: voices now, bodies coming | the guards Intel 404 PNFH and PNFT: voices now, bodies coming
 - **source:** README.md
+- **ask 1:** Brobot 2, who are CHALK and PLAYHEAD?
+- **ask 2:** Brobot 1, who are Git Repo and Cache PYC?
+- **ask 3:** Brobot 2, and the Moorebot Scout guards, PNFH and PNFT?
 
 ---
 

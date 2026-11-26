@@ -9,7 +9,7 @@ GOPOD's content and tools for the Brobots chat. Wire-Pod reads them from here.
 - `_topic_cluster/` — the template for a new topic cluster (a chapter): copy it into
   `chapters/`. Its README explains every line.
 - `foundation_packs/gopod_core.txt` — GOPOD's facts, in every Brobot prompt.
-- `interview_harvest/harvest_questions.json` — the questions a dry run asks.
+- The questions a dry run asks are on the topic cards themselves, as `ask 1:`, `ask 2:` head lines (read at load as `game_questions`).
 - `section_packets/` — Template 1 (the pronunciation list) and the Section 1 card the song
   engine reads.
 - `stage_directions.json`, `system_speech_content.json`, `actionParameter-failures-list.txt`

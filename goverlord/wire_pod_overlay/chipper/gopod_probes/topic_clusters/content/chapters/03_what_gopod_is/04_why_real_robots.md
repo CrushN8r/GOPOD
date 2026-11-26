@@ -4,6 +4,7 @@
 - **reminder:** Hey, that reminds me... Real machines doing a real bit - the opposite of AI filler.
 - **notes 1:** real Brobots | a real bit, not AI filler | confusion in, clarity out
 - **summary:** real Brobots: a real bit, not AI filler, confusion in, clarity out
+- **ask 1:** Brobot 1, why real robots, and not just slop?
 
 ---
 

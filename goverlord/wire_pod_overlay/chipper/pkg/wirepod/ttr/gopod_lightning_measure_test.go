@@ -27,15 +27,9 @@ func TestLightningMeasure(t *testing.T) {
 	if os.Getenv("GOPOD_LIGHTNING_MEASURE") != "1" {
 		t.Skip("a measurement - GOPOD_LIGHTNING_MEASURE=1 runs it")
 	}
-	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
-	qdata, err := os.ReadFile(filepath.Join(root, "gopod_probes/interview_harvest/harvest_questions.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var qs struct {
-		Questions []struct{ Topic, Ask string } `json:"questions"`
-	}
-	json.Unmarshal(qdata, &qs)
+	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
+	var qs struct{ Questions []gopodGameQuestion }
+	qs.Questions = gopodBrobotsSettings.GameQuestions
 	gdata, _ := os.ReadFile(filepath.Join(gopodChaptersDir(), "value_points_golden.json"))
 	var golden struct {
 		Points map[string]struct{ Words string } `json:"points"`

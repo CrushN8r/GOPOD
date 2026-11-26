@@ -2,7 +2,6 @@
 package wirepod_ttr
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -17,7 +16,7 @@ import (
 // game's own template, so the two never drift apart - one chapter per core topic
 // (value_points.core_topics, in order), one question and answer per value point
 // (core_points). The question is that point's golden interview question
-// (interview_harvest/harvest_questions.json); the answer is the operator's own
+// (each topic card's "ask N" lines); the answer is the operator's own
 // words - the point's notes, read as sentences (else its say line, else its
 // words) - said by the Brobot the question is to; the reporters take turns. The
 // closer stays the song's own. Each answer step names its point, so playing the
@@ -25,11 +24,13 @@ import (
 // closer. Written with the song's own writer (gopodInterviewSongFiles); rebuilt
 // by system-interview-rebuild.
 
-// gopodGameQuestion: one golden interview question (harvest_questions.json).
+// gopodGameQuestion: one golden interview question - its card's "ask N" line
+// (game_questions, filled from the cards at load: gopod_chapters_folder.go).
 type gopodGameQuestion struct {
-	Topic string `json:"topic"`
-	To    string `json:"to"`
-	Ask   string `json:"ask"`
+	Chapter string `json:"chapter"`
+	Topic   string `json:"topic"`
+	To      string `json:"to"`
+	Ask     string `json:"ask"`
 }
 
 // gopodNotesSentences: "Morning | seniors' bingo | Merch too!" -> "Morning.
@@ -52,15 +53,8 @@ func gopodNotesSentences(title string, notes []string) string {
 // gopodInterviewDraftFromGame: the interview, as a draft, from the game.
 func gopodInterviewDraftFromGame(closer []gopodDraftLine) (gopodDraft, error) {
 	d := gopodDraft{Run: "brobots_interview", Closer: closer}
-	var qfile struct {
-		Questions []gopodGameQuestion `json:"questions"`
-	}
-	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "gopod_probes/interview_harvest/harvest_questions.json"))
-	if err != nil || json.Unmarshal(data, &qfile) != nil {
-		return d, err
-	}
 	asked := map[string][]gopodGameQuestion{} // topic -> its questions, in point order
-	for _, q := range qfile.Questions {
+	for _, q := range gopodBrobotsSettings.GameQuestions {
 		asked[q.Topic] = append(asked[q.Topic], q)
 	}
 	contents := map[string][]byte{}

@@ -51,6 +51,9 @@ type gopodBrobotsSettingsFile struct {
 		Endings      []string `json:"word_endings"`
 		KeepWhole    []string `json:"keep_whole"`
 	} `json:"merged_words"`
+	// 2026-11-25: the game's golden questions, read from each topic card's
+	// "ask N" lines at load (gopod_chapters_folder.go) - never written in a settings file.
+	GameQuestions []gopodGameQuestion `json:"game_questions,omitempty"`
 	ScriptedSnippets struct {
 		Lines []gopodSnippetLine `json:"lines"`
 	} `json:"scripted_snippets"`
@@ -643,6 +646,14 @@ type gopodBrobotsSettingsFile struct {
 		Chains []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
 	// 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
+	// 2026-11-25 (operator: "a golden locked sequence personas can call and build a
+	// response from"): the GOPOD Yourself QR card (gopod_yourself_qr.md) - the
+	// golden lines any persona says after his own line (gopodYourselfStitch).
+	GopodYourselfQr struct {
+		KeepUpWords string `json:"keep_up_words"`
+		KeepUpLine  string `json:"keep_up_line"`
+		ContactLine string `json:"contact_line"`
+	} `json:"gopod_yourself_qr"`
 	BrainChain struct {
 		// 2026-11-02 (operator: "swarm level awareness * something Goverlord would
 		// assign to PLAYHEAD Gomad * a dynamic In the chat list as participants
@@ -702,6 +713,30 @@ type gopodBrobotsSettingsFile struct {
 		RouteAgain   string `json:"route_again"`
 		RouteHandoff string `json:"route_handoff"`
 		RouteWelcome string `json:"route_welcome"`
+		// 2026-11-24 (operator: "Info GOPOD staff can provide: general/wide-sweep
+		// redirects * contact info"): a line asking for these is every staffer's job.
+		RouteStaffWords string `json:"route_staff_words"`
+		// 2026-11-24: Goverlord's one cold line handing a line down to KEYS ({keys}).
+		RouteGoverlord string `json:"route_goverlord"`
+		// 2026-11-24: the third strike's welcome, said word for word by the rep.
+		RouteWelcomeLine string `json:"route_welcome_line"`
+		// 2026-11-24: an experience question's one brain line - played or not ({run}).
+		ExperienceYes string `json:"experience_yes"`
+		ExperienceNo  string `json:"experience_no"`
+		// 2026-11-24: the words that make a question an experience ask ("how was", "did you").
+		ExperienceAsks string `json:"experience_asks"`
+		// 2026-11-25 (operator: "hey that reminds me > lookup 'location' variants >
+		// bookings.md * everything must gravitate towards [selling GOPOD], unless the
+		// specificity of query carries more weight * the more 'I don't know', the
+		// faster the gravitation to README.md + welcome"): where the reminders' ride
+		// starts when nothing in the question links on (gopodReminderLead).
+		ReminderPull     string `json:"reminder_pull"`
+		UnknownPull      string `json:"unknown_pull"`
+		UnknownPullAfter string `json:"unknown_pull_after"`
+		// 2026-11-24 (operator: "Make Goverlord a session aura brain bubble that each
+		// persona can then think with"): the AURA line's template and words
+		// (gopod_session_aura.go).
+		Aura map[string]string `json:"aura"`
 		RealWords      string `json:"real_words"`
 		CastItem       string `json:"cast_item"`
 		Roster         string `json:"roster"`
@@ -966,6 +1001,8 @@ type gopodBrobotsSettingsFile struct {
 		NotSentenceEnds     []string       `json:"not_sentence_ends"`
 		DropLists           bool           `json:"drop_lists"`
 		DropStageDirections bool           `json:"drop_stage_directions"`
+		// 2026-11-24: the only places a reply may link to (gopodDropStrangeLinks).
+		LinkHosts []string `json:"link_hosts"`
 		BrandWords          []struct {
 			From string `json:"from"`
 			To   string `json:"to"`
@@ -975,6 +1012,10 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-09: the interview's song folder (gopod_interview_song.go).
 		SongID     string  `json:"song_id"`
 		DraftsDir  string  `json:"drafts_dir"`
+		// 2026-11-25: the harvest dry run's input kind and its sign-off line (its
+		// questions are the cards' own - game_questions).
+		HarvestInput   string `json:"harvest_input"`
+		HarvestEndText string `json:"harvest_end_text"`
 		Draft      string  `json:"draft"`
 		PlayWords  string  `json:"play_words"`
 		StopWords  string  `json:"stop_words"`
@@ -1079,6 +1120,10 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-17: the chat page away (gopod_page_presence.go).
 		AwaitsText         string            `json:"awaits_text"`
 		PagePresentSeconds float64           `json:"page_present_seconds"`
+		// 2026-11-25 (operator: "it should've known to hold my input until KEYS'
+		// run-closing message * then continue with 'start bingo test'"): a run that
+		// starts during the comm check waits this long for it to close.
+		CommCheckWaitSeconds float64 `json:"comm_check_wait_seconds"`
 		RunNames           map[string]string `json:"run_names"`
 	} `json:"session"`
 	NativeCube struct {
@@ -1149,6 +1194,11 @@ type gopodBrobotsSettingsFile struct {
 		// BLOCK THAT SHIT AWAY FROM MY CLEAN GOPOD!!"): never said, by anyone,
 		// anywhere - the roast battle too.
 		NeverWords []string          `json:"never_words"`
+		// 2026-11-24 (operator: "Extend never-list to guards what comes in, to
+		// GOPOD as well"): a line coming in that names a never word goes no
+		// further - not to the page, not to the model; where it was spoken to a
+		// Brobot or persona, this line is said instead (gopodNeverIn).
+		NeverInLine string `json:"never_in_line"`
 		Countries  map[string]string `json:"countries"`
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
 		Capitals map[string]string `json:"capitals"`

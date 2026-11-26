@@ -5,6 +5,7 @@
 - **reminder:** Hey, that reminds me... Foodmath: the math hiding in real party food.
 - **notes 1:** Foodmath | the math in party food | the Chocolate Bingo kit | foodmath.crushn8r.net
 - **summary:** Foodmath: the math in party food, the Chocolate Bingo kit, foodmath.crushn8r.net
+- **ask 1:** Brobot 2, what recipes do you have?
 
 ---
 

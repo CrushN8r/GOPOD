@@ -7,7 +7,7 @@
 - words: alias play studio, contents, play studio, alias studio, the manual, reference manual, golden rules
 
 ## BOOKING.md
-- words: booking, book the brobots, booking us, rooms we play, birthdays bbqs printables and affiliates, printables and affiliates, bbqs, book, hire, cost, price, event, events, gig, gigs, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings, session, sessions, bookings, assignment, bar, bars, club, clubs, nightclub, nightclubs, comedy club, comedy clubs, nightlife, comedy, casino, casinos, bingo hall, bingo halls, seniors' residence, school visit, school visits, hospital visit, hospital visits, windsor, book a cameo, birthday video, happy birthday video, birthday message, personal video, video for my, shout out, shoutout, video ad, video ads, an ad, make an ad, commercial, printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print, party supplies, balloons, bakery, local businesses, bbq, barbecue, barbecues, cookout, cookouts, burger, burgers, hot dog, hot dogs, wiener, wieners
+- words: booking, book the brobots, booking us, rooms we play, birthdays bbqs printables and affiliates, printables and affiliates, bbqs, book, hire, cost, price, event, events, gig, gigs, location, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings, session, sessions, bookings, assignment, bar, bars, club, clubs, nightclub, nightclubs, comedy club, comedy clubs, nightlife, comedy, casino, casinos, bingo hall, bingo halls, seniors' residence, school visit, school visits, hospital visit, hospital visits, windsor, book a cameo, birthday video, happy birthday video, birthday message, personal video, video for my, shout out, shoutout, video ad, video ads, an ad, make an ad, commercial, printable, printables, print at home, word search, sudoku, print shop, affiliate, affiliates, merch to print, party supplies, balloons, bakery, local businesses, bbq, barbecue, barbecues, cookout, cookouts, burger, burgers, hot dog, hot dogs, wiener, wieners
 
 ## BROBOT_ASKS.md
 - words: brobot asks, three ways to ask, topics, warm up, brobot 0 and the comeback, gopod is, doc and pip teach, brain and the rig, show and tell, bingo and foodmath, websites, social media, accessmath gopod for everyone, booking, legacy and wrap up, gig, gigs, session, sessions, bookings, assignment
@@ -193,7 +193,7 @@
 - words: newsletter, keeping up with us, keep up, subscribe, email, crew, crew'd, mailing list, keep up with
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/chapters/12_booking/02_bookings.md
-- words: bookings, bookings a day of parties, party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, time of day, custom event, gig, gigs, session, sessions, booking, assignment
+- words: bookings, bookings a day of parties, party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, custom event, gig, gigs, session, sessions, booking, assignment
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/chapters/12_booking/05_birthday_and_merch.md
 - words: birthday and merch, birthdays and merch, birthday, birthdays, hot wheels, merch, t-shirt, t-shirts, tee, tees, mug, mugs, cameo, gift, gifts
@@ -225,71 +225,74 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/README.md
 - words: personas
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/goverlord-brain.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_admin/goverlord-brain.md
 - words: goverlord brain, goverlord
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/group-gopod-system.md
-- words: group gopod system, gopod system
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_system/keynote-vale.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_admin/keynote-vale.md
 - words: keynote vale, my run lines, language model lines
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/cameo-looks.md
-- words: cameo looks
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/1_admin/master-crushn8r.md
+- words: master crushn8r
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/chalk-bored.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/display/chalk-bored.md
 - words: chalk bored
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/elle-elle-ehm-gemma.md
-- words: elle elle ehm gemma, where my settings live
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/group-gomads.md
-- words: group gomads, gomads
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/playhead-zuminto.md
-- words: playhead zuminto, playhead zumintu
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/group-security-guards.md
-- words: group security guards, security guards
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnfh.md
-- words: intel 404 pnfh
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_guards/intel-404-pnft.md
-- words: intel 404 pnft
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/cache-pyc.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/interns/cache-pyc.md
 - words: cache pyc
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/git-repo.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/interns/git-repo.md
 - words: git repo
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_interns/group-interns.md
-- words: group interns, interns
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/session/playhead-zuminto.md
+- words: playhead zuminto, playhead zumintu
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/barfallonyou-spewer.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/social_media/cameo-looks.md
+- words: cameo looks
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/system/elle-elle-ehm-gemma.md
+- words: elle elle ehm gemma, where my settings live
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/system/security/intel-404-pnfh.md
+- words: intel 404 pnfh
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/2_gomads/system/security/intel-404-pnft.md
+- words: intel 404 pnft
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_gominions/barfallonyou-spewer.md
 - words: barfallonyou spewer, doctrine barfallonyou spewer, role, my way through an answer, signature, docbs
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-1.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_gominions/brobot-1.md
 - words: brobot 1, robot
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/brobot-2.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_gominions/brobot-2.md
 - words: brobot 2, robot
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/group-doc-and-pip.md
-- words: group doc and pip, doc and pip
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/4_gominions/pippen-stall.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/3_gominions/pippen-stall.md
 - words: pippen stall, role, my way through an answer, signature, pipta stands for
 
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
-- words: math aftermath news channel, math aftermath news, roles, employees gopod party brobot reps, employees gopod security guards, employees gopod system, company, house rules, outline
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains/README.md
-- words: persona chains
-
-## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/places/crushn8r_crewd_news_station.md
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/crushn8r_crewd_news_station.md
 - words: crushn8r crewd news station, crushn8r crew d news station, about, crew here, history
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/groups/group-doc-and-pip.md
+- words: group doc and pip, doc and pip
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/groups/group-gomads.md
+- words: group gomads, gomads
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/groups/group-gopod-system.md
+- words: group gopod system, gopod system
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/groups/group-interns.md
+- words: group interns, interns
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/groups/group-security-guards.md
+- words: group security guards, security guards
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md
+- words: math aftermath news channel, math aftermath news, roles, employees gopod security guards, employees gopod system, company, house rules, outline
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/personas/persona_chains_README.md
+- words: persona chains readme
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/addressing.md
 - words: addressing
@@ -326,6 +329,9 @@
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/golden_answers.md
 - words: golden answers, gopod golden answers
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/gopod_yourself_qr.md
+- words: gopod yourself qr, gopod yourself the qr sequence, sequence as it plays
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/group-chat-intro.md
 - words: group chat intro

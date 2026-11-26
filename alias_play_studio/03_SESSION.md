@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the session
 - **summary:** one Wire-Pod start to the next | runs start from the chat, stop run stops one | thanks guys ends it
 - **source:** alias_play_studio/03_SESSION.md
+- **ask 1:** Brobot 2, tell me about the session
+- **ask 2:** Brobot 1, in a session, how do I stop run?
+- **ask 3:** Brobot 2, how does the session end - the thanks ending?
 
 ---
 

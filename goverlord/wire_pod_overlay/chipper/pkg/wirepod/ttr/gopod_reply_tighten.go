@@ -243,9 +243,34 @@ var gopodLeakTagRE = regexp.MustCompile(`</?[a-zA-Z_]{2,20}>`)
 var gopodLeakLabelRE = regexp.MustCompile(`(?i)(^|[.!?\s])(?:note|notes|emoji|emojis|response|answer|reply|output)\s*:\s*`)
 
 func gopodStripLeaks(s string) string {
+	// 2026-11-24 (live: "...help others | she helped Master CrushN8r ..." - a value
+	// point's notes, pipes and all): a note separator is never said.
+	s = strings.ReplaceAll(s, " | ", ", ")
+	// 2026-11-24 (live: SWITCH gave a made-up Google Docs link for booking): a
+	// link goes only to GOPOD's own places (reply_tighten.link_hosts).
+	s = gopodDropStrangeLinks(s)
 	s = gopodLeakTagRE.ReplaceAllString(s, "")
 	s = gopodLeakLabelRE.ReplaceAllString(s, "$1")
 	return gopodLeakSpacesRE.ReplaceAllString(s, " ")
+}
+
+// gopodStrangeLinkRE: a web link in a reply, with the brackets around it when it has them.
+var gopodStrangeLinkRE = regexp.MustCompile(`\(?\b(?:https?://|www\.)[^\s)]+\)?`)
+
+// gopodDropStrangeLinks: links to anywhere but reply_tighten.link_hosts go.
+func gopodDropStrangeLinks(s string) string {
+	hosts := gopodBrobotsSettings.ReplyTighten.LinkHosts
+	return gopodStrangeLinkRE.ReplaceAllStringFunc(s, func(link string) string {
+		l := strings.ToLower(strings.Trim(link, "()"))
+		l = strings.TrimPrefix(strings.TrimPrefix(strings.TrimPrefix(l, "https://"), "http://"), "www.")
+		host := strings.SplitN(l, "/", 2)[0]
+		for _, h := range hosts {
+			if h = strings.ToLower(strings.TrimSpace(h)); h != "" && (host == h || strings.HasSuffix(host, "."+h)) {
+				return link
+			}
+		}
+		return ""
+	})
 }
 
 // gopodLeakSpacesRE: runs of spaces a removed tag leaves - line breaks stay.

@@ -298,7 +298,7 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	// brother continues the conversation in his own voice instead of copying.
 	// Replaces the per-robot remembered chat (GetChat) for the Brobots.
 	if vars.APIConfig.Knowledge.SaveChat {
-		shared := gopodAddExperienceTakes(esn, gopodSharedBrobotChat(gopodAtDialZero(gopodBrobotName(esn))))
+		shared := gopodSharedBrobotChat(gopodAtDialZero(gopodBrobotName(esn)))
 		logger.Println("Using shared Brobots chat, length of " + fmt.Sprint(len(shared)) + " messages")
 		nChat = append(nChat, shared...)
 	}
@@ -349,6 +349,10 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 }
 
 func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bool) (string, error) {
+	// GOPOD 2026-11-24: a line naming a never word never reaches the model (gopodNeverIn).
+	if gopodNeverIn(transcribedText, gopodBrobotName(esn)+"'s ears") {
+		return gopodBrobotsSettings.CleanPolitics.NeverInLine, nil
+	}
 	// GOPOD 2026-10-24 (link 5): a new line's answer waits for the line before's follow-up.
 	if _, following := gopodFollowingUp.Load(esn); !following {
 		gopodExchangeWait(esn, transcribedText)

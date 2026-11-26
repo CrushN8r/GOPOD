@@ -5,6 +5,7 @@
 - **say 1:** Scan the QR code on the screen, or head to crushn8r.ca/subscribe - that's it, you're CREW'd.
 - **notes 1:** Scan the QR code on the screen. | Or head to crushn8r.ca/subscribe. | That's it - you're CREW'd!
 - **summary:** the CREW'd newsletter: scan the QR code, or crushn8r.ca/subscribe
+- **ask 1:** Brobot 2, how do I keep up with you guys?
 
 ---
 

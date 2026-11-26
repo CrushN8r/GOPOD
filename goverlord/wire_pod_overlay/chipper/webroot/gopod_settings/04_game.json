@@ -57,6 +57,8 @@
   "interview_script": {
     "song_id": "brobots_interview",
     "drafts_dir": "~/gopod_tts/sessions/harvest",
+    "harvest_input": "typed",
+    "harvest_end_text": "Thanks Brobots!",
     "draft": "",
     "play_words": "start interview",
     "stop_words": "",

@@ -1679,7 +1679,9 @@ def session_run(mod, action, **form):
     gopod_session.go). For "start": True (checked in), False (refused), or None
     when Wire-Pod can't be reached - the run goes on, as before."""
     try:
-        result = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": action, **form}, timeout=10)
+        # 2026-11-25: check-in can wait for the comm check to close and the guards'
+        # security sweep (RUN_CHECK_2026_11_23_001.md: 10 s was too short - the run never checked out).
+        result = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": action, **form}, timeout=180 if action == "start" else 10)
         reply = json.loads(result.get("body") or "{}")
     except Exception as exc:  # noqa: BLE001 - a session hiccup never stops a run
         print(f"GOLDEN_SESSION {action} not reached: {exc!r}", flush=True)
@@ -1841,6 +1843,7 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
         # (0.9), then the line with its lead-in. The banked clean shape
         # (ANGRY_PUN_CRASH_AND_THINKING_MOVES_001.md, operator 2026-10-09: "Use
         # playAnimationWI + 0.9s + start speech"); sent as one is the crash shape.
+        _wait_last_animation(mod, serial, entry)
         anim = mod.wirepod_web_send_form(
             "/api-sdk/say_text", {"serial": serial, "text": f"{{{{playAnimationWI||{animation_token}}}}}"}, timeout=90
         )
@@ -1880,6 +1883,19 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
     return entry
 
 
+def _wait_last_animation(mod, serial, entry):
+    """2026-11-25 (operator, Bingo 0403: "Wait! * searching_animation * I-9? ... *
+    kg_success * Lol!" - "Wait!" plays its own clip (thinking, 4.3 s); the searching
+    queued behind it while the hold ran out, so "I-9?" showed before the searching):
+    a move waits until this Brobot's last animation is done (Wire-Pod's own count,
+    gopod_run action=anim_wait; its hang guard caps the wait)."""
+    try:
+        waited = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": "anim_wait", "serial": serial}, timeout=15)
+        entry["waited_for_last_animation"] = waited
+    except Exception as exc:  # noqa: BLE001 - best effort: an old Wire-Pod just goes on
+        entry["waited_for_last_animation"] = repr(exc)
+
+
 def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_control=True):
     """manage_control=False bypass, same shape/reason as run_emotion_beat()
     above (STAY_PUT_FIX_SURVEY_001.md, part 3)."""
@@ -1893,6 +1909,7 @@ def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_
             )
             entry["assume"] = assume
             time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
+        _wait_last_animation(mod, serial, entry)
         anim_payload = f"{{{{playAnimationWI||{animation_token}}}}}"
         dispatches = []
         getout_token = _ANIMATION_GETOUT_TOKENS.get(animation_token)
@@ -2169,7 +2186,7 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
             _SLEEPY.wake_all()
             _SLEEPY = None
         # Checked out last, once the Brobots are handed back.
-        if run_name is not None and checked_in:
+        if run_name is not None and checked_in is not False:  # checked in, or not reached: always check out
             session_run(_load_runner_module(), "end", name=run_name,
                         reason="stopped" if (log or {}).get("stopped_early", True) else "done")
         if touch_off_file is not None:

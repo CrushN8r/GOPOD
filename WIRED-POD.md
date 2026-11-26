@@ -84,6 +84,7 @@ whole way, in order.
 - **reminder:** Hey, that reminds me... Two Brobots, one conversation.
 - **summary:** Two Brobots, one conversation | call one by name | the chat lights the piece being said | type, or hold a numpad key and talk
 - **source:** WIRED-POD.md
+- **ask 1:** Brobot 1, how does this chat work?
 
 ---
 
@@ -253,6 +254,8 @@ The Brobots think with a small local model: no cloud, no monthly bill, no intern
 - **ask:** Tell me about your local brain
 - **summary:** local brain: brobots can party offline, plug in and go | anywhere: basement, back seat, does not matter
 - **source:** WIRED-POD.md
+- **ask 1:** Brobot 1, what brain do you run on - is there a monthly bill?
+- **ask 2:** Brobot 2, no cloud, no wifi - where's the wildest place you've worked?
 
 ---
 

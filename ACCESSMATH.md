@@ -1,6 +1,6 @@
 # Accessmath: GOPOD for everyone
 
-> Confusion into clarity. Distraction into focus. Fear into bravery. Failure into forward motion.
+> Clarity through Confusion. Focus through Distraction. Bravery through Fear. Success through Failure.
 > Two brobots. One room. Something shifts.
 
 **accessmath.crushn8r.net** is the GOPOD app's home: the Brobots chat on your phone, and maths for
@@ -38,6 +38,9 @@ for your own gigs:
 - **notes 3:** maths for anyone | told they were bad at it | no internet needed
 - **summary:** accessmath.crushn8r.net: the GOPOD app's home, the Brobots chat on your phone | access built in: speak, type or press a key, every line lit word by word as it's said | maths for anyone: told they were bad at it, no internet needed
 - **source:** ACCESSMATH.md
+- **ask 1:** Brobot 1, what's on accessmath - the app?
+- **ask 2:** Brobot 2, how is accessibility built into the app?
+- **ask 3:** Brobot 1, is accessmath for people who were told they were bad at it?
 
 ---
 
@@ -78,6 +81,9 @@ in, then learning - and then confidence. Low shame: a wrong answer is part of th
 - **notes 3:** low shame | a wrong answer is part of the show
 - **summary:** the invite: not learn algebra, look what happened on tonight's livestream | the path: funny, interesting, joining in, learning, then confidence | low shame: a wrong answer is part of the show
 - **source:** ACCESSMATH.md
+- **ask 1:** Brobot 1, does the livestream say 'learn algebra', or something else?
+- **ask 2:** Brobot 2, laugh first, learn after - what's the path to confidence?
+- **ask 3:** Brobot 1, is a wrong answer a red mark, or part of the show? Low shame?
 
 ---
 
@@ -103,19 +109,22 @@ funny, warm distraction, is in the songs today.
 
 - **words:** distraction, healthy distraction, cheer up, bad day, feel better, stress, stressed, borrow a stage, borrowing a stage, shelter, shelters, hospital, hospitals
 - **reminder:** Hey, that reminds me... Rumination stops when something funnier and more interesting takes its place.
-- **say 1:** Confusion into clarity. Distraction into focus. Fear into bravery. Failure into forward motion.
+- **say 1:** Clarity through Confusion. Focus through Distraction. Bravery through Fear. Success through Failure.
 - **say 2:** Rumination stops when something funnier and more interesting takes its place. A short brobot exchange doesn't solve the underlying problem - it creates space.
 - **say 3:** Borrowing a stage: someone with no platform of their own can stand in that light for a minute.
-- **notes 1:** turnarounds | confusion to clarity | fear to bravery | failure to forward motion
+- **notes 1:** Clarity through Confusion | Focus through Distraction | Bravery through Fear | Success through Failure
 - **notes 2:** a funny break | something more interesting takes over | it makes space
 - **notes 3:** borrowing a stage | anyone can stand in the light for a minute
 - **source:** ACCESSMATH.md
-- **summary:** turnarounds: confusion to clarity, fear to bravery, failure to forward motion | a funny break: something more interesting takes over, it makes space | borrowing a stage: anyone can stand in the light for a minute
+- **summary:** Clarity through Confusion, Focus through Distraction, Bravery through Fear, Success through Failure | a funny break: something more interesting takes over, it makes space | borrowing a stage: anyone can stand in the light for a minute
+- **ask 1:** Brobot 1, how is GOPOD a healthy distraction?
+- **ask 2:** Brobot 2, I had a bad day - cheer me up?
+- **ask 3:** Brobot 1, what does borrowing a stage mean?
 
 ---
 
 Healthy distraction (live sessions in shelters and hospitals are coming - not built or deployed today). Reveal these, in order, in your own words:
-1. Confusion into clarity. Distraction into focus. Fear into bravery. Failure into forward motion.
+1. Clarity through Confusion. Focus through Distraction. Bravery through Fear. Success through Failure.
 2. Rumination stops when something funnier and more interesting takes its place. A short brobot exchange doesn't solve the underlying problem - it creates space.
 3. Borrowing a stage: someone with no platform of their own can stand in that light for a minute.
 
@@ -152,6 +161,9 @@ diagnoses - see the game's "How Doc and Pip teach" chapter.
 - **notes 3:** who benefits | kids who don't like being called on | anyone told they were bad at math
 - **summary:** the rooms: classrooms, libraries, community centres, seniors' programs, adult literacy and ESL | low connectivity: rural schools, the offline stack runs anyway | who benefits: kids who don't like being called on, anyone told they were bad at math
 - **source:** ACCESSMATH.md
+- **ask 1:** Brobot 2, where else would you teach - libraries, community centres?
+- **ask 2:** Brobot 1, what about rural schools with bad wifi?
+- **ask 3:** Brobot 2, who benefits the most?
 
 ---
 

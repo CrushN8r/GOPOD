@@ -8,6 +8,9 @@
 - **notes 3:** the trick | the audience sees itself in Pip
 - **notes 1:** Doc is a strict funny teacher | Pip is clueless and motivated
 - **summary:** Doc is a strict funny teacher: Pip is clueless and motivated | Pip asks wrong on purpose: Doc corrects late, sharp, funny | the trick: the audience sees itself in Pip
+- **ask 1:** Brobot 2, how do you teach?
+- **ask 2:** Brobot 1, why is Pip wrong on purpose when you teach?
+- **ask 3:** Brobot 2, so when you teach, which one does the class root for?
 
 ---
 

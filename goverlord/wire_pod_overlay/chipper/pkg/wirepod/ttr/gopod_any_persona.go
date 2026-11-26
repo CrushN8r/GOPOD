@@ -96,8 +96,13 @@ func gopodAnyTarget(who string) string {
 
 // gopodAnyPersonaLine: a line on "." - to whoever it names, or to the topic's owner.
 func gopodAnyPersonaLine(text, how string) error {
+	return gopodAnyPersonaLineNamed(gopodAnyNamed(text), text, how)
+}
+
+// gopodAnyPersonaLineNamed: a line to named (the one it names, or KEYS when
+// Goverlord hands it down) - he says whose job it is, and the owner answers.
+func gopodAnyPersonaLineNamed(named, text, how string) error {
 	ap := gopodBrobotsSettings.NumpadPTT.Any
-	named := gopodAnyNamed(text)
 	// 2026-11-17 (live: "keys where do i start" - KEYS handed it to the default
 	// owner): only a topic the look-up finds has an owner to hand over to; the
 	// default owner is for a line naming no one.
@@ -111,7 +116,7 @@ func gopodAnyPersonaLine(text, how string) error {
 		}
 	} else if owner != "" && owner != named && strings.TrimSpace(ap.RedirectText) != "" {
 		// Not the named one's job: he says whose it is, then the owner answers.
-		line := strings.ReplaceAll(ap.RedirectText, "{owner}", gopodCallName(owner))
+		line := strings.ReplaceAll(ap.RedirectText, "{owner}", gopodRoleName(owner))
 		gopodAnySay(named, line)
 		who = owner
 	}

@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the rules and tests
 - **summary:** the golden path for a new move | troubleshooting starts at the journal | tests lock behaviour
 - **source:** alias_play_studio/08_RULES_AND_TESTS.md
+- **ask 1:** Brobot 1, tell me about the rules and tests
+- **ask 2:** Brobot 2, where does troubleshooting start?
+- **ask 3:** Brobot 1, tests that lock - what happens if one fails before a deploy?
 
 ---
 

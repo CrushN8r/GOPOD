@@ -30,7 +30,7 @@ BBQs are where it starts.
 - **chapter:** Booking
 
 - **source:** BOOKING.md
-- **words:** book, booking, hire, cost, price, event, events, gig, gigs, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings
+- **words:** book, booking, hire, cost, price, event, events, gig, gigs, location, book a gig, nothing booked, every day, quiet day, quiet days, slow day, slow days, between gigs, feast or famine, days off, no bookings
 - **say 1:** Live or scripted, catered to your room. Want to hear about the busy weeks or the quiet days?
 - **notes 1:** live or scripted | catered to your room | busy weeks or quiet days?
 - **say 2:** Some weeks it's three rooms a day. Some weeks it's quiet - bookings are feast or famine, that's just live entertainment.
@@ -40,6 +40,10 @@ BBQs are where it starts.
 - **notes 4:** never idle | performing, or building the next show
 - **ask:** Tell me about booking you
 - **summary:** gigs to book: live or scripted, catered to the room's game | seniors' bingo, comedy clubs, bingo halls and casinos, hospitals, school visits | birthdays, video ads, printable merch | the way in: contact@crushn8r.ca
+- **ask 1:** Brobot 2, how does booking work?
+- **ask 2:** Brobot 1, can I book you?
+- **ask 3:** Brobot 2, some days there's nothing booked?
+- **ask 4:** Brobot 1, so on the quiet days with nothing booked?
 
 ---
 
@@ -74,6 +78,9 @@ If you're asked about the days with nothing booked, reveal these, in order, in y
 - **ask:** Tell me about the rooms you play
 - **summary:** comedy rooms: comedy clubs, bars, banquet halls, weddings | bingo rooms: seniors' bingo, bingo halls and casinos | hospitals and schools: a healthy distraction, a lesson with laughs
 - **source:** BOOKING.md
+- **ask 1:** Brobot 2, what about comedy clubs and bars in Windsor?
+- **ask 2:** Brobot 1, do you play bingo halls and casinos too?
+- **ask 3:** Brobot 2, and hospitals or school visits?
 
 ---
 
@@ -104,6 +111,8 @@ Every video is a scripted robot performance, and it says so.
 - **notes 2:** video ads | a scripted ad for the room that books us | or for your business
 - **summary:** a birthday video from Doc & Pip: one name, one fresh take, never a reused clip, contact@crushn8r.ca | video ads: a scripted ad for the room that books us, or for your business
 - **source:** BOOKING.md
+- **ask 1:** Brobot 2, could you two make a birthday video for my sister?
+- **ask 2:** Brobot 1, could you make a video ad for my bar?
 
 ---
 
@@ -148,6 +157,9 @@ Videos for ads or personal use. Reveal these, in order, in your own words:
 - **notes 3:** affiliates | foodmath recipe links | planned
 - **summary:** printables: the Chocolate Bingo kit, the GOPOD word search and sudoku | gig merch, ordered locally: bingo cards, signs, winner photos, posters, bakeries, print shops, party supply stores | affiliates: foodmath recipe links, planned
 - **source:** BOOKING.md
+- **ask 1:** Brobot 2, anything printable, like a word search?
+- **ask 2:** Brobot 1, do you do print shop merch, like signs and posters?
+- **ask 3:** Brobot 2, any affiliate links?
 
 ---
 
@@ -175,6 +187,9 @@ Printables and affiliates. Reveal these, in order, in your own words:
 - **notes 3:** the LEGO crew | hot-dog and pizza-slice minifigures
 - **summary:** BBQs: GOPOD can do BBQ's too | BBQ cars: burger trucks, hot-dog cars, a diner food truck, ready to roll | the LEGO crew: hot-dog and pizza-slice minifigures
 - **source:** BOOKING.md
+- **ask 1:** Brobot 1, can GOPOD do a BBQ?
+- **ask 2:** Brobot 2, any burgers and hot dogs for the cookout?
+- **ask 3:** Brobot 1, who else comes to the barbecue?
 
 ---
 

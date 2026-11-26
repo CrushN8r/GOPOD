@@ -32,8 +32,9 @@ func TestCommCheck(t *testing.T) {
 	if lines[0][2] != "GOVERLORD" || lines[1][2] != "BUTLER" || lines[2][3] != "self" || !strings.Contains(lines[0][1], "Start with me, then yourself") {
 		t.Errorf("who asks: %v", lines[:3])
 	}
-	if len(gopodBrobotsSettings.CommCheck.Crew) < 8 || !strings.Contains(strings.Join(gopodBrobotsSettings.CommCheck.Crew, "|"), "MATH AFTERMATH NEWS") {
-		t.Errorf("crew bubble: %v", gopodBrobotsSettings.CommCheck.Crew)
+	// 2026-11-24: the crew bubble is built live from the company folders.
+	if crew := gopodCommCheckCrewLines(gopodBrobotsSettings.SystemBubble.VoicePersona); len(crew) < 8 || !strings.Contains(strings.Join(crew, "|"), "MATH AFTERMATH NEWS") {
+		t.Errorf("crew bubble: %v", crew)
 	}
 	gopodCommCheckRunning.Store(true)
 	defer gopodCommCheckRunning.Store(false)

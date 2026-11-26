@@ -95,8 +95,8 @@ func TestBrainFromClusters(t *testing.T) {
 		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
 	}
 	// 2026-11-13: the comm check's lines (intro_lines), then every answer's (lines);
-	// 2026-11-23: ROUTE - is it my job? (gopod_job_route.go).
-	if len(bc.IntroFact) != 5 || bc.IntroFact[0] != "I'm the proud {my_job_title}." || len(bc.Lines) != 4 || bc.Lines[0] != "FACT: {fact}" || bc.Lines[1] != "MEMORY: {memory}" || bc.Lines[2] != "ROOM: {room}" || bc.Lines[3] != "ROUTE: {route}" {
+	// 2026-11-23: ROUTE - is it my job? (gopod_job_route.go); 2026-11-24: AURA first (gopod_session_aura.go).
+	if len(bc.IntroFact) != 5 || bc.IntroFact[0] != "I'm the proud {my_job_title}." || len(bc.Lines) != 6 || bc.Lines[0] != "AURA: {aura}" || bc.Lines[1] != "FACT: {fact}" || bc.Lines[2] != "MEMORY: {memory}" || bc.Lines[3] != "ROOM: {room}" || bc.Lines[4] != "ROUTE: {route}" || !strings.HasPrefix(bc.Lines[5], "In the chat:") {
 		t.Errorf("brain lines: %q %q", bc.IntroFact, bc.Lines)
 	}
 	if len(gopodBrobotsSettings.ReplyTighten.NotSentenceEnds) == 0 || !strings.Contains(gopodBrobotsSettings.Summary.FactsNote, "\n") {

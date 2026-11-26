@@ -99,6 +99,13 @@ func GopodRunStart(name, kind string, pid int) (bool, string) {
 		gopodSessionSay(gopodBrobotsSettings.Session.BusyText)
 		return false, r.Name
 	}
+	// 2026-11-25: the comm check closes first - its closing line, then the run.
+	if gopodCommCheckRunning.Load() {
+		logger.Println("GOPOD_SESSION run " + name + " waits for the comm check to close")
+		for end := time.Now().Add(time.Duration(gopodBrobotsSettings.Session.CommCheckWaitSeconds * float64(time.Second))); gopodCommCheckRunning.Load() && time.Now().Before(end); {
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
 	// 2026-11-19: the guards' security sweep - both Brobots found and powered.
 	if !gopodSecuritySweep() {
 		logger.Println("GOPOD_SESSION run " + name + " refused: security sweep")

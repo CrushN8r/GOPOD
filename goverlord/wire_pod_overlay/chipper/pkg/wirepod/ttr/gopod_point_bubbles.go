@@ -22,6 +22,23 @@ import (
 // holds, whatever the data. A line of his before them that's no note's (the
 // weather comment) is kept, first.
 
+// gopodPointBubblesSay (2026-11-24, operator: "nobody would understand" a bare
+// label as an opening "* more of a response is required with context"): the
+// point's own say line - a full sentence with its context - for a title line
+// the model didn't give.
+func gopodPointBubblesSay(esn string) string {
+	for _, given := range gopodGivenPoints(esn) {
+		key := given
+		if i := strings.LastIndex(key, "/"); i >= 0 {
+			key = key[:i]
+		}
+		if line := strings.TrimSpace(gopodBrobotsSettings.ValuePoints.SayLines[key]); line != "" {
+			return line
+		}
+	}
+	return ""
+}
+
 // gopodPointBubblesNotes: the notes of the point given to this Brobot, if any.
 func gopodPointBubblesNotes(esn string) (string, []string) {
 	for _, given := range gopodGivenPoints(esn) {
@@ -126,9 +143,13 @@ func gopodPointBubbles(esn, question, raw string) string {
 		if line == "" {
 			filled++
 			if k == 0 {
-				line = strings.ReplaceAll(pb.Fallback.Title, "{title}", title)
+				say := gopodPointBubblesSay(esn)
+				if say == "" {
+					say = gopodCapFirst(title) + "."
+				}
+				line = strings.NewReplacer("{title}", title, "{say}", say).Replace(pb.Fallback.Title)
 				if hype := pb.Hype[gopodBrobotName(esn)]; len(hype) > 0 {
-					line += " " + hype[rand.Intn(len(hype))]
+					line = hype[rand.Intn(len(hype))] + " " + line // the hype, then the point with its context
 				}
 			} else {
 				line = strings.NewReplacer("{note}", item, "{Note}", gopodCapFirst(item)).Replace(pb.Fallback.Note)
@@ -143,9 +164,14 @@ func gopodPointBubbles(esn, question, raw string) string {
 	}
 	// His own line before the point's stays first - only the weather comment
 	// (answer_shapes: a topic answer opens with its point).
+	// 2026-11-25 (operator, "I want to fire DOC!! Are you with me?": "to see ... if
+	// there was enough there to work with, to wrangle it back in, like taming a wild
+	// horse"): when none of his lines was the point's, his reaction to the ask stays
+	// first too - then the point wrangles it back in.
 	var lead []string
 	weather := gopodHasWholeWords(strings.ToLower(question), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", question)
-	for i := 0; weather && i < first && i < len(lines) && len(lead) < pb.KeepLeadLines; i++ {
+	reaction := filled == len(items)
+	for i := 0; (weather || reaction) && i < first && i < len(lines) && len(lead) < pb.KeepLeadLines; i++ {
 		if !used[i] {
 			lead = append(lead, lines[i])
 		}

@@ -13,6 +13,7 @@ package wirepod_ttr
 // cast, the brother banter) and gets solo_note. No robot known: nothing changes.
 
 import (
+	"testing"
 	"encoding/json"
 	"path/filepath"
 	"strings"
@@ -44,6 +45,11 @@ func GopodBrobotsSetup() {
 	logger.Println("GOPOD_BROBOTS Brobot 1 " + gopodESN1 + ", Brobot 2 " + GopodESNLabel(b2) + " (" + mode + ")")
 	// The songs read who's who from here (run_section1_full_live_001.py, Robots.say:
 	// solo, Brobot 2's lines are said on the speaker).
+	// 2026-11-25 (live: system-audit's Go tests wrote test robots into it at 18:19,
+	// and the next Bingo Test spoke to robots that don't exist): a test never writes it.
+	if testing.Testing() {
+		return
+	}
 	state, _ := json.Marshal(map[string]any{"brobot_1": b1, "brobot_2": b2, "solo": gopodSolo()})
 	if err := gopodWriteFileSafe(gopodBrobotsNowPath(), state); err != nil {
 		logger.Println("GOPOD_BROBOTS state not written: " + err.Error())

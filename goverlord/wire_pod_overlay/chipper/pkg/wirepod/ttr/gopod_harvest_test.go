@@ -22,7 +22,7 @@ import (
 // of all topics/value points"). Not a unit test: it runs only when
 // GOPOD_HARVEST_OUT is set (run with `goverlord/wire_pod_overlay/harvest_dry_run.sh`).
 //
-// Every question in gopod_probes/interview_harvest/harvest_questions.json goes
+// Every game question (each topic card's "ask N" lines, game_questions) goes
 // through the Brobots' real path - the same prompt (CreateAIReq: persona, the
 // value-point list's next point, shared chat memory), the same LLM, the same
 // reply shaping (names, links, flavour lines, the reminder, display and speech
@@ -73,14 +73,18 @@ func TestGopodHarvestRun(t *testing.T) {
 		EndText   string                 `json:"end_text"`
 		Questions []gopodHarvestQuestion `json:"questions"`
 	}
-	qpath := filepath.Join(gopodChipperRoot(), "gopod_probes/interview_harvest/harvest_questions.json")
-	// 2026-10-08: another questions file (harvest_dry_run.sh questions <file>).
-	if alt := os.Getenv("GOPOD_HARVEST_QUESTIONS"); alt != "" {
-		qpath = alt
+	// 2026-11-25: the cards' own questions (game_questions), unless another
+	// questions file is given (harvest_dry_run.sh questions <file>, 2026-10-08).
+	is := gopodBrobotsSettings.InterviewScript
+	qfile.Input, qfile.EndText = is.HarvestInput, is.HarvestEndText
+	for _, q := range gopodBrobotsSettings.GameQuestions {
+		qfile.Questions = append(qfile.Questions, gopodHarvestQuestion{Chapter: q.Chapter, Topic: q.Topic, To: q.To, Ask: q.Ask})
 	}
-	data, err := os.ReadFile(qpath)
-	if err != nil || json.Unmarshal(data, &qfile) != nil {
-		t.Fatalf("questions: %v", err)
+	if alt := os.Getenv("GOPOD_HARVEST_QUESTIONS"); alt != "" {
+		data, err := os.ReadFile(alt)
+		if err != nil || json.Unmarshal(data, &qfile) != nil {
+			t.Fatalf("questions: %v", err)
+		}
 	}
 	cfg := openai.DefaultConfig("ollama")
 	cfg.BaseURL = endpoint
@@ -266,12 +270,11 @@ func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
 	gopodCoverage.revealed = map[string]int{}
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
-	var qfile struct {
-		Questions []gopodHarvestQuestion `json:"questions"`
-	}
-	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "gopod_probes/interview_harvest/harvest_questions.json"))
-	if err != nil || json.Unmarshal(data, &qfile) != nil {
-		t.Fatalf("questions: %v", err)
+	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
+	var qfile struct{ Questions []gopodGameQuestion }
+	qfile.Questions = gopodBrobotsSettings.GameQuestions
+	if len(qfile.Questions) == 0 {
+		t.Fatal("no game questions on the cards")
 	}
 	// 2026-10-22: every interview question still has its point in the files; a
 	// background topic's question gets no point (CORE_TOPICS_002.md).

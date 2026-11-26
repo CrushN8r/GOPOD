@@ -27,6 +27,8 @@ package wirepod_ttr
 // chain. GOPOD_BRAIN lines in the journal; system-brain shows the chain.
 
 import (
+	"regexp"
+	"sync/atomic"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -56,7 +58,14 @@ var gopodBrainChain = struct {
 
 // gopodBrainAdd: one answer's record - who answered (his call name), the line, its kind.
 // gopodBrainAdd: a record; answer is what was said back (its note), "" for none.
+// gopodUnknownAsks: this session's answers to a line no card matched (an
+// "I don't know") - the faster the reminders gravitate to what GOPOD is.
+var gopodUnknownAsks atomic.Int32
+
 func gopodBrainAdd(to, question, kind string, answer ...string) {
+	if kind == "answer" && !gopodIsThanks(question) && (gopodNonsenseLine(question) != "" || len(gopodLookup(question)) == 0) {
+		gopodUnknownAsks.Add(1)
+	}
 	bc := gopodBrobotsSettings.BrainChain
 	q := strings.Join(strings.Fields(question), " ")
 	if bc.QuestionChars > 0 && len(q) > bc.QuestionChars {
@@ -224,6 +233,7 @@ func gopodBrainReset(keepPerformed ...bool) {
 	gopodBrainChain.recs = kept
 	gopodBrainChain.Unlock()
 	gopodJobRouteReset() // 2026-11-23: a new session, no strikes
+	gopodUnknownAsks.Store(0)
 }
 
 // gopodBrainPerformedKind: a run the Brobots performed (a song, the interview).
@@ -369,9 +379,25 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{room}": gopodGemmaRoomLine(),
 		// 2026-11-23: is it my job? - not, the line saying where to send them (gopod_job_route.go).
 		"{route}": gopodJobRouteNote(self),
+		// 2026-11-24: the session's aura - Goverlord's, the same for every persona (gopod_session_aura.go).
+		"{aura}": "",
+		// 2026-11-25 (operator: "keep the checklist in the background/group thinking *
+		// not needed in brain bubbles"): the voices heard - a line the bubble hides.
+		"{voices}": gopodAuraVoices(),
+	}
+	// An intro's brain stays its one FACT line, from his card (2026-11-15); every
+	// answer thinks inside the session's aura.
+	if !gopodIsIntro(question) {
+		m["{aura}"] = gopodSessionAura()
+	} else {
+		m["{voices}"] = "" // an intro's brain is its FACT line alone
 	}
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		m["{fact}"] = gopodBrainIntroFact(m)
+	} else if e := gopodExperienceFacts(gopodBrobotESN(self), question); len(e) > 0 {
+		// 2026-11-24: an experience question's FACT is its one played / not-played
+		// line - no look-up chain beside it (gopod_experiences.go).
+		m["{fact}"] = e[0]
 	} else {
 		m["{fact}"] = gopodBrainFact(self)
 		// 2026-11-16: no value point - the look-up's cards (gopod_lookup.go).
@@ -740,13 +766,20 @@ func gopodBrainLines(self, question string) []string {
 	// FACT the one line looked up from his card (gopodBrainIntroFact).
 	var out []string
 	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
-		// A line whose value is missing (to come, or not on his card) isn't shown.
+		// A line whose value is missing (to come, or not on his card) isn't shown -
+		// its slot empty (2026-11-25), or nothing after its label.
+		if slots := gopodBrainSlotRE.FindAllString(l, -1); len(slots) == 1 && strings.TrimSpace(facts[slots[0]]) == "" {
+			continue
+		}
 		if line := strings.TrimSpace(gopodBrainFill(l, facts)); line != "" && !strings.HasSuffix(line, ":") {
 			out = append(out, line)
 		}
 	}
 	return out
 }
+
+// gopodBrainSlotRE: a slot in a brain line ("{fact}").
+var gopodBrainSlotRE = regexp.MustCompile(`\{[a-z_]+\}`)
 
 // gopodBrainText: the brain for self's prompt - the header, the brain template's
 // lines (the same as his brain bubble), the recent chat, the long-term line.

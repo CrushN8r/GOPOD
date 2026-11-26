@@ -77,6 +77,8 @@ Roll in. Open lids. Power on. Session starts. *(GOPOD layer — not built yet.)*
 - **notes 2:** Ron's rig | one dolly, two crates | gear on top of battery | upon arrival, party
 - **summary:** One dolly, two crates | Lower Crate 1 - Power Station | Upper Crate 2 - GOPOD Compute | roll in, plug in, party
 - **source:** MOBILE_GEAR.md
+- **ask 1:** Brobot 1, what's the rig?
+- **ask 2:** Brobot 2, what's in your rig?
 
 ---
 
@@ -200,6 +202,10 @@ This matters because venue networking can't be assumed. A restaurant guest netwo
 - **notes 4:** power | big battery, car, any outlet | runs all day
 - **summary:** boring works: no internet, all local, basement, car, park | internet is a bonus: never the engine | power: big battery, car, any outlet, runs all day
 - **source:** MOBILE_GEAR.md
+- **ask 1:** Brobot 2, can you run offline?
+- **ask 2:** Brobot 1, can you run offline?
+- **ask 3:** Brobot 2, offline at a venue - do you even need their wifi?
+- **ask 4:** Brobot 1, what do you run on for power?
 
 ---
 

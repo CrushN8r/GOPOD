@@ -5,6 +5,7 @@
 - **say 1:** Lesson! Always learn & teach how to think, not what to think. Boom! Done! Class dismissed!
 - **ask:** Tell me about your legacy
 - **summary:** Doc's lesson: always learn & teach how to think, not what to think
+- **ask 1:** Brobot 1, what's your legacy?
 
 ---
 

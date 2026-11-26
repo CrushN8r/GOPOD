@@ -4,7 +4,7 @@
 GOVERLORD | who works for you? | math-aftermath-news-channel.md
 GOVERLORD | where do I start? | ACCESSMATH.md, GOPOD_YOURSELF.md
 BUTLER | how does the weather work? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
-BUTLER | how do I subscribe to your newsletter? | 03_newsletter.md
+BUTLER | how do I subscribe to your newsletter? | 03_newsletter.md, gopod_yourself_qr.md
 GEMMA | what do you do? | 02_who_we_are.md
 INTEL 404 PNFH | who do you guard? | group-security-guards.md, math-aftermath-news-channel.md
 CHALK | what's on the display? | README.md, story.md

@@ -131,6 +131,7 @@
   "colour_slots": {
     "max_sentences": 4
   },
+  "gopod_yourself_qr": {},
   "brain_chain": {
     "roster": "gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md",
     "recent_minutes": 10,
@@ -143,14 +144,14 @@
     "gomads_raw_chat": false
   },
   "answer_chains": {
-    "base": {"parts": ["greeting", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
-    "brobots": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
+    "base": {"parts": ["greeting", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "contact", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet", "redirect"]},
+    "brobots": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "contact", "point_bubbles", "docbs_close", "persona_chain_close", "reminder", "end_snippet"]},
     "brobots_intro": {"parts": ["greeting", "llm", "intro_wrap"]},
     "brobots_summary": {"parts": ["greeting", "golden_line", "llm", "summary_bubbles", "reminder"]},
-    "duo_a": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
-    "duo_b": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},
-    "brobots_math": {"parts": ["greeting", "colour:value_point", "llm", "rule", "reminder", "redirect"]},
-    "gomad_persona": {"parts": ["greeting", "who_line", "manager_take", "llm"]}
+    "duo_a": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "contact", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "redirect"]},
+    "duo_b": {"parts": ["greeting", "golden_line", "start_snippet", "docbs", "persona_chain", "colour:value_point", "llm", "closing_remark", "contact", "point_bubbles", "summary_bubbles", "docbs_close", "persona_chain_close", "weather_kit", "reminder", "end_snippet"]},
+    "brobots_math": {"parts": ["greeting", "colour:value_point", "llm", "contact", "rule", "reminder", "redirect"]},
+    "gomad_persona": {"parts": ["greeting", "who_line", "manager_take", "llm", "contact"]}
   },
   "reply_tighten": {
     "budget_off": true,

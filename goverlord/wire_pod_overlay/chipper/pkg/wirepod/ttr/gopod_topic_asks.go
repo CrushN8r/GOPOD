@@ -22,7 +22,6 @@ package wirepod_ttr
 // test TestTopicSourcesInRepo and system-check keep the two together.
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -199,18 +198,9 @@ func gopodAsksPage() string {
 	chapters, _, _ := gopodReadChaptersFolder()
 	ta := gopodBrobotsSettings.TopicAsks
 	// 2026-10-26 (operator: "Look back at my test questions as examples"): the
-	// game's own questions (harvest_questions.json) are each topic's pointed asks.
-	var qfile struct {
-		Questions []struct {
-			Topic string `json:"topic"`
-			Ask   string `json:"ask"`
-		} `json:"questions"`
-	}
-	if data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "gopod_probes/interview_harvest/harvest_questions.json")); err == nil {
-		json.Unmarshal(data, &qfile)
-	}
+	// game's own questions (each card's "ask N") are each topic's pointed asks.
 	asked := map[string][]string{}
-	for _, q := range qfile.Questions {
+	for _, q := range gopodBrobotsSettings.GameQuestions {
 		asked[q.Topic] = append(asked[q.Topic], "\""+gopodAskWithoutAddress(q.Ask)+"\"")
 	}
 	// 2026-10-29 (operator: "Start with the single source of truth, BROBOT_ASKS.md";

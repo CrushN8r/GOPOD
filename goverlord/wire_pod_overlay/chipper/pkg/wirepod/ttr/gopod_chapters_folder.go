@@ -117,6 +117,11 @@ type gopodTopicFile struct {
 	Sources []string
 	// 2026-10-26: its ask on the BROBOT_ASKS.md page (left out = "Tell me about <label>").
 	Ask string
+	// 2026-11-25 (operator: "The repo md files are now where all the
+	// chapters/topics/value-points, etc... are * Are the questions reflecting
+	// that?"): its value points' golden questions, "ask N: Brobot 2, ..." -
+	// the game's questions live on their own cards (gopodGameQuestions).
+	Asks map[int]string
 	// 2026-10-26 (the topic pre/post template): a note before the room has
 	// covered it, one after, and a closing remark after (topic_asks defaults).
 	Pre, Post, Closing string
@@ -231,6 +236,13 @@ func gopodReadTopicFiles(dir, chapter string) []gopodTopicFile {
 			case strings.HasPrefix(key, "notes "):
 				if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(key, "notes "))); err == nil {
 					t.Notes[n] = value
+				}
+			case strings.HasPrefix(key, "ask "):
+				if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(key, "ask "))); err == nil {
+					if t.Asks == nil {
+						t.Asks = map[int]string{}
+					}
+					t.Asks[n] = value
 				}
 			case strings.HasPrefix(key, "say "):
 				if n, err := strconv.Atoi(strings.TrimSpace(strings.TrimPrefix(key, "say "))); err == nil {
@@ -465,15 +477,28 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 		topic(t)
 		topicNames[t.Name] = true
 	}
+	var questions []gopodGameQuestion
 	for _, c := range chapters {
 		cj := chapterJSON{Title: c.Title, Summary: c.Summary}
 		for _, t := range c.Topics {
 			topic(t)
 			topicNames[t.Name] = true
 			cj.Topics = append(cj.Topics, t.Name)
+			// The game's questions, in chapter order, each from its own card (ask N).
+			var ns []int
+			for n := range t.Asks {
+				ns = append(ns, n)
+			}
+			sort.Ints(ns)
+			for _, n := range ns {
+				ask := strings.TrimSpace(t.Asks[n])
+				to, _, _ := strings.Cut(ask, ",")
+				questions = append(questions, gopodGameQuestion{Chapter: c.Title, Topic: t.Name, To: strings.TrimSpace(to), Ask: ask})
+			}
 		}
 		chapterList = append(chapterList, cj)
 	}
+	s.GameQuestions = questions
 	// The settings' own scripted lines that aren't about a topic stay, after the topics'.
 	own, _ := json.Marshal(s.ScriptedSnippets.Lines)
 	var ownLines []map[string]any

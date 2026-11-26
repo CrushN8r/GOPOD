@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the GOPOD system menu
 - **summary:** system commands, typed in the chat | the system menu, a tour guide | every write goes to system-undo
 - **source:** alias_play_studio/07_SYSTEM.md
+- **ask 1:** Brobot 2, tell me about the GOPOD system menu
+- **ask 2:** Brobot 1, how does the system menu lead you, like a tour guide?
+- **ask 3:** Brobot 2, what happens to every write in the GOPOD system - is there an undo?
 
 ---
 

@@ -3,6 +3,7 @@
 - **words:** brother, bro bought, asleep, nod off, alone, work alone, just the two, two of you, you two, partner, work together, agree, add to, anything to add, elaborate, said so far, what was said, same or different, didn't mention, goofball, goofy
 - **ask:** Tell me about your brother
 - **summary:** us two brothers | we share this chat | he hears everything I say, and I hear him
+- **ask 1:** Brobot 1, is your brother asleep, or do you two work together?
 
 ---
 

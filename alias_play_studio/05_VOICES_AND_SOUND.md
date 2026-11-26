@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the voices and sound
 - **summary:** each persona its own voice | one master volume | speech 0.4 s after an animation
 - **source:** alias_play_studio/05_VOICES_AND_SOUND.md
+- **ask 1:** Brobot 2, tell me about the voices and sound
+- **ask 2:** Brobot 1, is there one master volume for every sound?
+- **ask 3:** Brobot 2, voices and sound - how soon does speech start after an animation?
 
 ---
 

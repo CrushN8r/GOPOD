@@ -536,9 +536,17 @@ func gopodReminderLine(userMessage string) string {
 	seat := func(t string) bool {
 		return !used[t] && !skip[t] && open(t) && ic.TopicLabels[t] != "" && !gopodReminded(t)
 	}
+	lead := gopodReminderLead(userMessage, seat)
 	for from := current; len(chain) < want; {
 		best := ""
+		// 2026-11-25: the ride starts where the question links on (gopodReminderLead).
+		if len(chain) == 0 && lead != "" && seat(lead) {
+			best = lead
+		}
 		for _, t := range gopodTopicLinksFor(from) {
+			if best != "" {
+				break
+			}
 			if seat(t) {
 				best = t
 				break
@@ -786,6 +794,78 @@ func gopodDropScriptedLines(text string) string {
 // gopodDropLLMReminder cuts a "Hey, that reminds me..." the LLM wrote itself.
 func gopodDropLLMReminder(text string) string {
 	return strings.TrimRight(gopodReminderPhrase.ReplaceAllString(text, ""), " \t")
+}
+
+// gopodReminderLead (2026-11-25, operator: "is there a link or association, that
+// follows the logic * weather (location)? * hey that reminds me > lookup
+// 'location' variants > bookings.md * remember its all about selling GOPOD,
+// everything must gravitate towards that * unless the specificity of query
+// carries more weight * the more 'I don't know', the faster the gravitation to
+// README.md + welcome"): the first seat of the reminders' ride - after enough
+// "I don't know"s, what GOPOD is (brain_chain.unknown_pull); else the open topic
+// whose card words share the most with the question and the cards it looked up
+// (same words counted as one - the location bridge); else the sales pull
+// (brain_chain.reminder_pull). "" leaves the ride as it was.
+func gopodReminderLead(question string, seat func(string) bool) string {
+	bc := gopodBrobotsSettings.BrainChain
+	list := func(s string) []string {
+		var out []string
+		for _, t := range strings.Split(s, ",") {
+			if t = strings.TrimSpace(t); t != "" {
+				out = append(out, t)
+			}
+		}
+		return out
+	}
+	if after, err := strconv.Atoi(strings.TrimSpace(bc.UnknownPullAfter)); err == nil && after > 0 && int(gopodUnknownAsks.Load()) >= after {
+		for _, t := range list(bc.UnknownPull) {
+			if seat(t) {
+				return t
+			}
+		}
+	}
+	// 2026-11-25 (operator: "In the reminder"): the pinball's bounce - the point
+	// the question lands on, then its strongest link (gopodValueGridBounce).
+	if t := gopodValueGridBounce(question, seat); t != "" {
+		return t
+	}
+	// The question's words and its cards' words, same words as one - only the
+	// telling ones (gopodLookupMeaningful: no little words, no lookup_skip's).
+	asked := gopodLookupMeaningful(strings.Join(gopodSameWordsExpand(gopodLookupTokens(question)), " "))
+	for _, c := range gopodLookup(question) {
+		for w := range gopodLookupMeaningful(strings.Join(gopodSameWordsExpand(c.Words), " ")) {
+			asked[w] = true
+		}
+	}
+	// A tie goes to the sales pull ("everything must gravitate towards that").
+	pull := map[string]bool{}
+	for _, t := range list(bc.ReminderPull) {
+		pull[t] = true
+	}
+	best, bestScore := "", 0
+	for _, e := range gopodTopicRegistry() {
+		if !seat(e.Name) {
+			continue
+		}
+		score := 0
+		for w := range gopodLookupMeaningful(strings.Join(e.Triggers, " ")) {
+			if asked[w] {
+				score++
+			}
+		}
+		if score > bestScore || (score > 0 && score == bestScore && pull[e.Name] && !pull[best]) {
+			best, bestScore = e.Name, score
+		}
+	}
+	if best != "" {
+		return best
+	}
+	for _, t := range list(bc.ReminderPull) {
+		if seat(t) {
+			return t
+		}
+	}
+	return ""
 }
 
 // ## EOF

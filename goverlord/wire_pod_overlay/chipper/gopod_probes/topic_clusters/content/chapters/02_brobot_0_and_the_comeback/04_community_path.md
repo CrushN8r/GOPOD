@@ -8,6 +8,9 @@
 - **notes 2:** the Mission | where it started | a launch pad, not a stage
 - **notes 3:** two lanes | community and paid rooms | adult rooms, clean material
 - **summary:** the Mission: where it started, a launch pad, not a stage | two lanes: community and paid rooms, adult rooms, clean material
+- **ask 1:** Brobot 2, what's the community path?
+- **ask 2:** Brobot 2, what's the community path?
+- **ask 3:** Brobot 1, what are the two community lanes, and how old is the room?
 
 ---
 

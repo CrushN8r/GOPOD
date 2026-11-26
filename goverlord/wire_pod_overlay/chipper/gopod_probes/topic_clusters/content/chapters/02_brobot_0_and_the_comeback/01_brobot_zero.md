@@ -8,6 +8,9 @@
 - **notes 2:** Ron's nightlife days | bars, clubs, packed rooms | lights and cameras
 - **notes 3:** 2020 | every room went dark | all gone
 - **summary:** Ron's nightlife days: bars, clubs, packed rooms, lights and cameras | 2020: every room went dark, all gone
+- **ask 1:** Brobot 1, who's behind the Brobots?
+- **ask 2:** Brobot 1, what was Brobot 0's job before you - behind a camera?
+- **ask 3:** Brobot 2, and what happened to all those rooms Brobot 0 filmed?
 
 ---
 

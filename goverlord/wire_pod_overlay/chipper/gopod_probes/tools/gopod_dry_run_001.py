@@ -56,14 +56,15 @@ CHIPPER = Path(__file__).resolve().parents[2]
 
 def game_steps():
     """Each core value point's golden question (value_points.core_points, the
-    questions in harvest_questions.json numbered per topic), in the game's order."""
+    game's questions - each topic card's "ask N" lines, served as game_questions -
+    numbered per topic), in the game's order."""
     # 2026-11-03 (the clusters plan, step 7): the settings as Wire-Pod runs on them,
     # the topic-clusters laid over the settings folder (value_points.core_points is
     # in game-words.md) - served by the Wire-Pod this dry run talks to.
     with urllib.request.urlopen(BASE + "/gopod_brobots_settings.json", timeout=10) as r:
         settings = json.loads(r.read().decode("utf-8"))
     core = settings.get("value_points", {}).get("core_points", [])
-    questions = json.loads((CHIPPER / "gopod_probes/interview_harvest/harvest_questions.json").read_text())["questions"]
+    questions = settings.get("game_questions", [])  # 2026-11-25: from the cards, not a file
     seen, out = {}, []
     for q in questions:
         seen[q["topic"]] = seen.get(q["topic"], 0) + 1

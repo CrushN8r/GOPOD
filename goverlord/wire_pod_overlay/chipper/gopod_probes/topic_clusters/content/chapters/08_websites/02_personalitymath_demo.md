@@ -8,6 +8,9 @@
 - **notes 2:** personalitymath.crushn8r.net | a made-up example, not a real website | "Is this you?" - you catch yourself in one
 - **notes 3:** the build is easy | the content is the engine
 - **summary:** an idea to a website: by dinner | personalitymath: a made-up example, "Is this you?" - you catch yourself in one | the build is easy: the content is the engine
+- **ask 1:** Brobot 2, what's personality math?
+- **ask 2:** Brobot 1, what's on the personality math site?
+- **ask 3:** Brobot 2, how do you build a website by dinner?
 
 ---
 

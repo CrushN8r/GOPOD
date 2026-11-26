@@ -291,6 +291,11 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 		// 2026-11-15: every answer opens with the greeting of the day (gopod_greetings.go).
 		return gopodGreetingStitch(esn, question, raw)
 	case "golden_line":
+		// 2026-11-24: the third strike's welcome, word for word, first (gopod_job_route.go).
+		if line := gopodJobRouteWelcomeLine(gopodBrobotName(esn)); line != "" {
+			logger.Println("BROBOT_GOLDEN_LINE " + gopodBrobotName(esn) + " (welcome): " + line)
+			return gopodStitchSnippet(line, raw)
+		}
 		// 2026-10-23: a golden question's exact answer, word for word, first.
 		if line := gopodGoldenAnswer(esn, question); line != "" {
 			logger.Println("BROBOT_GOLDEN_LINE " + gopodBrobotName(esn) + ": " + line)
@@ -314,6 +319,10 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return strings.TrimSpace(raw) + gopodThoughtGap() + line
 			}
 		}
+	case "contact":
+		// 2026-11-24: a contact or booking ask - the contact line, word for word;
+		// 2026-11-25: a keeping-up ask - the keep-up line (gopodYourselfStitch, the QR card).
+		return gopodYourselfStitch(question, raw)
 	case "weather_kit":
 		// live_weather.follow_up_kit_line: the follow-up's weather kit link, its own thought.
 		if line := strings.TrimSpace(gopodBrobotsSettings.LiveWeather.FollowUpKitLine); line != "" && gopodIsFollowingUp(esn) &&
@@ -502,6 +511,10 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	if line := gopodNonsenseLine(text); line != "" {
 		return line, nil
 	}
+	// 2026-11-24: a line naming a never word never reaches the model (gopodNeverIn).
+	if gopodNeverIn(text, host+"'s line") {
+		return gopodBrobotsSettings.CleanPolitics.NeverInLine, nil
+	}
 	reply, err := gopodPersonaAsk(host, text)
 	if err != nil {
 		return "", err
@@ -516,8 +529,11 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	reply = gopodPersonaChainWrap(host, reply)
 	// 2026-11-15: then the greeting of the day first, when its chain has it.
 	for _, p := range gopodAnswerChain("gomad_persona") {
-		if p == "greeting" {
+		switch p {
+		case "greeting":
 			reply = gopodGreetingStitch("", text, reply)
+		case "contact":
+			reply = gopodYourselfStitch(text, reply)
 		}
 	}
 	return reply, nil

@@ -55,8 +55,8 @@ line at the start or end of the answer).
 
 ## After adding a cluster
 
-1. Add a game question per value point to `interview_harvest/harvest_questions.json` - the
-   cross-check that each point can be won.
+1. Add a game question per value point on the card itself - an `ask N:` head line
+   ("- **ask 1:** Brobot 2, ...") - the cross-check that each point can be won.
 2. Run the build (the game sweep and `TestBrobotAsksPageMatches` check it), then write the asks
    page again: `GOPOD_WRITE_ASKS=1 deploy_overlay_build.sh`.
 3. `system-value-points lock` in the chat, then `system-check`.

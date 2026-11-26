@@ -39,9 +39,18 @@ func TestWeatherGoldenLock(t *testing.T) {
 		t.Errorf("LOCKED: the golden weather run changed (operator's word only, then GOPOD_RELOCK=1)")
 	}
 	s := gopodBrobotsSettings
-	if strings.Join(s.AnswerShapes.Shapes["weather"], ",") != "weather_report,llm?,point?,llm?,reminder" ||
-		strings.Join(s.AnswerShapes.Shapes["weather_next"], ",") != "weather_confirm,llm?,point?,llm?,weather_kit,reminder" {
-		t.Errorf("LOCKED: the weather order in use isn't the golden one: %v / %v", s.AnswerShapes.Shapes["weather"], s.AnswerShapes.Shapes["weather_next"])
+	// 2026-11-26 (one place): the order in use is the card's own (its
+	// answer_shapes.shapes lines, "1. weather: a | b | c") - never a copy here.
+	for _, kind := range []string{"weather", "weather_next"} {
+		want := ""
+		for _, l := range strings.Split(string(note), "\n") {
+			if _, rest, ok := strings.Cut(strings.TrimSpace(l), ". "+kind+": "); ok && strings.TrimLeft(strings.SplitN(strings.TrimSpace(l), ".", 2)[0], "0123456789") == "" {
+				want = strings.ReplaceAll(rest, " | ", ",")
+			}
+		}
+		if want == "" || strings.Join(s.AnswerShapes.Shapes[kind], ",") != want {
+			t.Errorf("LOCKED: the %s order in use isn't the card's: %v, card %q", kind, s.AnswerShapes.Shapes[kind], want)
+		}
 	}
 	if !strings.Contains(s.LiveWeather.FollowUpKitLine, "[GOPOD Weather Kit](/gopod_weather_kit.html)") {
 		t.Errorf("LOCKED: the Weather Kit line in use isn't the golden one: %q", s.LiveWeather.FollowUpKitLine)

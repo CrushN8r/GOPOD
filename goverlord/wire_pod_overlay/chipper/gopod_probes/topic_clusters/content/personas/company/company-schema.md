@@ -24,6 +24,8 @@
 9. How we help: (to come)
 10. Who answers the room: (to come)
 11. (to come)
+12. Contact info: (to come)
+13. CRUSHN8R Mission: (to come)
 
 ## House rules
 1. (to come)

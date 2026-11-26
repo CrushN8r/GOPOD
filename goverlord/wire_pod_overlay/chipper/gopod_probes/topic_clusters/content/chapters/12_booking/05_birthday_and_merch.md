@@ -14,6 +14,11 @@
 - **notes 4:** merch ideas | tees, pins, keychains, mugs | not made yet
 - **notes 5:** a big foodie-car cake | a local bakery, someday | not asked yet
 - **summary:** foodie cars: seven boxes of food-shaped cars, ready to roll | birthday shows: a live happy-birthday act, coming soon | merch ideas: tees, pins, keychains, mugs, not made yet | a big foodie-car cake: a local bakery, someday, not asked yet
+- **ask 1:** Brobot 1, do you do birthdays?
+- **ask 2:** Brobot 2, any Hot Wheels for my big day?
+- **ask 3:** Brobot 1, would you do a live cameo on my big day?
+- **ask 4:** Brobot 2, any merch?
+- **ask 5:** Brobot 1, a big cake to go with those Hot Wheels?
 
 ---
 

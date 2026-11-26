@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the gears
 - **summary:** built like a geared bicycle | the chain binds the gears, derailleurs shift it live | a locked gear, only its teeth tuned
 - **source:** alias_play_studio/09_GEARS.md
+- **ask 1:** Brobot 2, tell me about the gears
+- **ask 2:** Brobot 1, the run chain - what do the derailleurs do?
+- **ask 3:** Brobot 2, the gears - once one is locked, what gets tuned?
 
 ---
 

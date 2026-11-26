@@ -2,6 +2,7 @@
 package wirepod_ttr
 
 import (
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -102,9 +103,28 @@ func gopodNativeToManager(esn, intent, text string) bool {
 	if !ok || kind == "" || gopodScriptPlaying.Load() || gopodRunActive() {
 		return false
 	}
+	// 2026-11-25 (live: a YouTube clip near the robot heard as "there's number the
+	// water to go ... had to drop" became a weather report for Drop, Poland): the
+	// take only when the line looks up its kind's own card ("weather" -> weather.md,
+	// by that card's words); else it goes to the chat as the line it is.
+	if !gopodLineIsKind(text, kind) {
+		logger.Println("GOPOD_NATIVE " + intent + " to the chat as a plain line - no " + kind + " card for: " + text)
+		return true
+	}
 	gopodNativeTake.Store(gopodBrobotName(esn), gopodNativeAsk{kind, strings.TrimSpace(strings.ToLower(text))})
 	logger.Println("GOPOD_NATIVE " + intent + " to the chat for its manager (" + kind + "): " + text)
 	return true
+}
+
+// gopodLineIsKind: the line looks up a card named for the kind (weather.md for
+// "weather") - the card's own words decide, mishears ("whether") included.
+func gopodLineIsKind(text, kind string) bool {
+	for _, c := range gopodLookup(text) {
+		if strings.Contains(strings.ToLower(filepath.Base(c.Path)), strings.ToLower(kind)) {
+			return true
+		}
+	}
+	return false
 }
 
 // gopodNativeTakeIs: a native intent left this take kind for this line of his.

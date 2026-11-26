@@ -1,6 +1,6 @@
 # bookings - a day of parties
 
-- **words:** party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, time of day, custom event
+- **words:** party, let's go, let's do it, fun, hang out, normal day, typical day, your day, day in the life, rapid fire, walk me through, morning sessions, afternoon sessions, evening sessions, morning gigs, afternoon gigs, evening gigs, morning shows, afternoon shows, evening shows, mornings, afternoons, evenings, morning bookings, afternoon bookings, evening bookings, morning & afternoon, morning and afternoon, at night, nights, custom events, events, in the evening, times of day, custom event
 - **reminder:** Hey, that reminds me... At a party, GOPOD means live Brobot-hosted fun.
 - **say 1:** Yes - we do sessions in the mornings, afternoons and evenings, and custom events too. Which time of day suits your crowd?
 - **say 2:** Mornings: seniors' bingo at residences and day programs - Chocolate Bingo too. Dates go out first in the CRUSHN8R CREW'd newsletter.
@@ -13,6 +13,11 @@
 - **notes 4:** Evenings and nights | general audience | bars & comedy clubs | casinos & 18+ rooms
 - **notes 5:** Custom events | birthdays, BBQs, fundraisers | your room, your time | the newsletter
 - **summary:** Sessions: mornings, afternoons, evenings, custom events | Mornings: seniors' bingo | Afternoons: classrooms | Evenings and nights: general audience, bars & comedy clubs, casinos & 18+ rooms | Custom: birthdays, BBQs, fundraisers
+- **ask 1:** Brobot 1, what times of day do you play?
+- **ask 2:** Brobot 2, what about mornings?
+- **ask 3:** Brobot 1, and afternoons?
+- **ask 4:** Brobot 2, what do you do at night?
+- **ask 5:** Brobot 1, can you do a custom event?
 
 ---
 

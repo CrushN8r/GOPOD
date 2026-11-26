@@ -8,6 +8,9 @@
 - **notes 2:** dinner before dessert | prove the real thing first | a demo of a demo of a demo
 - **notes 3:** names you remember | Brobots, GOPOD Yourself | they lead back here
 - **summary:** Golden: tested and proven | dinner before dessert: prove the real thing first, a demo of a demo of a demo | names you remember: Brobots, GOPOD Yourself, they lead back here
+- **ask 1:** Brobot 2, what does golden mean?
+- **ask 2:** Brobot 1, what's dinner before dessert?
+- **ask 3:** Brobot 2, why all the funny words and weird names?
 
 ---
 

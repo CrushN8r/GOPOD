@@ -279,7 +279,9 @@ var gopodSystemTests = []gopodSystemTest{
 		ok := true
 		for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 			at, seen := gopodBatteryLast.at[esn]
-			if !seen || time.Since(at) > 10*time.Minute {
+			// 2026-11-26 (audit 01:34, both robots offline, "robots" passed): a
+			// reading that's an error ("unknown: rpc error ...") is not heard.
+			if !seen || time.Since(at) > 10*time.Minute || strings.HasPrefix(gopodBatteryLast.text[esn], "unknown") {
 				ok = false
 				out = append(out, gopodBrobotName(esn)+" not heard")
 			} else {

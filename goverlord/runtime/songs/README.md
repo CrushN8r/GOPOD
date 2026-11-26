@@ -58,6 +58,10 @@ over `knobs.json`), `runs/` and `notation/`.
 - **ask:** Tell me about your songs
 - **summary:** the Bingo test: two Brobots, three Bingo balls | the nap: we sleep through the narrated poem, wake up together | the fart joke: an elevator, three farts | the interview: scripted questions, the same every time
 - **source:** goverlord/runtime/songs/README.md
+- **ask 1:** Brobot 2, what songs do you do?
+- **ask 2:** Brobot 1, and the song where you two fall asleep?
+- **ask 3:** Brobot 2, what's the song in the elevator?
+- **ask 4:** Brobot 1, and the interview song?
 
 ---
 

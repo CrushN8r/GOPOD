@@ -9,6 +9,7 @@
 1. more_words: tell me all | all about | explain | why | how does | how do | what happened | the story | everything | go on | tell me more
 2. drop_sentences_with: the response reflects | this response | the response above | as an ai language model | would like me to continue | want me to continue | like to continue | use emojis in your responses | need more assistance | let me know | at your discretion | emoji combos | never the same combo | variety of emojis
 3. not_sentence_ends: Dr. | Mr. | Mrs. | Ms. | St. | vs. | etc. | e.g. | i.e.
+4. link_hosts: crushn8r.ca | crushn8r.com | flare4.com
 
 ## Brand words, "from: to" (reply_tighten.brand_words)
 1. robots: Brobots
@@ -17,7 +18,8 @@
 4. Explain the Math!: Explain the MAth!
 
 ## Clean politics (clean_politics)
-1. continents: africa | europe | asia | south america | north america | oceania | the middle east
+1. never_in_line: Let's keep it GOPOD - GOPOD Yourself!
+2. continents: africa | europe | asia | south america | north america | oceania | the middle east
 
 ## clean_politics words (clean_politics.words[])
 1. zionist

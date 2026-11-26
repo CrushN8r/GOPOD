@@ -158,7 +158,7 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if cluster && strings.HasPrefix(t, "# ") {
 				c.Body = append(c.Body, strings.TrimPrefix(t, "# "))
 			}
-			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && k != "about" && k != "owner" && k != "see also" && strings.TrimSpace(v) != "" {
+			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && !strings.HasPrefix(k, "ask ") && k != "about" && k != "owner" && k != "see also" && strings.TrimSpace(v) != "" {
 				c.Body = append(c.Body, strings.TrimSpace(v))
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "see also" && cluster {

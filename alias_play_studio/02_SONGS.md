@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** How do I make a song?
 - **summary:** a song is a folder | each step names its note | a note is a piano key, proven live first
 - **source:** alias_play_studio/02_SONGS.md
+- **ask 1:** Brobot 1, tell me about making a song
+- **ask 2:** Brobot 2, making a song - what goes in each step of knobs json?
+- **ask 3:** Brobot 1, making a song, what is a note - a piano key?
 
 ---
 

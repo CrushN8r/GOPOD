@@ -9,6 +9,9 @@
 - **notes 1:** Doc | Doctrine Barfallonyou Spewer | DocBS for short | gruff, rapid-fire, sure of himself | never punches down
 - **notes 2:** Pip | Pippen Stall, from terminal command, pip install | PipTA, teacher's assistant | one step behind but happy
 - **summary:** Doc: Doctrine Barfallonyou Spewer, DocBS for short, gruff, rapid-fire, sure of himself, never punches down | Pip: Pippen Stall, from terminal command, pip install, PipTA, teacher's assistant, one step behind but happy | Doc & Pip: Doc explains too hard, Pip gets it too late, laugh, then learn
+- **ask 1:** Brobot 2, what's Doc's full name - and what's he like?
+- **ask 2:** Brobot 1, and Pip's full name - and what's he like?
+- **ask 3:** Brobot 2, and Pip's full name - what's the deal with Doc and Pip?
 
 ---
 

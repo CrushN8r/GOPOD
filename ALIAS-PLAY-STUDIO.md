@@ -48,6 +48,10 @@ page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs 
 - **ask:** Tell me about the alias play studio
 - **summary:** GOPOD's reference manual | every rule written once, with its code and its test | GOLDEN means proven live and locked | start with Concepts and terms
 - **source:** ALIAS-PLAY-STUDIO.md
+- **ask 1:** Brobot 1, what's the alias play studio?
+- **ask 2:** Brobot 2, in the alias play studio, is every rule written once, with its code and its test?
+- **ask 3:** Brobot 1, what does GOLDEN mean in the alias play studio?
+- **ask 4:** Brobot 2, where do I start in the alias play studio, with no code?
 
 ---
 

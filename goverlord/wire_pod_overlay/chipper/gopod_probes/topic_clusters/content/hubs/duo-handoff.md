@@ -1,5 +1,5 @@
 # Duo hand-offs - who hands what to whom
-- **words:** hand off, handoff, hands off, hand over, handover, duo, partners
+- **words:** hand off, handoff, hands off, hand over, handover, duo, partners, weather duo, weather report, take on the weather, handed, confirmed, follow up take
 - **ask:** Who hands off to whom?
 - **chain:** every pair at GOPOD that passes the ball
 - **see also:** brobot-1.md, brobot-2.md, chalk-bored.md, playhead-zuminto.md, weather.md, comm-check.md

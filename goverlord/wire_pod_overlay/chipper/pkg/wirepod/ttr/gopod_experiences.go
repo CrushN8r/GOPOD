@@ -8,20 +8,20 @@ package wirepod_ttr
 //
 // An experience is a scripted song the Brobots talk about (each run card's
 // experience in settings game.runs, filled into bingo and experiences at load -
-// gopod_game_engine.go). Before it has played, a question about it
-// (question_word) gets each Brobot's <name>_not_played line (scripted_snippets)
-// and no_run_note. Once a performed line holds its run_marker, the run is
-// remembered as one snapshot note (gopodSharedBrobotChat), the asking Brobot's
-// take goes with it (gopodAddExperienceTakes), the pitch pack stays out, and a
-// question about it ends with his closing remark (gopodExperienceClosing).
+// gopod_game_engine.go). 2026-11-24 (operator: "SIMPLIFY!! NO PATCH SCAR TISSUE
+// ... Q: did you have [this] experience? y/n * if no, say so and move on or
+// redirect * if yes, give your take"): a question about it (question_word) gets
+// one brain line - played or not (brain_chain.experience_yes / experience_no) -
+// and no topic points with it. Played: his closing remark, word for word, is his
+// take. Not played: the move to start it (experience_moves) is the redirect.
+// Once a performed line holds its run_marker, the run is remembered as one
+// snapshot note (gopodSharedBrobotChat).
 
 import (
 	"math/rand"
 	"strings"
 	"sync"
 	"sync/atomic"
-
-	"github.com/sashabaranov/go-openai"
 )
 
 // gopodExperienceList: Bingo, then the settings' experiences, in order.
@@ -93,56 +93,25 @@ func gopodExperienceMarkPlayed(who, text string) {
 	for _, e := range gopodExperienceList() {
 		if e.RunMarker != "" && strings.Contains(text, e.RunMarker) {
 			gopodExperiencePlayed(e).Store(true)
-			gopodExperienceRiffTurns.Range(func(k, _ any) bool { // a new run, a new pick
-				if strings.HasPrefix(k.(string), e.Name+"|") {
-					gopodExperienceRiffTurns.Delete(k)
-				}
-				return true
-			})
 		}
 	}
 }
 
-// gopodExperienceClosing: the closing remark for a question about an
-// experience - once it has played, his own (closing, by Brobot); then, in the
-// second answer of a line to both (operator 2026-10-26: "'start Bingo test' in
-// 2nd response regardless (A/B or B/A), before reminders"), before and after
-// alike, experience_move with its run_name. "" for none.
+// gopodExperienceClosing: the end of an answer about an experience - played, his
+// closing remark word for word (his take); not played, the move to start it (the
+// redirect). Otherwise a covered topic's own closing remark (gopod_topic_asks.go).
 func gopodExperienceClosing(esn, question string) string {
-	for _, e := range gopodExperienceList() {
-		if !gopodIsExperienceQuestion(e, question) {
-			continue
+	if e := gopodExperienceAsked(question); e != nil {
+		if gopodExperienceRan(e) {
+			return strings.TrimSpace(e.Closing[gopodBrobotName(esn)])
 		}
-		var parts []string
-		if gopodExperienceRan(e) && !gopodExperienceClosingTurn(e, esn) {
-			parts = append(parts, strings.TrimSpace(e.Closing[gopodBrobotName(esn)]))
+		// A line to both: only the second answer redirects (one "start ..." is enough).
+		if _, first := gopodAllFirstAnswer.Load(esn); !first && e.RunName != "" {
+			return gopodExperienceMove(e.RunName)
 		}
-		if kind, n := gopodResponseSlot(esn); kind == "duo" && n == 1 && e.RunName != "" {
-			parts = append(parts, gopodExperienceMove(e.RunName))
-		}
-		if line := strings.TrimSpace(strings.Join(parts, " ")); line != "" {
-			return line
-		}
+		return ""
 	}
-	// 2026-10-26: no song for it - a covered topic's own closing remark (gopod_topic_asks.go).
 	return gopodTopicClosing(question)
-}
-
-var gopodExperienceRiffTurns sync.Map // name + "|" + Brobot -> bool
-
-// gopodExperienceClosingTurn: true when this run's closing is the riff on his
-// closing_riff, false for the word-for-word closing - picked at random once
-// per run (operator 2026-10-27: "randomly take turns from run to run").
-func gopodExperienceClosingTurn(e *gopodExperience, esn string) bool {
-	name := gopodBrobotName(esn)
-	if strings.TrimSpace(e.ClosingRiff[name]) == "" || strings.TrimSpace(gopodBrobotsSettings.ClosingRiffText) == "" {
-		return false
-	}
-	if strings.TrimSpace(e.Closing[name]) == "" {
-		return true
-	}
-	v, _ := gopodExperienceRiffTurns.LoadOrStore(e.Name+"|"+name, rand.Intn(2) == 0)
-	return v.(bool)
 }
 
 // gopodExperienceMove (2026-10-26, operator: "recover & add a few more to a
@@ -155,81 +124,81 @@ func gopodExperienceMove(run string) string {
 	return strings.TrimSpace(strings.ReplaceAll(moves[rand.Intn(len(moves))], "{run}", run))
 }
 
-// gopodExperienceFacts: for a question about an experience, before it has
-// played its no_run_note and his pre_attitude, after it his post_attitude.
-func gopodExperienceFacts(esn, question string) []string {
-	var out []string
-	for _, e := range gopodExperienceList() {
-		if !gopodIsExperienceQuestion(e, question) {
-			continue
+// gopodExperienceAsked: the experience a question asks about having had - its
+// word and an experience ask (brain_chain.experience_asks: "how was", "did you"...);
+// "do you do bingo?" is the gig, not the run. nil for none.
+func gopodExperienceAsked(question string) *gopodExperience {
+	q := " " + strings.Join(gopodLookupTokens(question), " ") + " "
+	asked := false
+	for _, w := range strings.Split(gopodBrobotsSettings.BrainChain.ExperienceAsks, ",") {
+		if w = strings.Join(gopodLookupTokens(w), " "); w != "" && strings.Contains(q, " "+w+" ") {
+			asked = true
+			break
 		}
-		name := gopodBrobotName(esn)
-		note := ""
-		if !gopodExperienceRan(e) {
-			note = strings.TrimSpace(e.NoRunNote + " " + e.PreAttitude[name])
-		} else {
-			note = strings.TrimSpace(e.PostAttitude[name])
-			if gopodExperienceClosingTurn(e, esn) {
-				riff := strings.ReplaceAll(gopodBrobotsSettings.ClosingRiffText, "{line}", strings.TrimSpace(e.ClosingRiff[name]))
-				note = strings.TrimSpace(note + " " + riff)
+	}
+	if !asked {
+		return nil
+	}
+	for _, e := range gopodExperienceList() {
+		if gopodIsExperienceQuestion(e, question) {
+			return e
+		}
+	}
+	return nil
+}
+
+// gopodExperienceFacts: for a question about an experience, its one brain line -
+// played or not (brain_chain.experience_yes / experience_no, {run} filled).
+func gopodExperienceFacts(esn, question string) []string {
+	e := gopodExperienceAsked(question)
+	if e == nil {
+		return nil
+	}
+	bc := gopodBrobotsSettings.BrainChain
+	line := bc.ExperienceNo
+	if gopodExperienceRan(e) {
+		line = bc.ExperienceYes
+	}
+	run := e.RunName
+	if run == "" {
+		run = e.Name
+	}
+	if line = strings.TrimSpace(strings.ReplaceAll(line, "{run}", run)); line == "" {
+		return nil
+	}
+	return []string{line}
+}
+
+// gopodExperiencePacks (2026-11-24, operator: "Q: did you have [this] experience?
+// y/n"): the topic packs a question gets. A run's own pack (run_pack) goes only
+// with an experience ask once the run has played - his take has the run's facts;
+// not played, none. Every other question keeps its packs but the run packs -
+// "bingo for seniors" is the gig, run or no run.
+func gopodExperiencePacks(question string, packets []loadedScenarioPacket) []loadedScenarioPacket {
+	if e := gopodExperienceAsked(question); e != nil {
+		var out []loadedScenarioPacket
+		if gopodExperienceRan(e) {
+			for _, p := range packets {
+				if p.Name == e.RunPack {
+					out = append(out, p)
+				}
 			}
 		}
-		if note != "" {
-			out = append(out, note)
+		return out
+	}
+	var out []loadedScenarioPacket
+	for _, p := range packets {
+		if !gopodIsRunPack(p.Name) {
+			out = append(out, p)
 		}
 	}
 	return out
 }
 
-// gopodExperienceNotPlayed: the question is about an experience not played yet,
-// matching a scripted_snippets entry's when "<name>_not_played".
-func gopodExperienceNotPlayed(when, userMessage string) bool {
+// gopodIsRunPack: a run's own pack (an experience's run_pack).
+func gopodIsRunPack(pack string) bool {
 	for _, e := range gopodExperienceList() {
-		if e.Name != "" && when == e.Name+"_not_played" {
-			return gopodIsExperienceQuestion(e, userMessage) && !gopodExperienceRan(e)
-		}
-		// 2026-10-26 (operator: "b2 framing, \"Oh! Zero!\""): <name>_played,
-		// a question about it once it has played.
-		if e.Name != "" && when == e.Name+"_played" {
-			return gopodIsExperienceQuestion(e, userMessage) && gopodExperienceRan(e)
-		}
-	}
-	return false
-}
-
-// gopodAddExperienceTakes adds this brother's take to each experience's
-// snapshot note in the shared chat; played but no longer remembered, the
-// snapshot and the take go first. Nothing changes for one not played.
-func gopodAddExperienceTakes(esn string, chat []openai.ChatCompletionMessage) []openai.ChatCompletionMessage {
-	for _, e := range gopodExperienceList() {
-		take, ok := e.Takes[gopodBrobotName(esn)]
-		if !ok || e.SnapshotNote == "" {
-			continue
-		}
-		added := false
-		for i := len(chat) - 1; i >= 0; i-- {
-			if strings.HasPrefix(chat[i].Content, e.SnapshotNote) {
-				chat[i].Content += "\n[" + take + "]"
-				added = true
-				break
-			}
-		}
-		if !added && gopodExperiencePlayed(e).Load() {
-			note := openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: e.SnapshotNote + "\n[" + take + "]"}
-			chat = append([]openai.ChatCompletionMessage{note}, chat...)
-		}
-	}
-	return chat
-}
-
-// gopodExperiencePitchSkipped: a pack left out - a pitch pack once its run is
-// in memory (the answer comes from the run), a run_pack until it has played.
-func gopodExperiencePitchSkipped(pack string) bool {
-	for _, e := range gopodExperienceList() {
-		if e.PitchPack != "" && pack == e.PitchPack && gopodExperienceRan(e) {
-			return true
-		}
-		if e.RunPack != "" && pack == e.RunPack && !gopodExperienceRan(e) {
+		if e.RunPack != "" && pack == e.RunPack {
 			return true
 		}
 	}

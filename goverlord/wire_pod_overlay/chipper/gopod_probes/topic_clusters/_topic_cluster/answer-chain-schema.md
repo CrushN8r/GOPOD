@@ -25,3 +25,4 @@
 19. rule
 20. who_line
 21. manager_take
+22. contact

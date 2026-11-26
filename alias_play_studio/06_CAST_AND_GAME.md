@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the GOPOD game
 - **summary:** AI Wordplay! Explain the MAth! is a game | one session score: topics, value points, eggs | eggs are prizes that pop up | grand prize: every value point revealed
 - **source:** alias_play_studio/06_CAST_AND_GAME.md
+- **ask 1:** Brobot 1, tell me about the GOPOD game
+- **ask 2:** Brobot 2, in the GOPOD game, what is an egg?
+- **ask 3:** Brobot 1, what's the grand prize in the GOPOD game?
 
 ---
 

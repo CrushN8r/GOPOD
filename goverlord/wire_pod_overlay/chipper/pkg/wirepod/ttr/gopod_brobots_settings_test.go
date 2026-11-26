@@ -61,15 +61,12 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 	for q, want := range map[string]string{
 		"are you on TikTok":         "No - I'm on GOPOD!",
 		"can I book you":            "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!",
-		"do you want to play bingo": "Another test performance?", // 2026-10-26: the pre-bingo line
+		"do you want to play bingo": "", // 2026-11-24: an experience question has no opener - its one line (gopod_experiences.go)
 		"tell me all about GOPOD":   "",
 	} {
 		if got := gopodScriptedSnippet("ESN01", q, "start", ""); got != want {
 			t.Errorf("snippet for %q = %q, want %q", q, got, want)
 		}
-	}
-	if got := gopodScriptedSnippet("ESN02", "do you want to play bingo", "start", ""); got != "Another test performance?" {
-		t.Errorf("Brobot 2's pre-bingo line = %q", got)
 	}
 	if got := gopodScriptedSnippet("ESN02", "what's your favourite food", "end", "happy___ Pizza and beer, bro!"); got != "Chocolate Bingo is fun for kids and adult kids too!" {
 		t.Errorf("end line for a pizza reply = %q", got)
@@ -1816,7 +1813,8 @@ func TestQRCodeTemplateHolds(t *testing.T) {
 		url, _ := m["url"].(string)
 		img, _ := m["image"].(string)
 		title, _ := m["title"].(string)
-		if len(words) == 0 || !strings.HasPrefix(url, "http") || title == "" || img == "" {
+		// 2026-11-24: an email QR too (the contact QR, "mailto:").
+		if len(words) == 0 || !(strings.HasPrefix(url, "http") || strings.HasPrefix(url, "mailto:")) || title == "" || img == "" {
 			t.Errorf("qr code %v: words, url, title and image", m)
 			continue
 		}

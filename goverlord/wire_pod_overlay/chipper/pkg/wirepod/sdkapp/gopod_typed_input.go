@@ -145,6 +145,11 @@ func gopodRunHandler(w http.ResponseWriter, r *http.Request) {
 		pid, _ := strconv.Atoi(r.FormValue("pid"))
 		ok, busy := wirepod_ttr.GopodRunStart(r.FormValue("name"), r.FormValue("kind"), pid)
 		reply["ok"], reply["busy"] = ok, busy
+	case "anim_wait":
+		// 2026-11-25 (operator: "Wait! * searching_animation * I-9? ..." - Bingo 0403's
+		// searching queued behind "Wait!"'s own clip, so its line showed first): a
+		// song's move waits until the Brobot's last animation is done.
+		reply["waited_ms"] = wirepod_ttr.GopodAnimationWaitDone(r.FormValue("serial"))
 	case "end":
 		wirepod_ttr.GopodRunEnd(r.FormValue("name"), r.FormValue("reason"))
 	default:

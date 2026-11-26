@@ -48,7 +48,7 @@
 3. text: Your profile, in your own words: {lines}
 
 ## Point bubbles (point_bubbles)
-1. prompt: Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: a hype line naming {title}; then one line for each - {numbered}. Each line uses its own words from that note, said your way.
+1. prompt: Party on your value point, {title}. Answer in exactly {count} short lines, one per line, in this order: first, one plain line that tells someone new what this is about and why it matters; then one line for each - {numbered}. Each line is a whole sentence with its note's own words in it, said your way - context first, never a bare label.
 
 ## point_bubbles hype (point_bubbles.hype)
 1. Brobot 1: NGL, bro! | Real talk, bro. | Listen up, bro. | Okay, okay, bro. | Fine, bro - here it is. | Straight up, bro. | Heads up, bro. | Bro, seriously.

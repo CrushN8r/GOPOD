@@ -22,13 +22,14 @@ func TestNapExperienceChain(t *testing.T) {
 	saved := flag.Load()
 	defer flag.Store(saved)
 	flag.Store(false)
-	q := "tell me about your dreams"
+	q := "did you have any dreams?" // 2026-11-24: an experience ask (brain_chain.experience_asks)
 	if gopodIsBingoQuestion(q) || !gopodIsExperienceQuestion(nap, q) {
 		t.Fatal("a dreams question is the nap's, not Bingo's")
 	}
-	// Pre: no run in memory here (the test feed is empty), so the pre lines match.
-	if !gopodExperienceInMemory(nap) && !gopodExperienceNotPlayed("nap_not_played", q) {
-		t.Error("before the nap: nap_not_played should match")
+	// Not played: its one line says so (brain_chain.experience_no).
+	no := gopodExperienceFacts(gopodBrobot1ESN, q)
+	if gopodExperienceInMemory(nap) == false && (len(no) != 1 || !strings.Contains(no[0], "not played")) {
+		t.Errorf("before the nap: %q", no)
 	}
 	// The operator's own line doesn't count; the nap's first caption does.
 	gopodExperienceMarkPlayed("Operator", nap.RunMarker)
@@ -36,19 +37,13 @@ func TestNapExperienceChain(t *testing.T) {
 		t.Error("the operator's line counted as the nap")
 	}
 	gopodExperienceMarkPlayed("Narrator", "Cupped in my hands,|are a pair of sleepy robots.")
-	if !flag.Load() || gopodExperienceNotPlayed("nap_not_played", q) {
-		t.Error("after the nap: played, and no pre lines")
+	yes := gopodExperienceFacts(gopodBrobot1ESN, q)
+	if !flag.Load() || len(yes) != 1 || !strings.Contains(yes[0], "you played it") {
+		t.Errorf("after the nap: played, its one line %q", yes)
 	}
-	// Post: his take goes with the nap's snapshot (it refers to being rescued).
-	chat := gopodAddExperienceTakes(gopodBrobot1ESN, nil)
-	found := false
-	for _, m := range chat {
-		if strings.HasPrefix(m.Content, nap.SnapshotNote) && strings.Contains(m.Content, nap.Takes["Brobot 1"]) && strings.Contains(m.Content, "rescued by Ron") {
-			found = true
-		}
-	}
-	if !found {
-		t.Errorf("no nap snapshot with Brobot 1's take: %v", chat)
+	// Played: his closing remark is his take, word for word.
+	if got := gopodExperienceClosing(gopodBrobot1ESN, q); got != strings.TrimSpace(nap.Closing["Brobot 1"]) {
+		t.Errorf("after the nap, his take %q", got)
 	}
 }
 
@@ -68,13 +63,17 @@ func TestNapMoveInSecondAnswer(t *testing.T) {
 	if gopodExperienceInMemory(nap) {
 		t.Skip("a nap run in this test's memory")
 	}
-	q := "Is there anything more about dreaming you'd like to add?"
+	q := "how was dreaming?"
 	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 		gopodAllFirstAnswer.Store(esn, true)
 		if got := gopodExperienceClosing(esn, q); got != "" {
 			t.Errorf("first answer (%s) got the move: %q", gopodBrobotName(esn), got)
 		}
 		gopodAllFirstAnswer.Delete(esn)
+	}
+	// The second answer (or a single one) redirects with a move.
+	if got := gopodExperienceClosing(gopodBrobot2ESN, q); !strings.Contains(got, nap.RunName) {
+		t.Errorf("second answer, not played: no move to %q: %q", nap.RunName, got)
 	}
 	if nap.RunName == "" || len(gopodBrobotsSettings.ExperienceMoves) != 5 {
 		t.Error("no run_name, or not 5 experience_moves")

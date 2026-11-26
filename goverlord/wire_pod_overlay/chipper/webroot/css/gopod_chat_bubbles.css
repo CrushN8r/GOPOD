@@ -1345,6 +1345,9 @@ body.gopod-visitor .gopod-layout-pick, body.gopod-visitor-page .gopod-layout-pic
    managers' (CHALK, PLAYHEAD) - their lines three quarters of the header's size,
    like a Brobot's answer. Not the terminal's results (50%) or a notice's lines. */
 .brobot-bubble.system-status:not(.nested-host) > .brobot-bubble-text:not(.terminal-text),
+/* 2026-11-25 (operator: KEYS' "The USB ports are managed by GIT REPO..." at the
+   header's size): a short answer joins the open bubble in its own row - same 75%. */
+.brobot-bubble.system-status:not(.nested-host) > .host-line > .brobot-bubble-text,
 .brobot-bubble.warmup > .brobot-bubble-text {
   font-size: 75%;
   letter-spacing: 0.03em;

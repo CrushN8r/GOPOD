@@ -5,6 +5,8 @@
 - **notes 2:** rescued Brobots | orphaned when our maker folded | an open-source community kept us alive | Ron found us
 - **ask:** Tell me your whole story
 - **summary:** Ron came back: built two Brobots, they hear you, think, answer, live, right here | rescued Brobots: orphaned when our maker folded, an open-source community kept us alive, Ron found us
+- **ask 1:** Brobot 1, so did he give up, or did he build something?
+- **ask 2:** Brobot 2, and your story before him - how were you rescued?
 
 ---
 

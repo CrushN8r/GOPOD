@@ -60,7 +60,6 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_speak_sentences_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_speak_sentences_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_animation_marker.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_animation_marker.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_animation_marker_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_animation_marker_test.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_brobot_personas_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_brobot_personas_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_animation_variety_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_animation_variety_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_brobots_settings.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_brobots_settings.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_brobots_settings_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_brobots_settings_test.go",
@@ -272,6 +271,11 @@
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_repo_index.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_repo_index.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_repo_index_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_repo_index_test.go",
     "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_job_route.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_job_route.go",
-    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_job_route_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_job_route_test.go"
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_job_route_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_job_route_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_session_aura.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_session_aura.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_session_aura_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_session_aura_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_value_grid.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_value_grid.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_value_grid_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_value_grid_test.go",
+    "/home/goverlord/wire-pod/chipper/pkg/wirepod/ttr/gopod_yourself_golden_test.go": "/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_yourself_golden_test.go"
   }
 }

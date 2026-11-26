@@ -12,6 +12,9 @@ Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_C
 - **ask:** Tell me about the concepts and terms
 - **summary:** the cast, who is who | a golden note, the smallest move | bubble types, input and output
 - **source:** alias_play_studio/01_CONCEPTS.md
+- **ask 1:** Brobot 2, tell me about the concepts and terms
+- **ask 2:** Brobot 1, in the concepts and terms, what is a golden note?
+- **ask 3:** Brobot 2, concepts and terms - which bubble types are input and output?
 
 ---
 

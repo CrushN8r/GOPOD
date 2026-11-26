@@ -25,18 +25,9 @@
 5. snapshot_note: [Not a question - the Brobots performed the scripted interview for the audience in this chat.]
 6. question_word: interview
 7. not_a_test_phrases: interview over |
-8. pitch_pack: ``
-9. run_pack: ``
-10. no_run_note: No interview has been played yet - one short take of your own on it.
-11. takes: {}
-
-## Run 1: Interview - experience - pre_attitude (game.runs.0.experience.pre_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
-
-## Run 1: Interview - experience - post_attitude (game.runs.0.experience.post_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
+8. run_pack: ``
+9. no_run_note: No interview has been played yet - one short take of your own on it.
+10. takes: {}
 
 ## Run 1: Interview - experience - closing (game.runs.0.experience.closing)
 1. Brobot 1: ``
@@ -119,12 +110,11 @@
 4. snapshot_note: [Not a question - the Brobots performed the scripted Baby Brobots nap for the audience in this chat.]
 5. question_word: dream
 6. not_a_test_phrases: []
-7. pitch_pack: ``
-8. no_run_note: No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.
-9. pack: nap
-10. pack_about: The nap's own value points (gopod_probes/topic_clusters/content/chapters/_always/05_nap.md; operator: "another scoped set of value points for the sleep song"), loaded for its questions before and after the nap, outside the chapters.
-11. closing: {}
-12. takes_about: 2026-10-25 (operator: "they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party").
+7. no_run_note: No Baby Brobots nap has been played yet - one short take of your own on dreaming, with attitude.
+8. pack: nap
+9. pack_about: The nap's own value points (gopod_probes/topic_clusters/content/chapters/_always/05_nap.md; operator: "another scoped set of value points for the sleep song"), loaded for its questions before and after the nap, outside the chapters.
+10. closing: {}
+11. takes_about: 2026-10-25 (operator: "they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party").
 
 ## Run 3: Baby Brobots - experience - takes (game.runs.2.experience.takes)
 1. Brobot 1: If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party.
@@ -160,15 +150,14 @@
 5. snapshot_note: [Not a question - the Brobots performed the scripted Fart Joke for the audience in this chat.]
 6. question_word: fart
 7. not_a_test_phrases: []
-8. pitch_pack: ``
-9. run_pack_about: 2026-10-26 (operator: "the run's value points? fart, prank"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.md), loaded for Fart Joke questions once it has played.
-10. run_pack: fart_joke
-11. no_run_note: No Fart Joke has been played yet - one short take of your own on it.
-12. pre_attitude_about: 2026-10-26 (operator: "preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself").
-13. post_attitude_about: 2026-10-26 (operator: "Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)").
-14. closing_about: 2026-10-26: the operator's closing jokes, word for word.
-15. closing_riff_about: 2026-10-27 (operator: "New closing lines * randomly take turns from run to run"; "Use these base lines, riff on them"; Brobot 1 the victim, Brobot 2 the prankster): his base line; each run, his closing is either the closing word for word or a riff on this, at random.
-16. takes_about: 2026-10-26 (operator: "draft the takes and the points from the story as written"): from 03_fart_joke/story.md, its own lines.
+8. run_pack_about: 2026-10-26 (operator: "the run's value points? fart, prank"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.md), loaded for Fart Joke questions once it has played.
+9. run_pack: fart_joke
+10. no_run_note: No Fart Joke has been played yet - one short take of your own on it.
+11. pre_attitude_about: 2026-10-26 (operator: "preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself").
+12. post_attitude_about: 2026-10-26 (operator: "Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)").
+13. closing_about: 2026-10-26: the operator's closing jokes, word for word.
+14. closing_riff_about: 2026-10-27 (operator: "New closing lines * randomly take turns from run to run"; "Use these base lines, riff on them"; Brobot 1 the victim, Brobot 2 the prankster): his base line; each run, his closing is either the closing word for word or a riff on this, at random.
+15. takes_about: 2026-10-26 (operator: "draft the takes and the points from the story as written"): from 03_fart_joke/story.md, its own lines.
 
 ## Run 4: Fart Joke - experience - pre_attitude (game.runs.3.experience.pre_attitude)
 1. Brobot 1: Your attitude: party-bro victim - no experience, unprepared, like a lost burp.
@@ -208,18 +197,9 @@
 5. snapshot_note: [Not a question - the Brobots performed the scripted Rapid Fire test for the audience in this chat.]
 6. question_word: rapid fire
 7. not_a_test_phrases: []
-8. pitch_pack: ``
-9. run_pack: ``
-10. no_run_note: No Rapid Fire test has been played yet - one short take of your own on it.
-11. takes: {}
-
-## Run 5: Rapid Fire - experience - pre_attitude (game.runs.4.experience.pre_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
-
-## Run 5: Rapid Fire - experience - post_attitude (game.runs.4.experience.post_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
+8. run_pack: ``
+9. no_run_note: No Rapid Fire test has been played yet - one short take of your own on it.
+10. takes: {}
 
 ## Run 5: Rapid Fire - experience - closing (game.runs.4.experience.closing)
 1. Brobot 1: ``
@@ -243,18 +223,9 @@
 5. snapshot_note: [Not a question - the Brobots performed the scripted Brobots Ready move for the audience in this chat.]
 6. question_word: brobots ready
 7. not_a_test_phrases: []
-8. pitch_pack: ``
-9. run_pack: ``
-10. no_run_note: No Brobots Ready move has been played yet - one short take of your own on it.
-11. takes: {}
-
-## Run 6: Brobots Ready - experience - pre_attitude (game.runs.5.experience.pre_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
-
-## Run 6: Brobots Ready - experience - post_attitude (game.runs.5.experience.post_attitude)
-1. Brobot 1: ``
-2. Brobot 2: ``
+8. run_pack: ``
+9. no_run_note: No Brobots Ready move has been played yet - one short take of your own on it.
+10. takes: {}
 
 ## Run 6: Brobots Ready - experience - closing (game.runs.5.experience.closing)
 1. Brobot 1: ``

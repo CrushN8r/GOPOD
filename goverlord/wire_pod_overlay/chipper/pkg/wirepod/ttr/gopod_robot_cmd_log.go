@@ -103,6 +103,14 @@ func gopodAnimationWaitDone(esn string) {
 	}
 }
 
+// GopodAnimationWaitDone: gopodAnimationWaitDone for a song (gopod_run
+// action=anim_wait) - how long it waited, in ms.
+func GopodAnimationWaitDone(esn string) int64 {
+	start := time.Now()
+	gopodAnimationWaitDone(esn)
+	return time.Since(start).Milliseconds()
+}
+
 func gopodLogSayText(robot *vector.Vector, ctx context.Context, req *vectorpb.SayTextRequest) (*vectorpb.SayTextResponse, error) {
 	what := fmt.Sprintf("say %q", req.GetText())
 	sent := gopodRobotCmdSend(robot, what)

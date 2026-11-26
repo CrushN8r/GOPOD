@@ -2,7 +2,7 @@
 # goverlord/wire_pod_overlay/harvest_dry_run.sh
 #
 # The harvest dry run (operator 2026-10-06): every question in
-# chipper/gopod_probes/interview_harvest/harvest_questions.json through the
+# the game's questions (each topic card's "ask N" lines) through the
 # Brobots' real chat path - same prompt, same LLM, same reply shaping - with no
 # robots and no live file touched (TestGopodHarvestRun, gopod_harvest_test.go).
 # Each answer is a take; the takes go to a run folder and onto the take sheet,
@@ -12,7 +12,7 @@
 #   harvest_dry_run.sh render        only redraw take_sheet.md after editing take_sheet.json
 #   harvest_dry_run.sh render-draft  only redraw the newest draft_performance.md after editing its .json
 #   harvest_dry_run.sh best-takes    build a draft from the take sheet's keepers ("keep": true, one per point)
-#   harvest_dry_run.sh questions F   a full dry run of question file F (same shape as harvest_questions.json)
+#   harvest_dry_run.sh questions F   a full dry run of question file F (a JSON file: {"questions": [{"topic", "to", "ask"}]})
 #
 # Each run also writes draft_performance.json/.md (operator 2026-10-07: "Do a
 # full dry run ... fully featured, fully logged ... replay a 'draft performance
