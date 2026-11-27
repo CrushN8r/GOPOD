@@ -113,6 +113,9 @@ hidden in code.
 | **Desk start** | `source ~/.bashrc; gorepo; lsusb; wpr 2`, then F5 (below). |
 | **`pha0b`** | Plays a range of a song's steps, live or dry. |
 | **`gohockey`** | GOPOD VR/AR air hockey: the overhead camera, a virtual puck, Brobot A (wearing the pink square) wakes, leaves his charger and parks in front of his net, then keeps goal while Brobot B referees and cheers; `gohockey 2` swaps them. Three parts: 1 park, 2 the game, 3 close. Close the window to stop. |
+| **`gofps`** | The Brobots' face frame rate on 1.6-rebuild: `gofps 30` or `gofps 60`, both Brobots or one (`gofps 30 1`); `gofps` alone says what each is set to. 30 fps is cooler and easier on the battery. Takes effect after the Brobot reboots. |
+| **`gopower`** | The Brobots' performance profile on 1.6-rebuild: `gopower normal` (533 MHz, the least battery), `balanced` (729 MHz) or `high` (1.26 GHz, hotter); both or one (`gopower normal 2`); `gopower` alone says what each is on. Takes effect at once. |
+| **`goinit`** | A session's start in one go: to the repo, the Brobots on balanced power (`gopower balanced`), their frame rate shown (`gofps`), then Wire-Pod restarted (`wpr 2`). |
 | **`score`** | Prints a song's steps, on screen. |
 | **phcal** | The bench: tune one move or sound on one robot. |
 

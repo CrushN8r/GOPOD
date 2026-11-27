@@ -296,6 +296,19 @@ normal pairing can't log it in):
    faces and photos stay.
 4. Back in Bot Setup's top box: connect over Bluetooth and Activate.
 
+**How ours are set for a show:** 30 fps and the balanced profile (729 MHz). Out of the box
+they ran 60 fps and hot (81-85 C), working flat out; at 30 fps they run cooler and calmer.
+- `gofps 30|60 [1|2]`: the frame rate. 1.6-rebuild runs at 30 fps when the empty file
+  `/data/data/rebuild/using-30-fps` is on the robot (set over SSH with the unlock key);
+  the Brobot needs a reboot for it.
+- `gopower normal|balanced|high [1|2]`: the profile, through the robot's own page
+  (`/api/mods/FreqChange/set?freq=0|1|2`). Normal is 533 MHz, high 1.26 GHz. No reboot.
+- `goinit`: a session's start in one go: the repo, balanced power, the frame rate shown,
+  Wire-Pod restarted.
+
+**A full Brobot on his charger reads about 3.6 V** and stops charging, with his own level
+FULL. GOPOD's battery watch and the security sweep treat that as powered.
+
 **Gotcha:** anything else on port 8080 (a web server used to host the update, for example)
 stops Wire-Pod from starting. Stop it first.
 
