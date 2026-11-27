@@ -22,6 +22,9 @@ Tell me about system | alias_play_studio/07_SYSTEM.md
 Tell me about rules and tests | alias_play_studio/08_RULES_AND_TESTS.md
 Tell me about gears | alias_play_studio/09_GEARS.md
 Tell me about air hockey | alias_play_studio/air-hockey/README.md
+Tell me about brobots settings | alias_play_studio/brobots-settings/README.md
+Tell me about songs | alias_play_studio/songs/README.md
+Tell me about start and wire pod | alias_play_studio/start-and-wire-pod/README.md
 Tell me about goverlord | goverlord/README.md
 Tell me about alias lib overlay | goverlord/alias_lib_overlay/README.md
 Tell me about rules | goverlord/rules/README.md

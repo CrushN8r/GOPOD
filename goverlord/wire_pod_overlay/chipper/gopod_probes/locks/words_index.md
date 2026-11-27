@@ -66,6 +66,15 @@
 ## alias_play_studio/air-hockey/README.md
 - words: air hockey, air hockey and the stage
 
+## alias_play_studio/brobots-settings/README.md
+- words: brobots settings
+
+## alias_play_studio/songs/README.md
+- words: songs
+
+## alias_play_studio/start-and-wire-pod/README.md
+- words: start and wire pod
+
 ## goverlord/README.md
 - words: goverlord
 

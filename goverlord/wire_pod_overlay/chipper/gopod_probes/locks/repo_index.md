@@ -331,6 +331,24 @@
 - Commandments
 - Next
 
+## alias_play_studio/brobots-settings/README.md
+- Brobots settings
+- Tour
+- Commandments
+- Next
+
+## alias_play_studio/songs/README.md
+- Songs
+- Tour
+- Commandments
+- Next
+
+## alias_play_studio/start-and-wire-pod/README.md
+- Start and Wire-Pod
+- Tour
+- Commandments
+- Next
+
 ## goverlord/README.md
 - goverlord
 

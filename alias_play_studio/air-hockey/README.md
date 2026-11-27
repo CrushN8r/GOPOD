@@ -20,4 +20,4 @@
 ## Next
 1. Back to the studio: ALIAS-PLAY-STUDIO.md.
 
-[ALIAS-PLAY-STUDIO](../../ALIAS-PLAY-STUDIO.md)
+[Songs](../songs/README.md) · [ALIAS-PLAY-STUDIO](../../ALIAS-PLAY-STUDIO.md)
