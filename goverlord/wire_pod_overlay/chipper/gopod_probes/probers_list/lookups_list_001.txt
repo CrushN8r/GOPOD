@@ -2,7 +2,7 @@
 # One line each: persona | question | the cards its brain looks up, in order (his own card first).
 # system-test-lookups checks them; GOPOD_WRITE_LOOKUPS=1 on TestLookupsList writes the cards as they are now (after a change on purpose).
 GOVERLORD | who works for you? | math-aftermath-news-channel.md
-GOVERLORD | where do I start? | ACCESSMATH.md, GOPOD_YOURSELF.md
+GOVERLORD | where do I start? | the-show-words.md
 BUTLER | how does the weather work? | manager-takes.md, weather.md, cache-pyc.md, git-repo.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, brobot-1.md, crushn8r_crewd_news_station.md
 BUTLER | how do I subscribe to your newsletter? | gopod_yourself_qr.md, 03_newsletter.md
 GEMMA | what do you do? | 02_who_we_are.md

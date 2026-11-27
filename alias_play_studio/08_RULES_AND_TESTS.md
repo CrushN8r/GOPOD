@@ -1,6 +1,6 @@
 # Golden rules, troubleshooting, tests
 
-Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts and terms](01_CONCEPTS.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
+Part of [ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md) - [Concepts](concepts/README.md) · [Songs](02_SONGS.md) · [The session and runs](03_SESSION.md) · [The Brobots chat](04_CHAT.md) · [Voices and sound](05_VOICES_AND_SOUND.md) · [The cast and the game](06_CAST_AND_GAME.md) · [The system menu, your stuff, the settings](07_SYSTEM.md) · [Golden rules, troubleshooting, tests](08_RULES_AND_TESTS.md) · [The gears](09_GEARS.md)
 
 <details><summary>Game card: rules and tests</summary>
 <!-- gopod topic: 11_rules_and_tests -->
@@ -91,7 +91,7 @@ Rules and tests. Reveal these, in order, in your own words:
 
 | You see | Cause | Fix |
 |---|---|---|
-| Mic or numpad don't work | Not found by `lsusb` | Check the parts by name ([1.6](01_CONCEPTS.md#16-desk-start)); Goverlord says the mic is missing after the warm-up and the numpad works dry. |
+| Mic or numpad don't work | Not found by `lsusb` | Check the parts by name ([the desk start](concepts/the-workbench-words.md#desk-start)); Goverlord says the mic is missing after the warm-up and the numpad works dry. |
 | A deploy didn't take | Wire-Pod started before the deploy | `wpr 2` again, then F5. |
 | Nothing plays after start | The page isn't here | Click **Log**; open the chat; keep the tab visible ("Goverlord awaits your return..."). |
 | A hand edit to `customIntents.json` was lost | Wire-Pod's web config page rewrites the whole file | Restart Wire-Pod after a hand edit, before touching that page. |

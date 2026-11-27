@@ -170,17 +170,6 @@
 - 6. The Brobots on 1.6-rebuild
 - 7. Where this stands
 
-## alias_play_studio/01_CONCEPTS.md
-- Concepts and terms
-- concepts and terms
-- 1. Concepts and terms
-- 1.1 The cast
-- 1.2 The three words
-- 1.3 On stage: the chat page
-- 1.4 The show
-- 1.5 The workbench
-- 1.6 Desk start
-
 ## alias_play_studio/02_SONGS.md
 - Songs: the folder, the notes, making one
 - making a song
@@ -337,6 +326,27 @@
 - Commandments
 - Next
 
+## alias_play_studio/concepts/README.md
+- Concepts
+- concepts and terms
+- Cards
+
+## alias_play_studio/concepts/the-cast.md
+- The cast
+
+## alias_play_studio/concepts/the-chat-words.md
+- The chat words
+
+## alias_play_studio/concepts/the-show-words.md
+- The show words
+
+## alias_play_studio/concepts/the-three-words.md
+- The three words
+
+## alias_play_studio/concepts/the-workbench-words.md
+- The workbench words
+- Desk start
+
 ## alias_play_studio/songs/README.md
 - Songs
 - Tour
@@ -353,11 +363,10 @@
 - goverlord
 
 ## goverlord/alias_lib_overlay/README.md
-- Alias Lib Overlay — backup, not live source
-- What's here
-- Not mirrored, by design
-- Adapt before running
-- Updating this mirror
+- Alias library (copy)
+- Files
+- Not copied (private)
+- Take it home
 
 ## goverlord/rules/README.md
 - rules

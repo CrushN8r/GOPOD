@@ -12,7 +12,6 @@ Tell me about gopod | README.md
 Tell me about social media | SOCIAL_MEDIA.md
 Tell me about third party licenses | THIRD_PARTY_LICENSES.md
 Tell me about wired pod | WIRED-POD.md
-Tell me about concepts | alias_play_studio/01_CONCEPTS.md
 Tell me about songs | alias_play_studio/02_SONGS.md
 Tell me about session | alias_play_studio/03_SESSION.md
 Tell me about chat | alias_play_studio/04_CHAT.md
@@ -23,6 +22,12 @@ Tell me about rules and tests | alias_play_studio/08_RULES_AND_TESTS.md
 Tell me about gears | alias_play_studio/09_GEARS.md
 Tell me about air hockey | alias_play_studio/air-hockey/README.md
 Tell me about brobots settings | alias_play_studio/brobots-settings/README.md
+Tell me about concepts | alias_play_studio/concepts/README.md
+Tell me about cast | alias_play_studio/concepts/the-cast.md
+Tell me about chat words | alias_play_studio/concepts/the-chat-words.md
+Tell me about show words | alias_play_studio/concepts/the-show-words.md
+Tell me about three words | alias_play_studio/concepts/the-three-words.md
+Tell me about workbench words | alias_play_studio/concepts/the-workbench-words.md
 Tell me about songs | alias_play_studio/songs/README.md
 Tell me about start and wire pod | alias_play_studio/start-and-wire-pod/README.md
 Tell me about goverlord | goverlord/README.md

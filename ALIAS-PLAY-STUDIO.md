@@ -10,7 +10,7 @@ the test that locks it. If the code, a song folder and this manual disagree, fix
 
 **Who it is for.** A Wire-Pod owner reading the repo, the owner running the show, and an AI
 assistant working on the code. You do not need to know the code to use it: start with
-[Concepts and terms](alias_play_studio/01_CONCEPTS.md).
+[Concepts](alias_play_studio/concepts/README.md).
 
 **Where things live.** Values are in the settings folder (`webroot/gopod_settings/`) (each block's `about` says
 what it tunes). Go files are in `goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/`. The chat
@@ -26,7 +26,7 @@ page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs 
 
 ## Contents
 
-- [Concepts and terms](alias_play_studio/01_CONCEPTS.md) - 1. Concepts and terms
+- [Concepts](alias_play_studio/concepts/README.md) - the three words, the cast, the chat, show and workbench words
 - [Songs: the folder, the notes, making one](alias_play_studio/02_SONGS.md) - 2. A song folder; 3. The notes; 4. The toolbox and the songs; 5. Making and editing a song
 - [The session and runs](alias_play_studio/03_SESSION.md) - 6. The session and runs
 - [The Brobots chat: ways in, a live reply, the page](alias_play_studio/04_CHAT.md) - 7. Ways in: talking to the Brobots; 8. A live reply; 9. The chat page and its bubbles

@@ -1,6 +1,6 @@
 {
   "topic_clusters": {"folder": "gopod_probes/topic_clusters",
-    "root_docs": ["BOOKING.md", "LIVESTREAM.md", "SOCIAL_MEDIA.md", "ACCESSMATH.md", "MOBILE_GEAR.md", "WIRED-POD.md", "README.md", "goverlord/runtime/songs/README.md", "ALIAS-PLAY-STUDIO.md", "alias_play_studio/06_CAST_AND_GAME.md", "alias_play_studio/07_SYSTEM.md", "GOPOD_YOURSELF.md", "alias_play_studio/01_CONCEPTS.md", "alias_play_studio/02_SONGS.md", "alias_play_studio/03_SESSION.md", "alias_play_studio/04_CHAT.md", "alias_play_studio/05_VOICES_AND_SOUND.md", "alias_play_studio/08_RULES_AND_TESTS.md", "alias_play_studio/09_GEARS.md"],
+    "root_docs": ["BOOKING.md", "LIVESTREAM.md", "SOCIAL_MEDIA.md", "ACCESSMATH.md", "MOBILE_GEAR.md", "WIRED-POD.md", "README.md", "goverlord/runtime/songs/README.md", "ALIAS-PLAY-STUDIO.md", "alias_play_studio/06_CAST_AND_GAME.md", "alias_play_studio/07_SYSTEM.md", "GOPOD_YOURSELF.md", "alias_play_studio/concepts/README.md", "alias_play_studio/02_SONGS.md", "alias_play_studio/03_SESSION.md", "alias_play_studio/04_CHAT.md", "alias_play_studio/05_VOICES_AND_SOUND.md", "alias_play_studio/08_RULES_AND_TESTS.md", "alias_play_studio/09_GEARS.md"],
     "words_left_allowed": 0,
     "words_left_not": ["/", "~", "http", "#", "radial-gradient", "linear-gradient", "repeating-"],
     "words_left_not_words": ["highpass", "lowpass", "overdrive", "echo"],

@@ -36,9 +36,6 @@
 ## WIRED-POD.md
 - words: wired pod, contents, this chat works, nine native files gopod changes, build deploy and test, part 2 the chat page, part 3 the offline llm, local brain, brobots on 1 6 rebuild, where this stands, cloud, internet, brain, your brain, ai, local, offline, what brain, run on, who built you, who made you, under the hood, wifi, wi-fi, wi fi, no cloud, monthly, monthly bill, bill, plug, plugged in, how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
 
-## alias_play_studio/01_CONCEPTS.md
-- words: concepts, concepts and terms, cast, three words, on stage the chat page, show, workbench, desk start, the three words, golden note, who is who
-
 ## alias_play_studio/02_SONGS.md
 - words: songs, making a song, song folder, folder and its files, step names, knobs json the top keys, knobs json each step, notes, played by the song engine, played by the brobots chat, played by wire pod, weather in a line, toolbox and the songs, shared golden pieces, each song s own pieces, parked not lost, making and editing a song, editing a song, multi line words, step goverlord warm 0102, making a new song, llm warm song, llm song run, standard s check, make a song, knobs json, song engine
 
@@ -69,6 +66,24 @@
 ## alias_play_studio/brobots-settings/README.md
 - words: brobots settings
 
+## alias_play_studio/concepts/README.md
+- words: concepts, concepts and terms, cards, the three words, golden note, who is who
+
+## alias_play_studio/concepts/the-cast.md
+- words: cast
+
+## alias_play_studio/concepts/the-chat-words.md
+- words: chat words
+
+## alias_play_studio/concepts/the-show-words.md
+- words: show words
+
+## alias_play_studio/concepts/the-three-words.md
+- words: three words
+
+## alias_play_studio/concepts/the-workbench-words.md
+- words: workbench words, desk start
+
 ## alias_play_studio/songs/README.md
 - words: songs
 
@@ -79,7 +94,7 @@
 - words: goverlord
 
 ## goverlord/alias_lib_overlay/README.md
-- words: alias lib overlay, s here, not mirrored by design, adapt before running, updating this mirror
+- words: alias lib overlay, alias library, files, not copied, take it home
 
 ## goverlord/rules/README.md
 - words: rules

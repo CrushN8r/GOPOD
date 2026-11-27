@@ -1,47 +1,23 @@
-# Alias Lib Overlay — backup, not live source
+# Alias library (copy)
 
-The studio's standard, notes and golden rules: [ALIAS-PLAY-STUDIO.md](../../ALIAS-PLAY-STUDIO.md).
+A copy of GOPOD's terminal alias library. The live one is `~/.gopod_alias_lib/`, loaded from
+`~/.bash_aliases`. Each alias has its card in [alias_play_studio/](../../alias_play_studio/).
 
-**This folder is a backup and showcase. It is never sourced live.** The live shell source
-is `~/.gopod_alias_lib/`, loaded from `~/.bash_aliases` (`brobots.sh`) - the one load place. This folder mirrors it for backup and for anyone taking
-the alias play studio home (WIRED-POD.md, "Take Out", part 1).
+## Files
 
-## What's here
+- `brobots.sh` - every GOPOD terminal alias.
+- `phcal_isolate_001.py`, `phcal_apply_001.py` - phcal's tools.
+- `robot_pick_001.py`, `tempo_set_001.py` - the robot picker and tempo-set's tool.
+- `phcal_config.example.json`, `gopod_audio_config.example.sh` - copy each without `.example`
+  into `~/.gopod_alias_lib/` and put in your own values.
 
-- **`brobots.sh`** — the cockpit:
-  - `pha0b` (PLAYHEAD: pick a song, play a range of it, live or dry), with its menu and prompts;
-  - `phcal` (tune one arm, nod, cube light or animation on one robot);
-  - `score` / `score-save` (print a song's score), and `tempo-set`;
-  - `gobingo` (the live Bingo game), `gohockey` (VR/AR air hockey);
-  - `gofps`, `gopower`, `goinit` (the Brobots' frame rate, power profile, a session's start);
-  - the speakers and USB mic, set by `wpr` (`gopod_audio_config.sh`, private; see the example).
-  - The songs it knows are `bingo` and `nap`.
-- **Python tools** — `phcal_isolate_001.py`, `phcal_apply_001.py`, `robot_pick_001.py`,
-  `tempo_set_001.py`, and the example configs. The chat page's numpad keys (who each one
-  talks to) are in the repo now: `gopod_probes/topic_clusters/personas/company/99_system/numpad-mapper.md`.
-- **`wpr` / `wps` / `wpq`** (restart and check Wire-Pod) live in `~/.bash_aliases`, not here.
+## Not copied (private)
 
-**Retired:**
-- `llm.sh` (`llm-*`) and `wirepod_logs.sh` (`wirepod*logs`), 2026-11-27 - never typed, no caller; the startup audio check (`wpr` sets the routing);
-- `core.sh` (the opening chord), `demo.sh` (the PTT demos), `chat_capture.sh`;
-- `openwebui.sh`, `goverlord.sh` and `suits.sh` (the Open WebUI / suits lane);
-- `frame0.sh`, `tools.sh`, `gopod_json_capture.py`, `print_numpad_map_001.py`,
-  `phcal_apply_control_song_001.py`;
-- from `brobots.sh`: the interview, vamp, Awaken, Is That You and cross-persona entries,
-  along with every helper only they used.
+- `local_config.sh` - this machine's addresses.
+- `gopod_audio_config.sh` - this machine's speaker and mic names.
+- `phcal_config.json`, `phcal_last.json` - this machine's values and last tuning.
 
-## Not mirrored, by design
+## Take it home
 
-- `local_config.sh` — this machine's private addresses. Wire-Pod's voice-command scripts
-  source it too.
-- `phcal_config.json`, `phcal_last.json` — this machine's own values and last tuning.
-- Run logs and `__pycache__/`.
-
-## Adapt before running
-
-The files carry this machine's `/home/goverlord/...` paths; change them for yours.
-
-## Updating this mirror
-
-There is no sync script. Copy from `~/.gopod_alias_lib/` by hand, on request, and check with
-`cmp`.
+Copy this folder to `~/.gopod_alias_lib/`, change the `/home/goverlord/...` paths to yours, and
+load `brobots.sh` from `~/.bash_aliases`.

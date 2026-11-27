@@ -310,7 +310,7 @@ How GOPOD is played: the Alias Play Studio.
 - **The cast.** Each persona is one file in
   `goverlord/wire_pod_overlay/chipper/gopod_probes/personas/`. Rewrite them; make your own.
 - **Every rule, every note.** [ALIAS-PLAY-STUDIO.md](ALIAS-PLAY-STUDIO.md) - start with
-  [Concepts and terms](alias_play_studio/01_CONCEPTS.md).
+  [Concepts](alias_play_studio/concepts/README.md).
 
 ## Share the glow
 
