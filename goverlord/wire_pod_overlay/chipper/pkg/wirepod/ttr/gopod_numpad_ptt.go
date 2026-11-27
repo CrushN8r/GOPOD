@@ -16,26 +16,13 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Numpad push-to-talk from the Brobots chat page (operator 2026-10-04: "Does my
-// recording via my mic from the web page work? ... please get it to work"). The
-// page watches the numpad of whatever keyboard it sees (the Jetson's own, a PC's
-// through NoMachine) with the golden numpad's rules, and calls start when a live
-// key goes down and stop when it comes up. The mic service records (golden mic
-// pick, 48 kHz master per capture, 16 kHz Vosk) and the words go to the key's
-// Brobot like a typed line. Which key is which Brobot comes from the golden
-// persona map (clusters/system/numpad-mapper.md, the settings numpad_map; was ~/.gopod_alias_lib/numpad_persona_map_001.json):
-// NumLock-on keys with status "live", their body named in numpad_ptt.body_to_brobot.
-
 const gopodPTTStopWait = time.Minute // the release tail + Vosk on up to max_hold_seconds of audio
 
 type gopodNumpadEntry struct {
 	Persona string `json:"persona"`
 	Body    string `json:"body"`
 	Status  string `json:"status"`
-	// 2026-10-30 (operator: "CHALK/PLAYHEAD = same mapping, 2 suits
-	// (indoor/outdoor)"; "KP7/8 + numlock OFF exception"): "reporter" - the
-	// persona in its outdoor suit, answering as its reporter.
-	Suit string `json:"suit"`
+	Suit    string `json:"suit"`
 }
 
 type gopodNumpadMapFile struct {
@@ -44,8 +31,8 @@ type gopodNumpadMapFile struct {
 	NumlockOff map[string]gopodNumpadEntry `json:"numlock_off"`
 }
 
-// gopodNumpadMapPath: map_file, with "~" as the home of the user who owns GOPOD's
-// overlay folder (Wire-Pod runs as root).
+// gopodNumpadMapPath: map_file, with "~" as the home of the user who owns GOPOD's overlay folder
+// (Wire-Pod runs as root).
 func gopodNumpadMapPath() string {
 	path := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.MapFile)
 	if strings.HasPrefix(path, "~/") {
@@ -57,14 +44,12 @@ func gopodNumpadMapPath() string {
 	return path
 }
 
-// gopodNumpadLayoutNow: the layout system-numpad-layout chose since this start
-// ("" - the settings' numpad_ptt.layout).
+// gopodNumpadLayoutNow: the layout system-numpad-layout chose since this start ("" - the settings'
+// numpad_ptt.layout).
 var gopodNumpadLayoutNow atomic.Value
 
-// gopodNumpadLayoutPicked: the layout the chat page sent with its newest key
-// press or map read (2026-11-04, operator: "duplicate existing 'All' drop down
-// menu * assign PC numpad mapping to menu-1 * assign USB-numpad mapping to
-// menu-2 * and visitor app page") - each page picks its own keyboard's layout.
+// gopodNumpadLayoutPicked: the layout the chat page sent with its newest key press or map read -
+// each page picks its own keyboard's layout.
 var gopodNumpadLayoutPicked atomic.Value
 
 // GopodNumpadLayoutPick: the page's layout pick for this press ("" or unknown: none).
@@ -75,8 +60,8 @@ func GopodNumpadLayoutPick(layout string) {
 	}
 }
 
-// gopodNumpadLayout: the numpad_maps layout in use - the page's pick, else
-// system-numpad-layout's, else numpad_ptt.layout, else "usb".
+// gopodNumpadLayout: the numpad_maps layout in use - the page's pick, else system-numpad-layout's,
+// else numpad_ptt.layout, else "usb".
 func gopodNumpadLayout() string {
 	if v, _ := gopodNumpadLayoutPicked.Load().(string); v != "" {
 		return v
@@ -90,8 +75,8 @@ func gopodNumpadLayout() string {
 	return "usb"
 }
 
-// gopodSystemNumpadLayout: "system-numpad-layout [name]" - the layouts and the one
-// in use, or switch to one (kept in numpad_ptt.layout; the chat page takes it on F5).
+// gopodSystemNumpadLayout: "system-numpad-layout [name]" - the layouts and the one in use, or
+// switch to one (kept in numpad_ptt.layout; the chat page takes it on F5).
 func gopodSystemNumpadLayout(text string) string {
 	var names []string
 	for k := range gopodBrobotsSettings.NumpadMaps {
@@ -121,9 +106,6 @@ func gopodNumpadMap() (gopodNumpadMapFile, []byte, error) {
 // gopodNumpadMapIn: one layout's map (numpad_maps.<layout>).
 func gopodNumpadMapIn(layout string) (gopodNumpadMapFile, []byte, error) {
 	var m gopodNumpadMapFile
-	// 2026-11-04 (operator: "build numpad-mapper.md as the one source"): the map is
-	// the settings' numpad_map (clusters/system/numpad-mapper.md); the old
-	// map_file only when there's none.
 	data := []byte(gopodBrobotsSettings.NumpadMaps[layout])
 	if len(data) <= 2 {
 		data = []byte(gopodBrobotsSettings.NumpadMap)
@@ -137,12 +119,12 @@ func gopodNumpadMapIn(layout string) (gopodNumpadMapFile, []byte, error) {
 	return m, data, json.Unmarshal(data, &m)
 }
 
-// GopodNumpadMapJSON is what the page reads: the golden map as it is, plus
-// which body is which Brobot.
+// GopodNumpadMapJSON is what the page reads: the golden map as it is, plus which body is which
+// Brobot.
 func GopodNumpadMapJSON() ([]byte, error) { return GopodNumpadMapJSONFor("") }
 
-// GopodNumpadMapJSONFor: the map and targets in one layout (the page's pick; "" -
-// the one in use), with the layout and the layouts there are.
+// GopodNumpadMapJSONFor: the map and targets in one layout (the page's pick; "" - the one in use),
+// with the layout and the layouts there are.
 func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 	layout = strings.ToLower(strings.TrimSpace(layout))
 	if _, ok := gopodBrobotsSettings.NumpadMaps[layout]; !ok {
@@ -157,22 +139,13 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 		layouts = append(layouts, k)
 	}
 	sort.Strings(layouts)
-	// 2026-10-22 (operator: "numpad mapping sounds like a good template to form
-	// from"): each scripted voice's persona ("Brobot 3" -> CHALK), for the page's
-	// header template - the numpad map's names are the source.
 	reporters := map[string]string{}
 	for name, p := range gopodBrobotsSettings.Managers.Personas {
 		if r := strings.TrimSpace(p.Reporter); r != "" {
 			reporters[r] = name
 		}
 	}
-	// 2026-10-26 (operator: "\"1 robust key detection process\" = Template/unify
-	// so everything goes through 1 place"): who each key talks to, from the one
-	// place that decides it (gopodNumpadBrobot); "" = not live. The page reads
-	// this and nothing else for a key's target.
 	targets := map[string]string{}
-	// 2026-11-13 (operator: "separate robot bodies from personas"): a key to a
-	// robot shows the persona the map names for it (KP1 Doc), never the body.
 	for n := 0; n <= 9; n++ {
 		key := "KP" + strconv.Itoa(n)
 		if label, ok := gopodNumpadKeyLabelIn(layout, key); ok {
@@ -188,7 +161,6 @@ func GopodNumpadMapJSONFor(layout string) ([]byte, error) {
 				targets[gopodNumpadAnyKey] = label
 			}
 		}
-		// NumLock off: its own layer (a key's "off" name, e.g. KP7off).
 		if label, ok := gopodNumpadKeyLabelIn(layout, key+gopodNumlockOffSuffix); ok {
 			targets[key+gopodNumlockOffSuffix] = label
 		}
@@ -209,12 +181,6 @@ func gopodNumpadBrobot(key string) (string, string, error) {
 
 // gopodNumpadBrobotIn: gopodNumpadBrobot in one layout.
 func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
-	// 2026-10-16 (operator: "a long '0' press acts as the mic version of
-	// 'keyboard's 'All' radio button option"): held, it talks to all the Brobots.
-	// 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
-	// exit) * * hold -> all Brobots, in the order selected * / -> skip"): that is
-	// the * key now (gopodNumpadAllKey); KP0 is the map's (the Butler).
-	// 2026-11-17: "." - any persona (gopod_any_persona.go).
 	if strings.EqualFold(key, gopodNumpadAnyKey) {
 		label := strings.TrimSpace(gopodBrobotsSettings.NumpadPTT.Any.Label)
 		if label == "" {
@@ -233,24 +199,16 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	// 2026-10-30: a NumLock-off key - a live persona in its reporter suit.
 	if base, off := strings.CutSuffix(strings.ToLower(key), gopodNumlockOffSuffix); off {
 		base = strings.ToUpper(base)
 		entry, ok := m.NumlockOff[base]
 		host := gopodPersonaFor(entry.Persona)
-		// 2026-11-16 (operator's picker: "-0 Numlock OFF: Goverlord"): the system's
-		// key - its line goes to the system itself (gopodTypedToSystem).
 		if ok && entry.Status == "live" && entry.Suit == "system" {
 			return strings.TrimSpace(entry.Persona), gopodTypedSystem, nil
 		}
-		// 2026-11-09 (operator: "Gemma should also be available in system numpad
-		// mapping"): a live persona with no suit talks as itself, as on NumLock on.
 		if ok && entry.Status == "live" && entry.Suit == "" && host != "" {
 			return host, gopodPersonaMark + host, nil
 		}
-		// 2026-11-13 (operator: "Brobot 1 = KP1 numlock-off * DOC = KP1 numlock-on";
-		// "separate robot bodies from personas"): a robot's own persona on NumLock
-		// off - his body, at the dial's 0% (gopodKeyLine).
 		if ok && entry.Status == "live" && entry.Suit == "robot" {
 			brobot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[entry.Body]
 			if brobot == "Brobot 2" && gopodSolo() {
@@ -270,14 +228,10 @@ func gopodNumpadBrobotIn(layout, key string) (string, string, error) {
 	if !ok || entry.Status != "live" {
 		return "", "", errors.New(key + " is not live")
 	}
-	// 2026-10-18 (operator: "KP7 live is Reporter 1 (female voice) is CHALK
-	// persona * KP8 live is Reporter 2 (male voice) is PLAYHEAD persona"): a
-	// voice-only persona talks to its host (gopodPersonaReply).
 	if host := gopodPersonaFor(entry.Persona); host != "" {
 		return host, gopodPersonaMark + host, nil
 	}
 	brobot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[entry.Body]
-	// 2026-10-29 (the single-bot setup): solo, Brobot 2's key goes to Brobot 1.
 	if brobot == "Brobot 2" && gopodSolo() {
 		brobot = "Brobot 1"
 	}
@@ -294,12 +248,6 @@ const gopodPersonaMark = "persona:"
 // gopodDialZeroMark: a numpad "ESN" that is a robot as himself, at the dial's 0%.
 const gopodDialZeroMark = "dial0:"
 
-// gopodNumpadKeyLabelIn (2026-11-15, operator: "KP# = [nickname] * remove all
-// patchwork * rebuild from persona nickname dynamic lookup"): who a key reaches,
-// as everything shows it - the picker, the comm check, the README's cast - the
-// nickname on that persona's own card (gopodPersonaNickname): a robot's
-// NumLock-on key the persona the body hosts (DOC), NumLock off the robot himself,
-// a reporter-suit key the persona's, the * key the map's All. false: not live.
 func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 	label, target, err := gopodNumpadBrobotIn(layout, key)
 	if err != nil {
@@ -318,8 +266,8 @@ func gopodNumpadKeyLabelIn(layout, key string) (string, bool) {
 	return gopodPersonaNickname(gopodBrobotName(target), true), true
 }
 
-// gopodPersonaNickname: the nickname on who's own card; hosted, the persona the
-// body hosts (Brobot 1 -> DOC). Its call name when a card has none.
+// gopodPersonaNickname: the nickname on who's own card; hosted, the persona the body hosts (Brobot
+// 1 -> DOC).
 func gopodPersonaNickname(who string, hosted bool) string {
 	if hosted {
 		if n := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[gopodHostedPersona(who)].Nickname); n != "" {
@@ -335,8 +283,8 @@ func gopodPersonaNickname(who string, hosted bool) string {
 	return who
 }
 
-// gopodNumpadLiveKeys: the map's live keys in its order - NumLock on KP0-KP9,
-// then NumLock off KP0off-KP9off - each one that reaches someone.
+// gopodNumpadLiveKeys: the map's live keys in its order - NumLock on KP0-KP9, then NumLock off
+// KP0off-KP9off - each one that reaches someone.
 func gopodNumpadLiveKeys() []string {
 	m, _, err := gopodNumpadMap()
 	if err != nil {
@@ -362,9 +310,8 @@ func gopodNumpadLiveKeys() []string {
 	return out
 }
 
-// gopodKeyReaches: the persona a map target reaches - a voice persona, its
-// reporter suit, a Brobot as himself (the dial's 0%), or the persona on a
-// body (DOC, PIP); "" for the line to all.
+// gopodKeyReaches: the persona a map target reaches - a voice persona, its reporter suit, a Brobot
+// as himself (the dial's 0%), or the persona on a body (DOC, PIP); "" for the line to all.
 func gopodKeyReaches(target string) string {
 	switch {
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
@@ -385,24 +332,18 @@ func gopodKeyReaches(target string) string {
 	return ""
 }
 
-// gopodKeyLine (2026-11-13, operator: "Make the numpad like the cohesive spine of
-// info-flow pathways"): one path for a key's line, typed or held - to wherever
-// the map's target says: a voice-only persona, a persona in its reporter suit, a
-// robot as himself (the dial's 0%, for this line only), or a robot's hosted persona.
+// gopodKeyLine: one path for a key's line, typed or held - to wherever the map's target says: a
+// voice-only persona, a persona in its reporter suit, a robot as himself (the dial's 0%, for this
+// line only), or a robot's hosted persona.
 func gopodKeyLine(target, text, how string) error {
 	if gopodNeverIn(text, how) {
 		return nil
 	}
-	// 2026-11-18 (operator: "'start [run-name]', should be only honoured when '0'
-	// (KEYS) is selected, like GOPOD 'system-[text]' commands"): a run command
-	// on 0 runs; on any other key it's just talk (gopodRunFromZero).
 	if gopodRunCommandLine(text) && (target == gopodTypedSystem || target == gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona) {
 		gopodRunFromZero.Store(true)
 		defer gopodCommandFrom(target)()
 		return gopodOperatorLine(gopodTypedAll, text, how)
 	}
-	// 2026-11-23 (operator: "that persona knows & respects its employee limits"):
-	// is it his job? Not, three times running: the GOPOD rep answers (gopod_job_route.go).
 	for _, mark := range []string{gopodPersonaReporterMark, gopodPersonaMark} {
 		if host, ok := strings.CutPrefix(target, mark); ok {
 			if host == gopodGoverlordHost && gopodGoverlordHandsDown(text, how) {
@@ -421,7 +362,6 @@ func gopodKeyLine(target, text, how string) error {
 		return gopodAnyPersonaLine(text, how)
 	case strings.HasPrefix(target, gopodPersonaReporterMark):
 		host := strings.TrimPrefix(target, gopodPersonaReporterMark)
-		// The answer comes as the reporter (CHALK reporter): that's who the queue waits for.
 		suit := gopodBrobotsSettings.Managers.Personas[host].Reporter
 		return gopodLineTurn(text, []string{suit}, func() error {
 			gopodPersonaReplyAs(host, suit, text, how)
@@ -447,17 +387,14 @@ func gopodKeyLine(target, text, how string) error {
 		}()
 		return err
 	}
-	// A robot's NumLock-on key: the persona he hosts, the dial at 100% - set here,
-	// never left over from the line before (live 2026-11-14: KP1 in the comm check
-	// answered as Brobot 1 after a line to all).
 	if target != gopodTypedAll {
 		gopodDialZero.Delete(target)
 	}
 	return gopodOperatorLine(target, text, how)
 }
 
-// gopodPersonaReporterMark: a numpad "ESN" that is a persona in its reporter
-// suit - it answers as its reporter (managers.personas.<host>.reporter).
+// gopodPersonaReporterMark: a numpad "ESN" that is a persona in its reporter suit - it answers as
+// its reporter (managers.personas.<host>.reporter).
 const gopodPersonaReporterMark = "persona-reporter:"
 
 // gopodNumpadAllKey: the numpad's * key held - all the Brobots, in the order selected.
@@ -469,9 +406,8 @@ const gopodNumlockOffSuffix = "off"
 // gopodMicMissing: the USB mic wasn't found after the warm-up (gopodMicCheck).
 var gopodMicMissing atomic.Bool
 
-// gopodMicCheck: the mic (any of numpad_ptt.mic_usb_ids in lsusb) is there, or
-// Goverlord says mic_missing_text (with its bubble) and the numpad works dry.
-// Checked after the warm-up, which then starts the USB watch (gopod_usb_watch.go).
+// gopodMicCheck: the mic (any of numpad_ptt.mic_usb_ids in lsusb) is there, or Goverlord says
+// mic_missing_text (with its bubble) and the numpad works dry.
 func gopodMicCheck() {
 	if !gopodMicLook() {
 		gopodSystemShowSay(gopodBrobotsSettings.NumpadPTT.MicMissingText)
@@ -497,7 +433,6 @@ func gopodMicLook() bool {
 }
 
 // GopodNumpadPTTStart: a live key went down - the mic starts keeping the audio.
-// gopodNumpadLastKey: the key of the newest numpad capture ("KP1").
 var gopodNumpadLastKey atomic.Value
 
 func GopodNumpadPTTStart(key string) map[string]any {
@@ -505,19 +440,14 @@ func GopodNumpadPTTStart(key string) map[string]any {
 	if err != nil {
 		return gopodNumpadPTTError(key, "start", err.Error())
 	}
-	// 2026-10-09 (operator: "LLM not ready? Too bad!! Wait!!"): no recording
-	// before LLM Ready (gopod_llm_warmup.go).
 	if gopodWarmGateClosed.Load() {
 		logger.Println("GOPOD_WARMUP_GATE dropped numpad " + key + " (not ready yet)")
 		return map[string]any{"ok": false, "error": "not_ready"}
 	}
-	// 2026-10-22: Goverlord's mic message isn't done yet - wait for its bubble.
 	if gopodUSBSaying.Load() {
 		logger.Println("GOPOD_NUMPAD_PTT dropped " + key + " (the mic message isn't done yet)")
 		return map[string]any{"ok": false, "error": "wait_message"}
 	}
-	// Mic missing (gopodMicCheck): the key works dry - same messages, nothing kept.
-	// Looked for again first (review: a mic plugged in after the warm-up works).
 	if gopodMicMissing.Load() && !gopodMicLook() {
 		logger.Println("GOPOD_NUMPAD_PTT start key=" + key + " brobot=" + brobot + " (mic disabled)")
 		return map[string]any{"ok": true, "brobot": brobot, "mic_disabled": true}
@@ -536,8 +466,8 @@ func GopodNumpadPTTStart(key string) map[string]any {
 	return r
 }
 
-// GopodNumpadPTTStop: the key came up - the golden tail, then the words, which
-// go to the key's Brobot like a typed line.
+// GopodNumpadPTTStop: the key came up - the golden tail, then the words, which go to the key's
+// Brobot like a typed line.
 func GopodNumpadPTTStop(key string) map[string]any {
 	brobot, esn, err := gopodNumpadBrobot(key)
 	if err != nil {
@@ -560,21 +490,16 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	r["brobot"] = brobot
 	status, _ := r["status"].(string)
 	text, _ := r["text"].(string)
-	// 2026-10-26 (operator: "chock = \"CHALK\" * play head = \"PLAYHEAD\""): GOPOD's
-	// names spelled back (gopod_name_spellings.json) before the line goes
-	// anywhere - a persona's line too, not only the Brobots' (kgsim).
 	if status == "ok" {
 		text = gopodSpellNames(text)
 		r["text"] = text
 	}
 	logger.Println("GOPOD_NUMPAD_PTT stop key=" + key + " status=" + status + " text=" + text)
-	// 2026-10-21: "skip" said into the mic skips the reporters' lines.
 	if status == "ok" && gopodSkipLine(text, "mic") {
 		return r
 	}
 	if status == "ok" && strings.TrimSpace(text) != "" {
 		gopodNumpadLastKey.Store(key) // the bubble reads "KP1 to Brobot 1"
-		// 2026-10-24: its own recording plays as its voice (gopod_mic_voice.go).
 		if master, _ := r["master"].(string); master != "" {
 			gopodMicVoiceRemember(text, master)
 		}
@@ -587,21 +512,19 @@ func GopodNumpadPTTStop(key string) map[string]any {
 	return r
 }
 
-// gopodNumpadPTTError (2026-10-11, operator: "can those error messages be
-// logged in all-logs, as well?"): the error the page shows in its numpad
-// bubble, in Wire-Pod's log too (and so the session's wirepod.log).
+// gopodNumpadPTTError: the error the page shows in its numpad bubble, in Wire-Pod's log too (and so
+// the session's wirepod.log).
 func gopodNumpadPTTError(key, step, msg string) map[string]any {
 	logger.Println("GOPOD_NUMPAD_PTT error key=" + key + " " + step + ": " + msg)
 	return map[string]any{"ok": false, "error": msg}
 }
 
-// gopodCommandTo (2026-11-19, live: "start fart joke" with KEYS picked showed
-// "Keyboard to Brobots"): a command line from a key is shown to the one the
-// numpad map puts on that key - the picker, the key and the header all match.
+// gopodCommandTo: a command line from a key is shown to the one the numpad map puts on that key -
+// the picker, the key and the header all match.
 var gopodCommandTo atomic.Value
 
-// gopodCommandFrom: the header for the command line now being routed from
-// target (a numpad map target); call the result when done.
+// gopodCommandFrom: the header for the command line now being routed from target (a numpad map
+// target); call the result when done.
 func gopodCommandFrom(target string) func() {
 	name := gopodTargetName(target)
 	gopodCommandTo.Store(name)

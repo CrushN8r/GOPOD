@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-// TestAskAhead: Brobot 1's DocBS asks start when his prompt is built; by the
-// time his answer is shaped they're back - the equation's slots used, the colour
-// line just before his reply - with no ask made then.
+// TestAskAhead: Brobot 1's DocBS asks start when his prompt is built; by the time his answer is
+// shaped they're back - the equation's slots used, the colour line just before his reply - with no
+// ask made then.
 func TestAskAhead(t *testing.T) {
 	savedAsk, savedDocBS := gopodOllamaAsk, gopodBrobotsSettings.DocBS
 	defer func() { gopodOllamaAsk, gopodBrobotsSettings.DocBS = savedAsk, savedDocBS }()

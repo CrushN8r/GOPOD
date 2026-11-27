@@ -17,17 +17,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// system-test-* (2026-10-18, operator: "build a full set of
-// system-[test-commands] to test individually, like weather offline, etc... *
-// and be able to chain system-[test-commands] into a comprehensive
-// audit/checklist run"). Each test checks one thing in the running Wire-Pod -
-// nothing is said, nothing moves, no bubble but the answer - and answers PASS
-// or FAIL with what it saw. Typed on the chat page's keyboard:
-//   system-test-list              the tests
-//   system-test-<name>            one test
-//   system-test-a system-test-b   several, in that order
-//   system-test-all               the audit: every test, in system_tests.audit's order
-
 type gopodSystemTest struct {
 	name, about string
 	run         func() (bool, string)
@@ -93,9 +82,6 @@ var gopodSystemTests = []gopodSystemTest{
 		gopodReporter.Lock()
 		ready := gopodReporter.ready
 		gopodReporter.Unlock()
-		// 2026-10-25 (audit: 12 untimed voices, all from 2026-10-18, before forced
-		// alignment, unused since): the voices this start uses must be timed by
-		// Vosk; an old one is made again, timed, the next time it's used.
 		gopodReporterInUse.Lock()
 		inUse := map[string]bool{}
 		for name := range gopodReporterInUse.files {
@@ -153,22 +139,10 @@ var gopodSystemTests = []gopodSystemTest{
 		}
 		return true, fmt.Sprintf("%d eggs on the list", len(list))
 	}},
-	// 2026-10-24 (operator: "Test every: Topic, Value Point, Easter Egg * fullest run
-	// without live brobots"): gopod_game_sweep.go.
 	{"game", "every topic, value point and Easter egg is found by its own words (no robots, no model)", func() (bool, string) {
 		return gopodGameSweepLine(gopodGameSweep())
 	}},
-	// 2026-10-24 (operator: "Add into GOPOD system menu * The replay ... plays the
-	// real chat page code with no robots"): gopod_probes/tools/gopod_page_replay.sh.
-	// 2026-10-28 (operator: "Make the 100% admin run a standing self-check * each
-	// point not revealed * each egg not found * each prize not given * each
-	// reminder that went dry"): gopod_admin_run.go.
 	{"admin-run", "the 100% admin run, every line in order through the game: every value point, egg and prize, and no dry reminder (no robots, no model; the live game is put back)", gopodAdminRunLine},
-	// 2026-10-29 (operator: "create a scripted 'real questions' run to test with *
-	// then test if its working well enough"; "I like the name 'probers list'"):
-	// gopod_probers_list.go.
-	// 2026-10-29 (operator: "simulate, the live pre-show pass, with no brobots *
-	// keep me physically out of the loop"): gopod_preshow.go.
 	{"preshow", "the pre-show pass, simulated: the comm check's KP1-9 routes and prompts, a Doc's BS answer's beats, a low battery's guard warning and dizzy reply (no robots, no model)", gopodPreshowLine},
 	{"probers-list", "the probers list - the operator's own probers from his saved sessions, through the topic loader: the right topic first, lightning against the word triggers (no robots, no model)", gopodProbersListLine},
 	{"lookups", "the lookups list - each persona's question looks up the cards it should, in order: look-up drift caught (no robots, no model)", gopodLookupsListLine},
@@ -216,9 +190,6 @@ var gopodSystemTests = []gopodSystemTest{
 	{"page", "the chat page is open and here", func() (bool, string) {
 		return gopodPageHere(), map[bool]string{true: "here", false: "not here (open it, click Log)"}[gopodPageHere()]
 	}},
-	// 2026-10-19 (operator: "start with the score and the audio test"; pha0b's
-	// audio-routing check): the operator's sound defaults are GOPOD's speaker
-	// and mic (system_tests.audio) - robots can log "say=success" with nothing heard.
 	{"audio", "sound goes to GOPOD's speaker and comes from its mic", func() (bool, string) {
 		a := gopodBrobotsSettings.SystemTests.Audio
 		get := func(what string) string {
@@ -239,9 +210,6 @@ var gopodSystemTests = []gopodSystemTest{
 		}
 		return ok, saw
 	}},
-	// 2026-10-20 (operator: "Edge TPU: the Edge TPU worker isn't ready * how to
-	// test or flip on in system menu?"): the worker is up and names what's in a
-	// known picture (a copy in webroot/visual, so the boxes copy lands there).
 	{"tpu", "the Edge TPU worker is ready and names what's in a picture", func() (bool, string) {
 		gopodQuickLook.Lock()
 		ready := gopodQuickLook.ready
@@ -249,9 +217,6 @@ var gopodSystemTests = []gopodSystemTest{
 		if !ready {
 			return false, "the worker isn't ready - system-tpu restart"
 		}
-		// 2026-10-24 (operator: "PASS tpu: 1 objects: laptop * laptop?" - the
-		// workbook photo, named a laptop): a known picture and what must be in it
-		// (system_tests.tpu) - PASS only when the TPU names it.
 		tt := gopodBrobotsSettings.SystemTests.Tpu
 		src := filepath.Join(gopodChipperRoot(), "webroot", "pictures", tt.Picture)
 		dst := filepath.Join(gopodVisualDir(), "tpu_test.jpg")
@@ -279,8 +244,6 @@ var gopodSystemTests = []gopodSystemTest{
 		ok := true
 		for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 			at, seen := gopodBatteryLast.at[esn]
-			// 2026-11-26 (audit 01:34, both robots offline, "robots" passed): a
-			// reading that's an error ("unknown: rpc error ...") is not heard.
 			if !seen || time.Since(at) > 10*time.Minute || strings.HasPrefix(gopodBatteryLast.text[esn], "unknown") {
 				ok = false
 				out = append(out, gopodBrobotName(esn)+" not heard")
@@ -324,10 +287,6 @@ func gopodSystemTestRun(text string) string {
 			names = append(names, w)
 		}
 	}
-	// 2026-11-13 (live: system-test-game typed again while it ran - a game and
-	// five admin runs at once, each wiping the live game the others were
-	// playing): one test run at a time, in the background; its result comes
-	// when it's done. Neither line starts "system-test" (the audit waits for that).
 	if !gopodTestsRunning.CompareAndSwap(false, true) {
 		return gopodSystemText("system_tests.already_running")
 	}
@@ -371,9 +330,8 @@ func gopodPageReplayRun() (string, error) {
 	return string(out), err
 }
 
-// gopodPageReplayLine: the replay in one line - pass only when every line played,
-// every egg drawn and lit, every Operator line tied to its voice, and no error,
-// stuck line or loop.
+// gopodPageReplayLine: the replay in one line - pass only when every line played, every egg drawn
+// and lit, every Operator line tied to its voice, and no error, stuck line or loop.
 func gopodPageReplayLine(out string, err error) (bool, string) {
 	if err != nil && !strings.Contains(out, "PLAYED ") {
 		return false, gopodSystemText("system_tests.didnt_run", "why", strings.TrimSpace(err.Error()+" "+gopodCut(strings.TrimSpace(out), 200)))
@@ -392,7 +350,6 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 			problems = append(problems, t)
 		case t == "EGGS", t == "LIGHTING ORDER", t == "GOVERLORD LINES", t == "BUBBLES BY KIND", t == "VISITOR MIRROR", strings.HasPrefix(t, "OPERATOR LINES"), strings.HasPrefix(t, "PAGE NOTES"):
 			section = t
-		// 2026-10-24 (link 6): the visitor's page against the main page.
 		case section == "VISITOR MIRROR":
 			if mirror == "" {
 				mirror = t
@@ -428,22 +385,21 @@ func gopodPageReplayLine(out string, err error) (bool, string) {
 	return true, line + ", no errors"
 }
 
-// gopodPactl: the operator's sound system (pactl), run as the operator - Wire-Pod
-// runs as root, the sound belongs to the desktop user.
+// gopodPactl: the operator's sound system (pactl), run as the operator - Wire-Pod runs as root, the
+// sound belongs to the desktop user.
 func gopodPactl(args ...string) (string, error) {
 	uid := os.Getenv("SUDO_UID")
 	if _, u, _ := gopodRecordRoot(); u > 0 {
 		uid = fmt.Sprint(u)
 	}
-	// As the operator (gopodAsOperator, one place since 2026-10-26).
 	cmd := gopodAsOperator(exec.Command("pactl", args...))
 	cmd.Env = append(cmd.Env, "XDG_RUNTIME_DIR=/run/user/"+uid)
 	out, err := cmd.Output()
 	return strings.TrimSpace(string(out)), err
 }
 
-// gopodSetAudioRouting (wpr's own first step, _gopod_set_audio_routing): the
-// speaker and the USB mic as the defaults (system_tests.audio's names).
+// gopodSetAudioRouting (wpr's own first step, _gopod_set_audio_routing): the speaker and the USB
+// mic as the defaults (system_tests.audio's names).
 func gopodSetAudioRouting() string {
 	a := gopodBrobotsSettings.SystemTests.Audio
 	if a.Sink == "" {
@@ -465,24 +421,20 @@ func gopodSetAudioRouting() string {
 	return gopodSystemText("system_tests.speaker_set_no_mic_with", "source_has", a.SourceHas)
 }
 
-// gopodAsOperatorUser: a program run as the operator himself (his user, not only
-// his home) when Wire-Pod runs as root - for anything that writes in his home
-// (the audit's Go test cache).
+// gopodAsOperatorUser: a program run as the operator himself (his user, not only his home) when
+// Wire-Pod runs as root - for anything that writes in his home (the audit's Go test cache).
 func gopodAsOperatorUser(name string, args ...string) *exec.Cmd {
 	uid := os.Getenv("SUDO_UID")
 	if _, u, _ := gopodRecordRoot(); u > 0 {
 		uid = fmt.Sprint(u)
 	}
-	// As the operator (gopodAsOperator, one place since 2026-10-26).
 	cmd := gopodAsOperator(exec.Command(name, args...))
 	cmd.Env = append(cmd.Env, "XDG_RUNTIME_DIR=/run/user/"+uid, "PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin")
 	return cmd
 }
 
-// gopodSystemAudit (2026-10-25, operator: "In GOPOD system please add ... new
-// auditing upgrades"): system-audit runs the full audit
-// (gopod_probes/tools/gopod_full_audit.sh, no robots called) and posts its
-// bottom line and every failed check when it's done.
+// gopodSystemAudit: system-audit runs the full audit (gopod_probes/tools/gopod_full_audit.sh, no
+// robots called) and posts its bottom line and every failed check when it's done.
 var gopodAuditRunning atomic.Bool
 
 func gopodSystemAudit() string {

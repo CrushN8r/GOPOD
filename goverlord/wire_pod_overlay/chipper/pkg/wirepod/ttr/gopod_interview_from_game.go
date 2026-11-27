@@ -11,21 +11,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The interview song from the game (2026-10-23, FINISH_PLAN_001.md step A5;
-// operator: "commit, then A5 please"): the scripted interview is built from the
-// game's own template, so the two never drift apart - one chapter per core topic
-// (value_points.core_topics, in order), one question and answer per value point
-// (core_points). The question is that point's golden interview question
-// (each topic card's "ask N" lines); the answer is the operator's own
-// words - the point's notes, read as sentences (else its say line, else its
-// words) - said by the Brobot the question is to; the reporters take turns. The
-// closer stays the song's own. Each answer step names its point, so playing the
-// song scores the game (gopodScriptAnswer), and the grand prize plays before the
-// closer. Written with the song's own writer (gopodInterviewSongFiles); rebuilt
-// by system-interview-rebuild.
-
-// gopodGameQuestion: one golden interview question - its card's "ask N" line
-// (game_questions, filled from the cards at load: gopod_chapters_folder.go).
+// gopodGameQuestion: one golden interview question - its card's "ask N" line (game_questions,
+// filled from the cards at load: gopod_chapters_folder.go).
 type gopodGameQuestion struct {
 	Chapter string `json:"chapter"`
 	Topic   string `json:"topic"`
@@ -34,7 +21,6 @@ type gopodGameQuestion struct {
 }
 
 // gopodNotesSentences: "Morning | seniors' bingo | Merch too!" -> "Morning.
-// Seniors' bingo. Merch too!" - his words, each a sentence.
 func gopodNotesSentences(title string, notes []string) string {
 	var out []string
 	for _, p := range append([]string{title}, notes...) {
@@ -84,7 +70,6 @@ func gopodInterviewDraftFromGame(closer []gopodDraftLine) (gopodDraft, error) {
 					label = topic
 				}
 				q.Topic = gopodCapFirst(label)
-				// Numbered among the topic's value points, when it has more than one.
 				rank, count := 0, 0
 				for i := 1; i <= total; i++ {
 					if gopodCorePoint(topic, i) {
@@ -148,7 +133,6 @@ func gopodInterviewRebuild() string {
 	if err := gopodWriteFileSafe(filepath.Join(dir, "knobs.json"), knobs); err != nil {
 		return "system-interview-rebuild: " + err.Error()
 	}
-	// The private working copy (zKnobs.json), when there, kept the same.
 	if _, err := os.Stat(filepath.Join(dir, "zKnobs.json")); err == nil {
 		if err := gopodWriteFileSafe(filepath.Join(dir, "zKnobs.json"), knobs); err != nil {
 			return "system-interview-rebuild: " + err.Error()

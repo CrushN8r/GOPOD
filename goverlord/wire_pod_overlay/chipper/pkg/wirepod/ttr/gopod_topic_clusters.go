@@ -1,30 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_topic_clusters.go
 package wirepod_ttr
 
-// Topic-clusters for settings (2026-10-31, operator: "What else now, can be
-// topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The
-// Butler's lines * Nicknames"). A cluster is one md file in the master format
-// (gopod_probes/topic_clusters/personas/behaviours/*.md): "# <title>", its head, "---", then sections. Each
-// section's heading ends with the settings place it fills, in brackets -
-// "## Run lines (session)" - and each point is "key: value":
-//
-//	a text        "started_text: {run} started. Right away, sir."
-//	a list        "eggs_keep: photo | math"           (split on " | ")
-//	a name map    "camera_feeds: Camera Feeds"        (one entry each)
-//	a pair list   "math: Explain the Math"            (reminder_eggs: key, label)
-//	              "what is ai wordplay | what's ai wordplay: AI wordplay: ..."
-//	                                                  (golden_answers: queries, line)
-//	a text place  "page_here:   chat page: here"      (gopodClusterTexts: " | " is
-//	                                                  words, "\n" a break, spaces kept)
-//	a line list   "3.   system-add ..."               (gopodClusterLines: one line each)
-//	an exact text "cast_me: ` (me)`"                  (in backticks: spaces kept,
-//	                                                  " | " words, "\n" a break)
-//
-// The cluster is the one source: its values are laid over the settings at
-// Wire-Pod's start and for the chat page (gopodClustersOverlay), and the
-// settings files no longer hold them. system-check names every point that
-// lands nowhere (gopodClustersCheck).
-
 import (
 	"encoding/json"
 	"io/fs"
@@ -42,41 +18,36 @@ import (
 // gopodClustersDefaultFolder: where the clusters live (topic_clusters.folder overrides).
 const gopodClustersDefaultFolder = "gopod_probes/topic_clusters"
 
-// gopodClusterPairs: a list of two-field objects a point fills - its fields, left
-// of the first ": " and right of it (the left one a list when it's "queries").
+// gopodClusterPairs: a list of two-field objects a point fills - its fields, left of the first ": "
+// and right of it (the left one a list when it's "queries").
 var gopodClusterPairs = map[string][2]string{
 	"value_points.reminder_eggs": {"key", "label"},
 	"golden_answers":             {"queries", "line"},
-	// 2026-11-03 (step 5): the pre-show's bookends and the sign-off, a line each.
-	"reporter_voices.opening": {"host", "text"},
-	"reporter_voices.closing": {"host", "text"},
-	"sign_off.lines":          {"who", "text"},
-	// 2026-11-03 (step 7): the cast the here-and-now line names, "who: line".
-	"here_now.cast": {"who", "line"},
-	// 2026-11-03 (step 7b): the brand words, "from: to".
-	"reply_tighten.brand_words": {"from", "to"},
+	"reporter_voices.opening":    {"host", "text"},
+	"reporter_voices.closing":    {"host", "text"},
+	"sign_off.lines":             {"who", "text"},
+	"here_now.cast":              {"who", "line"},
+	"reply_tighten.brand_words":  {"from", "to"},
 }
 
-// 2026-11-03 (operator: "the whole GOPOD system can be that ... let's do that as
-// a planned group of steps"; step 1, the shell window's words):
-// gopodClusterTexts: a place whose points are always texts - " | " in one is
-// its words (system-help's "<brobots | reporters>"), never a list.
+// gopodClusterTexts: a place whose points are always texts - " | " in one is its words
+// (system-help's "<brobots | reporters>"), never a list.
 var gopodClusterTexts = map[string]bool{
 	"system_text": true,
 }
 
-// gopodClusterLines: a list of lines a section fills - each point one line, as
-// written after its number (its leading spaces kept: the help's columns).
+// gopodClusterLines: a list of lines a section fills - each point one line, as written after its
+// number (its leading spaces kept: the help's columns).
 var gopodClusterLines = map[string]bool{
-	"system_help.lines":      true,
-	"brain_chain.lines":      true, // step 3: the brain's template, a line each
-	"brain_chain.intro_fact": true, // 2026-11-15: an intro's FACT, looked up from the card
-	"prebuild_context.lines": true,
-	"company_intro.lines":    true, // 2026-11-16: KEYS' company intro, a line each
-	"live_split.keep_whole":  true, // 2026-11-16: phrases never cut, a phrase a line
-	"brain_chain.lookup_files": true, // 2026-11-16: the look-up's pool, a path a line
-	"brain_chain.lookup_skip":  true, // 2026-11-16: words that pick no card alone
-	"gemma_eyes.device":        true, // 2026-11-16: GEMMA's camera, a path a line
+	"system_help.lines":        true,
+	"brain_chain.lines":        true, // step 3: the brain's template, a line each
+	"brain_chain.intro_fact":   true, // an intro's FACT, looked up from the card
+	"prebuild_context.lines":   true,
+	"company_intro.lines":      true, // KEYS' company intro, a line each
+	"live_split.keep_whole":    true, // phrases never cut, a phrase a line
+	"brain_chain.lookup_files": true, // the look-up's pool, a path a line
+	"brain_chain.lookup_skip":  true, // words that pick no card alone
+	"gemma_eyes.device":        true, // GEMMA's camera, a path a line
 }
 
 type gopodClusterSection struct {
@@ -100,8 +71,7 @@ func gopodClustersFolder(all map[string]json.RawMessage) string {
 	return folder
 }
 
-// gopodTopicRoot (2026-11-04, operator: "make the code search the whole
-// topic_clusters/ tree"): topic_clusters.folder - every topic-cluster file's one folder.
+// gopodTopicRoot: topic_clusters.folder - every topic-cluster file's one folder.
 func gopodTopicRoot() string {
 	f, _ := gopodTopicRootSetting.Load().(string)
 	if f = strings.TrimSpace(f); f == "" {
@@ -113,8 +83,8 @@ func gopodTopicRoot() string {
 	return f
 }
 
-// gopodTopicRootSetting: topic_clusters.folder, kept once the settings are loaded
-// (the chapters are read while they load - the default folder until then).
+// gopodTopicRootSetting: topic_clusters.folder, kept once the settings are loaded (the chapters are
+// read while they load - the default folder until then).
 var gopodTopicRootSetting atomic.Value
 
 // gopodTopicRootDocsSetting: topic_clusters.root_docs, kept the same way.
@@ -125,8 +95,8 @@ func init() {
 	gopodTopicRootDocsSetting.Store(gopodBrobotsSettings.TopicClusters.RootDocs)
 }
 
-// gopodTopicIndex: every file and folder under topic_clusters/ by name, rebuilt
-// at most every few seconds (files can be moved while Wire-Pod runs).
+// gopodTopicIndex: every file and folder under topic_clusters/ by name, rebuilt at most every few
+// seconds (files can be moved while Wire-Pod runs).
 var gopodTopicIndex = struct {
 	sync.Mutex
 	at     time.Time
@@ -134,10 +104,8 @@ var gopodTopicIndex = struct {
 	byName map[string]string
 }{}
 
-// gopodTopicTreeFind (operator: "a persona found by its file name wherever it sits";
-// "DocBS pools found by folder name"): a file or folder by its name anywhere
-// under topic_clusters/ - the first in path order; "" when there's none. A "_"
-// folder (the template) is found itself, not looked into.
+// gopodTopicTreeFind: a file or folder by its name anywhere under topic_clusters/ - the first in
+// path order; "" when there's none.
 func gopodTopicTreeFind(name string) string {
 	root := gopodTopicRoot()
 	gopodTopicIndex.Lock()
@@ -161,8 +129,8 @@ func gopodTopicTreeFind(name string) string {
 	return gopodTopicIndex.byName[strings.ToLower(strings.TrimSpace(name))]
 }
 
-// gopodTopicPath: a settings path where it is; moved, found by its last name
-// under topic_clusters/; neither, the path as written.
+// gopodTopicPath: a settings path where it is; moved, found by its last name under topic_clusters/;
+// neither, the path as written.
 func gopodTopicPath(rel string) string {
 	p := strings.TrimSpace(rel)
 	if p == "" {
@@ -180,13 +148,11 @@ func gopodTopicPath(rel string) string {
 	return p
 }
 
-// gopodClusterFiles (2026-11-04, operator: "Build clusters/system/ as the
-// one gopod-system topic clusters source folder"): every cluster md in folder and
-// its sub-folders (clusters/system/), in path order.
+// gopodClusterFiles: every cluster md in folder and its sub-folders (clusters/system/), in path
+// order.
 func gopodClusterFiles(folder string) []string {
 	var files []string
 	_ = filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {
-		// A folder whose name starts with "_" (the _topic_cluster template) isn't read.
 		if err == nil && d.IsDir() && strings.HasPrefix(d.Name(), "_") && path != folder {
 			return fs.SkipDir
 		}
@@ -228,9 +194,6 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 				if open, close := strings.LastIndex(head, "("), strings.LastIndex(head, ")"); open >= 0 && close > open {
 					path = strings.TrimSpace(head[open+1 : close])
 				}
-				// 2026-11-04 (the whole topic_clusters/ tree is read): brackets are a
-				// settings place only when they look like one - "." or a name like
-				// docbs.chains.0 - never ordinary words ("(mandatory order)", a date).
 				if path != "" && !gopodClusterPathRE.MatchString(path) {
 					path = ""
 				}
@@ -238,7 +201,6 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 				cur = &out[len(out)-1]
 			case cur != nil && t != "":
 				if dot := strings.Index(t, ". "); dot > 0 && strings.Trim(t[:dot], "0123456789") == "" {
-					// Leading spaces after the number stay (gopodClusterLines).
 					cur.Points = append(cur.Points, strings.TrimRight(strings.TrimLeft(line, " \t")[dot+2:], " \t\r"))
 				}
 			}
@@ -247,9 +209,9 @@ func gopodClusterSections(folder string) []gopodClusterSection {
 	return out
 }
 
-// gopodProfileSettingsSections: the persona profiles' sections that fill a
-// settings place ("## My settings (managers.personas.CHALK)"); the profile's own
-// sections (Self, Voice, ...) have no place and are left to it.
+// gopodProfileSettingsSections: the persona profiles' sections that fill a settings place ("## My
+// settings (managers.personas.CHALK)"); the profile's own sections (Self, Voice, ...) have no place
+// and are left to it.
 func gopodProfileSettingsSections(all map[string]json.RawMessage) []gopodClusterSection {
 	var pp struct {
 		Folder string `json:"folder"`
@@ -271,9 +233,7 @@ func gopodProfileSettingsSections(all map[string]json.RawMessage) []gopodCluster
 	return out
 }
 
-// gopodClusterHolds (2026-11-03, the clusters plan: system-set wrote the settings
-// file while a cluster's value won, so an edit did nothing): the cluster file that
-// fills dotted, or a part of it ("" none).
+// gopodClusterHolds: the cluster file that fills dotted, or a part of it ("" none).
 func gopodClusterHolds(dotted string) string {
 	data, err := gopodSettingsMerged()
 	if err != nil {
@@ -311,7 +271,8 @@ func gopodClusterHolds(dotted string) string {
 	return ""
 }
 
-// gopodClusterTyped: a bare number, true, false, null, [] (an empty list) or {} (an empty group), as its value.
+// gopodClusterTyped: a bare number, true, false, null, [] (an empty list) or {} (an empty group),
+// as its value.
 func gopodClusterTyped(v string) (any, bool) {
 	switch v {
 	case "true":
@@ -337,15 +298,13 @@ func gopodClusterTyped(v string) (any, bool) {
 
 var gopodClusterNumberRE = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`)
 
-// gopodClusterPlace: the node at parts under blocks[top], made as it goes - a
-// group for a name, a list for a number (the next entry, or one already there) -
-// and the setter that puts a new node in its place.
+// gopodClusterPlace: the node at parts under blocks[top], made as it goes - a group for a name, a
+// list for a number (the next entry, or one already there) - and the setter that puts a new node in
+// its place.
 func gopodClusterPlace(blocks map[string]any, top string, parts []string) (any, func(any), string) {
 	node := blocks[top]
 	set := func(v any) { blocks[top] = v }
 	for i, p := range parts {
-		// A number is a list's entry - unless the place is already a group, where
-		// it's a key like any other (the numpad's "000" lane).
 		_, inGroup := node.(map[string]any)
 		if n, err := strconv.Atoi(p); err == nil && n >= 0 && !inGroup {
 			list, ok := node.([]any)
@@ -379,12 +338,9 @@ func gopodClusterPlace(blocks map[string]any, top string, parts []string) (any, 
 	return node, set, ""
 }
 
-// gopodWordsLeft (2026-11-03, step 8 of GOPOD_CLUSTERS_PLAN_002.md, operator: "the
-// whole GOPOD system can be that"): the texts still in the settings files, not in
-// a topic-cluster - every text of three words or more (a note's about/why aside),
-// but those topic_clusters.words_left_not starts or words_left_not_words name (a
-// path, a colour, a sound chain). system-check names them; more than
-// topic_clusters.words_left_allowed is a problem, so the number only comes down.
+// gopodWordsLeft: the texts still in the settings files, not in a topic-cluster - every text of
+// three words or more (a note's about/why aside), but those topic_clusters.words_left_not starts or
+// words_left_not_words name (a path, a colour, a sound chain).
 func gopodWordsLeft() (left []string, allowed int) {
 	data, err := gopodSettingsMerged()
 	if err != nil {
@@ -432,7 +388,6 @@ func gopodWordsLeft() (left []string, allowed int) {
 			}
 			sort.Strings(keys)
 			for _, k := range keys {
-				// A note is no spoken line: about, why, where ("intro_recipe.where"), about_2.
 				if k == "about" || k == "why" || k == "where" || strings.HasSuffix(k, "_about") || strings.HasSuffix(k, "_where") || strings.HasPrefix(k, "about_") {
 					continue
 				}
@@ -459,7 +414,8 @@ func gopodWordsLeft() (left []string, allowed int) {
 	return left, cfg.Allowed
 }
 
-// gopodWordsLeftKept: path is one the settings keep on purpose (words_left_not_paths), or inside one.
+// gopodWordsLeftKept: path is one the settings keep on purpose (words_left_not_paths), or inside
+// one.
 func gopodWordsLeftKept(kept []string, path string) bool {
 	for _, k := range kept {
 		if path == k || strings.HasPrefix(path, k+".") {
@@ -469,16 +425,13 @@ func gopodWordsLeftKept(kept []string, path string) bool {
 	return false
 }
 
-// gopodClustersApply lays the clusters over the merged settings; the problems
-// are the points that land nowhere.
+// gopodClustersApply lays the clusters over the merged settings; the problems are the points that
+// land nowhere.
 func gopodClustersApply(data []byte) ([]byte, []string) {
 	var all map[string]json.RawMessage
 	if json.Unmarshal(data, &all) != nil {
 		return data, nil
 	}
-	// 2026-11-04 (operator: "make the code search the whole topic_clusters/ tree"):
-	// every md under topic_clusters/ - the clusters, the persona files (their
-	// "## My settings (...)" sections) and all - wherever it sits.
 	sections := gopodClusterSections(gopodClustersFolder(all))
 	if len(sections) == 0 {
 		return data, nil
@@ -489,13 +442,9 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 	}
 	blocks := map[string]any{}
 	for _, s := range sections {
-		// A section without a settings place is the file's own (a persona's Self,
-		// a company note) - not a setting.
 		if s.Path == "" {
 			continue
 		}
-		// 2026-11-03 (step 8b): "(.)" is the settings' top level - each point a
-		// top-level text, number or list ("off_topic_note: ...").
 		if s.Path == "." {
 			for _, pt := range s.Points {
 				at := strings.Index(pt, ": ")
@@ -525,8 +474,6 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 			}
 			continue
 		}
-		// 2026-11-03 (step 7, the format step): "(a.b[])" is a line list, a
-		// point a line; a number in the place is a list's entry ("managers.takes.0").
 		path, lines := s.Path, gopodClusterLines[s.Path]
 		if strings.HasSuffix(path, "[]") {
 			path, lines = strings.TrimSuffix(path, "[]"), true
@@ -600,14 +547,9 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				continue
 			}
 			k, v := strings.TrimSpace(pt[:at]), strings.TrimSpace(pt[at+2:])
-			// A text place keeps its leading spaces (the status lines' column) and
-			// reads "\n" as a line break.
 			if gopodClusterTexts[s.Path] {
 				v = strings.ReplaceAll(pt[at+2:], `\n`, "\n")
 			}
-			// 2026-11-03 (step 3: the brain's " (me)" and " Reminders: ..."): a
-			// value in backticks is that text exactly - its spaces, " | " as words,
-			// "\n" a break.
 			if len(v) >= 2 && strings.HasPrefix(v, "`") && strings.HasSuffix(v, "`") {
 				m[k] = strings.ReplaceAll(v[1:len(v)-1], `\n`, "\n")
 				continue
@@ -622,8 +564,6 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 				m[k] = items
 				continue
 			}
-			// 2026-11-03 (step 7): a bare number, true, false or null is that value
-			// (a dial, a switch) - unless the place already holds a text there.
 			if _, wasText := m[k].(string); !wasText && !gopodClusterTexts[s.Path] {
 				if typed, ok := gopodClusterTyped(v); ok {
 					m[k] = typed
@@ -655,9 +595,8 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 	return out, problems
 }
 
-// gopodSettingsFull (2026-11-03, step 7: the Torah read the menu without its
-// cluster and found none): the merged settings with the clusters laid over them -
-// what Wire-Pod and the page run on. Anything reading the settings as data uses this.
+// gopodSettingsFull: the merged settings with the clusters laid over them - what Wire-Pod and the
+// page run on.
 func gopodSettingsFull() ([]byte, error) {
 	data, err := gopodSettingsMerged()
 	if err != nil {
@@ -666,10 +605,9 @@ func gopodSettingsFull() ([]byte, error) {
 	return gopodClustersOverlay(data), nil
 }
 
-// gopodSettingsSnapshotFile: the settings Wire-Pod runs on, written at its start
-// (the settings folder with the topic-clusters laid over) - for the song engine
-// (run_golden_song_001.py) and any tool that reads the settings itself, so none
-// of them misses a line that lives in a topic-cluster. Generated, not tracked.
+// gopodSettingsSnapshotFile: the settings Wire-Pod runs on, written at its start (the settings
+// folder with the topic-clusters laid over) - for the song engine (run_golden_song_001.py) and any
+// tool that reads the settings itself, so none of them misses a line that lives in a topic-cluster.
 const gopodSettingsSnapshotFile = "webroot/gopod_settings_full.json"
 
 // It's written at Wire-Pod's start, once the settings are loaded - not in a test run.

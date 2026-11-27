@@ -10,12 +10,6 @@ import (
 	"sync"
 )
 
-// The display mirror (2026-10-24, operator: "the visitor page does no thinking *
-// visitor page zombie follows regardless of a nuclear war going on next door *
-// visitor page zombie follows GOPOD admin feed"): the main page sends what it
-// shows - its newest bubbles as drawn and where it's scrolled - and every other
-// page paints exactly that. Wire-Pod only holds the latest one, numbered.
-
 var gopodDisplay = struct {
 	sync.Mutex
 	v    int
@@ -25,7 +19,6 @@ var gopodDisplay = struct {
 func init() {
 	http.HandleFunc("/api-sdk/gopod_display", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			// Only GOPOD's own (admin) page sends the display.
 			if !GopodIsAdmin(r.RemoteAddr) {
 				http.Error(w, "admin only", http.StatusForbidden)
 				return
@@ -52,8 +45,6 @@ func init() {
 		gopodDisplay.Lock()
 		v, body := gopodDisplay.v, gopodDisplay.body
 		gopodDisplay.Unlock()
-		// 2026-10-24 (link 6): a visitor still counting from before a Wire-Pod restart
-		// (since > v) gets the display at once, not after v has caught up.
 		if body == nil || v == since {
 			w.WriteHeader(http.StatusNoContent)
 			return

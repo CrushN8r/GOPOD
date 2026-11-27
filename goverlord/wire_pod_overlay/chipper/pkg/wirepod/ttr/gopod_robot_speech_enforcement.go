@@ -10,26 +10,20 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// gopodRobotSpeechRegex is derived from animation_vocab.json (verified
-// tokens only) - see animation_vocab.go.
-// 2026-09-30: "___" is the animation marker the model writes (gopod_animation_marker.go);
-// "..." is Wire-Pod's internal form after conversion. Both pass.
+// gopodRobotSpeechRegex is derived from animation_vocab.json (verified tokens only) - see
+// animation_vocab.go.
 var gopodRobotSpeechRegex = `^(` + gopodAnimationRegexAlternation + `)(?:\.\.\.|` + gopodAnimationMarkerRegex() + `) .+`
 
-// gopodRobotSpeechFallbackLine is derived from system_speech_content.json -
-// see gopod_system_speech_content.go. Confirmed live: read by
-// emotional_beat_actions.go and gopod_render_scaffold.go.
+// gopodRobotSpeechFallbackLine is derived from system_speech_content.json - see
+// gopod_system_speech_content.go.
 var gopodRobotSpeechFallbackLine = loadedGOPODSystemSpeechContent.FallbackLine
 
-// canonicalActionParameterFailuresPath resolves relative to gopodChipperRoot()
-// (see gopod_paths.go), overridable via GOPOD_ACTION_PARAMETER_FAILURES_PATH.
+// canonicalActionParameterFailuresPath resolves relative to gopodChipperRoot() (see
+// gopod_paths.go), overridable via GOPOD_ACTION_PARAMETER_FAILURES_PATH.
 var canonicalActionParameterFailuresPath = gopodPathWithEnvOverride("GOPOD_ACTION_PARAMETER_FAILURES_PATH", "gopod_probes/actionParameter-failures-list.txt")
 
-// The last thing the model reads before the chat: the reply shape once more, as
-// final_output_check in gopod_brobots_settings.json (2026-10-05). It used to show
-// a template ("actionParameter___ spoken thought") and a regex; gemma2:2b copied
-// the template into about 45% of replies (THINKING_ORDER_REPLAY_001.md), so it now
-// points at the one real example line (reply_example) instead.
+// The last thing the model reads before the chat: the reply shape once more, as final_output_check
+// in gopod_brobots_settings.json.
 var gopodFinalOutputGuard = gopodFillPromptTokens(gopodBrobotsSettings.FinalOutputCheck)
 
 var (
@@ -70,13 +64,8 @@ type gopodContactBeatTemplate struct {
 	Line     string                `json:"line"`
 }
 
-// gopodContactBeatTemplates is derived from system_speech_content.json -
-// see gopod_system_speech_content.go. NOTE: as of this pass, no production
-// call site invokes selectGOPODContactBeat (confirmed by grep - only this
-// file's own tests reference it), so this content is not currently spoken
-// by the live GOPOD Brobot path. Migrated anyway since it's still a
-// hand-typed Go literal that would need a rebuild to edit if/when it is
-// wired up; flagged here rather than left as a silent surprise.
+// gopodContactBeatTemplates is derived from system_speech_content.json - see
+// gopod_system_speech_content.go.
 var gopodContactBeatTemplates = loadedGOPODSystemSpeechContent.ContactBeatTemplates
 
 func validateGOPODRobotSpeech(raw string) gopodRobotSpeechValidation {
@@ -146,9 +135,6 @@ func normalizeGOPODRobotSpeech(raw string) (string, gopodRobotSpeechValidation) 
 	entries, _ := loadActionParameterFailureEntries(canonicalActionParameterFailuresPath)
 	var normalized []string
 	for _, line := range robotSpeechSegmentsForNormalization(raw) {
-		// GOPOD 2026-09-29: a line that is only a stage direction ("*giggles and
-		// winks*") is skipped, not treated as the end of the speech - it used to
-		// drop every line after it.
 		if gopodIsStageDirectionOnlyLine(line) {
 			continue
 		}
@@ -162,8 +148,8 @@ func normalizeGOPODRobotSpeech(raw string) (string, gopodRobotSpeechValidation) 
 	return output, validateGOPODRobotSpeech(output)
 }
 
-// gopodIsStageDirectionOnlyLine reports a non-empty line that the stage
-// direction strip empties completely.
+// gopodIsStageDirectionOnlyLine reports a non-empty line that the stage direction strip empties
+// completely.
 func gopodIsStageDirectionOnlyLine(line string) bool {
 	line = strings.TrimSpace(ansiEscapePattern.ReplaceAllString(strings.TrimSpace(normalizeBrobotRobotCopy(line)), ""))
 	return line != "" && strings.TrimSpace(gopodStripStageDirections(line)) == ""
@@ -172,8 +158,6 @@ func gopodIsStageDirectionOnlyLine(line string) bool {
 func normalizeGOPODRobotSpeechLine(line string, entries map[string]actionParameterFailureEntry) (string, bool) {
 	line = strings.TrimSpace(normalizeBrobotRobotCopy(line))
 	line = strings.TrimSpace(ansiEscapePattern.ReplaceAllString(line, ""))
-	// GOPOD 2026-09-29: only listed stage directions (*laugh*) are dropped; any
-	// other *emphasis* is spoken without its asterisks - gopod_stage_directions.go.
 	line = strings.TrimSpace(gopodStripStageDirections(line))
 	if line == "" {
 		return "", false
@@ -208,8 +192,6 @@ func normalizeGOPODRobotSpeechLine(line string, entries map[string]actionParamet
 		if action == "" {
 			return "thinking... " + normalizeGOPODSpeechEllipsisSpacing(strings.TrimSpace(match[1])) + "... " + text, true
 		}
-		// 2026-10-02: an alias is a real word - said, and it picks the animation
-		// (gopod_word_animations.go). A token name stays a cue only.
 		if !gopodIsAnimationTokenName(match[1]) {
 			return action + "... " + strings.TrimSpace(match[1]) + "... " + text, true
 		}
@@ -241,11 +223,8 @@ func normalizeGOPODActionAlias(raw string, entries map[string]actionParameterFai
 	return ""
 }
 
-// knownGOPODActionAlias and resolveGOPODLikelyAnimationAlias both read from
-// animationAliases (derived from animation_vocab.json - see
-// animation_vocab.go). Normalization is now shared via normalizeAnimationToken
-// for both, fixing a prior inconsistency where knownGOPODActionAlias used a
-// narrower ad hoc normalization.
+// knownGOPODActionAlias and resolveGOPODLikelyAnimationAlias both read from animationAliases
+// (derived from animation_vocab.json - see animation_vocab.go).
 func knownGOPODActionAlias(raw string) (string, bool) {
 	if canonical, ok := animationAliases[normalizeAnimationToken(raw)]; ok {
 		return canonical, true
@@ -325,18 +304,12 @@ func buildGOPODStreamResultWithRepair(ctx context.Context, raw, model string, re
 	}
 }
 
-// gopodDisplayForSpeech: the bubble's words for what's said - the reply as
-// written, or the fallback line when that's what's said (2026-10-24, live: the
-// fallback said while the bubble showed the reply). The live reply and the
-// highlight check both take it.
+// gopodDisplayForSpeech: the bubble's words for what's said - the reply as written, or the fallback
+// line when that's what's said.
 func gopodDisplayForSpeech(display string, sr gopodStreamResult) string {
 	if sr.Fallback {
 		return gopodStripAnimationCueForDisplay(gopodRobotSpeechFallbackLine)
 	}
-	// 2026-10-27 (operator: "2026 * should be observed as 20 26 * spoken & heard,
-	// highlights follow 20 26 spoken/heard pattern"): a spoken form in
-	// spoken_symbols.show_as_said is shown as it's said, so the bubble's words
-	// and the highlight follow what's heard.
 	for _, form := range gopodBrobotsSettings.SpokenSymbols.ShowAsSaid {
 		switch form {
 		case "years":

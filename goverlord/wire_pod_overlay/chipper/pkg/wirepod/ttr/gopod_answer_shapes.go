@@ -8,17 +8,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN answer shapes (2026-10-23, FINISH_PLAN_001.md step A2; operator: "the
-// flow of output in the responses isn't consistent * I need a templated
-// answer-chain mechanism"): one shape per answer type - the order of his thought
-// bubbles - in answer_shapes (settings). Each answer is checked against its
-// type's shape as it's made (BROBOT_SHAPE in the log: ok, or the drift), and a
-// dry test runs every type through the real answer chain at deploy
-// (TestAnswerShapesHold). A shape is a list of marks: a mark's text
-// (answer_shapes.marks) labels a bubble; "llm" is his own words; "?" = may be
-// missing; "a|b" = either. In a line to both, the first answer's "reminder" is the
-// hand-over instead (math keeps its reminder, then hands over).
-
 // gopodAnswerType: the answer's type, for its shape.
 func gopodAnswerType(esn, question string) string {
 	lower := strings.ToLower(question)
@@ -46,13 +35,10 @@ func gopodAnswerType(esn, question string) string {
 func gopodAnswerShape(esn, question string, first bool) []string {
 	typ := gopodAnswerType(esn, question)
 	shape := append([]string(nil), gopodBrobotsSettings.AnswerShapes.Shapes[typ]...)
-	// A golden question's exact line may open any answer.
 	if len(shape) > 0 {
 		shape = append([]string{"greeting?", "golden?", "snippet?"}, shape...)
 		shape = append(shape, "snippet?") // the code's scripted end line
 	}
-	// Duo A (duo.a): its reminder is the hand-over (ends_with), or the hand-over
-	// comes after it for a type that keeps its reminder (keep_reminder_types).
 	if rc := gopodBrobotsSettings.ResponseChains["duo"]; first && len(rc.Answers) > 0 && rc.Answers[0].EndsWith != "" {
 		a := rc.Answers[0]
 		if gopodContains(a.KeepReminderTypes, typ) || !a.NoReminder {
@@ -83,17 +69,14 @@ func gopodShapeLabels(esn, answer string) []string {
 			continue
 		}
 		label := "llm"
-		// 2026-11-15: the greeting of the day opens every answer - "greeting".
 		if len(labels) == 0 && gopodGreetingLeadRE.MatchString(b) {
 			labels = append(labels, "greeting")
 			continue
 		}
-		// A scripted start line (scripted_snippets, the code's) - "snippet".
 		if gopodIsSnippetLine(b) {
 			labels = append(labels, "snippet")
 			continue
 		}
-		// A point's exact line first (it may hold a mark's words: Doc's Rule).
 		if say != "" && strings.Contains(b, strings.TrimSpace(say)) {
 			labels = append(labels, "say_line")
 			continue
@@ -113,11 +96,9 @@ func gopodShapeLabels(esn, answer string) []string {
 		if label == "llm" && say != "" && strings.Contains(b, strings.TrimSpace(say)) {
 			label = "say_line"
 		}
-		// 2026-11-03: the reminder's "Try asking: ..." on its own line is still the reminder.
 		if label == "llm" && len(labels) > 0 && labels[len(labels)-1] == "reminder" && gopodIsProberLine(b) {
 			continue
 		}
-		// A summary's bubbles name their core topics' titles: one "summary".
 		if label == "llm" {
 			for _, it := range gopodSummaryItemsFor(esn) {
 				if strings.Contains(strings.ToLower(b), strings.ToLower(it.title)) || (it.note != "" && strings.Contains(strings.ToLower(b), strings.ToLower(it.note))) {
@@ -128,11 +109,9 @@ func gopodShapeLabels(esn, answer string) []string {
 				continue
 			}
 		}
-		// The point's title line is the first that names it; its notes follow as his words.
 		if label == "llm" && title != "" && !gopodHasLabel(labels, "point") && strings.Contains(strings.ToLower(b), strings.ToLower(title)) {
 			label = "point"
 		}
-		// His own words run together: one "llm".
 		if label == "llm" && len(labels) > 0 && labels[len(labels)-1] == "llm" {
 			continue
 		}
@@ -179,7 +158,6 @@ func gopodIsProberLine(b string) bool {
 	}
 	t = strings.TrimSpace(t)
 	b = strings.TrimSpace(b)
-	// past his cue at the start ("thinking___ Try asking: ...")
 	if loc := gopodAnimationMarkerPattern.FindStringIndex(b); loc != nil && loc[0] < 20 {
 		b = strings.TrimSpace(b[loc[1]:])
 	}
@@ -217,7 +195,6 @@ func gopodAnswerShapeCheck(esn, question, answer string, first bool) bool {
 		return true
 	}
 	labels := gopodShapeLabels(esn, answer)
-	// 2026-10-24 (link 5): with nothing left to point at, the reminder is optional.
 	if _, none := gopodReminderNone.LoadAndDelete(esn); none {
 		for i, s := range shape {
 			if s == "reminder" {

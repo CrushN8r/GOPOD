@@ -12,25 +12,10 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// "Thanks Brobots" is its own process, draft or not (operator 2026-10-09: "thx
-// bros process looks for active draft run to close out * upon successful close
-// out of draft run, thx bros can then end with your welcome"; "Build chat
-// 'thanks' for songs as well"; "add 'stop run' as an input command for
-// songs/runs"):
-//  1. a playing draft stops after the line being said, and a running song (the
-//     song_stop.engine) stops at its next safe spot (song_stop.safe_script);
-//  2. only then does the thanks go to the Brobots - the sign-off and the ending
-//     (kgsim.go), "Draft run completed." when a draft played;
-//  3. Goverlord's sign_off.welcome_text closes it, always (gopodYoureWelcome).
-// song_stop.stop_words does step 1 alone.
-
 // gopodClosingOut: a thanks is waiting for a draft or song to stop.
 var gopodClosingOut atomic.Bool
 
-// gopodStopRuns asks a playing draft and a running song to stop at their next
-// safe spot. False when neither was going.
-// gopodStopSeq: one more each stop run - an answer being said stops at its next
-// piece (2026-10-30, operator: "stop run still calling brobots").
+// gopodStopRuns asks a playing draft and a running song to stop at their next safe spot.
 var gopodStopSeq atomic.Int64
 
 func gopodStopRuns(why string) bool {
@@ -51,10 +36,6 @@ func gopodStopRuns(why string) bool {
 		}
 		stopped = true
 	}
-	// 2026-10-29 (operator: "Please ensure Esc, stop run & skip all work globally
-	// as intended"): stop run stops everything going - the tour and the comm check
-	// too - drops the questions still waiting their turn, and skips the voices
-	// queued on the page (the page's skip, from here).
 	if gopodTourRunning.Load() {
 		gopodTourStop.Store(true)
 		logger.Println("GOPOD_STOP_RUN " + why + ": the tour stops")
@@ -69,9 +50,6 @@ func gopodStopRuns(why string) bool {
 		logger.Println("GOPOD_STOP_RUN " + why + ": " + strconv.Itoa(n) + " waiting questions dropped")
 	}
 	if stopped {
-		// 2026-10-29 (the master chat queue, gopod_chat_queue.go): the run's turn
-		// is dropped on the page at once - its lines waiting and any still coming;
-		// the skip line is no turn's (a control line).
 		gopodTurnDrop(why)
 		GopodSkipped()
 		gopodChatFeedAddTurn(0, gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+why)
@@ -89,11 +67,8 @@ func gopodWaitRunsStopped() {
 	logger.Println("GOPOD_STOP_RUN runs closed out")
 }
 
-// GopodEscape (2026-10-29, operator: "to me, Esc & stop run = exit the run, skip =
-// skip to next scripture"): the page's Esc - a run going (a song, a draft, the
-// tour, the comm check) stops, as stop run does, and Goverlord says session.
-// stopped_text (a song run at its check-out); true
-// when something stopped (with nothing going, the page's Esc skips instead).
+// GopodEscape: the page's Esc - a run going (a song, a draft, the tour, the comm check) stops, as
+// stop run does, and Goverlord says session.
 func GopodEscape() bool {
 	defer gopodTurnOwn(0)()
 	songRun := gopodRunActive() || gopodScriptPlaying.Load()
@@ -109,16 +84,14 @@ func GopodEscape() bool {
 	return true
 }
 
-// gopodStoppedSay: Goverlord's session.stopped_text for a stop with no song run
-// to check out (the tour, the comm check) - a song run says it at its check-out.
-// No turn's (the control lane), so the drop never takes it.
+// gopodStoppedSay: Goverlord's session.stopped_text for a stop with no song run to check out (the
+// tour, the comm check) - a song run says it at its check-out.
 func gopodStoppedSay() {
 	defer gopodTurnOwn(0)()
 	GopodSystemSayHeard(gopodRunText(gopodBrobotsSettings.Session.StoppedText, ""), 0)
 }
 
-// gopodStopRunCommand: a typed or numpad song_stop.stop_words line. True when it was one.
-// gopodStopRunMatch: text is a stop command (song_stop.stop_words).
+// gopodStopRunCommand: a typed or numpad song_stop.stop_words line.
 func gopodStopRunMatch(text string) bool {
 	lower := strings.ToLower(strings.TrimSpace(text))
 	for _, w := range gopodBrobotsSettings.SongStop.StopWords {
@@ -135,11 +108,7 @@ func gopodStopRunCommand(text string) bool {
 		if w != "" && gopodHasWholeWords(lower, strings.ToLower(w)) {
 			if !gopodStopRuns("stop run") {
 				logger.Println("GOPOD_STOP_RUN nothing running")
-				// 2026-11-01 (live: Git Repo's late answer went on playing after a
-				// second stop run): voices still playing on the page stop anyway.
 				gopodChatFeedAddTurn(0, gopodBrobotsSettings.ReporterVoices.Role, gopodSkipMarker+"stop run")
-				// 2026-10-10 (operator: "stop run was heard, no system message"):
-				// a stop with nothing to stop still gets an answer.
 				gopodSessionSay(gopodBrobotsSettings.Session.NoRunText)
 			}
 			return true
@@ -148,9 +117,8 @@ func gopodStopRunCommand(text string) bool {
 	return false
 }
 
-// gopodThanksCloseOut: a thanks while a draft or song is going closes them out
-// first, then the thanks goes on (again) - true when it took the line. The
-// draft's own question lines are never taken.
+// gopodThanksCloseOut: a thanks while a draft or song is going closes them out first, then the
+// thanks goes on (again) - true when it took the line.
 func gopodThanksCloseOut(esn, text, how string) bool {
 	if !gopodIsThanks(text) || gopodScriptAsking(text) {
 		return false
@@ -180,8 +148,8 @@ func gopodScriptAsking(text string) bool {
 	return gopodScript.asking != "" && strings.TrimSpace(gopodScript.asking) == strings.TrimSpace(text)
 }
 
-// gopodThanksEnding: the ending after a thanks, once - the brother's thanks
-// (to "All") doesn't run it again until a new question is asked.
+// gopodThanksEnding: the ending after a thanks, once - the brother's thanks (to "All") doesn't run
+// it again until a new question is asked.
 func gopodThanksEnding() {
 	gopodReporter.Lock()
 	if gopodReporter.ended {
@@ -190,19 +158,11 @@ func gopodThanksEnding() {
 	}
 	gopodReporter.ended = true
 	gopodReporter.Unlock()
-	// 2026-10-16 (operator: "\"thanks guys\" anywhere in a line ends the session,
-	// at the next best safe spot"): the ending waits until no Brobot is answering -
-	// to All, Brobot 2's sign-off first (he starts within sign_off.safe_spot_seconds
-	// of Brobot 1's end); his own thanks then finds the ending already going.
 	time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.SignOff.SafeSpotSeconds))
 	for waited := time.Duration(0); gopodReplyBusy() && waited < gopodTiming("thanks_reply_wait_max_seconds"); waited += 250 * time.Millisecond {
 		time.Sleep(250 * time.Millisecond)
 	}
-	// The session's value-point score first (gopod_value_points.go).
 	gopodCoverageScore()
-	// 2026-10-08 (operator: "New ending: 1/5/2/3/4/Operator bubble"): the
-	// reporters' closing, the brothers' extra lines, keep or delete, then
-	// "Draft run completed." (when a draft played) and "You're welcome.".
 	gopodReporterClosing()
 	gopodSignOffLines()
 	gopodRecordInEnding.Store(true)
@@ -211,16 +171,14 @@ func gopodThanksEnding() {
 	gopodRecordInEnding.Store(false)
 	gopodDraftRunCompleted()
 	gopodYoureWelcome()
-	// The session ends here; the next one starts at 00:00:00 (gopod_session_log.go).
 	GopodSessionLogEnd("thanks")
-	// 2026-10-23 (A4): and the game starts at 0 (game.reset_on, gopod_game.go).
 	if gopodBrobotsSettings.Game.ResetOn == "thanks" {
 		gopodGameReset("thanks")
 	}
 }
 
-// gopodYoureWelcome closes the thanks process: sign_off.welcome_text in a
-// Goverlord bubble and voice, after everything before it has been heard.
+// gopodYoureWelcome closes the thanks process: sign_off.welcome_text in a Goverlord bubble and
+// voice, after everything before it has been heard.
 func gopodYoureWelcome() {
 	so := gopodBrobotsSettings.SignOff
 	if so.SystemRole == "" || so.WelcomeText == "" {
@@ -230,11 +188,8 @@ func gopodYoureWelcome() {
 	if confirm, _ := gopodRecordConfirm.Swap("").(string); confirm != "" {
 		text = confirm + " " + text
 	} else if nothing := strings.TrimSpace(so.NothingRecordedText); nothing != "" {
-		// 2026-10-24 (operator: "Yes, a line like \"Nothing recorded. You're
-		// welcome.\""): nothing was recorded this session.
 		text = nothing + " " + text
 	}
-	// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
 	gopodReporterSay(so.SystemRole, text, true, true)
 }
 

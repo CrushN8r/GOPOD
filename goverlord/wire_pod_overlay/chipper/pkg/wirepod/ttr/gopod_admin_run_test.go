@@ -3,8 +3,8 @@ package wirepod_ttr
 
 import "testing"
 
-// TestAdminRun: the 100% admin run reaches everything, and the live game it
-// borrowed is put back untouched.
+// TestAdminRun: the 100% admin run reaches everything, and the live game it borrowed is put back
+// untouched.
 func TestAdminRun(t *testing.T) {
 	gopodGameReset("test")
 	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig")

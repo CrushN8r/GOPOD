@@ -17,22 +17,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// The harvest dry run (operator 2026-10-06: "start with a single full harvest
-// dry run (no actual robots) and set up the take sheet ... one good end to end
-// of all topics/value points"). Not a unit test: it runs only when
-// GOPOD_HARVEST_OUT is set (run with `goverlord/wire_pod_overlay/harvest_dry_run.sh`).
-//
-// Every game question (each topic card's "ask N" lines, game_questions) goes
-// through the Brobots' real path - the same prompt (CreateAIReq: persona, the
-// value-point list's next point, shared chat memory), the same LLM, the same
-// reply shaping (names, links, flavour lines, the reminder, display and speech
-// split) - with no robot: nothing is said, moved or shown, and no live file is
-// written (the chat memory, chat feed and Record Session go to the run folder).
-// Each answer is a take. The run writes takes.json to GOPOD_HARVEST_OUT and adds
-// its takes to the take sheet (GOPOD_HARVEST_SHEET, gopod_take_sheet.go): one
-// entry per value point, in interview order, each with its takes - mark the
-// keeper, edit its words.
-
 type gopodHarvestQuestion struct {
 	Chapter string `json:"chapter"`
 	Topic   string `json:"topic"`
@@ -54,7 +38,6 @@ func TestGopodHarvestRun(t *testing.T) {
 	if err := os.MkdirAll(out, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	// Nothing live: the chat memory, feed and Record Session live in the run folder.
 	t.Setenv("GOPOD_SESSION_DIR", filepath.Join(out, "chat_memory"))
 	t.Setenv("GOPOD_RECORD_SESSION_DIR", filepath.Join(out, "record"))
 	gopodChatFeedPath = filepath.Join(out, "chat_feed.json")
@@ -73,8 +56,6 @@ func TestGopodHarvestRun(t *testing.T) {
 		EndText   string                 `json:"end_text"`
 		Questions []gopodHarvestQuestion `json:"questions"`
 	}
-	// 2026-11-25: the cards' own questions (game_questions), unless another
-	// questions file is given (harvest_dry_run.sh questions <file>, 2026-10-08).
 	is := gopodBrobotsSettings.InterviewScript
 	qfile.Input, qfile.EndText = is.HarvestInput, is.HarvestEndText
 	for _, q := range gopodBrobotsSettings.GameQuestions {
@@ -95,13 +76,6 @@ func TestGopodHarvestRun(t *testing.T) {
 
 	started := time.Now()
 	var takes []gopodHarvestTake
-	// The draft performance (operator 2026-10-07: "Do a full dry run ... fully
-	// featured, fully logged ... I need to replay a 'draft performance run' to
-	// review & edit"): the whole show in order - the reporters' opening, each
-	// question as its reporter reads it, the chapter title, the Brobot's answer,
-	// the pictures, the sign-off, the score, keep or delete, the closing.
-	// Wire-Pod plays its questions and answers back word for word
-	// (gopod_interview_script.go).
 	rv := gopodBrobotsSettings.ReporterVoices
 	label := func(host string) string {
 		if l := rv.Labels[host]; l != "" {
@@ -126,7 +100,6 @@ func TestGopodHarvestRun(t *testing.T) {
 		}
 		return lines
 	}
-	// answer is one Brobot's answer through the live chat's path.
 	answer := func(n int, esn, text string) (gopodHarvestTake, bool) {
 		before := gopodHarvestRevealed()
 		req := CreateAIReq(text, esn, false, false)
@@ -207,8 +180,6 @@ func TestGopodHarvestRun(t *testing.T) {
 	}
 	score, detail := gopodCoverageScoreText()
 	elapsed := time.Since(started)
-	// The ending as it goes live after "Thanks Brobots": the score, Record
-	// Session's keep-or-delete (answered keep here), the reporters' closing.
 	rs := gopodBrobotsSettings.RecordSession
 	draft.Ending = []gopodDraftLine{
 		{Who: gopodBrobotsSettings.ValuePoints.ScoreRole, Text: score},
@@ -254,13 +225,10 @@ func gopodHarvestWriteJSON(t *testing.T, path string, v interface{}) {
 	}
 }
 
-// 2026-10-07 (operator: "decouple assess recouple - best questions & best
-// responses ... use leading questions"): every harvest question gets its own
-// value point - the next one in chapter order - and no other topic's.
+// every harvest question gets its own value point - the next one in chapter order - and no other
+// topic's.
 func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
-	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
 	defer gopodAllPointsForTest()()
-	// As at a Wire-Pod start: no Bingo test played, an empty chat memory.
 	t.Setenv("GOPOD_SESSION_DIR", t.TempDir())
 	played := gopodBingoPlayed.Load()
 	gopodBingoPlayed.Store(false)
@@ -270,14 +238,12 @@ func TestHarvestQuestionsGetTheirOwnPoint(t *testing.T) {
 	gopodCoverage.revealed = map[string]int{}
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
-	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
+	// the game's questions, from their cards ("ask N" lines).
 	var qfile struct{ Questions []gopodGameQuestion }
 	qfile.Questions = gopodBrobotsSettings.GameQuestions
 	if len(qfile.Questions) == 0 {
 		t.Fatal("no game questions on the cards")
 	}
-	// 2026-10-22: every interview question still has its point in the files; a
-	// background topic's question gets no point (CORE_TOPICS_002.md).
 	counts := map[string]int{}
 	for _, p := range gopodTopicRegistry() {
 		if data, err := gopodReadTopicFacts(p.File); err == nil {

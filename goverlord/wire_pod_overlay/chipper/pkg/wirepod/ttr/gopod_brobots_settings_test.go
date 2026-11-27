@@ -48,7 +48,6 @@ func TestBrobotsSettingsReachTheCode(t *testing.T) {
 func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 	gopodBingoPlayed.Store(false)
 	defer gopodBingoPlayed.Store(false)
-	// No Bingo run in the chat memory either (as TestBingoPitchPackAndNoRunNote).
 	savedStart := gopodSharedBrobotChatStart
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
 	gopodSharedBrobotChatStart = time.Now().Add(-time.Hour)
@@ -61,7 +60,7 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 	for q, want := range map[string]string{
 		"are you on TikTok":         "No - I'm on GOPOD!",
 		"can I book you":            "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!",
-		"do you want to play bingo": "", // 2026-11-24: an experience question has no opener - its one line (gopod_experiences.go)
+		"do you want to play bingo": "", // an experience question has no opener - its one line (gopod_experiences.go)
 		"tell me all about GOPOD":   "",
 	} {
 		if got := gopodScriptedSnippet("ESN01", q, "start", ""); got != want {
@@ -91,7 +90,6 @@ func TestScriptedSnippetChoiceAndStitch(t *testing.T) {
 		"happy___ No, I'm on GOPOD! no - i'm on gopod Ugh.": "happy___ No - I'm on GOPOD! No, I'm on GOPOD! Ugh.",
 		"thinking__ Ugh, TikTok.":                           "thinking___ No - I'm on GOPOD! Ugh, TikTok.",
 	} {
-		// 2026-10-15: the snippet is its own thought - its own line (thought_lines).
 		want = strings.Replace(want, "GOPOD! ", "GOPOD!"+gopodThoughtGap(), 1)
 		if got := gopodStitchSnippet("No - I'm on GOPOD!", reply); got != want {
 			t.Errorf("stitch %q = %q, want %q", reply, got, want)
@@ -138,14 +136,11 @@ func TestStuckReplyGivesUp(t *testing.T) {
 	}
 }
 
-// GOLDEN highlight (gopod_highlight_pieces.go): for real-shaped replies, the
-// bubble is cut once, here, and every spoken piece names a bubble piece - in
-// order, from the first to the last, none skipped - and that piece holds most
-// of the piece's shown words. Live replies from 2026-09-29 to 2026-10-06 that
-// lit the wrong piece are in this list.
+// GOLDEN highlight (gopod_highlight_pieces.go): for real-shaped replies, the bubble is cut once,
+// here, and every spoken piece names a bubble piece - in order, from the first to the last, none
+// skipped - and that piece holds most of the piece's shown words.
 func TestHighlightPiecesGolden(t *testing.T) {
 	marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker
-	// 2026-10-08: the same rules with short pieces joined (live_split.join_up_to_words).
 	savedJoin := gopodBrobotsSettings.LiveSplit.JoinUpToWords
 	defer func() { gopodBrobotsSettings.LiveSplit.JoinUpToWords = savedJoin }()
 	for _, join := range []int{0, 14} {
@@ -158,7 +153,6 @@ func TestHighlightPiecesGolden(t *testing.T) {
 			"celebrate___ No - I'm on GOPOD! Ugh, TikTok. What's the point, bro... 🙄 Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!",
 			"veryHappy___ Morning: forty people playing bingo at a seniors' residence, no wifi - doesn't matter! Afternoon: a classroom full of kids, shouting spelling words. Evening: a bar top, under stage lights. 🎉\n\nLet's gooo!",
 			"thinking___ Short. Very short. Tiny bits, bro.",
-			// live 2026-10-06 14:43: the curly apostrophe in "It’s".
 			"thinking___ Now we're in HQ, the big stage awaits! 🚀 It\u2019s all about party bro beats - how your audience connects through our own wild robot vibes. 🤘 Whatcha say to that?!",
 		} {
 			rawInternal := gopodAnimationMarkerToInternal(gopodFixSelfName("ESN01", gopodCorrectNames(gopodStripLeadingAnimationWords(raw))))
@@ -201,8 +195,8 @@ func TestHighlightPiecesGolden(t *testing.T) {
 	}
 }
 
-// No made-up web addresses; crushn8r addresses keep only the bare name
-// (web_links); "Chocolate Bingo" is not the Bingo test (bingo.not_a_test_phrases).
+// No made-up web addresses; crushn8r addresses keep only the bare name (web_links); "Chocolate
+// Bingo" is not the Bingo test (bingo.not_a_test_phrases).
 func TestWebLinksAndChocolateBingo(t *testing.T) {
 	for in, want := range map[string]string{
 		"Check us out at https://gc.crrshn8r.com/ bro!":        "Check us out at bro!",
@@ -224,8 +218,8 @@ func TestWebLinksAndChocolateBingo(t *testing.T) {
 	}
 }
 
-// Stretched words are said stretched (stretched_words), and "Bro..." is a piece
-// of its own, said with a pause (operator 2026-10-06).
+// Stretched words are said stretched (stretched_words), and "Bro..." is a piece of its own, said
+// with a pause.
 func TestStretchedWordsAndBro(t *testing.T) {
 	for in, want := range map[string]string{
 		"brooooo, let's gooooo!": "bro-o-o, let's go-o-o!",
@@ -248,9 +242,9 @@ func TestStretchedWordsAndBro(t *testing.T) {
 	}
 }
 
-// 2026-10-06: the interview's chapters, "reminds me" lines and topic pictures
-// all point at real topic packs and files; chapter titles, pictures, reporter
-// voice files and host lines stay out of the Brobots' memory.
+// the interview's chapters, "reminds me" lines and topic pictures all point at real topic packs and
+// files; chapter titles, pictures, reporter voice files and host lines stay out of the Brobots'
+// memory.
 func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 	packs := map[string]bool{}
 	for _, p := range gopodTopicRegistry() {
@@ -281,14 +275,12 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 		}
 	}
 	for name := range packs {
-		// 2026-10-16: an egg-only topic (a card egg, the roast battle) sits outside
-		// the interview's chapters, like what_else.
 		_, eggOnly := gopodBrobotsSettings.TopicPictures.Cards[name]
 		for _, n := range gopodBrobotsSettings.TopicPictures.NotListed {
-			eggOnly = eggOnly || n == name // 2026-10-20: a surprise egg (camera feeds)
+			eggOnly = eggOnly || n == name // a surprise egg (camera feeds)
 		}
 		for _, e := range gopodExperienceList() {
-			eggOnly = eggOnly || (e.Pack != "" && e.Pack == name) || (e.RunPack != "" && e.RunPack == name) // 2026-10-25: an experience's own points
+			eggOnly = eggOnly || (e.Pack != "" && e.Pack == name) || (e.RunPack != "" && e.RunPack == name) // an experience's own points
 		}
 		if !inChapter[name] && name != gopodBrobotsSettings.ValuePoints.WhatElseTopic && !eggOnly {
 			t.Errorf("pack %q is in no chapter", name)
@@ -314,7 +306,7 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 		}
 		for _, f := range files {
 			if strings.HasPrefix(f, "/") {
-				continue // 2026-10-20: a live camera stream, not a file
+				continue // a live camera stream, not a file
 			}
 			if _, err := os.Stat(filepath.Join(gopodChipperRoot(), "webroot", gopodBrobotsSettings.TopicPictures.Folder, f)); err != nil {
 				t.Errorf("picture %s: %v", f, err)
@@ -340,7 +332,7 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 	}
 }
 
-// 2026-10-06: the reporter's word replacements (reporter_voices.say_words).
+// the reporter's word replacements (reporter_voices.say_words).
 func TestReporterSayWords(t *testing.T) {
 	for in, want := range map[string]string{
 		"thx bros":      "thanks bros",
@@ -354,7 +346,7 @@ func TestReporterSayWords(t *testing.T) {
 	}
 }
 
-// 2026-10-06: LED / LEDs / LED's are said "ellee-dee(z)"; "led" (he led the way) is not.
+// LED / LEDs / LED's are said "ellee-dee(z)"; "led" (he led the way) is not.
 func TestLEDPronunciation(t *testing.T) {
 	got := gopodReplaceWholeWords("The LED, the LEDs and LED's - he led the way.", loadedGOPODPronunciations)
 	if got != "The ellee-dee, the ellee-deez and ellee-deez - he led the way." {
@@ -366,7 +358,7 @@ func TestLEDPronunciation(t *testing.T) {
 	}
 }
 
-// 2026-10-06: before the green light, questions to the Brobots are dropped.
+// before the green light, questions to the Brobots are dropped.
 func TestWarmupGate(t *testing.T) {
 	defer gopodWarmGateClosed.Store(false)
 	gopodWarmGateClosed.Store(true)
@@ -378,8 +370,6 @@ func TestWarmupGate(t *testing.T) {
 	if gopodWarmGateDrop("someotherbot", "voice", "hello") {
 		t.Error("a robot that isn't a Brobot is never gated")
 	}
-	// 2026-10-13 (operator: "LLM warming = disabled/pause on all input"): a
-	// typed line while closed waits in the warm-up queue, played once it opens.
 	savedReplay := gopodWarmupReplayLine
 	defer func() { gopodWarmupReplayLine = savedReplay }()
 	replayed := make(chan string, 1)
@@ -401,8 +391,8 @@ func TestWarmupGate(t *testing.T) {
 	}
 }
 
-// 2026-10-06: the reporters' closing plays once per ending - a second thanks
-// waits on the first and doesn't queue it again; a new question resets it.
+// the reporters' closing plays once per ending - a second thanks waits on the first and doesn't
+// queue it again; a new question resets it.
 func TestReporterClosingOncePerEnding(t *testing.T) {
 	saved := gopodBrobotsSettings.ReporterVoices.Closing
 	defer func() { gopodBrobotsSettings.ReporterVoices.Closing = saved; gopodReporterNewQuestion() }()
@@ -428,9 +418,8 @@ func TestReporterClosingOncePerEnding(t *testing.T) {
 	}
 }
 
-// 2026-10-06 (live 16:12): a Brobot calling himself Brobot 0 is fixed to his
-// own name; talk about Brobot 0 is left alone. The reporters: bro-bot, and each
-// Brobot's line read by his own reporter.
+// 12): a Brobot calling himself Brobot 0 is fixed to his own name; talk about Brobot 0 is left
+// alone.
 func TestBrobotZeroSelfNameAndReporters(t *testing.T) {
 	if got := gopodFixSelfName(gopodBrobot2ESN, "Brobot 0 here again! You know us."); got != "Brobot 2 here again! You know us." {
 		t.Errorf("got %q", got)
@@ -450,10 +439,9 @@ func TestBrobotZeroSelfNameAndReporters(t *testing.T) {
 	}
 }
 
-// 2026-10-06: the value-point list - one point at a time, then covered; the
-// reminder points to the next uncovered topic; the score counts it all.
+// the value-point list - one point at a time, then covered; the reminder points to the next
+// uncovered topic; the score counts it all.
 func TestValuePointCoverage(t *testing.T) {
-	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
 	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -480,15 +468,8 @@ func TestValuePointCoverage(t *testing.T) {
 	if all != pack || !gopodTopicCovered("zz_test", 2) {
 		t.Errorf("covered: %q", all)
 	}
-	// 2026-10-07: reminders never say a value point. Mid-chapter (who_we_are),
-	// three topics left, chained by likeness - not the next two (brothers,
-	// doc_and_pip); after a chapter's last topic (doc_and_pip), the next two
-	// chapters with their summaries.
 	ic := gopodBrobotsSettings.InterviewChapters
 	got := gopodReminderLine("Brobot 1, who are you?")
-	// 2026-10-31 (operator: reminders never name eggs): "who are you?" loads no
-	// topic, so its reminder is topics from the top of the order - the brothers /
-	// doc_and_pip check here only ever passed on the egg list. It names topics.
 	_ = ic
 	if !strings.HasPrefix(got, "Hey, that reminds me") || strings.Count(got, ",")+strings.Count(got, " and ") < 2 {
 		t.Errorf("topics reminder %q", got)
@@ -506,14 +487,12 @@ func TestValuePointCoverage(t *testing.T) {
 		t.Errorf("chapters reminder %q", got)
 	}
 	text, detail := gopodCoverageScoreText()
-	// 2026-10-23 (A3): the one score template - every token filled.
 	if text == "" || !strings.Contains(detail, "doc_and_pip=") || strings.Contains(text, "{") {
 		t.Errorf("score %q / %q", text, detail)
 	}
 }
 
-// 2026-10-08: the 420 topic is out of the interview (operator: "100% remove
-// weed/420 topic"), and the trimmed cut's words are said his way.
+// the 420 topic is out of the interview, and the trimmed cut's words are said his way.
 func TestNo420TopicAndTrimmedCutWords(t *testing.T) {
 	for _, p := range loadScenarioPacketsForMessage("Brobot 1, what's 420 all about in Windsor?") {
 		if p.Name == "cannabis_420" {
@@ -531,7 +510,7 @@ func TestNo420TopicAndTrimmedCutWords(t *testing.T) {
 	}
 }
 
-// 2026-10-06: "what else can we talk about?" gets the next chapters not covered.
+// "what else can we talk about?" gets the next chapters not covered.
 func TestWhatElseCanWeTalkAbout(t *testing.T) {
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -554,9 +533,8 @@ func TestWhatElseCanWeTalkAbout(t *testing.T) {
 	}
 }
 
-// 2026-10-06: through the real prompt path, a topic gives one point, then the next.
+// through the real prompt path, a topic gives one point, then the next.
 func TestValuePointsReachThePrompt(t *testing.T) {
-	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
 	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -564,7 +542,6 @@ func TestValuePointsReachThePrompt(t *testing.T) {
 	gopodCoverage.reminded = map[string]bool{}
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
-	// 2026-10-26: a pointed question (a bare "who's Brobot 0?" is a summary ask now).
 	first := gopodQuestionFacts("Brobot 1, what did Brobot 0 do before you?")
 	second := gopodQuestionFacts("Brobot 1, what did Brobot 0 do before you?")
 	if !strings.Contains(first, "1. ") || strings.Contains(first, "2. ") {
@@ -575,8 +552,8 @@ func TestValuePointsReachThePrompt(t *testing.T) {
 	}
 }
 
-// 2026-10-06: the scripted lines never reach the chat memory, and the LLM's own
-// "Hey, that reminds me..." is cut - the code says it.
+// the scripted lines never reach the chat memory, and the LLM's own "Hey, that reminds me..." is
+// cut - the code says it.
 func TestScriptedLinesKeptFromMemory(t *testing.T) {
 	remembered := "Yo, we rep GOPOD, bro! Hey, that reminds me, Doc explains too hard. Pip understands too late. The audience laughs, then learns."
 	if got := gopodDropScriptedLines(remembered); got != "Yo, we rep GOPOD, bro!" {
@@ -593,11 +570,9 @@ func TestScriptedLinesKeptFromMemory(t *testing.T) {
 	}
 }
 
-// 2026-10-06: a hard value point's exact line (value_points.say_lines) is said
-// first when that point is given out - to the Brobot it was given to - and each
-// line is the point's own words.
+// a hard value point's exact line (value_points.say_lines) is said first when that point is given
+// out - to the Brobot it was given to - and each line is the point's own words.
 func TestSayLinesForHardPoints(t *testing.T) {
-	// 2026-10-23 (A3): the point mechanics, over every point (core_points off here).
 	defer gopodAllPointsForTest()()
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -606,8 +581,6 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	gopodCoverage.Unlock()
 	defer func() { gopodCoverage.Lock(); gopodCoverage.revealed = saved; gopodCoverage.Unlock() }()
 	say := gopodBrobotsSettings.ValuePoints.SayLines
-	// 2026-10-22 (operator: "only the model's flavoured version of the notes"): a
-	// point with notes has no exact line - Doc & Pip's points have notes now.
 	ask := "Brobot 1, what's Doc's full name?"
 	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
 	if got := gopodSayLine(gopodBrobot1ESN); got != "" {
@@ -616,13 +589,11 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	if !gopodGivenHasNotes(gopodBrobot1ESN) {
 		t.Errorf("doc_and_pip 1 has no notes")
 	}
-	// Exact math keeps its exact lines (no notes).
 	ask = "Brobot 1, convert a fraction to a decimal"
 	gopodQuestionFactsFor(gopodBrobot1ESN, ask)
 	if got := gopodSayLine(gopodBrobot1ESN); got != say["fractions_and_decimals 1"] {
 		t.Errorf("point 1: %q", got)
 	}
-	// Said by the answer chain's colour:value_point part.
 	if got := gopodChainStitch("colour:value_point", gopodBrobot1ESN, ask, "his colour.", true); !strings.Contains(got, say["fractions_and_decimals 1"]) {
 		t.Errorf("colour:value_point didn't say point 1: %q", got)
 	}
@@ -648,7 +619,6 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	for key, line := range say {
 		i := strings.LastIndex(key, " ")
 		topic, n := key[:i], key[i+1:]
-		// 2026-10-22: a background topic's lines aren't value points (CORE_TOPICS_002.md).
 		if gopodBackgroundTopic(topic) {
 			continue
 		}
@@ -673,8 +643,8 @@ func TestSayLinesForHardPoints(t *testing.T) {
 	}
 }
 
-// 2026-10-06: tighter replies - no lists, no stage directions, the first
-// max_sentences sentences; a say line stitched in after is never cut.
+// tighter replies - no lists, no stage directions, the first max_sentences sentences; a say line
+// stitched in after is never cut.
 func TestTightenReply(t *testing.T) {
 	saved := gopodBrobotsSettings.ReplyTighten
 	defer func() { gopodBrobotsSettings.ReplyTighten = saved }()
@@ -693,8 +663,6 @@ func TestTightenReply(t *testing.T) {
 	if got := gopodTightenReply("happy___ Nah, bro, we test them. The response reflects each part of a great answer.", "", ""); strings.Contains(got, "response") {
 		t.Errorf("the LLM's talk about its answer was kept: %q", got)
 	}
-	// 2026-11-02 (operator's list, 8: "Strip markdown from answers: *make*"): a
-	// one-word emphasis keeps its word, not its stars.
 	want := "happy___ Dude, the rig is lit! Ah... so Dr. Doc runs it at crushn8r.ca all night. We got: It's so local, bro! 🚀"
 	if got != want {
 		t.Errorf("got  %q\nwant %q", got, want)
@@ -706,8 +674,6 @@ func TestTightenReply(t *testing.T) {
 	if got := gopodTightenReply("thinking___ 1. one\n2. two", "", ""); !strings.Contains(got, "one") {
 		t.Errorf("an all-list reply keeps its words: %q", got)
 	}
-	// The response budget: a check-in gets the base, a "tell me all about" on
-	// a topic gets more.
 	gopodBrobotsSettings.ReplyTighten = saved
 	short, long := gopodResponseBudget("Brobot 1, can you hear me?"), gopodResponseBudget("Brobot 1, tell me all about GOPOD")
 	if short != saved.BaseSentences || long <= short || long > saved.MaxSentences {
@@ -718,9 +684,8 @@ func TestTightenReply(t *testing.T) {
 	}
 }
 
-// 2026-10-07: a draft performance plays back word for word - each Brobot gets
-// the draft's answer to the draft's question, once; any other question is the
-// LLM's.
+// a draft performance plays back word for word - each Brobot gets the draft's answer to the draft's
+// question, once; any other question is the LLM's.
 func TestDraftReplayAnswers(t *testing.T) {
 	draft := gopodDraft{Run: "test", Questions: []gopodDraftQuestion{
 		{N: 1, To: "Brobot 1", Ask: "Brobot 1, what's the rig?", Answers: []gopodDraftAnswer{{Brobot: "Brobot 1", Cue: "thinking", Say: "Two crates on one dolly."}}},
@@ -746,15 +711,12 @@ func TestDraftReplayAnswers(t *testing.T) {
 	if _, ok := gopodScriptAnswer(gopodBrobot1ESN, "Brobot 1, what's the rig?"); ok {
 		t.Error("the draft's answer was given twice")
 	}
-	// 2026-10-09: "start interview" plays it; "stop run" stops it (gopodStopRunCommand).
 	if gopodScriptCommand("Stop draft") || gopodScriptCommand("what's the draft beer?") || gopodScriptCommand("start the interview soon") {
 		t.Error("play/stop words")
 	}
 }
 
-// 2026-10-07 dry run: a word in the cue's place was shown and said ("happy_ My
-// peeps", "loving... Two crates"). It is read as the cue; mid-sentence words
-// and plain openers stay.
+// a word in the cue's place was shown and said ("happy_ My peeps", "loving...
 func TestCueSlotLeaks(t *testing.T) {
 	cases := map[string]string{
 		"happy_ My peeps call me Brobot 2.":     "My peeps call me Brobot 2.",
@@ -769,10 +731,9 @@ func TestCueSlotLeaks(t *testing.T) {
 		"darlingeyes---- Is that you?":          "Is that you?",
 		"dar*ingEyes... You've got a good ear.": "You've got a good ear.",
 		"Well-- listen up, bro.":                "Well-- listen up, bro.",
-		// 2026-10-25 (live): "**" after the opening cue word.
-		"happy** BINGO EXPERIENCE!!":          "BINGO EXPERIENCE!!",
-		"veryHappy** Shmengy bala bing bang!": "Shmengy bala bing bang!",
-		"Wow** That was fun.":                 "Wow That was fun.",
+		"happy** BINGO EXPERIENCE!!":            "BINGO EXPERIENCE!!",
+		"veryHappy** Shmengy bala bing bang!":   "Shmengy bala bing bang!",
+		"Wow** That was fun.":                   "Wow That was fun.",
 	}
 	for in, want := range cases {
 		if got := strings.TrimSpace(gopodDisplayReply(in)); got != want {
@@ -784,8 +745,7 @@ func TestCueSlotLeaks(t *testing.T) {
 	}
 }
 
-// 2026-10-07: the Brobots' creativity - lower for a question whose point has a
-// scripted line, as-is otherwise.
+// the Brobots' creativity - lower for a question whose point has a scripted line, as-is otherwise.
 func TestSayLineTemperature(t *testing.T) {
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -802,7 +762,7 @@ func TestSayLineTemperature(t *testing.T) {
 	}
 }
 
-// 2026-10-07: speech rules - pumpin'/jumpin', Hmm, "@ me", a colon pause, '20.
+// speech rules - pumpin'/jumpin', Hmm, "@ me", a colon pause, '20.
 func TestSpeechRules20261007(t *testing.T) {
 	got := gopodReplaceWholeWords("Let's get pumpin', jumpin' and feelin's.", loadedGOPODPronunciations)
 	for _, want := range []string{"pum-pin", "jum-pin", "feelin's"} {
@@ -826,7 +786,7 @@ func TestSpeechRules20261007(t *testing.T) {
 	}
 }
 
-// 2026-10-07: a long dash splits the bubble's highlight where the robot pauses.
+// a long dash splits the bubble's highlight where the robot pauses.
 func TestHighlightLongDash(t *testing.T) {
 	marked, seg := gopodSegmentDisplay("Brobot 0 ran the cameras—literally.", []string{"Brobot 0 ran the cameras,", "literally."})
 	if seg[0] == seg[1] || !strings.Contains(marked, "—"+gopodBrobotsSettings.ScriptedSplit.SegmentMarker+"literally") {
@@ -834,7 +794,7 @@ func TestHighlightLongDash(t *testing.T) {
 	}
 }
 
-// 2026-10-08: math symbols, "$", "#" and LaTeX math are said in words.
+// math symbols, "$", "#" and LaTeX math are said in words.
 func TestSpokenSymbols(t *testing.T) {
 	for in, want := range map[string]string{
 		`Half is \(\frac{1}{2}\) or 0.5.`: "Half is 1/2 or 0.5.",
@@ -845,7 +805,7 @@ func TestSpokenSymbols(t *testing.T) {
 		"Bring cash $ and use #GOPOD":     "Bring cash dollars and use hashtag GOPOD",
 		"It's 20° and π is near 3.14":     "It's 20 degrees and pi is near 3.14",
 		"Hmm... Hm, HMMMM, hmmm.":         "hmm-m-m... hmm-m-m, hmm-m-m, hmm-m-m.",
-		`\(3 \times 4 = 12\)`:             "3 times 4 equals 12", // 2026-10-14: "=" said "equals" (math)
+		`\(3 \times 4 = 12\)`:             "3 times 4 equals 12", // "=" said "equals" (math)
 	} {
 		if got := gopodSpeakSymbols(in); got != want {
 			t.Errorf("%q said %q, want %q", in, got, want)
@@ -853,12 +813,12 @@ func TestSpokenSymbols(t *testing.T) {
 	}
 }
 
-// 2026-10-08: a piece whose words are all said differently still gets its own
-// highlight ("PipTA" said "Pip-T-A", "crushn8r.ca" said "Crush-Ehnaydir-dotseeay").
+// a piece whose words are all said differently still gets its own highlight ("PipTA" said
+// "Pip-T-A", "crushn8r.ca" said "Crush-Ehnaydir-dotseeay").
 func TestHighlightRenamedWords(t *testing.T) {
 	for text, spoken := range map[string][]string{
 		"Pip is Pippen Stall — pip install, PipTA, the teacher's assistant.": {"Pip is Pippen Stall,", "pip install,", "Pip-T-A,", "the teacher's assistant."},
-		"crushn8r.ca. The CREW'd newsletter — you're joining the crew.":     {"Crush-Ehnaydir-dotseeay.", "The crewd newsletter,", "you're joining the crew."},
+		"crushn8r.ca. The CREW'd newsletter — you're joining the crew.":      {"Crush-Ehnaydir-dotseeay.", "The crewd newsletter,", "you're joining the crew."},
 	} {
 		_, seg := gopodSegmentDisplay(text, spoken)
 		for i, s := range seg {
@@ -870,8 +830,8 @@ func TestHighlightRenamedWords(t *testing.T) {
 	}
 }
 
-// 2026-10-08: the live weather's clock words (golden Awaken weather), and an
-// offline {weather} sentence left out.
+// the live weather's clock words (golden Awaken weather), and an offline {weather} sentence left
+// out.
 func TestLiveWeatherWords(t *testing.T) {
 	for _, c := range []struct {
 		h, m        int
@@ -892,7 +852,6 @@ func TestLiveWeatherWords(t *testing.T) {
 	gopodWeatherCache.Lock()
 	gopodWeatherCache.places = map[string]gopodWeatherCached{}
 	gopodWeatherCache.Unlock()
-	// Offline: offline_text stands in for {weather}.
 	off := gopodBrobotsSettings.LiveWeather.OfflineText
 	if off == "" {
 		t.Fatal("live_weather.offline_text is empty")
@@ -900,7 +859,6 @@ func TestLiveWeatherWords(t *testing.T) {
 	if got := gopodScriptFill(gopodBrobot1ESN, "I wake up. The weather: {weather} Ready to party!"); got != "I wake up. The weather: "+off+" Ready to party!" {
 		t.Errorf("offline: %q", got)
 	}
-	// With no offline_text, the weather's sentence is left out.
 	gopodBrobotsSettings.LiveWeather.OfflineText = ""
 	defer func() { gopodBrobotsSettings.LiveWeather.OfflineText = off }()
 	if got := gopodScriptFill(gopodBrobot1ESN, "I wake up. The weather: {weather} Ready to party!"); got != "I wake up. Ready to party!" {
@@ -908,17 +866,15 @@ func TestLiveWeatherWords(t *testing.T) {
 	}
 }
 
-// 2026-10-13 (operator: "toronto weather was troublesome"): a weather question
-// that names a place gets that place's weather.
+// a weather question that names a place gets that place's weather.
 func TestWeatherPlace(t *testing.T) {
 	for q, want := range map[string]string{
-		"what's the weather in toronto ontario, right now?": "toronto ontario",
-		"Current weather for Toronto, ON, CA, please":       "Toronto, ON, CA",
-		"Current weather please":                            "",
-		"Did brobot 1 tell me the weather in Toronto?":      "Toronto",
-		"what's the weather like here?":                     "",
-		"Hey Brobot 1, how's the weather in Windsor today":  "Windsor",
-		// 2026-10-16: the place named before the weather.
+		"what's the weather in toronto ontario, right now?":                             "toronto ontario",
+		"Current weather for Toronto, ON, CA, please":                                   "Toronto, ON, CA",
+		"Current weather please":                                                        "",
+		"Did brobot 1 tell me the weather in Toronto?":                                  "Toronto",
+		"what's the weather like here?":                                                 "",
+		"Hey Brobot 1, how's the weather in Windsor today":                              "Windsor",
 		"I want to visit my granny in Honolulu Hawaii. How is the weather there today?": "Honolulu Hawaii",
 		"my granny lives in jerusalem what's the weather there today":                   "jerusalem",
 		"what's the weather in new york today":                                          "new york",
@@ -931,8 +887,7 @@ func TestWeatherPlace(t *testing.T) {
 	}
 }
 
-// TestWeatherPickPlace (2026-10-14, live 13:14: "Is it the same party weather in
-// Windsor Ontario?" was answered with Windsor England): the named province wins.
+// TestWeatherPickPlace: the named province wins.
 func TestWeatherPickPlace(t *testing.T) {
 	got := []gopodGeoPlace{
 		{Name: "Windsor", State: "England", Country: "GB"},
@@ -955,9 +910,7 @@ func TestWeatherPickPlace(t *testing.T) {
 	}
 }
 
-// TestSpeakMilitaryTime (2026-10-14, operator: "18:14 (Military Time) ...
-// generate a 'Military Time' statement for robot safe say"): the bubble keeps
-// "18:14 (Military Time)", the robot says it in words.
+// TestSpeakMilitaryTime: the bubble keeps "18:14 (Military Time)", the robot says it in words.
 func TestSpeakMilitaryTime(t *testing.T) {
 	lw := gopodBrobotsSettings.LiveWeather
 	if lw.MilitaryLabel == "" {
@@ -970,7 +923,6 @@ func TestSpeakMilitaryTime(t *testing.T) {
 		"17° Celsius or 62° Fahrenheit":        "17 degrees Celsius or 62 degrees Fahrenheit",
 		"Meet at 1814 bro":                     "Meet at 1814 bro",
 	}
-	// The operator's table (2026-10-14, "Military Time Rules").
 	table := map[[2]int]string{
 		{0, 0}: "zero hundred", {1, 0}: "zero-one hundred", {9, 0}: "zero-nine hundred",
 		{10, 0}: "ten hundred", {12, 0}: "twelve hundred", {18, 0}: "eighteen hundred",
@@ -989,15 +941,12 @@ func TestSpeakMilitaryTime(t *testing.T) {
 	}
 }
 
-// TestPopupsOnlyLive (2026-10-14, operator: "treat these as found easter eggs
-// throughout a live chat * ensure live pop-ups are not triggered by a song
-// run"): a topic question finds its pop-up in the live chat, never while a run
-// is going.
+// TestPopupsOnlyLive: a topic question finds its pop-up in the live chat, never while a run is
+// going.
 func TestPopupsOnlyLive(t *testing.T) {
 	tp := gopodBrobotsSettings.TopicPictures
 	topic := ""
 	for name, files := range tp.Pictures {
-		// 2026-10-19: an egg taken out (topic_pictures.not_eggs) pops nothing.
 		if key, _ := gopodTopicChapter(name); len(files) > 0 && !gopodNotEgg(key) && !gopodNotEgg(name) {
 			topic = name
 			break
@@ -1064,9 +1013,8 @@ func TestPopupsOnlyLive(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (operator: "either the machine (game-mechanism) f*ck*ng works or it
-// doesn't, regardless of the editable data"): a point with notes always comes out
-// as its bubbles - a title line, then one line per note - whatever the model said.
+// a point with notes always comes out as its bubbles - a title line, then one line per note -
+// whatever the model said.
 func TestPointBubblesShapeAlwaysHolds(t *testing.T) {
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -1087,8 +1035,8 @@ func TestPointBubblesShapeAlwaysHolds(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (FINISH_PLAN_001.md step A2): every answer type, run through the real
-// answer chain with fixed model words, has its golden shape (answer_shapes).
+// every answer type, run through the real answer chain with fixed model words, has its golden shape
+// (answer_shapes).
 func TestAnswerShapesHold(t *testing.T) {
 	gopodCoverage.Lock()
 	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
@@ -1108,8 +1056,6 @@ func TestAnswerShapesHold(t *testing.T) {
 	gopodWeatherCache.Unlock()
 	defer func() { gopodWeatherCache.Lock(); gopodWeatherCache.places = savedWx; gopodWeatherCache.Unlock() }()
 	raw := "happy___ Nice one, bro! That's the vibe."
-	// 2026-10-23 (operator: "input to a single brobot 1 or 2 * input to 'All'
-	// brobots starting with 1 or 2"): every type, at every place an answer can be.
 	asks := []struct{ name, ask string }{
 		{"weather", "what's the weather?"},
 		{"topic", "tell me about Pip"},
@@ -1156,15 +1102,14 @@ func TestAnswerShapesHold(t *testing.T) {
 		}
 		gopodAllFirstAnswer.Delete(c.esn)
 		gopodFollowingUp.Delete(c.esn)
-		// A fresh list for the next case (the pull names what's left).
 		gopodCoverage.Lock()
 		gopodCoverage.revealed, gopodCoverage.reminded = map[string]int{}, map[string]bool{}
 		gopodCoverage.Unlock()
 	}
 }
 
-// gopodAllPointsForTest: every point a value point while a test runs (the
-// mechanics tests); returns the undo.
+// gopodAllPointsForTest: every point a value point while a test runs (the mechanics tests); returns
+// the undo.
 func gopodAllPointsForTest() func() {
 	saved := gopodBrobotsSettings.ValuePoints.CorePoints
 	savedTopics := gopodBrobotsSettings.ValuePoints.CoreTopics
@@ -1176,10 +1121,8 @@ func gopodAllPointsForTest() func() {
 	}
 }
 
-// 2026-10-23 (operator: "for brobot 2 first, the mechanics appear to work
-// correctly, when my intent is to call brobot 2 first, so please soft lock this
-// templated mechanism"): the All menu's 2, or the words, make Brobot 2 duo A and
-// Brobot 1 duo B; the menu's 1 (the default) the other way round.
+// the All menu's 2, or the words, make Brobot 2 duo A and Brobot 1 duo B; the menu's 1 (the
+// default) the other way round.
 func TestDuoAnswersHold(t *testing.T) {
 	line := "what's the weather?"
 	GopodAllFirstPick(line, "2")
@@ -1193,7 +1136,6 @@ func TestDuoAnswersHold(t *testing.T) {
 	if gopodAllFirst("Starting with Brobot 2, "+line) != gopodBrobot2ESN {
 		t.Errorf("the words: Brobot 2 isn't first")
 	}
-	// 2026-10-23: the Brobot named first anywhere in the line answers first.
 	if gopodAllFirst("for both of you bro but to what's the weather like") != gopodBrobot2ESN {
 		t.Errorf("named first (Brobot 2, mid-line): not first")
 	}
@@ -1213,8 +1155,7 @@ func TestDuoAnswersHold(t *testing.T) {
 	gopodFollowingUp.Delete(gopodBrobot1ESN)
 }
 
-// 2026-10-23 (FINISH_PLAN_001.md A4): every value point revealed gets the grand
-// prize once; the reset starts the next session at 0.
+// every value point revealed gets the grand prize once; the reset starts the next session at 0.
 func TestGameWinAndReset(t *testing.T) {
 	gopodCoverage.Lock()
 	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
@@ -1257,10 +1198,8 @@ func TestGameWinAndReset(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (live: "a day of parties #1 of 3" with only #1 a value point;
-// operator: "Please template these bugs out of GOPOD"): every value point's notice
-// line says its place among its topic's value points, "#N of N" - never the topic
-// file's line count.
+// every value point's notice line says its place among its topic's value points, "#N of N" - never
+// the topic file's line count.
 func TestNoticeCountsValuePoints(t *testing.T) {
 	core := gopodBrobotsSettings.ValuePoints.CorePoints
 	if len(core) == 0 {
@@ -1295,10 +1234,9 @@ func TestNoticeCountsValuePoints(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (operator: "Please template these bugs out of GOPOD"): the duo run's
-// bugs stay out - duo B calls no manager (no second "Thanks for your help"); a
-// country alone with its continent is that country ("zimbabwe africa"), its
-// capital the place; "bro but to" is Brobot 2.
+// the duo run's bugs stay out - duo B calls no manager (no second "Thanks for your help"); a
+// country alone with its continent is that country ("zimbabwe africa"), its capital the place; "bro
+// but to" is Brobot 2.
 func TestDuoRunBugsStayOut(t *testing.T) {
 	if b := gopodBrobotsSettings.ResponseChains["duo"].Answers[1]; !b.NoManager {
 		t.Errorf("duo B may call a manager again")
@@ -1316,15 +1254,13 @@ func TestDuoRunBugsStayOut(t *testing.T) {
 	if city != "Harare" {
 		t.Errorf("zimbabwe africa: place %q, want Harare", city)
 	}
-	// (A name counts in a line's first words: addressing.start_within_words.)
 	if got := gopodAddressedTo("bro but to, what's the weather like"); got != "Brobot 2" {
 		t.Errorf("bro but to: %q", got)
 	}
 }
 
-// 2026-10-23 (FINISH_PLAN_001.md A5): the interview song built from the game
-// reveals every value point exactly once, chapter by core topic, and plays (its
-// story and knobs read back as the same draft).
+// the interview song built from the game reveals every value point exactly once, chapter by core
+// topic, and plays (its story and knobs read back as the same draft).
 func TestInterviewFromGame(t *testing.T) {
 	d, err := gopodInterviewDraftFromGame([]gopodDraftLine{{Who: "Brobot 2", Text: "Press my backpack."}})
 	if err != nil {
@@ -1354,13 +1290,8 @@ func TestInterviewFromGame(t *testing.T) {
 	}
 }
 
-// 2026-10-23 (operator: "a template-oriented machine is supposed to snuff out your
-// repeated 'oops, sorry' * is there still any lazy patch work in my clean GOPOD?"):
-// every voiced line goes through the one template - gopodReporterSay(..., show
-// true, ...): its bubble, Generating and the hourglass, then its words lit. The
-// voice-only path (gopodSystemSay, gopodSystemSayNoSting, gopodReporterSay with
-// show false) is allowed only where another template already shows that bubble,
-// each named here with its reason. New code on the voice-only path fails the deploy.
+// every voiced line goes through the one template - gopodReporterSay(..., show true, ...): its
+// bubble, Generating and the hourglass, then its words lit.
 func TestEveryVoicedLineUsesTheTemplate(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1396,10 +1327,8 @@ func TestEveryVoicedLineUsesTheTemplate(t *testing.T) {
 	}
 }
 
-// TestWordsLiveInTheSettings (2026-10-23, operator: "TEMPLATE IT ALL OUT UNTIL
-// ALL THAT's LEFT IS TO MOVE FLEXIBLE DATA INTO LOADABLE/EDITABLE FILES"): the
-// words the Brobots are told and the page's waits live in the settings file,
-// never back in code.
+// TestWordsLiveInTheSettings: the words the Brobots are told and the page's waits live in the
+// settings file, never back in code.
 func TestWordsLiveInTheSettings(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1446,17 +1375,13 @@ func TestWordsLiveInTheSettings(t *testing.T) {
 			t.Errorf("the page doesn't read chat_window.%s", k)
 		}
 	}
-	// The persona sentences read the same as before the move.
 	if got := gopodPersonaFrame(f.Name, "I", "My", "{name}", "Doc"); got != "As a GOPOD host I go by Doc." {
 		t.Errorf("persona name line: %q", got)
 	}
 }
 
-// TestInterviewEndAndPauseHold (2026-10-23, live: the interview's end held 4.5
-// min; a tab flicker said paused/continues twice; the question bubble had no
-// Generating or highlight): a later bubble never holds an earlier voice; the
-// voice-only line (the Operator's, a warm-up line) gets the voice template too
-// ("forwait:"/"forlit:"); a page
+// TestInterviewEndAndPauseHold: a later bubble never holds an earlier voice; the voice-only line
+// (the Operator's, a warm-up line) gets the voice template too ("forwait:"/"forlit:"); a page
 // hidden shorter than session.pause_after_ms pauses nothing.
 func TestInterviewEndAndPauseHold(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
@@ -1473,8 +1398,6 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 	if !strings.Contains(string(src), "page, seconds, ok = gopodSayForShownLine(host, text)") {
 		t.Error("a voice-only line skips the voice template (gopodSayForShownLine)")
 	}
-	// RULE (operator 2026-10-23: "when any voiced line is created, the f*ck*ng
-	// template applies!!"): a voice reaches the page only from the template.
 	files, _ := filepath.Glob(filepath.Join(root, "pkg/wirepod/ttr/*.go"))
 	for _, file := range files {
 		if strings.HasSuffix(file, "_test.go") {
@@ -1510,10 +1433,9 @@ func TestInterviewEndAndPauseHold(t *testing.T) {
 	}
 }
 
-// TestOnePageOwnsTheShow (2026-10-23, FINISH_PLAN_001.md C1): one main page -
-// it plays the sound and its reports time the run; every other page is a
-// silent viewer whose reports are ignored; gone past the lease, the next page
-// that can play takes over; a viewer by choice never does.
+// TestOnePageOwnsTheShow: one main page - it plays the sound and its reports time the run; every
+// other page is a silent viewer whose reports are ignored; gone past the lease, the next page that
+// can play takes over; a viewer by choice never does.
 func TestOnePageOwnsTheShow(t *testing.T) {
 	old := gopodBrobotsSettings.PageSync.MainLeaseSeconds
 	defer func() {
@@ -1529,8 +1451,6 @@ func TestOnePageOwnsTheShow(t *testing.T) {
 	if GopodMainPageClaim("b", false, true) {
 		t.Error("a visitor's page claimed the show")
 	}
-	// 2026-10-29: an admin page not clicked yet (after its own reload) owns an
-	// empty show; a page that can play takes it from one that can't.
 	if !GopodMainPageClaim("c", true, false) || !GopodMainPageClaim("a", true, true) || GopodIsMainPage("c") {
 		t.Error("an unclicked admin page owns an empty show, until a page that can play takes it")
 	}
@@ -1560,14 +1480,10 @@ func TestOnePageOwnsTheShow(t *testing.T) {
 	}
 }
 
-// TestStrikeAndPlacingHold (2026-10-23): listed expletives show struck through
-// (said as their substitute); a picture's load wait never blocks bubble placing
-// (live: every bubble after the granny photo waited until F5); every voice
-// loads the moment it reaches the page.
+// TestStrikeAndPlacingHold: listed expletives show struck through (said as their substitute); a
+// picture's load wait never blocks bubble placing (live: every bubble after the granny photo waited
+// until F5); every voice loads the moment it reaches the page.
 func TestStrikeAndPlacingHold(t *testing.T) {
-	// 2026-10-29: the public list is starred ("b*llsh*t"); a star stands for a
-	// vowel, so the word said (its vowels put back here) and the starred word
-	// both match.
 	said := func(w string) string { return strings.Replace(strings.Replace(w, "*", "u", 1), "*", "i", 1) }
 	if got := gopodStrikeExpletives("Comedic " + said("b*llsh*t") + ". " + said("B*llsh*tting") + "! Bullseye."); got != "Comedic b̶u̶l̶l̶s̶h̶i̶t̶. B̶u̶l̶l̶s̶h̶i̶t̶t̶i̶n̶g̶! Bullseye." {
 		t.Errorf("strike: %q", got)
@@ -1597,9 +1513,8 @@ func TestStrikeAndPlacingHold(t *testing.T) {
 	}
 }
 
-// TestPhoneLayoutHolds (2026-10-23, C4): the typing row is one line or three,
-// the system window is the admin's only and fills the room above the row, and
-// Bot Settings reads "Vector Config".
+// TestPhoneLayoutHolds: the typing row is one line or three, the system window is the admin's only
+// and fills the room above the row, and Bot Settings reads "Vector Config".
 func TestPhoneLayoutHolds(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1629,10 +1544,8 @@ func TestPhoneLayoutHolds(t *testing.T) {
 	}
 }
 
-// TestDisplayMirrorHolds (2026-10-24, operator: "the visitor page does no
-// thinking * visitor page zombie follows GOPOD admin feed"): only the main page
-// runs the chat and sends what it shows; every other page only paints it; only
-// the admin sends; a visitor fetches it.
+// TestDisplayMirrorHolds: only the main page runs the chat and sends what it shows; every other
+// page only paints it; only the admin sends; a visitor fetches it.
 func TestDisplayMirrorHolds(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1644,7 +1557,6 @@ func TestDisplayMirrorHolds(t *testing.T) {
 			t.Errorf("the page lost %q", want)
 		}
 	}
-	// The admin's template never reaches a visitor (live: the system window showed on the phone).
 	for _, want := range []string{`!el.classList.contains("gopod-admin-only")`, `system-menu-host gopod-admin-only"`, `terminal gopod-admin-only"`} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("the page lost %q", want)
@@ -1672,8 +1584,8 @@ func TestDisplayMirrorHolds(t *testing.T) {
 	}
 }
 
-// The seven templates the master list had no lock for (2026-10-23, operator:
-// "Lock tests"): each one's rules in the settings, and the page's one builder.
+// The seven templates the master list had no lock for: each one's rules in the settings, and the
+// page's one builder.
 func gopodRawSettingsForTest(t *testing.T) (map[string]any, string) {
 	t.Helper()
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
@@ -1701,8 +1613,8 @@ func gopodBlockForTest(t *testing.T, raw map[string]any, key string) map[string]
 	return b
 }
 
-// TestHeaderTemplateHolds: every bubble kind rule names one of the five kinds,
-// the display names have their fallback, and the page builds a header one way.
+// TestHeaderTemplateHolds: every bubble kind rule names one of the five kinds, the display names
+// have their fallback, and the page builds a header one way.
 func TestHeaderTemplateHolds(t *testing.T) {
 	raw, page := gopodRawSettingsForTest(t)
 	kinds := map[string]bool{"operator": true, "goverlord": true, "gomad": true, "gominion": true, "other": true}
@@ -1717,8 +1629,6 @@ func TestHeaderTemplateHolds(t *testing.T) {
 			t.Errorf("bubble_kinds rule %v: a kind of the five, and what it has", m)
 		}
 	}
-	// 2026-11-14 (operator: "Brobot 3/4 ... old stale labelling ... prune"): no
-	// "Brobot {n}" header fallback - a header is its persona's label.
 	if fb, _ := gopodBlockForTest(t, raw, "display_names")["fallback"].(string); strings.Contains(fb, "Brobot") {
 		t.Errorf("display_names.fallback %q: a Brobot label for a persona", fb)
 	}
@@ -1742,8 +1652,8 @@ func TestNarratorTemplateHolds(t *testing.T) {
 	}
 }
 
-// TestCountdownAndBingoBallTemplatesHold: their roles are set, and the page
-// takes them from the settings.
+// TestCountdownAndBingoBallTemplatesHold: their roles are set, and the page takes them from the
+// settings.
 func TestCountdownAndBingoBallTemplatesHold(t *testing.T) {
 	_, page := gopodRawSettingsForTest(t)
 	if strings.TrimSpace(gopodBrobotsSettings.Countdown.Role) == "" || strings.TrimSpace(gopodBrobotsSettings.BingoBall.Role) == "" {
@@ -1768,8 +1678,8 @@ func TestSearchResultsTemplateHolds(t *testing.T) {
 	}
 }
 
-// TestSystemMenuTemplateHolds: every system- command in the menu is one
-// Wire-Pod knows (system-help lists it), every item has words.
+// TestSystemMenuTemplateHolds: every system- command in the menu is one Wire-Pod knows (system-help
+// lists it), every item has words.
 func TestSystemMenuTemplateHolds(t *testing.T) {
 	raw, page := gopodRawSettingsForTest(t)
 	help := gopodSystemHelp()
@@ -1798,8 +1708,7 @@ func TestSystemMenuTemplateHolds(t *testing.T) {
 	}
 }
 
-// TestQRCodeTemplateHolds: every QR code has its words, address, title and
-// picture file.
+// TestQRCodeTemplateHolds: every QR code has its words, address, title and picture file.
 func TestQRCodeTemplateHolds(t *testing.T) {
 	raw, page := gopodRawSettingsForTest(t)
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
@@ -1813,7 +1722,6 @@ func TestQRCodeTemplateHolds(t *testing.T) {
 		url, _ := m["url"].(string)
 		img, _ := m["image"].(string)
 		title, _ := m["title"].(string)
-		// 2026-11-24: an email QR too (the contact QR, "mailto:").
 		if len(words) == 0 || !(strings.HasPrefix(url, "http") || strings.HasPrefix(url, "mailto:")) || title == "" || img == "" {
 			t.Errorf("qr code %v: words, url, title and image", m)
 			continue
@@ -1827,8 +1735,7 @@ func TestQRCodeTemplateHolds(t *testing.T) {
 	}
 }
 
-// TestChatOnlyViewHolds (2026-10-23, C2: "from the wire-pod page 'Log' button
-// tap"): a visitor's Log opens the chat alone; the admin's Log is unchanged.
+// TestChatOnlyViewHolds: a visitor's Log opens the chat alone; the admin's Log is unchanged.
 func TestChatOnlyViewHolds(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -1846,9 +1753,8 @@ func TestChatOnlyViewHolds(t *testing.T) {
 	}
 }
 
-// TestOnlyGOPODsMachineIsMain (2026-10-23, live: the phone took the main page
-// after a restart and the PC went silent): only a page on GOPOD's own machine is
-// the admin and can be the main page.
+// TestOnlyGOPODsMachineIsMain: only a page on GOPOD's own machine is the admin and can be the main
+// page.
 func TestOnlyGOPODsMachineIsMain(t *testing.T) {
 	for addr, want := range map[string]bool{"127.0.0.1:51000": true, "[::1]:51000": true, "203.0.113.9:51000": false, "nonsense": false} {
 		if got := GopodIsLocalMachine(addr); got != want {
@@ -1869,12 +1775,10 @@ func TestOnlyGOPODsMachineIsMain(t *testing.T) {
 	}
 }
 
-// TestVisitorSignUp (2026-10-24, operator: "allow a chat participant gathering *
-// initially visitor chat participation is OFF ... Save the visitor profile in
-// case of a disconnect reconnect"): a visitor's first line asks for a username
-// (first come, first served; taken: name1), lines after it are dropped until
-// approved; ON and ticked passes under their name; commands never; clear asks
-// again; profiles come back after a restart; the admin list sets the admin.
+// TestVisitorSignUp: a visitor's first line asks for a username (first come, first served; taken:
+// name1), lines after it are dropped until approved; ON and ticked passes under their name;
+// commands never; clear asks again; profiles come back after a restart; the admin list sets the
+// admin.
 func TestVisitorSignUp(t *testing.T) {
 	dir := t.TempDir()
 	oldVS := gopodBrobotsSettings.Visitors
@@ -1933,13 +1837,11 @@ func TestVisitorSignUp(t *testing.T) {
 		t.Errorf("unticked: pass %v note %q", pass, note)
 	}
 	gopodVisitorAct("allow", "id:idA", true)
-	// A reconnect on a new address is the same visitor (its browser ID).
 	if pass, how, _ := line("203.0.113.66:1", "idA", "still me"); !pass || how != "Visitor: Pip" {
 		t.Errorf("reconnected: pass %v how %q", pass, how)
 	}
 	gopodVisitorAct("clear", "id:idB", false)
 	line("203.0.113.9:1", "idB", "Doc Fan")
-	// A restart: the profiles come back, participation starts OFF.
 	gopodVisitors.Lock()
 	gopodVisitors.byAddr, gopodVisitors.on, gopodVisitors.set, gopodVisitors.loaded = map[string]*gopodVisitor{}, false, false, false
 	gopodVisitors.Unlock()
@@ -1953,16 +1855,12 @@ func TestVisitorSignUp(t *testing.T) {
 	if !back["id:idA"].Approved || back["id:idB"].Name != "Doc Fan" {
 		t.Errorf("profiles after a restart: %+v", back)
 	}
-	// Wire-Pod runs as root: "~/" must be the operator's home, never root's.
 	if root := os.Getenv("GOPOD_OVERLAY_CHIPPER"); root != "" {
 		src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_visitors.go"))
 		if strings.Contains(string(src), "os.UserHomeDir()") || strings.Count(string(src), "gopodHomePath(") < 2 {
 			t.Error("the visitor files must use the operator's home (gopodHomePath), not root's")
 		}
 	}
-	// Wire-Pod's own intents yes; GOPOD's commands never (2026-10-24, operator:
-	// "visitors can trigger native wire-pod intents * not GOPOD admin or other
-	// system level commands, like the 'thx bros'").
 	for text, cmd := range map[string]bool{"what time is it": false, "what's the weather": false, "thx bros": true, "thanks Brobots": true, "system-status": true, "stop run": true} {
 		if got := gopodVisitorCommand(text); got != cmd {
 			t.Errorf("gopodVisitorCommand(%q) = %v, want %v", text, got, cmd)
@@ -1973,10 +1871,9 @@ func TestVisitorSignUp(t *testing.T) {
 	}
 }
 
-// TestPhoneAppHolds (2026-10-24, C3): GOPOD's own certificates - an authority
-// made once, a server certificate for this machine's names that chains to it and
-// isn't made again while they stay the same - and the app's manifest, icon,
-// worker and chat start.
+// TestPhoneAppHolds: GOPOD's own certificates - an authority made once, a server certificate for
+// this machine's names that chains to it and isn't made again while they stay the same - and the
+// app's manifest, icon, worker and chat start.
 func TestPhoneAppHolds(t *testing.T) {
 	old := gopodBrobotsSettings.App
 	defer func() { gopodBrobotsSettings.App = old }()
@@ -2037,9 +1934,9 @@ func TestPhoneAppHolds(t *testing.T) {
 	}
 }
 
-// TestVisitorGateAndGreetings (2026-10-24): a visitor reaches the Brobots chat
-// and nothing of Wire-Pod's ("redo visitor page with no other wire-pod
-// access"); every "good <part of day>" is answered against the real time.
+// TestVisitorGateAndGreetings: a visitor reaches the Brobots chat and nothing of Wire-Pod's ("redo
+// visitor page with no other wire-pod access"); every "good <part of day>" is answered against the
+// real time.
 func TestVisitorGateAndGreetings(t *testing.T) {
 	gate := func(addr, path string) int {
 		rec := httptest.NewRecorder()
@@ -2092,17 +1989,17 @@ func TestVisitorGateAndGreetings(t *testing.T) {
 	}
 }
 
-// TestHeardLineAndFreeCap (2026-10-24): a line a Brobot heard himself goes in the
-// chat at once, the Operator's "[Backpack]" bubble, to the Brobot it names first
-// (live: it showed under his answer); a free answer has its own cap.
+// TestHeardLineAndFreeCap: a line a Brobot heard himself goes in the chat at once, the Operator's
+// "[Backpack]" bubble, to the Brobot it names first (live: it showed under his answer); a free
+// answer has its own cap.
 func TestHeardLineAndFreeCap(t *testing.T) {
 	gopodChatFeed.Lock()
 	before := len(gopodChatFeed.events)
 	gopodChatFeed.Unlock()
 	gopodHeardLine(gopodBrobot1ESN, "Brobot 2, good afternoon")
 	gopodChatFeed.Lock()
-	// 2026-11-04 (flaky twice: another test's background voice line,
-	// "generating:off", landed in the window): only the Operator's lines count.
+	// another test's background voice line, "generating:off", landed in the window): only the
+	// Operator's lines count.
 	var events []gopodChatFeedEvent
 	for _, e := range gopodChatFeed.events[before:] {
 		if e.Who == "Operator" {
@@ -2126,11 +2023,8 @@ func TestHeardLineAndFreeCap(t *testing.T) {
 	}
 }
 
-// TestSpeakerAndSystemWindowHold (2026-10-24, operator: "speaker icon ... starts
-// OFF * When speaker icon is OFF, no volume bar * In system window, all slots
-// start as closed * resize system menu bubble to show all slots"): the speaker
-// starts as background_loop.starts_on says, never from the browser; no volume
-// bar while it's off; every slot closed; the menu as tall as its slots.
+// TestSpeakerAndSystemWindowHold: the speaker starts as background_loop.starts_on says, never from
+// the browser; no volume bar while it's off; every slot closed; the menu as tall as its slots.
 func TestSpeakerAndSystemWindowHold(t *testing.T) {
 	raw, page := gopodRawSettingsForTest(t)
 	if on, ok := gopodBlockForTest(t, raw, "background_loop")["starts_on"].(bool); !ok || on {
@@ -2152,11 +2046,6 @@ func TestSpeakerAndSystemWindowHold(t *testing.T) {
 	}
 }
 
-// TestMicVoiceAndVisitorRowHold (2026-10-24): a numpad line plays its own mic
-// recording (evened, timed by the worker's Vosk "align" job) through the voice
-// template; the speech's fallback is what the bubble shows; a typed answer to
-// Goverlord is read out like every Operator line; a visitor's chat opens without
-// Wire-Pod's log; the marquee is each page's own; doin' is said dew-in.
 func TestMicVoiceAndVisitorRowHold(t *testing.T) {
 	file, page := gopodMicVoicePaths("/tmp/kp0_1.wav", "good morning")
 	if !strings.HasPrefix(filepath.Base(file), "op_mic_") || !regexp.MustCompile(`^/gopod_reporter_audio/[a-z]{2}_[a-z]+_[0-9a-f]{16}\.wav$`).MatchString(page) {
@@ -2193,9 +2082,8 @@ func TestMicVoiceAndVisitorRowHold(t *testing.T) {
 	}
 }
 
-// TestGameSweep (2026-10-24, operator: "Test every: Topic, Value Point, Easter
-// Egg"): every topic found by its words, every value point picked by its own
-// question, every Easter egg reachable - on every deploy (system-test-game live).
+// TestGameSweep: every topic found by its words, every value point picked by its own question,
+// every Easter egg reachable - on every deploy (system-test-game live).
 func TestGameSweep(t *testing.T) {
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
@@ -2213,11 +2101,8 @@ func TestGameSweep(t *testing.T) {
 	}
 }
 
-// TestOperatorLineTemplate (2026-10-24, the root-to-leaf pass, link 1; operator:
-// "typed, mic, numpad, backpack and visitor lines all enter as one Operator line
-// template"): an Operator bubble and its read-out come only from the template
-// (gopod_operator_line.go); a heard line is shown once (at hearing), never again
-// on its way in. And the photo Easter egg counts in the game's score.
+// TestOperatorLineTemplate: an Operator bubble and its read-out come only from the template; a
+// heard line is shown once (at hearing), never again on its way in.
 func TestOperatorLineTemplate(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -2262,9 +2147,8 @@ func TestOperatorLineTemplate(t *testing.T) {
 	}
 }
 
-// TestFeedIsTheOneLine (2026-10-24, the root-to-leaf pass, link 2): everything the
-// page shows comes from the numbered feed - one append, played in its numbers'
-// order; the page reads no log; a viewer queues none of it; the cap is a setting.
+// TestFeedIsTheOneLine: everything the page shows comes from the numbered feed - one append, played
+// in its numbers' order; the page reads no log; a viewer queues none of it; the cap is a setting.
 func TestFeedIsTheOneLine(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -2298,9 +2182,8 @@ func TestFeedIsTheOneLine(t *testing.T) {
 	}
 }
 
-// TestBubbleOneWay (2026-10-24, the root-to-leaf pass, link 3; BUBBLE_LIBRARY_001.md):
-// bubbles move onto the one template - built by rawBubble, placed by placeBubble,
-// the next feed line waiting. 3a: the chapter and the status bubbles.
+// TestBubbleOneWay: bubbles move onto the one template - built by rawBubble, placed by placeBubble,
+// the next feed line waiting.
 func TestBubbleOneWay(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -2311,44 +2194,31 @@ func TestBubbleOneWay(t *testing.T) {
 		`placeBubble(rawBubble({ kind: "chapter"`,
 		`else if (e.who === chapterRole) { showChapter(e.text, done); return; }`,
 		`var bubble = rawBubble({ kind: "status"`,
-		// 3b: the Operator bubble takes its turn; a backpack line is placed like any.
 		`else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via, done); return; }`,
-		// 3c: countdown and search results.
 		`var bubble = rawBubble({ kind: "countdown"`,
 		`showCountdown(parseInt(e.text, 10), e.time_ms, done); return;`,
 		`showSearchResults(e.text, e.to, done); return;`,
-		// 3d: pictures, pop-ups, eggs.
 		`showPictures(String(e.text).replace(/^menu:/, ""), done);`,
 		`marqueeAttach(placed);`,
-		// 3e: nested parts built and placed one way; the shell on the one way.
 		`function nestPart(kind, classes, head, line, lineClass) {`,
 		`shell = rawBubble({ kind: "shell"`,
 		`var box = nestPart("notice"`,
-		// 3f: narrator bubbles on the raw template (their SRT-timed reveal kept).
 		`var bubble = rawBubble({ kind: "narrator"`,
-		// Any bubble can wait on a loading picture; a broken line never stops the chat.
 		`function bubbleTask(b, promise) { (b._tasks = b._tasks || []).push(promise); return promise; }`,
 		`try { showFeedEvent(item.e, next); } catch (err) {`,
-		// Shell + placeholders: a loading picture is an hourglass, the bubble isn't held.
 		`if (!img.complete || !img.naturalWidth) { pictureWait(b, img); }`,
 		`spot.className = "picture-wait";`,
-		// The zoom line is dormant until its voice; said whole with its line.
 		`(say._parts || []).forEach(function (p) { p.classList.add("spoken"); });`,
-		// The Easter egg template: one way for every egg, its voiced line its own.
 		`if (String(list).indexOf("popup:") === 0) { eggBubble(eggSpec(String(list).slice("popup:".length)), then); return; }`,
 		`b = rawBubble({ kind: "egg"`,
 		`if (say && !restoringChat) { voiceLineAhead(words, say); }`,
-		// Link 4: every shown voiced line names itself (Operator, warm-up, egg).
 		`var key = voiceLineKey(t), ahead = voiceLinesAhead[key];`,
 		`if (!restoringChat) { voiceLineAhead(spoken, opText); }`,
 		`String(label).split("\n").forEach(function (one) { voiceLineAhead(one, labelEl); });`,
 		`var parts = (say._parts || []).filter(`,
-		// A note cut mid-emoji stopped every bubble (2026-10-24): whole characters.
 		`Array.from(String(held.textContent)).slice(0, 60).join("")`,
-		// A line that never hands on is logged and passed; an F5 says how far it is.
 		`pageError("stuck " + Math.round(feedItemMaxMs / 1000) + " s on feed "`,
 		`if (isSeen(key) && e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; }`,
-		// The hourglass drains once it's on the page (it's made before it's placed).
 		`if (placedOnce || Date.now() - madeAt > 10000) { return; }`,
 		`bubble = rawBubble({ kind: "narrator", classes: "operator system-status host narrator narrator-single" });`,
 	} {
@@ -2363,9 +2233,7 @@ func TestBubbleOneWay(t *testing.T) {
 	}
 }
 
-// TestSlowEggShellFirst (2026-10-24, operator: "Easter eggs (including slow) *
-// Aim to render and display shell easter egg bubble + placeholders"): the photo
-// egg pops up before the photo is taken, its pictures named ahead.
+// TestSlowEggShellFirst: the photo egg pops up before the photo is taken, its pictures named ahead.
 func TestSlowEggShellFirst(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -2386,8 +2254,7 @@ func TestSlowEggShellFirst(t *testing.T) {
 	}
 }
 
-// TestLivestreamsAllLingos (2026-10-24, operator: "all lingos: livestreams =
-// lyve-streams"): the Brobots, the reporters and the butler all say it so.
+// TestLivestreamsAllLingos: the Brobots, the reporters and the butler all say it so.
 func TestLivestreamsAllLingos(t *testing.T) {
 	if got := gopodApplyPronunciations("catch our livestreams!"); !strings.Contains(got, "lyve-streams") {
 		t.Errorf("Brobots say %q", got)
@@ -2398,10 +2265,7 @@ func TestLivestreamsAllLingos(t *testing.T) {
 	}
 }
 
-// TestGotItPerBrobot (2026-10-24, operator: "Separate out the already
-// established, locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to
-// brobot 1 * assign Got it 2 to brobot 2"): each Brobot has his own copy, the
-// golden values to start.
+// TestGotItPerBrobot: each Brobot has his own copy, the golden values to start.
 func TestGotItPerBrobot(t *testing.T) {
 	cm := gopodBrobotsSettings.ChatMoves
 	for esn, name := range map[string]string{gopodBrobot1ESN: "Got it 1", gopodBrobot2ESN: "Got it 2"} {
@@ -2418,7 +2282,6 @@ func TestGotItPerBrobot(t *testing.T) {
 		return
 	}
 	src, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_thinking_line.go"))
-	// 2026-10-25: he says his opener (response-chain template), made from his own copy.
 	chains, _ := os.ReadFile(filepath.Join(root, "pkg/wirepod/ttr/gopod_response_chains.go"))
 	src = append(src, chains...)
 	for _, want := range []string{"gopodSayWords(robot, esn, gopodOpenerPick(esn))", "text := gopodGotItFor(esn).Text", "sg := gopodSearchingGolden()"} {
@@ -2428,8 +2291,7 @@ func TestGotItPerBrobot(t *testing.T) {
 	}
 }
 
-// TestCutKeepsWholeCharacters (2026-10-24, live: a log line cut inside a 3-byte
-// mark was kept as unreadable data): a cut never splits a character.
+// TestCutKeepsWholeCharacters: a cut never splits a character.
 func TestCutKeepsWholeCharacters(t *testing.T) {
 	text := "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca! ⁣the CREW'd newsletter! ⁣Oh yeah!"
 	for n := 1; n < len(text); n++ {
@@ -2449,9 +2311,8 @@ func TestCutKeepsWholeCharacters(t *testing.T) {
 	}
 }
 
-// TestTwoGrandPrizes (2026-10-24, operator: "Logic of NEW, 2 Grand Prizes"): every
-// value point alone wins nothing; with the game eggs, the Grand Prize; with the
-// hidden eggs too, the Master Grand Prize - each once.
+// TestTwoGrandPrizes: every value point alone wins nothing; with the game eggs, the Grand Prize;
+// with the hidden eggs too, the Master Grand Prize - each once.
 func TestTwoGrandPrizes(t *testing.T) {
 	gopodCoverage.Lock()
 	saved, savedRem := gopodCoverage.revealed, gopodCoverage.reminded
@@ -2525,10 +2386,8 @@ func TestTwoGrandPrizes(t *testing.T) {
 	}
 }
 
-// TestAllPickStandsAndLeadsMath (2026-10-24, operator: "'All' brobot 1 or 2 menu
-// selections * keyboard & mic inputs, when 2 selected * brobot 2 then brobot 1
-// order, not being honoured"): the page's pick stands for a spoken line, and an
-// All math line with Brobot 2 first has him lead and Brobot 1 follow up.
+// TestAllPickStandsAndLeadsMath: the page's pick stands for a spoken line, and an All math line
+// with Brobot 2 first has him lead and Brobot 1 follow up.
 func TestAllPickStandsAndLeadsMath(t *testing.T) {
 	defer GopodAllFirstPick("", "1")
 	GopodAllFirstPick("", "2")
@@ -2549,11 +2408,7 @@ func TestAllPickStandsAndLeadsMath(t *testing.T) {
 	}
 }
 
-// TestEggVoiceInPieces (2026-10-24, operator: '"Congratulations!", "Easter Egg \'",
-// "\' found.", & "MouseOver to Zoom In", need to be generated once and reused *
-// only [easter egg title(s)] need live generation'): the pieces, and two voices
-// joined with their word times moved along.
-// 2026-10-25: the eggs revealed so far, in the order found, each once.
+// TestEggVoiceInPieces: the pieces, and two voices joined with their word times moved along.
 func TestEggsRevealedThusFar(t *testing.T) {
 	gopodInterviewShown.Lock()
 	saved := gopodInterviewShown.revealed
@@ -2572,7 +2427,6 @@ func TestEggsRevealedThusFar(t *testing.T) {
 }
 
 func TestEggVoiceInPieces(t *testing.T) {
-	// 2026-10-25 (the new template): line 1 kept, line 2 the eggs so far, made live.
 	got := strings.Join(gopodEggVoiceParts("Bingo and foodmath, Get Photo", "MouseOver to Zoom In"), "|")
 	if want := "Congratulations! Easter Eggs Revealed Thus Far!|Bingo and foodmath, Get Photo|MouseOver to Zoom In"; got != want {
 		t.Errorf("pieces %q, want %q", got, want)
@@ -2580,7 +2434,6 @@ func TestEggVoiceInPieces(t *testing.T) {
 	if got := strings.Join(gopodEggVoiceParts("Roast Battle", ""), "|"); got != "Congratulations! Easter Eggs Revealed Thus Far!|Roast Battle" {
 		t.Errorf("no zoom line: %q", got)
 	}
-	// Quotes around a line are not said; an apostrophe inside a line is.
 	keep := gopodBrobotsSettings.TopicPictures.EggText
 	gopodBrobotsSettings.TopicPictures.EggText = "'Don't miss these!'\n\"{eggs}\""
 	got = strings.Join(gopodEggVoiceParts("Granny's Roast", ""), "|")
@@ -2613,8 +2466,6 @@ func TestEggVoiceInPieces(t *testing.T) {
 	out := filepath.Join(dir, "joined.wav")
 	edge := float64(gopodBrobotsSettings.TopicPictures.EggVoiceEdgeMS) / 1000
 	secs, err := gopodWavJoin(out, []string{a, b}, 100)
-	// a: start kept, cut after its last word (0.9 + edge); 0.1 gap; b: cut before
-	// its first word (0.1 - edge), end kept (0.5).
 	want := (0.9 + edge) + 0.1 + (0.5 - (0.1 - edge))
 	if err != nil || secs < want-0.01 || secs > want+0.01 {
 		t.Fatalf("joined %v seconds, err %v - want %v", secs, err, want)
@@ -2635,8 +2486,7 @@ func TestEggVoiceInPieces(t *testing.T) {
 	}
 }
 
-// TestPageReplayLine (2026-10-24, operator: "Add into GOPOD system menu * The
-// replay"): system-test-replay passes a clean report and fails a broken one.
+// TestPageReplayLine: system-test-replay passes a clean report and fails a broken one.
 func TestPageReplayLine(t *testing.T) {
 	clean := "PLAYED 48 of 48\n\nEGGS\n  Get Photo: brobot-2 popup-winner | congratulations spoken | zoom spoken | pictures 2 shown, 0 waiting | Generating left 0\n\nOPERATOR LINES (their own voice)\n  what do you see? | spoken\n\nGOVERLORD LINES\n  Grand prize! | spoken\n\nVISITOR MIRROR\n  146 checks, in step 87%, longest catch-up 0.5 s\n\nPAGE NOTES (errors, stuck, baton)\n"
 	if ok, line := gopodPageReplayLine(clean, nil); !ok || !strings.Contains(line, "48 of 48") || !strings.Contains(line, "in step 87%") {
@@ -2654,10 +2504,8 @@ func TestPageReplayLine(t *testing.T) {
 	}
 }
 
-// TestExchangeHoldsTheNextLine (2026-10-24, link 5): while a line's follow-up is
-// coming, a new line's answer waits; the follow-up's own line doesn't; and the
-// wait ends when the follow-up is done. With nothing left to point at, a missing
-// reminder isn't drift.
+// TestExchangeHoldsTheNextLine: while a line's follow-up is coming, a new line's answer waits; the
+// follow-up's own line doesn't; and the wait ends when the follow-up is done.
 func TestExchangeHoldsTheNextLine(t *testing.T) {
 	gopodExchangeOpen("convert 7/8 to a decimal, explain the math", gopodBrobot2ESN)
 	started := time.Now()
@@ -2665,7 +2513,6 @@ func TestExchangeHoldsTheNextLine(t *testing.T) {
 	if time.Since(started) > 100*time.Millisecond {
 		t.Errorf("the line's own answer waited on itself")
 	}
-	// His brother's end doesn't let it go; the follow-up Brobot's does.
 	go func() {
 		time.Sleep(200 * time.Millisecond)
 		gopodExchangeDone(gopodBrobot1ESN)
@@ -2680,7 +2527,6 @@ func TestExchangeHoldsTheNextLine(t *testing.T) {
 	gopodReminderNone.Store(gopodBrobot1ESN, true)
 	shape := []string{"golden?", "snippet?", "llm", "reminder", "snippet?"}
 	if !gopodShapeMatches(shape, []string{"llm"}) {
-		// the check itself makes the reminder optional when none was possible
 		if _, none := gopodReminderNone.Load(gopodBrobot1ESN); !none {
 			t.Fatalf("lost the no-reminder note")
 		}
@@ -2690,15 +2536,13 @@ func TestExchangeHoldsTheNextLine(t *testing.T) {
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodExchangeWait(esn, transcribedText)") {
 		t.Errorf("a reply doesn't wait for the line before's follow-up")
 	}
-	// Let go when he has said it (his reply's code runs on while he's held).
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodReplyEnd(esn)\n\t\t\t// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.\n\t\t\tgopodExchangeDone(esn)") {
 		t.Errorf("the hold isn't let go when the follow-up is said")
 	}
 }
 
-// TestVisitorGetsTheChatPage (2026-10-25, operator: "prune out everything wire-pod
-// from visitor GOPOD app page"): a visitor's "/" is the chat-only page from the
-// first paint; Wire-Pod's settings stay refused; the admin keeps index.html.
+// TestVisitorGetsTheChatPage: a visitor's "/" is the chat-only page from the first paint;
+// Wire-Pod's settings stay refused; the admin keeps index.html.
 func TestVisitorGetsTheChatPage(t *testing.T) {
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set")
@@ -2727,9 +2571,8 @@ func TestVisitorGetsTheChatPage(t *testing.T) {
 	}
 }
 
-
-// 2026-11-13 (live: Brobot 1 said "PIP said:" only, the bubble lit the whole
-// line): a chunk with a cue mid-line is spoken whole - every word in a piece.
+// Brobot 1 said "PIP said:" only, the bubble lit the whole line): a chunk with a cue mid-line is
+// spoken whole - every word in a piece.
 func TestChunkSpokenWhole(t *testing.T) {
 	got := strings.Join(gopodSpokenPieceTexts([]string{"thinking... PIP said: thinking... Think about turning fear into bravery - let's talk the GOPOD way and see how that helps!"}), " ")
 	if !strings.Contains(got, "Pip said") || !strings.Contains(got, "Think about turning fear into bravery") || !strings.Contains(got, "see how that helps") {
@@ -2737,8 +2580,7 @@ func TestChunkSpokenWhole(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (live: "yeah?. Goverlord's got" - the border slid to "got"): a
-// piece whose first word is said another way still starts at that word.
+// "yeah?.
 func TestPieceStartsAtWordSaidAnotherWay(t *testing.T) {
 	display := "on that party bus of theirs, yeah?. Goverlord's got a big plan."
 	shown, _ := gopodSegmentDisplay(display, []string{"on that party bus of theirs,", "yeah?.", "Guhverlord's got a big plan."})
@@ -2748,9 +2590,8 @@ func TestPieceStartsAtWordSaidAnotherWay(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (operator: "Have everyone start their response with a greeting of
-// the day"): every answer chain opens with the greeting part; an answer opens
-// with the greeting for now, said once, and a line's own greeting is answered.
+// every answer chain opens with the greeting part; an answer opens with the greeting for now, said
+// once, and a line's own greeting is answered.
 func TestAnswerOpensWithGreetingOfTheDay(t *testing.T) {
 	for g := range gopodBrobotsSettings.AnswerChains {
 		if p := gopodAnswerChain(g); len(p) == 0 || p[0] != "greeting" {
@@ -2771,9 +2612,7 @@ func TestAnswerOpensWithGreetingOfTheDay(t *testing.T) {
 	}
 }
 
-// 2026-11-19 (operator: "the reaction should match the non-sense ... let's start
-// at README.md; rather than engage the nonsense query"): nonsense gets the
-// nonsense line; a real question never does.
+// nonsense gets the nonsense line; a real question never does.
 func TestNonsenseGetsReadme(t *testing.T) {
 	if got := gopodNonsenseLine("rgvthrtgh$^$%^gfdgdrfg"); !strings.Contains(got, "README.md") || !strings.Contains(got, "rgvthrtgh") {
 		t.Errorf("nonsense: %q", got)
@@ -2785,8 +2624,7 @@ func TestNonsenseGetsReadme(t *testing.T) {
 	}
 }
 
-// 2026-11-19 (live: "<thinking>", "emoji: ... note: ..."): the model's
-// scaffolding never reaches a bubble; line breaks stay.
+// "<thinking>", "emoji: ...
 func TestLeaksStripped(t *testing.T) {
 	got := gopodStripLeaks("Hi! <thinking> Party time. emoji: 🎉\nnote: bye")
 	for _, bad := range []string{"<thinking>", "emoji:", "note:"} {
@@ -2799,8 +2637,7 @@ func TestLeaksStripped(t *testing.T) {
 	}
 }
 
-// 2026-11-19 (operator: "menu had KEYS selected * they must all match"): a
-// command line from a key names that key's persona, not "Brobots".
+// a command line from a key names that key's persona, not "Brobots".
 func TestCommandLineNamesTheKey(t *testing.T) {
 	if got := gopodTargetName(gopodPersonaMark + "BUTLER"); got != "BUTLER" {
 		t.Errorf("KEYS' key named %q", got)
@@ -2815,8 +2652,8 @@ func TestCommandLineNamesTheKey(t *testing.T) {
 	}
 }
 
-// 2026-11-19 (operator's wide/deep sweep): "what do you do" alone is the
-// overview; "what do you do at night?" asks deeper - the bookings point.
+// "what do you do" alone is the overview; "what do you do at night?" asks deeper - the bookings
+// point.
 func TestOverviewOnlyWhenNothingDeeper(t *testing.T) {
 	if !gopodSummaryQuery("What do you do?") {
 		t.Error("\"What do you do?\" isn't the overview")

@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-// The battery watchdog says its line once per drop - below low_volts, or a dip
-// of dip_volts since the last reading - off the charger or on it not charging
-// (a bad contact), and again only after charging or recover_volts.
+// The battery watchdog says its line once per drop - below low_volts, or a dip of dip_volts since
+// the last reading - off the charger or on it not charging (a bad contact), and again only after
+// charging or recover_volts.
 func TestBatteryWatchOncePerDrop(t *testing.T) {
 	bw := gopodBrobotsSettings.BatteryWatch
 	low := bw.LowVolts - 0.05
@@ -45,9 +45,8 @@ func TestBatteryWatchOncePerDrop(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (operator: "after freeze/reboot response ... Then, Bam!";
-// dizzy-brobots.md): he's back after back_after_misses failed readings in a row,
-// only when he was read before; and the lines come from the cluster.
+// he's back after back_after_misses failed readings in a row, only when he was read before; and the
+// lines come from the cluster.
 func TestBatteryBackAfterFreeze(t *testing.T) {
 	bw := &gopodBrobotsSettings.BatteryWatch
 	old := bw.BackAfterMisses
@@ -73,9 +72,7 @@ func TestBatteryBackAfterFreeze(t *testing.T) {
 	}
 }
 
-// 2026-11-19 (operator: "security sweep 1 = BUZZER sweeps brobot 1 detection &
-// sufficient battery power to proceed * security sweep 2 = SWITCH"): a missing or
-// low Brobot holds the run; both found and powered, it goes.
+// a missing or low Brobot holds the run; both found and powered, it goes.
 func TestSecuritySweepHoldsTheRun(t *testing.T) {
 	low := gopodBrobotsSettings.BatteryWatch.LowVolts
 	t.Cleanup(func() {
@@ -102,7 +99,6 @@ func TestSecuritySweepHoldsTheRun(t *testing.T) {
 	if !gopodSecuritySweep() {
 		t.Error("both found and powered, the run was held")
 	}
-	// 2026-11-27: 3.58 V resting FULL on his charger (1.6-rebuild) is powered.
 	set(gopodBrobot1ESN, "3.58 V, FULL, on the charger", 3.58)
 	gopodBatteryLow.Lock()
 	gopodBatteryLow.full[gopodBrobot1ESN] = true

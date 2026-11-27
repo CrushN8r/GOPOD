@@ -14,17 +14,6 @@ import (
 	"time"
 )
 
-// system-find (2026-10-17, operator: "I want Goverlord to know how to pull lists
-// like you do"; "system-find FEED_CHECK or system-find Toronto * yes, please"):
-// every place a word shows up - Wire-Pod's log of the last few hours (the
-// journal, read with fixed arguments; the word only filters the lines, it's
-// never part of a command), the settings, and the songs' story.md / knobs.json -
-// the newest log lines first, a few of each. Typed on the chat page's keyboard,
-// answered in the terminal bubble.
-//
-//   system-find FEED_CHECK      log lines about a missing / doubled reply
-//   system-find Toronto         where Toronto came up, in the log and the files
-
 const (
 	gopodFindLogMost  = 15
 	gopodFindFileMost = 10
@@ -48,7 +37,6 @@ func gopodSystemFind(text string) string {
 	var b strings.Builder
 	b.WriteString("system-find \"" + word + "\":\n")
 
-	// The log, newest first.
 	if data, err := gopodFindJournal(); err != nil {
 		b.WriteString("log: can't read it (" + err.Error() + ")\n")
 	} else {
@@ -70,12 +58,10 @@ func gopodSystemFind(text string) string {
 		}
 	}
 
-	// The settings.
 	for _, settings := range gopodSettingsFiles() {
 		b.WriteString(gopodFindInFile(settings, lower))
 	}
 
-	// The songs.
 	songs, _ := gopodAllSongs()
 	var dirs []string
 	for _, dir := range songs {

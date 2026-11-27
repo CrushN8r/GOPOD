@@ -16,9 +16,8 @@ import (
 // The tests run with the robots on, whatever the live switch says.
 func init() { gopodRobotsOffOn.Store(false) }
 
-// Robots off: nothing reaches the robot - control is granted, the battery reads
-// full, moves are done, a say and an animation are captured, and the numpad's
-// KP1/KP2 pick a voice.
+// Robots off: nothing reaches the robot - control is granted, the battery reads full, moves are
+// done, a say and an animation are captured, and the numpad's KP1/KP2 pick a voice.
 func TestRobotsOff(t *testing.T) {
 	old, oldSettings := GopodRobotsOff(), gopodBrobotsSettings
 	defer func() { gopodRobotsOffOn.Store(old); gopodBrobotsSettings = oldSettings }()

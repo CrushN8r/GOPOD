@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-// The record cut's draft_script.md, written as a song folder and read back, is
-// the same run - every question, line, cue and move.
+// The record cut's draft_script.md, written as a song folder and read back, is the same run - every
+// question, line, cue and move.
 func TestInterviewSongPlaysTheSameAsTheDraft(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	script := filepath.Join(home, "gopod_tts/sessions/harvest/2026-10-08/1300_record_cut_best_takes", gopodDraftScriptName)
@@ -38,8 +38,8 @@ func TestInterviewSongPlaysTheSameAsTheDraft(t *testing.T) {
 	}
 }
 
-// The repo's own interview song, found by its song_id, reads, and written back
-// as a song folder it plays the same - chapters, pictures and closer too.
+// The repo's own interview song, found by its song_id, reads, and written back as a song folder it
+// plays the same - chapters, pictures and closer too.
 func TestRepoInterviewSongRoundTrip(t *testing.T) {
 	repo, err := gopodFindSong(gopodBrobotsSettings.InterviewScript.SongID)
 	if err != nil {
@@ -71,8 +71,8 @@ func TestRepoInterviewSongRoundTrip(t *testing.T) {
 	}
 }
 
-// GOPOD_WRITE_INTERVIEW_SONG=<folder> writes the newest draft there as a song
-// folder (story.md, knobs.json); an existing knobs.json is left alone.
+// GOPOD_WRITE_INTERVIEW_SONG=<folder> writes the newest draft there as a song folder (story.md,
+// knobs.json); an existing knobs.json is left alone.
 func TestWriteInterviewSong(t *testing.T) {
 	dir := os.Getenv("GOPOD_WRITE_INTERVIEW_SONG")
 	if dir == "" {

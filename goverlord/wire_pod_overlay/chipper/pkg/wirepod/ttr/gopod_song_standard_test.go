@@ -10,10 +10,8 @@ import (
 	"testing"
 )
 
-// The song standard (ALIAS-PLAY-STUDIO.md, operator 2026-10-09: "I'd like a
-// standard format for new song development * and I don't want to present sloppy
-// work"): every song folder has a status line, both files name the same steps,
-// and every note is one the song's player knows.
+// The song standard: every song folder has a status line, both files name the same steps, and every
+// note is one the song's player knows.
 var (
 	gopodSongStatusLine = regexp.MustCompile(`^\*\*Status:\*\* (GOLDEN|WIP)$`)
 	gopodSongStepLine   = regexp.MustCompile(`^## STEP (\S+)\s*$`)
@@ -85,11 +83,9 @@ func TestSongFoldersFollowTheStandard(t *testing.T) {
 			if k.SongType == "interview" {
 				known = gopodInterviewNotes
 			}
-			// 2026-11-04: the comm check's song, played by gopod_comm_check.go.
 			if k.SongType == "comm_check" {
 				known = gopodCommCheckNotes
 			}
-			// 2026-10-16: an LLM warm song (the opener), played by gopod_opener_song.go.
 			if k.SongType == "llm_warm" {
 				known = gopodOpenerNotes
 			}

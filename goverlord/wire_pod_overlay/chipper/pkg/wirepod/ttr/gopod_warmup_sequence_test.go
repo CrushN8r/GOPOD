@@ -10,19 +10,15 @@ import (
 	"time"
 )
 
-// GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND F*CK*NG LOCK
-// THE PROCESS IN"): the System llm bubble's sequential run check, in the chat
-// feed's own order, so a page opened late still shows every step in turn.
+// GOLDEN, locked: the System llm bubble's sequential run check, in the chat feed's own order, so a
+// page opened late still shows every step in turn.
 func TestWarmupSequenceGolden(t *testing.T) {
 	savedFeed, savedState := gopodChatFeedPath, gopodLLMWarmupStatePath
 	savedOllama, savedLoaded, savedWarm := gopodWarmupOllama, gopodWarmupLoaded, gopodWarmupWarmRequest
 	savedMade, savedWait, savedOpening := gopodWarmupVoicesMade, gopodWarmupVoicesWait, gopodWarmupOpening
-	// The built-in opener (the opener song is proved the same: TestOpenerSongPlaysLikeBuiltIn).
 	savedSong := gopodOpenerSong
 	gopodOpenerSong = func() ([]gopodOpenerStep, error) { return nil, nil }
 	defer func() { gopodOpenerSong = savedSong }()
-	// 2026-10-17: the lines' voice files count as made (the real voice folder
-	// may be empty after a fresh start).
 	savedLinesMade := gopodLinesMade
 	gopodLinesMade = func([]string) bool { return true }
 	defer func() { gopodLinesMade = savedLinesMade }()
@@ -31,7 +27,6 @@ func TestWarmupSequenceGolden(t *testing.T) {
 		gopodWarmupOllama, gopodWarmupLoaded, gopodWarmupWarmRequest = savedOllama, savedLoaded, savedWarm
 		gopodWarmupVoicesMade, gopodWarmupVoicesWait, gopodWarmupOpening = savedMade, savedWait, savedOpening
 	}()
-	// Voices aren't waited out in a test.
 	savedMax, savedLag := gopodBrobotsSettings.ReporterVoices.MaxWaitSeconds, gopodBrobotsSettings.ReporterVoices.PageLagSeconds
 	defer func() {
 		gopodBrobotsSettings.ReporterVoices.MaxWaitSeconds, gopodBrobotsSettings.ReporterVoices.PageLagSeconds = savedMax, savedLag
@@ -49,7 +44,6 @@ func TestWarmupSequenceGolden(t *testing.T) {
 		for _, e := range gopodChatFeed.events {
 			text := e.Text
 			if e.Who == role {
-				// "warmup_text|<ms>|<text>" -> "warmup_text|<text>"
 				if parts := strings.SplitN(text, "|", 3); len(parts) == 3 {
 					text = parts[0] + "|" + parts[2]
 				} else if strings.Contains(text, ".wav") {
@@ -78,16 +72,12 @@ func TestWarmupSequenceGolden(t *testing.T) {
 	warming := role + ": warmup_text|" + gopodWarmupLine(llm.WarmupText)
 	gopodWarmupOpening = func() { GopodChatFeedAdd("Brobot 3", "opening line") }
 
-	// Wire-Pod start, voices still being made.
 	reset()
 	gopodWarmupVoicesMade = func() bool { return false }
 	gopodWarmupVoicesWait = func() {}
 	warmed := make(chan struct{})
 	close(warmed)
 	gopodWarmupStartSequence(warmed)
-	// 2026-10-18 (operator: "I don't see/hear: Voice files generation check while
-	// new files generating * I see old message lingering"): while voices are
-	// made, message 1 shows with generating_text under it, then on its own.
 	check("start, voices being made", feed(), []string{
 		role + ": warmup_text|" + gopodWarmupLine(llm.VoicesText) + "\n" + gopodBrobotsSettings.ReporterVoices.GeneratingText,
 		role + ": warmup_text|" + gopodWarmupLine(llm.VoicesText),
@@ -96,8 +86,6 @@ func TestWarmupSequenceGolden(t *testing.T) {
 		"Brobot 3: opening line",
 		role + ": warmup_ready|" + gopodWarmupReadyLine(llm.ReadyText, llm.WarmupDoneText),
 	})
-	// Wire-Pod start, voices made already: 2026-10-16 (operator: "(music) Voice
-	// files generation check."), message 1 shows at every start - it's the check.
 	reset()
 	gopodWarmupVoicesMade = func() bool { return true }
 	gopodWarmupStartSequence(warmed)
@@ -108,7 +96,6 @@ func TestWarmupSequenceGolden(t *testing.T) {
 		"Brobot 3: opening line",
 		role + ": warmup_ready|" + gopodWarmupReadyLine(llm.ReadyText, llm.WarmupDoneText),
 	})
-	// A run (the interview, a replay), warm and cold alike.
 	gopodWarmupOllama = func() (string, string, bool) { return "http://ollama", "model", true }
 	gopodWarmupWarmRequest = func(string, string) error { return nil }
 	for _, loaded := range []bool{true, false} {
@@ -119,10 +106,8 @@ func TestWarmupSequenceGolden(t *testing.T) {
 	}
 }
 
-// GOLDEN, locked (operator 2026-10-13: "LLM warming = disabled/pause on all
-// input ... the stop run and response, should have waited in queue for the
-// LLM Ready message to complete"): lines typed during a warm-up wait, then
-// play in order once LLM Ready has been said.
+// GOLDEN, locked: lines typed during a warm-up wait, then play in order once LLM Ready has been
+// said.
 func TestWarmupQueuesInput(t *testing.T) {
 	saved := gopodWarmupReplayLine
 	defer func() { gopodWarmupReplayLine = saved; gopodWarmingEnd() }()
@@ -135,7 +120,6 @@ func TestWarmupQueuesInput(t *testing.T) {
 		return nil
 	}
 	gopodWarmGateClosed.Store(false)
-	// Lines an earlier test left in the queue play out first.
 	for i := 0; i < 50; i++ {
 		gopodWarming.Lock()
 		busy := gopodWarming.drains
@@ -181,11 +165,9 @@ func TestWarmupQueuesInput(t *testing.T) {
 	}
 }
 
-// GOLDEN, locked (operator 2026-10-13: "snapshot the full \"thinking please
-// wait\" process from live (+ arm, nod) * lock that snapshot * use locked
-// \"thinking please wait\" process for scripted runs"): one process - the live
-// chat (kgsim) and a song's thinking step (/api-sdk/gopod_thinking) both run
-// gopodThinkingProcess, and nothing else plays its pieces on its own.
+// GOLDEN, locked: one process - the live chat (kgsim) and a song's thinking step
+// (/api-sdk/gopod_thinking) both run gopodThinkingProcess, and nothing else plays its pieces on its
+// own.
 func TestThinkingProcessIsOne(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -212,10 +194,7 @@ func TestThinkingProcessIsOne(t *testing.T) {
 	}
 }
 
-// GOLDEN, locked (operator 2026-10-14: "For all llm warm up runs * Rule: djent
-// plays once at the very start and very end * [djent] [message] = audio first,
-// pre-recorded ... * [message] [djent] = audio last, after LLM Ready message"):
-// the first sound of a warm-up is the default sting, the last is the sting, and
+// GOLDEN, locked: the first sound of a warm-up is the default sting, the last is the sting, and
 // none plays in between - Wire-Pod's start and a run alike.
 func TestWarmupStings(t *testing.T) {
 	sting, _ := gopodSystemSting("")
@@ -275,8 +254,6 @@ func TestWarmupStings(t *testing.T) {
 	warmed := make(chan struct{})
 	close(warmed)
 	gopodWarmupStartSequence(warmed)
-	// 2026-10-16 (operator: "remove 1st \"(music)\" & remove its audio play"):
-	// Wire-Pod's start has the end sting only.
 	if got := sounds(); len(got) >= 2 {
 		n := 0
 		for _, s := range got {
@@ -292,16 +269,13 @@ func TestWarmupStings(t *testing.T) {
 	gopodWarmupLoaded = func(string, string) bool { return true }
 	gopodRunWarmup(gopodBrobotsSettings.LLM.ReadyText, func() { gopodSystemSay(gopodBrobotsSettings.LLM.WarmupDoneText, true) })
 	check("a run", sounds())
-	// After the warm-up, a system line has its sting again.
 	if s, _ := gopodSystemStingNow("hello"); s == "" {
 		t.Error("no sting for a system line after the warm-up")
 	}
 }
 
-// GOLDEN, locked (operator 2026-10-14: "\"LLM Warming Up. Please Wait.\" stays
-// until fully spoken * if LLM Ready, then update to LLM Ready message + speech *
-// rule applies to all llm warming runs"): a song's warming line, said in the
-// background, is in the chat before its ready line, even with no lines between.
+// GOLDEN, locked: a song's warming line, said in the background, is in the chat before its ready
+// line, even with no lines between.
 func TestSongWarmupReadyAfterWarming(t *testing.T) {
 	sayRole := gopodBrobotsSettings.ReporterVoices.SystemSayRole
 	warming := gopodWarmupLine(gopodBrobotsSettings.LLM.WarmupText)

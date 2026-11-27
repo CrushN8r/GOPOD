@@ -11,19 +11,6 @@ import (
 	"strings"
 )
 
-// system-locate (2026-10-17, operator: "system-set (set a setting) *
-// system-locate (file to edit setting)"; "Please build system-locate"): where a
-// setting, a song step or a word lives - the file and its line - so it can be
-// opened and edited by hand. Read only; typed on the chat page's keyboard,
-// answered in system-set's terminal bubble (gopodSystemSetLine).
-//
-//   system-locate                     how to use it
-//   system-locate master-volume       a system-set setting
-//   system-locate <song>              the song's files
-//   system-locate <song> <step>       the step in knobs.json, zKnobs.json, story.md
-//   system-locate <song> <step> <field>
-//   system-locate <word>              settings keys holding the word (volume, sting...)
-
 const gopodLocateMost = 15
 
 func gopodSystemLocate(text string) string {
@@ -41,7 +28,6 @@ func gopodSystemLocate(text string) string {
 	if dir, err := gopodSystemSetSong(args[0]); err == nil {
 		return gopodLocateSong(dir, args[1:])
 	}
-	// A word: every settings file that holds it (the settings folder).
 	word := strings.ToLower(strings.Join(args, " "))
 	var found []string
 	for _, f := range gopodSettingsFiles() {
@@ -49,7 +35,6 @@ func gopodSystemLocate(text string) string {
 			found = append(found, out)
 		}
 	}
-	// 2026-10-31: the topic-clusters hold settings too (gopod_topic_clusters.go).
 	found = append(found, gopodLocateClusterWord(word)...)
 	if len(found) == 0 {
 		return gopodSystemText("system_locate.nothing_named_in_the_settings", "word", word)
@@ -57,8 +42,8 @@ func gopodSystemLocate(text string) string {
 	return strings.Join(found, "\n")
 }
 
-// gopodLocateClusterWord: the topic-cluster points whose key holds the word -
-// "file, word:" then "line: place.key = value" (the value when it's short).
+// gopodLocateClusterWord: the topic-cluster points whose key holds the word - "file, word:" then
+// "line: place.key = value" (the value when it's short).
 func gopodLocateClusterWord(word string) []string {
 	data, _ := gopodSettingsMerged()
 	var all map[string]json.RawMessage
@@ -228,8 +213,7 @@ func gopodLocateWord(file, word string) string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// gopodSystemLocateList (2026-10-17, operator: "system-locate-list ... for fast
-// reference"): every system-set setting and every song's files, with their lines.
+// gopodSystemLocateList: every system-set setting and every song's files, with their lines.
 func gopodSystemLocateList() string {
 	var names []string
 	for n := range gopodSystemSetKnobs {

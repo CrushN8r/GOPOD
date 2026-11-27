@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-// 2026-10-25 (operator: "I tend to use: Mr [funny-nickname] * randomly mix up
-// Mr vs Mrs"): the hand-over line says Mr or Mrs, then a nickname.
+// the hand-over line says Mr or Mrs, then a nickname.
 func TestHandoverSaysMrOrMrs(t *testing.T) {
 	seen := map[string]bool{}
 	for i := 0; i < 60; i++ {

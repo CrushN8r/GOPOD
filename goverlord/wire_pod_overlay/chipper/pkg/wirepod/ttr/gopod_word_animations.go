@@ -6,21 +6,11 @@ import (
 	"strings"
 )
 
-// 2026-10-02 (operator: "if an alias is in the spoken segment, that determines
-// the best token"): the words a Brobot says pick its animation. Each spoken piece
-// of a chat reply is read word by word against animation_vocab.json - the token
-// names and the aliases - and the first match is the animation played just
-// before that piece ("party" -> celebrate, "grumpy" -> frustrated). A piece with
-// no match keeps the animation it already had. An alias is a real word, so it
-// is also said and shown ("party... time!!" plays celebrate and says "party,
-// time!!"); a token name ("happy...") stays a cue only.
-
 var gopodSpokenWordPattern = regexp.MustCompile(`[A-Za-z]+`)
 
-// gopodIsAnimationTokenName: one of the animation names themselves, or a
-// misspelling of one ("hapy", "happpy", "veryhappy" - the aliases within two
-// letters of their own token), so a cue only, never said. A real-word alias
-// ("party", "excited") is not.
+// gopodIsAnimationTokenName: one of the animation names themselves, or a misspelling of one
+// ("hapy", "happpy", "veryhappy" - the aliases within two letters of their own token), so a cue
+// only, never said.
 func gopodIsAnimationTokenName(word string) bool {
 	token := normalizeAnimationToken(word)
 	if token == "" {
@@ -67,8 +57,8 @@ func gopodEditDistance(a, b string) int {
 	return prev[len(b)]
 }
 
-// gopodAnimationFromWords: the animation named by the first token name or alias
-// in the text, or "" when there is none.
+// gopodAnimationFromWords: the animation named by the first token name or alias in the text, or ""
+// when there is none.
 func gopodAnimationFromWords(text string) string {
 	for _, word := range gopodSpokenWordPattern.FindAllString(text, -1) {
 		if known, ok := knownAnimationParameter(word); ok {
@@ -81,10 +71,8 @@ func gopodAnimationFromWords(text string) string {
 	return ""
 }
 
-// gopodPlayOnWords: the piece holds one of word_animations.play_on_words (the
-// Gomads "go mad" pun), so its animation is the joke's, not the word's
-// (operator 2026-10-09: "its a joke/play on words, so the emotion should reflect
-// that").
+// gopodPlayOnWords: the piece holds one of word_animations.play_on_words (the Gomads "go mad" pun),
+// so its animation is the joke's, not the word's.
 func gopodPlayOnWords(text string) bool {
 	lower := " " + strings.Join(strings.Fields(strings.ToLower(text)), " ") + " "
 	for _, p := range gopodBrobotsSettings.WordAnimations.PlayOnWords {
@@ -95,10 +83,8 @@ func gopodPlayOnWords(text string) bool {
 	return false
 }
 
-// gopodAnimationsFromWords sets the animation before every spoken piece whose
-// words name one: the animation right before it is replaced, or one is added.
-// A play on words gets word_animations.play_on_words_animation, and every
-// animation in word_animations.swap is swapped (empty now: angry stays).
+// gopodAnimationsFromWords sets the animation before every spoken piece whose words name one: the
+// animation right before it is replaced, or one is added.
 func gopodAnimationsFromWords(actions []RobotAction) []RobotAction {
 	wa := gopodBrobotsSettings.WordAnimations
 	var out []RobotAction

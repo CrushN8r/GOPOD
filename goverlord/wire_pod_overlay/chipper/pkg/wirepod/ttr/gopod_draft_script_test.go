@@ -36,8 +36,8 @@ func TestDraftScriptRoundTrip(t *testing.T) {
 	}
 }
 
-// GOPOD_WRITE_DRAFT_SCRIPT=<draft_performance.json> writes its draft_script.md
-// beside it (an existing one is left alone).
+// GOPOD_WRITE_DRAFT_SCRIPT=<draft_performance.json> writes its draft_script.md beside it (an
+// existing one is left alone).
 func TestWriteDraftScript(t *testing.T) {
 	path := os.Getenv("GOPOD_WRITE_DRAFT_SCRIPT")
 	if path == "" {

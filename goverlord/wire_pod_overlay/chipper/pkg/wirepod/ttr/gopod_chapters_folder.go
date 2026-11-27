@@ -11,46 +11,7 @@ import (
 	"strings"
 )
 
-// The interview's topics live in a chapters folder (operator 2026-10-08: "read a
-// 'chapters' folder of chapters, each chapter folder contains editable topic
-// files ... topic files are to be loaded for the run"):
-//
-//	gopod_probes/topic_clusters/personas/company/4_go_for_it/
-//	  summary.txt                 the whole interview in one line
-//	  _always/01_what_else.md     topics that belong to no chapter
-//	  01_warm_up/chapter.md       "# <title>" and "- **summary:** ..."
-//	  01_warm_up/01_checks.md     one topic-cluster file per topic, in order
-//
-// A folder's number sets the chapter order; a file's number sets the topic order
-// (the number isn't part of the topic's name). 2026-10-29 (operator: "Would
-// turning topic clusters into readable md files, help organize? * template out a
-// topic-cluster format for md files * then anything can be a topic-cluster for
-// the GOPOD game, as a GOPOD formatted topic-cluster md file"): a topic is a
-// readable markdown file - its label the heading, each setting a list line, a
-// "---" line, then the facts the Brobots get (the numbered value points):
-//
-//	# the rig                                 its label: how a reminder names it (no heading = never named)
-//	- **words:** rig, gear, dolly             the words in a question that load it
-//	- **pictures:** gear/crate_2_display.jpg  shown in the chat with it
-//	- **reminder:** Hey, that reminds me...   its reminder line
-//	- **sentences:** 0                        its own sentence budget (left out = the usual)
-//	- **say 1:** One dolly, two crates.       point 1's exact line, said first
-//	- **start line:** ...                     a scripted line at the start (one per line)
-//	- **end line:** ...                       a scripted line at the end (one per line)
-//	- **summary:** Lower crate 1 ... | ...    what a summary ask riffs on (gopod_topic_asks.go)
-//	- **source:** MOBILE_GEAR.md              the repo file it tells - the game matches the repo
-//	- **ask:** Tell me about yourself         its ask on BROBOT_ASKS.md (left out = "Tell me about <label>")
-//	- **pre:** ... / **post:** ...            its note before / after the room has covered it
-//	- **closing:** ...                        a closing remark once it's covered (none = none)
-//	---
-//	The rig: ... Reveal these, in order: 1. ... 2. ...
-//
-// The template: gopod_probes/topic_clusters/_topic_cluster/ (README.md, an example chapter and topic).
-// One reader and one writer for the format (gopodTopicHeadKV, gopodTopicHeadLine):
-// the game, system-topic and every check go through them.
-//
-// The facts are read from the folder each time a question comes in; the rest is
-// read once, when Wire-Pod starts.
+// The interview's topics live in a chapters folder:
 var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/topic_clusters/personas/company/4_go_for_it")
 
 // gopodChaptersDir: the chapters folder - moved, found by its name under topic_clusters/.
@@ -62,9 +23,8 @@ const (
 	gopodChapterFile = "chapter.md"
 )
 
-// gopodTopicHeadKV reads one settings line of a topic-cluster file: "# label"
-// is the label (a chapter's title), "- **key:** value" a setting (a bare
-// "key: value" still reads). ok false for any other line.
+// gopodTopicHeadKV reads one settings line of a topic-cluster file: "# label" is the label (a
+// chapter's title), "- **key:** value" a setting (a bare "key: value" still reads).
 func gopodTopicHeadKV(line string) (key, value string, ok bool) {
 	t := strings.TrimSpace(line)
 	if strings.HasPrefix(t, "# ") {
@@ -99,31 +59,21 @@ func gopodTopicHeadLine(key, value string) string {
 }
 
 type gopodTopicFile struct {
-	Name      string
-	Path      string
-	Label     string
-	Words     []string
-	Pictures  []string
-	Reminder  string
-	Sentences *int
-	SayLines  map[int]string
-	// 2026-10-22: a point in note form, "notes N: title | note | note" (gopodPointNotes).
-	Notes      map[int]string
-	StartLines []string
-	EndLines   []string
-	// 2026-10-26 (the topic ask template, gopod_topic_asks.go): the summary a
-	// summary ask riffs on, and the repo file(s) the topic tells.
-	Summary string
-	Sources []string
-	// 2026-10-26: its ask on the BROBOT_ASKS.md page (left out = "Tell me about <label>").
-	Ask string
-	// 2026-11-25 (operator: "The repo md files are now where all the
-	// chapters/topics/value-points, etc... are * Are the questions reflecting
-	// that?"): its value points' golden questions, "ask N: Brobot 2, ..." -
-	// the game's questions live on their own cards (gopodGameQuestions).
-	Asks map[int]string
-	// 2026-10-26 (the topic pre/post template): a note before the room has
-	// covered it, one after, and a closing remark after (topic_asks defaults).
+	Name               string
+	Path               string
+	Label              string
+	Words              []string
+	Pictures           []string
+	Reminder           string
+	Sentences          *int
+	SayLines           map[int]string
+	Notes              map[int]string
+	StartLines         []string
+	EndLines           []string
+	Summary            string
+	Sources            []string
+	Ask                string
+	Asks               map[int]string
 	Pre, Post, Closing string
 }
 
@@ -135,8 +85,8 @@ type gopodChapterFolder struct {
 
 var gopodTopicNumberPrefix = regexp.MustCompile(`^\d+_`)
 
-// gopodReadChaptersFolder reads every chapter folder in order, and the topics
-// that belong to no chapter (folders starting with "_", read first).
+// gopodReadChaptersFolder reads every chapter folder in order, and the topics that belong to no
+// chapter (folders starting with "_", read first).
 func gopodReadChaptersFolder() (chapters []gopodChapterFolder, always []gopodTopicFile, summary string) {
 	if data, err := os.ReadFile(filepath.Join(gopodChaptersDir(), "summary.txt")); err == nil {
 		summary = strings.TrimSpace(string(data))
@@ -180,8 +130,6 @@ func gopodReadTopicFiles(dir, chapter string) []gopodTopicFile {
 		}
 		files = append(files, file{e.Name(), filepath.Join(dir, e.Name())})
 	}
-	// 2026-11-04: the game cards the root docs hold for this chapter (by its title;
-	// a card naming no chapter is always on), in among its files.
 	for _, c := range gopodTopicDocCardsAll() {
 		if strings.EqualFold(c.Chapter, chapter) {
 			files = append(files, file{c.File, c.Path})
@@ -255,22 +203,9 @@ func gopodReadTopicFiles(dir, chapter string) []gopodTopicFile {
 	return out
 }
 
-// 2026-11-04 (operator: "The root docs are the source"; "Make the md files
-// compatible"; "Start with booking"; "ignore chapters"): a repo-root doc
-// (topic_clusters.root_docs) holds the game's topics as folded game cards -
-// the topic's text, whole, between its mark and </details>; its chapter line
-// names the chapter by title, its mark orders it there:
-//
-//	<details><summary>Game card: booking us</summary>
-//	<!-- gopod topic: 01_booking -->
-//
-//	# booking us
-//	- **chapter:** Booking
-//	...
-//	</details>
-//
-// The game reads it as one of that chapter's topics; its path is "<doc>#<mark>",
-// read and written by gopodTopicFileRead/Write (system-topic edits the doc).
+// a repo-root doc (topic_clusters.root_docs) holds the game's topics as folded game cards - the
+// topic's text, whole, between its mark and </details>; its chapter line names the chapter by
+// title, its mark orders it there:
 const gopodTopicDocMark = "<!-- gopod topic: "
 
 type gopodTopicDocCard struct {
@@ -361,7 +296,7 @@ func gopodTopicFileWrite(path string, data []byte) error {
 }
 
 // gopodSplitTopicFile splits a file into its settings lines (gopodTopicHeadKV) (before a "---"
-// line) and the facts (after it). A file with no "---" is all settings.
+// line) and the facts (after it).
 func gopodSplitTopicFile(text string) (head [][2]string, body string) {
 	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
 	for i, line := range lines {
@@ -386,8 +321,8 @@ func gopodCommaList(value string) []string {
 	return out
 }
 
-// gopodTopicRegistry: every topic, in load order (no-chapter topics first, then
-// chapter by chapter), read fresh from the folder.
+// gopodTopicRegistry: every topic, in load order (no-chapter topics first, then chapter by
+// chapter), read fresh from the folder.
 func gopodTopicRegistry() []scenarioPacketEntry {
 	chapters, always, _ := gopodReadChaptersFolder()
 	var out []scenarioPacketEntry
@@ -415,9 +350,9 @@ func gopodReadTopicFacts(path string) ([]byte, error) {
 	return []byte(strings.TrimSpace(body) + "\n"), nil
 }
 
-// gopodApplyChaptersFolder fills the settings' topic parts from the folder: the
-// chapters and labels, the pictures, the say-lines and reminders, the sentence
-// budgets, and the topics' scripted lines (ahead of the settings' own lines).
+// gopodApplyChaptersFolder fills the settings' topic parts from the folder: the chapters and
+// labels, the pictures, the say-lines and reminders, the sentence budgets, and the topics' scripted
+// lines (ahead of the settings' own lines).
 func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 	gopodSameWords = s.BrainChain.SameWords
 	gopodTopicRootDocsSetting.Store(s.TopicClusters.RootDocs) // the game cards, while the settings load
@@ -499,7 +434,6 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 		chapterList = append(chapterList, cj)
 	}
 	s.GameQuestions = questions
-	// The settings' own scripted lines that aren't about a topic stay, after the topics'.
 	own, _ := json.Marshal(s.ScriptedSnippets.Lines)
 	var ownLines []map[string]any
 	json.Unmarshal(own, &ownLines)
@@ -528,11 +462,8 @@ func gopodApplyChaptersFolder(s *gopodBrobotsSettingsFile) {
 	s.ReplyTighten.TopicSentences = sentences
 }
 
-// gopodDocNameWords (2026-11-10, operator: "Hey, brobot 1, tell me about
-// WIRED-POD.md * WIRED-POD.md look up supplies value-points for the brain
-// bubble"): a root doc's game card is also found by its file name
-// ("wired-pod.md") - the name as written, so a plain "social media" question
-// stays with its own card.
+// gopodDocNameWords: a root doc's game card is also found by its file name ("wired-pod.md") - the
+// name as written, so a plain "social media" question stays with its own card.
 func gopodDocNameWords(path string) []string {
 	doc, _, ok := strings.Cut(path, gopodTopicExt+"#")
 	if !ok {
@@ -540,4 +471,3 @@ func gopodDocNameWords(path string) []string {
 	}
 	return []string{strings.ToLower(filepath.Base(doc) + gopodTopicExt)}
 }
-

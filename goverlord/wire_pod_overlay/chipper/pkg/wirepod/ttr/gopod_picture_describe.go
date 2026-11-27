@@ -15,15 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// A pop-up's picture, described (operator 2026-10-15: "for granny easter egg,
-// have the other image viewer llm look at the granny image for reference and to
-// describe live"). When a picture in topic_pictures.describe pops up, the photo
-// egg's vision model (photo.vision_model) looks at it, and the Brobots answering
-// that question get topic_pictures.describe_note ({saw}) before it in their
-// prompt - Brobot 1 and, with All, Brobot 2. A reply waits for the description
-// at most describe_wait_seconds (the thinking moves go on meanwhile). Each picture
-// is looked at once per Wire-Pod start; later pop-ups use what was seen.
-
 var gopodPictureSeen = struct {
 	sync.Mutex
 	cache map[string]string
@@ -31,17 +22,6 @@ var gopodPictureSeen = struct {
 	done  chan struct{} // closed once saw is set (or the look failed)
 	at    time.Time
 }{cache: map[string]string{}}
-
-// The egg pictures' descriptions, kept (operator 2026-10-16: "if no descriptions
-// generated, generate/update * not generate per live run * generate descriptions
-// for brobots, like a list of value points, to use in their responses in live
-// runs"): webroot/gopod_picture_descriptions.json holds, for every egg picture,
-// a few short points about it (and the picture's checksum). At Wire-Pod's start,
-// in the background, a picture with no points - or changed since (its checksum)
-// - is looked at once (topic_pictures.describe_prompt) and its points saved. The
-// file can be edited by hand: points are only made again when the picture
-// itself changes. The Brobots get them before the question when the egg pops
-// (describe_note).
 
 func gopodPictureDescriptionsPath() string {
 	return filepath.Join(gopodChipperRoot(), "webroot", "gopod_picture_descriptions.json")
@@ -112,7 +92,6 @@ func gopodPictureDescribeAhead() {
 	for file, e := range f.Pictures {
 		gopodPictureCache(file, e.Points)
 	}
-	// The vision model is Ollama's; give Wire-Pod's own start a moment first.
 	time.Sleep(gopodTiming("picture_describe_delay_seconds"))
 	for _, file := range gopodEggPictures() {
 		data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", tp.Folder, file))
@@ -147,23 +126,19 @@ func gopodPictureCache(file string, points []string) {
 }
 
 func init() {
-	// Not in the tests (no vision model there).
 	if strings.HasSuffix(os.Args[0], ".test") {
 		return
 	}
 	go gopodPictureDescribeAhead()
 }
 
-// gopodPictureDescribeStart: the pictures of a pop-up that's showing now - every
-// egg's (2026-10-16, operator: "apply 'topic_pictures.describe' globally").
+// gopodPictureDescribeStart: the pictures of a pop-up that's showing now - every egg's.
 func gopodPictureDescribeStart(files []string) {
 	gopodPictureDescribeFiles(files)
 }
 
-// gopodPictureDescribeOnAsk (operator 2026-10-15: "'chocolate' bingo images
-// don't need to be looked at until asked ... only look to describe, when asked
-// about 'chocolate' bingo"): a question with one of topic_pictures.describe_on_ask's
-// words ("chocolate") has its pictures looked at for the reply, pop-up or not.
+// gopodPictureDescribeOnAsk: a question with one of topic_pictures.describe_on_ask's words
+// ("chocolate") has its pictures looked at for the reply, pop-up or not.
 func gopodPictureDescribeOnAsk(question string) {
 	lower := strings.ToLower(question)
 	for word, files := range gopodBrobotsSettings.TopicPictures.DescribeOnAsk {
@@ -174,8 +149,8 @@ func gopodPictureDescribeOnAsk(question string) {
 	}
 }
 
-// gopodPictureDescribeFiles looks at each file (once per Wire-Pod start each)
-// in the background; gopodPictureNote waits for all of them.
+// gopodPictureDescribeFiles looks at each file (once per Wire-Pod start each) in the background;
+// gopodPictureNote waits for all of them.
 func gopodPictureDescribeFiles(files []string) {
 	if len(files) == 0 {
 		return
@@ -185,9 +160,6 @@ func gopodPictureDescribeFiles(files []string) {
 	gopodPictureSeen.Lock()
 	gopodPictureSeen.saw, gopodPictureSeen.done, gopodPictureSeen.at = "", done, time.Now()
 	gopodPictureSeen.Unlock()
-	// 2026-10-15 (operator: "Make it: Looking at N picture(s). Please wait."):
-	// pictures not looked at yet this session - Goverlord says so while the
-	// vision model looks (topic_pictures.describe_wait_text).
 	fresh := 0
 	gopodPictureSeen.Lock()
 	for _, file := range files {
@@ -196,8 +168,6 @@ func gopodPictureDescribeFiles(files []string) {
 		}
 	}
 	gopodPictureSeen.Unlock()
-	// Egg pictures are described ahead (gopodPictureDescribeAhead); only one
-	// not done yet still gets the line.
 	if text := gopodPictureWaitText(fresh); text != "" {
 		go GopodSystemSayHeard(text, 0)
 	}
@@ -235,7 +205,7 @@ func gopodPictureDescribeFiles(files []string) {
 	}()
 }
 
-// gopodPictureWaitText: "Looking at 2 pictures. Please wait." (none: "").
+// gopodPictureWaitText: "Looking at 2 pictures.
 func gopodPictureWaitText(n int) string {
 	tp := gopodBrobotsSettings.TopicPictures
 	if n <= 0 || strings.TrimSpace(tp.DescribeWaitText) == "" {
@@ -248,16 +218,16 @@ func gopodPictureWaitText(n int) string {
 	return strings.NewReplacer("{n}", fmt.Sprint(n), "{pictures}", word).Replace(tp.DescribeWaitText)
 }
 
-// gopodPictureForget: a new question - the last pop-up's description is dropped
-// (what was seen stays cached for the next time it pops up).
+// gopodPictureForget: a new question - the last pop-up's description is dropped (what was seen
+// stays cached for the next time it pops up).
 func gopodPictureForget() {
 	gopodPictureSeen.Lock()
 	gopodPictureSeen.done, gopodPictureSeen.saw = nil, ""
 	gopodPictureSeen.Unlock()
 }
 
-// gopodPictureNote: the note for a reply to the newest pop-up (within two
-// minutes of it), waiting for the description at most describe_wait_seconds.
+// gopodPictureNote: the note for a reply to the newest pop-up (within two minutes of it), waiting
+// for the description at most describe_wait_seconds.
 func gopodPictureNote() string {
 	tp := gopodBrobotsSettings.TopicPictures
 	gopodPictureSeen.Lock()

@@ -9,14 +9,8 @@ import (
 	"testing"
 )
 
-// LOCKED 2026-11-03 (operator: "Look at the tampa run. that is a near perfect
-// example of a golden locked run * golden guts scaffolding = topic-cluster md";
-// "Lock order + code lines"; "Doc then Pip (Tampa)"): the golden weather run is
-// gopod_probes/topic_clusters/personas/behaviours/weather_run.md and only that. The deploy fails when it
-// changed without the operator's relock (GOPOD_RELOCK=1 saves its fingerprint,
-// gopod_probes/locks/weather_golden.lock), when its order or lines aren't the
-// ones in use, or when a settings file holds a copy. The order itself - Doc's
-// answer and Pip's - is run through the real answer chain by TestAnswerShapesHold.
+// LOCKED the golden weather run is gopod_probes/topic_clusters/personas/behaviours/weather_run.md
+// and only that.
 func TestWeatherGoldenLock(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -39,8 +33,6 @@ func TestWeatherGoldenLock(t *testing.T) {
 		t.Errorf("LOCKED: the golden weather run changed (operator's word only, then GOPOD_RELOCK=1)")
 	}
 	s := gopodBrobotsSettings
-	// 2026-11-26 (one place): the order in use is the card's own (its
-	// answer_shapes.shapes lines, "1. weather: a | b | c") - never a copy here.
 	for _, kind := range []string{"weather", "weather_next"} {
 		want := ""
 		for _, l := range strings.Split(string(note), "\n") {
@@ -55,7 +47,6 @@ func TestWeatherGoldenLock(t *testing.T) {
 	if !strings.Contains(s.LiveWeather.FollowUpKitLine, "[GOPOD Weather Kit](/gopod_weather_kit.html)") {
 		t.Errorf("LOCKED: the Weather Kit line in use isn't the golden one: %q", s.LiveWeather.FollowUpKitLine)
 	}
-	// One source: the settings files hold no copy.
 	data, _ := gopodSettingsMerged()
 	for _, copy := range []string{"Brobot Weather Report", "Confirmed. Temperature", "\"follow_up_kit_line\":", "\"weather_lead\":", "\"weather_point_first\":", "\"weather_next\": ["} {
 		if strings.Contains(string(data), copy) {
@@ -64,8 +55,7 @@ func TestWeatherGoldenLock(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (live: "the weather of Oz in Kansas, USA" got Kansas, Alabama;
-// operator: "Its capital"): a state or province alone is its capital.
+// a state or province alone is its capital.
 func TestStateCapital(t *testing.T) {
 	for place, want := range map[string]string{
 		"Kansas":           "Topeka",
@@ -85,10 +75,8 @@ func TestStateCapital(t *testing.T) {
 	}
 }
 
-// LOCKED 2026-11-03 (operator: "Add the brain part of the duo weather run to
-// the deploy lock (A: PLAYHEAD > Cache PYC > thanks; B: Cache PYC only)" - "Yes,
-// lock it"): Brobot A's brain gets PLAYHEAD's hand-off, then Cache PYC's ready
-// line, then he thanks her; Brobot B's gets Cache PYC's ready line only.
+// LOCKED Brobot A's brain gets PLAYHEAD's hand-off, then Cache PYC's ready line, then he thanks
+// her; Brobot B's gets Cache PYC's ready line only.
 func TestWeatherBrainLock(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -101,9 +89,6 @@ func TestWeatherBrainLock(t *testing.T) {
 			take = tk
 		}
 	}
-	// 2026-11-04 (operator: "Fix intern name: 'Git repo' * intern name should be
-	// pulled from its topic-cluster"; "Git Repo does the api call ... handsoff to
-	// Cache PYC"): the details come from GIT REPO - {from}, his call name.
 	if take.Host != "CACHE PYC" || take.Via != "PLAYHEAD" || take.From != "GIT REPO" || !take.BrobotSays || gopodCallName(take.From) != "GIT REPO" {
 		t.Errorf("LOCKED: the weather take isn't PLAYHEAD handing to Cache PYC, from Git Repo: %+v", take)
 	}
@@ -122,13 +107,11 @@ func TestWeatherBrainLock(t *testing.T) {
 		}
 		return string(b)
 	}
-	// A: the hand-off, then the intern's line (the thanks follows, once the manager is done).
 	m := read("gopod_managers.go")
 	do := m[strings.Index(m, "func gopodManagerDoFor("):]
 	if h, r := strings.Index(do, "gopodHandoff("), strings.Index(do, "gopodWeatherInternReady("); h < 0 || r < h {
 		t.Error("LOCKED: Brobot A's brain isn't PLAYHEAD, then Cache PYC")
 	}
-	// B: no manager, the intern's line only.
 	n := read("gopod_value_points_notice.go")
 	if b := strings.Index(n, "r.NoManager"); b < 0 || !strings.Contains(n[b:b+600], "gopodWeatherInternReady(") {
 		t.Error("LOCKED: Brobot B's brain doesn't get Cache PYC's line")

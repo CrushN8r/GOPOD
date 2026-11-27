@@ -1,17 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_lingo_improver.go
 package wirepod_ttr
 
-// The lingo improver (2026-11-16, operator: "a system calibrator like the [Wire-Pod]
-// Say Text where I can assign voices and test how the spelling of a text input
-// affects pronunciation (for better phonetics) * Like a lingo improver"): pick a
-// voice, type a line, hear it - and see it "as said" (after that voice's lingo).
-// Try another spelling; keep the one that sounds right - it goes into that
-// voice's lingo through system-lingo (one path, gopodSystemLingo).
-//
-// Three lingos, as ever: brobots (the robots' own voice - the pronunciation list),
-// butler (the system voice, KEYNOTE) and reporters (every other voice). Nothing
-// here posts to the chat: a try is heard, not shown.
-
 import (
 	"context"
 	"sort"
@@ -70,8 +59,8 @@ func gopodLingoVoiceOf(voice string) (GopodLingoVoice, bool) {
 	return GopodLingoVoice{}, false
 }
 
-// GopodLingoTry: text as voice says it (its lingo applied), and heard - the robot
-// says it, or its voice file is made for the page to play (audio).
+// GopodLingoTry: text as voice says it (its lingo applied), and heard - the robot says it, or its
+// voice file is made for the page to play (audio).
 func GopodLingoTry(voice, text string) (said, audio, note string) {
 	v, ok := gopodLingoVoiceOf(voice)
 	text = strings.TrimSpace(text)
@@ -105,9 +94,8 @@ func GopodLingoKeep(voice, word, said string) string {
 	return gopodSystemLingo("system-lingo " + v.Lingo + " " + word + " = " + said)
 }
 
-
-// GopodSystemTexts: every system text whose key starts with prefix, the prefix
-// off ("lingo_improver.title" -> "title") - a page's words, one source.
+// GopodSystemTexts: every system text whose key starts with prefix, the prefix off
+// ("lingo_improver.title" -> "title") - a page's words, one source.
 func GopodSystemTexts(prefix string) map[string]string {
 	out := map[string]string{}
 	for k, v := range gopodBrobotsSettings.SystemText {

@@ -9,15 +9,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Clean GOPOD (2026-10-16, operator, on Brobot 2's 🇵🇸 flag in a "Jerusalem,
-// Israel" weather reply: "Please account for obvious politically motivated
-// b*llsh*t in clean GOPOD * politically motivated b*llsh*t only allowed in roast
-// battle"; "RULE: use correct & proper country flag emojis"). Outside a roast
-// battle (clean_politics.allowed_topics), a Brobot's reply keeps a country flag
-// only when its country is named in the question or the reply; a wrong flag
-// becomes the named country's flag when exactly one is named, else it goes. A
-// sentence with one of clean_politics.words goes. Settings: clean_politics.
-
 // gopodFlagRE: a country flag - two regional-indicator letters.
 var gopodFlagRE = regexp.MustCompile(`[\x{1F1E6}-\x{1F1FF}]{2}`)
 
@@ -72,7 +63,6 @@ func gopodCleanPoliticsAllowed(question string) bool {
 // gopodCleanPolitics: the reply, clean (see above).
 func gopodCleanPolitics(reply, question string) string {
 	cp := gopodBrobotsSettings.CleanPolitics
-	// The never words go first, always - no topic allows them.
 	reply = gopodDropNeverWords(reply)
 	if len(cp.Countries) == 0 && len(cp.Words) == 0 {
 		return reply
@@ -81,7 +71,6 @@ func gopodCleanPolitics(reply, question string) string {
 		return reply
 	}
 	named := gopodNamedCountries(question + " " + gopodFlagRE.ReplaceAllString(reply, " "))
-	// 2026-10-17: the weather line's own flag is its place's country.
 	named = append(named, gopodWeatherCountriesSaid()...)
 	reply = gopodFlagRE.ReplaceAllStringFunc(reply, func(flag string) string {
 		code := gopodFlagCode(flag)
@@ -109,9 +98,7 @@ func gopodCleanPolitics(reply, question string) string {
 	return strings.TrimSpace(regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(reply, " "))
 }
 
-// gopodNeverIn (2026-11-24, operator: "Extend never-list to guards what comes
-// in"): a line coming in names a never word - it goes no further. Logged
-// without its words, from where it came.
+// gopodNeverIn: a line coming in names a never word - it goes no further.
 func gopodNeverIn(text, from string) bool {
 	lower := strings.ToLower(text)
 	for _, w := range gopodBrobotsSettings.CleanPolitics.NeverWords {
@@ -123,8 +110,8 @@ func gopodNeverIn(text, from string) bool {
 	return false
 }
 
-// gopodDropNeverWords: every sentence saying a never word goes - any voice,
-// any topic (clean_politics.never_words).
+// gopodDropNeverWords: every sentence saying a never word goes - any voice, any topic
+// (clean_politics.never_words).
 func gopodDropNeverWords(text string) string {
 	words := gopodBrobotsSettings.CleanPolitics.NeverWords
 	if len(words) == 0 {

@@ -11,22 +11,19 @@ import (
 	"testing"
 )
 
-// TestBrobotsSetup: who's who from Wire-Pod's robots - GOPOD's own two, any
-// two, one alone (solo), none; solo, All goes to Brobot 1 and his prompt drops
-// his brother.
+// TestBrobotsSetup: who's who from Wire-Pod's robots - GOPOD's own two, any two, one alone (solo),
+// none; solo, All goes to Brobot 1 and his prompt drops his brother.
 func TestBrobotsSetup(t *testing.T) {
 	cases := []struct {
 		robots     []string
 		set1, set2 string
 		b1, b2     string
 	}{
-		// The operator's own two (his private file - a test one here), in his order.
 		{[]string{"own00002", "own00001"}, "", "", "own00001", "own00002"},
 		{[]string{"aaaa1111", "bbbb2222"}, "", "", "aaaa1111", "bbbb2222"},
 		{[]string{"aaaa1111"}, "", "", "aaaa1111", gopodNoBrobot2},
 		{nil, "", "", "own00001", "own00002"},
 		{[]string{"aaaa1111", "bbbb2222"}, "bbbb2222", "", "bbbb2222", "aaaa1111"},
-		// A label in the settings is his own robot of that label.
 		{[]string{"aaaa1111", "own00002", "own00001"}, "ESN02", "ESN01", "own00002", "own00001"},
 	}
 	for _, c := range cases {
@@ -53,10 +50,8 @@ func TestBrobotsSetup(t *testing.T) {
 	}
 }
 
-// TestESNLabels (2026-10-29, operator: "publically all people see is ESN01, ESN02
-// labels"): a label is its Brobot's robot now, a Brobot's serial is its label,
-// Wire-Pod changes a label to the serial at its door, and no public file names a
-// real serial.
+// TestESNLabels: a label is its Brobot's robot now, a Brobot's serial is its label, Wire-Pod
+// changes a label to the serial at its door, and no public file names a real serial.
 func TestESNLabels(t *testing.T) {
 	k1, k2 := gopodBrobot1ESN, gopodBrobot2ESN
 	defer func() { gopodBrobot1ESN, gopodBrobot2ESN = k1, k2 }()
@@ -82,9 +77,8 @@ func TestESNLabels(t *testing.T) {
 	}
 }
 
-// TestNoRealESNInRepo (2026-10-29): no file in the public repo names one of the
-// operator's own robots by its serial - read from his private ~/.gopod_esns.json
-// (skipped where there's none).
+// TestNoRealESNInRepo: no file in the public repo names one of the operator's own robots by its
+// serial - read from his private ~/.gopod_esns.json (skipped where there's none).
 func TestNoRealESNInRepo(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	data, err := os.ReadFile(filepath.Join(home, ".gopod_esns.json"))

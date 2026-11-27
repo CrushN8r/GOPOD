@@ -12,12 +12,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// What a Brobot says while the model works on a chat reply, the way go search says
-// "Let me look that up." Operator's words, 2026-09-29: "Thinking, please wait...".
-// Spoken only, no chat bubble: on the chat path Wire-Pod logs the operator's own
-// question ("Intent matched") only once the reply is ready, so a bubble for this
-// line would show above the question it answers.
-// 2026-10-10: the words live in the settings file (chat_moves.thinking_text).
+// What a Brobot says while the model works on a chat reply, the way go search says "Let me look
+// that up." Operator's words, "Thinking, please wait...".
 func gopodThinkingLineSpoken() string {
 	if t := strings.TrimSpace(gopodBrobotsSettings.ChatMoves.ThinkingText); t != "" {
 		return t
@@ -25,26 +21,20 @@ func gopodThinkingLineSpoken() string {
 	return gopodSystemText("thinking_line.thinking_please_wait")
 }
 
-// gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words
-// and his moves before them. 2026-11-03: the searching pace after them is the
-// golden note's only (gopodSearchingGolden).
+// gopodGotIt: one Brobot's copy of the golden "Got it" sequence - his words and his moves before
+// them.
 type gopodGotIt struct {
 	Name  string   `json:"name"`
 	Text  string   `json:"text"`
 	Moves []string `json:"moves"`
 }
 
-// gopodGotItFor (2026-10-24, operator: "Separate out the already established,
-// locked, golden 'Got it' sequence, & duplicate * assign Got it 1 to brobot 1 *
-// assign Got it 2 to brobot 2"): his own copy (chat_moves.got_it), each part not
-// set taken from the shared golden values.
+// gopodGotItFor: his own copy (chat_moves.got_it), each part not set taken from the shared golden
+// values.
 func gopodGotItFor(esn string) gopodGotIt { return gopodGotItNamed(gopodBrobotName(esn)) }
 
-// gopodGotItNamed (2026-11-05, operator: "I'd like everybody's personas to have
-// that same sort of behavior * that same robot's bubble type and mechanism";
-// "reuse ... minimal sources of truth"): anyone's Got it, by name - a Brobot's
-// or a persona's (chat_moves.got_it.<name>, in its own file); the golden words
-// when it has none.
+// gopodGotItNamed: anyone's Got it, by name - a Brobot's or a persona's (chat_moves.got_it.<name>,
+// in its own file); the golden words when it has none.
 func gopodGotItNamed(name string) gopodGotIt {
 	cm := gopodBrobotsSettings.ChatMoves
 	g := cm.GotIt[name]
@@ -58,21 +48,14 @@ func gopodGotItNamed(name string) gopodGotIt {
 }
 
 // gopodSayThinkingLine speaks the line and returns when the robot has said it.
-// The robot reports how each line went (SayTextResponse.State). Live 2026-09-29 the
-// line was sometimes not heard, so the robot's own report is logged, and the line
-// is said once more only if the robot reports it didn't finish.
 func gopodSayThinkingLine(robot *vector.Vector, esn string) {
 	gopodSayThinkingWords(robot, esn)
-	// 2026-10-25: his opener, the top line of his bubble, before his notice.
 	gopodOpenerShow(esn)
-	// 2026-10-22 (operator: "Got it isn't said in the chat"): the notice log's
-	// first line.
 	gopodValuePointsNoticeGotIt(esn)
 }
 
 // gopodSayThinkingWords: the line said (once more if the robot says it didn't finish).
 func gopodSayThinkingWords(robot *vector.Vector, esn string) {
-	// 2026-10-25: his opener from the response-chain template (gopodOpenerPick).
 	gopodSayWords(robot, esn, gopodOpenerPick(esn))
 }
 
@@ -83,9 +66,7 @@ func gopodSayWords(robot *vector.Vector, esn, text string) {
 		resp, err := gopodLogSayText(robot, context.Background(), &vectorpb.SayTextRequest{
 			DurationScalar: 1,
 			UseVectorVoice: true,
-			// 2026-11-02 (live: "Thanks for your help, Cache PYC." said wrong): his
-			// short lines go through the pronunciation list too.
-			Text: gopodReplaceWholeWords(text, gopodBrobotPronunciations()),
+			Text:           gopodReplaceWholeWords(text, gopodBrobotPronunciations()),
 		})
 		state := "no reply"
 		if resp != nil {
@@ -101,33 +82,12 @@ func gopodSayWords(robot *vector.Vector, esn, text string) {
 	}
 }
 
-// GOLDEN, locked (2026-10-13, operator: "a single robust engine for live &
-// scripted runs * snapshot the full \"thinking please wait\" process from live
-// (+ arm, nod) * lock that snapshot * use locked \"thinking please wait\"
-// process for scripted runs"): the one "thinking please wait" process - the
-// live chat's (kgsim), a scripted answer's and a song's (/api-sdk/gopod_thinking)
-// alike. With control already granted: a Brobot's thinking moves (arm, then
-// nod; chat_moves.thinking_moves) and "Thinking, please wait."; then the
-// searching clip until ready() and for at least searching_min_seconds, at the
-// golden pace; then one searching get-out. Locked by TestThinkingProcessIsOne.
-//
-// 2026-10-16: afterLine (a live photo, gopod_photo.go) runs after the thinking
-// line, before the searching moves.
+// GOLDEN, locked: the one "thinking please wait" process - the live chat's (kgsim), a scripted
+// answer's and a song's (/api-sdk/gopod_thinking) alike.
 func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string, brobot bool, ready func() bool, afterLine ...func()) {
-	// 2026-11-16 (operator: "When I call on DOC or PIP, their eye colour should
-	// change for the 'got it' part, not after"): his eyes in the answering
-	// persona's colour from the start of the answer (gopod_eye_colors.go).
 	gopodSetBrobotEyes(robot, esn, true)
 	if brobot {
-		// GOPOD 2026-10-09 (operator: "drop the buffer so every reply starts
-		// the same way"): the 2026-10-04 searching + kgSuccess buffer while the
-		// brother defers is gone - the arm and nod below give him the time.
-		// 2026-10-09 (operator: "start with an arm lift + nod (as visual cues
-		// to the audience) then the rest"): one after the other, each back at
-		// rest first (gopod_arm_cue.go).
 		gopodThinkingMoves(robot, esn)
-		// 2026-10-08 (operator: "stay with live 1s minimum thinking/searching"):
-		// said for a draft answer too.
 		gopodSayThinkingLine(robot, esn)
 	}
 	for _, step := range afterLine {
@@ -135,31 +95,12 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 			step()
 		}
 	}
-	// GOPOD 2026-10-08 (operator: "a required minimum run to act as a buffer
-	// against an early trigger, whether composing a response, or not" - an
-	// addition, not a change: "A live answer that takes longer continues until
-	// the response is ready like before"): searching every
-	// searching_interval_seconds until the answer is ready, and for at least
-	// searching_min_seconds, then one searchingGetout. The pace is the golden
-	// one, so the robot isn't hit with commands: never faster than one clip,
-	// searching_resend_seconds (the song lock,
-	// SEARCHING_ANIMATION_SONG_LOCK_001.md) - a clip that comes back at once
-	// (Brobot 2, ~80 ms, live 2026-10-08 12:02) no longer means another send
-	// every ~0.4 s.
-	// 2026-11-03 (operator: "isolate into a robust golden note and fucking lock
-	// it and refer only to it"): the clips and pace are the golden note's
-	// (gopod_probes/locks/searching_golden.md), read here and nowhere else.
 	sg := gopodSearchingGolden()
 	searchStart := time.Now()
 	minRun := gopodSecondsToDuration(sg.MinSeconds)
 	done := func() bool { return ready() && time.Since(searchStart) >= minRun }
 	paused, hadManager := false, false
-	// A manager still talking keeps him waiting, even with his answer ready.
 	for !done() || gopodManagerBusy.Load() {
-		// 2026-10-22 (operator: "the moment a gomad steps in, that's a cue for
-		// the brobot searching to disengage, so the weather response can be
-		// heard"): while a manager has the floor (gopodManagerBusy), no
-		// searching - one get-out, then he waits quietly; searching again after.
 		if gopodManagerBusy.Load() {
 			if !paused {
 				paused, hadManager = true, true
@@ -175,9 +116,6 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 		}
 		sent := time.Now()
 		gopodSearchingPlay(robot, ctx, sg, sg.Clip)
-		// 2026-11-03 (operator: "Back-to-back"): the clip call returns once the
-		// robot reports it done, so the next goes at once - unless it came back
-		// sooner than the note's floor (not played), then the floor first.
 		gap := gopodSecondsToDuration(sg.FloorSeconds)
 		if !sg.OK {
 			gap = 100 * time.Millisecond // no note: no clips, just the wait
@@ -187,8 +125,6 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 		}
 	}
 	gopodSearchingPlay(robot, ctx, sg, sg.Getout)
-	// 2026-10-22 (the notice log's 4th line): the floor is back to him - "Got
-	// it!" again, said after a manager had the floor.
 	if brobot {
 		if line := gopodNoticeGotItAgain(esn, hadManager); line != "" {
 			gopodSayWords(robot, esn, line)
@@ -197,9 +133,8 @@ func gopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string,
 	}
 }
 
-// GopodThinkingProcess: the process for a song's Brobot (/api-sdk/gopod_thinking),
-// on Wire-Pod's own connection the song already holds control through; returns
-// once the get-out has played.
+// GopodThinkingProcess: the process for a song's Brobot (/api-sdk/gopod_thinking), on Wire-Pod's
+// own connection the song already holds control through; returns once the get-out has played.
 func GopodThinkingProcess(robot *vector.Vector, ctx context.Context, esn string) {
 	logger.Println("GOPOD_THINKING_PROCESS " + gopodBrobotName(esn) + " (song)")
 	gopodThinkingProcess(robot, ctx, esn, true, func() bool { return true })

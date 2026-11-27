@@ -7,12 +7,6 @@ import (
 	"testing"
 )
 
-// LOCKED 2026-10-25 (operator: "Mechanism works. Thank you. Lock it in."): his
-// opener (Got it! / Nice try, Mr/Mrs ...!) - said while thinking, posted as
-// "opener:" once said, the first line of his bubble above his notice, replayed
-// word by word after the bubble settles (replaySaidLine,
-// word_reveal.replay_settle_seconds), never counted among his reply's lit
-// pieces (ownSays), never a notice line.
 func TestOpenerMechanismLocked(t *testing.T) {
 	raw, _ := gopodRawSettingsForTest(t)
 	if wr, _ := raw["word_reveal"].(map[string]any); wr == nil || wr["replay_settle_seconds"] == nil {

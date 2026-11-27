@@ -3,9 +3,8 @@ package wirepod_ttr
 
 import "testing"
 
-// 2026-10-18 (the operator's loudness method replaced the peak offsets): the
-// meter's loudness is read, and only the voice worker's own files count as
-// made voices (done as they're made; every other sound gets a done copy).
+// the meter's loudness is read, and only the voice worker's own files count as made voices (done as
+// they're made; every other sound gets a done copy).
 func TestAudioLevels(t *testing.T) {
 	m := gopodLoudnessIRE.FindAllSubmatch([]byte("Integrated loudness:\n    I:         -18.6 LUFS\n"), -1)
 	if len(m) != 1 || string(m[0][1]) != "-18.6" {

@@ -10,22 +10,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The point bubbles (2026-10-23, operator: "thought bubbles are not reiterating
-// their respective value points * brobots to reiterate their value points brobot
-// party style * I need a templated answer-chain mechanism * either the machine
-// (game-mechanism) f*ck*ng works or it doesn't, regardless of the editable
-// data"): the answer chain's point_bubbles part. A value point with notes ("title |
-// note | note") becomes his thought bubbles, in order - a hype line for its title,
-// then one party line per note. The model writes them (point_bubbles.prompt asks
-// for exactly that); a line that's missing, or doesn't share a word with its note,
-// is made from the note itself (point_bubbles.fallback). So the shape always
-// holds, whatever the data. A line of his before them that's no note's (the
-// weather comment) is kept, first.
-
-// gopodPointBubblesSay (2026-11-24, operator: "nobody would understand" a bare
-// label as an opening "* more of a response is required with context"): the
-// point's own say line - a full sentence with its context - for a title line
-// the model didn't give.
+// gopodPointBubblesSay: the point's own say line - a full sentence with its context - for a title
+// line the model didn't give.
 func gopodPointBubblesSay(esn string) string {
 	for _, given := range gopodGivenPoints(esn) {
 		key := given
@@ -130,7 +116,6 @@ func gopodPointBubbles(esn, question, raw string) string {
 	for k, item := range items {
 		var line string
 		if k == 0 {
-			// The title line says the title itself (answer_shapes: the point's line).
 			for i, l := range lines {
 				if !used[i] && strings.Contains(strings.ToLower(l), strings.ToLower(title)) {
 					used[i], line = true, l
@@ -162,12 +147,8 @@ func gopodPointBubbles(esn, question, raw string) string {
 			first = i
 		}
 	}
-	// His own line before the point's stays first - only the weather comment
-	// (answer_shapes: a topic answer opens with its point).
-	// 2026-11-25 (operator, "I want to fire DOC!! Are you with me?": "to see ... if
-	// there was enough there to work with, to wrangle it back in, like taming a wild
-	// horse"): when none of his lines was the point's, his reaction to the ask stays
-	// first too - then the point wrangles it back in.
+	// His own line before the point's stays first - only the weather comment (answer_shapes: a topic
+	// answer opens with its point).
 	var lead []string
 	weather := gopodHasWholeWords(strings.ToLower(question), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", question)
 	reaction := filled == len(items)

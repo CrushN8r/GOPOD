@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 )
@@ -25,8 +25,8 @@ func TestEyeColorHex(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-15: a card's border is the robot's eye colour - hex to hue and
-// saturation and back; DOC's red while he answers, Brobot 1's gold after.
+// a card's border is the robot's eye colour - hex to hue and saturation and back; DOC's red while
+// he answers, Brobot 1's gold after.
 func TestBrobotEyesFromCards(t *testing.T) {
 	for _, hex := range []string{"#FF3B30", "#42A5F5", "#C9A227"} {
 		h, s, ok := gopodHexHS(hex)
@@ -37,7 +37,6 @@ func TestBrobotEyesFromCards(t *testing.T) {
 	if h, s, _ := gopodHexHS("#0000FF"); gopodHSVHex(h, s, 1) != "#0000FF" {
 		t.Errorf("blue round trip: %v %v", h, s)
 	}
-	// Decoupled: each persona its own colours - Brobot 1's brass, DOC's red.
 	if c := gopodBrobotsSettings.PersonaColours["Brobot 1"].Border; c != "#c9a227" {
 		t.Errorf("Brobot 1: %q", c)
 	}
@@ -52,9 +51,7 @@ func TestBrobotEyesFromCards(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (operator: "all the decoration stuff should be in external editable
-// callable css/js/json files"): the page's settings carry persona_colours, the
-// one place - and no persona card holds a colour.
+// the page's settings carry persona_colours, the one place - and no persona card holds a colour.
 func TestPageGetsPersonaColours(t *testing.T) {
 	var out struct {
 		PersonaColours map[string]map[string]string `json:"persona_colours"`
@@ -73,7 +70,7 @@ func TestPageGetsPersonaColours(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (live: Keys said CRUSHN8R like everyone): Keys' own way wins, whatever the case.
+// Keys said CRUSHN8R like everyone): Keys' own way wins, whatever the case.
 func TestKeysSaysCrushN8rHisWay(t *testing.T) {
 	if got := gopodSaysFor("BUTLER", "CRUSHN8R Crew"); !strings.Contains(got, "crushin-ate-uh") {
 		t.Errorf("Keys: %q", got)
@@ -83,9 +80,7 @@ func TestKeysSaysCrushN8rHisWay(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (operator: "decouple brobots from DOC/PIP completely * They only
-// share the same robot bodies"): four personas, four keys; a body is the
-// persona answering from it only through gopodAnswerer.
+// four personas, four keys; a body is the persona answering from it only through gopodAnswerer.
 func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	hp := gopodBrobotsSettings.HostPersonas
 	if hp["DOC"].Name != "DOCTRINE BARFALLONYOU SPEWER" || hp["PIP"].Name != "PIPPEN STALL" {
@@ -94,7 +89,6 @@ func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	if hp["Brobot 1"].Nickname != "BRUH-1" || hp["Brobot 1"].Name == hp["DOC"].Name || hp["Brobot 2"].Name == hp["PIP"].Name {
 		t.Errorf("a Brobot's own card: %+v / %+v", hp["Brobot 1"], hp["Brobot 2"])
 	}
-	// 2026-11-15: each card names its body; the voices have none.
 	if hp["DOC"].Body != "Brobot 1" || hp["Brobot 1"].Body != "Brobot 1" || hp["PIP"].Body != "Brobot 2" || hp["BUTLER"].Body != "" || hp["CHALK"].Body != "" {
 		t.Errorf("bodies: DOC %q, Brobot 1 %q, PIP %q, KEYNOTE %q, CHALK %q", hp["DOC"].Body, hp["Brobot 1"].Body, hp["PIP"].Body, hp["BUTLER"].Body, hp["CHALK"].Body)
 	}
@@ -109,14 +103,13 @@ func TestBrobotsDecoupledFromDocAndPip(t *testing.T) {
 	if at0 != "Brobot 1" || call0 != "Brobot 1" || at100 != "DOC" || call100 != "BARFALLONYOU" {
 		t.Errorf("Brobot 1 at 0%%: %q %q; at 100%%: %q %q", at0, call0, at100, call100)
 	}
-	// A Brobot's card has none of DOC's sections, and DOC's none of his.
 	if s := gopodPersonaProfileSections("DOC")["Who I am"]; len(s) > 0 && strings.Contains(strings.Join(s, " "), "BRUH") {
 		t.Errorf("DOC's card has the Brobot in it: %q", s)
 	}
 }
 
-// 2026-11-15 (live: Brobot 1's own battery line headed "DOC:"): a line the body
-// says about itself is headed by the Brobot, whatever persona he hosts.
+// Brobot 1's own battery line headed "DOC:"): a line the body says about itself is headed by the
+// Brobot, whatever persona he hosts.
 func TestBodyLineIsTheBrobots(t *testing.T) {
 	gopodDialZero.Delete(gopodBrobot1ESN)
 	gopodChatFeedAddLiveBy(gopodBrobot1ESN, "Whoa, bro... I'm feeling dizzy.", "Brobot 1")
@@ -128,8 +121,7 @@ func TestBodyLineIsTheBrobots(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (bubble log: "Numpad to DOC" over a KP1off line): a key names the
-// persona it reaches.
+// "Numpad to DOC" over a KP1off line): a key names the persona it reaches.
 func TestKeyReaches(t *testing.T) {
 	for key, want := range map[string]string{"KP1": "DOC", "KP1off": "Brobot 1", "KP2": "PIP", "KP2off": "Brobot 2", "KP0": "BUTLER"} {
 		_, target, err := gopodNumpadBrobot(key)
@@ -142,8 +134,8 @@ func TestKeyReaches(t *testing.T) {
 	}
 }
 
-// 2026-11-16: the lingo improver - the robots, the system voice and every persona
-// voice, each with its lingo; its page words are system texts.
+// the lingo improver - the robots, the system voice and every persona voice, each with its lingo;
+// its page words are system texts.
 func TestLingoImproverVoices(t *testing.T) {
 	want := map[string]string{"Brobot 1": "brobots", "Brobot 2": "brobots", gopodBrobotsSettings.SignOff.SystemRole: "butler", "CHALK": "reporters", "CHALK reporter": "reporters"}
 	got := map[string]string{}
@@ -166,9 +158,8 @@ func TestLingoImproverVoices(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator's picker: "-0 Numlock OFF: Goverlord", "+0 KEYS"): KP0 with
-// NumLock off is Goverlord (the system), not asked in the comm check; a typed line
-// to KP0 with NumLock on reaches KEYS.
+// KP0 with NumLock off is Goverlord (the system), not asked in the comm check; a typed line to KP0
+// with NumLock on reaches KEYS.
 func TestKP0OffIsGoverlord(t *testing.T) {
 	label, target, err := gopodNumpadBrobot("KP0off")
 	if err != nil || target != gopodTypedSystem || label != "Goverlord" {
@@ -185,17 +176,15 @@ func TestKP0OffIsGoverlord(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "I can't get to the correct 'KP0' for Keys"): a system
-// command typed to KEYS (+0) runs, as on -0.
+// a system command typed to KEYS (+0) runs, as on -0.
 func TestKeysTakesSystemCommands(t *testing.T) {
 	if k, ok := gopodTypedKey("kp:0"); !ok || k != "KP0" || !gopodSystemCommandMatch("system-comm-check") {
 		t.Fatalf("kp:0 -> %q %v", k, ok)
 	}
 }
 
-// 2026-11-16 (operator: "Goverlord only answers when called"; "speak his answer out
-// loud in the deep voice? * yes"): GOVERLORD has his own deeper voice; KEYS (the
-// system's lines) keeps his; Goverlord says an answer only right after a -0 call.
+// GOVERLORD has his own deeper voice; KEYS (the system's lines) keeps his; Goverlord says an answer
+// only right after a -0 call.
 func TestGoverlordOnlyWhenCalled(t *testing.T) {
 	if gopodBrobotsSettings.ReporterVoices.Hosts[gopodGoverlordHost] == "" || gopodReporterPitch(gopodGoverlordHost) >= 0 {
 		t.Errorf("GOVERLORD: voice %q, pitch %v", gopodBrobotsSettings.ReporterVoices.Hosts[gopodGoverlordHost], gopodReporterPitch(gopodGoverlordHost))
@@ -213,8 +202,7 @@ func TestGoverlordOnlyWhenCalled(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "flag/process/try to keep: 'AI Wordplay! Explain the MAth!',
-// in a single raw chunk"): never cut - sentences, comma pieces or voice chunks.
+// never cut - sentences, comma pieces or voice chunks.
 func TestKeepWholePhrase(t *testing.T) {
 	text := "GOPOD is AI Wordplay! Explain the MAth! It's a game."
 	for _, pieces := range [][]string{gopodWholeSentences(text), gopodSentences(text)} {
@@ -230,13 +218,11 @@ func TestKeepWholePhrase(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat. No look ups from
-// where the info is coming from"): the bubble names where its FACT came from; the
-// prompt keeps the words; the score shows only when it changed.
+// the bubble names where its FACT came from; the prompt keeps the words; the score shows only when
+// it changed.
 func TestBrainBubbleLooksUp(t *testing.T) {
 	q := "Next up, CHALKRA! Introduce yourself to the chat"
 	bubble := strings.Join(gopodBrainBubbleLines("CHALK", q), "\n")
-	// 2026-11-18 (operator: "all files looked up are listed"): his own card too.
 	if !strings.Contains(bubble, "LOOKED UP: chalk-bored.md") || strings.Contains(bubble, "FACT:") {
 		t.Errorf("the bubble: %q", bubble)
 	}
@@ -252,9 +238,8 @@ func TestBrainBubbleLooksUp(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "matching topic clusters to the question's key words *
-// repo's md files in topic-cluster format as the search pool"): a question picks
-// the pool's cards by the words it says; the brain names them and says their lines.
+// a question picks the pool's cards by the words it says; the brain names them and says their
+// lines.
 func TestLookupPicksCards(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
 		t.Skip("not in the repo here")
@@ -272,15 +257,13 @@ func TestLookupPicksCards(t *testing.T) {
 			t.Errorf("%q: looked up %v, fact %q", q, src, fact)
 		}
 	}
-	// 2026-11-18: a line with no card's words gets the README (lookup_default).
 	if fact, src := gopodLookupFact("", "ok"); len(src) != 1 || src[0] != "README.md" || fact == "" {
 		t.Errorf("a line with no card's words: %v %q", src, fact)
 	}
 }
 
-// 2026-11-16 (operator: "Please build for the C920 camera for GEMMA * fallback:
-// brobot 1 camera, then brobot 2 camera"): asked to look, GEMMA uses her eyes; what
-// she saw is every brain's ROOM while fresh; the safeguard is off.
+// asked to look, GEMMA uses her eyes; what she saw is every brain's ROOM while fresh; the safeguard
+// is off.
 func TestGemmaEyes(t *testing.T) {
 	ge := gopodBrobotsSettings.GemmaEyes
 	if ge.Safeguard || len(ge.Device) == 0 || ge.Prompt == "" || !strings.Contains(ge.SayText, "{saw}") || ge.KeepMinutes <= 0 {
@@ -303,9 +286,7 @@ func TestGemmaEyes(t *testing.T) {
 	}
 }
 
-// 2026-11-17 (operator: "numpad-map the '.' to 'any-persona', where I call the
-// persona by name ... the group also know who should answer"): "." names who's
-// asked; no name, the topic's owner; the typed picker's "." is the same key.
+// "." names who's asked; no name, the topic's owner; the typed picker's "." is the same key.
 func TestAnyPersonaKey(t *testing.T) {
 	label, target, err := gopodNumpadBrobot(gopodNumpadAnyKey)
 	if err != nil || target != gopodTypedAny || label == "" {
@@ -336,7 +317,7 @@ func TestAnyPersonaKey(t *testing.T) {
 	}
 }
 
-// 2026-11-17 (operator: "sysem-comm-check was my typo"): a near "system-" is read as one.
+// a near "system-" is read as one.
 func TestSystemTypo(t *testing.T) {
 	for in, want := range map[string]string{"sysem-comm-check": "system-comm-check", "sytsem-tour": "system-tour", "system-tour": "system-tour", "hello-there": "hello-there"} {
 		if got := gopodSystemTypo(in); got != want {
@@ -345,9 +326,7 @@ func TestSystemTypo(t *testing.T) {
 	}
 }
 
-// 2026-11-17 (operator: "Gap 3, privacy? Fix first * Gap 1, coverage? Aim for
-// full coverage"): the look-up's cards are the whole public repo - every tracked
-// md file, and only those.
+// the look-up's cards are the whole public repo - every tracked md file, and only those.
 func TestLookupTrackedOnly(t *testing.T) {
 	tracked := gopodLookupTracked()
 	cards := gopodLookupCards()
@@ -361,9 +340,8 @@ func TestLookupTrackedOnly(t *testing.T) {
 	}
 }
 
-// 2026-11-17 (operator: "Add sufficient depth without repeating"): a card gives
-// its lines that say the question's words, not only its first ones; a persona's
-// own card is never looked up for him.
+// a card gives its lines that say the question's words, not only its first ones; a persona's own
+// card is never looked up for him.
 func TestLookupDepth(t *testing.T) {
 	fact, src := gopodLookupFact("", "how do I book the brobots for a birthday party?")
 	if len(fact) < 200 {
@@ -377,9 +355,7 @@ func TestLookupDepth(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "build the 'see also' multi-look-up with weather.md,
-// duo-handoff.md, booking.md, crew-roster.md, numpad-map.md, photos.md"): a hub
-// brings its "see also" cards along, one step out.
+// a hub brings its "see also" cards along, one step out.
 func TestLookupHubs(t *testing.T) {
 	for q, want := range map[string][]string{
 		"who gets the weather?":                  {"weather.md", "git-repo.md", "cache-pyc.md"},
@@ -401,8 +377,7 @@ func TestLookupHubs(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "'start [run-name]', should be only honoured when '0'
-// (KEYS) is selected"): a run command runs only when it came on 0.
+// a run command runs only when it came on 0.
 func TestRunOnlyOnZero(t *testing.T) {
 	gopodRunFromZero.Store(false)
 	if gopodRunAllowed("start fart joke") {
@@ -420,9 +395,8 @@ func TestRunOnlyOnZero(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "look ups load to the end of the chain"): the weather
-// look-up walks weather.md's chain - the station, the hand-offs, PLAYHEAD, GIT
-// REPO, CACHE PYC, the Brobot - each once, all named.
+// the weather look-up walks weather.md's chain - the station, the hand-offs, PLAYHEAD, GIT REPO,
+// CACHE PYC, the Brobot - each once, all named.
 func TestLookupFullChain(t *testing.T) {
 	fact, src := gopodLookupFact("Brobot 1", "who gets the weather?")
 	got := " " + strings.Join(src, " ") + " "
@@ -436,8 +410,8 @@ func TestLookupFullChain(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (live: "gov or lord what say you" - Goverlord misheard): the
-// mishearing is spelled back, so the "." key finds him.
+// "gov or lord what say you" - Goverlord misheard): the mishearing is spelled back, so the "." key
+// finds him.
 func TestGovOrLord(t *testing.T) {
 	text := gopodSpellNames("gov or lord what say you owe grand master")
 	if !strings.HasPrefix(text, "Goverlord") || gopodAnyNamed(text) != "GOVERLORD" {
@@ -445,9 +419,8 @@ func TestGovOrLord(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "I prefer it be flow guided ... as close to what I have"):
-// every persona's card has his intro guide; an intro is the model's own, guided
-// by it - no code opening around it; PIP is PIPPEN STALL.
+// every persona's card has his intro guide; an intro is the model's own, guided by it - no code
+// opening around it; PIP is PIPPEN STALL.
 func TestIntroGuides(t *testing.T) {
 	for _, who := range []string{"GOVERLORD", "BUTLER", "GEMMA", "INTEL 404 PNFH", "INTEL 404 PNFT", "DOC", "PIP", "CHALK", "PLAYHEAD", "CAMEO", "GIT REPO", "CACHE PYC"} {
 		if gopodIntroGuide(who) == "" {
@@ -457,8 +430,6 @@ func TestIntroGuides(t *testing.T) {
 	if !strings.Contains(gopodIntroGuide("INTEL 404 PNFT"), "My partner Buzzer") {
 		t.Error("SWITCH's partner is Buzzer")
 	}
-	// 2026-11-19 (operator: "Use each of my word for word intros, as the base for
-	// the llm colour"): the guide word for word, the model's colour line with it.
 	if got := gopodIntroWrap("CHALK", "Chalk dust everywhere! *waves*"); got != gopodIntroGuide("CHALK") {
 		t.Errorf("guided intro: %q", got)
 	}
@@ -470,11 +441,8 @@ func TestIntroGuides(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "replace all except brobots & reporters * Make field news
-// reporters 1 & 2 heads, from CHALK & PLAYHEAD heads * so only brobots have the
-// brobots eyes icon"): every persona has a head (persona_heads), coloured from
-// persona_colours; the Brobots keep the eyes; the reporters' heads come from
-// CHALK's and PLAYHEAD's.
+// every persona has a head (persona_heads), coloured from persona_colours; the Brobots keep the
+// eyes; the reporters' heads come from CHALK's and PLAYHEAD's.
 func TestPersonaHeads(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_settings", "03_chat_page.json"))
 	if err != nil {
@@ -510,9 +478,8 @@ func TestPersonaHeads(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "trailing emojis appear in the next chunk"; "Some
-// response leakage"): an emoji after a sentence's end stays with it; a persona's
-// name-and-colon label at a sentence's start goes.
+// an emoji after a sentence's end stays with it; a persona's name-and-colon label at a sentence's
+// start goes.
 func TestEmojiStaysAndLabelGoes(t *testing.T) {
 	got := gopodCutAt("Think social media, for the internet itself. 🌎 I'll be taking care of it. 😎👀 Done.", gopodHardEnd)
 	if len(got) != 3 || got[0] != "Think social media, for the internet itself. 🌎" || got[1] != "I'll be taking care of it. 😎👀" {
@@ -523,9 +490,7 @@ func TestEmojiStaysAndLabelGoes(t *testing.T) {
 	}
 }
 
-// 2026-11-18 (operator: "have 'duh' responses, default to look up the README.md
-// file ... I don't know. GOPOD Yourself!"): a question no card matches gets the
-// repo's README and that line.
+// a question no card matches gets the repo's README and that line.
 func TestLookupDefaultsToReadme(t *testing.T) {
 	fact, src := gopodLookupFact("Brobot 1", "so what's new with you?")
 	if len(src) == 0 || src[0] != "README.md" || !strings.Contains(fact, "I don't know. GOPOD Yourself") {

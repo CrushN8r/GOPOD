@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// A thanks while a draft plays stops the draft first and takes the line; with
-// nothing going it passes on. "stop run" is a command either way.
+// A thanks while a draft plays stops the draft first and takes the line; with nothing going it
+// passes on.
 func TestThanksClosesOutTheDraft(t *testing.T) {
 	gopodSession.Lock()
 	gopodSession.run = nil // no run going in a test
@@ -21,8 +21,6 @@ func TestThanksClosesOutTheDraft(t *testing.T) {
 	if gopodThanksCloseOut(gopodBrobot1ESN, "thanks Brobots", "Typed text") {
 		t.Error("nothing going: the thanks goes on as usual")
 	}
-	// The re-sent thanks waits in the closed gate's queue (2026-10-13), which
-	// this test empties, so no LLM is asked.
 	gopodWarmGateClosed.Store(true)
 	defer func() {
 		gopodWarming.Lock()

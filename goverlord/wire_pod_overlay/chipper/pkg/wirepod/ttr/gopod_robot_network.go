@@ -15,20 +15,15 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// 2026-11-27 (operator: "brobot was working with face + backpack glowing as
-// disconnected * can this be monitored/logged like the battery monitoring";
-// "Build all 3"): the battery watch's readings say when a Brobot drops off the
-// network and when he's back - how long, and whether he rebooted (his uptime).
-// Back without a reboot, his own WiFi lines are copied into the session log
-// before a reboot can wipe them (the robot keeps its log in memory). His robot
-// is reached over SSH with the unlock key (battery_watch.ssh_key).
+// the battery watch's readings say when a Brobot drops off the network and when he's back - how
+// long, and whether he rebooted (his uptime).
 var gopodNetwork = struct {
 	sync.Mutex
 	downAt map[string]time.Time
 }{downAt: map[string]time.Time{}}
 
-// gopodNetworkMiss: a reading that didn't work - the first one after a good
-// reading is his drop, logged once.
+// gopodNetworkMiss: a reading that didn't work - the first one after a good reading is his drop,
+// logged once.
 func gopodNetworkMiss(esn string, err error) {
 	gopodBatteryLow.Lock()
 	seen := gopodBatteryLow.seen[esn]
@@ -49,8 +44,8 @@ func gopodNetworkMiss(esn string, err error) {
 	logger.Println("GOPOD_NETWORK " + gopodBrobotName(esn) + " off the network at " + now.Format("15:04:05") + " (" + why + ")")
 }
 
-// gopodNetworkBack: a good reading - after a drop, he's back: how long, and
-// whether he rebooted; no reboot, his WiFi lines go to the session log.
+// gopodNetworkBack: a good reading - after a drop, he's back: how long, and whether he rebooted; no
+// reboot, his WiFi lines go to the session log.
 func gopodNetworkBack(esn string) {
 	gopodNetwork.Lock()
 	at, down := gopodNetwork.downAt[esn]
@@ -92,8 +87,8 @@ func gopodNetworkBack(esn string) {
 	}()
 }
 
-// gopodRobotSSH: an SSH connection to the Brobot's robot (Wire-Pod's own SSH
-// setup's client settings, setup/ssh.go).
+// gopodRobotSSH: an SSH connection to the Brobot's robot (Wire-Pod's own SSH setup's client
+// settings, setup/ssh.go).
 func gopodRobotSSH(esn string) (*ssh.Client, error) {
 	ip := ""
 	for _, bot := range vars.BotInfo.Robots {

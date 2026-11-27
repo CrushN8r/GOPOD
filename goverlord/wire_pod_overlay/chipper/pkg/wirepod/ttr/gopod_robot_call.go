@@ -10,17 +10,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// gopodRobotCall (2026-10-19, operator, after "system-robot say ..." answered
-// "success" and nothing was heard: "for all robot calls add in a robot wake
-// beforehand then continue * once a call is made, ensure the call is robust
-// enough to ignore distractions until that call is complete (no overlapping
-// chains)"): every Brobots-menu call to a robot goes through here - one at a
-// time per Brobot (a second call waits its turn), the chat's own hold let go,
-// the robot woken (behavior control taken and granted, then the 1.5 s settle a
-// fresh control needs before its first action - CLAUDE.md), the call run to its
-// end while control is held (his own behaviours can't cut in), then control
-// given back and the chat's hold resumed. keep=false gives control back before
-// the call (a Wire-Pod intent - pop a wheelie - needs the robot's own behaviours).
 var gopodRobotCallLocks = struct {
 	sync.Mutex
 	m map[string]*sync.Mutex

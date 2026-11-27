@@ -1,16 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_line_queue.go
 package wirepod_ttr
 
-// The line queue (2026-10-29, operator: "even if a few requests come in
-// together, they still must each get processed until completion before another
-// bubbles starts"; live 05:13: KP2's line came before Brobot 1's reply, and the
-// replies landed among KP3's bubbles). Every question - typed, numpad, a
-// persona's, the comm check's - takes its turn: one at a time, in the order they
-// came; the next starts only when this one is complete - a line from each one
-// asked after it (his answer), then the page has played it all. Commands (system-,
-// stop run, thanks, skip, start ...) don't wait - they never reach the queue.
-// line_queue: on, and how long each wait may take.
-
 import (
 	"strconv"
 	"strings"
@@ -51,10 +41,6 @@ func gopodLineTurn(text string, answerers []string, run func() error) error {
 	return nil
 }
 
-// gopodLineRun: one question, then its answers, then the page caught up - its
-// own turn of the master chat queue (gopod_chat_queue.go) when nothing else is
-// going; a turn that holds questions (the tour) is waited out first; inside a
-// turn that doesn't (the comm check's own questions), it's that turn's line.
 func gopodLineRun(j gopodLineJob) {
 	for gopodTurnHolding() {
 		time.Sleep(300 * time.Millisecond)
@@ -77,17 +63,12 @@ func gopodLineRun(j gopodLineJob) {
 		return
 	}
 	idle := gopodSecondsToDuration(lq.IdleSeconds)
-	// 2026-11-03 (live: a duo's turn ended at 180 s while Brobot B was still
-	// speaking; operator: "Do 2 180 cap watchdogs * 180 s, finished? No,
-	// another 180 s"): at answer_max_seconds, a line not finished (an answer
-	// still to come or still going) gets one more; then the turn ends.
 	most := gopodSecondsToDuration(lq.AnswerMaxSeconds)
 	end := time.Now().Add(most)
 	extended := false
 	last, since := gopodFeedLastID(), time.Now()
 	for {
 		if !time.Now().Before(end) {
-			// Finished lines leave the loop below; still here = not finished.
 			if extended {
 				break
 			}
@@ -95,14 +76,9 @@ func gopodLineRun(j gopodLineJob) {
 			end = time.Now().Add(most)
 			logger.Println("GOPOD_LINE_QUEUE " + most.String() + ", not finished - another " + most.String() + " for " + gopodCut(j.text, 60))
 		}
-		// CLOCK_AUDIT_001.md B (2026-10-30): answered once every answerer's
-		// bubble is on the feed and his answer has ended - said, not just posted.
 		if gopodLineAnswered(from, j.answerers) && !gopodAnswerGoing(j.answerers) {
 			break
 		}
-		// 2026-10-30 (CLOCK_AUDIT_001.md A, operator: "go for A"): an answer still
-		// coming - a Brobot thinking or speaking, a Gomad's answer being made - is
-		// not "nothing more came"; idle counts only once no answer is going.
 		if id := gopodFeedLastID(); id != last || gopodAnswerGoing(j.answerers) {
 			last, since = id, time.Now()
 		} else if time.Since(since) >= idle {
@@ -114,7 +90,6 @@ func gopodLineRun(j gopodLineJob) {
 	if !time.Now().Before(end) {
 		logger.Println("GOPOD_LINE_QUEUE answer time ran out (" + most.String() + ") for " + gopodCut(j.text, 60))
 	}
-	// The page shows it all - when a page is here to show it (gopodPageHere).
 	if gopodPageHere() {
 		pend := time.Now().Add(gopodSecondsToDuration(lq.PageMaxSeconds))
 		for time.Now().Before(pend) && gopodPagePlayedUpTo() < gopodFeedLastID() {
@@ -158,9 +133,9 @@ func gopodLineQueueClear() int {
 // gopodVoicesMaking: voice files being made now (gopodReporterFile).
 var gopodVoicesMaking atomic.Int32
 
-// gopodAnswerGoing: a voice is being made, or one of these answerers' answers is still going - a Brobot's
-// reply from its start to its end (gopodReplyGoing), or a Gomad's answer being
-// made (gopodGomadAnswering).
+// gopodAnswerGoing: a voice is being made, or one of these answerers' answers is still going - a
+// Brobot's reply from its start to its end (gopodReplyGoing), or a Gomad's answer being made
+// (gopodGomadAnswering).
 func gopodAnswerGoing(answerers []string) bool {
 	if gopodVoicesMaking.Load() > 0 {
 		return true

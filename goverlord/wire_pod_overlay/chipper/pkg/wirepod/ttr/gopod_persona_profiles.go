@@ -1,15 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_persona_profiles.go
 package wirepod_ttr
 
-// Persona profiles (2026-10-30, operator: "fatten up all these personas for self
-// & chat awareness * offload to persona profile md files for look ups"; "These
-// will be your first workings of a brain bubble template for scaffolding for the
-// other personas"). One md per persona (persona_profiles.folder/<name>.md): the
-// same sections for everyone - Self (my informal name, my name, my job title, my
-// role, who helps me), Voice, Partner and banter, The name. The sections named in
-// persona_profiles.sections are looked up for the persona's prompt, one line per
-// bullet, through persona_profiles.text.
-
 import (
 	"encoding/json"
 	"os"
@@ -32,15 +23,11 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 		folder = filepath.Join(gopodChipperRoot(), folder)
 	}
 	slug := strings.Trim(gopodPersonaChainSlugRE.ReplaceAllString(strings.ToLower(who), "-"), "-")
-	// 2026-11-04 (operator: "a persona found by its file name wherever it sits"):
-	// moved, it's found by its name anywhere under topic_clusters/.
 	p := filepath.Join(folder, slug+".md")
 	if _, err := os.Stat(p); err != nil {
 		if f := gopodTopicTreeFind(slug + ".md"); f != "" {
 			return f
 		}
-		// 2026-11-06 (operator's shuffle: chalk.md -> company/gomads/chalk-bored.md):
-		// renamed, it's the profile under the folder whose "words" name who.
 		if f := gopodPersonaProfileByWords(folder, who); f != "" {
 			return f
 		}
@@ -48,8 +35,8 @@ func gopodPersonaProfileFileIn(folder, who string) string {
 	return p
 }
 
-// gopodPersonaProfileByWords: the profile under folder whose head's words list
-// has who ("CHALK" -> the file with "- **words:** chalk, chalk bored, ...").
+// gopodPersonaProfileByWords: the profile under folder whose head's words list has who ("CHALK" ->
+// the file with "- **words:** chalk, chalk bored, ...").
 func gopodPersonaProfileByWords(folder, who string) string {
 	want := strings.ToLower(strings.TrimSpace(who))
 	found := ""
@@ -69,26 +56,16 @@ func gopodPersonaProfileByWords(folder, who string) string {
 	return found
 }
 
-// gopodPersonaProfileRead (2026-10-30, operator: "make the topic-cluster shape the
-// one master format * YES!! PLEASE!!"): a profile is a topic-cluster md, read the
-// format's one way (gopodTopicHeadKV): its head - "# <full name>" (the label),
-// "- **nickname:**", "- **job:**", "- **words:**", "- **ask:**" - then "---", then
-// its sections ("## Self", ...), each its points ("1. ...").
+// gopodPersonaProfileRead: a profile is a topic-cluster md, read the format's one way
+// (gopodTopicHeadKV): its head - "# <full name>" (the label), "- **nickname:**", "- **job:**", "-
+// **words:**", "- **ask:**" - then "---", then its sections ("## Self", ...), each its points ("1.
 func gopodPersonaProfileRead(path string) (head map[string]string, sections map[string][]string) {
-	// 2026-11-15 (operator: "decouple brobots from DOC/PIP completely"): a card is
-	// its own persona, never another card mixed in - a Brobot's card is the
-	// Brobot's, DOC's is DOC's (gopodAnswerer says which one is answering).
 	return gopodPersonaProfileReadRooted(path, 0)
 }
 
-// gopodPersonaProfileReadRooted (2026-11-04, operator: "Brobots 1/2 are rooted in
-// a shared 'brobots' persona ... Security Guards ... Interns ... Gomads should be
-// rooted in the same way"; "Doc/Pip > DocBS/PipTA"; "Keys = 'GOPOD System'
-// group"; "company.md > all have a job/role/obligation at the company"; "shared
-// root persona > individual personas"): a file's own head and sections, with
-// its root's sections first ("- **root:** groups/group-gomads.md", found beside
-// it or anywhere under topic_clusters/) - the root's own root before that
-// (company.md), at most three deep. The head is the file's own.
+// gopodPersonaProfileReadRooted: a file's own head and sections, with its root's sections first ("-
+// **root:** groups/group-gomads.md", found beside it or anywhere under topic_clusters/) - the
+// root's own root before that (company.md), at most three deep.
 func gopodPersonaProfileReadRooted(path string, depth int) (head map[string]string, sections map[string][]string) {
 	head, sections = gopodPersonaProfileReadOne(path)
 	root := strings.TrimSpace(head["root"])
@@ -114,7 +91,6 @@ func gopodPersonaProfileReadRooted(path string, depth int) (head map[string]stri
 // gopodPersonaProfileReadOne: one profile file's head and sections.
 func gopodPersonaProfileReadOne(path string) (head map[string]string, sections map[string][]string) {
 	head, sections = gopodPersonaProfileReadFile(path)
-	// 2026-11-18: a card's group and robot from persona_cards, when it doesn't say.
 	if head != nil {
 		if pc, ok := gopodPersonaCards[filepath.Base(path)]; ok {
 			if head["root"] == "" && pc.Group != "" {
@@ -149,7 +125,6 @@ func gopodPersonaProfileReadFile(path string) (head map[string]string, sections 
 				continue
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok {
-				// 2026-11-18: the card's plain words for the code's keys.
 				switch k {
 				case "nickname history":
 					k = "why"
@@ -171,7 +146,6 @@ func gopodPersonaProfileReadFile(path string) (head map[string]string, sections 
 		} else if strings.HasPrefix(t, "- ") {
 			point = strings.TrimSpace(t[2:])
 		}
-		// A point still to come is the operator's to write - not said.
 		if point != "" && section != "" && !strings.HasSuffix(point, "(to come)") {
 			sections[section] = append(sections[section], point)
 		}
@@ -187,10 +161,9 @@ func gopodPersonaProfileSections(who string) map[string][]string {
 	return sections
 }
 
-// gopodApplyPersonaProfiles (2026-10-30, operator: "All should branch from single
-// master sources"): each persona's labels come from its profile's head - its full
-// name (the "# " label), nickname, job name - into host_personas, so the profile
-// is the one place a persona's name is written.
+// gopodApplyPersonaProfiles: each persona's labels come from its profile's head - its full name
+// (the "# " label), nickname, job name - into host_personas, so the profile is the one place a
+// persona's name is written.
 func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 	gopodPersonaCards = s.PersonaCards
 	for _, who := range gopodPersonaProfileHosts(s) {
@@ -199,10 +172,6 @@ func gopodApplyPersonaProfiles(s *gopodBrobotsSettingsFile) {
 			continue
 		}
 		hp := s.HostPersonas[who]
-		// 2026-10-30 (operator: "Commit & go on giving each a profile in the master
-		// format * pull them out of the shared prompt * so all come from one
-		// template"): a Brobot's own words - who I am, my role, my way through an
-		// answer, my signature - from his profile too.
 		if pts := sections["Who I am"]; len(pts) > 0 {
 			if s.Personas == nil {
 				s.Personas = map[string]string{}
@@ -253,8 +222,8 @@ func gopodPersonaProfileHosts(s *gopodBrobotsSettingsFile) []string {
 	return out
 }
 
-// gopodPersonaProfileLabelsJSON: the served settings with each persona's labels
-// from its profile (the page reads host_personas from here).
+// gopodPersonaProfileLabelsJSON: the served settings with each persona's labels from its profile
+// (the page reads host_personas from here).
 func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 	var all map[string]json.RawMessage
 	if json.Unmarshal(data, &all) != nil {
@@ -282,7 +251,6 @@ func gopodPersonaProfileLabelsJSON(data []byte) []byte {
 	if err != nil {
 		return data
 	}
-	// 2026-11-08: the page gets the persona variables filled too (gopodNameVarsFill).
 	return []byte(gopodNameVarsFill(string(out), gopodBrobotsSettings.HostPersonas))
 }
 
@@ -318,10 +286,9 @@ func gopodPersonaProfileField(who, label string) string {
 	return ""
 }
 
-// gopodGomadBrain (2026-10-30, operator: "NEW CORE TEMPLATE RULE: everybody gets a
-// brain bubble"): a Gomad's brain bubble, at the top of its own bubble - the same
-// title as a Brobot's ("{name} Brain") and the same lines, the one brain template
-// (brain_chain.lines, gopodBrainLines).
+// gopodGomadBrain: a Gomad's brain bubble, at the top of its own bubble - the same title as a
+// Brobot's ("{name} Brain") and the same lines, the one brain template (brain_chain.lines,
+// gopodBrainLines).
 func gopodGomadBrain(host, to, question string) {
 	title := strings.TrimSpace(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title)
 	if title == "" {
@@ -333,13 +300,9 @@ func gopodGomadBrain(host, to, question string) {
 	}
 }
 
-// The two lanes of a persona's profile (2026-11-02, operator: "relationship &
-// lingo are 2 separate lanes * lingo is how words are pronounced * personal/
-// working relationship connections, past & present, hence persona history").
-
 // gopodLingoWords: how words are said by the reporter voices - the shared list
-// (reporter_voices.say_words) plus each persona's own "## Lingo" points
-// ("CHALK = chock"), his own words winning. The voice only: never in a prompt.
+// (reporter_voices.say_words) plus each persona's own "## Lingo" points ("CHALK = chock"), his own
+// words winning.
 func gopodLingoWords() map[string]string {
 	out := map[string]string{}
 	for k, v := range gopodBrobotsSettings.ReporterVoices.SayWords {
@@ -351,9 +314,9 @@ func gopodLingoWords() map[string]string {
 	return out
 }
 
-// gopodProfileLingo: every persona's own "## Lingo" points ("CHALK = chock") -
-// the one source for how a persona's names are said, by every voice (the
-// reporter voices here, the Brobots' robots in gopodBrobotPronunciations).
+// gopodProfileLingo: every persona's own "## Lingo" points ("CHALK = chock") - the one source for
+// how a persona's names are said, by every voice (the reporter voices here, the Brobots' robots in
+// gopodBrobotPronunciations).
 func gopodProfileLingo() map[string]string {
 	out := map[string]string{}
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
@@ -366,9 +329,8 @@ func gopodProfileLingo() map[string]string {
 	return out
 }
 
-// gopodBrainRelationships: who's relationships for his brain - his card's
-// "## Who I answer to" and "## Who works with me" (2026-11-06, the persona
-// schema: one place for each fact, the same lines his intro says).
+// gopodBrainRelationships: who's relationships for his brain - his card's "## Who I answer to" and
+// "## Who works with me".
 func gopodBrainRelationships(who string) string {
 	sections := gopodPersonaProfileSections(who)
 	var points []string

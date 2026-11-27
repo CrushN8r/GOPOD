@@ -16,22 +16,12 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// system-check (2026-10-18, step 4 of the clean machine, operator: "all I want
-// left to be done, is my input, flexible data sets * GOPOD should be robust &
-// bullet proof enough to handle updates & additions to what's already there *
-// audio/image/video, scriptable edits"): every file the data names - in the
-// settings, the chapters' topic files and the songs - is looked for, and every
-// song's story.md step is looked for in its knobs.json, so a missing picture,
-// sound or step shows before a run, not in one. Nothing is changed. Run at
-// Wire-Pod's start (GOPOD_CHECK lines in the journal) and typed as
-// "system-check" on the chat page's keyboard.
-
 // gopodCheckFileRE: a value that names a file.
 var gopodCheckFileRE = regexp.MustCompile(`(?i)\.(wav|mp3|ogg|png|jpe?g|webp|svg|gif|mp4|webm|json|py|tflite|txt)$`)
 
-// gopodCheckFind: the value is a file that's there - looked for where GOPOD
-// would look: a page path under webroot, ~ (home), an absolute path, or by name
-// in the chipper folder, webroot, the voice folder or the pictures folder.
+// gopodCheckFind: the value is a file that's there - looked for where GOPOD would look: a page path
+// under webroot, ~ (home), an absolute path, or by name in the chipper folder, webroot, the voice
+// folder or the pictures folder.
 func gopodCheckFind(value string, extra ...string) bool {
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
@@ -91,41 +81,32 @@ func gopodCheckWalk(v any, path []string, found func(path, value string)) {
 func gopodSystemCheckProblems() ([]string, int) {
 	var problems []string
 	checked := 0
-	// 2026-10-26 (operator: "as I update the repo, I want the game to match the
-	// repo"): a topic whose source: repo file is gone or changed after it.
 	for _, p := range gopodTopicSourceProblems() {
 		checked++
 		problems = append(problems, "topic "+p)
 	}
-	// 2026-10-29: the GOPOD System Scrolls matches the system (gopod_torah.go).
 	checked++
 	if gopodTorahBehind() {
 		problems = append(problems, "GOPOD_SYSTEM_SCROLLS.md is behind the system - system-scrolls writes it again")
 	}
-	// 2026-11-15: the README's cast table matches the numpad map (gopod_readme_cast.go).
 	checked++
 	if gopodReadmeCastBehind() {
 		problems = append(problems, "README.md's cast table is behind the numpad map - system-scrolls writes it again")
 	}
-	// 2026-10-31: the topic-clusters - every point lands in the settings (gopod_topic_clusters.go).
 	cl, clChecked := gopodClustersCheck()
 	problems = append(problems, cl...)
 	checked += clChecked
-	// 2026-10-31: the source check - every participant from his master source up,
-	// layer by layer, all at once (gopod_source_check.go).
 	src, srcChecked := gopodSourceCheck()
 	checked += srcChecked
 	problems = append(problems, src...)
-	// 2026-10-28: the game engine's run cards (gopod_game_engine.go).
 	checked += len(gopodBrobotsSettings.Game.Runs)
 	problems = append(problems, gopodGameRunsCheck()...)
-	// 2026-11-03 (step 8 of the clusters plan): words left in the settings files.
 	if left, allowed := gopodWordsLeft(); len(left) > allowed {
 		problems = append(problems, gopodSystemText("system_check.words_left", "n", strconv.Itoa(len(left)), "allowed", strconv.Itoa(allowed), "paths", strings.Join(left[:min3(len(left), 5)], ", ")))
 	}
 	root := gopodChipperRoot()
 	web := filepath.Join(root, "webroot")
-	// 1. The settings: every file they name.
+	// 1.
 	var settings map[string]any
 	if data, err := gopodSettingsFull(); err != nil || json.Unmarshal(data, &settings) != nil {
 		problems = append(problems, "the settings folder (webroot/gopod_settings) can't be read")
@@ -136,7 +117,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 				problems = append(problems, "settings "+path+": no file "+value)
 			}
 		})
-		// The weather faces and sounds the page draws and plays.
 		if wc, ok := settings["weather_card"].(map[string]any); ok {
 			folder, _ := wc["folder"].(string)
 			faces, _ := wc["faces"].([]any)
@@ -159,7 +139,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 			}
 		}
 	}
-	// 2. The chapters: each topic's words and pictures; egg names and reminder eggs.
 	topics := map[string]bool{}
 	for _, p := range gopodTopicRegistry() {
 		topics[p.Name] = true
@@ -177,12 +156,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 			}
 		}
 	}
-	// 2026-10-18 (operator: "system-check: it would warn when a topic's trigger
-	// words include one of Wire-Pod's own phrases * we set up a wire-pod intents
-	// list or something similar, didn't we? Use that?"): a topic word that is, or
-	// holds, one of Wire-Pod's own intent phrases (intent-data/en-US.json) or a
-	// GOPOD command phrase (native_cube.intents) - the line would go to Vector's
-	// own answer, not the egg.
 	phrases := gopodNativePhrases()
 	for _, p := range gopodTopicRegistry() {
 		for _, w := range p.Triggers {
@@ -196,7 +169,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 			}
 		}
 	}
-	// 2026-10-21: the golden value points (gopod_value_points_golden.go).
 	vp := gopodValuePointsProblems()
 	checked += len(gopodValuePointsNow())
 	problems = append(problems, vp...)
@@ -214,7 +186,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 			}
 		}
 	}
-	// 3. The songs: every story.md step in knobs.json, every file the knobs name.
 	songs, _ := gopodAllSongs()
 	names := make([]string, 0, len(songs))
 	for n := range songs {
@@ -228,7 +199,7 @@ func gopodSystemCheckProblems() ([]string, int) {
 		if err != nil {
 			continue
 		}
-		// 2026-10-20 (the _llm_song guard): a song with an LLM warm-up has its run.
+		// a song with an LLM warm-up has its run.
 		var warm struct {
 			LLMWarmup *bool  `json:"llm_warmup"`
 			SongType  string `json:"song_type"`
@@ -245,8 +216,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 		for _, s := range steps {
 			have[s.StepID] = true
 		}
-		// 2026-10-18 (operator: "files match check for story.md, zKnobs.json,
-		// knob.json"): zKnobs.json has the same steps as knobs.json.
 		if zdata, err := os.ReadFile(filepath.Join(dir, "zKnobs.json")); err == nil {
 			zsteps, _, _ := gopodSystemSetKnobsFileData(zdata)
 			zhave := map[string]bool{}
@@ -263,7 +232,6 @@ func gopodSystemCheckProblems() ([]string, int) {
 				}
 			}
 		}
-		// 2026-11-04 (step 9): zKnobs.md, the one source, builds knobs.json as it is.
 		if gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
 			checked++
 			tool := filepath.Join(gopodSongsDir(), "tools", "knobs_md_001.py")
@@ -294,8 +262,8 @@ func gopodSystemCheckProblems() ([]string, int) {
 	return problems, checked
 }
 
-// gopodNativePhrases: Wire-Pod's own intent phrases and GOPOD's command
-// phrases, each with where it's from.
+// gopodNativePhrases: Wire-Pod's own intent phrases and GOPOD's command phrases, each with where
+// it's from.
 func gopodNativePhrases() [][2]string {
 	var out [][2]string
 	intents := vars.IntentList
@@ -321,8 +289,8 @@ func gopodNativePhrases() [][2]string {
 	return out
 }
 
-// gopodPhraseOverlap: the same words, or one holds the other as whole words
-// (the one held at least two words long, so "name" alone isn't "my name is").
+// gopodPhraseOverlap: the same words, or one holds the other as whole words (the one held at least
+// two words long, so "name" alone isn't "my name is").
 func gopodPhraseOverlap(a, b string) bool {
 	if a == "" || b == "" {
 		return false

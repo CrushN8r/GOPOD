@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// Every voice and speed has its own files (operator 2026-10-09: "ensure there's
-// a distinction so I will have wav of all generated voices without over writing").
+// Every voice and speed has its own files.
 func TestReporterFilesNamedByVoiceAndSpeed(t *testing.T) {
 	saved := gopodBrobotsSettings.ReporterVoices
 	defer func() { gopodBrobotsSettings.ReporterVoices = saved }()

@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// TestValueGrid (2026-11-25): the grid holds every topic's value points from the
-// cards; GOPOD_DUMP_GRID=<file> writes it as a page (private notes, never the repo).
+// TestValueGrid: the grid holds every topic's value points from the cards; GOPOD_DUMP_GRID=<file>
+// writes it as a page (private notes, never the repo).
 func TestValueGrid(t *testing.T) {
 	grid := gopodValueGrid()
 	if len(grid) == 0 {
@@ -33,10 +33,9 @@ func TestValueGrid(t *testing.T) {
 	}
 }
 
-// TestValueGridCheckCatchesBreaks (2026-11-25, operator: "a double test run on the
-// grid look-ups & the integrity of the tester"): the checker is fed a broken grid
-// - a topic with no points, a point with no words, a dead link, a lonely point -
-// and must name each one; a sound grid gets no break lines.
+// TestValueGridCheckCatchesBreaks: the checker is fed a broken grid - a topic with no points, a
+// point with no words, a dead link, a lonely point - and must name each one; a sound grid gets no
+// break lines.
 func TestValueGridCheckCatchesBreaks(t *testing.T) {
 	good := &gopodGridPoint{Topic: "a", Depth: 1, Say: "alpha point", Links: []string{"b #1"}}
 	other := &gopodGridPoint{Topic: "b", Depth: 1, Say: "beta point", Links: []string{"a #1"}}
@@ -63,8 +62,8 @@ func TestValueGridCheckCatchesBreaks(t *testing.T) {
 	}
 }
 
-// TestValueGridReal (2026-11-25): the grid the cards make has no dead links and no
-// empty points; the bounce from a point lands on one of its links.
+// TestValueGridReal: the grid the cards make has no dead links and no empty points; the bounce from
+// a point lands on one of its links.
 func TestValueGridReal(t *testing.T) {
 	for _, line := range func() []string { b, _, _ := gopodValueGridCheck(gopodValueGrid()); return b }() {
 		if strings.Contains(line, "isn't there") || strings.Contains(line, "has no words") {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"sort"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,22 +17,16 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// These four resolve relative to gopodChipperRoot() (see gopod_paths.go),
-// each individually overridable by its own env var. Single-owner: moving
-// the chipper/ tree, or relocating just one of these files, no longer
-// requires a hand-edit here.
+// These four resolve relative to gopodChipperRoot() (see gopod_paths.go), each individually
+// overridable by its own env var.
 var canonicalBrobotResponsePromptPath = gopodPathWithEnvOverride("GOPOD_BROBOT_RESPONSE_PROMPT_PATH", "wire-pod_response_prompt.txt")
 
-// The shared Brobots prompt is clusters/brobots.md now (gopodBrobotsPromptBytes); this names it in the log.
+// The shared Brobots prompt is clusters/brobots.md now (gopodBrobotsPromptBytes); this names it in
+// the log.
 var canonicalBrobotIdentityPromptPath = "gopod_probes/topic_clusters/personas/behaviours/brobots.md"
 var canonicalGOPODCorePromptPath = gopodPathWithEnvOverride("GOPOD_CORE_PROMPT_PATH", "gopod_probes/foundation_packs/gopod_core.txt")
 
-// defaultPrompt is derived from system_speech_content.json - see
-// gopod_system_speech_content.go. This is the last-resort fallback used
-// only when the 3 canonical prompt files AND vars.APIConfig.Knowledge.OpenAIPrompt
-// have already failed/are empty, so its own loader degrades to a built-in
-// floor value (gopodDefaultPromptFloor) rather than failing loudly - the
-// fallback's own failure must not cascade into breaking every request.
+// defaultPrompt is derived from system_speech_content.json - see gopod_system_speech_content.go.
 var defaultPrompt = loadedGOPODSystemSpeechContent.DefaultPrompt
 
 const (
@@ -56,10 +50,7 @@ type gopodStreamResult struct {
 	MarkedPacket   string
 	FilteredPacket string
 	AudibleChunks  []string
-	// Fallback (2026-10-24, live: Brobot 2 said "My robot brain tripped over the
-	// format wire..." while his bubble showed the reply he couldn't say): the
-	// speech is the fallback line - the bubble shows it too.
-	Fallback bool
+	Fallback       bool
 }
 
 type brobotPhraseUnit struct {
@@ -81,11 +72,7 @@ type loadedScenarioPacket struct {
 
 var brobotPhraseUnitPattern = regexp.MustCompile(`(?i)(^|\s)([A-Za-z][A-Za-z0-9_-]*)\s*\.\.\.`)
 
-// gopodIsActionCueSpot: an animation word followed by "..." ("thinking... ") starts a
-// new part only where a cue can really be - at the start of the text or right after a
-// sentence ends - and only with words after it. Mid-sentence it's speech: "that takes
-// some thinking..." (live 2026-09-29) was cut to "that takes some", because "thinking"
-// is also an animation name and the empty part after it was dropped.
+// gopodIsActionCueSpot: an animation word followed by "..." ("thinking...
 func gopodIsActionCueSpot(text string, match []int) bool {
 	if strings.TrimSpace(text[match[1]:]) == "" {
 		return false
@@ -111,7 +98,6 @@ func parseBrobotPhraseUnits(raw string) []brobotPhraseUnit {
 		return nil
 	}
 	// Phrase-chunks start only at allowlisted actionParameter + normalized ellipsis.
-	// Other ellipses belong to speech; emotion words may influence parameter choice elsewhere.
 	type phraseBoundary struct {
 		match               []int
 		actionParameter     string
@@ -394,10 +380,8 @@ func commandPacketFromFilteredChunk(chunk string) string {
 		}
 		return formatAnimationCommand("thinking") + "... " + text
 	}
-	// 2026-11-13 (live: "PIP said: thinking___ Think about ..." - only "PIP
-	// said:" was spoken, while the bubble lit the whole line): every unit of the
-	// chunk, each with its own cue - not the first alone. The speech loop and the
-	// highlight's pieces (gopodSpokenPieceTexts) both read this packet.
+	// "PIP said: thinking___ Think about ..." - only "PIP said:" was spoken, while the bubble lit the
+	// whole line): every unit of the chunk, each with its own cue - not the first alone.
 	var out []string
 	for _, unit := range units {
 		if text := cleanRobotSpeechText(robotSafeFilter(unit.Text)); text != "" {
@@ -415,10 +399,7 @@ func joinResponseChunks(chunks []string) string {
 	return strings.TrimSpace(strings.Join(chunks, " "))
 }
 
-// displayNewlineRunLimit caps how many consecutive newlines a log/debug display
-// line can show. Set to 2 on operator request (2026-08-02) to make repeated
-// LLM trailing-newline behavior visible at a readable size instead of 5-6 in a
-// row; display-only, never applied to the values actually parsed into speech.
+// displayNewlineRunLimit caps how many consecutive newlines a log/debug display line can show.
 const displayNewlineRunLimit = 2
 
 func collapseNewlineRuns(s string, maxRun int) string {
@@ -452,8 +433,6 @@ func emitFilterPacketDebug(filteredPacket string) {
 
 func emitFinalLLMDisplay(esn, raw string) {
 	logger.LogUI("LLM response for " + esn + ": " + collapseNewlineRuns(raw, displayNewlineRunLimit))
-	// 2026-10-17 (operator: "one event list, single source of truth"): the reply's
-	// bubble comes from the feed now, not from the page reading this log line.
 	GopodChatFeedAddLive(esn, collapseNewlineRuns(raw, displayNewlineRunLimit))
 }
 
@@ -478,17 +457,11 @@ func loadScenarioPacketForMessage(message string) (loadedScenarioPacket, bool) {
 // gopodMaxScenarioPackets: how many topic packs one question can load.
 const gopodMaxScenarioPackets = 3
 
-// loadScenarioPacketsForMessage returns every pack whose trigger is in the
-// message, in registry order, up to gopodMaxScenarioPackets. 2026-10-03 (operator:
-// group the value points into topics - who we are, the brothers, party,
-// background, GOPOD): a question can touch two topics ("introduce yourself and is
-// your brother asleep"), and a trigger matches whole words only, so "who" doesn't
-// fire on "whole" or "bar" on "barely".
+// loadScenarioPacketsForMessage returns every pack whose trigger is in the message, in registry
+// order, up to gopodMaxScenarioPackets.
 func loadScenarioPacketsForMessage(message string) []loadedScenarioPacket {
 	normalizedMessage := strings.ToLower(message)
 	registry := gopodTopicRegistry()
-	// 2026-10-29: the lightning - the topics found, ranked by the dynamic order
-	// valuation (gopod_lightning.go); lightning.on false: the triggers below.
 	if gopodBrobotsSettings.Lightning.On {
 		var out []loadedScenarioPacket
 		for _, t := range gopodLightningTopics(message, registry) {
@@ -522,11 +495,9 @@ func loadScenarioPacketsForMessage(message string) []loadedScenarioPacket {
 	return out
 }
 
-// gopodTriggerOwnMatch (2026-10-16, operator: "remove chocolate from bingo *
-// chocolate = food, bingo = game"): the trigger is in the text as whole words,
-// somewhere not inside another topic's longer trigger - "chocolate bingo" is the
-// food topic's, so its "bingo" doesn't also load the bingo topic; "bingo" alone
-// still does.
+// gopodTriggerOwnMatch: the trigger is in the text as whole words, somewhere not inside another
+// topic's longer trigger - "chocolate bingo" is the food topic's, so its "bingo" doesn't also load
+// the bingo topic; "bingo" alone still does.
 func gopodTriggerOwnMatch(text, trigger, owner string, registry []scenarioPacketEntry) bool {
 	for start := 0; trigger != ""; {
 		i := strings.Index(text[start:], trigger)
@@ -546,8 +517,8 @@ func gopodTriggerOwnMatch(text, trigger, owner string, registry []scenarioPacket
 	return false
 }
 
-// gopodInsideLongerTrigger: text[i:end] sits inside a longer trigger of another
-// topic, found there as whole words.
+// gopodInsideLongerTrigger: text[i:end] sits inside a longer trigger of another topic, found there
+// as whole words.
 func gopodInsideLongerTrigger(text string, i, end int, owner string, registry []scenarioPacketEntry) bool {
 	for _, packet := range registry {
 		if packet.Name == owner {
@@ -572,8 +543,7 @@ func gopodInsideLongerTrigger(text string, i, end int, owner string, registry []
 	return false
 }
 
-// gopodHasWholeWords: phrase appears in text with no letter or digit right
-// before or after it.
+// gopodHasWholeWords: phrase appears in text with no letter or digit right before or after it.
 func gopodHasWholeWords(text, phrase string) bool {
 	if phrase == "" {
 		return false
@@ -598,9 +568,9 @@ func gopodIsWordByte(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
 }
 
-// gopodFillPromptTokens puts the settings' marker and placeholder word into the
-// reply rules ($ANIMATION_MARKER; $PLACEHOLDER_WORD/_THOUGHT are still filled for
-// an older prompt that names them). $REPLY_EXAMPLE is per brother: gopodReplyShapeSection.
+// gopodFillPromptTokens puts the settings' marker and placeholder word into the reply rules
+// ($ANIMATION_MARKER; $PLACEHOLDER_WORD/_THOUGHT are still filled for an older prompt that names
+// them).
 func gopodFillPromptTokens(prompt string) string {
 	return strings.NewReplacer(
 		"$ANIMATION_MARKER", gopodAnimationMarker,
@@ -609,12 +579,9 @@ func gopodFillPromptTokens(prompt string) string {
 	).Replace(prompt)
 }
 
-// gopodReplyShapeSection is the reply shape (wire-pod_response_prompt.txt) for
-// one brother: the marker filled in, and $REPLY_EXAMPLE his own example lines
-// (reply_examples in gopod_brobots_settings.json). It goes after his persona
-// and before the final check, nearest the question (2026-10-05: with one shared
-// example, gemma2:2b copied its cue word into every reply; with each brother's
-// own two, the cue words follow his character - BROBOTS_LAYERED_PROMPT_002.md).
+// gopodReplyShapeSection is the reply shape (wire-pod_response_prompt.txt) for one brother: the
+// marker filled in, and $REPLY_EXAMPLE his own example lines (reply_examples in
+// gopod_brobots_settings.json).
 func gopodReplyShapeSection(brobot string) string {
 	data, err := os.ReadFile(canonicalBrobotResponsePromptPath)
 	if err != nil {
@@ -623,32 +590,25 @@ func gopodReplyShapeSection(brobot string) string {
 	return strings.ReplaceAll(gopodFillPromptTokens(string(data)), "$REPLY_EXAMPLE", gopodBrobotsSettings.ReplyExamples[brobot])
 }
 
-// gopodQuestionFacts is what this question needs to know: the topic packs its
-// words trigger (gopod_probes/topic_clusters/personas/company/4_go_for_it/) and the Bingo note. 2026-10-05:
-// it sits nearest the question, after "who I am" and before the reply shape
-// (CreateAIReq); placed earlier, gemma2:2b often answered past it
-// (SOCIAL_DEMO_REPLAY_001.md: 44% of answers landed their value point, 66% with
-// the facts moved and the examples fixed).
+// gopodQuestionFacts is what this question needs to know: the topic packs its words trigger
+// (gopod_probes/topic_clusters/personas/company/4_go_for_it/) and the Bingo note.
 func gopodQuestionFacts(userMessage string) string {
 	return gopodQuestionFactsFor("", userMessage)
 }
 
-// gopodQuestionFactsFor is gopodQuestionFacts for one Brobot: the points it
-// gives out are kept for his say line and his take (gopodGivenPoints).
+// gopodQuestionFactsFor is gopodQuestionFacts for one Brobot: the points it gives out are kept for
+// his say line and his take (gopodGivenPoints).
 func gopodQuestionFactsFor(esn, userMessage string) string {
 	var facts []byte
 	var given []string
-	notice := map[string][]string{} // 2026-10-22: the value points notice's parts (gopodNoticeSet)
-	var summaryGiven []string       // 2026-10-26: points a summary ask scored (never said word for word)
+	notice := map[string][]string{} // the value points notice's parts (gopodNoticeSet)
+	var summaryGiven []string       // points a summary ask scored (never said word for word)
 	defer func() {
 		gopodGivenSet(esn, given)
 		gopodSummaryGivenSet(esn, summaryGiven)
 		gopodNoticeSet(esn, userMessage, notice)
 	}()
-	// 2026-10-31 (live: Doc's and Pip's intros got the doc_and_pip value point and
-	// came back as a topic answer): an intro is his intro - no value point.
 	if gopodIsIntro(userMessage) {
-		// 2026-11-03: an intro + weather gets the report too - his take reacts to it.
 		if gopodIntroWeather(userMessage) {
 			if note := gopodBrobotsSettings.LiveWeatherNote; note != "" {
 				if line, _ := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
@@ -659,8 +619,6 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 		}
 		return ""
 	}
-	// 2026-10-23: a golden query gets the summary across the core topics, in
-	// place of one value point (gopod_summary_answer.go).
 	if sf := gopodSummaryFacts(esn, userMessage); sf != "" {
 		var titles []string
 		for _, it := range gopodSummaryItemsFor(esn) {
@@ -669,40 +627,20 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 		notice["summary"] = []string{gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Summary, map[string]string{"topics": strings.Join(titles, ", ")})}
 		return sf
 	}
-	// 2026-10-01 (operator): the Bingo hosting pitch stays apart from a Bingo
-	// test run. With a run in memory the pitch pack is left out, so the answer
-	// comes from the run; with none (the Bingo-played flag at 0), a Bingo question
-	// gets the "sure, let's play" note (bingo.no_run_note), and the pitch pack loads.
-	// 2026-10-25: every experience the same way (gopod_experiences.go).
-	// 2026-10-26: a summary ask riffs on the topic's summary (in the notice);
-	// a detail ask, or "tell me more" about the last topic, gets its value points
-	// (gopod_topic_asks.go).
-	// 2026-11-19 (live: "What's the weather like today?" matched the booking
-	// topic's "a normal day" - "Morning! Seniors' bingo ... Evening! Bar top" in
-	// every weather answer): a weather question is about the weather - no topic
-	// packets, no value point with it.
 	weatherAsk := gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)
 	packets := gopodTopicPackets(userMessage)
 	if weatherAsk {
 		packets = nil
 	}
-	// 2026-11-24 (operator: "Q: did you have [this] experience? y/n"): the run's
-	// own pack only with an experience ask once it has played; never with a gig question.
 	packets = gopodExperiencePacks(userMessage, packets)
-	// 2026-11-24 (live: the third strike's hand-over gave Brobot 1 the booking
-	// topic's points, not the welcome): handed a line on the third strike, his
-	// facts are README.md's welcome alone (gopod_job_route.go).
 	if gopodJobRouteWelcomeDue(gopodBrobotName(esn)) {
 		packets = nil
 	}
 	for _, packet := range packets {
-		// 2026-10-26: the topic's pre or post note, by whether the room has covered it.
 		if note := gopodTopicPrePost(packet.Name, gopodTopicTouched(packet.Name)); note != "" {
 			facts = appendPromptSection(facts, []byte(note))
 		}
 		if line, sf, ok := gopodTopicSummary(packet.Name, userMessage); ok {
-			// 2026-10-26 (operator: "Yes a summary still scores"): its next value
-			// point counts, but he riffs on the summary, not the point's words.
 			if _, point := gopodCoverageRevealFor(packet.Name, packet.Content, userMessage); point != "" {
 				given = append(given, point)
 				summaryGiven = append(summaryGiven, point)
@@ -711,8 +649,6 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 			notice["points"] = append(notice["points"], line)
 			logger.Println("BROBOT_TOPIC_SUMMARY=" + packet.Name)
 		} else {
-			// 2026-10-06: the next value point only (gopod_value_points.go).
-			// 2026-10-22: the point this question asks about first (gopodPickPoint).
 			packFacts, point := gopodCoverageRevealFor(packet.Name, packet.Content, userMessage)
 			facts = appendPromptSection(facts, packFacts)
 			if point != "" {
@@ -722,26 +658,18 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 			logger.Println(fmt.Sprintf("BROBOT_SCENARIO_PACKET_LOADED=%s file=%s bytes=%d", packet.Name, packet.File, len(packet.Content)))
 		}
 	}
-	// 2026-10-10 (operator: "brobot did not check actual weather ... like in
-	// scripted interview"): a weather question gets the real weather.
-	// 2026-10-22: a native weather intent PLAYHEAD takes counts too ("whether").
 	if note := gopodBrobotsSettings.LiveWeatherNote; note != "" && (gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)) {
-		// The golden weather call, the same as the scripted draft's {weather}.
 		if line, live := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
 			facts = appendPromptSection(facts, []byte(note+" "+line))
 			notice["weather"] = append(notice["weather"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Weather, map[string]string{"line": line}))
 			logger.Println(fmt.Sprintf("BROBOT_LIVE_WEATHER=added live=%v", live))
 		}
 	}
-	// 2026-10-17 (operator: "brobots use \"system-search\" for 'search
-	// [search-text]'"): a "search ..." line gets the web's snippets as facts.
 	if searched := gopodSearchFacts(userMessage); searched != "" {
 		facts = appendPromptSection(facts, []byte(searched))
 		notice["search"] = append(notice["search"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Search, map[string]string{"search": gopodSearchQuery(userMessage)}))
 		logger.Println("BROBOT_SYSTEM_SEARCH=added")
 	}
-	// 2026-10-18 (operator: "QR codes are brobot N's bubble * thought bubble *
-	// brobot can say refer to QR codes below"): PLAYHEAD's QR in his bubble.
 	if note := gopodManagerQRNote(); note != "" {
 		facts = appendPromptSection(facts, []byte(note))
 		logger.Println("BROBOT_QR_NOTE=added")
@@ -750,11 +678,6 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 		facts = appendPromptSection(facts, []byte(note))
 		logger.Println("BROBOT_EXPERIENCE_NOTE=added " + note)
 	}
-	// No topic pack and no note: the question is far from GOPOD (operator
-	// 2026-10-05: "Tell me about the wilderness in the Amazon jungle ... If the
-	// request drifts, the Brobots know - I have a job to do"). A quick take,
-	// then a rejoinder back to one GOPOD value point (off_topic_note). A
-	// thank-you is not off topic: it gets chat_hold.thanks_note instead.
 	if len(facts) == 0 && strings.TrimSpace(userMessage) != "" && !gopodIsThanks(userMessage) {
 		facts = appendPromptSection(facts, []byte(gopodBrobotsSettings.OffTopicNote))
 		logger.Println("BROBOT_OFF_TOPIC_NOTE=added")
@@ -762,30 +685,17 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 	return string(facts)
 }
 
-// Flavour lists (scripted_snippets in gopod_brobots_settings.json; operator
-// 2026-10-05: "scripted snippets to stitch together", 2026-10-06: "each build
-// up a flavoured personality from a list of shared and specific party-brobot
-// responses"). Exact lines the code says for a Brobot, word for word: gemma2:2b
-// paraphrased these when asked to say them word for word, so they don't go
-// through it. One start line (after the cue word) and one end line at most.
+// Flavour lists.
 var gopodSnippetLast = struct {
 	sync.Mutex
 	line map[int]string
 }{line: map[int]string{}}
 
-// gopodScriptedSnippet picks this Brobot's line for one place in the reply
-// ("start" or "end"): the first entry that matches - its topic pack loaded,
-// bingo_not_played, thanks (a thank-you), reply_mentions one of its words in
-// reply, or any - and is his
-// own or shared. "" = none.
+// gopodScriptedSnippet picks this Brobot's line for one place in the reply ("start" or "end"): the
+// first entry that matches - its topic pack loaded, bingo_not_played, thanks (a thank-you),
+// reply_mentions one of its words in reply, or any - and is his own or shared.
 func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
-	// 2026-10-11 (live 23:2x: the real weather was given to gemma2:2b, and it
-	// still said "a high of 63°F" and "a scorcher"): a weather question's reply
-	// starts with the golden weather line itself, said by the code word for word.
-	// 2026-10-18: not when a manager said it (gopod_managers.go) - the Brobots are released from it.
 	if at == "start" && (gopodHasWholeWords(strings.ToLower(userMessage), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", userMessage)) && !gopodManagerTookWeather() {
-		// 2026-10-22: the multiple responses template - "report" first or alone,
-		// "confirm" next (weather_lines); the golden line when they're empty.
 		kind := "report"
 		if gopodIsFollowingUp(esn) {
 			kind = "confirm"
@@ -797,17 +707,11 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 			return line
 		}
 	}
-	// 2026-10-17 (operator: "Don't speak or highlight search results"): what
-	// the search found shows in its own bubble (gopodSearchFacts), not in the
-	// reply; system_search.line only when there's no results_role.
 	if at == "start" && gopodBrobotsSettings.SystemSearch.ResultsRole == "" {
 		if line := gopodSearchLine(userMessage); line != "" {
 			return line
 		}
 	}
-	// 2026-10-06: a point's exact line comes first (gopodSayLine, gopod_value_points.go).
-	// 2026-10-22: it's the answer chain's colour:value_point part now; with
-	// one, no flavour start line (still one start line at most).
 	if at == "start" && gopodSayLine(esn) != "" {
 		return ""
 	}
@@ -824,10 +728,7 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 		if where != at || (s.Brobot != "" && s.Brobot != gopodBrobotName(esn)) {
 			continue
 		}
-		// 2026-10-06: "reminder" - the next uncovered topic's line, worked out
-		// by the value-point list (gopod_value_points.go).
 		if s.When == "reminder" {
-			// The chance first: a reminder not said isn't counted as named.
 			if s.Chance > 0 && rand.Float64() >= s.Chance {
 				continue
 			}
@@ -843,7 +744,6 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 				match = match || gopodHasWholeWords(lowerReply, strings.ToLower(w))
 			}
 		}
-		// chance: how often a matching entry is used (0 or left out = always).
 		if match && (s.Chance <= 0 || rand.Float64() < s.Chance) {
 			return gopodPickSnippetLine(n, s.Lines)
 		}
@@ -871,15 +771,13 @@ func gopodDropSnippetCopy(snippet, reply string) string {
 	return strings.TrimSpace(regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(reply, " "))
 }
 
-// gopodStitchSnippet puts the snippet at the front of the reply, right after
-// its cue word ("confused___ No - I'm on GOPOD! Ugh, TikTok..."), so the cue
-// still plays first and the snippet is shown, spoken and remembered as his.
+// gopodStitchSnippet puts the snippet at the front of the reply, right after its cue word
+// ("confused___ No - I'm on GOPOD! Ugh, TikTok..."), so the cue still plays first and the snippet
+// is shown, spoken and remembered as his.
 func gopodStitchSnippet(snippet, reply string) string {
 	if snippet == "" {
 		return reply
 	}
-	// The reply's own cue fixes first ("thinking__" -> "thinking___"), so the
-	// snippet lands after the cue, not in front of it.
 	reply = gopodDropSnippetCopy(snippet, gopodPrepareReply(reply))
 	if word, rest := gopodBareLeadingCue(reply); word != "" {
 		reply = word + gopodAnimationMarker + " " + rest
@@ -899,14 +797,7 @@ func gopodStitchEndSnippet(snippet, reply string) string {
 	return gopodDropSnippetCopy(snippet, reply) + gopodThoughtGap() + snippet
 }
 
-// Thoughts as paragraphs (operator 2026-10-15: "Go with: reply still has
-// natural thoughts * the weather line * the value-point line * the math steps *
-// 'Hey, that reminds me...' * splits/closes a thought with an emoji"; "Go with
-// optional paragraph look * thought bubble = paragraph"). With
-// live_split.thought_lines, each thought starts its own line: the code's own
-// lines (the start and end snippets) and gemma's thoughts, which she closes with
-// an emoji. A line is never joined with the next (gopodSplitPieces works line by
-// line), so a run of pieces stays inside its thought.
+// Thoughts as paragraphs.
 func gopodThoughtGap() string {
 	if gopodBrobotsSettings.LiveSplit.ThoughtLines {
 		return "\n"
@@ -914,8 +805,8 @@ func gopodThoughtGap() string {
 	return " "
 }
 
-// gopodThoughtBreaks: a new line after an emoji that closes a thought - one
-// followed by a new sentence (a capital or a quote).
+// gopodThoughtBreaks: a new line after an emoji that closes a thought - one followed by a new
+// sentence (a capital or a quote).
 var gopodThoughtEmojiRe = regexp.MustCompile(`((?:[\x{1FA00}-\x{1FAFF}\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F900}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{2B50}\x{FE0F}\x{200D}])+)[ \t]+(\p{Lu}|["'\x{201C}])`)
 
 func gopodThoughtBreaks(text string) string {
@@ -928,12 +819,7 @@ func gopodThoughtBreaks(text string) string {
 	return text
 }
 
-// No web addresses or links in a reply (web_links in gopod_brobots_settings.json;
-// operator 2026-10-06: "no urls"). gemma2:2b made up addresses and handles
-// ("gc.crrshn8r.com"), and through the shared chat the other Brobot repeated
-// them. A link or bare address is taken out; one holding keep_with keeps only
-// its bare address ("https://www.crushn8r.ca/news" -> "crushn8r.ca"), which the
-// pronunciation registry says.
+// No web addresses or links in a reply.
 var gopodWebLinkPattern = regexp.MustCompile(`(?i)(?:https?://|www\.)[^\s]+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|ca|io|co|tv|app|ly|me|gg|us|uk|info|biz)\b(?:/[^\s]*)?`)
 var gopodLinkTailPattern = regexp.MustCompile(`[.,!?;:)\]]+$`)
 
@@ -945,7 +831,6 @@ func gopodDropWebLinks(text string) string {
 		if i := strings.IndexAny(host, "/?#"); i >= 0 {
 			host = host[:i]
 		}
-		// Only the address itself counts: "tiktok.com/@crushn8r" is not ours.
 		if keep == "" || !strings.Contains(strings.ToLower(host), keep) {
 			return tail
 		}
@@ -954,9 +839,8 @@ func gopodDropWebLinks(text string) string {
 	return regexp.MustCompile(`[ \t]{2,}`).ReplaceAllString(out, " ")
 }
 
-// gopodBrobotsPromptBytes (2026-11-04, operator: "The shared Brobots persona * go
-// on its own topic-cluster file"): the shared Brobots prompt - clusters/brobots.md,
-// its blocks joined with a blank line between them (the old prompt file, byte for byte).
+// gopodBrobotsPromptBytes: the shared Brobots prompt - clusters/brobots.md, its blocks joined with
+// a blank line between them (the old prompt file, byte for byte).
 func gopodBrobotsPromptBytes() ([]byte, error) {
 	var blocks []string
 	for _, b := range gopodBrobotsSettings.BrobotsPrompt.Blocks {
@@ -974,19 +858,8 @@ func loadCanonicalBrobotPrompt(userMessage string) (string, int, bool) {
 	corePromptBytes, coreErr := os.ReadFile(canonicalGOPODCorePromptPath)
 	if responseErr == nil && identityErr == nil && coreErr == nil {
 		promptBytes := make([]byte, 0, len(responsePromptBytes)+1+len(identityPromptBytes)+1+len(corePromptBytes))
-		// The reply rules name the marker and the placeholder word as
-		// $ANIMATION_MARKER / $PLACEHOLDER_WORD; their values come from
-		// gopod_brobots_settings.json, so the prompt can't drift from the code.
-		// 2026-10-05: the reply shape is no longer first. It goes last, after
-		// "who I am" (gopodReplyShapeSection, CreateAIReq), with that brother's own
-		// examples - general to specific, the most specific nearest the question.
 		promptBytes = appendPromptSection(promptBytes, identityPromptBytes)
 		promptBytes = appendPromptSection(promptBytes, corePromptBytes)
-		// GOPOD 2026-09-29: session memory now reaches the model as one shared
-		// Brobots chat (gopodSharedBrobotChat, used by CreateAIReq), not as a
-		// summary block here - the model copied summary lines word for word.
-		// 2026-10-05: this question's topic packs and notes are no longer here;
-		// they go right after "who I am" (gopodQuestionFacts, CreateAIReq).
 		return string(promptBytes), len(promptBytes), false
 	}
 	if responseErr != nil {
@@ -1005,14 +878,6 @@ func loadCanonicalBrobotPrompt(userMessage string) (string, int, bool) {
 	return defaultPrompt, len([]byte(defaultPrompt)), false
 }
 
-// gopodHelpLookup (2026-11-08, operator: "how far are we away from me asking a
-// brobot to help me with the GOPOD system * Brobot N, how do I raise the volume
-// for ... ? * Can the request be sent to gemma, + a look up guide, for a helpful
-// response?"): a line with a how-to word (help_lookup.words) gets the system
-// menu's best matching commands (99_system/system-menu.md, the Torah) as
-// facts - each command scored by the line's words found in its own cmd (3) or about
-// (2), and in its scripture's tour sentences that name it (1 each); the top
-// help_lookup.max, each as help_lookup.item, under help_lookup.header.
 func gopodHelpLookup(text string) string {
 	hl := gopodBrobotsSettings.HelpLookup
 	low := strings.ToLower(text)
@@ -1121,8 +986,8 @@ func gopodHelpLookup(text string) string {
 	return strings.Join(lines, "\n")
 }
 
-// gopodBrobotsPersonaFor: the shared Brobots prompt without its dial-0% persona
-// blocks (brobots_prompt.dial_zero_blocks, by number) - for DOC and PIP.
+// gopodBrobotsPersonaFor: the shared Brobots prompt without its dial-0% persona blocks
+// (brobots_prompt.dial_zero_blocks, by number) - for DOC and PIP.
 func gopodBrobotsPersonaFor(prompt string) string {
 	bp := gopodBrobotsSettings.BrobotsPrompt
 	for _, n := range bp.DialZeroBlocks {
@@ -1136,4 +1001,3 @@ func gopodBrobotsPersonaFor(prompt string) string {
 	}
 	return strings.TrimSpace(regexp.MustCompile(`\n{3,}`).ReplaceAllString(prompt, "\n\n"))
 }
-

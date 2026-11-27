@@ -21,18 +21,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// The Brobots group (2026-10-19, operator: "Bring all of it in a new Brobots
-// group in the menu"; gopod_notes/WIREPOD_PAGES_ABSORB_SURVEY_001.md): Wire-Pod's
-// own bot-page controls as system commands, for Brobot 1, 2 or both (the last
-// word; both when left out). Each calls Wire-Pod's own route on this machine
-// (/api-sdk/..., the same the bot page calls), so nothing new talks to a robot.
-//   system-robot stats | volume <0-5> | eyes <colour> | locale <xx-XX> |
-//     units c|f | location <place> | timezone <zone> | say <text> | wake |
-//     head|lift <speed> | wheels <left> <right> | camera   [1|2|both]
-//   system-faces [list | rename <old> <new> | delete <name> | add <name>] [1|2]
-//   system-photos [1|2]
-//   system-version   Wire-Pod's commit, the newest, and which of GOPOD's nine files changed
-
 func gopodRobotWho(f []string) ([]string, []string) {
 	if len(f) > 0 {
 		switch strings.ToLower(f[len(f)-1]) {
@@ -82,8 +70,6 @@ func gopodSystemRobot(text string) string {
 		}
 	}
 	var out []string
-	// Each Brobot's call through gopodRobotCall: woken first, one call at a
-	// time, run to its end; both Brobots at once.
 	eachHow := func(keep bool, do func(esn string, robot *vector.Vector, ctx context.Context) string) {
 		res := make([]string, len(who))
 		var wg sync.WaitGroup
@@ -106,8 +92,6 @@ func gopodSystemRobot(text string) string {
 			if err != nil {
 				return "not done - " + err.Error()
 			}
-			// 2026-10-20 (operator: "in Brobot N: done, 'done' doesn't tell me
-			// what was done"): what was set.
 			if got == "" || got == "done" || route == "custom_eye_color" {
 				if what == "wake" {
 					return "woken"
@@ -191,8 +175,6 @@ func gopodSystemRobot(text string) string {
 			return gopodSystemText("system_robots.played", "arg", arg)
 		})
 	case "anims":
-		// The robot's own animation list (Vector keeps them on the robot) - e.g.
-		// "anims sleep" for every sleep one; any plays with "anim <name>".
 		eachHow(true, func(esn string, robot *vector.Vector, ctx context.Context) string {
 			resp, err := robot.Conn.ListAnimations(ctx, &vectorpb.ListAnimationsRequest{})
 			if err != nil {
@@ -227,8 +209,6 @@ func gopodSystemRobot(text string) string {
 		}
 		return gopodSystemText("system_robots.system_brobot_beat_alias_1", "out2", strings.Join(out2, "\n"))
 	case "beat":
-		// 2026-10-19 (operator: "all the 100+ sleep commands"): one sleep beat -
-		// a trigger or a clip (sleep_beats, from SLEEP_BENCH_ALIASES_001.md).
 		name, kind := "", ""
 		for _, list := range gopodBrobotsSettings.SleepBeats.Families {
 			for _, b := range list {
@@ -253,9 +233,6 @@ func gopodSystemRobot(text string) string {
 			return gopodSystemText("system_robots.played_2", "name", name)
 		})
 	case "cube":
-		// 2026-10-19 (operator: "cube calls pop a wheelie, where's your cube,
-		// etc..."): the robot's own cube behaviours (native_cube.intents), woken
-		// first, control given back so his behaviour runs.
 		intent := ""
 		var names []string
 		for _, c := range gopodBrobotsSettings.NativeCube.Intents {
@@ -282,7 +259,6 @@ func gopodSystemRobot(text string) string {
 	case "wake":
 		each(call("trigger_wake_word", nil))
 	case "head", "lift", "wheels":
-		// A short nudge, woken first: the move, a moment, stop.
 		g := strings.Fields(arg)
 		if (what == "wheels" && len(g) != 2) || (what != "wheels" && len(g) != 1) {
 			return gopodSystemText("system_robots.system_brobot_head_lift_speed")
@@ -317,9 +293,8 @@ func gopodSystemRobot(text string) string {
 			return "moved"
 		})
 	case "camera":
-		// 2026-10-19 (operator: "how to add in robot video?"): Wire-Pod's own
-		// live camera stream (/cam-stream), shown as a picture in the chat (the
-		// menu's results while it's open); it stops when its bubble is gone.
+		// Wire-Pod's own live camera stream (/cam-stream), shown as a picture in the chat (the menu's
+		// results while it's open); it stops when its bubble is gone.
 		var paths []string
 		for _, esn := range who {
 			paths = append(paths, "/cam-stream?serial="+esn)
@@ -441,9 +416,9 @@ func gopodSystemPhotos(text string) string {
 	return gopodJoinLines(out)
 }
 
-// gopodSystemVersion: Wire-Pod's commit, the newest on its remote, and which of
-// the native files GOPOD's overlay replaces changed between them (the update guide:
-// WIRED-POD.md, gopod_notes/WIREPOD_PAGES_ABSORB_SURVEY_001.md).
+// gopodSystemVersion: Wire-Pod's commit, the newest on its remote, and which of the native files
+// GOPOD's overlay replaces changed between them (the update guide: WIRED-POD.md,
+// gopod_notes/WIREPOD_PAGES_ABSORB_SURVEY_001.md).
 func gopodSystemVersion() string {
 	git := func(args ...string) string {
 		cmd := gopodAsOperator(exec.Command("git", append([]string{"-c", "safe.directory=*", "-C", gopodHomePath("~/wire-pod")}, args...)...))
@@ -489,13 +464,8 @@ var gopodOverlayNativeFiles = []string{
 
 // ## EOF
 
-// gopodSystemAnim (2026-10-21, operator: "How doable to test playAnimationWI via
-// GOPOD keyboard input * test text to enter: "{{playAnimationWI||angry}} wait 1,
-// 2, 3 ..." * can I have the makings (WIP) of an animationWI tester, in system
-// menu?"): the text through Wire-Pod's own say route - the path the song engine's
-// emotion beats use - with control taken first (the 1.5 s settle), then given
-// back. "system-anim list": the animation tokens. The clip played and its time
-// are in the journal (GOPOD_ROBOT_CMD lines, with the battery).
+// gopodSystemAnim: the text through Wire-Pod's own say route - the path the song engine's emotion
+// beats use - with control taken first (the 1.5 s settle), then given back.
 func gopodSystemAnim(text string) string {
 	rest := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(text), strings.Fields(text)[0]))
 	if rest == "" {

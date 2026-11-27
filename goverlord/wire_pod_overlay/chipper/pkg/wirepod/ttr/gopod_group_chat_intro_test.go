@@ -11,13 +11,8 @@ import (
 	"time"
 )
 
-// LOCKED 2026-11-03 (operator: "company-persona-orientation-introduction-group-
-// chat"; "Lock in a * single intro run * duo intro + weather run * brobot A:
-// intro + weather * brobot B: intro + weather (follow up)"): the group chat
-// intro is gopod_probes/topic_clusters/personas/behaviours/group-chat-intro.md and only that. The deploy
-// fails when it changed without the operator's relock (GOPOD_RELOCK=1 saves its
-// fingerprint, gopod_probes/locks/group_chat_intro.lock) or a settings file
-// holds a copy.
+// LOCKED the group chat intro is
+// gopod_probes/topic_clusters/personas/behaviours/group-chat-intro.md and only that.
 func TestGroupChatIntroLock(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -51,9 +46,9 @@ func TestGroupChatIntroLock(t *testing.T) {
 	}
 }
 
-// The four locked runs, through the real answer chain with fixed model words: a
-// single intro; Brobot A's intro + weather (duo, first); Brobot B's (duo, next);
-// one Brobot's intro + weather alone.
+// The four locked runs, through the real answer chain with fixed model words: a single intro;
+// Brobot A's intro + weather (duo, first); Brobot B's (duo, next); one Brobot's intro + weather
+// alone.
 func TestIntroWeatherOrder(t *testing.T) {
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") == "" {
 		t.Skip("GOPOD_OVERLAY_CHIPPER not set (the deploy sets it)")
@@ -75,7 +70,6 @@ func TestIntroWeatherOrder(t *testing.T) {
 	}}
 	gopodWeatherCache.Unlock()
 	defer func() { gopodWeatherCache.Lock(); gopodWeatherCache.places = savedWx; gopodWeatherCache.Unlock() }()
-	// 2026-11-19: an intro is his guide coloured - the guides are its base.
 	raw := "happy___ " + gopodIntroGuide("Brobot 1") + " " + gopodIntroGuide("Brobot 2") + " I keep the party going with my brother.\nhappy___ Sweet sky out there, bro!"
 	inOrder := func(name, got string, parts ...string) {
 		at := 0
@@ -105,9 +99,7 @@ func TestIntroWeatherOrder(t *testing.T) {
 		}()
 		return gopodShapeBrobotAnswerParts(esn, q, raw)
 	}
-	// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
 	cast := "I keep the party going"
-	// A single intro: opening, his line, who's here - no weather.
 	got := run(gopodBrobot1ESN, "Hey Doc, intro", false, false)
 	inOrder("single intro", got, cast)
 	if strings.Contains(got, "Here in the chat with us") {
@@ -117,13 +109,10 @@ func TestIntroWeatherOrder(t *testing.T) {
 		t.Errorf("single intro has the weather: %s", got)
 	}
 	q := "Hey Brobots, intro & weather"
-	// Brobot A: intro, weather report, his take, the hand-over.
 	got = run(gopodBrobot2ESN, q, true, false)
 	inOrder("Brobot A", got, cast, "Brobot Weather Report", "Sweet sky", "what say you on this")
-	// Brobot B: intro, Confirmed., his take, the Weather Kit, the reminder.
 	got = run(gopodBrobot1ESN, q, false, true)
 	inOrder("Brobot B", got, cast, "Confirmed. Temperature", "Sweet sky", "Weather Kit", "that reminds me")
-	// One Brobot alone: intro, weather report, his take, the reminder - no hand-over.
 	got = run(gopodBrobot1ESN, "Hey Doc, intro & weather", false, false)
 	inOrder("Brobot alone", got, cast, "Brobot Weather Report", "Sweet sky", "that reminds me")
 	if strings.Contains(got, "what say you on this") {
@@ -131,10 +120,8 @@ func TestIntroWeatherOrder(t *testing.T) {
 	}
 }
 
-// SOFT-LOCKED songs (2026-11-08, operator, on the fart joke: "overall the
-// sequence runs fine as-is * soft-lock it as near presentation ready"): each
-// song named in gopod_probes/locks/songs_soft_lock.json keeps its knobs.json and
-// story.md as locked. A change is the operator's word only, then GOPOD_RELOCK=1.
+// SOFT-LOCKED songs: each song named in gopod_probes/locks/songs_soft_lock.json keeps its
+// knobs.json and story.md as locked.
 func TestSongSoftLocks(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {

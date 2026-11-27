@@ -16,19 +16,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// The Brobots' eye colours - one colour value, the border on a card (2026-11-15,
-// operator: "ensure the robots' eye colours match their respective bubble's
-// border colours from a single colour value setting * when DOC/PIP respond,
-// their respective eye colours change as well, to match DOC/PIP bubbles * upon
-// DOC/PIP response completion, respective eye colours default back to brobot
-// bubble colours"). Each persona's colours are in one place, persona_colours
-// (03_chat_page.json): Brobot N's own, and DOC's or PIP's while they answer from
-// his body. The page's bubbles and the robot's eyes read the same border. (Was, 2026-10-17: the
-// robot's own app colour read into gopod_brobot_eye_colors.json for the page -
-// two sources; gone.)
-
-// gopodBrobotEyeHex: the eye colour for body now - answering, the border of the
-// persona answering from him (gopodAnswerer: DOC, PIP, or the Brobot himself).
+// gopodBrobotEyeHex: the eye colour for body now - answering, the border of the persona answering
+// from him (gopodAnswerer: DOC, PIP, or the Brobot himself).
 func gopodBrobotEyeHex(body string, answering bool) string {
 	who := body
 	if answering {
@@ -37,9 +26,8 @@ func gopodBrobotEyeHex(body string, answering bool) string {
 	return gopodBrobotsSettings.PersonaColours[who].Border
 }
 
-// gopodSetBrobotEyes sets the robot's eyes: answering, the persona he answers
-// as (its card's border); done, his default - his eye colour in Wire-Pod's
-// settings (2026-11-15, operator: "set default eye colour in wire-pod settings").
+// gopodSetBrobotEyes sets the robot's eyes: answering, the persona he answers as (its card's
+// border); done, his default - his eye colour in Wire-Pod's settings.
 func gopodSetBrobotEyes(robot *vector.Vector, esn string, answering bool) {
 	var h, s float64
 	var ok bool
@@ -65,8 +53,8 @@ func gopodSetBrobotEyes(robot *vector.Vector, esn string, answering bool) {
 	logger.Println("GOPOD_EYES " + gopodBrobotName(esn) + " " + hex)
 }
 
-// gopodWirePodEyes: the robot's eye colour in Wire-Pod's settings
-// (vic.RobotSettings custom_eye_color), false when none is set.
+// gopodWirePodEyes: the robot's eye colour in Wire-Pod's settings (vic.RobotSettings
+// custom_eye_color), false when none is set.
 func gopodWirePodEyes(esn string) (h, s float64, ok bool) {
 	doc, found := vars.GetJdoc("vic:"+esn, "vic.RobotSettings")
 	if !found {

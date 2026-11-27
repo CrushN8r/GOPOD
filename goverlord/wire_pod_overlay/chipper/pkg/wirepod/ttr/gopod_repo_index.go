@@ -1,20 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_repo_index.go
 package wirepod_ttr
 
-// The repo indexes (2026-11-20, operator: "get the repo index locked solid * now
-// you have a framework from which to generate NEW BETTER MORE RELEVANT harvest
-// questions * from repo-index 2, generate Index 1, the words people say").
-//
-// Index 2 - the repo's own words: every card (a tracked md file the look-up
-// reads), its headings. Written from the repo, locked (gopod_probes/locks/
-// repo_index.md): a change shows until it's locked on purpose.
-//
-// Index 1 - the words people say: for each card, its file name, its short
-// headings, and the gold words its topic cards already had (the old topic
-// "words:" lists, reference only). Written from index 2 to gopod_probes/locks/
-// words_index.md - the look-up's first sweep reads it (gopodLookupVocab), and it
-// can be tuned by hand.
-
 import (
 	"os"
 	"path/filepath"
@@ -54,10 +40,9 @@ func gopodRepoIndexText() string {
 	return b.String()
 }
 
-// gopodHeadingPhrase: a heading as words people say - small letters, no
-// numbering, no brackets; "" when too long to be said (over five words).
+// gopodHeadingPhrase: a heading as words people say - small letters, no numbering, no brackets; ""
+// when too long to be said (over five words).
 func gopodHeadingPhrase(h string) string {
-	// A settings section ("newsletter (scripted_snippets.lines.4)") is the machine's.
 	if i := strings.Index(h, "("); i >= 0 && strings.ContainsAny(h[i:], "._") {
 		return ""
 	}
@@ -100,7 +85,6 @@ func gopodWordsIndexText() string {
 	}
 	cards := gopodLookupCards()
 	sort.Slice(cards, func(i, j int) bool { return gopodCardRel(cards[i].Path) < gopodCardRel(cards[j].Path) })
-	// A heading three or more cards share ("current state", "rules") names no one card.
 	shared := map[string]int{}
 	for _, c := range cards {
 		once := map[string]bool{}
@@ -173,11 +157,8 @@ func gopodReadWordsIndex() map[string][]string {
 	return out
 }
 
-// The index questions (2026-11-20, operator: "now you have a framework from
-// which to generate NEW BETTER MORE RELEVANT harvest questions"): one question
-// per card, from its first words in index 1 - "Tell me about the rig" -> the
-// card it should find. Written with the indexes (GOPOD_WRITE_INDEX=1); run by
-// system-test-lookups. The old harvest list is reference only.
+// The index questions: one question per card, from its first words in index 1 - "Tell me about the
+// rig" -> the card it should find.
 func gopodIndexQuestionsPath() string {
 	return filepath.Join(gopodChipperRoot(), "gopod_probes", "locks", "index_questions.md")
 }
@@ -228,12 +209,12 @@ func gopodIndexQuestionsScore() (right, total int, misses []string) {
 	return right, total, misses
 }
 
-// gopodSameWords: brain_chain.same_words, set as the settings load (the topics
-// are read while they load - gopodApplyChaptersFolder).
+// gopodSameWords: brain_chain.same_words, set as the settings load (the topics are read while they
+// load - gopodApplyChaptersFolder).
 var gopodSameWords string
 
-// gopodSameWordsExpand: words plus every word that means the same
-// (brain_chain.same_words) - "rig" brings "gear", "equipment", "junk".
+// gopodSameWordsExpand: words plus every word that means the same (brain_chain.same_words) - "rig"
+// brings "gear", "equipment", "junk".
 func gopodSameWordsExpand(words []string) []string {
 	out := append([]string{}, words...)
 	seen := map[string]bool{}

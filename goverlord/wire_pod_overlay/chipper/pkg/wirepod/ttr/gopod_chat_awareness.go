@@ -7,16 +7,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The brothers' awareness of each other (2026-10-02/03, operator: "chat history
-// awareness (look for opposing 'zzz' to answer if bro is asleep)"). Right before
-// the question, a Brobot whose brother was told to sleep gets brothers.asleep_note
-// (gopod_brobots_settings.json). What the Brobots know by topic is in the
-// scenario packs, loaded by the question's own words
-// (loadScenarioPacketsForMessage). The brother is never named (see
-// gopod_brobot_personas.go).
-
-// gopodBrotherAsleep: the other brother's newest line in Wire-Pod's log is his
-// sleep intent (nothing from him since).
+// gopodBrotherAsleep: the other brother's newest line in Wire-Pod's log is his sleep intent
+// (nothing from him since).
 func gopodBrotherAsleep(esn string) bool {
 	brother := gopodBrobot1ESN
 	if strings.TrimSpace(esn) == gopodBrobot1ESN {
@@ -31,8 +23,7 @@ func gopodBrotherAsleep(esn string) bool {
 	return false
 }
 
-// gopodAwarenessNote: the note for this question, or "" when there is nothing
-// to add.
+// gopodAwarenessNote: the note for this question, or "" when there is nothing to add.
 func gopodAwarenessNote(esn string) string {
 	if gopodBrotherAsleep(esn) {
 		logger.Println("BROBOT_AWARENESS brother_asleep=yes")

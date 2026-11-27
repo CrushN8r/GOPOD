@@ -7,10 +7,8 @@ import (
 	"testing"
 )
 
-// TestFeedDialogue (2026-10-17, operator: "one event list, single source of
-// truth"; "the web page and terminal must have some sort of coordinated
-// dialogue"): a live reply is a feed line (via "llm"), and the page's "played up
-// to" moves forward only, for this boot.
+// TestFeedDialogue: a live reply is a feed line (via "llm"), and the page's "played up to" moves
+// forward only, for this boot.
 func TestFeedDialogue(t *testing.T) {
 	saved := gopodChatFeedPath
 	defer func() { gopodChatFeedPath = saved }()
@@ -40,8 +38,8 @@ func TestFeedDialogue(t *testing.T) {
 
 // ## EOF
 
-// TestSpokenCueWordKept (2026-10-17, operator: "celebrate skipped? not heard"):
-// a piece that opens with an animation's name and just goes on keeps the word.
+// TestSpokenCueWordKept: a piece that opens with an animation's name and just goes on keeps the
+// word.
 func TestSpokenCueWordKept(t *testing.T) {
 	if got := stripSpokenActionLead("celebrate small wins,"); got != "celebrate small wins," {
 		t.Errorf("got %q", got)
@@ -51,10 +49,7 @@ func TestSpokenCueWordKept(t *testing.T) {
 	}
 }
 
-// TestBrobotLingoChoco (2026-10-17, operator: "brobot lingo: choco[text] =
-// chalk[new text] * brobot lingo: chocolateric = chalk-o-latteric"; then "Oops.
-// choco[text] = chalk-o-[new text]"; "Remove \"chocolate\" * chalk-o- is intended
-// for brobot made up lingo"; "math = madth").
+// TestBrobotLingoChoco.
 func TestBrobotLingoChoco(t *testing.T) {
 	for in, want := range map[string]string{
 		"The Chocolateric Tango?": "The chalk-o-latteric Tango?",
@@ -69,8 +64,7 @@ func TestBrobotLingoChoco(t *testing.T) {
 	}
 }
 
-// TestWeatherCountry (2026-10-17, operator: "[City], [state/province], [Country]
-// = Toronto, \"\", USA"): a country named in the place is split off, as its code.
+// TestWeatherCountry: a country named in the place is split off, as its code.
 func TestWeatherCountry(t *testing.T) {
 	for in, want := range map[string][2]string{
 		"Toronto USA":           {"Toronto", "US"},
@@ -85,8 +79,7 @@ func TestWeatherCountry(t *testing.T) {
 	}
 }
 
-// TestEggList (2026-10-17, operator: "whatever easter eggs not discovered, are
-// left on the list to mention"): a found egg leaves the list; the rest come in turn.
+// TestEggList: a found egg leaves the list; the rest come in turn.
 func TestEggList(t *testing.T) {
 	list := gopodEggList()
 	if len(list) < 3 {
@@ -122,8 +115,7 @@ func TestEggList(t *testing.T) {
 	}
 }
 
-// TestAllStartsWith (2026-10-17, operator: "Starting with Brobot 2 ... this
-// reverses"), and TestWaitNoteDropped ("--- (waiting for Brobot 0 before replying)").
+// TestAllStartsWith, and TestWaitNoteDropped ("--- (waiting for Brobot 0 before replying)").
 func TestAllStartsWith(t *testing.T) {
 	for in, want := range map[string]string{
 		"This question is for the both of you. Starting with Brobot 2. Did you play bingo yet?": "Brobot 2",
@@ -152,7 +144,7 @@ func TestWaitNoteDropped(t *testing.T) {
 	}
 }
 
-// 2026-10-17: the year said in halves; a flag said as its country.
+// the year said in halves; a flag said as its country.
 func TestSpeakYearsAndFlags(t *testing.T) {
 	saved := gopodBrobotsSettings.CleanPolitics.Countries
 	defer func() { gopodBrobotsSettings.CleanPolitics.Countries = saved }()
@@ -171,8 +163,7 @@ func TestSpeakYearsAndFlags(t *testing.T) {
 	}
 }
 
-// 2026-10-17 (operator: "easter eggs are live run chapters"): every chapter is
-// an egg, titled by it; the roast battle (in no chapter) stays its own.
+// every chapter is an egg, titled by it; the roast battle (in no chapter) stays its own.
 func TestChapterEggs(t *testing.T) {
 	list := gopodEggList()
 	chapters := 0
@@ -185,8 +176,6 @@ func TestChapterEggs(t *testing.T) {
 		if e.Key == "roast_battle" {
 			roast = true // a surprise egg: never listed
 		}
-		// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
-		// make it an easter egg please"): the photo is an egg again.
 		if e.Key == "photo" {
 			photo = true
 		}
@@ -197,7 +186,6 @@ func TestChapterEggs(t *testing.T) {
 	if !photo {
 		t.Error("the photo is an Easter egg (Get Photo)")
 	}
-	// 2026-10-22 (operator: "fewer easter eggs"): with eggs_keep, its chapters only.
 	wantChapters := len(gopodBrobotsSettings.InterviewChapters.Chapters) - len(gopodBrobotsSettings.TopicPictures.NotEggs)
 	if keep := gopodBrobotsSettings.TopicPictures.EggsKeep; len(keep) > 0 {
 		wantChapters = 0
@@ -216,7 +204,7 @@ func TestChapterEggs(t *testing.T) {
 	t.Logf("EGGS %+v", list)
 }
 
-// 2026-10-18 (step 4): every file the settings, chapters and songs name is there.
+// every file the settings, chapters and songs name is there.
 func TestSystemCheck(t *testing.T) {
 	problems, checked := gopodSystemCheckProblems()
 	for _, p := range problems {
@@ -228,8 +216,8 @@ func TestSystemCheck(t *testing.T) {
 	}
 }
 
-// 2026-10-18: KP7/KP8's voice-only personas talk through their hosts, with their
-// identity (the operator's words) and their reporter's lines in the prompt.
+// KP7/KP8's voice-only personas talk through their hosts, with their identity and their reporter's
+// lines in the prompt.
 func TestPersonas(t *testing.T) {
 	if gopodPersonaFor("chalk") != "CHALK" || gopodPersonaFor("PLAYHEAD") != "PLAYHEAD" || gopodPersonaFor("Doc") != "" {
 		t.Fatal("persona hosts")
@@ -241,7 +229,6 @@ func TestPersonas(t *testing.T) {
 	if !strings.Contains(gopodPersonaPrompt("PLAYHEAD"), "PLAYHEAD ZUMINTU, session manager") {
 		t.Error("PLAYHEAD's identity")
 	}
-	// PLAYHEAD's location QR: a web address in the line.
 	if got := gopodManagerURL("Brobot 1, show me flare4.com please"); got != "https://flare4.com" {
 		t.Errorf("url: %q", got)
 	}

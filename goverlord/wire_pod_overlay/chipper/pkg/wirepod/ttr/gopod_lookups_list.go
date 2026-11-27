@@ -1,14 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_lookups_list.go
 package wirepod_ttr
 
-// The lookups list (2026-11-20, operator: "Can you make me a cheap system test
-// run to catch look-up drift?"; a sibling of the probers list): each line is a
-// persona, a question and the cards its brain must look up, in that order -
-// "persona | question | card, card, ...". system-test-lookups runs each through
-// the brain's own look-up (gopodLookupFact), nothing said, no model, and names
-// every line whose cards drifted. GOPOD_DUMP_LOOKUPS=1 on its test writes each
-// line's exact FACT and cards to gopod_notes (private).
-
 import (
 	"fmt"
 	"os"
@@ -72,7 +64,6 @@ func gopodLookupsListLine() (bool, string) {
 		}
 	}
 	line := fmt.Sprintf("%s, %d look-ups: %d as listed", file, len(cases), len(cases)-len(drift))
-	// 2026-11-20: the index questions - each card found by its own words.
 	right, total, misses := gopodIndexQuestionsScore()
 	line += fmt.Sprintf(" · index questions: %d of %d find their card", right, total)
 	if len(misses) > 0 && len(misses) <= 10 {

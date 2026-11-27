@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-// TestRobotFX: the guards, the interns and the Brobots' demo voices each get
-// their robot effect with their own carrier (slightly offset) and their own
-// files; the demo voices speak with PLAYHEAD's voice; the live Brobots get none.
+// TestRobotFX: the guards, the interns and the Brobots' demo voices each get their robot effect
+// with their own carrier (slightly offset) and their own files; the demo voices speak with
+// PLAYHEAD's voice; the live Brobots get none.
 func TestRobotFX(t *testing.T) {
 	rv := gopodBrobotsSettings.ReporterVoices
 	seen := map[string]string{}

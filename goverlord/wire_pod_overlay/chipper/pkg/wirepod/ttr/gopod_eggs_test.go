@@ -3,8 +3,8 @@ package wirepod_ttr
 
 import "testing"
 
-// The pinnacle egg process: eggs come in the order their words come in the line,
-// each congratulated by its own word; an egg's word is never a weather place.
+// The pinnacle egg process: eggs come in the order their words come in the line, each congratulated
+// by its own word; an egg's word is never a weather place.
 func TestEggsInOrderMentioned(t *testing.T) {
 	line := "is it granny weather for bingo? explain the math"
 	granny, _ := gopodEggWord(line, []string{"legacy", "granny"})
@@ -17,13 +17,12 @@ func TestEggsInOrderMentioned(t *testing.T) {
 	if at, _ := gopodEggWord("bingos are fun", []string{"bingo"}); at != -1 {
 		t.Errorf("part of a word found an egg at %d", at)
 	}
-	// 2026-10-25: the new template lists the eggs revealed so far (TestEggsRevealedThusFar).
 	if got := gopodWeatherPlace("is it granny weather for bingo?"); got != "" {
 		t.Errorf("weather place %q, want none", got)
 	}
 }
 
-// TestEggZooms (2026-10-16): "MouseOver to Zoom View" only under a prize that zooms.
+// TestEggZooms: "MouseOver to Zoom View" only under a prize that zooms.
 func TestEggZooms(t *testing.T) {
 	if !gopodEggZooms("/pictures/legacy/gangster_granny.jpg") || !gopodEggZooms(gopodWeatherPopupMark+"clear sky@20") {
 		t.Error("a picture or a weather face should zoom")
@@ -33,8 +32,7 @@ func TestEggZooms(t *testing.T) {
 	}
 }
 
-// TestChocolateIsFoodBingoIsGame (2026-10-16, operator: "chocolate = food, bingo =
-// game"): "chocolate bingo" loads the food topic only; "bingo" the game.
+// TestChocolateIsFoodBingoIsGame: "chocolate bingo" loads the food topic only; "bingo" the game.
 func TestChocolateIsFoodBingoIsGame(t *testing.T) {
 	names := func(line string) map[string]bool {
 		out := map[string]bool{}

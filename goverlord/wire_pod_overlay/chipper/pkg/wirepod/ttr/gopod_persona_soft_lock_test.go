@@ -1,26 +1,13 @@
 package wirepod_ttr
 
 import (
-	"strings"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
-
-// SOFT-LOCKED 2026-10-25 (operator: "soft lock this, specifically so I can further
-// tweak guiding the llm for better thought bubble output, without affecting
-// colouring and/or flavouring * some of the random stuff that comes out of the
-// brobots is unexpected comedic gold, so that's why soft lock the persona, just
-// tweak the answering-chains, etc..."). Locked: each Brobot's persona as the LLM
-// gets it (personas + host_personas name/role/steps/signature + host_pairs banter
-// and dial + host_persona_frames), the colour room (colour_slots.max_sentences),
-// the flavour lines (scripted_snippets, all but the reminder's), and the
-// temperatures. Open: answer_chains, response_chains, openers, nicknames,
-// chain_prompts, answer_shapes, point_bubbles - everything that guides the thought
-// bubbles. Changing a locked part is the operator's word only; then
-// GOPOD_RELOCK=1 saves the new lock (gopod_probes/locks/persona_soft_lock.json).
 
 type gopodPersonaLock struct {
 	Locked             string            `json:"locked"`
@@ -29,16 +16,11 @@ type gopodPersonaLock struct {
 	FlavourLines       []json.RawMessage `json:"flavour_lines"`
 	Temperature        float32           `json:"temperature"`
 	SayLineTemperature float32           `json:"say_line_temperature"`
-	// 2026-10-26 (operator, on the Gomads' live test: "pretty good. soft lock
-	// this"): each Gomad persona as its answer is asked for - its prompt as the
-	// LLM gets it (gopodPersonaPrompt) and its who line.
-	GomadPersonas map[string]string `json:"gomad_personas"`
+	GomadPersonas      map[string]string `json:"gomad_personas"`
 }
 
 func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 	_, _ = gopodRawSettingsForTest(t)
-	// 2026-11-16: the same lock whatever test ran before - no Brobot left at the
-	// dial's 0% (a body's name resolves through it, gopodAnswerer).
 	gopodDialZero.Range(func(k, _ any) bool { gopodDialZero.Delete(k); return true })
 	l := gopodPersonaLock{
 		Locked:             "2026-10-26",
@@ -49,11 +31,8 @@ func gopodPersonaLockNow(t *testing.T) gopodPersonaLock {
 	}
 	l.GomadPersonas = map[string]string{}
 	for host, p := range gopodBrobotsSettings.Managers.Personas {
-		// the live here-and-now line (time, place, cast) changes by the minute - not locked
 		l.GomadPersonas[host] = strings.TrimSpace(strings.ReplaceAll(gopodPersonaPrompt(host), gopodHereNow(host), "")) + "\n" + p.WhoLine
 	}
-	// 2026-10-29 (engine step 2): the snippets as loaded - the run cards' lines
-	// included (gopod_game_engine.go) - so moving a line into its card isn't a change.
 	for _, e := range gopodBrobotsSettings.ScriptedSnippets.Lines {
 		if e.When == "reminder" {
 			continue

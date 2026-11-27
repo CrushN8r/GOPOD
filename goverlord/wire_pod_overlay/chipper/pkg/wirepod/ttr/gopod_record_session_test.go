@@ -2,9 +2,9 @@
 package wirepod_ttr
 
 import (
+	"crypto/x509"
 	"encoding/json"
 	"os"
-	"crypto/x509"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -29,8 +29,8 @@ func TestGopodRecordAnswerKind(t *testing.T) {
 	}
 }
 
-// gopodRecordTestSetup points every Record Session path at a temp folder; the
-// room mic script is a missing file, so no real recording starts.
+// gopodRecordTestSetup points every Record Session path at a temp folder; the room mic script is a
+// missing file, so no real recording starts.
 func gopodRecordTestSetup(t *testing.T) string {
 	dir := t.TempDir()
 	root := filepath.Join(dir, "sessions")
@@ -71,8 +71,8 @@ func gopodRecordFolders(t *testing.T, root, pattern string) []string {
 	return found
 }
 
-// Thanks -> question -> "keep session recording": the session is zipped, the
-// loose folder is gone, and the chat lines were recorded.
+// Thanks -> question -> "keep session recording": the session is zipped, the loose folder is gone,
+// and the chat lines were recorded.
 func TestGopodRecordSessionThanksKeep(t *testing.T) {
 	root := gopodRecordTestSetup(t)
 	GopodRecordSessionSet(true)
@@ -94,20 +94,17 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 		t.Fatal("the brother's hearing of the same answer should be taken quietly")
 	}
 	gopodRecordWaitFor(t, "zip", func() bool { return len(gopodRecordFolders(t, root, "*.zip")) == 1 })
-	// The zip is written before the loose folder is removed: wait for both.
 	gopodRecordWaitFor(t, "loose folder removed", func() bool {
 		return len(gopodRecordFolders(t, root, "*"+gopodBrobotsSettings.RecordSession.FolderSuffix)) == 0
 	})
 	if left := gopodRecordFolders(t, root, "*"+gopodBrobotsSettings.RecordSession.FolderSuffix); len(left) != 0 {
 		t.Fatalf("loose folder left after keep: %v", left)
 	}
-	// "kept" is said just after the zip: wait for it.
 	gopodRecordWaitFor(t, "kept said", func() bool {
 		feed, _ := os.ReadFile(gopodChatFeedPath)
 		return strings.Contains(string(feed), gopodBrobotsSettings.RecordSession.KeptText)
 	})
 	feed, _ := os.ReadFile(gopodChatFeedPath)
-	// The question is a Brobot bubble, cut once into its pieces (gopodRecordSay).
 	cut := func(text string) string {
 		return strings.Join(gopodSentences(text), " "+gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
 	}
@@ -120,7 +117,6 @@ func TestGopodRecordSessionThanksKeep(t *testing.T) {
 			t.Errorf("feed is missing %q", want)
 		}
 	}
-	// 2026-10-06: keep also adds the session's answers to the take sheet.
 	sheetPath, _, _ := gopodTakeSheetPath()
 	var sheet gopodTakeSheet
 	data, err := os.ReadFile(sheetPath)
@@ -154,14 +150,13 @@ func TestGopodRecordSessionThanksDelete(t *testing.T) {
 	gopodRecordWaitFor(t, "delete", func() bool {
 		return len(gopodRecordFolders(t, root, "*")) == 0
 	})
-	// Delete adds nothing to the take sheet.
 	if sheetPath, _, _ := gopodTakeSheetPath(); func() bool { _, err := os.Stat(sheetPath); return err == nil }() {
 		t.Error("a deleted session added takes")
 	}
 }
 
-// The record has its start and stop lines, a typed question once (when typed),
-// and a spoken question with its answer.
+// The record has its start and stop lines, a typed question once (when typed), and a spoken
+// question with its answer.
 func TestGopodRecordSessionLines(t *testing.T) {
 	gopodRecordTestSetup(t)
 	GopodRecordSessionSet(true)
@@ -240,9 +235,8 @@ func TestGopodRecordCleanupLeftovers(t *testing.T) {
 
 // ## EOF
 
-// 2026-10-31 (CA fencing): GOPOD's authority carries its fence - the local
-// network's addresses and names only - and its server certificate verifies
-// against it; an unfenced authority is kept aside and replaced.
+// GOPOD's authority carries its fence - the local network's addresses and names only - and its
+// server certificate verifies against it; an unfenced authority is kept aside and replaced.
 func TestCAFence(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()

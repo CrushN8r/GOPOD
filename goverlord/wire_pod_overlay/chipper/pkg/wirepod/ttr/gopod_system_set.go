@@ -15,28 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// system-set (2026-10-17, operator: "automate the editing of all song pieces *
-// like ask Goverlord to do it via the chat window * similar to start run-name,
-// use \"system-set\" * \"system-set\" connects to alias play studio * I type:
-// system-set this-volume 13%"; "send \"system-set\" from web page keyboard as
-// a terminal-command * terminal-results are sent back to chat bubbles window *
-// In terminal-results chat bubble, make terminal-bubble-text font-size 50% of
-// current bubble-text font-size"). Typed on the chat page's keyboard only. It
-// runs a fixed list of edits - never a terminal command (operator: "good
-// catch"): a named setting (gopodSystemSetKnobs), or one field of one song
-// step (gopodSystemSetFields), written into gopod_brobots_settings.json, the
-// song's knobs.json (and zKnobs.json) or story.md. Each file is edited in
-// place, only that value, and checked before it's saved. The answer - what
-// changed, old and new, and when it takes effect - shows in a terminal bubble
-// (system_set.role).
-//
-//   system-set                         the list
-//   system-set master-volume 35%       a named setting
-//   system-set <song>                  the song's steps
-//   system-set <song> <step>           one step
-//   system-set <song> <step> volume 13%
-//   system-set <song> <step> text New words here.
-
 type gopodSystemSetKnob struct {
 	path  []string
 	kind  string // "master" (0-100% -> 0-1), "share" ("" or "40%"), "db"
@@ -58,7 +36,6 @@ var gopodSystemSetFields = map[string]string{
 	"volume": "share", "text": "text",
 	"seconds": "number", "pause_seconds": "number", "hold_seconds": "number", "buffer_after": "number",
 	"settle_seconds": "number", "speed": "number", "cycles": "number",
-	// 2026-10-19 (tempo-set): a step's tempo_factor (default 1.0).
 	"tempo_factor": "number",
 }
 
@@ -105,7 +82,6 @@ func gopodSystemSetLine(esn, text, how string) {
 		answer = gopodSystemAddRemove(text)
 		gopodUndoEnd()
 	} else if cmd == "system-lingo-improver" {
-		// 2026-11-16: the lingo improver's page (gopod_lingo_improver.go).
 		answer = gopodSystemText("lingo_improver.open")
 	} else if cmd == "system-lingo" {
 		gopodUndoBegin(strings.TrimSpace(text))
@@ -124,35 +100,26 @@ func gopodSystemSetLine(esn, text, how string) {
 		answer = gopodSystemValuePoints(text)
 		gopodUndoEnd()
 	} else if cmd == "system-interview-rebuild" {
-		// 2026-10-23 (A5): the interview song from the game (gopod_interview_from_game.go).
 		gopodUndoBegin(strings.TrimSpace(text))
 		answer = gopodInterviewRebuild()
 		gopodUndoEnd()
 	} else if cmd == "system-record" {
-		// 2026-10-29: Record Session from the keyboard (gopod_system_window_more.go).
 		answer = gopodSystemRecord(text)
 	} else if cmd == "system-brain" {
-		// 2026-10-31: the brain chain as it is now (gopod_brain_chain.go).
 		answer = gopodSystemBrain()
 	} else if cmd == "system-run-check" {
-		// 2026-11-08: a silent run-check, and its replay (gopod_robots_off.go).
 		answer = gopodSystemRunCheck(text)
 	} else if cmd == "system-robots-off" {
-		// 2026-10-29: robots off (gopod_robots_off.go).
 		answer = gopodSystemRobotsOff(text)
 	} else if cmd == "system-probers-make" {
 		answer = gopodSystemProbersMake()
 	} else if cmd == "system-docbs" {
-		// 2026-10-29: DocBS's pool files (gopod_system_window_more.go).
 		answer = gopodSystemDocBS(text)
 	} else if cmd == "system-tour" {
-		// 2026-10-29: the system window tour, as the Scrolls (gopod_system_tour.go).
 		answer = gopodSystemTour()
 	} else if cmd == "system-scrolls" {
-		// 2026-10-29: the GOPOD System Scrolls written again (gopod_torah.go).
 		answer = gopodSystemTorah()
 	} else if cmd == "system-comm-check" {
-		// 2026-10-28: the pre-show comm check, KP1-KP9 (gopod_comm_check.go).
 		answer = gopodSystemCommCheck()
 	} else if cmd == "system-anim" {
 		answer = gopodSystemAnim(text)
@@ -203,31 +170,26 @@ func gopodSystemSetLine(esn, text, how string) {
 	} else if cmd == "system-voices-rebuild" {
 		answer = gopodSystemVoicesRebuild(text)
 	} else if cmd == "system-set-list" {
-		// 2026-10-17 (operator: "add these, to list the items in set & locate in
-		// the response bubble * for fast reference"): the lists.
 		answer = gopodSystemSetHelp()
 	} else if cmd == "system-locate-list" {
 		answer = gopodSystemLocateList()
 	} else if strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "system-locate") {
 		answer = gopodSystemLocate(text)
 	} else {
-		// 2026-10-17: its writes are kept for system-undo (gopod_system_more.go).
 		gopodUndoBegin(strings.TrimSpace(text))
 		answer = gopodSystemSet(text)
 		gopodUndoEnd()
 	}
 	logger.Println("GOPOD_SYSTEM_SET " + strings.ReplaceAll(answer, "\n", " | "))
 	role := gopodSystemSetRole()
-	// 2026-10-19 (operator: "system-search = location = PLAYHEAD, not CHALK"):
-	// its results are a search results box (system_search.results_host draws it).
 	if r := gopodBrobotsSettings.SystemSearch.ResultsRole; r != "" && strings.EqualFold(strings.Fields(text)[0], "system-search") && how == "Typed text" {
 		role = r
 	}
 	GopodChatFeedAdd(role, answer)
 }
 
-// gopodSystemSetTempo (2026-10-19, tempo-set's mode A): the song's global_tempo
-// (extra seconds per step, 0 = none; a step's tempo_factor weighs it).
+// gopodSystemSetTempo: the song's global_tempo (extra seconds per step, 0 = none; a step's
+// tempo_factor weighs it).
 func gopodSystemSetTempo(dir, value string) string {
 	if v, err := strconv.ParseFloat(value, 64); err != nil || v < 0 {
 		return gopodSystemText("system_set.system_set_song_tempo_seconds")
@@ -263,7 +225,6 @@ func gopodSystemSet(text string) string {
 		return gopodSystemSetHelp()
 	}
 	name := strings.ToLower(args[0])
-	// 2026-10-18 (operator: "edit everything possible"): any setting by its path.
 	if _, knob := gopodSystemSetKnobs[name]; !knob && strings.Contains(args[0], ".") {
 		return gopodSystemSetPath(args[0], strings.Join(args[1:], " "))
 	}
@@ -284,7 +245,6 @@ func gopodSystemSet(text string) string {
 	case 2:
 		return gopodSystemSetStep(dir, args[1])
 	case 3:
-		// 2026-10-19 (tempo-set): the song's global_tempo, in knobs.json and zKnobs.json.
 		if strings.EqualFold(args[1], "tempo") {
 			return gopodSystemSetTempo(dir, args[2])
 		}
@@ -575,8 +535,6 @@ func gopodStorySetText(path, id, text string) (string, error) {
 			in = false
 		case in && !done && strings.HasPrefix(line, "> TEXT:"):
 			out = append(out, strings.TrimRight("> TEXT: "+text, " "))
-			// The old words' further lines go with them (a "> ..." line, or a
-			// line right under them with no blank line between).
 			for i+1 < len(lines) {
 				next := strings.TrimSpace(lines[i+1])
 				if next == "" || strings.HasPrefix(next, "#") || gopodStoryFieldLine(lines[i+1]) {
@@ -622,8 +580,6 @@ func gopodWriteFileSafe(path string, data []byte) error {
 	if err := gopodWriteFile(tmp, data, mode); err != nil {
 		return err
 	}
-	// 2026-10-21 (the speaker bar's save left the settings file root's, so the
-	// operator could no longer edit it): the file keeps its owner.
 	if err == nil {
 		if st, ok := info.Sys().(*syscall.Stat_t); ok {
 			gopodRecordChown(int(st.Uid), int(st.Gid), tmp)
@@ -632,9 +588,8 @@ func gopodWriteFileSafe(path string, data []byte) error {
 	return os.Rename(tmp, path)
 }
 
-// gopodJSONFileSet writes raw (a JSON value) at path in a JSON file, keeping
-// everything else byte for byte; a missing last key is added to its object.
-// The old value back ("(none)" when added).
+// gopodJSONFileSet writes raw (a JSON value) at path in a JSON file, keeping everything else byte
+// for byte; a missing last key is added to its object.
 func gopodJSONFileSet(file string, path []string, raw string) (string, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -658,7 +613,6 @@ func gopodJSONFileSet(file string, path []string, raw string) (string, error) {
 		body := bytes.TrimSpace(data[s+1 : closeAt])
 		insert := string(key) + ": " + raw
 		if len(body) > 0 {
-			// After the object's last value, before its closing space.
 			at := s + 1 + bytes.LastIndex(data[s+1:closeAt], body[len(body)-1:]) + 1
 			out = append(append(append([]byte{}, data[:at]...), ", "+insert...), data[at:]...)
 		} else {

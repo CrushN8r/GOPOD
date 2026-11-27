@@ -9,20 +9,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The engine conducts, the page draws (2026-10-18, operator: "Finish Step 3";
-// the plan: "Wire-Pod decides order and timing. The page shows what it's told
-// and answers shown, played and heard ... terminal and page run the same show,
-// line for line"). Two links on top of the feed's "played" (gopod_chat_feed.go):
-//
-//   - A Brobot speaks once his bubble is on the page: his reply's line goes on
-//     the feed, then he waits - up to page_sync.reply_wait_seconds - for the
-//     page to show it (or play past it), so he never talks over a voice or a
-//     bubble the page is still playing (an egg's congratulations, his brother's
-//     words). A page that's away isn't waited for.
-//   - The page tells how long it held a line before showing it (the baton, a
-//     countdown, the warm-up); one held longer than page_sync.held_log_seconds
-//     is written to the journal, so a page running behind shows in the terminal.
-
 // gopodWaitReplyShown: esn's newest reply bubble is on the page (or the wait is over).
 var gopodWaitReplyShown = func(esn string) {
 	most := gopodSecondsToDuration(gopodBrobotsSettings.PageSync.ReplyWaitSeconds)

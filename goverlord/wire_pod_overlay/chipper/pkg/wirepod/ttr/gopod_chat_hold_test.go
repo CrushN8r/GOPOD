@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// The hold turns on after an answer and off on "thanks Brobots"; with no robot
-// connection (a test) nothing is left held.
+// The hold turns on after an answer and off on "thanks Brobots"; with no robot connection (a test)
+// nothing is left held.
 func TestGopodChatHoldOnAndOff(t *testing.T) {
 	gopodChatHoldAfterAnswer()
 	gopodChatHold.Lock()
@@ -99,7 +99,7 @@ func TestGopodTidyLines(t *testing.T) {
 	}
 }
 
-// A cue in markdown bold is still the cue (live 2026-10-04 19:26).
+// A cue in markdown bold is still the cue.
 func TestGopodBoldCue(t *testing.T) {
 	for in, want := range map[string]string{
 		"**confused**___ Say the whole thing again?":          "confused... Say the whole thing again?",

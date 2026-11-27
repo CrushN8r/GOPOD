@@ -10,22 +10,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN thought bubbles template - the answer chain (2026-10-21, operator: "build
-// the thought bubbles boilerplate template * start with a base scaffolding for
-// answer chain * copy scaffolding template & cater to different response groups *
-// you can now apply to gomad responses, and some system responses"; "All this too
-// should be templated").
-//
-// answer_chains in the settings: "base" is the scaffold (an ordered list of
-// parts); every group ("brobots", "brobots_follow_up", "gomad_persona" ...) is a
-// copy of it ({"from": "base"}) or its own list. The parts:
-//   stitch parts - add to the answer: start_snippet (before the answer), weather_kit,
-//                  end_snippet, redirect (after it), in the list's order
-//   answer parts - ARE the answer and end the chain when they apply: who_line,
-//                  manager_take (gomads), llm (the language model's answer)
-// A part that doesn't apply this time is skipped. Each part keeps its own rule
-// for when it applies; the chain only decides the order.
-
 // gopodAnswerChain: a group's parts, following "from" copies (base by default).
 func gopodAnswerChain(group string) []string {
 	chains := gopodBrobotsSettings.AnswerChains
@@ -46,19 +30,14 @@ func gopodAnswerChain(group string) []string {
 	return nil
 }
 
-// gopodChainPrompt (2026-10-22, the multiple responses template: "2) Weather
-// comment 3) [a day of parties] #1"): what the model writes, in its parts - a
-// weather question with a value point: one line on the weather (first) or
-// following his brother's (next), then a new paragraph on the point
-// (chain_prompts). "" when nothing applies.
+// gopodChainPrompt: what the model writes, in its parts - a weather question with a value point:
+// one line on the weather (first) or following his brother's (next), then a new paragraph on the
+// point (chain_prompts).
 func gopodChainPrompt(esn, question string) string {
-	// 2026-11-03: an intro's prompt is the intro recipe's (its weather take too).
 	if gopodIsIntro(question) {
 		return ""
 	}
 	weather := gopodHasWholeWords(strings.ToLower(question), "weather") || gopodNativeTakeIs(gopodBrobotName(esn), "weather", question)
-	// 2026-10-23: a point with notes - the point bubbles' lines (point_bubbles.prompt),
-	// after one weather line when it's a weather question.
 	if gopodChainHas(esn, "point_bubbles") {
 		if pp := gopodPointBubblesPrompt(esn); pp != "" {
 			if weather {
@@ -74,10 +53,6 @@ func gopodChainPrompt(esn, question string) string {
 	if !weather {
 		return ""
 	}
-	// 2026-11-03 (live: with no value point the model got no weather line at
-	// all, only the report - and said its own second, wrong one): his take on
-	// the report, never the report again (chain_prompts.weather_take, the
-	// golden weather run).
 	if len(gopodGivenPoints(esn)) == 0 {
 		key := "weather_take"
 		if gopodIsFollowingUp(esn) {
@@ -104,12 +79,8 @@ func gopodContains(list []string, v string) bool {
 	return false
 }
 
-// gopodGoldenAnswer (2026-10-23, operator: "What is AI wordplay? * the fun
-// challenges humans input to the brobots * What is Explain the MAth? * the
-// hilarity that ensues afterwards"): the exact line for a golden question
-// (golden_answers), "" for none.
+// gopodGoldenAnswer: the exact line for a golden question (golden_answers), "" for none.
 func gopodGoldenAnswer(esn, question string) string {
-	// 2026-11-15: a line's greeting is answered by the chain's greeting part.
 	lower := strings.ToLower(strings.Join(strings.Fields(question), " "))
 	for _, g := range gopodBrobotsSettings.GoldenAnswers {
 		for _, q := range g.Queries {
@@ -121,8 +92,8 @@ func gopodGoldenAnswer(esn, question string) string {
 	return ""
 }
 
-// gopodTopicGroupFor: the answer chain group a value point's topic asks for
-// (topic_groups: a group's topics), "" for none.
+// gopodTopicGroupFor: the answer chain group a value point's topic asks for (topic_groups: a
+// group's topics), "" for none.
 func gopodTopicGroupFor(esn string) string {
 	for _, g := range gopodGivenPoints(esn) {
 		topic := strings.Fields(g)
@@ -153,14 +124,8 @@ func gopodChainHas(esn, part string) bool {
 }
 
 // gopodBrobotChainGroup: the Brobots' group for this answer.
-// 2026-10-22 (operator: "Multiple Responses Template * no reminders in 1st
-// brobot response * cater answer-chains to handle known/expected/desired prompts
-// to reveal value points"): the first answer in a line to both is
-// duo A (duo.a.chain), the next duo B (duo.b.chain), a single answer brobots.
 func gopodBrobotChainGroup(esn string) string {
-	// 2026-10-31: an intro answer is the intro, nothing stitched around it.
 	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
-		// 2026-11-03: an intro + weather - his intro, then his weather.
 		if w, ok := gopodIntroWeatherFor.Load(esn); ok && w.(bool) {
 			if _, ok := gopodBrobotsSettings.AnswerChains["brobots_intro_weather"]; ok {
 				return "brobots_intro_weather"
@@ -170,15 +135,9 @@ func gopodBrobotChainGroup(esn string) string {
 			return "brobots_intro"
 		}
 	}
-	// 2026-10-22 (operator: "fractions is another example of catering the
-	// answer-chain to a particular value points reveal target * Yes build it"):
-	// an answer whose value point is a math topic's is brobots_math.
 	if g := gopodTopicGroupFor(esn); g != "" {
 		return g
 	}
-	// 2026-10-23 (operator: "a 'duo' answer-type templated mechanism, is a good
-	// starter for a 'multi' answer-type * Brobot A 'duo-answer-type-A' > Brobot B
-	// 'duo-answer-type-B'"): in a line to both, A answers first, B next (duo).
 	if r, ok := gopodDuoRule(esn); ok && r.Chain != "" {
 		if _, ok := gopodBrobotsSettings.AnswerChains[r.Chain]; ok {
 			return r.Chain
@@ -189,7 +148,6 @@ func gopodBrobotChainGroup(esn string) string {
 			return "brobots_summary"
 		}
 	}
-	// 2026-10-25: a single answer's chain from the response-chain template.
 	if a, ok := gopodChainAnswerFor(esn); ok && a.Chain != "" {
 		if _, ok := gopodBrobotsSettings.AnswerChains[a.Chain]; ok {
 			return a.Chain
@@ -198,14 +156,12 @@ func gopodBrobotChainGroup(esn string) string {
 	return "brobots"
 }
 
-// gopodShapeBrobotAnswer runs a Brobot group's stitch parts around the model's
-// answer (raw) - the parts listed before "llm" go before it, the rest after.
+// gopodShapeBrobotAnswer runs a Brobot group's stitch parts around the model's answer (raw) - the
+// parts listed before "llm" go before it, the rest after.
 func gopodShapeBrobotAnswer(esn, question, raw string) string {
-	// 2026-10-23: checked against its type's golden shape once made (gopod_answer_shapes.go).
 	_, first := gopodAllFirstAnswer.Load(esn)
 	shaped := gopodShapeBrobotAnswerParts(esn, question, raw)
 	gopodAnswerShapeCheck(esn, question, shaped, first)
-	// 2026-10-31: his answer's record in the brain chain (gopod_brain_chain.go).
 	kind := "answer"
 	if v, ok := gopodIntroFor.Load(esn); ok && v.(bool) {
 		kind = "intro"
@@ -226,7 +182,6 @@ func gopodShapeBrobotAnswerParts(esn, question, raw string) string {
 			at = i
 		}
 	}
-	// After the answer, in order.
 	from := at + 1
 	if from > len(parts) {
 		from = len(parts)
@@ -234,7 +189,6 @@ func gopodShapeBrobotAnswerParts(esn, question, raw string) string {
 	for _, p := range parts[from:] {
 		raw = gopodChainStitch(p, esn, question, raw, false)
 	}
-	// Before it: nearest first, so the list's order holds.
 	for i := at - 1; i >= 0; i-- {
 		raw = gopodChainStitch(parts[i], esn, question, raw, true)
 	}
@@ -250,17 +204,11 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			return gopodStitchSnippet(snippet, raw)
 		}
 	case "colour:value_point":
-		// 2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 3; operator: "set cap from 5
-		// sentences to 4 sentences"): the point's exact line (its say line), said
-		// word for word first; the model's part after it is its colour, cut to
-		// colour_slots.max_sentences (gopodTightenReply).
 		if line := gopodSayLine(esn); line != "" {
 			logger.Println("BROBOT_COLOUR_SLOT value_point: " + line)
 			return gopodStitchSnippet(line, raw)
 		}
 	case "docbs":
-		// 2026-10-29: Doc's brain wiring - the equation roast before his reply (gopod_docbs.go).
-		// The docbs part is the answer's last stitch: its decision is cleared here, on or off.
 		on := gopodDocBSOn(esn, question)
 		gopodDocBSOnFor.Delete(esn + "\x00" + question)
 		if on {
@@ -270,8 +218,6 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			}
 		}
 	case "persona_chain":
-		// 2026-10-30: the persona's chain - its beats before the reply (gopod_persona_chains.go).
-		// The before part is the answer's last stitch: its decision is cleared here.
 		line := gopodPersonaChainFor2(esn, question)[0]
 		gopodPersonaChainFor.Delete(esn + "\x00" + question)
 		if line != "" {
@@ -288,30 +234,21 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			}
 		}
 	case "greeting":
-		// 2026-11-15: every answer opens with the greeting of the day (gopod_greetings.go).
 		return gopodGreetingStitch(esn, question, raw)
 	case "golden_line":
-		// 2026-11-24: the third strike's welcome, word for word, first (gopod_job_route.go).
 		if line := gopodJobRouteWelcomeLine(gopodBrobotName(esn)); line != "" {
 			logger.Println("BROBOT_GOLDEN_LINE " + gopodBrobotName(esn) + " (welcome): " + line)
 			return gopodStitchSnippet(line, raw)
 		}
-		// 2026-10-23: a golden question's exact answer, word for word, first.
 		if line := gopodGoldenAnswer(esn, question); line != "" {
 			logger.Println("BROBOT_GOLDEN_LINE " + gopodBrobotName(esn) + ": " + line)
 			return gopodStitchSnippet(line, raw)
 		}
 	case "summary_bubbles":
-		// 2026-10-23: a summary's bubbles, one per core topic (gopod_summary_answer.go).
 		return gopodSummaryBubbles(esn, raw)
 	case "point_bubbles":
-		// 2026-10-23: a value point with notes becomes his thought bubbles
-		// (gopod_point_bubbles.go) - after the model, before the other parts.
 		return gopodPointBubbles(esn, question, raw)
 	case "rule":
-		// 2026-10-22: the group's rule line (topic_groups.<group>.rule_line, "Doc's
-		// Rule: no credit for close."), its own thought - not when the point given
-		// already is the rule.
 		if g := gopodTopicGroupFor(esn); g != "" {
 			ruleWords := strings.ToLower(strings.TrimRight(strings.TrimSpace(gopodBrobotsSettings.TopicGroups[g].RuleLine), ".!"))
 			if line := strings.TrimSpace(gopodBrobotsSettings.TopicGroups[g].RuleLine); line != "" && !strings.Contains(strings.ToLower(raw), ruleWords) && !strings.Contains(strings.ToLower(gopodSayLine(esn)), ruleWords) {
@@ -320,25 +257,16 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			}
 		}
 	case "contact":
-		// 2026-11-24: a contact or booking ask - the contact line, word for word;
-		// 2026-11-25: a keeping-up ask - the keep-up line (gopodYourselfStitch, the QR card).
 		return gopodYourselfStitch(question, raw)
 	case "weather_kit":
-		// live_weather.follow_up_kit_line: the follow-up's weather kit link, its own thought.
 		if line := strings.TrimSpace(gopodBrobotsSettings.LiveWeather.FollowUpKitLine); line != "" && gopodIsFollowingUp(esn) &&
 			gopodHasWholeWords(strings.ToLower(question), "weather") {
 			return strings.TrimSpace(raw) + gopodThoughtGap() + line
 		}
 	case "reminder":
-		// 2026-10-22 (COLOUR_SLOT_STRATEGY_002.md step 4; operator: "Every answer
-		// steers back to the money"): a free answer (no value point given) ends
-		// always; then no other end line (end_snippet). 2026-10-22 (the multiple
-		// responses template): wherever a group lists it - the group decides.
-		// Duo A hands over instead (duo.a.no_reminder), unless its type keeps one.
 		if r, ok := gopodDuoRule(esn); ok && r.NoReminder && !gopodContains(r.KeepReminderTypes, gopodAnswerType(esn, question)) {
 			return raw
 		}
-		// 2026-11-04: the comm song's last answer - the game welcome, once.
 		if line := gopodGameWelcomeLine(esn); line != "" {
 			logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + " (game welcome): " + line)
 			gopodReminderSaid.Store(esn, true)
@@ -351,24 +279,17 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 				return gopodStitchEndSnippet(line, raw)
 			}
 		}
-		// 2026-10-24 (link 5, live: "free: llm - DRIFT" after every point and egg
-		// was found): nothing left to point at - no reminder is the right shape.
 		gopodReminderNone.Store(esn, true)
 	case "end_snippet":
-		// One end line: none after the reminder part's.
 		if _, said := gopodReminderSaid.LoadAndDelete(esn); said {
 			return raw
 		}
-		// A follow-up doesn't end with his brother's end line.
 		if snippet := gopodScriptedSnippet(esn, question, "end", raw); snippet != "" && !gopodBrotherSaid(esn, snippet) {
 			logger.Println("BROBOT_SCRIPTED_SNIPPET_END=" + snippet)
 			return gopodStitchEndSnippet(snippet, raw)
 		}
 	case "redirect":
-		// A line to both: the first answer hands over (addressing.redirect_text).
-		// 2026-10-23 (answer_shapes: a thank-you is his words only): no hand-over.
 		if _, first := gopodAllFirstAnswer.LoadAndDelete(esn); first && !gopodIsThanks(question) {
-			// 2026-10-21: his own hand-over line (host_personas.handover) first.
 			brother := gopodBrobotName(gopodBrotherOf(esn))
 			t := gopodHandoverLine(gopodBrobotName(esn), brother)
 			if t == "" {
@@ -381,25 +302,13 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			}
 		}
 	case "closing_remark":
-		// 2026-10-25 (operator: "post-bingo, brobot 1, \"I Won!\", brobot 2, \"Oh!
-		// Zero!\" * session chat > no bingo yet > scripted run > post experiences +
-		// ending jokes as scripted closing remarks"; "No, before the 'Hey' reminder"):
-		// "joke is closing remark of answer to how was bingo, not the response
-		// answer-chain"): a Bingo question after a Bingo run - his answer's closing
-		// sentence is his closing remark (bingo.closing), joined to it, right after
-		// the model's words (before point bubbles and the reminder); his own copy of
-		// it dropped first.
 		if line := gopodExperienceClosing(esn, question); line != "" {
 			logger.Println("BROBOT_CLOSING " + gopodBrobotName(esn) + ": " + line)
 			return strings.TrimSpace(gopodDropSnippetCopy(line, raw)) + " " + line
 		}
 	case "intro_wrap":
-		// 2026-10-31: an intro - the code's opening and cast line around his words.
 		return gopodIntroWrap(gopodBrobotName(esn), raw, true)
 	case "intro_weather":
-		// 2026-11-03 (operator: "Intro, then weather"): his intro - the code's
-		// opening, his first line, the code's cast line - then the weather report
-		// (or "Confirmed."), then the rest of his words, his take.
 		return gopodIntroThenWeather(esn, question, raw)
 	case "llm":
 	default:
@@ -408,8 +317,8 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 	return raw
 }
 
-// gopodGomadAnswer runs the gomad_persona chain for a line to a manager: its
-// answer parts in order, the first that applies answers. True when one did.
+// gopodGomadAnswer runs the gomad_persona chain for a line to a manager: its answer parts in order,
+// the first that applies answers.
 func gopodGomadAnswer(host, text string) bool {
 	return gopodGomadAnswerAs(host, host, text)
 }
@@ -428,12 +337,9 @@ func gopodGomadAnswerAs(host, sayAs, text string) bool {
 	return gopodGomadAnswerEarly(host, sayAs, text, nil)
 }
 
-// The early answer (2026-11-03, operator: "there is too much time between
-// exchanges, why? ... doable to lessen the time gap?"; his OK: "the next answer
-// is written and its first voice made while the question is still being read
-// out"): a Gomad's answer is asked for, wrapped, and its first spoken chunk's
-// voice made while the Operator's line is read out; once it's heard, the answer
-// shows and plays as before (its brain first). Bubbles keep their order.
+// The early answer: a Gomad's answer is asked for, wrapped, and its first spoken chunk's voice made
+// while the Operator's line is read out; once it's heard, the answer shows and plays as before (its
+// brain first).
 type gopodGomadEarlyAnswer struct {
 	done  chan struct{}
 	reply string
@@ -450,21 +356,18 @@ func gopodGomadPartFor(host, text string) string {
 	for _, p := range parts {
 		switch p {
 		case "who_line":
-			// The operator's own line, word for word (managers.who_words).
 			if who := strings.TrimSpace(gopodPersonaFill(host, gopodBrobotsSettings.Managers.Personas[host].WhoLine)); who != "" {
 				if at, _ := gopodEggWord(strings.ToLower(text), gopodBrobotsSettings.Managers.WhoWords); at >= 0 {
 					return p
 				}
 			}
 		case "manager_take":
-			// A take's words (the weather, the time and place) - its manager does the job.
 			if _, _, ok := gopodManagerTakes(strings.ToLower(text)); ok {
 				return p
 			}
 		case "llm":
 			return p
 		case "greeting":
-			// Not an answer of its own: it opens the model's (gopodGomadReplyMade).
 		default:
 			logger.Println("GOPOD_CHECK answer_chains: no gomad part named " + p)
 		}
@@ -472,8 +375,8 @@ func gopodGomadPartFor(host, text string) string {
 	return ""
 }
 
-// gopodGomadAnswerStart starts host's answer to text now, when the model makes
-// it (nil otherwise): asked, wrapped (intro, chain), its first chunk voiced.
+// gopodGomadAnswerStart starts host's answer to text now, when the model makes it (nil otherwise):
+// asked, wrapped (intro, chain), its first chunk voiced.
 func gopodGomadAnswerStart(host, sayAs, text string) *gopodGomadEarlyAnswer {
 	if gopodGomadPartFor(host, text) != "llm" {
 		return nil
@@ -496,22 +399,18 @@ func gopodGomadAnswerStart(host, sayAs, text string) *gopodGomadEarlyAnswer {
 	return e
 }
 
-// gopodGomadReplyMade: host's answer to text from the model, wrapped - the
-// intro template, then its chain.
+// gopodGomadReplyMade: host's answer to text from the model, wrapped - the intro template, then its
+// chain.
 func gopodGomadReplyMade(host, text string) (string, error) {
-	// 2026-11-16: GEMMA asked to look - her eyes, not the model (gopod_gemma_eyes.go).
 	if gopodGemmaEyesAsked(host, text) {
 		return gopodGemmaEyesLook(), nil
 	}
-	// 2026-11-17: the comm check's handover - KEYS' Got it and crew bubble only.
 	if gopodCommCheckHandover(host, text) {
 		return "", nil
 	}
-	// 2026-11-19: a nonsense line gets the nonsense answer, not the model's riff.
 	if line := gopodNonsenseLine(text); line != "" {
 		return line, nil
 	}
-	// 2026-11-24: a line naming a never word never reaches the model (gopodNeverIn).
 	if gopodNeverIn(text, host+"'s line") {
 		return gopodBrobotsSettings.CleanPolitics.NeverInLine, nil
 	}
@@ -519,15 +418,11 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// 2026-10-31: an intro is the template - the code's opening and cast line
-	// around the model's middle part (gopodIntroWrap).
 	if gopodIsIntro(text) {
 		reply = gopodIntroWrap(host, reply)
 	}
 	logger.Println("GOPOD_PERSONA " + host + ": " + reply)
-	// 2026-10-30: its chain around it, when its dial says so (gopod_persona_chains.go).
 	reply = gopodPersonaChainWrap(host, reply)
-	// 2026-11-15: then the greeting of the day first, when its chain has it.
 	for _, p := range gopodAnswerChain("gomad_persona") {
 		switch p {
 		case "greeting":
@@ -539,12 +434,9 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	return reply, nil
 }
 
-// gopodGomadAnswerEarly: host's answer, said and shown as sayAs; early, when
-// given, is its answer already started (gopodGomadAnswerStart).
+// gopodGomadAnswerEarly: host's answer, said and shown as sayAs; early, when given, is its answer
+// already started (gopodGomadAnswerStart).
 func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswer) bool {
-	// 2026-11-16 (live: KP7off/KP8off each waited 27 s after answering - the queue
-	// watched "CHALK", the answer came as "CHALK reporter"): counted by the name
-	// that speaks on the feed (sayAs), the same name the line queue waits for.
 	n, _ := gopodGomadAnswers.LoadOrStore(strings.ToUpper(strings.TrimSpace(sayAs)), &atomic.Int32{})
 	n.(*atomic.Int32).Add(1)
 	defer n.(*atomic.Int32).Add(-1)
@@ -559,15 +451,6 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 		gopodManagerDo(take, text)
 		return true
 	case "llm":
-		// 2026-11-01 (live: the comm check stopped while Git Repo's answer was
-		// being made; it came 2 minutes later and played): a stop run while the
-		// answer is made drops it.
-		// 2026-11-05 (operator: "the same robot's bubble type and mechanism * when
-		// they're asked a question, the bubble can say, message received, sir, and
-		// then the process can go on"): the Brobots' order - his Got it, said at
-		// once (the voice template), then his brain, then his answer when it's made.
-		// 2026-11-19 (live: GEMMA said "Got it!" after the stop): an answer begun
-		// before a stop run says nothing at all.
 		if early != nil && gopodStopSeq.Load() != early.seq {
 			logger.Println("GOPOD_PERSONA " + host + ": answer dropped - stop run before it was said")
 			return true
@@ -609,15 +492,9 @@ func gopodGomadAnswerEarly(host, sayAs, text string, early *gopodGomadEarlyAnswe
 	return false
 }
 
-// The exchange (2026-10-24, root-to-leaf link 5; operator: "the 2nd brobot
-// following up not being accounted for in the run * so next question starts"):
-// an answer with a follow-up coming (All's second Brobot, Explain the Math's
-// follow-up) holds its line's turn until the follow-up is done - a new line's
-// answer waits for it (addressing.all_next_wait_seconds at most). The Operator's
-// own bubble still shows at once.
-// 2026-10-24 (live: the hold never let go - a Brobot stays held after his answer,
-// so his reply's code doesn't return until the next line): the line is let go the
-// moment the follow-up Brobot has said his answer (gopodExchangeDone, kgsim.go).
+// The exchange: an answer with a follow-up coming (All's second Brobot, Explain the Math's
+// follow-up) holds its line's turn until the follow-up is done - a new line's answer waits for it
+// (addressing.all_next_wait_seconds at most).
 var gopodExchange = struct {
 	sync.Mutex
 	text    string

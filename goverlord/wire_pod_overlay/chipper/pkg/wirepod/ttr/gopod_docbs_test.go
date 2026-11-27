@@ -5,14 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 	"testing"
+	"time"
 )
 
-// TestDocBS: at 100% Doc, Brobot 1's answer is the equation roast around his
-// reply - opener, equation, error, hidden multiplier, corrected formula before
-// it, "The math has spoken" after it; Brobot 2 never; a computable Explain the
-// Math line keeps its steps; decks don't repeat a line before they run out.
 func TestDocBS(t *testing.T) {
 	saved := gopodBrobotsSettings.DocBS
 	defer func() { gopodBrobotsSettings.DocBS = saved }()
@@ -21,7 +17,7 @@ func TestDocBS(t *testing.T) {
 	gopodGivenSet(gopodBrobot1ESN, nil)
 	gopodGivenSet(gopodBrobot2ESN, nil)
 	gopodBrobotsSettings.DocBS.Share = 100
-	gopodBrobotsSettings.DocBS.Chains = nil // the equation roast, the chain this test checks
+	gopodBrobotsSettings.DocBS.Chains = nil    // the equation roast, the chain this test checks
 	gopodBrobotsSettings.DocBS.SlotPrompt = "" // no model in the test: the fallback slots
 	q := "Tell me about the rig"
 	raw := "thinking___ One dolly, two crates, bro."
@@ -67,10 +63,9 @@ func TestDocBS(t *testing.T) {
 
 // ## EOF
 
-// 2026-10-30 (the Master Library): the dial sets which chains a DocBS answer can
-// be - the short ones from 0, the full pipeline high, 11/10 at 110 - each picked
-// from a deck, never the same twice until it runs out; with no chains set, the
-// equation roast.
+// the dial sets which chains a DocBS answer can be - the short ones from 0, the full pipeline high,
+// 11/10 at 110 - each picked from a deck, never the same twice until it runs out; with no chains
+// set, the equation roast.
 func TestDocBSChainsByDial(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
@@ -102,8 +97,8 @@ func TestDocBSChainsByDial(t *testing.T) {
 	}
 }
 
-// 2026-10-30: a persona's chain - its pools' lines around its reply, the beats
-// before "reply" first; none at share 0.
+// a persona's chain - its pools' lines around its reply, the beats before "reply" first; none at
+// share 0.
 func TestPersonaChains(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
@@ -126,8 +121,8 @@ func TestPersonaChains(t *testing.T) {
 	}
 }
 
-// 2026-10-30: a persona's profile is looked up for its prompt - its Self and
-// Voice lines, not The name; no profile, nothing.
+// a persona's profile is looked up for its prompt - its Self and Voice lines, not The name; no
+// profile, nothing.
 func TestPersonaProfiles(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
@@ -143,21 +138,17 @@ func TestPersonaProfiles(t *testing.T) {
 	if got := gopodPersonaProfileText("NOBODY"); got != "" {
 		t.Fatalf("no profile: %q", got)
 	}
-	// The head is the persona's labels: its full name (the label) and nickname.
 	head, _ := gopodPersonaProfileRead(gopodPersonaProfileFile("CACHE PYC"))
 	if head["label"] != "Cache PYC" || head["nickname"] != "Cachey" {
 		t.Fatalf("head: %v", head)
 	}
 }
 
-// 2026-10-31: a Gomad's answer is the words said - stage notes, quote marks and
-// "I say" tags come out.
+// a Gomad's answer is the words said - stage notes, quote marks and "I say" tags come out.
 func TestPersonaAnswerClean(t *testing.T) {
-	// A real parenthesis stays; only stage notes go.
 	if got := gopodPersonaStageRE.ReplaceAllString("Intel 404 (Page Not Found Here) on duty (laughs).", ""); got != "Intel 404 (Page Not Found Here) on duty ." {
 		t.Errorf("stage notes: %q", got)
 	}
-	// An answer that opens with the question starts after it.
 	if got := gopodStripEcho("Hey PLAYHEAD! You party animal! Introduce yourself fully. I'm PLAYHEAD.", "Hey PLAYHEAD! You party animal! Introduce yourself fully to the chat"); got != "I'm PLAYHEAD." {
 		t.Errorf("echo: %q", got)
 	}
@@ -171,18 +162,12 @@ func TestPersonaAnswerClean(t *testing.T) {
 	}
 }
 
-// 2026-10-31: the intro recipe - the operator's tester gets each participant's
-// Self points and everyone else here; any other line gets none; a Brobot's intro
-// answer is the brobots_intro chain.
+// the intro recipe - the operator's tester gets each participant's Self points and everyone else
+// here; any other line gets none; a Brobot's intro answer is the brobots_intro chain.
 func TestIntroRecipe(t *testing.T) {
 	tester := "Hey Pip! You party animal! Introduce yourself fully to the chat and name who all else is here in the chat with us!!"
 	for _, who := range []string{"Brobot 2", "CACHE PYC", "BUTLER"} {
 		r := gopodIntroRecipe(who, tester)
-		// 2026-10-31: the facts without their labels, and no operator in the list.
-		// 2026-11-04: no cast line (operator: "remove who's here in the chat from
-		// every response"); his working relationships are in his facts.
-		// 2026-11-17 (operator: "CLEAR OUT YOUR ... BLOAT"): the facts are said by
-		// code (FACT) - the recipe never lists them again.
 		if r == "" || strings.Contains(r, "My informal name (nickname)") || strings.Contains(r, ": Brobot 0") || gopodIntroCastLine(who) != "" || strings.Contains(r, "I answer to ") || !strings.Contains(r, "intro guide") {
 			t.Errorf("%s's intro recipe: %q", who, r)
 		}
@@ -190,18 +175,12 @@ func TestIntroRecipe(t *testing.T) {
 			t.Errorf("%s's intro recipe has an unfilled label: %q", who, r)
 		}
 	}
-	// 2026-11-06 (operator: "every intro should start similar to \"I'm [], my
-	// nickname is [] ...\""): formal name, then the nickname, once.
 	if r := gopodIntroOpening("BUTLER"); !strings.Contains(r, `I'm KEYNOTE VALE, my nickname is KEYS, because I hold all the keys.`) {
 		t.Errorf("the Butler's opening: %q", r)
 	}
-	// 2026-11-04 (operator: "NEW RULE: Gomad names in CAPS!!"; "nickname Chammy
-	// (cammy) * why, short for Chameleon"); 2026-11-15: "Chammy = Chamfer + Chameleon".
 	if r := gopodIntroOpening("CAMEO"); !strings.Contains(r, `I'm CAMEO LOOKS, my nickname is CHAMMY, because it's Chamfer plus Chameleon - I cut the edge and change faces at the same time.`) {
 		t.Errorf("CAMEO's opening: %q", r)
 	}
-	// 2026-11-04 (operator: "Git Repo nickname = 'Repo' * 'Repo' = repossesser
-	// (wordplay, lol), not repository"): his why ends on its own "!!'" - no extra stop.
 	if r := gopodIntroOpening("GIT REPO"); !strings.Contains(r, `I'm GIT REPO, my nickname is REPO, because Git is code version control, and Repo is a repossessor, not a repository. Git is short for 'Git yer butt in gear!!'`) {
 		t.Errorf("Git Repo's opening: %q", r)
 	}
@@ -215,8 +194,8 @@ func TestIntroRecipe(t *testing.T) {
 	}
 }
 
-// 2026-10-31: the source check finds nothing broken in GOPOD's own sources -
-// only lines the operator still has to write ("to come").
+// the source check finds nothing broken in GOPOD's own sources - only lines the operator still has
+// to write ("to come").
 func TestSourceCheck(t *testing.T) {
 	problems, checked := gopodSourceCheck()
 	if checked < 50 {
@@ -230,14 +209,11 @@ func TestSourceCheck(t *testing.T) {
 	t.Logf("%d checked, %d to come", checked, len(problems))
 }
 
-// 2026-10-31: the brain chain - every answer a code-made record; the prompt's
-// brain has short-term, long-term and the flow; the bubble shows them; a reset
-// starts a new chain.
+// the brain chain - every answer a code-made record; the prompt's brain has short-term, long-term
+// and the flow; the bubble shows them; a reset starts a new chain.
 func TestBrainChain(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
-	// 2026-11-08: the brain template - his card's four lines (brobot-brain.md).
-	// 2026-11-18 (operator: "Remove this from all brains: TIME ... TASK ..."): no TIME, no TASK.
 	if b := gopodBrainText("Brobot 1", "hey"); strings.Contains(b, "TASK:") || strings.Contains(b, "TIME:") || strings.Contains(b, "WHO DOES WHAT:") {
 		t.Errorf("an answer's brain: %q", b)
 	}
@@ -249,18 +225,12 @@ func TestBrainChain(t *testing.T) {
 			t.Errorf("brain has no %q:\n%s", want, b)
 		}
 	}
-	// The operator's brain scaffold, the same in the bubble and the prompt; no
-	// "Last:", no "Asked by:"; his reminders when his answer named some.
 	gopodBrainReminders.Store("Brobot 2", []string{"Bingo", "Legacy", "wrap-up"})
-	// 2026-11-13: an answer's brain is the time and the task; the comm-check
-	// lines (who I am) are an intro's.
 	if a := gopodBrainLines("Brobot 2", "hey"); strings.Contains(strings.Join(a, "|"), "TIME:") || strings.Contains(strings.Join(a, "|"), "TASK:") {
 		t.Errorf("an answer's brain lines: %q", a)
 	}
 	l := gopodBrainLines("Brobot 2", "Hey Pip! Introduce yourself fully")
 	gopodBrainReminders.Delete("Brobot 2")
-	// 2026-11-15: an intro's brain is the same four lines, its FACT looked up from
-	// his card; PIP has nobody answering to him, so that piece is left out.
 	if len(l) != 1 || !strings.HasPrefix(l[0], "FACT: ") || !strings.Contains(l[0], "I work with my host DOCTRINE BARFALLONYOU SPEWER") || strings.Contains(l[0], "Answering to me") || strings.Contains(l[0], "..") {
 		t.Errorf("brain scaffold lines: %q", l)
 	}
@@ -269,8 +239,6 @@ func TestBrainChain(t *testing.T) {
 			t.Errorf("off the scaffold: %q", line)
 		}
 	}
-	// A run the Brobots performed: in their long-term memory, kept by a game
-	// reset (the comm check's), gone with the session (the thanks ending).
 	gopodBrainPerformed("Bingo Test Live", "done")
 	if b := gopodBrainText("Doc", "hey"); !strings.Contains(b, "Performed by Doc and Pip: Bingo Test Live") {
 		t.Errorf("no performed run in the brain:\n%s", b)
@@ -285,9 +253,8 @@ func TestBrainChain(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (operator: "the shared after-answer chat notes"): an answer's note
-// is kept with its question - in everyone's recent chat, and in the brain when
-// the same question comes again.
+// an answer's note is kept with its question - in everyone's recent chat, and in the brain when the
+// same question comes again.
 func TestBrainAfterAnswerNotes(t *testing.T) {
 	gopodBrainReset()
 	defer gopodBrainReset()
@@ -313,13 +280,12 @@ func TestBrainAfterAnswerNotes(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (the frozen root: TIME, TASK, FACT, MEMORY): FACT is the point
-// given to him, as its topic card writes it.
+// TIME, TASK, FACT, MEMORY): FACT is the point given to him, as its topic card writes it.
 func TestBrainFactLine(t *testing.T) {
 	esn := gopodBrobotESN("Brobot 1")
 	gopodGiven.Lock()
 	saved := gopodGiven.points[esn]
-	gopodGiven.points[esn] = []string{"booking 3/4"} // 2026-11-20: point 1 is now the wide line
+	gopodGiven.points[esn] = []string{"booking 3/4"} // point 1 is now the wide line
 	gopodGiven.Unlock()
 	defer func() { gopodGiven.Lock(); gopodGiven.points[esn] = saved; gopodGiven.Unlock() }()
 	found := ""
@@ -333,8 +299,8 @@ func TestBrainFactLine(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (live: "this morning?" at 3:05 PM got "it's the mornin'"): the
-// TIME line names the part of the day; the model's "<br>" is a line break.
+// "this morning?" at 3:05 PM got "it's the mornin'"): the TIME line names the part of the day; the
+// model's "<br>" is a line break.
 func TestTimePartAndBreaks(t *testing.T) {
 	for h, want := range map[int]string{2: "evening", 9: "morning", 15: "afternoon", 18: "evening", 22: "evening"} {
 		if got := gopodDayPart(h); got != want {

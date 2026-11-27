@@ -3,26 +3,11 @@ package wirepod_ttr
 
 import "strings"
 
-// The Brobots' egg list (2026-10-17, operator: "'Hey that reminds me' thought
-// bubbles need to be updated * updated to center around a list of easter eggs
-// (chapter/topics/value-points) * during live chat, whatever easter eggs not
-// discovered, are left on the list to mention * so brobots in their responses
-// also finish with helping to keep the conversation flowing * like a fallback
-// list of sellable features the brobots have, as GOPOD reps"). Every easter egg,
-// in the chapters' order: each topic with a prize (its pictures or card,
-// topic_pictures; named by egg_names, else interview_chapters.topic_labels),
-// then value_points.reminder_eggs (the weather, Explain the Math, Get Photo). An
-// egg found since this Wire-Pod start (its pop-up shown, gopodPopupAllowed) is
-// off the list. "Hey, that reminds me..." names the eggs still on it - each in
-// turn; once all have been named, round again.
-
 type gopodListEgg struct {
 	Key, Label string
 }
 
-// gopodEggList: every egg, found or not. 2026-10-17 (operator: "easter eggs
-// are live run chapters"): each chapter (by its title), then each topic in no
-// chapter with a prize (the roast battle), then value_points.reminder_eggs.
+// gopodEggList: every egg, found or not.
 func gopodEggList() []gopodListEgg {
 	tp, ic := gopodBrobotsSettings.TopicPictures, gopodBrobotsSettings.InterviewChapters
 	var out []gopodListEgg
@@ -33,8 +18,6 @@ func gopodEggList() []gopodListEgg {
 			out = append(out, gopodListEgg{"chapter:" + title, title})
 		}
 	}
-	// 2026-10-18 (operator: "leave halloween easter egg, out of interview lists"):
-	// topic_pictures.not_listed pop up when found, but aren't on the list.
 	for _, n := range tp.NotListed {
 		seen[n] = true
 	}
@@ -65,11 +48,7 @@ func gopodEggList() []gopodListEgg {
 	return out
 }
 
-// gopodNotEgg (2026-10-18, operator: "confusing overlap between system managed &
-// easter egg * remove easter egg: 'Websites, themes and the channel'"): the egg
-// is taken out (topic_pictures.not_eggs).
-// 2026-10-22 (operator: "fewer easter eggs would be nice * Do 1 and 2 together";
-// CORE_TOPICS_002.md): with topic_pictures.eggs_keep set, only those are eggs.
+// gopodNotEgg: the egg is taken out (topic_pictures.not_eggs).
 func gopodNotEgg(key string) bool {
 	if keep := gopodBrobotsSettings.TopicPictures.EggsKeep; len(keep) > 0 {
 		in := false
@@ -97,8 +76,8 @@ func gopodEggFound(key string) bool {
 	return gopodInterviewShown.pictures[key] > 0
 }
 
-// gopodEggsToMention: up to want eggs not found, not named yet this round (a
-// new round once all of them have been named), skipping skip's keys.
+// gopodEggsToMention: up to want eggs not found, not named yet this round (a new round once all of
+// them have been named), skipping skip's keys.
 func gopodEggsToMention(want int, skip map[string]bool) []gopodListEgg {
 	var open []gopodListEgg
 	for _, e := range gopodEggList() {

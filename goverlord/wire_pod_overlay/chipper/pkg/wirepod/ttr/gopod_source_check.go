@@ -1,26 +1,9 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_source_check.go
 package wirepod_ttr
 
-// The source check (2026-10-31, operator: "Please ensure all my system checks,
-// check from the root of the single source of truth & check the builds up from
-// there concurrently, so lower level bugs are caught to reduce this wasteful
-// direction we're going in"). Part of system-check, at every start too. For every
-// chat participant at once, from his master source up, layer by layer:
-//
-//	0 source   his profile (the master format) reads; its head has his label;
-//	           his Self has every line of the intro (nickname, name, job title,
-//	           role, who helps me) - a line still "(to come)" is named
-//	1 labels   everything filled from his labels has nothing left unfilled:
-//	           his profile, prompt, who-line, cast line, intro recipe, brain
-//	2 voice    a Gomad has a voice (his own or voice_of's)
-//	3 the chat he's in the cast - everyone else knows he's here
-//	4 the keys every live numpad key reaches someone
-//	5 headers  the system label fills from its voice persona's labels
-//	6 roster   everyone in the chat has a line in the crew roster
-
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -34,8 +17,7 @@ import (
 
 var gopodUnfilledRE = regexp.MustCompile(`\{(name|nickname|job|self|cast|first|middle|last|fullname|task|asked)\}`)
 
-// gopodSelfLines: the Self lines every profile has, for the intro (2026-11-06:
-// the nickname is for banter, not the intro - it may still be to come).
+// gopodSelfLines: the Self lines every profile has, for the intro.
 var gopodSelfLines = []string{"My name", "My job title"}
 
 // gopodSourceCheck: the problems, and how many things were checked.
@@ -74,10 +56,6 @@ func gopodSourceCheck() ([]string, int) {
 		add(p...)
 		count(n)
 	}()
-	// 7 schema (2026-11-06, operator: "Consistency would then get checked on every
-	// restart instead of by you reading runs * please build that in"): every
-	// persona file against persona-schema.md, every company file against
-	// company-schema.md (gopodSchemaCheck).
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -85,8 +63,6 @@ func gopodSourceCheck() ([]string, int) {
 		add(p...)
 		count(n)
 	}()
-	// 8 grid (2026-11-25, operator: "set up an automated GOPOD system checker for
-	// this"): the value grid the cards make (gopodValueGridCheck).
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -98,7 +74,6 @@ func gopodSourceCheck() ([]string, int) {
 		}
 	}()
 	wg.Wait()
-	// 6 roster: everyone in the chat but the operator is on the crew roster (gopodCrewRoster).
 	if strings.TrimSpace(gopodBrobotsSettings.BrainChain.Roster) != "" {
 		roster := gopodCrewRoster()
 		for _, c := range gopodBrobotsSettings.HereNow.Cast {
@@ -111,7 +86,6 @@ func gopodSourceCheck() ([]string, int) {
 			}
 		}
 	}
-	// 5 headers: the system label from its voice persona's labels.
 	count(1)
 	if sb := gopodBrobotsSettings.SystemBubble; strings.TrimSpace(sb.VoicePersona) != "" {
 		hp := gopodPersona(sb.VoicePersona)
@@ -128,7 +102,6 @@ func gopodSourceCheckPersona(who string) ([]string, int) {
 	var out []string
 	n := 0
 	bad := func(layer, what string) { out = append(out, "source "+who+" ("+layer+"): "+what) }
-	// 0 source
 	n++
 	head, sections := gopodPersonaProfileRead(gopodPersonaProfileFile(who))
 	if head == nil {
@@ -149,7 +122,6 @@ func gopodSourceCheckPersona(who string) ([]string, int) {
 			bad("0 source", "his Self \""+label+"\" is still to come")
 		}
 	}
-	// 1 labels: nothing left unfilled, wherever his labels go.
 	_, persona := gopodBrobotsSettings.Managers.Personas[who]
 	filled := map[string]string{
 		"profile":      gopodPersonaProfileText(who),
@@ -172,13 +144,11 @@ func gopodSourceCheckPersona(who string) ([]string, int) {
 	}
 	_ = sections
 	if persona {
-		// 2 voice
 		n++
 		if gopodReporterVoice(who) == "" {
 			bad("2 voice", "no voice (reporter_voices.hosts, or voice_of)")
 		}
 	}
-	// 3 the chat
 	n++
 	inCast := false
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
@@ -251,11 +221,11 @@ func gopodReadFileString(path string) string {
 	return string(data)
 }
 
-// gopodSchemaShape: a topic-cluster md's shape - its head's keys ("- **job:**"),
-// its "## " sections in order, and its Self lines' labels ("My name").
+// gopodSchemaShape: a topic-cluster md's shape - its head's keys ("- **job:**"), its "## " sections
+// in order, and its Self lines' labels ("My name").
 type gopodSchemaShape struct {
 	keys, sections, self []string
-	points           map[string]int
+	points               map[string]int
 }
 
 func gopodSchemaShapeOf(path string) (gopodSchemaShape, bool) {
@@ -290,11 +260,6 @@ func gopodSchemaShapeOf(path string) (gopodSchemaShape, bool) {
 	return s, true
 }
 
-// gopodSchemaCheck: the persona files (each participant's, and the persona a
-// robot hosts) against persona-schema.md - its head keys ("why" aside: a nickname
-// may have no story), its sections and its Self lines; the company files (a file
-// with "## Our company") against company-schema.md - the same sections, as many
-// points. A missing one is a problem to fix.
 func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 	var out []string
 	n := 0
@@ -369,8 +334,8 @@ func gopodSchemaCheck(whos map[string]bool) ([]string, int) {
 	return append(out, more...), n + m
 }
 
-// gopodSchemaRequired: a schema file's listed lines - the points of its
-// "## Required..." and "## Known..." sections, each its name (before ":"), by section.
+// gopodSchemaRequired: a schema file's listed lines - the points of its "## Required..." and "##
+// Known..." sections, each its name (before ":"), by section.
 func gopodSchemaRequired(path string) map[string][]string {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -395,16 +360,13 @@ func gopodSchemaRequired(path string) map[string][]string {
 	return out
 }
 
-// gopodSchemaCheckGame (2026-11-06, operator: "build schemas for the other places
-// in GOPOD where a schema would earn its keep, most useful first"): every game
-// card against _topic_cluster/topic-schema.md, every chapter against
-// chapter-schema.md (and every card's chapter is one of them), every song folder
-// against songs/_new_song/song-schema.md.
+// gopodSchemaCheckGame: every game card against _topic_cluster/topic-schema.md, every chapter
+// against chapter-schema.md (and every card's chapter is one of them), every song folder against
+// songs/_new_song/song-schema.md.
 func gopodSchemaCheckGame() ([]string, int) {
 	var out []string
 	n := 0
 	tpl := filepath.Join(gopodTopicRoot(), "_topic_cluster")
-	// Chapters: their titles, each with its required lines.
 	chapters := map[string]bool{}
 	if req := gopodSchemaRequired(filepath.Join(tpl, "chapter-schema.md"))["Required"]; req != nil {
 		files, _ := filepath.Glob(filepath.Join(gopodChaptersDir(), "*", "chapter.md"))
@@ -419,7 +381,6 @@ func gopodSchemaCheckGame() ([]string, int) {
 			}
 		}
 	}
-	// Game cards.
 	if req := gopodSchemaRequired(filepath.Join(tpl, "topic-schema.md"))["Required"]; req != nil {
 		for _, c := range gopodTopicDocCardsAll() {
 			head := map[string]string{}
@@ -443,7 +404,6 @@ func gopodSchemaCheckGame() ([]string, int) {
 		}
 	}
 	songs := filepath.Join(gopodRepoRoot(), "goverlord", "runtime", "songs")
-	// Run cards (game.runs) against run-schema.md; a run's song must be a song folder.
 	if req := gopodSchemaRequired(filepath.Join(tpl, "run-schema.md")); req != nil {
 		for _, run := range gopodBrobotsSettings.Game.Runs {
 			raw, _ := json.Marshal(run)
@@ -468,7 +428,6 @@ func gopodSchemaCheckGame() ([]string, int) {
 			}
 		}
 	}
-	// Answer chains against answer-chain-schema.md: every part known, every "from" a chain.
 	if req := gopodSchemaRequired(filepath.Join(tpl, "answer-chain-schema.md")); req != nil {
 		known := map[string]bool{}
 		for _, part := range req["Known parts"] {
@@ -489,7 +448,6 @@ func gopodSchemaCheckGame() ([]string, int) {
 			}
 		}
 	}
-	// Songs.
 	req := gopodSchemaRequired(filepath.Join(songs, "_new_song", "song-schema.md"))
 	if req != nil {
 		dirs, _ := os.ReadDir(songs)

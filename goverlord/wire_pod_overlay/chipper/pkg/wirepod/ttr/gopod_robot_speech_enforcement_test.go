@@ -53,7 +53,7 @@ func TestNormalizeGOPODRobotSpeechDeterministically(t *testing.T) {
 		"angry  ...  I am ready.":   "angry... I am ready.",
 		"happy ... I am ready.":     "happy... I am ready.",
 		"happy...I am ready.":       "happy... I am ready.",
-		"excited... I am ready.":    "veryHappy... excited... I am ready.", // an alias is said (2026-10-02)
+		"excited... I am ready.":    "veryHappy... excited... I am ready.", // an alias is said
 		"curious... I am checking.": "thinking... curious... I am checking.",
 		"Bro! I am ready.":          "thinking... Bro! I am ready.",
 		"[happy] I am ready.":       "happy... I am ready.",

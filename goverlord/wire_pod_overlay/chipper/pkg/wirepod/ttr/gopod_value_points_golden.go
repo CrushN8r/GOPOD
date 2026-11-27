@@ -15,18 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN value points - stamped and locked (2026-10-21, operator: "value points
-// are what will make me money * value points must be clearly defined and
-// stamped/locked as golden reference"; "chapter > topics > value points").
-// A value point is what the coverage tracker already counts (gopodSplitPoints):
-// each numbered line ("1. ...") after a topic file's "---", or - a topic with
-// none - its whole text as one point. Each gets an id, "<topic>#<n>" (bingo#1),
-// and its words go in the golden index (chapters/value_points_golden.json) with
-// a checksum. system-check flags a point whose words changed, a new point not
-// locked yet, and a locked point that's gone - so a point only ever changes on
-// purpose: "system-value-points lock" writes the index again (system-undo puts it
-// back). The index is written the first time Wire-Pod starts without one.
-
 type gopodGoldenPoint struct {
 	Words string `json:"words"`
 	Sum   string `json:"sum"`

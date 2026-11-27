@@ -1,26 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_topic_asks.go
 package wirepod_ttr
 
-// The topic ask template (2026-10-26, operator: "Tell me about yourself = a
-// summary response * Tell me all about yourself = a detailed response * [topic]?
-// = summary response * [more]? = detailed response * so always summarize first";
-// "go for \"tell me about\" vs \"tell me all about\" * aim for all topics * for
-// notice-bubbles, update/reshape existing value points section into a summary for
-// the summary ask, to ease the llm from summarizing. Summary is in the
-// notice-bubble, just riff on it * as GOPOD evolves, topics will come and go * so
-// as I update the repo, I want the game to match the repo"; "Template it out
-// please"). Settings topic_asks:
-//   - a question that loads a topic is a summary ask: the topic file's
-//     "summary:" line goes in the notice bubble and is the Brobot's only fact -
-//     he riffs on it. No value point is given or counted.
-//   - a question with a detail word ("tell me all about", "tell me more"...) is
-//     a detail ask: the value points, as before (the next one, its say line).
-//   - a detail ask that names no topic ("tell me more") is about the last
-//     topic asked.
-//   - a topic with no summary line yet is always a detail ask.
-// A topic's "source:" line names the repo file it tells (MOBILE_GEAR.md); the
-// test TestTopicSourcesInRepo and system-check keep the two together.
-
 import (
 	"os"
 	"path/filepath"
@@ -33,9 +13,9 @@ var gopodLastTopics = struct {
 	names []string
 }{}
 
-// gopodTopicAskKind: "detail" (a detail word), "summary" (a summary word, or a
-// bare topic of up to bare_max_words words - "Mobile gear?"), else "point" - a
-// pointed question gets the value point it asks about, as before.
+// gopodTopicAskKind: "detail" (a detail word), "summary" (a summary word, or a bare topic of up to
+// bare_max_words words - "Mobile gear?"), else "point" - a pointed question gets the value point it
+// asks about, as before.
 func gopodTopicAskKind(question string) string {
 	ta := gopodBrobotsSettings.TopicAsks
 	lower := strings.ToLower(question)
@@ -52,9 +32,6 @@ func gopodTopicAskKind(question string) string {
 	if words := strings.Fields(gopodAddressStrip(lower)); len(words) > 0 && len(words) <= ta.BareMaxWords {
 		return "summary"
 	}
-	// 2026-10-26 (operator: "Look for \"the\" + singular topic-value-point (the
-	// rig, the gear, etc...) to help catch 'the' value points"): "the" + one of
-	// a topic's words ("what's the rig?") asks for the topic itself.
 	if ta.TheTopic {
 		for _, p := range gopodTopicRegistry() {
 			for _, w := range p.Triggers {
@@ -67,8 +44,8 @@ func gopodTopicAskKind(question string) string {
 	return "point"
 }
 
-// gopodSummaryGiven: the points a summary ask scored for each Brobot - counted,
-// never said word for word (he riffs on the summary instead).
+// gopodSummaryGiven: the points a summary ask scored for each Brobot - counted, never said word for
+// word (he riffs on the summary instead).
 var gopodSummaryGiven = struct {
 	sync.Mutex
 	points map[string]map[string]bool
@@ -119,8 +96,8 @@ func gopodTopicFileByName(name string) (gopodTopicFile, bool) {
 	return gopodTopicFile{}, false
 }
 
-// gopodTopicPackets: the topics a question loads; a detail ask that loads none
-// is about the last topics asked. The topics loaded are remembered.
+// gopodTopicPackets: the topics a question loads; a detail ask that loads none is about the last
+// topics asked.
 func gopodTopicPackets(question string) []loadedScenarioPacket {
 	packets := loadScenarioPacketsForMessage(question)
 	gopodLastTopics.Lock()
@@ -144,8 +121,8 @@ func gopodTopicPackets(question string) []loadedScenarioPacket {
 	return packets
 }
 
-// gopodTopicSummary: for a summary ask, the topic's summary - its notice line
-// and the facts the Brobot riffs on. ok false: a detail ask, or no summary yet.
+// gopodTopicSummary: for a summary ask, the topic's summary - its notice line and the facts the
+// Brobot riffs on.
 func gopodTopicSummary(name, question string) (notice, facts string, ok bool) {
 	if gopodTopicAskKind(question) != "summary" {
 		return "", "", false
@@ -163,8 +140,8 @@ func gopodTopicSummary(name, question string) (notice, facts string, ok bool) {
 	return gopodNoticeFill(ta.SummaryNotice, values), gopodNoticeFill(ta.SummaryFacts, values), true
 }
 
-// gopodTopicSourceProblems: topics whose source: file is missing from the repo,
-// or changed after the topic was (the game no longer matches the repo).
+// gopodTopicSourceProblems: topics whose source: file is missing from the repo, or changed after
+// the topic was (the game no longer matches the repo).
 func gopodTopicSourceProblems() []string {
 	repo := gopodRepoRoot()
 	chapters, always, _ := gopodReadChaptersFolder()
@@ -188,24 +165,15 @@ func gopodTopicSourceProblems() []string {
 	return out
 }
 
-// gopodAsksPage (2026-10-26, operator: "what about operator input rules, to help
-// my brobot buddies out? At least a set of basic asks they know how to respond
-// to > repo md files"): BROBOT_ASKS.md at the repo root, made from the chapters'
-// topics - the three kinds of ask, then each topic's ask, its summary and the
-// repo file it tells. Topics come and go; TestBrobotAsksPageMatches keeps the
-// page with them (GOPOD_WRITE_ASKS=1 writes it again).
+// gopodAsksPage: BROBOT_ASKS.md at the repo root, made from the chapters' topics - the three kinds
+// of ask, then each topic's ask, its summary and the repo file it tells.
 func gopodAsksPage() string {
 	chapters, _, _ := gopodReadChaptersFolder()
 	ta := gopodBrobotsSettings.TopicAsks
-	// 2026-10-26 (operator: "Look back at my test questions as examples"): the
-	// game's own questions (each card's "ask N") are each topic's pointed asks.
 	asked := map[string][]string{}
 	for _, q := range gopodBrobotsSettings.GameQuestions {
 		asked[q.Topic] = append(asked[q.Topic], "\""+gopodAskWithoutAddress(q.Ask)+"\"")
 	}
-	// 2026-10-29 (operator: "Start with the single source of truth, BROBOT_ASKS.md";
-	// "I consider my probing questions as examples of how I thought"): the probers
-	// list (gopod_probers_list.go) - each topic's probers, the operator's own words.
 	probed := map[string][]string{}
 	if probers, _, err := gopodProbers(); err == nil {
 		for _, p := range probers {
@@ -275,17 +243,6 @@ func gopodAskWithoutAddress(q string) string {
 	}
 	return q
 }
-
-// The topic pre/post template (2026-10-26, operator: "Pass 2 topic pre/post in the
-// template * pre/post came from the bingo test song experience, not a topic cluster * so
-// songs are their own topic-clusters for pre/post? again, be careful here * Apply
-// pre/post template to all, even minimally to what's already there"). A song's
-// pre/post is whether it has played (gopod_experiences.go). A topic's is whether the
-// room has covered it - a value point of it given this session: before, its pre note
-// (a rep sells what he hasn't covered yet, with attitude, never making facts up);
-// after, its post note (he knows it now, builds on it) and its closing remark, if any.
-// Every topic gets topic_asks.pre_default / post_default; a topic file's "pre:" /
-// "post:" / "closing:" lines are its own.
 
 // gopodTopicTouched: a value point of the topic has been given this session.
 func gopodTopicTouched(name string) bool {

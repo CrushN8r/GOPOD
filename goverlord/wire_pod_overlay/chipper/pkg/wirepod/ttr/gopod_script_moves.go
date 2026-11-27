@@ -12,43 +12,27 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Moves and live parts in a draft answer (operator 2026-10-08, the Awaken
-// line: "I wake up, lift my arm (arm cue), nod (nod cue), test my cube, tell
-// you the weather (... a live real-time weather check ... if online is
-// detected), say I'm ready"):
-//   - "moves": [{"at": "lift my arm", "move": "arm"}, ...] - when the robot
-//     starts the spoken piece holding "at", it does the move: "arm" (his
-//     phcal arm cue), "nod" (his chat nod) or "cube" (phcal's cube blip: all
-//     corners red, 2 s, then green - on this robot's own paired cube).
-//   - "{weather}" in "say" - the live weather, his own unit and clock first
-//     (gopod_live_weather.go). Offline, the sentence holding it is left out.
-
 type gopodDraftMove struct {
 	At   string `json:"at"`
 	Move string `json:"move"`
 }
 
-// gopodScriptFill puts the live weather in a draft line. Offline it says
-// live_weather.offline_text, or leaves the sentence out when that's empty.
+// gopodScriptFill puts the live weather in a draft line.
 func gopodScriptFill(esn, say string) string {
 	if !strings.Contains(say, "{weather}") {
 		return say
 	}
-	// The golden weather call (gopodWeatherSay, gopod_live_weather.go).
 	weather, live := gopodWeatherSay(esn)
 	if live {
 		logger.Println("GOPOD_SCRIPT live weather for " + gopodBrobotName(esn) + ": " + weather)
 		return strings.ReplaceAll(say, "{weather}", weather)
 	}
-	// 2026-10-09 (operator: "it appears as though we're offline! Only thing left
-	// to do is step outside then GOPOD Yourself!!"): offline_text stands in.
 	if weather != "" {
 		logger.Println("GOPOD_SCRIPT no live weather (offline?) - offline_text said")
 		return strings.ReplaceAll(say, "{weather}", weather)
 	}
 	logger.Println("GOPOD_SCRIPT no live weather (offline?) - its sentence is left out")
 	var kept []string
-	// The weather line ends its own sentence once filled; it ends it here too.
 	for _, s := range gopodSplitPieces(strings.ReplaceAll(say, "{weather}", "{weather}."), false) {
 		if !strings.Contains(s, "{weather}") {
 			kept = append(kept, s)
@@ -88,14 +72,11 @@ func gopodScriptMoveAt(robot *vector.Vector, esn, spoken string) {
 	}
 }
 
-// gopodCubeBlip: phcal's cube test (direct_sdk_cube_blip_001) on the robot's
-// own connection, which holds control for the answer - connect the cube, all
-// four corners red, 2 s, then green.
+// gopodCubeBlip: phcal's cube test (direct_sdk_cube_blip_001) on the robot's own connection, which
+// holds control for the answer - connect the cube, all four corners red, 2 s, then green.
 func gopodCubeBlip(robot *vector.Vector, esn string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	// 2026-10-08 (operator: "can you add a log for cube activity?"): each cube
-	// call is logged going out and answered (GOPOD_ROBOT_CMD ... cube).
 	sent := gopodRobotCmdSend(robot, "cube connect")
 	resp, err := robot.Conn.ConnectCube(ctx, &vectorpb.ConnectCubeRequest{})
 	what := "cube connect"

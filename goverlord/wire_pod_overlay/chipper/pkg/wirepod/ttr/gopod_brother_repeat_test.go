@@ -3,8 +3,8 @@ package wirepod_ttr
 
 import "testing"
 
-// TestDropBrotherRepeat: Brobot 2's follow-up drops what only repeats Brobot 1,
-// keeps what adds something ("a man vs a man with a hat is fine").
+// TestDropBrotherRepeat: Brobot 2's follow-up drops what only repeats Brobot 1, keeps what adds
+// something ("a man vs a man with a hat is fine").
 func TestDropBrotherRepeat(t *testing.T) {
 	b1 := "Bingo night at the seniors' residence is wild, bro.\nI call the numbers and the room goes nuts."
 	b2 := "Bingo night at the seniors' residence is wild! I call numbers in a party hat.\nThe room goes nuts, bro. Bro!"

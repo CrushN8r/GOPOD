@@ -5,11 +5,8 @@ import (
 	"testing"
 )
 
-// 2026-10-26 (operator: "KP0 (All), KP1 and KP2: \"no voice required\" ... KP3
-// to KP9: KPN-TEMPLATE ... KP7 to KP9, Operator: KPN-TEMPLATE"): robot-bodied
-// keys need no voice; the rest have a persona host and its voice; the Operator last.
+// robot-bodied keys need no voice; the rest have a persona host and its voice; the Operator last.
 func TestVoiceMapRows(t *testing.T) {
-	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
 		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}

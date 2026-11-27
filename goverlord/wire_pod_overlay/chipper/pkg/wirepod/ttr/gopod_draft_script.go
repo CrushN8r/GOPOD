@@ -8,27 +8,9 @@ import (
 	"strings"
 )
 
-// The draft as a plain script to read, edit and replay (operator 2026-10-09:
-// "Ensure draft run is composed in a human friendly format, I can replay, and I
-// can make edits"). draft_script.md sits beside draft_performance.json and,
-// when it's there, is what "start interview" (interview_script.play_words) plays (gopodLoadDraft):
-//
-//	# Draft script: <run>
-//	> A line starting with ">" is a note; blank lines don't count.
-//	## 1. Who they are                      a question starts
-//	CHALK reporter: banter before the question  (optional)
-//	PLAYHEAD reporter asks Brobot 1: the question  ("Brobots" asks both)
-//	Brobot 1: his answer                    "Brobot 1 (happy):" picks the animation
-//	moves: lift my arm = arm; nod = nod     moves at those words (arm, nod, cube)
-//	Brobot 2: his brother's line            then reporters' and Brobots' lines, in order
-//
-// "{weather}" in a line is the live weather (gopod_script_moves.go).
-
 const gopodDraftScriptName = "draft_script.md"
 
 var (
-	// 2026-11-14 (operator: "Brobot 3/4 ... old stale labelling ... prune"): a
-	// reporter is named by its role, "CHALK reporter" (reporter_voices.hosts).
 	gopodDraftAskLine  = regexp.MustCompile(`^([A-Z][A-Z0-9 ]* reporter) asks (Brobot [12]|Brobots):\s*(.+)$`)
 	gopodDraftSayLine  = regexp.MustCompile(`^(Brobot [12]|[A-Z][A-Z0-9 ]* reporter)(?: \(([^)]*)\))?:\s*(.+)$`)
 	gopodDraftMoveLine = regexp.MustCompile(`^moves:\s*(.+)$`)

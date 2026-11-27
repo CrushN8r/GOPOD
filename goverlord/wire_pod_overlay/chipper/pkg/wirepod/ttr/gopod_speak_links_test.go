@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// TestLinkWords: a link is said as its words (live 2026-10-16: the weather kit's
-// address was read out).
+// TestLinkWords: a link is said as its words.
 func TestLinkWords(t *testing.T) {
 	for in, want := range map[string]string{
 		"Check out the [GOPOD Weather Kit](/gopod_weather_kit.html).": "Check out the GOPOD Weather Kit.",
@@ -24,17 +23,16 @@ func TestLinkWords(t *testing.T) {
 
 // ## EOF
 
-// TestLinkKeepsBrackets (live 2026-10-16): a link's brackets aren't read as a
-// stage direction; a two-word bracket still is.
+// TestLinkKeepsBrackets: a link's brackets aren't read as a stage direction; a two-word bracket
+// still is.
 func TestLinkKeepsBrackets(t *testing.T) {
 	if got := gopodBracketStageDirections("Check out the [GOPOD Weather Kit](/gopod_weather_kit.html). [waves both arms]"); got != "Check out the [GOPOD Weather Kit](/gopod_weather_kit.html). *waves both arms*" {
 		t.Errorf("got %q", got)
 	}
 }
 
-// TestThoughtParagraphs (2026-10-16, operator: "thought bubbles as (spaced)
-// paragraphs"): a new thought's line break reaches the marked bubble, so the
-// page can start a paragraph there; the pieces are the same.
+// TestThoughtParagraphs: a new thought's line break reaches the marked bubble, so the page can
+// start a paragraph there; the pieces are the same.
 func TestThoughtParagraphs(t *testing.T) {
 	marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker
 	if marker == "" {
@@ -46,8 +44,7 @@ func TestThoughtParagraphs(t *testing.T) {
 	}
 }
 
-// TestKitLinkSaidAndShown (live 2026-10-16 13:2x: "Check out the." was said):
-// the bubble keeps the Weather Kit link, the robot says its words.
+// TestKitLinkSaidAndShown: the bubble keeps the Weather Kit link, the robot says its words.
 func TestKitLinkSaidAndShown(t *testing.T) {
 	raw := "happy___ Granny is hot!\nWant to see every weather face Vector has? Check out the [GOPOD Weather Kit](/gopod_weather_kit.html)."
 	display := gopodDisplayReply(raw)
@@ -61,8 +58,7 @@ func TestKitLinkSaidAndShown(t *testing.T) {
 	}
 }
 
-// TestMusicShownNotSaid (2026-10-16, operator: "(music) ... show it in the bubble,
-// to indicate to deaf humans"): the butler doesn't say it.
+// TestMusicShownNotSaid: the butler doesn't say it.
 func TestMusicShownNotSaid(t *testing.T) {
 	said := gopodSaySwap(gopodBrobotsSettings.LLM.ReadyText, gopodBrobotsSettings.ReporterVoices.SystemSayWords)
 	if strings.Contains(said, "music") || !strings.Contains(gopodBrobotsSettings.LLM.ReadyText, "(music)") {

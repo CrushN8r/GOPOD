@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-// The USB panel (2026-10-20, operator: "add in a dynamic USB panel of
-// (hot-swappable) devices"): lsusb's devices, root hubs left out - the menu's
-// live panel polls /api-sdk/gopod_usb and marks what was plugged in or pulled
-// out; "system-usb" lists them once.
-
 type gopodUSBDevice struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -27,8 +22,8 @@ func gopodUSBDevices() []gopodUSBDevice {
 	return list
 }
 
-// gopodUSBDevicesErr: the devices, or lsusb's error (review: a failed lsusb
-// isn't "the mic is missing").
+// gopodUSBDevicesErr: the devices, or lsusb's error (review: a failed lsusb isn't "the mic is
+// missing").
 func gopodUSBDevicesErr() ([]gopodUSBDevice, error) {
 	out, err := exec.Command("lsusb").Output()
 	if err != nil {

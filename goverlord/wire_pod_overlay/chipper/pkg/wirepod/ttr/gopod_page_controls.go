@@ -10,14 +10,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Page controls (2026-10-21, operator: "add to logging * skipped [input] (Esc,
-// numpad, mic, typed) * background loop volume setting to remember over full
-// system restarts"):
-//   POST /api-sdk/gopod_loop_volume v=<0-100>   the speaker bar's value, written to
-//        background_loop.volume ("N%") so it holds over restarts and browsers
-//   a numpad line that's only "skip" (the mic) skips the reporters' lines on the
-//        page (skip_marker) instead of going to the Brobots
-
 const gopodSkipMarker = "skip:"
 
 func init() {

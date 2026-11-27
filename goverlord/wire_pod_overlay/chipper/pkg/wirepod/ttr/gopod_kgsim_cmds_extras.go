@@ -60,11 +60,6 @@ func stripSpokenActionLead(input string) string {
 		for _, animThing := range animationMap {
 			action := animThing[0]
 			if strings.HasPrefix(cleaned, action+" ") {
-				// 2026-10-17 (operator: "celebrate skipped? not heard" - "react,
-				// celebrate small wins," was said "small wins,"): a cue word is
-				// dropped only when what follows starts anew (a capital, or a wide
-				// gap: "happy Hey there", "thinking  well"); a piece that just goes
-				// on ("celebrate small wins,") keeps it as a word.
 				rest := strings.TrimPrefix(cleaned, action+" ")
 				if next := []rune(strings.TrimSpace(rest)); len(next) > 0 && !unicode.IsUpper(next[0]) && !strings.HasPrefix(rest, " ") {
 					continue
@@ -87,7 +82,7 @@ func stripSpokenActionLead(input string) string {
 	}
 }
 
-// ". ." left where two "..." met (a dropped stage direction between them) -> ".".
+// ".
 var gopodRepeatedPeriodPattern = regexp.MustCompile(`\.(?:\s*\.)+`)
 
 func cleanRobotSpeechText(input string) string {
@@ -113,11 +108,6 @@ func cleanRobotSpeechText(input string) string {
 	}
 	cleaned = strings.TrimSpace(cleaned)
 	cleaned = stripSpokenActionLead(cleaned)
-	// GOPOD 2026-10-01: a "..." left in speech is no longer a sentence end
-	// (operator: take "..." out as a sentence ender or phrase breaker); after a
-	// word it is said as a comma pause (operator, 17:1x: '"..." = ","'),
-	// gopodEllipsisToComma. "fingers...a hidden gem" still isn't glued together.
-	// The Fields join below tidies spaces.
 	cleaned = gopodEllipsisToComma(cleaned)
 	cleaned = gopodDropStrayQuotes(cleaned)
 	cleaned = gopodRepeatedPeriodPattern.ReplaceAllString(cleaned, ".")
@@ -133,11 +123,9 @@ func cleanRobotSpeechText(input string) string {
 	return strings.Join(strings.Fields(cleaned), " ")
 }
 
-// GOPOD 2026-09-29: every spoken part of a Wire-Pod chat reply ends with
-// punctuation, so the robot pauses before the next part (used in StreamingKGSim's
-// speaking loop only - song speech is left exactly as written). Bullet lines often had none ("...a little wink on that
-// side" ran straight into "Gomads: ..."), and a reply could end on a dash ("with
-// the right tools-"). A trailing dash or comma is dropped, then a period added.
+// GOPOD every spoken part of a Wire-Pod chat reply ends with punctuation, so the robot pauses
+// before the next part (used in StreamingKGSim's speaking loop only - song speech is left exactly
+// as written).
 var gopodTrailingDashPattern = regexp.MustCompile(`[\s,\-\x{2013}\x{2014}]+$`)
 
 var gopodTrailingDashOnlyPattern = regexp.MustCompile(`[\s\-\x{2013}\x{2014}]+$`)
@@ -152,8 +140,6 @@ func gopodEndWithPunctuation(text string) string {
 	case '.', '!', '?', ':', ';', '"', ')':
 		return text
 	}
-	// A piece the comma split ended (live_split) keeps its comma - said as a
-	// pause, not a full stop.
 	if strings.HasSuffix(strings.TrimSpace(gopodTrailingDashOnlyPattern.ReplaceAllString(original, "")), ",") {
 		return text + ","
 	}
@@ -214,10 +200,8 @@ func performActionsLiveDispatchUnsafe(msgs []openai.ChatCompletionMessage, actio
 	return false
 }
 
-// gopodDropStrayQuotes: a single quote touching other punctuation ("-'bizzy",
-// "business.'.") was read out by the robot as "single quote" (live 2026-10-02
-// 22:12). It is dropped. One next to a letter and a space or a letter stays, so
-// don't, ya', 'cause and nothin' are said as before.
+// gopodDropStrayQuotes: a single quote touching other punctuation ("-'bizzy", "business.'.") was
+// read out by the robot as "single quote".
 func gopodDropStrayQuotes(text string) string {
 	runes := []rune(text)
 	var b strings.Builder

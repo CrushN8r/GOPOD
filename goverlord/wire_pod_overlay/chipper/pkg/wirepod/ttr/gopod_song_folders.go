@@ -14,22 +14,14 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN - a song is found by its name, never its folder (operator 2026-10-10:
-// "even shuffling (song) folders without notice should be easy to remap"). The
-// "song_id" in a song's own knobs.json names it; its folder under
-// goverlord/runtime/songs/ can be renamed or renumbered with nothing else to
-// update. The Python side is runtime/songs/tools/song_folders_001.py, the same rule.
-
 // gopodSongsDir: goverlord/runtime/songs, beside the overlay.
 func gopodSongsDir() string {
 	return filepath.Join(gopodChipperRoot(), "..", "..", "runtime", "songs")
 }
 
-// gopodKnobsMDSync (2026-11-04, operator: "zKnobs.md is the one source"; step 9 of
-// GOPOD_CLUSTERS_PLAN_002.md): after Wire-Pod edits a song's knobs.json, its
-// zKnobs.md is written from it - the song tools' one writer
-// (runtime/songs/tools/knobs_md_001.py write), so a run, which builds knobs.json
-// from zKnobs.md, keeps the edit. Nothing for a song without a zKnobs.md.
+// gopodKnobsMDSync: after Wire-Pod edits a song's knobs.json, its zKnobs.md is written from it -
+// the song tools' one writer (runtime/songs/tools/knobs_md_001.py write), so a run, which builds
+// knobs.json from zKnobs.md, keeps the edit.
 func gopodKnobsMDSync(dir string) {
 	if !gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
 		return
@@ -40,9 +32,9 @@ func gopodKnobsMDSync(dir string) {
 	}
 }
 
-// gopodKnobsMDBuild: before Wire-Pod reads or edits a song's knobs.json, it's
-// built from the song's zKnobs.md (knobs_md_001.py build) - so an edit in
-// zKnobs.md is never played stale or written over.
+// gopodKnobsMDBuild: before Wire-Pod reads or edits a song's knobs.json, it's built from the song's
+// zKnobs.md (knobs_md_001.py build) - so an edit in zKnobs.md is never played stale or written
+// over.
 func gopodKnobsMDBuild(dir string) {
 	if !gopodFileExists(filepath.Join(dir, "zKnobs.md")) {
 		return
@@ -54,9 +46,8 @@ func gopodKnobsMDBuild(dir string) {
 }
 
 type gopodSongKnobsTop struct {
-	SongID string `json:"song_id"`
-	Audio  string `json:"audio"`
-	// 2026-10-11: a song's sound files ("sound" steps, the fart joke).
+	SongID string   `json:"song_id"`
+	Audio  string   `json:"audio"`
 	Sounds []string `json:"sounds"`
 }
 
@@ -68,7 +59,6 @@ func gopodAllSongs() (map[string]string, error) {
 	for _, k := range knobs {
 		folder := filepath.Dir(k)
 		name := filepath.Base(folder)
-		// 2026-10-16: a folder starting with "_" is a template (_new_song, with _llm_warm inside it).
 		if name == "tools" || strings.HasPrefix(name, "_") || strings.HasPrefix(name, ".") {
 			continue
 		}
@@ -100,9 +90,9 @@ func gopodFindSong(songID string) (string, error) {
 	return "", errors.New("no song folder has song_id " + songID)
 }
 
-// gopodSongAudioFiles: each song's own soundtrack (its knobs.json "audio"),
-// found anywhere inside its folder (its private media folder) - copied to the
-// page at Wire-Pod's start, so a song's audio needs no path in the settings.
+// gopodSongAudioFiles: each song's own soundtrack (its knobs.json "audio"), found anywhere inside
+// its folder (its private media folder) - copied to the page at Wire-Pod's start, so a song's audio
+// needs no path in the settings.
 func gopodSongAudioFiles() []string {
 	songs, _ := gopodAllSongs()
 	var files []string

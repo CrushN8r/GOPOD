@@ -13,23 +13,9 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The Easter egg's voice in pieces (2026-10-24, operator: '"Congratulations!",
-// "Easter Egg \'", "\' found.", & "MouseOver to Zoom In", need to be generated
-// once and reused * only [easter egg title(s)] need live generation * generating
-// + hourglass toggles upon file generated rule applies'): Goverlord's
-// congratulations is said from its fixed pieces - each made once and kept, like
-// every voice - and the egg's title, the only piece made live. The pieces are
-// joined into one voice (their word times with them), so the page lights it as
-// one line; "Generating..." and the hourglass show until the joined voice is
-// ready.
-
-// gopodEggVoiceParts: what's said, piece by piece - each line of
-// topic_pictures.egg_text its own piece (the quotes not said): the fixed lines made
-// once and kept, the line with {eggs} (or the older {name}) filled with eggs and
-// made live; then the zoom line.
-// 2026-10-25 (operator: "NEW Template * [Congratulations! Easter Eggs Revealed Thus
-// Far!] * '[easter eggs]' * Line 1 generated once/used many * Line 2 generated
-// many/used few").
+// gopodEggVoiceParts: what's said, piece by piece - each line of topic_pictures.egg_text its own
+// piece (the quotes not said): the fixed lines made once and kept, the line with {eggs} (or the
+// older {name}) filled with eggs and made live; then the zoom line.
 func gopodEggVoiceParts(eggs, zoom string) []string {
 	tmpl := gopodBrobotsSettings.TopicPictures.EggText
 	if !strings.Contains(tmpl, "{eggs}") && !strings.Contains(tmpl, "{name}") {
@@ -38,7 +24,6 @@ func gopodEggVoiceParts(eggs, zoom string) []string {
 	if strings.TrimSpace(eggs) == "" {
 		return nil
 	}
-	// Only the quotes around a line go; an apostrophe inside it stays ("Granny's").
 	unquote := func(s string) string { return strings.TrimSpace(strings.Trim(strings.TrimSpace(s), "'\"")) }
 	var parts []string
 	for _, line := range strings.Split(tmpl, "\n") {
@@ -54,8 +39,6 @@ func gopodEggVoiceParts(eggs, zoom string) []string {
 }
 
 // gopodEggSay: the egg's congratulations (text, as shown) said from its pieces.
-// False when it can't be (no system voice, no {name} in egg_text) - the caller
-// says it whole.
 func gopodEggSay(text, name, zoom string) bool {
 	host := gopodBrobotsSettings.SignOff.SystemRole
 	rv := gopodBrobotsSettings.ReporterVoices
@@ -108,9 +91,9 @@ func gopodEggVoiceMake(host, file string, parts []string) (float64, error) {
 	return seconds, nil
 }
 
-// gopodWavJoin: the voices in files, one after another with gapMS of silence
-// between, written to out (same format as the first), and their word times
-// (<name>.words.json) moved to where each now starts. Returns out's seconds.
+// gopodWavJoin: the voices in files, one after another with gapMS of silence between, written to
+// out (same format as the first), and their word times (<name>.words.json) moved to where each now
+// starts.
 func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	var head []byte
 	var pcm []byte
@@ -156,9 +139,6 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 			if aligner == "" {
 				aligner = times.Aligner
 			}
-			// 2026-10-24 (live: 9.8 s joined, each piece's quiet ends between the
-			// words): each piece trimmed to its words - egg_voice_edge_ms of air
-			// kept - except the first piece's start and the last one's end.
 			if n := len(times.Words); n > 0 {
 				edge := float64(gopodBrobotsSettings.TopicPictures.EggVoiceEdgeMS) / 1000
 				dur := float64(len(data)) / float64(byteRate)
@@ -198,8 +178,6 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	if aligner == "" {
 		aligner = "joined"
 	}
-	// The voice worker's own format ("aligner": "vosk" - the checks read it so).
-	// 2026-11-02: joined from levelled, finished voices - marked so (the cache's check).
 	wj, _ := json.Marshal(map[string]any{"aligner": aligner, "levelled": true, "words": words})
 	wj = []byte(strings.Replace(string(wj), `"aligner":"`, `"aligner": "`, 1))
 	wj = []byte(strings.Replace(string(wj), `"levelled":true`, `"levelled": true`, 1))
@@ -210,8 +188,8 @@ func gopodWavJoin(out string, files []string, gapMS int) (float64, error) {
 	return at, nil
 }
 
-// gopodEggVoiceCheck (system-test-eggvoice): an egg voice made for real - the kept
-// pieces and a sample title - joined, not played. Returns what was made.
+// gopodEggVoiceCheck (system-test-eggvoice): an egg voice made for real - the kept pieces and a
+// sample title - joined, not played.
 func gopodEggVoiceCheck() (bool, string) {
 	host := gopodBrobotsSettings.SignOff.SystemRole
 	parts := gopodEggVoiceParts("Get Photo", gopodBrobotsSettings.TopicPictures.EggZoomText)

@@ -9,16 +9,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The summary answer type (2026-10-23, operator: "'AI wordplay' is a good example
-// of what I mean by overlapping * if I ask, 'What is AI wordplay?' * that would be
-// like a golden query that unlocks it all * large overlapping value-points will
-// demand more of a contextual summary * please build its own answer type"): a
-// golden query (summary.queries) or a question that opens summary.min_topics
-// core topics or more gets a short summary across the core topics - one bubble
-// per core topic still to come (its next value point's title and first note), up
-// to summary.max_topics - in place of one value point. No point is counted: it's
-// a map of what's ahead, and the pull still names what's next.
-
 type gopodSummaryItem struct{ topic, title, note string }
 
 var gopodSummaryFor sync.Map // esn -> []gopodSummaryItem
@@ -29,9 +19,6 @@ func gopodSummaryQuery(question string) bool {
 	lower := strings.ToLower(strings.Join(strings.Fields(question), " "))
 	for _, q := range s.Queries {
 		if q = strings.ToLower(strings.TrimSpace(q)); q != "" && strings.Contains(lower, q) {
-			// 2026-11-19 (operator's deep sweep: "What do you do at night?"): the
-			// overview only when the rest of the question names no topic of its
-			// own - "at night" asks deeper, not wider.
 			if rest := strings.Replace(lower, q, " ", 1); len(loadScenarioPacketsForMessage(rest)) > 0 {
 				continue
 			}
@@ -54,8 +41,8 @@ func gopodSummaryQuery(question string) bool {
 	return len(opened) >= s.MinTopics
 }
 
-// gopodSummaryItems: the core topics still to come, each with its next value
-// point's title and first note, in core_topics order (the settings' order).
+// gopodSummaryItems: the core topics still to come, each with its next value point's title and
+// first note, in core_topics order (the settings' order).
 func gopodSummaryItems() []gopodSummaryItem {
 	s := gopodBrobotsSettings.Summary
 	want := s.MaxTopics
@@ -93,8 +80,8 @@ func gopodSummaryItems() []gopodSummaryItem {
 	return out
 }
 
-// gopodSummaryFacts: the summary's facts for the prompt, and it's noted for the
-// answer chain (summary_bubbles); "" when the question isn't one.
+// gopodSummaryFacts: the summary's facts for the prompt, and it's noted for the answer chain
+// (summary_bubbles); "" when the question isn't one.
 func gopodSummaryFacts(esn, question string) string {
 	gopodSummaryFor.Delete(esn)
 	if !gopodSummaryQuery(question) {
@@ -122,9 +109,8 @@ func gopodSummaryItemsFor(esn string) []gopodSummaryItem {
 	return v.([]gopodSummaryItem)
 }
 
-// gopodSummaryBubbles: the answer chain's summary_bubbles part - one bubble per
-// core topic, the model's line if it names that topic's title or note, else
-// made from them (summary.fallback). The shape always holds.
+// gopodSummaryBubbles: the answer chain's summary_bubbles part - one bubble per core topic, the
+// model's line if it names that topic's title or note, else made from them (summary.fallback).
 func gopodSummaryBubbles(esn, raw string) string {
 	items := gopodSummaryItemsFor(esn)
 	if len(items) == 0 {

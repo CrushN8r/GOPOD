@@ -1,22 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_experiences.go
 package wirepod_ttr
 
-// the duo answer-chain template (2026-10-25, operator:
-// "Now, like pre-[bingo experience] > [bingo test] > post-[bingo experience] *
-// duo answer-chain template * Make pre-[sleep experience] > [nap song] >
-// post-[sleep experience]"; "nearly cookie-cutter copy/paste, tweaks").
-//
-// An experience is a scripted song the Brobots talk about (each run card's
-// experience in settings game.runs, filled into bingo and experiences at load -
-// gopod_game_engine.go). 2026-11-24 (operator: "SIMPLIFY!! NO PATCH SCAR TISSUE
-// ... Q: did you have [this] experience? y/n * if no, say so and move on or
-// redirect * if yes, give your take"): a question about it (question_word) gets
-// one brain line - played or not (brain_chain.experience_yes / experience_no) -
-// and no topic points with it. Played: his closing remark, word for word, is his
-// take. Not played: the move to start it (experience_moves) is the redirect.
-// Once a performed line holds its run_marker, the run is remembered as one
-// snapshot note (gopodSharedBrobotChat).
-
 import (
 	"math/rand"
 	"strings"
@@ -35,8 +19,8 @@ func gopodExperienceList() []*gopodExperience {
 
 var gopodExperiencePlayedFlags sync.Map // name -> *atomic.Bool
 
-// gopodExperiencePlayed: the experience has been played since this Wire-Pod
-// start (Bingo's is gopodBingoPlayed, gopod_brobot_personas.go).
+// gopodExperiencePlayed: the experience has been played since this Wire-Pod start (Bingo's is
+// gopodBingoPlayed, gopod_brobot_personas.go).
 func gopodExperiencePlayed(e *gopodExperience) *atomic.Bool {
 	if e == &gopodBrobotsSettings.Bingo {
 		return &gopodBingoPlayed
@@ -63,8 +47,8 @@ func gopodExperienceRan(e *gopodExperience) bool {
 	return gopodExperiencePlayed(e).Load() || gopodExperienceInMemory(e)
 }
 
-// gopodIsExperienceQuestion: the question is about it (question_word), not one
-// of its not_a_test_phrases ("Chocolate Bingo" is the party game, not the test).
+// gopodIsExperienceQuestion: the question is about it (question_word), not one of its
+// not_a_test_phrases ("Chocolate Bingo" is the party game, not the test).
 func gopodIsExperienceQuestion(e *gopodExperience, userMessage string) bool {
 	word := strings.ToLower(strings.TrimSpace(e.QuestionWord))
 	if word == "" {
@@ -84,8 +68,8 @@ func gopodIsBingoQuestion(userMessage string) bool {
 	return gopodIsExperienceQuestion(&gopodBrobotsSettings.Bingo, userMessage)
 }
 
-// gopodExperienceMarkPlayed: a performed line (not the operator's) holding an
-// experience's run_marker means it has been played (gopod_chat_feed.go).
+// gopodExperienceMarkPlayed: a performed line holding an experience's run_marker means it has been
+// played (gopod_chat_feed.go).
 func gopodExperienceMarkPlayed(who, text string) {
 	if who == "Operator" {
 		return
@@ -97,15 +81,13 @@ func gopodExperienceMarkPlayed(who, text string) {
 	}
 }
 
-// gopodExperienceClosing: the end of an answer about an experience - played, his
-// closing remark word for word (his take); not played, the move to start it (the
-// redirect). Otherwise a covered topic's own closing remark (gopod_topic_asks.go).
+// gopodExperienceClosing: the end of an answer about an experience - played, his closing remark
+// word for word (his take); not played, the move to start it (the redirect).
 func gopodExperienceClosing(esn, question string) string {
 	if e := gopodExperienceAsked(question); e != nil {
 		if gopodExperienceRan(e) {
 			return strings.TrimSpace(e.Closing[gopodBrobotName(esn)])
 		}
-		// A line to both: only the second answer redirects (one "start ..." is enough).
 		if _, first := gopodAllFirstAnswer.Load(esn); !first && e.RunName != "" {
 			return gopodExperienceMove(e.RunName)
 		}
@@ -114,8 +96,7 @@ func gopodExperienceClosing(esn, question string) string {
 	return gopodTopicClosing(question)
 }
 
-// gopodExperienceMove (2026-10-26, operator: "recover & add a few more to a
-// list of 5, to randomly choose from"): one of experience_moves, {run} filled.
+// gopodExperienceMove: one of experience_moves, {run} filled.
 func gopodExperienceMove(run string) string {
 	moves := gopodBrobotsSettings.ExperienceMoves
 	if len(moves) == 0 {
@@ -124,9 +105,9 @@ func gopodExperienceMove(run string) string {
 	return strings.TrimSpace(strings.ReplaceAll(moves[rand.Intn(len(moves))], "{run}", run))
 }
 
-// gopodExperienceAsked: the experience a question asks about having had - its
-// word and an experience ask (brain_chain.experience_asks: "how was", "did you"...);
-// "do you do bingo?" is the gig, not the run. nil for none.
+// gopodExperienceAsked: the experience a question asks about having had - its word and an
+// experience ask (brain_chain.experience_asks: "how was", "did you"...); "do you do bingo?" is the
+// gig, not the run.
 func gopodExperienceAsked(question string) *gopodExperience {
 	q := " " + strings.Join(gopodLookupTokens(question), " ") + " "
 	asked := false
@@ -147,8 +128,8 @@ func gopodExperienceAsked(question string) *gopodExperience {
 	return nil
 }
 
-// gopodExperienceFacts: for a question about an experience, its one brain line -
-// played or not (brain_chain.experience_yes / experience_no, {run} filled).
+// gopodExperienceFacts: for a question about an experience, its one brain line - played or not
+// (brain_chain.experience_yes / experience_no, {run} filled).
 func gopodExperienceFacts(esn, question string) []string {
 	e := gopodExperienceAsked(question)
 	if e == nil {
@@ -169,11 +150,7 @@ func gopodExperienceFacts(esn, question string) []string {
 	return []string{line}
 }
 
-// gopodExperiencePacks (2026-11-24, operator: "Q: did you have [this] experience?
-// y/n"): the topic packs a question gets. A run's own pack (run_pack) goes only
-// with an experience ask once the run has played - his take has the run's facts;
-// not played, none. Every other question keeps its packs but the run packs -
-// "bingo for seniors" is the gig, run or no run.
+// gopodExperiencePacks: the topic packs a question gets.
 func gopodExperiencePacks(question string, packets []loadedScenarioPacket) []loadedScenarioPacket {
 	if e := gopodExperienceAsked(question); e != nil {
 		var out []loadedScenarioPacket

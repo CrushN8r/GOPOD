@@ -1,17 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_gemma_eyes.go
 package wirepod_ttr
 
-// GEMMA's eyes (2026-11-16, operator: "For GEMMA eyes, see: ... Logitech, Inc. HD
-// Pro Webcam C920 * for now, similar to get photo * Privacy: it keeps the line &
-// the photo * no safe guarding * add a safe-guard toggle = OFF * I need the images
-// to be displayed"; "Please build for the C920 camera for GEMMA * fallback: brobot
-// 1 camera, then brobot 2 camera"): asked to look (the photo's ask phrases, to
-// GEMMA), she takes a photo with the C920 - or, with no C920, Brobot 1's camera,
-// then Brobot 2's - the vision model says what's there, the photo shows in the
-// chat, she says what she sees, and the line is the brain's ROOM for everyone for
-// gemma_eyes.keep_minutes. The photo and the line are kept (webroot/photos).
-// gemma_eyes.safeguard (off): on, the photo is neither kept nor shown - the line only.
-
 import (
 	"context"
 	"errors"
@@ -36,9 +25,8 @@ var gopodGemmaRoom = struct {
 	at   time.Time
 }{}
 
-// gopodGemmaEyesCapture: a photo from the C920 (gemma_eyes.device, its first
-// frames skipped while it settles), else Brobot 1's camera, then Brobot 2's;
-// which one took it.
+// gopodGemmaEyesCapture: a photo from the C920 (gemma_eyes.device, its first frames skipped while
+// it settles), else Brobot 1's camera, then Brobot 2's; which one took it.
 func gopodGemmaEyesCapture() ([]byte, string, error) {
 	ge := gopodBrobotsSettings.GemmaEyes
 	if dev := gopodGemmaEyesDevice(); dev != "" {
@@ -91,8 +79,7 @@ func gopodGemmaEyesDevice() string {
 	return ""
 }
 
-// gopodGemmaEyesLook: GEMMA looks - the photo, the look, the picture in the chat;
-// what she says.
+// gopodGemmaEyesLook: GEMMA looks - the photo, the look, the picture in the chat; what she says.
 func gopodGemmaEyesLook() string {
 	ge := gopodBrobotsSettings.GemmaEyes
 	data, source, err := gopodGemmaEyesCapture()

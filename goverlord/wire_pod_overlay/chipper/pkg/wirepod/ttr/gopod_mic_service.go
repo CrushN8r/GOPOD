@@ -15,14 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The room-mic service (gopod_probes/tools/gopod_mic_service_001.py,
-// mic_service.script): one process owns the Jetson's USB mic for both Record
-// Session's master and the chat page's numpad push-to-talk - the mic can only be
-// opened once. Started on first use as the desktop user (the same audio access
-// as the golden PTT writer), kept running, restarted if it ends. One JSON
-// command per line in, one JSON reply per line out (matched by "id"); other
-// output lines go to the Wire-Pod log.
-
 var gopodMic = struct {
 	sync.Mutex
 	stdin   io.WriteCloser
@@ -73,8 +65,6 @@ func gopodMicForget(id int) {
 
 func gopodMicStartLocked() error {
 	script := filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.MicService.Script)
-	// As the operator, with his home and audio session (gopodAsOperator; was
-	// its own runuser wrapper before 2026-10-26's one place).
 	cmd := gopodAsOperator(exec.Command("python3", "-u", script))
 	stdin, err := cmd.StdinPipe()
 	if err != nil {

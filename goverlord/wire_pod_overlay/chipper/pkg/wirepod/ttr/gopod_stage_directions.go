@@ -10,14 +10,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Text the model wraps in asterisks is either a stage direction (*laugh*) or
-// emphasis (*crazy*, **AI Wordplay**). Only stage directions whose first word is
-// on the list in stage_directions.json are dropped from speech; everything else
-// keeps its words and loses only the asterisks. The list is data, read at
-// startup: edit the JSON and restart wire-pod.service, no rebuild.
-
-// gopodStageDirectionsPath resolves relative to gopodChipperRoot() (see
-// gopod_paths.go), overridable via GOPOD_STAGE_DIRECTIONS_PATH.
+// gopodStageDirectionsPath resolves relative to gopodChipperRoot() (see gopod_paths.go),
+// overridable via GOPOD_STAGE_DIRECTIONS_PATH.
 var gopodStageDirectionsPath = gopodPathWithEnvOverride(
 	"GOPOD_STAGE_DIRECTIONS_PATH", "gopod_probes/stage_directions.json",
 )
@@ -63,9 +57,8 @@ func gopodIsStageDirection(inner string) bool {
 	return first != "" && loadedGOPODStageDirections[strings.ToLower(first)]
 }
 
-// gopodStripStageDirections drops listed stage directions and keeps every other
-// asterisk-wrapped span as plain spoken words. Stray asterisks left over are
-// removed.
+// gopodStripStageDirections drops listed stage directions and keeps every other asterisk-wrapped
+// span as plain spoken words.
 func gopodStripStageDirections(line string) string {
 	line = gopodAsteriskSpanPattern.ReplaceAllStringFunc(line, func(span string) string {
 		inner := gopodAsteriskSpanPattern.FindStringSubmatch(span)[1]
@@ -78,13 +71,11 @@ func gopodStripStageDirections(line string) string {
 	return strings.Join(strings.Fields(line), " ")
 }
 
-// gopodCueWordNotePattern: a note the model adds about its own cue word,
-// "(Cue word: thinking)".
+// gopodCueWordNotePattern: a note the model adds about its own cue word, "(Cue word: thinking)".
 var gopodCueWordNotePattern = regexp.MustCompile(`(?i)\(\s*cue\s*words?\s*:[^)]*\)`)
 
-// gopodStripCueWordNotes (2026-10-11, operator: "(Cue word: thinking), (Cue
-// word: darts) ... messes up highlighting splits"): the note is dropped before
-// the reply is split, so neither the bubble nor the speech has it.
+// gopodStripCueWordNotes: the note is dropped before the reply is split, so neither the bubble nor
+// the speech has it.
 func gopodStripCueWordNotes(text string) string {
 	if !gopodCueWordNotePattern.MatchString(text) {
 		return text

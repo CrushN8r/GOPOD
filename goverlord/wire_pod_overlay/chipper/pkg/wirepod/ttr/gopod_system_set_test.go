@@ -8,8 +8,7 @@ import (
 	"testing"
 )
 
-// TestSystemSetEditsInPlace (2026-10-17, operator: "system-set this-volume
-// 13%"): one value changes, everything else stays byte for byte.
+// TestSystemSetEditsInPlace: one value changes, everything else stays byte for byte.
 func TestSystemSetEditsInPlace(t *testing.T) {
 	dir := t.TempDir()
 	knobs := filepath.Join(dir, "knobs.json")
@@ -20,7 +19,6 @@ func TestSystemSetEditsInPlace(t *testing.T) {
 	if err != nil || old != `""` || string(got) != strings.Replace(orig, `"volume": ""`, `"volume": "13%"`, 1) {
 		t.Errorf("replace: %v %q\n%s", err, old, got)
 	}
-	// A missing field is added to its step.
 	old, err = gopodJSONFileSet(knobs, []string{"steps", "1", "pause_seconds"}, `2`)
 	got, _ = os.ReadFile(knobs)
 	if err != nil || old != "(none)" || !strings.Contains(string(got), `{"step_id": "b_0102", "note": "pause", "pause_seconds": 2}`) {
@@ -58,10 +56,8 @@ func TestSystemSetStoryText(t *testing.T) {
 	}
 }
 
-// TestStoryMultiLine (2026-10-17, operator: "this multi-line edit broke the
-// code ... Can you upgrade globally to support multi-line edits?"): a line right
-// under "> TEXT:" is the text's next line; a blank line ends it; system-set
-// replaces all of it.
+// TestStoryMultiLine: a line right under "> TEXT:" is the text's next line; a blank line ends it;
+// system-set replaces all of it.
 func TestStoryMultiLine(t *testing.T) {
 	story := "## STEP a_0101\n\n> TEXT: Voice ready to play.\nLanguage Model Loading...\n\nNot words.\n\n## STEP b_0102\n\n> TEXT: One.\n"
 	texts, err := gopodInterviewStory(story)
@@ -77,8 +73,8 @@ func TestStoryMultiLine(t *testing.T) {
 	}
 }
 
-// TestSystemSetReads: the list and a song's steps read the real files, and a
-// voice or numpad line is turned away.
+// TestSystemSetReads: the list and a song's steps read the real files, and a voice or numpad line
+// is turned away.
 func TestSystemSetReads(t *testing.T) {
 	if h := gopodSystemSet("system-set"); !strings.Contains(h, "master-volume") || !strings.Contains(h, "00_llm_warming") {
 		t.Errorf("help:\n%s", h)
@@ -94,8 +90,7 @@ func TestSystemSetReads(t *testing.T) {
 	}
 }
 
-// TestSystemLocate (2026-10-17, operator: "Please build system-locate"): a
-// setting, a song step and a word are found with their file and line.
+// TestSystemLocate: a setting, a song step and a word are found with their file and line.
 func TestSystemLocate(t *testing.T) {
 	if s := gopodSystemLocate("system-locate master-volume"); !strings.Contains(s, "gopod_settings/03_chat_page.json:") {
 		t.Errorf("setting: %s", s)
@@ -123,8 +118,7 @@ func TestSystemLocate(t *testing.T) {
 
 // ## EOF
 
-// TestSystemUndo (2026-10-17, operator: "Add: system-undo, system-status,
-// system-help"): an edit is put back; one changed since is left alone.
+// TestSystemUndo: an edit is put back; one changed since is left alone.
 func TestSystemUndo(t *testing.T) {
 	saved := gopodUndoPath
 	defer func() { gopodUndoPath = saved }()
@@ -156,8 +150,7 @@ func TestSystemUndo(t *testing.T) {
 	}
 }
 
-// TestSystemFind (2026-10-17, operator: "system-find FEED_CHECK or system-find
-// Toronto * yes, please"): the log's newest lines first, then the files.
+// TestSystemFind: the log's newest lines first, then the files.
 func TestSystemFind(t *testing.T) {
 	saved := gopodFindJournal
 	defer func() { gopodFindJournal = saved }()
@@ -177,8 +170,7 @@ func TestSystemFind(t *testing.T) {
 	}
 }
 
-// TestSystemSearchQuery (2026-10-17, operator: "brobots use \"system-search\"
-// for 'search [search-text]' like 'stat [run-name]'"): the line opens with it.
+// TestSystemSearchQuery: the line opens with it.
 func TestSystemSearchQuery(t *testing.T) {
 	for in, want := range map[string]string{
 		"search Toronto Ohio population?":        "Toronto Ohio population",

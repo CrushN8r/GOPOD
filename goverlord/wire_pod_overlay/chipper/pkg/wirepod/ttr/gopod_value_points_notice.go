@@ -2,21 +2,11 @@
 package wirepod_ttr
 
 import (
-	"sync/atomic"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
-
-// The value points notice (2026-10-22, operator: "make standard, the
-// Notice-bubble inside a Brobot's bubble * new notice-bubble always shows the
-// response's value points (what the llm is composing from, that the GOPOD reps
-// (brobots) are hired to reveal) * in the same notice-bubble, if more info
-// incoming add it in underneath, then \"Got it!\""): every live Brobot answer
-// opens with a notice at the top of his bubble (the bubble notice template,
-// gopodBubbleNotice): the value points his answer is built from, the extras
-// (weather, search), then the thinking line once he has said it. To help
-// prevent drift: what he was given is on screen, next to what he says.
 
 // gopodNoticeWords: one notice kind's words (bubble_notices): title, then line.
 type gopodNoticeWords struct {
@@ -39,10 +29,7 @@ func gopodNoticeShow(brobot string, w gopodNoticeWords, fill map[string]string) 
 	}
 }
 
-// The notice log, in order (2026-10-22): 1. "Got it!" as he says it, 2. the
-// points or none, 3. a manager's part (the page puts it in the notice), 4.
-// "Got it!" again when the floor comes back to him. The lines are made with the
-// prompt (gopodNoticeSet), held until both they and his "Got it!" are in.
+// The notice log, in order: 1.
 var gopodNotice = struct {
 	sync.Mutex
 	lines map[string][]string // esn -> lines, waiting to be posted
@@ -85,9 +72,6 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 	if label == "" {
 		label = topic
 	}
-	// 2026-10-23 (live: "a day of parties #1 of 3" with only #1 a value point;
-	// operator: "where's: a day of parties #2 of 3"): #N of N counts the topic's
-	// value points (core_points) - its place among them, of how many.
 	shownN, shownTotal := n, total
 	if k, err := strconv.Atoi(n); err == nil && len(gopodBrobotsSettings.ValuePoints.CorePoints) > 0 {
 		if all, err := strconv.Atoi(total); err == nil {
@@ -106,14 +90,10 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 		}
 	}
 	n, total = shownN, shownTotal
-	// 2026-10-22 (operator: note form): a point with notes shows its title, then
-	// each note on its own line (value_points.note).
 	if k, err := strconv.Atoi(n); err == nil {
 		if title, notes := gopodPointNotes(topic, k); title != "" {
 			vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 			line := gopodNoticeFill(vp.Points, map[string]string{"id": id, "topic": label, "n": n, "total": total, "words": title})
-			// 2026-10-26 (operator: "to save vertical screen space list by \"|\"
-			// separator in a single line"): notes, all on one line (notes_join).
 			if vp.Notes != "" {
 				return line + "\n" + gopodNoticeFill(vp.Notes, map[string]string{"notes": strings.Join(notes, vp.NotesJoin)})
 			}
@@ -126,27 +106,21 @@ func gopodNoticePoint(topic string, content []byte, given string) string {
 	return gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Points, map[string]string{"id": id, "topic": label, "n": n, "total": total, "words": strings.TrimSpace(words)})
 }
 
-// One notice per Brobot bubble (2026-10-22, operator: "brobot 2 response isn't
-// same structure as brobot 1 response"): an egg found for his line is a line of
-// his Value Points notice, not a notice of its own. Held until his notice is
-// made (gopodNoticeSet); after it's posted, added to it at once.
+// One notice per Brobot bubble: an egg found for his line is a line of his Value Points notice, not
+// a notice of its own.
 var gopodNoticeEggs = struct {
 	sync.Mutex
 	lines map[string][]string // Brobot -> egg lines waiting
 }{lines: map[string][]string{}}
 
-// gopodNoticeEgg: an egg's line for this Brobot's notice; false when there's
-// no live notice (the egg's own notice is used instead).
+// gopodNoticeEgg: an egg's line for this Brobot's notice; false when there's no live notice (the
+// egg's own notice is used instead).
 func gopodNoticeEgg(brobot, title, summary string) bool {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 	if strings.TrimSpace(vp.Title) == "" || strings.TrimSpace(vp.Egg) == "" || gopodScriptPlaying.Load() || !gopodNoticePart("egg") {
 		return false
 	}
 	line := gopodNoticeFill(vp.Egg, map[string]string{"title": title, "summary": summary})
-	// 2026-10-25 (operator: "NEW RULE: The brobot bubble indicates revealed easter
-	// eggs upon 1st reveal * no more pop ups * however, the marquee lights stay, as
-	// an indicator of a revealed easter egg"): his bubble wears the marquee, every
-	// time a line of his hits an egg (the page's eggMarked).
 	GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, brobot, gopodEggMark+title)
 	esn := gopodBrobotESN(brobot)
 	gopodNotice.Lock()
@@ -162,8 +136,7 @@ func gopodNoticeEgg(brobot, title, summary string) bool {
 	return true
 }
 
-// The game lines (2026-10-22, operator: "Game survey: 1-4";
-// GAME_FEEL_SURVEY_001.md): combo, chapter cleared, back on track, score.
+// The game lines: combo, chapter cleared, back on track, score.
 var gopodChapterCleared = struct {
 	sync.Mutex
 	said map[string]bool
@@ -185,7 +158,6 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 			topics = append(topics, f[0])
 		}
 	}
-	// 3. combo: one answer, points from two topics or more.
 	if len(topics) >= 2 && vp.Combo != "" {
 		var names []string
 		for _, t := range topics {
@@ -199,7 +171,6 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 	byTopic := gopodBrobotsSettings.ValuePoints.Target == "topics"
 	for _, n := range names {
 		if byTopic {
-			// 2026-10-23: the game counts topics - one point opens one.
 			total++
 			if gopodCoverage.revealed[n] > 0 {
 				said++
@@ -214,7 +185,7 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 		total += counts[n]
 	}
 	covered := func(t string) bool { return counts[t] > 0 && gopodTopicDoneLocked(t, counts[t]) }
-	// 2. chapter cleared: every topic of a chapter this answer touched is covered.
+	// 2.
 	var cleared []string
 	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
 		touched, all := false, len(c.Topics) > 0
@@ -240,11 +211,6 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 			parts["chapter"] = append(parts["chapter"], gopodNoticeFill(vp.Chapter, map[string]string{"chapter": title}))
 		}
 	}
-	// 4. the gravitational pull (2026-10-22, operator: "remember the
-	// gravitational pull to reveal all value points * please template this
-	// somewhere in the flow, kinda like Back on track"): every answer names the
-	// next points on the list - a free answer "Back on track", a topic answer
-	// "Next up" (value_points.recovery / next; the gravity block).
 	if !gopodIsThanks(question) {
 		if next := gopodReminderTopics(question); next != "" {
 			if len(topics) == 0 && vp.Recovery != "" {
@@ -254,21 +220,15 @@ func gopodNoticeGame(esn, question string, parts map[string][]string) {
 			}
 		}
 	}
-	// 1. score: the one score template (value_points.score_text, A3) - topics,
-	// value points and eggs, N of N.
 	if vp.Score != "" && total > 0 {
 		score, _ := gopodCoverageScoreText()
-		// 2026-10-25: the notice's own score lines (its bars) - the score's numbers
-		// filled straight into value_points.score here (gopodCoverageScoreWith).
 		filled, _ := gopodCoverageScoreWith(vp.Score)
 		parts["score"] = []string{gopodNoticeFill(filled, map[string]string{"said": strconv.Itoa(said), "total": strconv.Itoa(total), "score": score})}
 	}
 }
 
-// gopodBrainScoreRows (2026-11-02, operator: "Add in the score in every brain
-// bubble"): the game's score rows (value_points.score - topics, value points,
-// eggs, each with its bar), for every brain bubble, a Brobot's or a Gomad's.
-// gopodBrainScoreShown: the score a brain bubble last showed.
+// gopodBrainScoreRows: the game's score rows (value_points.score - topics, value points, eggs, each
+// with its bar), for every brain bubble, a Brobot's or a Gomad's.
 var gopodBrainScoreShown atomic.Value
 
 func gopodBrainScoreRows() []string {
@@ -278,8 +238,6 @@ func gopodBrainScoreRows() []string {
 	}
 	filled, _ := gopodCoverageScoreWith(vp.Score)
 	score, _ := gopodCoverageScoreText()
-	// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat"): the score
-	// rows only when the score has changed since a brain last showed them.
 	if prev, _ := gopodBrainScoreShown.Swap(score).(string); prev == score {
 		return nil
 	}
@@ -292,11 +250,10 @@ func gopodBrainScoreRows() []string {
 	return out
 }
 
-// gopodNoticeSet keeps this answer's lines, in value_points.parts order
-// (gopodQuestionFactsFor); "got_it" is where his "Got it!" goes.
+// gopodNoticeSet keeps this answer's lines, in value_points.parts order (gopodQuestionFactsFor);
+// "got_it" is where his "Got it!" goes.
 func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
-	// 2026-10-31: an intro's brain is the brain template alone - no value points game.
 	intro := gopodIsIntro(question)
 	if len(parts["points"]) == 0 && len(parts["search"]) == 0 && len(parts["summary"]) == 0 && !gopodIsThanks(question) && !intro {
 		parts["none"] = []string{vp.None}
@@ -308,15 +265,11 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	if !intro {
 		gopodNoticeGame(esn, question, parts)
 	}
-	// 2026-10-31: his reminders, for the brain's Reminders (the names the reminder named).
 	gopodBrainReminders.Delete(gopodBrobotName(esn))
 	if v, ok := gopodReminderNames.LoadAndDelete(question); ok && !intro && !gopodIsThanks(question) {
 		gopodBrainReminders.Store(gopodBrobotName(esn), v)
 	}
-	// 2026-10-31: the brain template's lines (gopod_brain_chain.go, brain_chain.lines).
 	parts["memory"] = gopodBrainBubbleLines(gopodBrobotName(esn), question)
-	// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
-	// rows, every answer - an intro's too.
 	parts["score"] = gopodBrainScoreRows()
 	var keep []string
 	content := false
@@ -325,7 +278,6 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 			keep = append(keep, "\x00got_it")
 			continue
 		}
-		// 2026-10-25: the response-chain's plan line (gopodResponsePlan).
 		if part == "plan" {
 			if l := gopodResponsePlan(esn); l != "" {
 				keep = append(keep, l)
@@ -346,19 +298,14 @@ func gopodNoticeSet(esn, question string, parts map[string][]string) {
 	gopodNotice.Lock()
 	gopodNotice.lines[esn] = keep
 	gopodNotice.asked[esn] = question
-	// A new answer: a "Got it!" from before (a song's) doesn't count.
 	delete(gopodNotice.gotIt, esn)
 	delete(gopodNotice.ready, esn)
 	gopodNotice.Unlock()
 }
 
-// The notice guide (2026-10-27, operator: "Pretend everytime a notice-bubble
-// appears in a brobot's response bubble, what would you tell my brobots to do
-// at each call in the chat? * Do as per example \"Next up\" -> \"don't reveal
-// these yet\""): each notice line this answer shows, with what he's to do about
-// it (bubble_notices.value_points.guide.<part>, {line} the notice's own line),
-// in value_points.parts order - his pre-build context's {notice} (one source:
-// what the room sees is what he's told). A part with no guide isn't told.
+// The notice guide: each notice line this answer shows, with what he's to do about it
+// (bubble_notices.value_points.guide.<part>, {line} the notice's own line), in value_points.parts
+// order - his pre-build context's {notice} (one source: what the room sees is what he's told).
 var gopodNoticeGuides = struct {
 	sync.Mutex
 	lines map[string][]string
@@ -396,15 +343,10 @@ func gopodNoticeTitle(esn string) string {
 	if (brobot != "Brobot 1" && brobot != "Brobot 2") || gopodScriptPlaying.Load() {
 		return ""
 	}
-	// 2026-10-30 (operator: "Rename Value Points to [persona-(nick)name] Brain"):
-	// {name} is the persona answering - 2026-11-13 (operator: "Brobot 1 is a
-	// separate persona ... DOC is a separate persona"): Brobot 1 at the dial's 0%,
-	// else the persona he hosts (gopodCallName), never the body for both.
 	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.BubbleNotices.ValuePoints.Title, "{name}", gopodPersonaShown(brobot)))
 }
 
 // gopodNoticeFlush posts the held lines once they and his "Got it!" are in.
-// Call with gopodNotice locked; returns the lines to post.
 func gopodNoticeFlushLocked(esn string) ([]string, string, bool) {
 	if !gopodNotice.ready[esn] || !gopodNotice.gotIt[esn] {
 		return nil, "", false
@@ -437,17 +379,14 @@ func gopodBubbleStep(step string) bool {
 	return false
 }
 
-// gopodNoticeFlushed: notice lines 1-2 posted, then line 3 - a manager steps in
-// if his line asks for one (gopodManagerStepIn), while his answer is written.
+// gopodNoticeFlushed: notice lines 1-2 posted, then line 3 - a manager steps in if his line asks
+// for one (gopodManagerStepIn), while his answer is written.
 func gopodNoticeFlushed(esn string, lines []string, asked string, ok bool) {
 	if !ok {
 		return
 	}
 	gopodNoticePostLines(esn, lines)
 	if r, ok := gopodDuoRule(esn); ok && r.NoManager {
-		// duo B: his brother's manager already helped (duo.b.no_manager) - but
-		// 2026-11-03 (operator: "Cache PYC in both brain bubbles (PLAYHEAD take
-		// over not required, intern is there)"): the intern's ready line in his.
 		if intern := gopodWeatherInternFor(asked); intern != "" && !gopodScriptPlaying.Load() {
 			go gopodWeatherInternReady(intern, gopodBrobotName(esn))
 		}
@@ -494,9 +433,9 @@ func gopodValuePointsNoticeGotIt(esn string) {
 	gopodNoticeFlushed(esn, lines, asked, ok)
 }
 
-// gopodNoticeGotItAgain: the floor is back to him after a manager's part
-// (gopodThinkingProcess's end): got_it_again ("Thanks for your help, {helper}."),
-// shown in his notice; returns what he says ("" = nothing).
+// gopodNoticeGotItAgain: the floor is back to him after a manager's part (gopodThinkingProcess's
+// end): got_it_again ("Thanks for your help, {helper}."), shown in his notice; returns what he says
+// ("" = nothing).
 func gopodNoticeGotItAgain(esn string, hadManager bool) string {
 	vp := gopodBrobotsSettings.BubbleNotices.ValuePoints
 	gopodNotice.Lock()
@@ -511,18 +450,14 @@ func gopodNoticeGotItAgain(esn string, hadManager bool) string {
 	helper := gopodNoticeHelper(host)
 	l := gopodNoticeFill(vp.GotItAgain, map[string]string{"thinking_text": gopodGotItFor(esn).Text, "helper": helper})
 	if l != "" {
-		// 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in
-		// highlighting pipeline"): he says it - lit as he does (noticesay:), shown
-		// said once he's done (gopodNoticeSaid).
 		GopodChatFeedAddTo(gopodBrobotsSettings.TopicPictures.Role, gopodBrobotName(esn),
 			gopodNoticeSayMark+strings.ReplaceAll(gopodNoticeTitle(esn), "|", " ")+"|"+strings.ReplaceAll(l, "|", " "))
 	}
 	return l
 }
 
-// gopodNoticeHelper: {helper} for the manager who had the floor, from
-// value_points.helper_from in order - name (his own, "PLAYHEAD"), brobot (his
-// Brobot, "Brobot 4"); the first that has one.
+// gopodNoticeHelper: {helper} for the manager who had the floor, from value_points.helper_from in
+// order - name (his own, "PLAYHEAD"), brobot (his Brobot, "Brobot 4"); the first that has one.
 func gopodNoticeHelper(host string) string {
 	for _, from := range gopodBrobotsSettings.BubbleNotices.ValuePoints.HelperFrom {
 		v := ""

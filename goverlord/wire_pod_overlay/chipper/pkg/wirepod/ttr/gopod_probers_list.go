@@ -1,16 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_probers_list.go
 package wirepod_ttr
 
-// The probers list (2026-10-29, operator: "I like the name 'probers list'";, operator: "Please grab those real questions
-// held in saved sessions, and create a scripted 'real questions' run to test with *
-// then test if its working well enough"; "Just grab a bunch of my best probers").
-// system-test-probers-list plays system_tests.probers_list.file - the
-// operator's own probers from his saved sessions (public: "I consider my probing
-// questions as examples of how I thought"), each with the topic it should land on first -
-// through the game's topic loader, the lightning (gopod_lightning.go) and the word
-// triggers side by side, nothing said. It passes when the lightning lands
-// pass_share of them. The live game's coverage is put back after.
-
 import (
 	"fmt"
 	"os"
@@ -91,7 +81,6 @@ func gopodProbersListLine() (bool, string) {
 	if len(qs) == 0 {
 		return false, file + ": no questions"
 	}
-	// The live game's coverage is put back after (the covered-last order reads it).
 	gopodCoverage.Lock()
 	keep := gopodCoverage.revealed
 	gopodCoverage.revealed = map[string]int{}
@@ -117,9 +106,8 @@ var gopodProberTurn = struct {
 	next map[string]int
 }{next: map[string]int{}}
 
-// gopodProberFor: one of Ron's probers for a topic - one the game takes to that
-// topic, the next in turn, so a reminder doesn't invite with the same one twice
-// running; "" with none.
+// gopodProberFor: one of Ron's probers for a topic - one the game takes to that topic, the next in
+// turn, so a reminder doesn't invite with the same one twice running; "" with none.
 func gopodProberFor(topic string) string {
 	probers, _, err := gopodProbers()
 	if err != nil {
@@ -130,7 +118,6 @@ func gopodProberFor(topic string) string {
 		if len(p.want) == 0 || p.want[0] != topic {
 			continue
 		}
-		// An invite lands where it says: only a prober the game takes to its topic.
 		if l := loadScenarioPacketsForMessage(p.text); len(l) == 0 || l[0].Name != topic {
 			continue
 		}

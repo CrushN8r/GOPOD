@@ -6,9 +6,8 @@ import (
 	"testing"
 )
 
-// TestGopodChipperRootFollowsOverlayFolder pins GOPOD's file root to the overlay
-// chipper folder when one is set (2026-10-02: Wire-Pod reads GOPOD's files only
-// from the overlay), so a refactor can't silently send them back into ~/wire-pod.
+// TestGopodChipperRootFollowsOverlayFolder pins GOPOD's file root to the overlay chipper folder
+// when one is set, so a refactor can't silently send them back into ~/wire-pod.
 func TestGopodChipperRootFollowsOverlayFolder(t *testing.T) {
 	t.Setenv("GOPOD_OVERLAY_CHIPPER", "/tmp/gopod-overlay-chipper")
 	if got := gopodChipperRoot(); got != "/tmp/gopod-overlay-chipper" {

@@ -1,12 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_searching_golden.go
 package wirepod_ttr
 
-// The searching sequence's golden note (2026-11-03, operator: "searching
-// animation is breaking again. please isolate into a robust golden note and
-// fucking lock it and refer only to it"): its clips and pace are read from
-// gopod_probes/locks/searching_golden.md and nowhere else. Locked by
-// TestSearchingGoldenLock.
-
 import (
 	"context"
 	"path/filepath"
@@ -28,10 +22,7 @@ func gopodSearchingGoldenPath() string {
 	return filepath.Join(gopodChipperRoot(), "gopod_probes", "locks", "searching_golden.md")
 }
 
-// gopodSearchingGolden: the note's values. OK is false (and it's logged) when
-// the note is missing or a value is - the deploy fails on that
-// (TestSearchingGoldenLock); live, no searching clip is sent at all, rather
-// than one from anywhere else.
+// gopodSearchingGolden: the note's values.
 func gopodSearchingGolden() gopodSearching {
 	_, sections := gopodPersonaProfileRead(gopodSearchingGoldenPath())
 	val := func(section, key string) string {
@@ -53,8 +44,8 @@ func gopodSearchingGolden() gopodSearching {
 	return g
 }
 
-// gopodSearchingPlay: one of the note's clips, once - the only place the
-// searching clips are sent from.
+// gopodSearchingPlay: one of the note's clips, once - the only place the searching clips are sent
+// from.
 func gopodSearchingPlay(robot *vector.Vector, ctx context.Context, sg gopodSearching, clip string) {
 	if !sg.OK || clip == "" {
 		return

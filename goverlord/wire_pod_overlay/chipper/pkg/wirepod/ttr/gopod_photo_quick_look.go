@@ -15,15 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The photo egg's quick look (2026-10-16, operator: "Edge TPU list shown first
-// while moondream is still looking (both, not a swap) * so do this in 2 rounds *
-// round 1 is from TPU quick look (while moondream looks) * round 2 is from
-// moondream"). One Edge TPU worker (gopod_probes/tools/
-// gopod_edge_tpu_quick_look_001.py, settings photo.quick_look) loads the object
-// model once at Wire-Pod start; each photo's objects come back in well under a
-// second ("person", "chair", ...). A worker that can't start, or doesn't answer
-// in time, just gives no objects (photo.quick_none_text).
-
 var gopodQuickLook = struct {
 	sync.Mutex
 	in    *bufio.Writer
@@ -33,15 +24,14 @@ var gopodQuickLook = struct {
 }{}
 
 func init() {
-	// Not in the tests (no Edge TPU there).
 	if strings.HasSuffix(os.Args[0], ".test") {
 		return
 	}
 	go gopodQuickLookStart()
 }
 
-// gopodQuickLookPath: a settings path - "~/" is the GOPOD owner's home, a
-// relative one is from the overlay chipper folder.
+// gopodQuickLookPath: a settings path - "~/" is the GOPOD owner's home, a relative one is from the
+// overlay chipper folder.
 func gopodQuickLookPath(path string) string {
 	path = gopodHomePath(path)
 	if path != "" && !filepath.IsAbs(path) {
@@ -68,8 +58,6 @@ func gopodQuickLookStart() {
 		logger.Println("GOPOD_QUICK_LOOK unable to start the worker: " + err.Error())
 		return
 	}
-	// 2026-10-20 (review): kept from the start, so system-tpu restart can stop
-	// a worker that's still loading (or stuck) instead of starting a second one.
 	gopodQuickLook.Lock()
 	gopodQuickLook.cmd, gopodQuickLook.ready = cmd, false
 	gopodQuickLook.Unlock()
@@ -93,8 +81,6 @@ func jsonNumber(f float64) string {
 }
 
 // gopodQuickLookObjects: the objects in the photo at this path, most sure first.
-// A worker that doesn't answer in time is stopped and started again, for the
-// next photo.
 var gopodQuickLookObjects = func(photo string) ([]string, error) {
 	q := gopodBrobotsSettings.Photo.QuickLook
 	gopodQuickLook.Lock()
@@ -146,10 +132,8 @@ var gopodQuickLookObjects = func(photo string) ([]string, error) {
 	}
 }
 
-// gopodQuickLookPictures (2026-10-17, operator: "3 images displayed * [raw
-// snapshot][snapshot enhancement attempt][TPU object recognition on
-// enhancement]"; "TPU with bounding boxes"): where the worker keeps the
-// enhanced snapshot and the copy with the objects' boxes, beside the photo.
+// gopodQuickLookPictures: where the worker keeps the enhanced snapshot and the copy with the
+// objects' boxes, beside the photo.
 func gopodQuickLookPictures(photo string) (string, string) {
 	base := strings.TrimSuffix(photo, filepath.Ext(photo))
 	return base + "_enhanced.jpg", base + "_tpu.jpg"
@@ -165,8 +149,7 @@ func gopodQuickLookRestartLocked() {
 	go gopodQuickLookStart()
 }
 
-// gopodQuickLookList: ["person", "chair", "keyboard"] -> "a person, a chair and
-// a keyboard".
+// gopodQuickLookList: ["person", "chair", "keyboard"] -> "a person, a chair and a keyboard".
 func gopodQuickLookList(objects []string) string {
 	var named []string
 	for _, o := range objects {

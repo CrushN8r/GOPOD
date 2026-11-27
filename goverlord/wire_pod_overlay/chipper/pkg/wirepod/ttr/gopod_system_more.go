@@ -12,16 +12,6 @@ import (
 	"time"
 )
 
-// system-undo, system-status, system-help (2026-10-17, operator: "Add:
-// system-undo, system-status, system-help"). Typed on the chat page's
-// keyboard, answered in the terminal bubble (gopodSystemSetLine).
-//
-//   system-undo     puts back the last system-set edit (all its files), if
-//                   nothing has changed them since; again for the one before
-//   system-status   Wire-Pod, the language model, the warm-up gate, the chat
-//                   page, the run going, both Brobots' battery
-//   system-help     every system command, a line each
-
 // gopodUndoFile: one file of an edit, before and after.
 type gopodUndoFile struct {
 	Path   string `json:"path"`
@@ -45,8 +35,8 @@ var gopodUndo = struct {
 	open *gopodUndoEdit // the command being run
 }{}
 
-// gopodUndoBegin / gopodUndoEnd wrap one system-set command; its writes
-// (gopodWriteFileSafe) are kept for system-undo.
+// gopodUndoBegin / gopodUndoEnd wrap one system-set command; its writes (gopodWriteFileSafe) are
+// kept for system-undo.
 func gopodUndoBegin(what string) {
 	gopodUndo.Lock()
 	gopodUndo.open = &gopodUndoEdit{What: what, At: time.Now().Format("15:04:05")}
@@ -187,9 +177,7 @@ func gopodJoinLines(lines []string) string {
 	return b.String()
 }
 
-// gopodSystemHelp: every system command - its list is system_help.lines in the
-// settings file (2026-10-29, pass 3 of FLEXIBLE_DATA_SURVEY_001.md: the code
-// prints it, the words live with the rest).
+// gopodSystemHelp: every system command - its list is system_help.lines in the settings file.
 func gopodSystemHelp() string {
 	return gopodJoinLines(gopodBrobotsSettings.SystemHelp.Lines)
 }

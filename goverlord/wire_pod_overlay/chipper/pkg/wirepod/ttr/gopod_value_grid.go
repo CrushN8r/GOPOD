@@ -1,19 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_value_grid.go
 package wirepod_ttr
 
-// The value grid (2026-11-25, operator: "repo md file = chapter > topics >
-// value-points (why lean into GOPOD) * chapter > chapter value-points *
-// per-topic > topic value-points * per-value-point > value-point-special-notes";
-// "locally layered value-points within the given boundaries, should also be
-// interconnected/cross-linked for look-ups ... a tighter more accurate 2D/XY grid
-// approach"): the merry-go-round as a grid, read live from the cards - never
-// written by hand. X: the seats (chapters, then their topics) in the game's
-// order - the wide sweep. Y: each topic's value points, 1 (wide) to n (deep) -
-// the deep sweep. Each point carries its special notes, its telling words and
-// its links: the points in other topics that share the most of those words.
-// The reminders ride from it (gopodValueGridBounce: the operator's pick, 2026-11-25 -
-// "In the reminder"), and the start-up check checks it (gopodValueGridCheck).
-
 import (
 	"fmt"
 	"sort"
@@ -70,9 +57,6 @@ func gopodValueGrid() []gopodGridChapter {
 				}
 			}
 			sort.Ints(ns)
-			// 2026-11-26 (the grid flagged 18 topics as having no value points): the
-			// game's rule (gopodCoverageRevealFor) - a card with no numbered points is
-			// one point, its whole text after "---". The grid follows it.
 			if len(ns) == 0 {
 				if data, err := gopodTopicFileRead(t.Path); err == nil {
 					if _, body, ok := strings.Cut(string(data), "\n---\n"); ok && strings.TrimSpace(body) != "" {
@@ -93,7 +77,6 @@ func gopodValueGrid() []gopodGridChapter {
 		}
 		out = append(out, gc)
 	}
-	// Links: the points in other topics sharing the most telling words (two or more).
 	for _, p := range all {
 		type cand struct {
 			key   string
@@ -122,8 +105,8 @@ func gopodValueGrid() []gopodGridChapter {
 	return out
 }
 
-// gopodValueGridMarkdown: the grid as a page to read - chapter, its value
-// point, then each topic's points (depth, the point, its special notes, its links).
+// gopodValueGridMarkdown: the grid as a page to read - chapter, its value point, then each topic's
+// points (depth, the point, its special notes, its links).
 func gopodValueGridMarkdown(when string) string {
 	var b strings.Builder
 	grid := gopodValueGrid()
@@ -180,11 +163,9 @@ func gopodValueGridNow() []gopodGridChapter {
 	return gopodValueGridCache.grid
 }
 
-// gopodValueGridBounce (2026-11-25, operator: "a loose happy glitch can lead to
-// something humans can latch onto * the pinball can bounce around, but its
-// contained"): where a question bounces to - the point it lands on (the one
-// sharing the most telling words with it, in the topics it loaded when it loaded
-// any), then that point's strongest link whose topic is a seat. "" for none.
+// gopodValueGridBounce: where a question bounces to - the point it lands on (the one sharing the
+// most telling words with it, in the topics it loaded when it loaded any), then that point's
+// strongest link whose topic is a seat.
 func gopodValueGridBounce(question string, seat func(string) bool) string {
 	words := gopodLookupMeaningful(question)
 	if len(words) == 0 {
@@ -226,11 +207,9 @@ func gopodValueGridBounce(question string, seat func(string) bool) string {
 	return ""
 }
 
-// gopodValueGridCheck: what's wrong with a grid - breaks (a point with neither
-// words nor notes, a link to a point that isn't there) and gaps (a topic with no
-// value points on its card; one line naming the points that link to nothing -
-// they can't be bounced to). Breaks are "to fix"; gaps are the cards' to-do, logged.
-// Its last value is how many things it checked.
+// gopodValueGridCheck: what's wrong with a grid - breaks (a point with neither words nor notes, a
+// link to a point that isn't there) and gaps (a topic with no value points on its card; one line
+// naming the points that link to nothing - they can't be bounced to).
 func gopodValueGridCheck(grid []gopodGridChapter) (breaks, gaps []string, checked int) {
 	var out []string
 	exists := map[string]bool{}

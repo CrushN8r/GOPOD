@@ -1,24 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_probers_make.go
 package wirepod_ttr
 
-// The probe maker (2026-10-29, operator: "Look at how I thought to get those
-// probes * set up a templated chain of how-to-probe thought-bubbles * the whole
-// point is to automate anyways * I can always go in after and mic record whatever
-// probes are generated, for the app demo"). system-probers-make runs the chain
-// for every value point and writes probers_make.file:
-//
-//  1. the topic - every topic, in the game's order;
-//  2. the point - each of its value points, by its note (value_points notes:
-//     "title | note");
-//  3. the shape - probers_make.shapes, the shapes Ron probes in (a scene, a
-//     challenge, real talk, walk a real day, nice try), turn by turn;
-//  4. the fill - {title} and {note} from the point, {word} the topic's own word
-//     (its label when that alone finds it), {wrong_greeting} the greeting wrong
-//     for the time it's made (operator: "[incorrect time-of-day greeting],
-//     [probing GOPOD 'party'] * test the incorrect, clarity through confusion");
-//  5. the check - the game takes it to that topic (the lightning) and that point
-//     (gopodPickPoint); else the next shape.
-
 import (
 	"path/filepath"
 	"strconv"
@@ -48,9 +30,6 @@ func gopodProbersMake() (lines []string, made, points int) {
 				continue
 			}
 			_, pts := gopodSplitPoints(string(facts))
-			// The topic's own word: its label when the label alone finds it
-			// ("our whole story", "Doc and Pip"), else its first word of four
-			// letters or more.
 			word := t.Words[0]
 			if l := loadScenarioPacketsForMessage("tell me about " + t.Label); t.Label != "" && len(l) > 0 && l[0].Name == t.Name {
 				word = t.Label
@@ -63,7 +42,6 @@ func gopodProbersMake() (lines []string, made, points int) {
 				}
 			}
 			for i, p := range pts {
-				// Only the game's points (core) are probed - the rest it never plays.
 				if !gopodCorePoint(t.Name, i+1) {
 					continue
 				}
@@ -71,7 +49,6 @@ func gopodProbersMake() (lines []string, made, points int) {
 				title, note := gopodProbeParts(t.Name, i+1, p)
 				for k := 0; k < len(pm.Shapes); k++ {
 					shape := pm.Shapes[(turn+k)%len(pm.Shapes)]
-					// A title that is the topic's word says it twice - the next shape.
 					if strings.EqualFold(title, word) && strings.Contains(shape, "{title}") && strings.Contains(shape, "{word}") {
 						continue
 					}

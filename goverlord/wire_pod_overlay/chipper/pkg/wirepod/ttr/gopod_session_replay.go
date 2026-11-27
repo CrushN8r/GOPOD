@@ -15,28 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Replay a session (operator 2026-10-12: "Can you expand/build a session to run
-// a previous session run? Like if I wanted to replay the kept session I just
-// made * replay [session-name] ... run the entire session, then run complete";
-// "Should I build it like that? * yes please"; "should the cues and moves be
-// logged into the score so a replay includes them? * yes please").
-//
-// "replay <name>" plays a session folder's score (story.md + knobs.json,
-// gopod_session_log.go) back through the live chat, in order:
-//   - the reporters' lines in their voices;
-//   - each operator line as a typed line to its Brobot, and his logged answer
-//     said through the chat-reply path in place of the LLM (the draft's
-//     scripted answer, gopod_interview_script.go): its cue, moves, bubble,
-//     highlight and speech; an answer nobody asked for is said as a handoff;
-//   - a song's start line starts the song again (its own score plays it, and
-//     the replay waits for it to end); the interview's section plays from the
-//     score, with Goverlord's lines in it;
-//   - a command line ("stop run", "GOPOD yourself") runs again, so its answer
-//     comes from Wire-Pod as before; a thanks plays the ending live.
-// Goverlord says session.started_text / complete_text / stopped_text with the
-// session's name. "stop run" stops it after the line being said. Not a run in
-// the one-run-at-a-time sense: the songs in it check in and out as before.
-
 var gopodReplayPlaying, gopodReplayStop atomic.Bool
 
 // gopodReplayNow: the playing replay's shown name ("Session 095819").
@@ -68,8 +46,8 @@ func gopodStopSessionMatch(text string) bool {
 	return false
 }
 
-// gopodStopSessionCommand: the replay stops after the line being said, with the
-// song going in it; nothing to stop gets session.no_run_text.
+// gopodStopSessionCommand: the replay stops after the line being said, with the song going in it;
+// nothing to stop gets session.no_run_text.
 func gopodStopSessionCommand() {
 	if !gopodReplayPlaying.Load() {
 		logger.Println("GOPOD_REPLAY stop session: nothing playing")
@@ -90,8 +68,7 @@ func gopodReplayShownName(dir string) string {
 	return name
 }
 
-// gopodReplayFind: the session folder named name ("095819_session", "095819",
-// or "2026-10-12/095819_session"), the newest first when several match.
+// gopodReplayFind: the session folder named name, the newest first when several match.
 func gopodReplayFind(name string) (string, error) {
 	root, _, _ := gopodRecordRoot()
 	want := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), " ", "_"))
@@ -111,8 +88,7 @@ func gopodReplayFind(name string) (string, error) {
 
 var gopodReplayStoryStep = regexp.MustCompile(`(?m)^## STEP (\S+)\s*\n\s*\n> TEXT: ?(.*)$`)
 
-// gopodReplayLoad: the score's steps, each with its words from story.md (the
-// words the operator may have edited there).
+// gopodReplayLoad: the score's steps, each with its words from story.md.
 func gopodReplayLoad(dir string) ([]gopodSessionStep, error) {
 	data, err := os.ReadFile(filepath.Join(dir, "knobs.json"))
 	if err != nil {
@@ -169,20 +145,16 @@ func gopodReplayPlan(steps []gopodSessionStep) []gopodReplayAct {
 		case "reporter_line":
 			out = append(out, gopodReplayAct{Kind: "reporter", Who: st.Speaker, Text: st.text})
 		case "chapter":
-			// A chapter title shows live only while a draft plays (gopod_interview_chapters.go).
 			if !live {
 				out = append(out, gopodReplayAct{Kind: "chapter", Who: st.Speaker, Text: st.text})
 			}
 		case "system_line":
-			// Outside the interview, Goverlord's lines answer commands that run again.
 			if !live {
 				out = append(out, gopodReplayAct{Kind: "system", Text: st.text})
 			}
 		case "answer":
 			out = append(out, gopodReplayAct{Kind: "handoff", Who: st.Speaker, Answers: []gopodDraftAnswer{answerOf(st)}})
 		case "say":
-			// In the interview, a Brobot's handoff line; outside it, a command's
-			// answer ("GOPOD Yourself"), said again by the command.
 			if !live {
 				out = append(out, gopodReplayAct{Kind: "handoff", Who: st.Speaker, Answers: []gopodDraftAnswer{answerOf(st)}})
 			}
@@ -198,7 +170,6 @@ func gopodReplayPlan(steps []gopodSessionStep) []gopodReplayAct {
 			case gopodIsThanks(st.text):
 				act.Kind = "thanks"
 			case gopodTypedCommandMatch(st.text) || (i+1 < len(steps) && steps[i+1].Section != gopodSessionLiveSection && steps[i+1].Section != interview):
-				// A run command, or a line the score shows starting a song's section.
 				act.Kind = "song"
 			case gopodReplayMatch(st.text) || gopodStopSessionMatch(st.text):
 				continue // a replay in the session isn't played again inside this one
@@ -206,7 +177,6 @@ func gopodReplayPlan(steps []gopodSessionStep) []gopodReplayAct {
 				act.Kind = "command"
 			}
 			if act.Kind == "question" {
-				// His first answer (each Brobot's, for "Brobots") before the next operator line.
 				taken := map[string]bool{}
 				for j := i + 1; j < len(steps) && steps[j].Note != "operator_line"; j++ {
 					a := steps[j]
@@ -230,7 +200,7 @@ func gopodReplayPlan(steps []gopodSessionStep) []gopodReplayAct {
 	return out
 }
 
-// gopodReplayCommand: "replay <name>" - plays that session. True when it was one.
+// gopodReplayCommand: "replay <name>" - plays that session.
 func gopodReplayCommand(text string) bool {
 	name, ok := gopodReplayName(text)
 	if !ok {
@@ -255,8 +225,6 @@ func gopodReplayCommand(text string) bool {
 	}
 	gopodReplayPlaying.Store(true)
 	gopodReplayStop.Store(false)
-	// 2026-10-12 (operator: "sessions cannot be recorded again"): a recording
-	// going stops here and is kept; Record? can't start during the replay.
 	GopodRecordSessionSet(false)
 	gopodReplayNow.Store(gopodReplayShownName(dir))
 	go gopodReplayPlay(gopodReplayShownName(dir), dir, gopodReplayPlan(steps))
@@ -287,9 +255,6 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 		gopodScript.pending, gopodScript.ask, gopodScript.movesAt = map[string]gopodDraftAnswer{}, map[string]string{}, nil
 		gopodScript.Unlock()
 	}()
-	// 2026-10-12 (operator: the LLM warm-up at the start of any run, kept
-	// sessions too): the opener's warm-up, with the session's first reporter
-	// lines inside it - warming while they play, or ready first when warm.
 	n := 0
 	for n < len(plan) && plan[n].Kind == "reporter" {
 		n++
@@ -302,7 +267,6 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 		}
 	})
 	for _, act := range plan[n:] {
-		// 2026-10-17 (survey E8): the pause is in the journal too.
 		if gopodPageHidden.Load() {
 			logger.Println("GOPOD_REPLAY paused: the chat page is away")
 			for gopodPageHidden.Load() && !gopodReplayStop.Load() {
@@ -327,9 +291,6 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 		case "system":
 			GopodSystemSayHeard(act.Text, 30*time.Second)
 		case "chapter":
-			// Shown and said in the system voice, as in the draft (operator
-			// 2026-10-12: "Chapter bubbles aren't spoken").
-			// 2026-10-23: the chapter as Goverlord's voiced line, like the live run's.
 			if sr := gopodBrobotsSettings.SignOff.SystemRole; sr != "" {
 				gopodReporterSay(sr, gopodChapterSaid(act.Text), true, true)
 			} else {
@@ -362,7 +323,6 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 			if err := gopodOperatorLine(to, act.Text, act.How); err != nil {
 				logger.Println("GOPOD_REPLAY " + err.Error())
 			}
-			// The song checks in, plays its own score and checks out.
 			for wait := time.Now().Add(gopodTiming("replay_song_start_wait_seconds")); !gopodRunActive() && time.Now().Before(wait); {
 				time.Sleep(250 * time.Millisecond)
 			}
@@ -379,7 +339,6 @@ func gopodReplayPlay(name, dir string, plan []gopodReplayAct) {
 				time.Sleep(200 * time.Millisecond)
 			}
 		case "thanks":
-			// The complete line first: the ending closes the session.
 			GopodSystemSayHeard(strings.ReplaceAll(ss.CompleteText, "{run}", name), 30*time.Second)
 			gopodReplayPlaying.Store(false)
 			logger.Println("GOPOD_REPLAY done, the ending plays live")

@@ -18,21 +18,10 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Overall speaker volume normalization (2026-10-17, operator: "not actually
-// edit the files, just a quick adjustment in the code * evaluate audio files
-// to normalize all volumes to -3db? * tag & apply a volume offset to the raw
-// audio, before \"default\" knob setting * this will give me a consistent
-// volume range to adjust within"). Every WAV the chat page plays (the voice
-// folder: voices, stings, song sounds and soundtracks) is measured once - its
-// loudest sample - and given the offset that brings that peak to
-// chat_audio.normalize_db. The offsets go to webroot/gopod_audio_levels.json;
-// the page multiplies each sound's volume by its offset, before the master
-// volume and the sound's own knob. The files are never changed. 0 = off.
-
 var gopodAudioLevelsPath = gopodPathWithEnvOverride("GOPOD_AUDIO_LEVELS_PATH", "webroot/gopod_audio_levels.json")
 
-// gopodAudioLevelsStart measures the voice folder now and every 30 s (new
-// voice files are made all the time).
+// gopodAudioLevelsStart measures the voice folder now and every 30 s (new voice files are made all
+// the time).
 func gopodAudioLevelsStart() {
 	go func() {
 		for {
@@ -41,20 +30,6 @@ func gopodAudioLevelsStart() {
 		}
 	}()
 }
-
-// 2026-10-17 (operator: "Measure by average loudness instead * include .mp3
-// weather sounds * include all sounds GOPOD uses"; "What I do in my audio
-// editor is * I aim to adjustment a bit more than average loudness, to as close
-// to but within the -3db range * then loudness over -3db I compress back to
-// -3db * Can you do what I do"): each sound is measured for its average
-// loudness (ffmpeg's EBU R128 meter), turned up or down to
-// chat_audio.loudness_lufs, and anything that then goes over
-// chat_audio.normalize_db is held back under it (ffmpeg's limiter). A made
-// voice is done as it's made (gopodLoudnessFile, in place - it's GOPOD's own
-// file); every other sound - the voice folder's stings, song sounds and
-// soundtracks, and the weather sounds - gets a done copy in
-// webroot/gopod_audio_norm/ (the originals are never changed), and
-// gopod_audio_levels.json tells the page to play the copy ("made").
 
 var gopodAudioNormDir = gopodPathWithEnvOverride("GOPOD_AUDIO_NORM_DIR", "webroot/gopod_audio_norm")
 
@@ -105,7 +80,6 @@ func gopodAudioLevelsUpdate() {
 			if done {
 				continue
 			}
-			// A copy made before this Wire-Pod start, newer than its source, is kept.
 			if o, err := os.Stat(out); err != nil || o.ModTime().Before(info.ModTime()) || !gopodAudioNormKept(out, settings) {
 				if err := gopodLoudnessFile(f, out); err != nil {
 					logger.Println("GOPOD_AUDIO_LEVELS " + page + ": " + err.Error())
@@ -149,9 +123,9 @@ func gopodAudioNormKept(out, settings string) bool {
 }
 
 // gopodLoudnessFile: the operator's method on one sound - measured, turned to
-// chat_audio.loudness_lufs, then held under chat_audio.normalize_db (half a dB
-// lower for the limiter, so the true peak stays within it) - written to out
-// (out may be in: it's replaced when done). Not done when ffmpeg isn't there.
+// chat_audio.loudness_lufs, then held under chat_audio.normalize_db (half a dB lower for the
+// limiter, so the true peak stays within it) - written to out (out may be in: it's replaced when
+// done).
 var gopodLoudnessFile = func(in, out string) error {
 	ca := gopodBrobotsSettings.ChatAudio
 	if ca.LoudnessLUFS == 0 {

@@ -6,10 +6,8 @@ import (
 	"testing"
 )
 
-// 2026-10-25 (operator: "Brobot A: 'What say you, [funny-nickname]?' * Brobot B
-// replaces his 'Got it!' with 'Nice try [funny-nickname]'"): the response-chain
-// template - single says his Got it; duo A his Got it and hands over; duo B opens
-// with the comeback; the notice shows the plan.
+// the response-chain template - single says his Got it; duo A his Got it and hands over; duo B
+// opens with the comeback; the notice shows the plan.
 func TestResponseChainTemplate(t *testing.T) {
 	a, b := gopodBrobot2ESN, gopodBrobot1ESN
 	defer gopodAllFirstAnswer.Delete(a)
@@ -49,8 +47,7 @@ func TestResponseChainTemplate(t *testing.T) {
 	}
 }
 
-// 2026-10-25 (operator: "just add the nice try before the notice bubble"): the
-// opener he said goes to the page for the top of his bubble; not a notice line.
+// the opener he said goes to the page for the top of his bubble; not a notice line.
 func TestOpenerAboveTheNotice(t *testing.T) {
 	esn := gopodBrobot1ESN
 	gopodChainOpenerSaid.Store(esn, "Nice try, Mr fuzzy logic!")
@@ -75,9 +72,7 @@ func TestOpenerAboveTheNotice(t *testing.T) {
 	}
 }
 
-// 2026-10-25 (operator: "post-bingo, brobot 1, \"I Won!\", brobot 2, \"Oh!
-// Zero!\""; "No, before the 'Hey' reminder"): after a Bingo run, a Bingo
-// question's answer has his closing remark just before the reminder.
+// after a Bingo run, a Bingo question's answer has his closing remark just before the reminder.
 func TestBingoClosingBeforeReminder(t *testing.T) {
 	saved := gopodBingoPlayed.Load()
 	gopodBingoPlayed.Store(true)
@@ -111,7 +106,6 @@ func TestBingoClosingBeforeReminder(t *testing.T) {
 	if ci != li+1 || ri < ci {
 		t.Fatalf("closing_remark isn't right after the answer: %v", parts)
 	}
-	// Joined to his answer, its closing sentence - not a thought of its own.
 	if got := gopodChainStitch("closing_remark", gopodBrobot2ESN, q, "Bingo was wild, bro!", false); got != "Bingo was wild, bro! That's ok tho. Brobot ZERO is my HERO! Lol!" {
 		t.Fatalf("stitched %q", got)
 	}

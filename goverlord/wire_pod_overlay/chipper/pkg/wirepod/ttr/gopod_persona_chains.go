@@ -1,19 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_persona_chains.go
 package wirepod_ttr
 
-// Persona chains (2026-10-30, operator: "also for better brobots (DocBS dial =
-// 0) & other persona thought chaining templated scaffolding?"; "Commit, then
-// step 5"): DocBS's machinery as a template for every chat participant - the
-// Brobots, CHALK, PLAYHEAD, the interns, Cameo. A persona's answer can be one
-// of its chains (persona_chains.personas.<who>.chains): its beats around the
-// reply - the beats before "reply" first, the ones after it close - each beat a
-// line from its own pool file (persona_chains.folder/<who>/<pool>[_clean|_18].txt,
-// a private z-copy first; "a|b": one of them), shuffled, never the same line or
-// chain twice until the deck runs out. Its dial (share, 0-100) is how often;
-// a chain needs min_share. The lines are the operator's; with no pools or
-// chains, nothing changes. DocBS stays Brobot 1's own: when his answer is
-// DocBS, his persona chain sits out.
-
 import (
 	"math/rand"
 	"os"
@@ -49,8 +36,8 @@ var gopodPoolDecks = struct {
 	left map[string][]string
 }{left: map[string][]string{}}
 
-// gopodPoolPick: the next line of dir's pool - _18 over _clean by the roast
-// level, the private z-copy first; a shuffled deck, no repeat until used up.
+// gopodPoolPick: the next line of dir's pool - _18 over _clean by the roast level, the private
+// z-copy first; a shuffled deck, no repeat until used up.
 func gopodPoolPick(dir, pool string) string {
 	file := func(name string) string {
 		if z := filepath.Join(dir, "z"+name+".txt"); gopodFileExists(z) {
@@ -119,8 +106,8 @@ func gopodPersonaChainPick(who string) (gopodDocBSChain, bool) {
 	return deck[0], true
 }
 
-// gopodPersonaChainLines: one answer's chain for who - the lines before its
-// reply and after it ("", "" when it isn't one, by its dial or its pools).
+// gopodPersonaChainLines: one answer's chain for who - the lines before its reply and after it ("",
+// "" when it isn't one, by its dial or its pools).
 func gopodPersonaChainLines(who string) (before, after string) {
 	pc, ok := gopodBrobotsSettings.PersonaChains.Personas[who]
 	if !ok || pc.Share <= 0 || rand.Intn(100) >= pc.Share {
@@ -149,8 +136,8 @@ func gopodPersonaChainLines(who string) (before, after string) {
 	return strings.Join(pre, gopodThoughtGap()), strings.Join(post, gopodThoughtGap())
 }
 
-// One answer's chain, decided once (the before part picks it, the close part
-// uses it), the same way DocBS's decision is kept.
+// One answer's chain, decided once (the before part picks it, the close part uses it), the same way
+// DocBS's decision is kept.
 var gopodPersonaChainFor sync.Map // esn + question -> [2]string
 
 func gopodPersonaChainFor2(esn, question string) [2]string {

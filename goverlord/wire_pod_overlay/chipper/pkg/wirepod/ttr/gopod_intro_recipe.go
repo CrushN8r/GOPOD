@@ -1,17 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_intro_recipe.go
 package wirepod_ttr
 
-// The intro recipe (2026-10-31, operator: "Please build the intro recipe in one
-// batch"; his tester: "Hey [name]! You party animal! Introduce yourself fully to
-// the chat and name who all else is here in the chat with us!!" - "Introduce
-// yourself fully to the chat (my informal name (nickname), my name, my job title,
-// my role, who helps me) * Name who all else is here in the chat with us (list
-// other chat participants)"). One recipe for every chat participant: a line that
-// asks for an intro (intro_recipe.words) gets intro_recipe.text with his
-// profile's Self points ({self}) and everyone else here ({cast}). A Brobot's
-// intro answer is the brobots_intro chain (no value point, no reminder); every
-// intro, a Brobot's or a Gomad's, is wrapped the same way (gopodIntroWrap).
-
 import (
 	"fmt"
 	"regexp"
@@ -34,9 +23,8 @@ func gopodIsIntro(text string) bool {
 	return false
 }
 
-// gopodIntroWeather (2026-11-03, operator: "Hey [name], intro & weather > duo
-// intro run"): the line asks for an intro and the weather - his intro first,
-// then his weather (group-chat-intro.md, then weather_run.md).
+// gopodIntroWeather: the line asks for an intro and the weather - his intro first, then his weather
+// (group-chat-intro.md, then weather_run.md).
 func gopodIntroWeather(text string) bool {
 	return gopodIsIntro(text) && gopodHasWholeWords(strings.ToLower(text), "weather")
 }
@@ -45,12 +33,6 @@ func gopodIntroWeather(text string) bool {
 var gopodIntroWeatherFor sync.Map // esn -> bool
 
 // gopodIntroRecipe: the recipe for who, "" when the line isn't an intro.
-// 2026-10-31 (operator: "names vs nicknames = formal vs informal * I'm KEYNOTE
-// VALE, my nickname is Keys because I hold all the Keys * [name][nickname]
-// [nickname-history/why-that-nickname] * skipped if blank * > interns"; then
-// "FIX IT CORRECT & PROPER"): an intro is a template - code says the opening
-// (gopodIntroOpening) and the cast line (gopodIntroCastLine); the model writes
-// only the middle: his job, role and who helps him ({facts}), in his own words.
 func gopodIntroRecipe(who, text string) string {
 	ir := gopodBrobotsSettings.IntroRecipe
 	if strings.TrimSpace(ir.Text) == "" || !gopodIsIntro(text) {
@@ -62,8 +44,6 @@ func gopodIntroRecipe(who, text string) string {
 			facts = append(facts, v)
 		}
 	}
-	// 2026-11-04 (operator: "relationships aren't being talked about"): who he
-	// answers to and who answers to him (his profile's own sections).
 	sections := gopodPersonaProfileSections(who)
 	for _, part := range ir.Relations {
 		head, label, ok := strings.Cut(part, "|")
@@ -80,10 +60,6 @@ func gopodIntroRecipe(who, text string) string {
 			facts = append(facts, strings.TrimSpace(strings.TrimSpace(label)+" "+strings.Join(names, " ")))
 		}
 	}
-	// 2026-11-09 (operator: "KEYNOTE's introduction should establish the chain of
-	// command and the core definition of GOPOD in a single, reusable outline that
-	// every subsequent persona can assume is already known"): the one who opens
-	// the session says the company's outline (## Our outline) as his facts.
 	if o := strings.TrimSpace(gopodBrobotsSettings.BrainChain.IntroOpener); o != "" && strings.EqualFold(gopodCallName(who), o) {
 		if outline := sections["Our outline"]; len(outline) > 0 {
 			facts = nil
@@ -93,7 +69,6 @@ func gopodIntroRecipe(who, text string) string {
 		}
 	}
 	text2 := ir.Text
-	// A Brobot's intro + weather: his take on the report after his one line.
 	if (who == "Brobot 1" || who == "Brobot 2") && gopodIntroWeather(text) {
 		esn := gopodBrobot1ESN
 		if who == "Brobot 2" {
@@ -109,8 +84,8 @@ func gopodIntroRecipe(who, text string) string {
 		"{self}", strings.Join(facts, "; "), "{cast}", gopodIntroCast(who)).Replace(text2))
 }
 
-// gopodIntroOpening: "I'm {name}{nickname_part}." from his profile - his name
-// (formal), his nickname (informal) and why; each part left out when blank.
+// gopodIntroOpening: "I'm {name}{nickname_part}." from his profile - his name (formal), his
+// nickname (informal) and why; each part left out when blank.
 func gopodIntroOpening(who string) string { return gopodIntroOpeningWith(who, true) }
 
 // gopodIntroOpeningWith: the opening, with or without its why.
@@ -140,9 +115,6 @@ func gopodIntroOpeningWith(who string, withWhy bool) string {
 		}
 	}
 	out := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(ir.Opening, "{name}", name), "{nickname_part}", part))
-	// 2026-11-04 (Git Repo's why ends "... 'Git yer butt in gear!!'"): the
-	// opening's own full stop is dropped when the why already ends its sentence,
-	// a closing quote aside - "!!'" not "!!'.", "BRUH!" not "BRUH!.".
 	if body := strings.TrimRight(strings.TrimSuffix(out, "."), "'\"’”"); strings.HasSuffix(out, ".") && body != "" && strings.ContainsAny(body[len(body)-1:], ".!?") {
 		out = strings.TrimSuffix(out, ".")
 	}
@@ -158,22 +130,8 @@ func gopodIntroCastLine(who string) string {
 	return strings.TrimSpace(strings.ReplaceAll(gopodBrobotsSettings.IntroRecipe.CastLine, "{cast}", cast))
 }
 
-// gopodIntroWrap: the model's middle part with the code's opening before it and
-// the cast line after it. A copy of the opening the model said anyway is dropped,
-// and so is any sentence of his that lists the cast (three or more of its names) -
-// the cast line says them once.
-// 2026-11-02 (live: Pip's KP2 intro said only its opening; Doc's and Pip's All
-// intros skipped their first thought): a Brobot's answer is cut into spoken
-// chunks at its line breaks, one animation cue each - the opening joined to his
-// answer with a space put two cues in one chunk, and everything after the second
-// was never said. A Brobot's opening and cast line go in the way every code line
-// does (gopodStitchSnippet / gopodStitchEndSnippet: after his cue, on its own
-// line); a Gomad's (one voice, chunked by sentence) stay joined by spaces.
-// gopodIntroFacts: what the code says in who's intro after the opening - his
-// card's facts (gopodBrainIntroFact); for the system voice's persona (KEYS), the
-// company intro first, word for word (2026-11-16, operator: "have Keys do like a
-// brief self intro * then ... an intro of the company & employee/employer
-// relationship * then Keys continues his own intro"; company_intro.lines).
+// gopodIntroWrap: the model's middle part with the code's opening before it and the cast line after
+// it.
 func gopodIntroFacts(who string) string {
 	facts := gopodBrainIntroFact(gopodBrainFacts(who, gopodIntroFactAsk))
 	if who != gopodBrobotsSettings.SystemBubble.VoicePersona {
@@ -189,19 +147,10 @@ func gopodIntroFacts(who string) string {
 }
 
 func gopodIntroWrap(who, middle string, brobot ...bool) string {
-	// 2026-11-18 (operator: "I prefer it be flow guided * card facts the model
-	// words in its own way each time * but as close to what I have"): a persona
-	// with an intro guide on his card says his whole intro himself, guided by it
-	// (intro_sections) - no code opening, facts or cast line around it.
 	if gopodIntroGuide(who) != "" {
-		// Still his once: a later "I'm <name>," start goes, a sentence saying again
-		// what an earlier one said goes, and so does a "here in the chat" line.
 		selfNames := gopodIntroSelfNames(who)
 		var keep []string
 		var said []map[string]bool
-		// 2026-11-19 (live comm check: KEYS and GEMMA each ended with Goverlord's
-		// "Few words, each one final."): a sentence another persona already said in
-		// an intro is his, not theirs - it goes; a "<name>'s voice ...:" narration goes.
 		others := gopodIntroHeardBy(who)
 		middle = gopodVoiceNarrationRE.ReplaceAllString(middle, "")
 		for i, sentence := range gopodIntroSentences(strings.ReplaceAll(middle, "*", "")) {
@@ -219,9 +168,6 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 		return gopodIntroGuideWithColour(who, keep)
 	}
 	opening := gopodIntroOpening(who)
-	// 2026-11-05 (live 08:34: Doc's line came back wrapped in "*...*" and the
-	// code's opening landed inside it - "*I'm Brobot 1, my nickname is Doc. *"):
-	// an intro is a template, no stage directions - its asterisks go.
 	middle = strings.ReplaceAll(middle, "*", "")
 	middle = strings.TrimSpace(gopodStripEcho(middle, opening))
 	if opening != "" {
@@ -246,11 +192,6 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 			cue = strings.TrimSpace(sentence[:loc[1]])
 		}
 		bare := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(sentence), cue))
-		// 2026-11-02 (live: CHALK's opening twice, "-" then "–"; "I'm Cache PYC.
-		// I'm Cache PYC, and I'm hustling"; "I'm Brobot 2, and hey!"; "I'm Doc,
-		// Brobot 1, which means..."): his own "I'm <name>" again is dropped -
-		// the whole sentence when it's the opening again (dashes, punctuation and
-		// case aside), else just its "I'm <name>," start.
 		if opening != "" && (gopodIsOpeningAgain(bare, opening, core) || gopodSaysNameAndNickname(who, bare)) {
 			carry = cue
 			continue
@@ -260,18 +201,10 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 			carry = cue
 			continue
 		}
-		// 2026-11-02 (live: Doc's "Here in the chat: all our brothers are rocking
-		// it, including Pip" before the code's cast line): his own "here in the
-		// chat" sentence goes too - the cast line says it.
 		if strings.Contains(strings.ToLower(sentence), "in the chat") {
 			carry = cue
 			continue
 		}
-		// 2026-11-16 (operator: "Same repeat-loops in responses"; live: CHALK said
-		// "I answer to KEYNOTE, then Goverlord." twice - the code's, then the
-		// model's - and the twin line broke the highlight): a line of the model's
-		// that says again what the code just said (a fact, or a line he already
-		// said) is dropped (gopodSaysAgain).
 		if gopodSaysAgain(bare, said) {
 			carry = cue
 			continue
@@ -289,9 +222,6 @@ func gopodIntroWrap(who, middle string, brobot ...bool) string {
 			carry = cue
 		}
 	}
-	// 2026-11-15 (operator: "Yes" - the code says an intro's facts from the card,
-	// the model adds its own flavour): the intro's FACT, word for word, after the
-	// opening - the same line his brain shows (gopodBrainIntroFact).
 	facts := gopodIntroFacts(who)
 	if len(brobot) > 0 && brobot[0] {
 		out := strings.TrimSpace(facts + " " + strings.Join(keep, " "))
@@ -363,9 +293,9 @@ func gopodLooseWords(text string) string {
 	return strings.TrimSpace(b.String())
 }
 
-// gopodIsOpeningAgain: the sentence is the opening said again - it starts with
-// the opening's core ("I'm <name>, my nickname is <nick>"), and what follows is
-// nothing or more of the opening's own words ("- because it's my name").
+// gopodIsOpeningAgain: the sentence is the opening said again - it starts with the opening's core
+// ("I'm <name>, my nickname is <nick>"), and what follows is nothing or more of the opening's own
+// words ("- because it's my name").
 func gopodIsOpeningAgain(sentence, opening, core string) bool {
 	s, c := gopodLooseWords(sentence), gopodLooseWords(core)
 	if c == "" || (s != c && !strings.HasPrefix(s, c+" ")) {
@@ -389,13 +319,12 @@ func gopodIntroSelfNames(who string) []string {
 			out = append(out, n)
 		}
 	}
-	// The longest first ("CHALK BORED" before "CHALK").
 	sort.Slice(out, func(a, b int) bool { return len(out[a]) > len(out[b]) })
 	return out
 }
 
-// gopodDropSelfIntro: the sentence without a starting "I'm <his name>[, <his
-// name>]," - what follows starts the sentence ("and hey!" -> "And hey!").
+// gopodDropSelfIntro: the sentence without a starting "I'm <his name>[, <his name>]," - what
+// follows starts the sentence ("and hey!" -> "And hey!").
 func gopodDropSelfIntro(sentence string, names []string) string {
 	lead := ""
 	if loc := gopodAnimationMarkerPattern.FindStringIndex(sentence); loc != nil && loc[0] == 0 {
@@ -416,8 +345,6 @@ func gopodDropSelfIntro(sentence string, names []string) string {
 	for again := true; again; {
 		again = false
 		for _, n := range names {
-			// A "-" is a boundary only before a space: "CHALK-RA" is one name
-			// (2026-11-16, live: "RA, the Display Gomad ...").
 			if len(rest) >= len(n) && strings.EqualFold(rest[:len(n)], n) && (len(rest) == len(n) || strings.ContainsRune(" ,.!;", rune(rest[len(n)])) || (rest[len(n)] == '-' && (len(rest) == len(n)+1 || rest[len(n)+1] == ' '))) {
 				rest = strings.TrimLeft(rest[len(n):], " ,;-")
 				matched, again = true, true
@@ -440,7 +367,7 @@ func gopodDropSelfIntro(sentence string, names []string) string {
 	return lead + string(r)
 }
 
-// gopodIntroSentences: text cut after each . ! or ? that ends a word.
+// gopodIntroSentences: text cut after each .
 func gopodIntroSentences(text string) []string {
 	var out []string
 	start := 0
@@ -460,8 +387,6 @@ func gopodIntroSentences(text string) []string {
 func gopodIntroCast(who string) string {
 	var cast []string
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
-		// 2026-10-31: the operator is who's asking (brain_chain.asked), not one
-		// more name in the list (live: "Brobot 0" and "Master CrushN8r" both named).
 		if c.Who != who && c.Who != gopodBrobotsSettings.BrainChain.OperatorWho {
 			cast = append(cast, gopodCallName(c.Who))
 		}
@@ -469,9 +394,9 @@ func gopodIntroCast(who string) string {
 	return strings.Join(cast, ", ")
 }
 
-// gopodIntroThenWeather: a Brobot's intro + weather answer - his intro (the
-// opening, his first line, the cast line), then the weather report or
-// "Confirmed." (gopodScriptedSnippet), then his take (the rest of his words).
+// gopodIntroThenWeather: a Brobot's intro + weather answer - his intro (the opening, his first
+// line, the cast line), then the weather report or "Confirmed." (gopodScriptedSnippet), then his
+// take (the rest of his words).
 func gopodIntroThenWeather(esn, question, raw string) string {
 	who := gopodBrobotName(esn)
 	intro, take := strings.TrimSpace(raw), ""
@@ -492,9 +417,8 @@ func gopodIntroThenWeather(esn, question, raw string) string {
 // gopodIntroFor: a Brobot's answer now is an intro (its chain is brobots_intro).
 var gopodIntroFor sync.Map // esn -> bool
 
-// gopodSaysNameAndNickname (2026-11-06, live: "My name is KEYNOTE VALE, my
-// nickname is KEYS - because ..." after the code's opening): the sentence says his
-// card's name and nickname again - the opening said them; it goes, however worded.
+// gopodSaysNameAndNickname: the sentence says his card's name and nickname again - the opening said
+// them; it goes, however worded.
 func gopodSaysNameAndNickname(who, sentence string) bool {
 	first := func(v string) string {
 		if at := strings.Index(v, " - "); at > 0 {
@@ -507,8 +431,8 @@ func gopodSaysNameAndNickname(who, sentence string) bool {
 	return name != "" && nick != "" && strings.Contains(s, name) && strings.Contains(" "+s+" ", " "+nick+" ")
 }
 
-// gopodIntroHeard: each persona's intro sentences said this session (content
-// words), so one persona never repeats another's (gopodIntroWrap).
+// gopodIntroHeard: each persona's intro sentences said this session (content words), so one persona
+// never repeats another's (gopodIntroWrap).
 var gopodIntroHeard = struct {
 	sync.Mutex
 	by map[string][]map[string]bool
@@ -545,15 +469,13 @@ func gopodIntroHeardReset() {
 	gopodIntroHeard.Unlock()
 }
 
-// gopodVoiceNarrationRE: "GOVERLORD's voice, deep and resonant:" - the model
-// describing a voice instead of using it.
+// gopodVoiceNarrationRE: "GOVERLORD's voice, deep and resonant:" - the model describing a voice
+// instead of using it.
 var gopodVoiceNarrationRE = regexp.MustCompile(`(?i)\b[\p{L} ]{0,30}'s voice[^:.!?]{0,60}:\s*`)
 
-// gopodIntroGuideWithColour (2026-11-19, operator: "Use each of my word for
-// word intros, as the base for the llm colour * either as a whole phrase or in a
-// few manageable chunks"): the model says the guide itself, coloured in its own
-// voice; when its words wander off the guide (under intro_base_share of the
-// guide's words kept), the guide is said word for word instead.
+// gopodIntroGuideWithColour: the model says the guide itself, coloured in its own voice; when its
+// words wander off the guide (under intro_base_share of the guide's words kept), the guide is said
+// word for word instead.
 func gopodIntroGuideWithColour(who string, coloured []string) string {
 	guide := strings.TrimSpace(gopodIntroGuide(who))
 	said := strings.TrimSpace(strings.Join(coloured, " "))
@@ -568,9 +490,6 @@ func gopodIntroGuideWithColour(who string, coloured []string) string {
 			kept++
 		}
 	}
-	// 2026-11-20 (live comm check: BRUH-2 said BRUH-1's whole intro - "I'm the
-	// party-bro GOPOD rep, Brobot 1. My nickname is BRUH-1"): the colour must name
-	// its own speaker the way his guide does, never his brother.
 	nick := strings.ToLower(strings.TrimSpace(gopodPersonaNickname(who, false)))
 	if nick != "" && strings.Contains(strings.ToLower(guide), nick) && !strings.Contains(strings.ToLower(said), nick) {
 		logger.Println("GOPOD_INTRO " + who + ": the colour doesn't name him - the guide, word for word")

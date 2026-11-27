@@ -8,8 +8,7 @@ import (
 	"testing"
 )
 
-// TestPhotoKind: the photo egg's questions, in the live chat only (operator
-// 2026-10-14: "ensure live pop-ups are not triggered by a song run").
+// TestPhotoKind: the photo egg's questions, in the live chat only.
 func TestPhotoKind(t *testing.T) {
 	if len(gopodBrobotsSettings.Photo.AskPhrases) == 0 {
 		t.Skip("no photo settings")
@@ -62,8 +61,8 @@ func TestPhotoRecall(t *testing.T) {
 	}
 }
 
-// TestPhotoRounds: round 1 names the Edge TPU's objects; round 2 builds up from
-// it with what the vision model saw (operator 2026-10-16: "do this in 2 rounds").
+// TestPhotoRounds: round 1 names the Edge TPU's objects; round 2 builds up from it with what the
+// vision model saw.
 func TestPhotoRounds(t *testing.T) {
 	p := gopodBrobotsSettings.Photo
 	if p.DetailText == "" {
@@ -89,8 +88,8 @@ func TestPhotoRounds(t *testing.T) {
 	}
 }
 
-// TestPhotoDescribeLive (GOPOD_PHOTO_LIVE=1): the vision model describes a
-// picture from the chat's pictures folder, through this machine's Ollama.
+// TestPhotoDescribeLive (GOPOD_PHOTO_LIVE=1): the vision model describes a picture from the chat's
+// pictures folder, through this machine's Ollama.
 func TestPhotoDescribeLive(t *testing.T) {
 	if os.Getenv("GOPOD_PHOTO_LIVE") != "1" {
 		t.Skip("set GOPOD_PHOTO_LIVE=1 to ask the vision model")
@@ -109,8 +108,8 @@ func TestPhotoDescribeLive(t *testing.T) {
 	t.Logf("saw: %s", saw)
 }
 
-// TestQuickLookLive (GOPOD_QUICK_LOOK_LIVE=1, Wire-Pod stopped - the Edge TPU
-// runs one program at a time): the worker names the objects in a kept photo.
+// TestQuickLookLive (GOPOD_QUICK_LOOK_LIVE=1, Wire-Pod stopped - the Edge TPU runs one program at a
+// time): the worker names the objects in a kept photo.
 func TestQuickLookLive(t *testing.T) {
 	if os.Getenv("GOPOD_QUICK_LOOK_LIVE") != "1" {
 		t.Skip("set GOPOD_QUICK_LOOK_LIVE=1 to use the Edge TPU")

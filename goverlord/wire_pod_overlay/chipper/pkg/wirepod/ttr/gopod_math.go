@@ -12,38 +12,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The Brobots' math (operator 2026-10-14: "GOPOD is like as 'mathy' as math can
-// get"; "gemma isn't for calculating"; "Build it all ... fractions, decimals,
-// repeating decimals, same ground as fractions pack * Plus/minus/times/divide and
-// percent * clean, correct & proper"). A math question in the live chat is
-// worked out here, exactly (math/big, no rounding), and answered step by step,
-// word for word - the LLM never calculates. What it answers:
-//
-//   - fraction -> decimal: long division; a remainder that comes back is a
-//     repeating block, shown with a bar (1/3 = 0.3̅, 1/7 = 0.1̅4̅2̅8̅5̅7̅);
-//   - decimal -> fraction: over 10, 100, 1000..., then simplified;
-//   - repeating decimal -> fraction: the 10x method (x = 0.3̅, 10x = 3.3̅,
-//     9x = 3, x = 1/3);
-//   - percent: to and from fractions and decimals, "15% of 80", "what percent
-//     is 3 of 4";
-//   - plus, minus, times, divide - with fractions, decimals, repeating decimals
-//     and percents, brackets and the order of operations, one line per step.
-//
-// It reads typed digits and symbols ("0.3̅", "\overline{3}", "0.333...", "3/4",
-// "×", "÷") and the speech-to-text's words ("zero point three repeating", "three
-// quarters", "fifteen percent of eighty"). Each step's wording is a line in
-// math.lines in the settings file. Fractions show with the fraction slash (1⁄3)
-// and minus as "−", so speech can say them ("over", "minus": spoken_symbols)
-// without touching anything else the Brobots say.
-
-// "Explain the Math" (operator 2026-10-14: "same as livestream contest format:
-// \"[statement]. Explain the Math\""; "Brobot 1 to answer & Brobot 2 to follow
-// up, Brobots shared-persona style"; "Wrap all that up as an \"Explain the
-// Math\" pop-up"): a line that ends with math.trigger is a math challenge.
-// Brobot 1 answers first, then Brobot 2 follows up (gopodMathFollowUp, kgsim.go):
-// each says a line or two of his own (the LLM, any numbers in it dropped -
-// gopodMathFlavour), then his share of the steps, one bullet each, word for word.
-
 // gopodMathExplain: the statement before math.trigger, when the line ends with it.
 func gopodMathExplain(text string) (string, bool) {
 	m := gopodBrobotsSettings.Math
@@ -62,14 +30,10 @@ func gopodMathExplain(text string) (string, bool) {
 	return statement, true
 }
 
-// gopodMathParts: the steps for an "Explain the Math" line, split between the
-// Brobots - Brobot 2 gets the last third (at least the last line), Brobot 1 the
-// rest; one step is Brobot 1's alone.
+// gopodMathParts: the steps for an "Explain the Math" line, split between the Brobots - Brobot 2
+// gets the last third (at least the last line), Brobot 1 the rest; one step is Brobot 1's alone.
 func gopodMathParts(text string) (first, second []string, ok bool) {
 	statement, ok := gopodMathExplain(text)
-	// 2026-10-16 (operator, on "Explain the Math" as the math phrase: "Not
-	// really..."; "Fraction ... covers either or both"): a line with one of
-	// math.fraction_words is worked out too, whole.
 	if !ok && gopodMathFractionLine(text) {
 		statement, ok = text, true
 	}
@@ -101,10 +65,8 @@ func gopodMathFractionLine(text string) bool {
 	return false
 }
 
-// gopodMathDecimalLine (operator 2026-10-16: "A decimal is a specialized kind
-// of fraction ... This clarification is another good follow up for brobot 2"):
-// Brobot 2's follow-up says math.decimal_follow_up_line when the line is about
-// a decimal.
+// gopodMathDecimalLine: Brobot 2's follow-up says math.decimal_follow_up_line when the line is
+// about a decimal.
 func gopodMathDecimalLine(text string) string {
 	lower := strings.ToLower(text)
 	if gopodHasWholeWords(lower, "decimal") || gopodHasWholeWords(lower, "decimals") {
@@ -113,9 +75,8 @@ func gopodMathDecimalLine(text string) string {
 	return ""
 }
 
-// gopodMathReply: the Brobot's reply - his own line or two from the LLM (its
-// animation cue kept, any sentence with a number dropped, at most
-// math.flavour_sentences), then his steps as bullets.
+// gopodMathReply: the Brobot's reply - his own line or two from the LLM (its animation cue kept,
+// any sentence with a number dropped, at most math.flavour_sentences), then his steps as bullets.
 func gopodMathReply(llm string, steps []string, extra ...string) string {
 	m := gopodBrobotsSettings.Math
 	cue := ""
@@ -141,8 +102,8 @@ func gopodMathReply(llm string, steps []string, extra ...string) string {
 	return strings.TrimSpace(b.String())
 }
 
-// gopodMathFlavour: up to max sentences of the LLM's words with no numbers in
-// them - digits or number words - so only the code's steps carry the math.
+// gopodMathFlavour: up to max sentences of the LLM's words with no numbers in them - digits or
+// number words - so only the code's steps carry the math.
 func gopodMathFlavour(text string, max int) string {
 	var keep []string
 	for _, s := range gopodMathSentenceRe.FindAllString(strings.ReplaceAll(text, "\n", " "), -1) {
@@ -163,10 +124,8 @@ var gopodMathSentenceRe = regexp.MustCompile(`[^.!?]+[.!?]*`)
 // gopodMathFollowUp: the follow-up Brobot's turn after the lead's answer (kgsim.go).
 var gopodMathFollowUp sync.Map
 
-// gopodMathLeadPick (2026-10-24, operator: "'All' brobot 1 or 2 menu selections *
-// keyboard & mic inputs, when 2 selected * brobot 2 then brobot 1 order, not being
-// honoured"): a line sent to All with Brobot 2 first - he leads its math, Brobot 1
-// follows up. Any other math line: Brobot 1 leads (2026-10-14).
+// gopodMathLeadPick: a line sent to All with Brobot 2 first - he leads its math, Brobot 1 follows
+// up.
 var gopodMathLeadPick sync.Map
 
 func gopodMathLead(text string) string {
@@ -176,9 +135,8 @@ func gopodMathLead(text string) string {
 	return gopodBrobot1ESN
 }
 
-// gopodMathFollowUpStart: once the lead's answer is done, his brother follows up
-// on the same line - his share of the steps, with the lead's answer in the
-// shared chat.
+// gopodMathFollowUpStart: once the lead's answer is done, his brother follows up on the same line -
+// his share of the steps, with the lead's answer in the shared chat.
 func gopodMathFollowUpStart(text string) {
 	follower := gopodBrotherOf(gopodMathLead(text))
 	logger.Println("GOPOD_MATH " + gopodBrobotName(follower) + " follows up: " + text)
@@ -194,20 +152,15 @@ func gopodMathFollowUpStart(text string) {
 // gopodMathPopupMark: a pop-up item that is an "Explain the Math" challenge.
 const gopodMathPopupMark = "math:"
 
-// gopodMathPopup: the "Explain the Math" pop-up, live chat only (no draft, no
-// run), up to topic_pictures.max_per_session times - Goverlord's
-// congratulations over the challenge, Brobot 1's answer under it; Brobot 2's
-// follow-up gets its own marquee bubble (the page's pop-up rule, 2026-10-15).
+// gopodMathPopup: the "Explain the Math" pop-up, live chat only (no draft, no run), up to
+// topic_pictures.max_per_session times - Goverlord's congratulations over the challenge, Brobot 1's
+// answer under it; Brobot 2's follow-up gets its own marquee bubble.
 func gopodMathPopup(esn, text string) {
 	tp := gopodBrobotsSettings.TopicPictures
 	statement, ok := gopodMathExplain(text)
 	if !ok || tp.Role == "" || gopodScriptPlaying.Load() || gopodRunActive() || !gopodPopupAllowed("math") {
 		return
 	}
-	// 2026-10-16 (operator: '"AI Wordplay Explain the Math" = title of the
-	// livestream show = easter egg'; "No Prize yet. Start with a 'Doc's Almost
-	// Approved' Trophy"): math.egg_name, the trophy (popup_title) over the
-	// submission.
 	gopodShowEgg(gopodBrobotName(esn), gopodBrobotsSettings.Math.EggName, gopodMathPopupMark+strings.ReplaceAll(statement, "|", " "))
 }
 
@@ -225,7 +178,6 @@ func gopodMathWork(text string) ([]string, bool) {
 			}
 		}
 	}
-	// "convert 0.3 repeating" / "simplify 6/8" with no target named.
 	if gopodMathHasWord(toks, "convert") || gopodMathHasWord(toks, "simplify") {
 		for _, run := range gopodMathRuns(toks) {
 			if len(run) == 1 && run[0].kind == mathTokNum {
@@ -252,8 +204,6 @@ func gopodMathWork(text string) ([]string, bool) {
 	return nil, false
 }
 
-// ---------------------------------------------------------------- numbers
-
 // gopodMathNum: an exact number and how it was written.
 type gopodMathNum struct {
 	r    *big.Rat
@@ -265,9 +215,8 @@ const gopodMathBar = "\u0305"   // combining overline: the repeating digits
 const gopodMathSlash = "\u2044" // fraction slash: 1⁄3
 const gopodMathMinus = "\u2212" // minus sign
 
-// gopodMathDecimalParts: r's decimal digits by long division - the whole part,
-// the digits before the repeat, and the repeating block (none when it ends).
-// done is false when no repeat or end shows within max digits.
+// gopodMathDecimalParts: r's decimal digits by long division - the whole part, the digits before
+// the repeat, and the repeating block (none when it ends).
 func gopodMathDecimalParts(r *big.Rat, max int) (neg bool, whole, fixed, rep string, done bool) {
 	num := new(big.Int).Abs(r.Num())
 	den := new(big.Int).Set(r.Denom())
@@ -311,8 +260,7 @@ func gopodMathSign(neg bool) string {
 	return ""
 }
 
-// gopodMathDecimal: r as a decimal, its repeating block barred. ok is false when
-// the repeat is longer than math.max_repeat_digits (shown rounded instead).
+// gopodMathDecimal: r as a decimal, its repeating block barred.
 func gopodMathDecimal(r *big.Rat) (string, bool) {
 	maxRep := gopodBrobotsSettings.Math.MaxRepeatDigits
 	if maxRep <= 0 {
@@ -361,8 +309,8 @@ func gopodMathMixed(r *big.Rat) string {
 	return gopodMathSign(r.Sign() < 0) + q.String() + " and " + rem.String() + gopodMathSlash + r.Denom().String()
 }
 
-// gopodMathShow: a result shown the way its kind is written - a fraction for
-// fractions and repeating decimals, a decimal otherwise.
+// gopodMathShow: a result shown the way its kind is written - a fraction for fractions and
+// repeating decimals, a decimal otherwise.
 func gopodMathShow(r *big.Rat, kind string) string {
 	if r.IsInt() {
 		return gopodMathInt(r.Num())
@@ -388,8 +336,6 @@ func gopodMathParseRepeat(whole, fixed, rep string) *big.Rat {
 	return new(big.Rat).SetFrac(numer, den)
 }
 
-// ---------------------------------------------------------------- reading
-
 var (
 	gopodMathLatexFracRe   = regexp.MustCompile(`\\?[dt]?frac\s*\{\s*(-?\d+)\s*\}\s*\{\s*(\d+)\s*\}`)
 	gopodMathLatexBarRe    = regexp.MustCompile(`\\?(?:overline|bar|dot)\s*\{\s*(\d+)\s*\}`)
@@ -405,8 +351,8 @@ var (
 	gopodMathSpacesRe      = regexp.MustCompile(`\s+`)
 )
 
-// gopodMathNormalize: the line in one form - lower case, LaTeX and number words
-// turned into digits and symbols, repeating decimals barred.
+// gopodMathNormalize: the line in one form - lower case, LaTeX and number words turned into digits
+// and symbols, repeating decimals barred.
 func gopodMathNormalize(text string) string {
 	s := " " + strings.ToLower(text) + " "
 	s = gopodMathNameRe.ReplaceAllString(s, " ")
@@ -426,8 +372,6 @@ func gopodMathNormalize(text string) string {
 	s = strings.NewReplacer("’", "'", "\u2212", " \u2212 ", "·", " × ", "\u0304", gopodMathBar).Replace(s)
 	s = gopodMathWordsToNumbers(s)
 	s = gopodMathOnlyRepeats(s)
-	// "0.3 repeating" bars the 3; "0.1666 repeating" the 6, "0.333 repeating"
-	// one 3 - the block that repeats at the end, else every digit.
 	s = gopodMathRepeatWordRe.ReplaceAllStringFunc(s, func(m string) string {
 		p := gopodMathRepeatWordRe.FindStringSubmatch(m)
 		fixed, rep := gopodMathFindPeriod(p[2])
@@ -456,20 +400,17 @@ func gopodMathNormalize(text string) string {
 	return strings.TrimSpace(gopodMathSpacesRe.ReplaceAllString(s, " "))
 }
 
-// gopodMathRepeatSplitRe / gopodMathRepeatLaterRe: the digits that repeat,
-// named after the number - "123, 4 repeating" (the digits that don't, then the
-// ones that do); "the 4 repeating", "only the 4 repeats".
+// gopodMathRepeatSplitRe / gopodMathRepeatLaterRe: the digits that repeat, named after the number -
+// "123, 4 repeating" (the digits that don't, then the ones that do); "the 4 repeating", "only the 4
+// repeats".
 var gopodMathRepeatSplitRe = regexp.MustCompile(`\b(\d+),?\s+(\d+)\s+(?:repeating|recurring|repeated|repeats)\b`)
 var gopodMathRepeatLaterRe = regexp.MustCompile(`\b(?:with\s+)?(?:only\s+)?(?:the\s+)?(\d+)\s+(?:repeating|recurring|repeated|repeats)\b`)
 
-// gopodMathOnlyRepeats (2026-10-16, operator: "convert 0.1234 repeating into a
-// fraction. 123, 4 repeating * only the 4 repeats"): a decimal whose repeating
-// digits are named after it - the end of its digits - gets only those barred
-// (0.1234 with "4 repeating" is 0.123 then 4s), and the naming words go.
+// gopodMathOnlyRepeats: a decimal whose repeating digits are named after it - the end of its digits
+// - gets only those barred (0.1234 with "4 repeating" is 0.123 then 4s), and the naming words go.
 func gopodMathOnlyRepeats(s string) string {
 	for _, d := range gopodMathDecimalRe.FindAllStringSubmatchIndex(s, -1) {
 		whole, digits := s[d[2]:d[3]], s[d[4]:d[5]]
-		// "0.1234 repeating ... 4 repeating": a "repeating" right after the number goes.
 		rest := s[d[1]:]
 		after := strings.TrimLeft(rest, " ")
 		skip := len(rest) - len(after)
@@ -498,8 +439,8 @@ func gopodMathOnlyRepeats(s string) string {
 // gopodMathDecimalRe: a decimal number, its whole part and its digits.
 var gopodMathDecimalRe = regexp.MustCompile(`(\d+)\.(\d+)`)
 
-// gopodMathFindPeriod: "0.333..." / "0.1666..." - the shortest block that
-// repeats at least twice at the end; with none, every digit repeats.
+// gopodMathFindPeriod: "0.333..." / "0.1666..." - the shortest block that repeats at least twice at
+// the end; with none, every digit repeats.
 func gopodMathFindPeriod(digits string) (fixed, rep string) {
 	for p := 1; p <= len(digits)/2; p++ {
 		block := digits[len(digits)-p:]
@@ -532,9 +473,8 @@ var gopodMathDenominators = map[string]int{
 	"twentieth": 20, "twentieths": 20, "hundredth": 100, "hundredths": 100, "thousandth": 1000, "thousandths": 1000,
 }
 
-// gopodMathWordsToNumbers: "zero point three" -> "0.3", "one hundred and five"
-// -> "105", "three quarters" / "a third" -> "3/4" / "1/3", "one and a half" ->
-// "1 1/2" (a mixed number). Digits already there are kept.
+// gopodMathWordsToNumbers: "zero point three" -> "0.3", "one hundred and five" -> "105", "three
+// quarters" / "a third" -> "3/4" / "1/3", "one and a half" -> "1 1/2" (a mixed number).
 func gopodMathWordsToNumbers(s string) string {
 	words := strings.Fields(strings.NewReplacer("-", " - ", ",", " , ", "?", " ? ", "!", " ! ").Replace(s))
 	// Hyphenated tens ("twenty-five") come back together.
@@ -553,14 +493,12 @@ func gopodMathWordsToNumbers(s string) string {
 	}
 	var out []string
 	for i := 0; i < len(w); i++ {
-		// "a half", "a third", "an eighth"
 		if (w[i] == "a" || w[i] == "an") && i+1 < len(w) && gopodMathDenominators[w[i+1]] > 0 && w[i+1] != "second" {
 			out = append(out, "1/"+strconv.Itoa(gopodMathDenominators[w[i+1]]))
 			i++
 			continue
 		}
 		if !isNumWord(w[i]) || (gopodMathScales[w[i]] > 0 && (i == 0 || !isNumWord(w[i-1]))) {
-			// a lone "hundred" is "100"; other words stay
 			if gopodMathScales[w[i]] > 0 {
 				out = append(out, strconv.Itoa(gopodMathScales[w[i]]))
 				continue
@@ -593,7 +531,6 @@ func gopodMathWordsToNumbers(s string) string {
 			}
 		}
 		num := strconv.Itoa(total + current)
-		// "point three three"
 		if j < len(w) && w[j] == "point" {
 			k := j + 1
 			var digits strings.Builder
@@ -609,7 +546,6 @@ func gopodMathWordsToNumbers(s string) string {
 				j = k
 			}
 		}
-		// "three quarters"
 		if j < len(w) && gopodMathDenominators[w[j]] > 0 && !strings.Contains(num, ".") {
 			num += "/" + strconv.Itoa(gopodMathDenominators[w[j]])
 			j++
@@ -617,13 +553,12 @@ func gopodMathWordsToNumbers(s string) string {
 		out = append(out, num)
 		i = j - 1
 	}
-	// "1 and 1/2" -> mixed "1 1/2"
 	s = " " + strings.Join(out, " ") + " "
 	return gopodMathMixedAndRe.ReplaceAllString(s, " $1 $2 ")
 }
 
-// gopodMathWordOps: "add 2 and 3", "subtract 2 from 5", "multiply 3 by 4",
-// "divide 8 by 2", "the sum of ...", "the product of ...".
+// gopodMathWordOps: "add 2 and 3", "subtract 2 from 5", "multiply 3 by 4", "divide 8 by 2", "the
+// sum of ...", "the product of ...".
 const gopodMathN = `([\d./%` + gopodMathBar + `]+)`
 
 var gopodMathWordOps = []struct {
@@ -654,8 +589,6 @@ func gopodMathAfterNumber(w []string, i int) string {
 	}
 	return ""
 }
-
-// ---------------------------------------------------------------- tokens
 
 const (
 	mathTokNum = iota
@@ -771,8 +704,7 @@ func gopodMathFracRat(n, d string) *big.Rat {
 	return new(big.Rat).SetFrac(num, den)
 }
 
-// gopodMathSplitBars: "16̅" -> fixed "1", rep "6". Barred digits must be the last
-// ones (a bar in the middle is read as covering the digits from there on).
+// gopodMathSplitBars: "16̅" -> fixed "1", rep "6".
 func gopodMathSplitBars(digits string) (fixed, rep string) {
 	first := -1
 	var plain strings.Builder
@@ -800,7 +732,6 @@ func gopodMathRuns(toks []gopodMathTok) [][]gopodMathTok {
 	var runs [][]gopodMathTok
 	var cur []gopodMathTok
 	flush := func() {
-		// no dangling operator or "of" at either end
 		for len(cur) > 0 && (cur[0].kind == mathTokOp && cur[0].op != gopodMathMinus || cur[0].kind == mathTokOf || cur[0].kind == mathTokClose) {
 			cur = cur[1:]
 		}
@@ -846,8 +777,8 @@ func gopodMathHasWord(toks []gopodMathTok, word string) bool {
 	return false
 }
 
-// gopodMathTarget: "as a fraction" / "to a decimal" / "into a percent" /
-// "in decimal form" - the target and where its phrase starts.
+// gopodMathTarget: "as a fraction" / "to a decimal" / "into a percent" / "in decimal form" - the
+// target and where its phrase starts.
 func gopodMathTarget(toks []gopodMathTok) (string, int) {
 	targets := map[string]string{"fraction": "fraction", "fractions": "fraction", "decimal": "decimal", "decimals": "decimal", "percent": "percent", "percentage": "percent"}
 	for i, t := range toks {
@@ -858,7 +789,6 @@ func gopodMathTarget(toks []gopodMathTok) (string, int) {
 		if !ok {
 			continue
 		}
-		// the words before it: as / to / into / in (/ a, an)
 		j := i - 1
 		for j >= 0 && toks[j].kind == mathTokWord && (toks[j].word == "a" || toks[j].word == "an" || toks[j].word == "its" || toks[j].word == "simplest") {
 			j--
@@ -866,7 +796,6 @@ func gopodMathTarget(toks []gopodMathTok) (string, int) {
 		if j >= 0 && toks[j].kind == mathTokWord && (toks[j].word == "as" || toks[j].word == "to" || toks[j].word == "into" || toks[j].word == "in") {
 			return target, j
 		}
-		// "what fraction is 0.25"
 		if j >= 0 && toks[j].kind == mathTokWord && toks[j].word == "what" {
 			return target, len(toks)
 		}
@@ -874,8 +803,8 @@ func gopodMathTarget(toks []gopodMathTok) (string, int) {
 	return "", -1
 }
 
-// gopodMathRunBefore: the numbers right before the target phrase (or, for "what
-// fraction is ...", the last stretch in the line).
+// gopodMathRunBefore: the numbers right before the target phrase (or, for "what fraction is ...",
+// the last stretch in the line).
 func gopodMathRunBefore(toks []gopodMathTok, at int) []gopodMathTok {
 	runs := gopodMathRuns(toks[:at])
 	if len(runs) == 0 {
@@ -883,8 +812,6 @@ func gopodMathRunBefore(toks []gopodMathTok, at int) []gopodMathTok {
 	}
 	return runs[len(runs)-1]
 }
-
-// ---------------------------------------------------------------- steps
 
 // gopodMathLine: one step's line from math.lines, {key} filled in.
 func gopodMathLine(name string, kv ...string) string {
@@ -906,7 +833,7 @@ func (s *gopodMathSteps) add(name string, kv ...string) {
 	}
 }
 
-// gopodMathPlace: "tenths", "hundredths"... for n digits after the point.
+// gopodMathPlace: "tenths", "hundredths"...
 func gopodMathPlace(n int) string {
 	names := gopodBrobotsSettings.Math.PlaceNames
 	if n >= 1 && n <= len(names) {
@@ -915,8 +842,8 @@ func gopodMathPlace(n int) string {
 	return "1" + strings.Repeat("0", n) + "ths"
 }
 
-// gopodMathSimplify adds the simplify step for n/d (when there's one) and
-// returns the simplest form.
+// gopodMathSimplify adds the simplify step for n/d (when there's one) and returns the simplest
+// form.
 func gopodMathSimplify(s *gopodMathSteps, n, d *big.Int) *big.Rat {
 	r := new(big.Rat).SetFrac(n, d)
 	g := new(big.Int).GCD(nil, nil, new(big.Int).Abs(n), new(big.Int).Abs(d))
@@ -931,14 +858,12 @@ func gopodMathSimplify(s *gopodMathSteps, n, d *big.Int) *big.Rat {
 func gopodMathToFraction(s *gopodMathSteps, n gopodMathNum) *big.Rat {
 	switch n.kind {
 	case "rep":
-		// The digits as written (0.9̅ stays 0.9̅, though it is 1).
 		parts := strings.SplitN(strings.TrimPrefix(n.show, gopodMathMinus), ".", 2)
 		whole := parts[0]
 		fixed, rep := gopodMathSplitBars(parts[1])
 		a, b := len(fixed), len(rep)
 		m1 := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(a)), nil)
 		m2 := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(a+b)), nil)
-		// x·10^a and x·10^(a+b), written from the digits so the bars stay put.
 		v1 := strings.TrimLeft(whole+fixed, "0")
 		if v1 == "" {
 			v1 = "0"
@@ -1007,8 +932,6 @@ func gopodMathToDecimal(s *gopodMathSteps, n gopodMathNum) string {
 		case !exact:
 			s.add("division_long", "{top}", num, "{bottom}", den, "{decimal}", dec)
 		case rep != "":
-			// 2026-10-15 (operator: "142857 should be said as numbers, not a
-			// single number 142,857"): a longer block shows digit by digit.
 			s.add("division_repeats", "{top}", num, "{bottom}", den, "{decimal}", dec, "{block}", strings.Join(strings.Split(rep, ""), " "))
 		default:
 			s.add("division_ends", "{top}", num, "{bottom}", den, "{decimal}", dec)
@@ -1023,11 +946,9 @@ func gopodMathToDecimal(s *gopodMathSteps, n gopodMathNum) string {
 	return dec
 }
 
-// gopodMathLongDivision (operator 2026-10-15: "tell me about yourself vs tell me
-// all about yourself * this feels like it should fall into a long 'math'
-// response"): "Explain the Math" shows the division itself, digit by digit -
-// each bring-down, its digit and remainder - until it ends, a remainder comes
-// back (the repeat), or math.long_division_max_steps.
+// gopodMathLongDivision: "Explain the Math" shows the division itself, digit by digit - each
+// bring-down, its digit and remainder - until it ends, a remainder comes back (the repeat), or
+// math.long_division_max_steps.
 func gopodMathLongDivision(s *gopodMathSteps, r *big.Rat) {
 	max := gopodBrobotsSettings.Math.LongDivisionMaxSteps
 	if max <= 0 {
@@ -1145,8 +1066,8 @@ var gopodMathWhatPercentRe = []*regexp.Regexp{
 }
 var gopodMathWhatPercentOfRe = regexp.MustCompile(`what (?:percent|percentage) of ([\d./]+) is ([\d./]+)`)
 
-// gopodMathWhatPercent: "what percent is 3 of 4" / "3 is what percent of 4" /
-// "what percentage of 4 is 3".
+// gopodMathWhatPercent: "what percent is 3 of 4" / "3 is what percent of 4" / "what percentage of 4
+// is 3".
 func gopodMathWhatPercent(norm string) ([]string, bool) {
 	var a, b string
 	for _, re := range gopodMathWhatPercentRe {
@@ -1172,10 +1093,8 @@ func gopodMathWhatPercent(norm string) ([]string, bool) {
 	return s.lines, true
 }
 
-// ---------------------------------------------------------------- arithmetic
-
-// gopodMathArithmetic: plus, minus, times, divide (and "of" after a percent or a
-// fraction), in the order of operations, one line per step.
+// gopodMathArithmetic: plus, minus, times, divide (and "of" after a percent or a fraction), in the
+// order of operations, one line per step.
 func gopodMathArithmetic(run []gopodMathTok) ([]string, bool) {
 	s := &gopodMathSteps{}
 	addSub, mulDiv, parens := false, false, false
@@ -1199,8 +1118,6 @@ func gopodMathArithmetic(run []gopodMathTok) ([]string, bool) {
 		}
 		return nil, false
 	}
-	// More than one step (or a top-heavy fraction): the whole sum and its
-	// answer last.
 	result := gopodMathShow(v.r, v.kind)
 	mixed := ""
 	if v.kind == "frac" {
@@ -1290,7 +1207,6 @@ func (p *gopodMathParser) term() (gopodMathNum, bool) {
 	for t := p.peek(); t != nil && (t.kind == mathTokOf || t.kind == mathTokOp && (t.op == "×" || t.op == "÷")); t = p.peek() {
 		op := t.op
 		if t.kind == mathTokOf {
-			// "of" means times only after a percent or a fraction
 			if a.kind != "pct" && a.kind != "frac" {
 				return a, false
 			}
@@ -1344,7 +1260,6 @@ func (p *gopodMathParser) factor() (gopodMathNum, bool) {
 
 // gopodMathApply: a op b, with its step line(s).
 func gopodMathApply(s *gopodMathSteps, a gopodMathNum, op string, b gopodMathNum) (gopodMathNum, bool) {
-	// A repeating decimal is worked as its fraction; a percent as its decimal.
 	a = gopodMathOperand(s, a, op, b)
 	b = gopodMathOperand(s, b, op, a)
 	kind := "dec"
@@ -1372,8 +1287,6 @@ func gopodMathApply(s *gopodMathSteps, a gopodMathNum, op string, b gopodMathNum
 		}
 		r = new(big.Rat).Quo(a.r, b.r)
 	}
-	// Fractions: the same bottom for plus and minus, top-by-top for times, the
-	// flip for divide.
 	if kind == "frac" {
 		af, bf := gopodMathAsFraction(a), gopodMathAsFraction(b)
 		switch op {
@@ -1400,7 +1313,6 @@ func gopodMathApply(s *gopodMathSteps, a gopodMathNum, op string, b gopodMathNum
 		}
 	}
 	result := gopodMathShow(r, kind)
-	// Whole numbers that don't divide evenly: the decimal, and the fraction too.
 	if op == "÷" && kind != "frac" && !r.IsInt() {
 		if _, _, _, rep, _ := gopodMathDecimalParts(r, 200); rep != "" || kind == "int" {
 			extra := gopodMathMixed(r)
@@ -1415,8 +1327,8 @@ func gopodMathApply(s *gopodMathSteps, a gopodMathNum, op string, b gopodMathNum
 	return gopodMathNum{r: r, kind: kind, show: gopodMathShow(r, kind)}, true
 }
 
-// gopodMathOperand: a repeating decimal becomes its fraction, a percent its
-// decimal (or its fraction, next to a fraction), each with its line.
+// gopodMathOperand: a repeating decimal becomes its fraction, a percent its decimal (or its
+// fraction, next to a fraction), each with its line.
 func gopodMathOperand(s *gopodMathSteps, n gopodMathNum, op string, other gopodMathNum) gopodMathNum {
 	if n.kind == "frac" && strings.Contains(n.show, " and ") {
 		f := gopodMathFraction(n.r)

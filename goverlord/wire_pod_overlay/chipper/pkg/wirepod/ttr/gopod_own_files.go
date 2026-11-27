@@ -1,15 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_own_files.go
 package wirepod_ttr
 
-// GOLDEN, one place (2026-10-26, operator: "Account for ANYTHING OWNED GENERATED
-// BY/FOR ROOT, to migrate to OWNED by HOME"; "build the wire-pod helper"):
-// Wire-Pod runs as root, but everything GOPOD writes in the operator's home is
-// the operator's. Every overlay write goes through these (gopodWriteFile,
-// gopodMkdirAll, gopodOwn), and every program Wire-Pod starts runs as the
-// operator (gopodAsOperator, gopodRunAsOperator). The operator is the owner of
-// GOPOD's chipper folder (gopodRecordRoot). Not root (a test, a dev run): nothing
-// changes. ~/wire-pod (upstream) is left as it is.
-
 import (
 	"os"
 	"os/user"
@@ -26,8 +17,8 @@ var gopodOperatorIDs struct {
 	groups []uint32
 }
 
-// gopodOperatorUser: the operator's uid, gid and groups when Wire-Pod is root;
-// uid -1 otherwise (nothing to hand over).
+// gopodOperatorUser: the operator's uid, gid and groups when Wire-Pod is root; uid -1 otherwise
+// (nothing to hand over).
 func gopodOperatorUser() (int, int, []uint32) {
 	o := &gopodOperatorIDs
 	o.once.Do(func() {
@@ -90,8 +81,8 @@ func gopodMkdirAll(path string, perm os.FileMode) error {
 	return err
 }
 
-// gopodRunAsOperator: a program Wire-Pod starts runs as the operator, with his
-// groups (audio, video, plugdev, input... for the mic, cameras and USB).
+// gopodRunAsOperator: a program Wire-Pod starts runs as the operator, with his groups (audio,
+// video, plugdev, input...
 func gopodRunAsOperator(attr *syscall.SysProcAttr) *syscall.SysProcAttr {
 	uid, gid, groups := gopodOperatorUser()
 	if uid < 0 {

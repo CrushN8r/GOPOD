@@ -7,8 +7,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The brother is asleep while his newest log line is the sleep intent; topic
-// packs load by whole-word triggers, more than one per question.
+// The brother is asleep while his newest log line is the sleep intent; topic packs load by
+// whole-word triggers, more than one per question.
 func TestGopodChatAwareness(t *testing.T) {
 	saved := logger.LogTrayArray
 	defer func() { logger.LogTrayArray = saved }()
@@ -28,10 +28,10 @@ func TestGopodChatAwareness(t *testing.T) {
 	}
 	for msg, want := range map[string]string{
 		"introduce yourself and is your brother asleep": "who_we_are,brothers",
-		"i want to party where can we go":                "bookings",
-		"tell me all about yourself":                     "who_we_are,background",
-		"what is gopod":                                  "gopod",
-		"the whole thing was barely funny":               "",
+		"i want to party where can we go":               "bookings",
+		"tell me all about yourself":                    "who_we_are,background",
+		"what is gopod":                                 "gopod",
+		"the whole thing was barely funny":              "",
 	} {
 		if got := names(msg); got != want {
 			t.Fatalf("%q loaded %q, want %q", msg, got, want)

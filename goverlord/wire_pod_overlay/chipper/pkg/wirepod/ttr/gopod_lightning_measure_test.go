@@ -14,20 +14,12 @@ import (
 	"testing"
 )
 
-// TestLightningMeasure (2026-10-29, operator: "Goverlord orchestrating like how
-// lightning branches out gravitating to the path of least resistance: the library
-// of value points ... whatever shortest trajectory it takes to grab the best
-// relevant value points"; "go lightning for step 1, the measurement"): a
-// measurement, not a gate - it runs only with GOPOD_LIGHTNING_MEASURE=1. The
-// admin run's golden questions, in order: today (the question's words load whole
-// topics) against lightning (every value point scored by its pull - words shared
-// with the question, rarer words pulling harder, its topic's own words matching -
-// the points already won out of the race).
+// TestLightningMeasure: a measurement, not a gate - it runs only with GOPOD_LIGHTNING_MEASURE=1.
 func TestLightningMeasure(t *testing.T) {
 	if os.Getenv("GOPOD_LIGHTNING_MEASURE") != "1" {
 		t.Skip("a measurement - GOPOD_LIGHTNING_MEASURE=1 runs it")
 	}
-	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
+	// the game's questions, from their cards ("ask N" lines).
 	var qs struct{ Questions []gopodGameQuestion }
 	qs.Questions = gopodBrobotsSettings.GameQuestions
 	gdata, _ := os.ReadFile(filepath.Join(gopodChaptersDir(), "value_points_golden.json"))
@@ -36,8 +28,6 @@ func TestLightningMeasure(t *testing.T) {
 	}
 	json.Unmarshal(gdata, &golden)
 
-	// The library: each point's words - its golden line, its notes and say line,
-	// its topic's label and words.
 	chapters, always, _ := gopodReadChaptersFolder()
 	topics := map[string]gopodTopicFile{}
 	for _, tf := range always {
@@ -110,7 +100,6 @@ func TestLightningMeasure(t *testing.T) {
 			continue
 		}
 		r := row{ask: q.Ask, want: want}
-		// Today: whole topics by their words.
 		loaded := loadScenarioPacketsForMessage(q.Ask)
 		r.todayLoaded = len(loaded)
 		for i, p := range loaded {
@@ -119,7 +108,6 @@ func TestLightningMeasure(t *testing.T) {
 				r.todayFirst = i == 0
 			}
 		}
-		// Lightning: every point not yet won, scored by its pull.
 		qt := tokens(q.Ask)
 		lower := strings.ToLower(q.Ask)
 		type scored struct {
@@ -137,8 +125,6 @@ func TestLightningMeasure(t *testing.T) {
 					s += idf(w)
 				}
 			}
-			// The topic's own words matching (today's trigger) pull the whole
-			// topic - its next point not yet won most.
 			for _, reg := range registry {
 				if reg.Name != p.topic {
 					continue
@@ -192,9 +178,7 @@ func TestLightningMeasure(t *testing.T) {
 			fmt.Fprintf(&b, "  %-28s got %-28s today:%v loaded:%d  %q\n", r.want, r.got, r.todayHit, r.todayLoaded, gopodCut(r.ask, 70))
 		}
 	}
-	// The room asks out of order: the same questions shuffled (a fixed seed, five
-	// rounds). Today the Brobot reveals the next point not yet said of the first
-	// topic loaded; lightning picks by pull.
+	// The room asks out of order: the same questions shuffled (a fixed seed, five rounds).
 	type ask struct{ want, topic, text string }
 	var asks []ask
 	for _, r := range rows {
@@ -215,7 +199,6 @@ func TestLightningMeasure(t *testing.T) {
 		said := map[string]bool{}
 		for _, a := range order {
 			total++
-			// Today: the first topic loaded, its next point not yet said.
 			if loaded := loadScenarioPacketsForMessage(a.text); len(loaded) > 0 {
 				for n := 1; n < 20; n++ {
 					id := loaded[0].Name + "#" + strconv.Itoa(n)
@@ -230,7 +213,6 @@ func TestLightningMeasure(t *testing.T) {
 					}
 				}
 			}
-			// Lightning: by pull, the points said out of the race.
 			qt := tokens(a.text)
 			lower := strings.ToLower(a.text)
 			best, bestS := "", -1e9
@@ -279,10 +261,6 @@ func TestLightningMeasure(t *testing.T) {
 	}
 	fmt.Fprintf(&b, "\nOUT OF ORDER (5 shuffled rounds, %d asks): today right point: %d (%.0f%%) · lightning right point first: %d (%.0f%%) · in top 3: %d (%.0f%%)\n",
 		total, todayRight, 100*float64(todayRight)/float64(total), lightRight, 100*float64(lightRight)/float64(total), lightTop3, 100*float64(lightTop3)/float64(total))
-	// Step 2 (operator: "dynamic topic order valuation list of topic-cluster
-	// topics found"): the loader itself - lightning.on true against false - on the
-	// same questions, in order and shuffled: the right topic first, topics loaded,
-	// and chit-chat that names no topic.
 	chat := []string{"how are you today?", "good evening bros!", "what's up?", "that was funny", "say something nice", "are you awake?", "lol", "thank you", "can you hear me?", "what time is it?"}
 	loader := func(on bool) (inOrder, shuffled, loadedN, chatN int) {
 		saved := gopodBrobotsSettings.Lightning.On

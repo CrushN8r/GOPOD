@@ -12,14 +12,7 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The chat bubble page highlights the sentence a robot is saying. Wire-Pod
-// speaks a chat reply one sentence at a time (gopod_speech_sentences.go); before
-// each sentence it writes that sentence here, and when the reply ends it writes
-// active=false. A touch interrupt instead writes interrupted=true with the
-// sentence the robot stopped on, so the page can show that outline solid. The page (webroot/index.html,
-// pollSpeakingNow) reads this file and outlines the matching sentence in that
-// robot's newest bubble. A plain file next to the page, the same way
-// gopod_chat_feed.json works, so nothing is added to the Logs page.
+// The chat bubble page highlights the sentence a robot is saying.
 var gopodSpeakingNowPath = gopodPathWithEnvOverride(
 	"GOPOD_SPEAKING_NOW_PATH", "webroot/gopod_speaking_now.json",
 )
@@ -37,14 +30,10 @@ type gopodSpeakingNow struct {
 	Text        string `json:"text"`
 	Active      bool   `json:"active"`
 	Interrupted bool   `json:"interrupted"`
-	// Piece: the number of the bubble piece being said (gopod_highlight_pieces.go);
-	// -1 when there is none and the page matches by words instead.
-	Piece  int   `json:"piece"`
-	Seq    int64 `json:"seq"`
-	// Feed: the chat event of the bubble being said (2026-10-21) - the page lights
-	// that bubble, no guessing which.
-	Feed int `json:"feed,omitempty"`
-	TimeMs int64 `json:"time_ms"`
+	Piece       int    `json:"piece"`
+	Seq         int64  `json:"seq"`
+	Feed        int    `json:"feed,omitempty"`
+	TimeMs      int64  `json:"time_ms"`
 }
 
 func gopodWriteSpeakingNow(esn, text string, active, interrupted bool) {
@@ -53,8 +42,6 @@ func gopodWriteSpeakingNow(esn, text string, active, interrupted bool) {
 
 // gopodWriteSpeakingPiece is gopodWriteSpeakingNow with the bubble piece's number.
 func gopodWriteSpeakingPiece(esn, text string, piece int, active, interrupted bool) {
-	// 2026-10-11 (operator: "can you log highlighted splits within a bubble?"):
-	// each lit piece, by its number in the bubble (-1: matched by its words).
 	if active {
 		logger.LogDebugUI(fmt.Sprintf("GOPOD_HIGHLIGHT %s piece=%d: %s", gopodBrobotName(esn), piece, text))
 	}
@@ -80,9 +67,8 @@ func gopodWriteSpeakingPiece(esn, text string, piece int, active, interrupted bo
 	}
 }
 
-// gopodMarkSpeakingInterrupted: a touch (or wake word) interrupt was accepted -
-// the sentence this robot is saying is written again with interrupted=true, so
-// the page shows it solid right away.
+// gopodMarkSpeakingInterrupted: a touch (or wake word) interrupt was accepted - the sentence this
+// robot is saying is written again with interrupted=true, so the page shows it solid right away.
 func gopodMarkSpeakingInterrupted(esn string) {
 	gopodSpeakingNowMu.Lock()
 	text, piece := gopodSpeakingNowLast[esn], gopodSpeakingNowLastPiece[esn]
@@ -90,13 +76,9 @@ func gopodMarkSpeakingInterrupted(esn string) {
 	gopodWriteSpeakingPiece(esn, text, piece, false, true)
 }
 
-// GopodSpeakSentences (2026-09-30): a song line (sdkapp say_text with
-// sentence_highlight=1) said one sentence at a time, the same split and the
-// same file as a chat reply, so the chat page lights each sentence of a Bingo
-// bubble while it is said (operator: "make the bingo text act the same as the
-// bubbles ... per sentence"). say speaks one sentence and returns when done.
-// offset >= 0 (2026-10-10, a combo step: one bubble, its parts said apart):
-// these pieces start at that piece of the bubble.
+// GopodSpeakSentences: a song line (sdkapp say_text with sentence_highlight=1) said one sentence at
+// a time, the same split and the same file as a chat reply, so the chat page lights each sentence
+// of a Bingo bubble while it is said.
 func GopodSpeakSentences(esn, text string, offset int, say func(sentence string)) {
 	marked := strings.Contains(text, gopodBrobotsSettings.ScriptedSplit.SegmentMarker)
 	pieces := gopodSpeakPieces(text)
@@ -117,11 +99,9 @@ func GopodSpeakSentences(esn, text string, offset int, say func(sentence string)
 	gopodWriteSpeakingNow(esn, "", false, false)
 }
 
-// gopodSpeakPieces: a scripted song line arrives already split by the song
-// engine, its pieces joined with scripted_split.segment_marker
-// (gopod_brobots_settings.json) - the robot says exactly those pieces, the same
-// ones the chat bubble lights. Any other text keeps the sentence rule
-// (gopodSentences).
+// gopodSpeakPieces: a scripted song line arrives already split by the song engine, its pieces
+// joined with scripted_split.segment_marker (gopod_brobots_settings.json) - the robot says exactly
+// those pieces, the same ones the chat bubble lights.
 func gopodSpeakPieces(text string) []string {
 	marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker
 	if marker == "" || !strings.Contains(text, marker) {

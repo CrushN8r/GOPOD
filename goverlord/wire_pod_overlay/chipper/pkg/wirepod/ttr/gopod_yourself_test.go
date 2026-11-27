@@ -3,8 +3,8 @@ package wirepod_ttr
 
 import "testing"
 
-// The wake phrase on its own (after "hey vector" or a name) is the command; a
-// question about it is not.
+// The wake phrase on its own (after "hey vector" or a name) is the command; a question about it is
+// not.
 func TestGOPODYourselfPhrase(t *testing.T) {
 	for _, s := range []string{"GOPOD Yourself", "gopod yourself!", "go pod yourself", "Hey Vector, GOPOD Yourself", "Brobot 2, GOPOD Yourself."} {
 		if !gopodIsYourself(s) {

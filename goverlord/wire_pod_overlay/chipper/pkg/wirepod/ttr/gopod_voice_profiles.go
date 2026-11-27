@@ -1,20 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_voice_profiles.go
 package wirepod_ttr
 
-// GOLDEN, one place (2026-10-26, operator: "expand that tag into a
-// per-audio-file-profile-tag * per-audio-file-profile-tag carries all
-// per-audio-file tagged-values * also carries these usage-details: generation
-// date, # of times used, time last used * these usage-details will help
-// determine what to keep over the course of a week/month"; "In GOPOD sysytem,
-// add a report-run * report-run past 3-days/week/month/year * this will help me
-// determine what is \"popular\" for GOPOD"). Every voice file beside the voices
-// (gopod_reporter_audio) has one profile in voice_profiles.json: its kind
-// (system, scripted, live, mic), voice, who it's for, its words, the leveler's
-// values, when it was made, how many times it played (per day too), when it
-// last played, and how many times it was made again (a newer mic recording of
-// the same words takes it over). system-voices-report reads them - report only,
-// nothing moves. voice_kinds.json (kinds only) was the start of this.
-
 import (
 	"encoding/json"
 	"fmt"
@@ -52,9 +38,9 @@ func gopodVoiceProfilesPath() string {
 	return filepath.Join(gopodReporterAudioDir(), "voice_profiles.json")
 }
 
-// gopodVoiceProfilesLoadLocked: read once; the first time, every voice file on
-// disk gets a profile (its kind from voice_kinds.json, made = its file time,
-// its words from its .words.json), and counting starts now.
+// gopodVoiceProfilesLoadLocked: read once; the first time, every voice file on disk gets a profile
+// (its kind from voice_kinds.json, made = its file time, its words from its .words.json), and
+// counting starts now.
 func gopodVoiceProfilesLoadLocked() {
 	p := &gopodVoiceProfiles
 	if p.loaded {
@@ -180,12 +166,8 @@ func gopodVoiceProfileMade(name, kind, host, voice, text string) {
 	gopodVoiceProfilesSaveLocked()
 }
 
-// gopodVoiceProfileTakeOver (operator: "popular repeating live questions,
-// 'regenerate', so archive generated live voice & new raw voice audio file goes
-// through the same leveler, then takes over the per-audio-file-profile-tag, now
-// with a # of regenerations"): a new mic recording of the same words takes over
-// the older ones' profile (its uses carried, made again +1) and they go to the
-// archive.
+// gopodVoiceProfileTakeOver: a new mic recording of the same words takes over the older ones'
+// profile (its uses carried, made again +1) and they go to the archive.
 func gopodVoiceProfileTakeOver(name, text string) {
 	key := strings.ToLower(strings.Join(strings.Fields(text), " "))
 	p := &gopodVoiceProfiles
@@ -256,8 +238,7 @@ func gopodVoiceProfileUses() map[string]int {
 	return out
 }
 
-// gopodVoiceProfileLastUsed: each file's last play (2026-11-16: the sweep keeps
-// a voice by when it was last heard, not when it was made).
+// gopodVoiceProfileLastUsed: each file's last play.
 func gopodVoiceProfileLastUsed() map[string]time.Time {
 	p := &gopodVoiceProfiles
 	p.Lock()
@@ -304,8 +285,8 @@ func gopodVoiceArchived(name string) {
 // gopodVoiceReportWindows: system-voices-report's windows.
 var gopodVoiceReportWindows = map[string]int{"3d": 3, "3days": 3, "3-days": 3, "week": 7, "month": 30, "year": 365}
 
-// gopodSystemVoicesReport: "system-voices-report [3d | week | month | year]" -
-// report only, nothing moves.
+// gopodSystemVoicesReport: "system-voices-report [3d | week | month | year]" - report only, nothing
+// moves.
 func gopodSystemVoicesReport(text string) string {
 	f := strings.Fields(strings.ToLower(text))
 	window, label := 7, "week"
@@ -339,7 +320,6 @@ func gopodSystemVoicesReport(text string) string {
 	}
 	p.Unlock()
 
-	// Voices someone speaks with now.
 	rv := gopodBrobotsSettings.ReporterVoices
 	assigned := map[string]bool{rv.SystemVoice: true, gopodReporterVoice(gopodOperatorVoiceHost): true}
 	for _, v := range rv.Hosts {

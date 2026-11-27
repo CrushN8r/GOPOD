@@ -6,17 +6,14 @@ import (
 	"testing"
 )
 
-// TestRemindersStartAgain (operator 2026-10-27: "once all reminders have been
-// suggested, brobots go through the reminder's list again less what's already
-// talked about"): asked over and over, the reminders keep naming topics - a new
-// round once every topic has been named - never a topic already covered.
+// TestRemindersStartAgain: asked over and over, the reminders keep naming topics - a new round once
+// every topic has been named - never a topic already covered.
 func TestRemindersStartAgain(t *testing.T) {
 	gopodGameReset("test")
 	defer gopodGameReset("test")
 	labels := gopodBrobotsSettings.InterviewChapters.TopicLabels
-	// "the rig" covered: never named again.
 	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig")
-	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig") // 2026-11-20: wide, then deep
+	gopodQuestionFactsFor(gopodBrobot1ESN, "Tell me about the rig") // wide, then deep
 	rig := labels["mobile_gear"]
 	for i := 0; i < 60; i++ {
 		line := gopodReminderLine("Tell me about the contest")
@@ -35,8 +32,7 @@ func TestRemindersStartAgain(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "please ensure the 'try asking' suggestions match with the
-// 'hey that reminds me'"): the question to try is the first topic reminded of.
+// the question to try is the first topic reminded of.
 func TestTryAskingMatchesTheReminder(t *testing.T) {
 	gopodGameReset("test")
 	defer gopodGameReset("test")
@@ -66,10 +62,8 @@ func TestTryAskingMatchesTheReminder(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-16 (operator: "I see the reminders list like a merry-go-round *
-// wherever you step onto the merry-go-round, you're in the GOPOD tour * ... until
-// you've sat in every seat"): the topics named next are the ones after the topic
-// asked about, in the chapters' order (or its own links first).
+// the topics named next are the ones after the topic asked about, in the chapters' order (or its
+// own links first).
 func TestRemindersRideInOrder(t *testing.T) {
 	gopodGameReset("test")
 	defer gopodGameReset("test")
@@ -89,7 +83,6 @@ func TestRemindersRideInOrder(t *testing.T) {
 	if len(list) < 2 {
 		t.Fatalf("reminder names: %v", list)
 	}
-	// After any topic's own links, the seats come in order, round from the top.
 	seen := 0
 	for i := 1; i < len(list); i++ {
 		a, b := pos[list[i-1]], pos[list[i]]

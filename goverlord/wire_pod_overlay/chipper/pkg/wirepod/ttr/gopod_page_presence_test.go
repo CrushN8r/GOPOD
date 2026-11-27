@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// TestPagePresence (2026-10-17, operator: "Goverlord awaits your return..."): a
-// page that said it's showing lately is here; hidden, or not heard from, it's away.
+// TestPagePresence: a page that said it's showing lately is here; hidden, or not heard from, it's
+// away.
 func TestPagePresence(t *testing.T) {
 	savedOn, savedSeen, savedHidden := gopodPageWatchOn.Load(), gopodPageSeenMS.Load(), gopodPageHidden.Load()
 	defer func() {

@@ -1,18 +1,18 @@
 package wirepod_ttr
 
 import (
-	"net/http"
-	"net/url"
 	"encoding/json"
 	"io"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// geocodeOpenWeatherMap and geocodeCandidates: split out of weather.go so the
-// only thing that file's own overlay edit still needs to carry is the panic-
-// to-soft-fail swaps and the one-line call-site change to use these.
+// geocodeOpenWeatherMap and geocodeCandidates: split out of weather.go so the only thing that
+// file's own overlay edit still needs to carry is the panic- to-soft-fail swaps and the one-line
+// call-site change to use these.
 func geocodeOpenWeatherMap(location string, apiKey string) []openWeatherMapAPIGeoCodingStruct {
 	for _, candidate := range geocodeCandidates(location) {
 		geoURL := "http://api.openweathermap.org/geo/1.0/direct?q=" + url.QueryEscape(candidate) + "&limit=1&appid=" + apiKey
@@ -39,11 +39,9 @@ func geocodeOpenWeatherMap(location string, apiKey string) []openWeatherMapAPIGe
 	return nil
 }
 
-// geocodeCandidates builds ordered comma-grouping guesses for a spoken
-// location phrase: as given, fully space-joined (no commas), comma before
-// the final word only (2-part: city+region), then comma between every word
-// (3+ part: city, state, country). Duplicates are dropped as word count
-// shrinks the candidate set (e.g. a 1-word location only ever has one form).
+// geocodeCandidates builds ordered comma-grouping guesses for a spoken location phrase: as given,
+// fully space-joined (no commas), comma before the final word only (2-part: city+region), then
+// comma between every word (3+ part: city, state, country).
 func geocodeCandidates(location string) []string {
 	fields := strings.Fields(strings.ReplaceAll(location, ",", " "))
 	if len(fields) == 0 {

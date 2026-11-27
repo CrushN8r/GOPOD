@@ -6,30 +6,25 @@ import (
 	"testing"
 )
 
-// The Brobots' math is exact and step by step (gopod_math.go). Each case: the
-// question, the lines the answer must hold, in order.
+// The Brobots' math is exact and step by step (gopod_math.go).
 func TestMathAnswers(t *testing.T) {
 	cases := []struct {
 		q    string
 		want []string
 	}{
-		// fraction -> decimal
 		{"what is 1/2 as a decimal?", []string{"1 ÷ 2 = 0.5."}},
 		{"convert 1/3 to a decimal", []string{"1 ÷ 3 = 0.3̅.", "the 3 repeats forever", "So 1⁄3 = 0.3̅."}},
 		{"1/7 as a decimal", []string{"7 goes into 1 0 times, remainder 1.", "Bring down a 0: 10 ÷ 7 = 1, remainder 3.", "Bring down a 0: 50 ÷ 7 = 7, remainder 1.", "Remainder 1 again", "1 ÷ 7 = 0.1̅4̅2̅8̅5̅7̅.", "the 1 4 2 8 5 7 repeats forever", "So 1⁄7 = 0.1̅4̅2̅8̅5̅7̅."}},
 		{"1/2 as a decimal", []string{"Bring down a 0: 10 ÷ 2 = 5, remainder 0.", "Remainder 0, so it ends there.", "1 ÷ 2 = 0.5."}},
 		{"what's three quarters as a decimal", []string{"3 ÷ 4 = 0.75."}},
 		{"1/6 to a decimal", []string{"1 ÷ 6 = 0.16̅."}},
-		// decimal -> fraction
 		{"0.125 as a fraction", []string{"0.125 goes to the thousandths, so it's 125⁄1000.", "Divide the top and the bottom by 125: 125⁄1000 = 1⁄8.", "So 0.125 = 1⁄8."}},
 		{"what is 0.5 as a fraction", []string{"5⁄10", "= 1⁄2.", "So 0.5 = 1⁄2."}},
-		// repeating -> fraction, the 10x method
 		{"Using math symbols, list the steps, showing me the breakdown of converting a decimal 0.3 repeating into a fraction",
 			[]string{"Let x = 0.3̅.", "Times by 10: 10x = 3.3̅.", "10x − x = 3.3̅ − 0.3̅, so 9x = 3.", "So x = 3⁄9.", "3⁄9 = 1⁄3.", "So 0.3̅ = 1⁄3."}},
 		{"convert zero point three repeating to a fraction", []string{"Let x = 0.3̅.", "So 0.3̅ = 1⁄3."}},
 		{"0.1666 repeating as a fraction", []string{"Let x = 0.16̅.", "So 0.16̅ = 1⁄6."}},
 		{"0.333 repeating as a fraction", []string{"Let x = 0.3̅.", "So 0.3̅ = 1⁄3."}},
-		// 2026-10-16: only the named digits repeat.
 		{"convert 0.1234 repeating into a fraction. 123, 4 repeating", []string{"So 0.1234̅ = 1111⁄9000."}},
 		{"convert 0.1234 with the 4 repeating into a fraction", []string{"So 0.1234̅ = 1111⁄9000."}},
 		{"0.1234, only the 4 repeats, as a fraction", []string{"So 0.1234̅ = 1111⁄9000."}},
@@ -42,14 +37,12 @@ func TestMathAnswers(t *testing.T) {
 		{"1.1 repeating as a fraction", []string{"10x = 11.1̅", "9x = 10", "So 1.1̅ = 10⁄9, or 1 and 1⁄9."}},
 		{"0.\\overline{142857} as a fraction", []string{"Let x = 0.1̅4̅2̅8̅5̅7̅.", "999999x = 142857", "So 0.1̅4̅2̅8̅5̅7̅ = 1⁄7."}},
 		{"0.9 repeating as a fraction", []string{"9x = 9", "So 0.9̅ = 1."}},
-		// percent
 		{"what is 15% of 80", []string{"15% is 0.15.", "0.15 × 80 = 12.", "So 15% of 80 = 12."}},
 		{"fifteen percent of eighty", []string{"0.15 × 80 = 12."}},
 		{"what percent is 3 of 4", []string{"3 out of 4: 3 ÷ 4 = 0.75, and 0.75 × 100 = 75%."}},
 		{"1/3 as a percent", []string{"1 ÷ 3 = 0.3̅.", "0.3̅ × 100 = 33.3̅%.", "So 1⁄3 = 33.3̅%."}},
 		{"25% as a fraction", []string{"25% means out of 100: 25⁄100.", "25⁄100 = 1⁄4.", "So 25% = 1⁄4."}},
 		{"3 out of 4 as a percent", []string{"0.75 × 100 = 75%."}},
-		// plus, minus, times, divide
 		{"what's 2 plus 2", []string{"2 + 2 = 4."}},
 		{"what is 12 x 7", []string{"12 × 7 = 84."}},
 		{"calculate 2 + 3 × 4", []string{"Times and divide go first", "3 × 4 = 12.", "2 + 12 = 14.", "So 2 + 3 × 4 = 14."}},
@@ -127,8 +120,7 @@ func TestMathSpoken(t *testing.T) {
 	}
 }
 
-// "[statement]. Explain the Math": Brobot 1 gets the steps but the last third,
-// Brobot 2 the rest; each reply is his own words (no numbers), then bullets.
+// "[statement].
 func TestMathExplainTheMath(t *testing.T) {
 	q := "Convert 0.3 repeating into a fraction. Explain the Math!"
 	if s, ok := gopodMathExplain(q); !ok || s != "Convert 0.3 repeating into a fraction" {

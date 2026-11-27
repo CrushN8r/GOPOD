@@ -5,10 +5,9 @@ import (
 	"testing"
 )
 
-// TestJobRouteThreeStrikes (2026-11-23, the operator's loop): CAMEO asked about
-// the weather - the GOPOD rep's job - once names the rep, twice the rep and
-// README.md, a third time hands the line to the rep, whose look-up is README.md's
-// welcome. (Booking and contact are every staffer's - 2026-11-24.)
+// TestJobRouteThreeStrikes: CAMEO asked about the weather - the GOPOD rep's job - once names the
+// rep, twice the rep and README.md, a third time hands the line to the rep, whose look-up is
+// README.md's welcome.
 func TestJobRouteThreeStrikes(t *testing.T) {
 	bc := &gopodBrobotsSettings.BrainChain
 	if bc.RouteRep == "" || bc.RouteOther == "" || bc.RouteAgain == "" || bc.RouteWelcome == "" {
@@ -38,20 +37,17 @@ func TestJobRouteThreeStrikes(t *testing.T) {
 	if len(sources) == 0 || !strings.EqualFold(sources[0], "README.md") || !strings.Contains(fact, "welcome") {
 		t.Fatalf("strike 3's look-up: %v / %q - want README.md's welcome", sources, fact)
 	}
-	// Contact info: any staffer gives it.
 	if who := gopodJobRoute("CAMEO", "how do I contact you?"); who != "CAMEO" || gopodJobRouteNote("CAMEO") != "" {
 		t.Fatalf("contact info to CAMEO: %q answers, ROUTE %q", who, gopodJobRouteNote("CAMEO"))
 	}
-	// His own job: no ROUTE line.
 	gopodJobRoute("PLAYHEAD", "Tell me about your interns")
 	if n := gopodJobRouteNote("PLAYHEAD"); n != "" {
 		t.Fatalf("PLAYHEAD on his interns got a ROUTE line: %q", n)
 	}
 }
 
-// TestContactLine (2026-11-24; 2026-11-25 the QR card): a contact or booking ask
-// gets the contact line, a keeping-up ask the keep-up line, word for word, from
-// any persona - after his own line, once.
+// TestContactLine: a contact or booking ask gets the contact line, a keeping-up ask the keep-up
+// line, word for word, from any persona - after his own line, once.
 func TestContactLine(t *testing.T) {
 	gy := gopodBrobotsSettings.GopodYourselfQr
 	line := gy.ContactLine

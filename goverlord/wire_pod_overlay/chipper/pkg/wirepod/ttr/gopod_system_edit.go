@@ -18,19 +18,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The editing commands (2026-10-18, operator: "I want to be able to edit
-// everything possible in GOPOD * aim for maximum automation, minimal editing";
-// "Build all 5 system- commands please"). Typed on the chat page's keyboard;
-// every write is kept for system-undo, and a settings edit that would stop
-// Wire-Pod from starting is put back at once.
-//   system-set <path.to.setting> <value>       any setting by its path
-//   system-add <path> <item>                   an item into a list (or "key = value" into a map)
-//   system-remove <path> <item>                an item out of a list (or a key out of a map)
-//   system-lingo <brobots|reporters|butler> <word> = <said>   (remove <word>; or just the lingo: its list)
-//   system-restart [go]                        Wire-Pod restarts; the page reloads itself
-//   system-topic [<topic> [words|point|label|reminder|pictures ...]]   a chapter topic
-
-
 // gopodSettingsStillLoad: the settings file as it now is would load at Wire-Pod's start.
 func gopodSettingsStillLoad() (err error) {
 	defer func() {
@@ -51,8 +38,8 @@ func gopodUndoForget() {
 	gopodUndo.Unlock()
 }
 
-// gopodSettingsWrite: one edit of the settings file holding path's block, put
-// back if it wouldn't load.
+// gopodSettingsWrite: one edit of the settings file holding path's block, put back if it wouldn't
+// load.
 func gopodSettingsWrite(path []string, edit func(file string) (string, error)) (string, error) {
 	file := gopodSettingsFileFor(path)
 	before, err := os.ReadFile(file)
@@ -77,8 +64,6 @@ const gopodAfterRestart = " (takes effect after system-restart)"
 func gopodSettingsPath(dotted string) []string {
 	return strings.Split(strings.Trim(dotted, "."), ".")
 }
-
-// --- 1. system-set <path> <value> ---
 
 // gopodSystemSetPath: any setting by its path; the value keeps the old one's kind.
 func gopodSystemSetPath(dotted, value string) string {
@@ -119,8 +104,6 @@ func gopodShort(s string, n int) string {
 	}
 	return s
 }
-
-// --- 2. system-add / system-remove ---
 
 func gopodSystemAddRemove(text string) string {
 	f := strings.Fields(text)
@@ -233,7 +216,6 @@ func gopodJSONFileDelete(file string, path []string) (string, error) {
 	rest := bytes.TrimLeft(data[end:], " \t\r\n")
 	if len(rest) > 0 && rest[0] == ',' {
 		end = len(data) - len(rest) + 1
-		// and the space up to the next key, so the next key takes its place
 		next := bytes.TrimLeft(data[end:], " \t\r\n")
 		end = len(data) - len(next)
 		lineStart := bytes.LastIndexByte(data[:ks], '\n') + 1
@@ -256,8 +238,6 @@ func gopodJSONFileDelete(file string, path []string) (string, error) {
 	}
 	return old, gopodWriteFileSafe(file, out)
 }
-
-// --- 3. system-lingo ---
 
 var gopodLingoEntryRE = regexp.MustCompile(`^(\s*)\{"from":\s*("(?:[^"\\]|\\.)*"),\s*"to":\s*("(?:[^"\\]|\\.)*")(.*?)\}(,?)\s*$`)
 
@@ -409,9 +389,6 @@ func gopodLingoBrobots(word, said string, remove bool) string {
 	return gopodSystemText("system_edit.brobots_lingo", "word", word, "said", said, "after_restart", gopodAfterRestart)
 }
 
-// --- system-native / system-numpad (2026-10-19, operator: "make Native?[]
-// Numpad?[] part of system- commands * prune Native?[] & Numpad?[] altogether") ---
-
 func gopodSystemNative(text string) string {
 	f := strings.Fields(strings.ToLower(text))
 	if len(f) > 1 && (f[1] == "on" || f[1] == "off") {
@@ -435,9 +412,6 @@ func gopodSystemNumpad(text string) string {
 	}
 	return gopodSystemText("system_edit.numpad_off", "value", gopodBrobotsSettings.NumpadPTT.Texts["exit"])
 }
-
-// --- system-score (2026-10-19, operator: "start with the score and the audio
-// test"; pha0b's score) ---
 
 // gopodSystemScore: a song's score - every step, its note and its full text.
 func gopodSystemScore(text string) string {
@@ -471,21 +445,14 @@ func gopodSystemScore(text string) string {
 	return gopodJoinLines(out)
 }
 
-// --- 4. system-restart ---
-
-// gopodSystemRestart: Wire-Pod restarts itself a moment after the answer shows;
-// the page sees the new start and reloads itself (click Log once for sound).
-// 2026-10-25 (operator: "forced wpr 2 restart, from what I just gave you"): what
-// wpr 2 does - the speaker and USB mic set, the page's leftover run state
-// cleared, then a forced restart (a playing run too). Only settings Wire-Pod
-// couldn't start with stop it.
+// gopodSystemRestart: Wire-Pod restarts itself a moment after the answer shows; the page sees the
+// new start and reloads itself (click Log once for sound).
 func gopodSystemRestart(text string) string {
 	if lerr := gopodSettingsStillLoad(); lerr != nil {
 		return gopodSystemText("system_edit.not_restarted_wire_pod_wouldn", "error", lerr.Error())
 	}
 	audio := gopodSetAudioRouting()
 	logger.Println("GOPOD_SYSTEM_RESTART audio: " + audio)
-	// wpr 2's own reset: the rich display dormant on the next page load.
 	_ = gopodWriteFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_rich_display_ui_state.json"), []byte(`{"expanded":false,"run_active":false}`+"\n"), 0o644)
 	go func() {
 		time.Sleep(2 * time.Second)
@@ -496,8 +463,6 @@ func gopodSystemRestart(text string) string {
 	}()
 	return gopodSystemText("system_edit.restarting_wire_pod_forced_like", "audio", audio)
 }
-
-// --- 5. system-topic ---
 
 func gopodTopicFind(name string) (string, bool) {
 	for _, p := range gopodTopicRegistry() {
@@ -544,7 +509,6 @@ func gopodSystemTopic(text string) string {
 	}
 	what := strings.ToLower(f[2])
 	rest := strings.TrimSpace(strings.Join(f[3:], " "))
-	// The topic-cluster format's own reader and writer (gopod_chapters_folder.go).
 	headSet := func(key, value string) {
 		for i := 0; i < sep; i++ {
 			if k, _, ok := gopodTopicHeadKV(lines[i]); ok && k == key {
@@ -709,7 +673,6 @@ func gopodTopicPointsWrite(lines []string, sep int, says []string) []string {
 		points = append(points, fmt.Sprintf("%d. %s", i+1, s))
 	}
 	body = append(body[:pointAt], append(points, body[pointAt:]...)...)
-	// A blank line on both sides of "---" (markdown reads a line right above it as a heading).
 	for len(head) > 0 && strings.TrimSpace(head[len(head)-1]) == "" {
 		head = head[:len(head)-1]
 	}

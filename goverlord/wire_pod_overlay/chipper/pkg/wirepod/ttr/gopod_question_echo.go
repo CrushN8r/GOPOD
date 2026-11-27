@@ -9,10 +9,8 @@ import (
 // gopodEchoSentenceRe: one sentence of a reply, with its end mark.
 var gopodEchoSentenceRe = regexp.MustCompile(`[^.!?\n]+[.!?]*`)
 
-// gopodDropQuestionEcho (2026-10-16, live: Brobot 2's weather reply read the
-// operator's line back - "I want to visit my granny today. She is gangsta!
-// What's the weather in Jerusalem, Israel?"): a sentence of three words or more
-// whose words are all the question's is the question read back, and goes.
+// gopodDropQuestionEcho: a sentence of three words or more whose words are all the question's is
+// the question read back, and goes.
 func gopodDropQuestionEcho(reply, question string) string {
 	asked := map[string]bool{}
 	for _, w := range gopodHighlightWords(question) {

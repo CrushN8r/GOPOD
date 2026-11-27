@@ -1,18 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_voice_map.go
 package wirepod_ttr
 
-// The numpad-to-voices map (2026-10-26, operator: "In GOPOD system, can I have
-// a Numpad-to-Voices dynamic-mapping? * TEMPLATE: KPN > [Persona Name] [drop
-// down menu] * N = 0-9, Drop down Menu = dynamic list of all available voices *
-// duplicate voice selections allowed, and are minimally highlighted (bolded?)";
-// "KP0 (All), KP1 and KP2: \"no voice required\" talks to Brobots * these are
-// 'robot-bodied' personas * KP3 to KP6: upon robot connectivity, \"no voice
-// required\" * KP7 to KP9, Operator: KPN-TEMPLATE"). One row per key, then the
-// Operator: a key whose persona has a robot body Wire-Pod knows
-// (numpad_ptt.body_to_brobot), and KP0 (All), needs no voice; every other key
-// picks its persona's voice from the Kokoro voices on disk. A pick is saved to
-// the settings file (reporter_voices.hosts, operator_voice) and used at once.
-
 import (
 	"errors"
 	"path/filepath"
@@ -65,15 +53,11 @@ func gopodVoiceRows() []gopodVoiceRow {
 			continue
 		}
 		row := gopodVoiceRow{Key: key, Persona: e.Persona}
-		// 2026-10-30: a persona with another speaker's voice (the Butler, the butler's)
-		// - no pick.
 		if host := gopodPersonaFor(e.Persona); host != "" && strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) != "" {
 			row.Bodied = true
 			rows = append(rows, row)
 			continue
 		}
-		// 2026-10-29 (operator: "follow numpad for voices"): with robots off, a
-		// bodied Brobot's key picks the voice his says play in (gopod_robots_off.go).
 		if brobot, robot := gopodBrobotsSettings.NumpadPTT.BodyToBrobot[e.Body]; robot && GopodRobotsOff() {
 			row.Host, row.Voice = brobot, gopodBrobotsSettings.RobotsOff.Voices[brobot]
 		} else if robot {
@@ -91,8 +75,8 @@ func GopodVoiceMap() map[string]any {
 	return map[string]any{"rows": gopodVoiceRows(), "voices": gopodVoiceList(), "unassigned_host": gopodBrobotsSettings.ReporterVoices.UnassignedVoiceHost}
 }
 
-// GopodVoiceMapSet: key's persona (or the Operator) takes voice - saved, and
-// used from the next line on. The Operator's "" = the unassigned voice.
+// GopodVoiceMapSet: key's persona (or the Operator) takes voice - saved, and used from the next
+// line on.
 func GopodVoiceMapSet(key, voice string) (string, error) {
 	voice = strings.TrimSpace(voice)
 	var row *gopodVoiceRow
@@ -119,7 +103,6 @@ func GopodVoiceMapSet(key, voice string) (string, error) {
 	raw := `"` + voice + `"`
 	rv := &gopodBrobotsSettings.ReporterVoices
 	if gopodIsBodiedBrobot(row.Host) {
-		// 2026-10-29: robots off - a Brobot's temp voice, in robots_off.voices.
 		settings = gopodSettingsFileFor([]string{"robots_off"})
 		if _, err := gopodJSONFileSet(settings, []string{"robots_off", "voices", row.Host}, raw); err != nil {
 			return "", err
@@ -139,7 +122,6 @@ func GopodVoiceMapSet(key, voice string) (string, error) {
 		if _, err := gopodJSONFileSet(settings, []string{"reporter_voices", "hosts", row.Host}, raw); err != nil {
 			return "", err
 		}
-		// A new map, never the one being read.
 		hosts := make(map[string]string, len(rv.Hosts)+1)
 		for k, v := range rv.Hosts {
 			hosts[k] = v

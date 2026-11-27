@@ -14,16 +14,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// system-search (2026-10-17, operator: "Expire go search, replace with
-// \"system-search\" * \"system-search\" is used for live guided search responses *
-// brobots use \"system-search\" for 'search [search-text]' like 'stat [run-name]'"):
-// GOPOD's own SearXNG (the gopod-searxng container, wire_pod_overlay/searxng/,
-// settings system_search.url) is asked, with no LLM in the search. A line to the
-// Brobots that says "search <words>" gets the top results' short snippets as
-// facts (gopodQuestionFactsFor), and the reply opens with the first one, said
-// by the code word for word (gopodScriptedSnippet) - like the weather line.
-// Typed "system-search <words>" lists the results in the terminal bubble.
-
 type gopodSearchResult struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
@@ -37,8 +27,6 @@ var gopodSearchCache = struct {
 }{got: map[string][]gopodSearchResult{}, at: map[string]time.Time{}}
 
 // gopodSearchWordsRE: "search", "look up" at the start of a line, and what's after.
-// Like "start [run-name]": the line opens with it, after a Brobot's name at most
-// ("Brobot 1, search Toronto Ohio").
 var gopodSearchWordsRE = regexp.MustCompile(`(?i)^(?:(?:hey\s+)?(?:brobots?|brobot\s*[0-9]|doc|pip)\s*[,:]?\s*)?(?:search(?:\s+for)?|look\s+up)\s+(.+)$`)
 
 // gopodSearchQuery: the words a line asks to search for, or "".
@@ -57,8 +45,8 @@ func gopodSearchQuery(message string) string {
 	return q
 }
 
-// gopodSearch asks GOPOD's SearXNG; the same query within two minutes is the
-// same answer (both Brobots say the same facts).
+// gopodSearch asks GOPOD's SearXNG; the same query within two minutes is the same answer (both
+// Brobots say the same facts).
 func gopodSearch(query string) ([]gopodSearchResult, error) {
 	ss := gopodBrobotsSettings.SystemSearch
 	key := strings.ToLower(strings.Join(strings.Fields(query), " "))
@@ -133,11 +121,8 @@ var gopodSearchShown = struct {
 	at map[string]time.Time
 }{at: map[string]time.Time{}}
 
-// gopodSearchShow (2026-10-17, operator: "Don't speak or highlight search
-// results * put a centered rounded-rectangle bubble around the search results
-// * search results font @ 50% size * do a fast character by character reveal *
-// then brobot responses"): the results go on the feed in their own bubble
-// (system_search.results_role), once for a line to both Brobots.
+// gopodSearchShow: the results go on the feed in their own bubble (system_search.results_role),
+// once for a line to both Brobots.
 func gopodSearchShow(q string, got []gopodSearchResult) {
 	role := gopodBrobotsSettings.SystemSearch.ResultsRole
 	if role == "" {
@@ -155,10 +140,6 @@ func gopodSearchShow(q string, got []gopodSearchResult) {
 	for _, r := range got {
 		lines = append(lines, strings.TrimSpace(r.Title+": "+r.Content))
 	}
-	// 2026-10-21 (operator: "'search ...' results * PLAYHEAD's bubble in brobot
-	// bubble * since not a direct call to the gomad"): to the Brobot answering.
-	// 2026-10-26: the results are Cache PYC's, the intern - PLAYHEAD
-	// (system_search.handoff_host) hands them over first.
 	to := gopodManagerTo()
 	gopodHandoff(gopodBrobotsSettings.SystemSearch.HandoffHost, gopodBrobotsSettings.SystemSearch.ResultsHost, to)
 	GopodChatFeedAddTo(role, to, strings.Join(lines, "\n"))

@@ -1,35 +1,21 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_robots_off.go
 package wirepod_ttr
 
-// Robots off (2026-10-29, operator: "I want to show what the visitor's runs
-// will look like * plus all audio a visitor would hear in the same room * the
-// only things missing would be my voice & the vector robot speaker output *
-// there are voices assigned in place of the brobots speaker speech * if I later
-// replay with the brobots I want all the full replay there"; "go robots off";
-// "Just capture the brobot safe say + playanimations"; "follow numpad for
-// voices"). With robots_off.on, nothing reaches a Brobot: every robot Wire-Pod
-// makes (kgsim, the SDK page the songs use, the chat hold, the battery watch)
-// gets a stand-in connection. A Brobot's say is played on the chat page in the
-// voice the numpad's voices panel gives his key (KP1/KP2, reporter_voices.hosts),
-// and its words and every animation are written to the capture file
-// (robots_off.capture_file, one JSON line each) for a replay with the Brobots
-// later. Anything else a robot is asked fails as an unplugged robot would.
-
 import (
-	"encoding/binary"
-	"math"
-	"reflect"
-	"unsafe"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"math"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/fforchino/vector-go-sdk/pkg/vector"
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
@@ -38,8 +24,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// gopodRobotsOffOn: robots off, from robots_off.on at the start, then
-// system-robots-off on|off.
+// gopodRobotsOffOn: robots off, from robots_off.on at the start, then system-robots-off on|off.
 var gopodRobotsOffOn atomic.Bool
 
 func init() { gopodRobotsOffOn.Store(gopodBrobotsSettings.RobotsOff.On) }
@@ -47,9 +32,9 @@ func init() { gopodRobotsOffOn.Store(gopodBrobotsSettings.RobotsOff.On) }
 // GopodRobotsOff: robots off now.
 func GopodRobotsOff() bool { return gopodRobotsOffOn.Load() }
 
-// GopodRobotsOffConn: every robot Wire-Pod makes gets the stand-in around its
-// own connection; while robots are on, every call goes straight through to the
-// robot, so switching takes effect at once, without a restart.
+// GopodRobotsOffConn: every robot Wire-Pod makes gets the stand-in around its own connection; while
+// robots are on, every call goes straight through to the robot, so switching takes effect at once,
+// without a restart.
 func GopodRobotsOffConn(robot *vector.Vector) *vector.Vector {
 	if robot == nil {
 		return robot
@@ -61,8 +46,8 @@ func GopodRobotsOffConn(robot *vector.Vector) *vector.Vector {
 	return robot
 }
 
-// gopodOffConn: the stand-in connection - the robot's own, with robots off
-// standing in for its say, animations, moves, control and battery.
+// gopodOffConn: the stand-in connection - the robot's own, with robots off standing in for its say,
+// animations, moves, control and battery.
 type gopodOffConn struct {
 	vectorpb.ExternalInterfaceClient
 	esn string
@@ -70,18 +55,14 @@ type gopodOffConn struct {
 
 var gopodOffOK = &vectorpb.ResponseStatus{Code: vectorpb.ResponseStatus_RESPONSE_RECEIVED}
 
-// SayText: the Brobot's say - his temp voice on the page (robots_off.voices,
-// the numpad's KP1/KP2), waited for until heard, as the robot's own say waits.
+// SayText: the Brobot's say - his temp voice on the page (robots_off.voices, the numpad's KP1/KP2),
+// waited for until heard, as the robot's own say waits.
 func (c *gopodOffConn) SayText(ctx context.Context, in *vectorpb.SayTextRequest, opts ...grpc.CallOption) (*vectorpb.SayTextResponse, error) {
 	if !GopodRobotsOff() {
 		return c.ExternalInterfaceClient.SayText(ctx, in, opts...)
 	}
 	host := gopodBrobotName(c.esn)
 	gopodRobotsOffCapture(c.esn, "say", in.GetText())
-	// 2026-10-29 (operator: "wrong bubbles * there's templates!! * nothing
-	// should change, only placeholder voices"): only the voice goes to the
-	// page - the Brobot's bubble is his own, as with the robots; no line,
-	// no marker of its own.
 	page, seconds, ok := gopodReporterFile(host, gopodSaysFor(host, in.GetText()))
 	if !ok {
 		logger.Println("GOPOD_ROBOTS_OFF " + host + ": no voice for the say - check his voice in the numpad's voices panel: " + gopodHeardShort(in.GetText()))
@@ -194,8 +175,8 @@ type gopodOffEvents struct{ gopodOffStream }
 
 func (s *gopodOffEvents) Recv() (*vectorpb.EventResponse, error) { return nil, s.wait() }
 
-// gopodRobotsOffCapture: one line in the capture file - when, which Brobot,
-// what kind (say, anim, anim_trigger), what.
+// gopodRobotsOffCapture: one line in the capture file - when, which Brobot, what kind (say, anim,
+// anim_trigger), what.
 var gopodRobotsOffCaptureMu sync.Mutex
 
 func gopodRobotsOffCapture(esn, kind, what string) {
@@ -226,8 +207,8 @@ func gopodRobotsOffCapture(esn, kind, what string) {
 	gopodRecordChown(uid, gid, path)
 }
 
-// gopodSystemRobotsOff: system-robots-off [on|off] - robots off now, or switch
-// it (saved, so it holds after a restart).
+// gopodSystemRobotsOff: system-robots-off [on|off] - robots off now, or switch it (saved, so it
+// holds after a restart).
 func gopodSystemRobotsOff(text string) string {
 	f := strings.Fields(strings.ToLower(text))
 	state := func() string {
@@ -262,17 +243,9 @@ func gopodIsBodiedBrobot(host string) bool {
 	return false
 }
 
-// The silent run-check (2026-11-08, operator: "does GOPOD system have a run-check
-// run? * a full (silent/volume=0/background) run-check * bypass robot & voice audio
-// output * full chat window rendering for you and I * also re-playable with normal
-// volume again"; then: "system-run-check off = 0 volume/mute * system-run-check
-// on = I hear something"): system-run-check off - the sound off: robots off for
-// the run (not saved), the chat page muted (every voice plays at volume 0, so the
-// page keeps its timing), the feed marked; start any run. system-run-check on -
-// the sound back: robots as they were, the page unmuted, the run's chat lines
-// saved (run_check.file). system-run-check replay - the saved lines played again
-// on the page at normal volume, each after the page has played the one before.
-// While the sound is off, a hidden page doesn't pause the run (gopodPagePause).
+// The silent run-check: system-run-check off - the sound off: robots off for the run (not saved),
+// the chat page muted (every voice plays at volume 0, so the page keeps its timing), the feed
+// marked; start any run.
 var gopodRunCheck = struct {
 	sync.Mutex
 	on, wasOff bool
@@ -343,9 +316,8 @@ func gopodSystemRunCheck(text string) string {
 	return gopodSystemText("run_check.how")
 }
 
-// gopodRunCheckMarker: a feed line the replay leaves out - the page's own
-// acknowledgements (run_check.skip_prefixes), the mute markers and the
-// run-check's own command lines.
+// gopodRunCheckMarker: a feed line the replay leaves out - the page's own acknowledgements
+// (run_check.skip_prefixes), the mute markers and the run-check's own command lines.
 func gopodRunCheckMarker(e gopodChatFeedEvent) bool {
 	rc := gopodBrobotsSettings.RunCheck
 	t := strings.TrimSpace(e.Text)
@@ -367,11 +339,8 @@ func gopodRunCheckSilent() bool {
 	return gopodRunCheck.on
 }
 
-// gopodSetCameraSettings (2026-11-10, operator: "Do the safe to build white
-// balance & exposure"): the robot's SetCameraSettings (gain, exposure_ms, auto
-// exposure; firmware 1.7+). The Go SDK has it in its proto but no Go call, so
-// it goes over the robot's own gRPC connection with its three fields packed by
-// hand. Robots off: nothing is sent.
+// gopodSetCameraSettings: the robot's SetCameraSettings (gain, exposure_ms, auto exposure; firmware
+// 1.7+).
 func gopodSetCameraSettings(ctx context.Context, conn vectorpb.ExternalInterfaceClient, gain float32, exposureMs uint32, auto bool) error {
 	if off, ok := conn.(*gopodOffConn); ok {
 		if GopodRobotsOff() {
@@ -391,7 +360,6 @@ func gopodSetCameraSettings(ctx context.Context, conn vectorpb.ExternalInterface
 	if !ok || cc == nil {
 		return errors.New("no robot connection")
 	}
-	// SetCameraSettingsRequest: 1 gain (float), 2 exposure_ms (uint32), 3 enable_auto_exposure (bool).
 	req := []byte{0x0d, 0, 0, 0, 0}
 	binary.LittleEndian.PutUint32(req[1:], math.Float32bits(gain))
 	req = append(req, 0x10)

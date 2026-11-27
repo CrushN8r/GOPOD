@@ -7,10 +7,8 @@ import (
 	"testing"
 )
 
-// TestOpenerSongPlaysLikeBuiltIn (2026-10-16, operator: "make the opener LLM
-// Warming song from it, and prove it plays exactly like today's opener"): the
-// opener song (00_llm_warming) plays the built-in opener's chat lines, voices
-// and stings, in the same order, given the same words.
+// TestOpenerSongPlaysLikeBuiltIn: the opener song (00_llm_warming) plays the built-in opener's chat
+// lines, voices and stings, in the same order, given the same words.
 func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 	steps, err := gopodOpenerSong()
 	if err != nil || len(steps) == 0 {
@@ -47,11 +45,9 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 		var out []string
 		for _, e := range gopodChatFeed.events {
 			text := e.Text
-			// "warmup_text|<ms>|<text>" -> "warmup_text|<text>"
 			if parts := strings.SplitN(text, "|", 3); len(parts) == 3 {
 				text = parts[0] + "|" + parts[2]
 			}
-			// The page's heard check carries its own number.
 			if hm := gopodBrobotsSettings.ReporterVoices.HeardMarker; hm != "" && strings.HasPrefix(text, hm) {
 				text = hm
 			}
@@ -59,14 +55,9 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 		}
 		return out
 	}
-	// 2026-11-13 (live: Esc "not enabled" the whole opener): the song as it is
-	// opens the skip gate, whatever its first message waits for.
 	if asIs := play(steps); !strings.Contains(strings.Join(asIs, "\n"), ": "+gopodSkipOnMark+"\n") {
 		t.Errorf("the opener song never opens the skip gate:\n  %s", strings.Join(asIs, "\n  "))
 	}
-	// 2026-11-10 (operator: "a long pause because LLM voices are being
-	// pre-generated ... no longer"): the song's first message no longer waits for
-	// the voice files; the built-in opener still does, so it's compared that way.
 	for i := range steps {
 		if steps[i].Note == "warm_message" {
 			steps[i].WaitVoices = true
@@ -82,7 +73,6 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 		}
 	}
 	if len(texts) != 3 {
-		// The song has grown past the built-in opener (more steps): nothing to compare.
 		t.Skipf("the opener song has %d messages, the built-in opener 3", len(texts))
 	}
 	gopodBrobotsSettings.LLM.VoicesText, gopodBrobotsSettings.LLM.WarmupText, gopodBrobotsSettings.LLM.ReadyText = texts[0], texts[1], texts[2]
@@ -96,8 +86,7 @@ func TestOpenerSongPlaysLikeBuiltIn(t *testing.T) {
 	}
 }
 
-// TestOpenerSkipsEmptyLines (2026-10-17, operator: "a single in-between
-// message = \"\" = the indication to skip"): reporter_lines with no words plays nothing.
+// TestOpenerSkipsEmptyLines: reporter_lines with no words plays nothing.
 func TestOpenerSkipsEmptyLines(t *testing.T) {
 	saved := gopodWarmupOpening
 	defer func() { gopodWarmupOpening = saved }()
@@ -109,8 +98,7 @@ func TestOpenerSkipsEmptyLines(t *testing.T) {
 	}
 }
 
-// TestLLMWarmTemplate: the template reads as an LLM warm song, and a "_" folder
-// is never a song.
+// TestLLMWarmTemplate: the template reads as an LLM warm song, and a "_" folder is never a song.
 func TestLLMWarmTemplate(t *testing.T) {
 	steps, err := gopodReadOpenerSong(filepath.Join(gopodSongsDir(), "_new_song", "_llm_warm"))
 	if err != nil || len(steps) != 6 {
@@ -127,8 +115,7 @@ func TestLLMWarmTemplate(t *testing.T) {
 	}
 }
 
-// TestOpenerStepVolume (2026-10-16, operator: "add volume, default or %age"):
-// a step's volume rides on its voices and stings as the page's share.
+// TestOpenerStepVolume: a step's volume rides on its voices and stings as the page's share.
 func TestOpenerStepVolume(t *testing.T) {
 	for raw, want := range map[string]float64{``: 1, `""`: 1, `"default"`: 1, `"50%"`: 0.5, `"150%"`: 1.5, `"0%"`: 0, `0.4`: 0.4} {
 		if got, err := gopodVolumePercent([]byte(raw)); err != nil || got != want {
@@ -154,10 +141,7 @@ func TestOpenerStepVolume(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-14 (operator: "keeping the text the way it is written in the story.md
-// file * this current chunking & splitting method to remain, which includes
-// multi-line support"): voice chunks of one line stay on that line; a new line
-// written in the text stays a new line.
+// voice chunks of one line stay on that line; a new line written in the text stays a new line.
 func TestChunksShownAsWritten(t *testing.T) {
 	text := "Okay Zoomy! We're about to go live. Our CRUSHN8R Crew is ready.\nSecond line here."
 	got := gopodChunksDisplay(text, []string{"Okay Zoomy! We're about to go live.", "Our CRUSHN8R Crew is ready.", "Second line here."})

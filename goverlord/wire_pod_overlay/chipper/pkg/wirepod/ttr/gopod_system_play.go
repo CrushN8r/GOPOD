@@ -15,20 +15,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// pha0b and phcal in the chat (2026-10-19, operator: "What else from the
-// survey, can be absorbed over from PLAYHEAD aliases to new menu?"; "Build it
-// all in please"; gopod_notes/PLAYHEAD_ALIASES_ABSORB_SURVEY_001.md):
-//   system-play <song> [from <step>] [to <step>] [robot 1|2] [dry]
-//       pha0b: a song, or part of it (step id or number), one Brobot or both,
-//       live or dry (no robots, nothing said). Golden-engine songs only.
-//   system-gap <seconds>|off|default    pha0b's reporter gap? for system-play
-//   system-tweaks on|off                 pha0b's apply phcal tweaks? (live plays)
-//   system-calibrate <arm|nod|rattle|danger|cube> <1|2> [reps] [--hold S] [--speed N] [--cycles N] [--volume N] [dry]
-//       phcal: one move alone on one Brobot (phcal_isolate_001.py)
-// All start gopod_probes/tools/system_play_001.sh, which hands the run to the
-// operator's user like the song-start intents; the engine checks in with
-// Goverlord, so one run at a time still holds.
-
 var gopodPlaySwitches = struct {
 	sync.Mutex
 	gap    string // "" = the song's own

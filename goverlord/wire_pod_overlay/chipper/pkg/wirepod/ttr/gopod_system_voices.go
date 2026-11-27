@@ -14,25 +14,10 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// system-voices-rebuild (2026-10-18, operator: "requires the wpr 2 & F5 *
-// temporarily back up all current used generated voice audio files * system
-// message, ready for a restart * upon restart, GOPOD automatically does a voice
-// files generation check * rebuild/generate all new voice audio files"; first:
-// "the files match check for story.md, zKnobs.json, knob.json ... do a files
-// diff check for updates & other edits * anything questionable? pause & ask").
-//
-// 1. system-check (story.md, knobs.json, zKnobs.json and every file named); a
-//    problem pauses it - "system-voices-rebuild go" rebuilds anyway.
-// 2. The scripted lines that need a voice (new, edited, or not timed by Vosk).
-// 3. Every generated voice (and its word times) moves to
-//    webroot/gopod_reporter_audio_backup/<time>/; sounds stay.
-// 4. At the next start the generation check makes every scripted line again;
-//    each voice's backup copy goes once its new voice is made (gopodVoiceMade).
-
 var gopodVoiceFileRE = regexp.MustCompile(`^[a-z]{2}_[a-z]+_(s\d+_)?[0-9a-f]{16}\.(wav|words\.json)$`)
 
-// gopodVoiceAnyFileRE: every voice file the profiles and the archive look after
-// - a made voice (pitched too, voice_tweaks) or a mic recording (op_mic_).
+// gopodVoiceAnyFileRE: every voice file the profiles and the archive look after - a made voice
+// (pitched too, voice_tweaks) or a mic recording (op_mic_).
 var gopodVoiceAnyFileRE = regexp.MustCompile(`^([a-z]{2}_[a-z]+_(s\d+_)?(p[+-]\d+_)?|op_mic_)[0-9a-f]{16}\.(wav|words\.json)$`)
 
 func gopodVoicesBackupDir() string {
@@ -115,24 +100,15 @@ func gopodSystemVoicesRebuild(text string) string {
 // gopodVoicesAtStart: the start's generation check is making the scripted lines.
 var gopodVoicesAtStart atomic.Bool
 
-// Voice kinds and keeping (2026-10-18, operator: "no auto-deletes * delete
-// backup upon successful new playable voice wav file * operator_keep_days for
-// system lines * scripted_keep_days for scripted lines (reporter/narrator/etc) *
-// live_keep_days for live lines * I think we already have an archiving process,
-// use that to start from"): each voice is noted as it's made - system
-// (Goverlord's voice), scripted (made by the start's check or a playing script)
-// or live (the Operator's lines, the managers' answers) - in voice_kinds.json
-// beside the voices. At each start, a voice not in use and not said for its
-// kind's keep days moves to the sessions' archives (gopodArchiveDir()/voices),
-// the same archive the session chats go to. Nothing is deleted.
-// gopodVoiceKindsPath: the kinds-only list the profiles started from (read once,
-// when voice_profiles.json is first made).
+// Voice kinds and keeping: each voice is noted as it's made - system (Goverlord's voice), scripted
+// (made by the start's check or a playing script) or live (the Operator's lines, the managers'
+// answers) - in voice_kinds.json beside the voices.
 func gopodVoiceKindsPath() string {
 	return filepath.Join(gopodReporterAudioDir(), "voice_kinds.json")
 }
 
-// gopodVoiceMade: a new playable voice - its profile (gopod_voice_profiles.go,
-// its kind among the rest), its backup copy gone.
+// gopodVoiceMade: a new playable voice - its profile (gopod_voice_profiles.go, its kind among the
+// rest), its backup copy gone.
 func gopodVoiceMade(host, file, text string) {
 	name := filepath.Base(file)
 	kind := "live"
@@ -145,7 +121,6 @@ func gopodVoiceMade(host, file, text string) {
 		kind = "scripted"
 	}
 	gopodVoiceProfileMade(name, kind, host, gopodReporterVoice(host), text)
-	// The rebuild's backup of this voice (system-voices-rebuild): the new one plays.
 	backups, _ := filepath.Glob(filepath.Join(gopodVoicesBackupDir(), "*", name))
 	for _, b := range backups {
 		os.Remove(b)
@@ -156,8 +131,8 @@ func gopodVoiceMade(host, file, text string) {
 	}
 }
 
-// gopodVoicesArchive: at the start, every voice not in use and not said for its
-// kind's keep days moves to the archive with its word times.
+// gopodVoicesArchive: at the start, every voice not in use and not said for its kind's keep days
+// moves to the archive with its word times.
 func gopodVoicesArchive() {
 	rv := gopodBrobotsSettings.ReporterVoices
 	dir := gopodReporterAudioDir()
@@ -183,8 +158,6 @@ func gopodVoicesArchive() {
 		}
 		kind := kinds[name]
 		if kind == "" {
-			// Made before kinds were noted: Goverlord's voice is system, the
-			// Operator's live, the rest scripted (the longest keep).
 			switch {
 			case strings.HasPrefix(name, rv.SystemVoice+"_") && rv.SystemVoice != "":
 				kind = "system"
@@ -195,14 +168,9 @@ func gopodVoicesArchive() {
 			}
 		}
 		days := keep[kind]
-		// 2026-11-03 (operator: "please have the system do a better check & sweep"):
-		// a live one-off (played fewer than 2 times) keeps live_once_keep_days.
 		if kind == "live" && rv.LiveOnceKeepDays > 0 && uses[name] < 2 {
 			days = rv.LiveOnceKeepDays
 		}
-		// 2026-10-27 (operator: "Finish the voice archiver limits"; the voice
-		// report: how many plays make a file "popular"): a popular file
-		// (popular_uses plays or more) keeps popular_keep_days, if longer.
 		if rv.PopularUses > 0 && uses[name] >= rv.PopularUses && rv.PopularKeepDays > days {
 			days = rv.PopularKeepDays
 		}
@@ -214,9 +182,6 @@ func gopodVoicesArchive() {
 		if days <= 0 || err != nil || time.Since(last) < gopodSecondsToDuration(days*86400) {
 			continue
 		}
-		// 2026-11-16 (operator: "voice files & their jsons, older than a few days
-		// ... deleted off the jetson immediately * no archive backup"): deleted,
-		// not archived - a voice is made again the next time it's needed.
 		if os.Remove(filepath.Join(dir, name)) == nil {
 			moved++
 			gopodVoiceArchived(name)

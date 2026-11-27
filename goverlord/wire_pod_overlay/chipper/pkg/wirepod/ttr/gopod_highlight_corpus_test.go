@@ -10,15 +10,7 @@ import (
 	"testing"
 )
 
-// The highlight check on every real reply (operator 2026-10-08: "how to set up
-// a correct proper mechanical pipeline process to generate more consistent
-// predictable * stop this lazy patch work approach"). The golden test holds a
-// few hand-picked replies; this one takes every Brobot reply this machine has
-// kept - the chat memory (sessions/) and every draft's answers - and puts each
-// through the live settings' split, the bubble cut and the piece numbers, the
-// same path a reply takes live. deploy_overlay_build.sh runs it before a build,
-// so a change that lights the wrong words never reaches the robots. The replies
-// are private run files, read in place; with none on the machine, it's skipped.
+// The highlight check on every real reply.
 func TestHighlightCorpus(t *testing.T) {
 	replies := gopodHighlightCorpus()
 	if len(replies) == 0 {
@@ -34,11 +26,8 @@ func TestHighlightCorpus(t *testing.T) {
 			}
 		}
 	}
-	// Words the robot says respelled ("Gowp-awd" for GOPOD) can't always be
-	// lined up with the bubble yet. A ratchet: no more misses than the
-	// choppy split had on 2026-10-08 (28 of 838, the operator's "choppy and
-	// working"), so a change can only make it better.
-	// 2026-10-13: respelled words checked as their bubble words - 2 left.
+	// Words the robot says respelled ("Gowp-awd" for GOPOD) can't always be lined up with the bubble
+	// yet.
 	const knownMisses = 2
 	if bad > knownMisses {
 		t.Errorf("%d of %d kept replies light the wrong words (more than the %d known)", bad, len(replies), knownMisses)
@@ -69,16 +58,11 @@ func gopodHighlightProblem(raw, marker string) string {
 		}
 	}
 	for i, p := range pieces {
-		// 2026-10-13: a respelled word ("ay-emm") is checked as its bubble
-		// word ("AM").
 		for _, e := range loadedGOPODPronunciations {
 			if e.To != "" && e.From != "" {
 				p = strings.ReplaceAll(p, e.To, e.From)
 			}
 		}
-		// 2026-10-15: a symbol said in words (spoken_symbols: "divided by",
-		// "equals", "over", "repeating" - the math) is checked as its symbol,
-		// and a repeating decimal's bars don't split its number.
 		ss := gopodBrobotsSettings.SpokenSymbols
 		for sym, said := range ss.Words {
 			if strings.TrimSpace(said) != "" {
@@ -88,8 +72,6 @@ func gopodHighlightProblem(raw, marker string) string {
 		if ss.RepeatingWord != "" {
 			p = strings.ReplaceAll(p, " "+ss.RepeatingWord, "")
 		}
-		// 2026-10-17: a curly apostrophe in the bubble is checked as the spoken
-		// straight one (gopodHighlightWords already makes them one).
 		lit := strings.ToLower(strings.NewReplacer("\u0305", "", "\u0304", "", "\u2019", "'", "\u2018", "'").Replace(shown[segOf[i]]))
 		words := gopodHighlightWords(p)
 		in := 0
@@ -105,8 +87,8 @@ func gopodHighlightProblem(raw, marker string) string {
 	return ""
 }
 
-// gopodHighlightCorpus: every kept reply - the chat memory's raw replies and
-// every draft's answers, each once.
+// gopodHighlightCorpus: every kept reply - the chat memory's raw replies and every draft's answers,
+// each once.
 func gopodHighlightCorpus() []string {
 	seen := map[string]bool{}
 	var out []string

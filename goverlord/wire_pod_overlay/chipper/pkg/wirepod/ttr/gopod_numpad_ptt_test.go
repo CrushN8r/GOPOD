@@ -7,11 +7,10 @@ import (
 	"testing"
 )
 
-// The live NumLock-on keys of the golden persona map talk to their Brobot; an
-// assigned key does not.
+// The live NumLock-on keys of the golden persona map talk to their Brobot; an assigned key does
+// not.
 func TestGopodNumpadBrobot(t *testing.T) {
 	old := gopodBrobotsSettings
-	// 2026-11-04: a test map in the settings' numpad_map (numpad-mapper.md's place).
 	gopodBrobotsSettings.NumpadMaps = map[string]json.RawMessage{"usb": json.RawMessage(`{"numlock_on": {
 		"KP1": {"persona": "Doc", "body": "Vector 1", "status": "live"},
 		"KP2": {"persona": "Pip", "body": "Vector 2", "status": "live"},
@@ -32,7 +31,6 @@ func TestGopodNumpadBrobot(t *testing.T) {
 
 // The real golden map file, as the page will get it.
 func TestGopodNumpadRealMap(t *testing.T) {
-	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
 		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}
@@ -41,11 +39,8 @@ func TestGopodNumpadRealMap(t *testing.T) {
 	}
 }
 
-// 2026-10-26 (operator: "\"1 robust key detection process\" = Template/unify so
-// everything goes through 1 place"; "if a KPN is voice assigned, make it chat
-// ready"): the page's targets come from gopodNumpadBrobot - every live key one.
+// the page's targets come from gopodNumpadBrobot - every live key one.
 func TestGopodNumpadTargetsOnePlace(t *testing.T) {
-	// 2026-11-04: the map is clusters/system/numpad-mapper.md (settings numpad_map).
 	if len(gopodBrobotsSettings.NumpadMaps[gopodNumpadLayout()]) <= 2 {
 		t.Fatal("no numpad_map in the settings (clusters/system/numpad-mapper.md)")
 	}
@@ -59,9 +54,6 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 	if json.Unmarshal(data, &out) != nil {
 		t.Fatal("no targets for the page")
 	}
-	// 2026-10-30 (the numpad remap): KP0 held is the Butler, * held is All.
-	// 2026-11-13: a key to a robot shows the persona the map names (KP1 Doc).
-	// 2026-11-15 (operator: "KP# = [nickname]"): each key named by its persona's nickname.
 	for key, want := range map[string]string{"KP0": "KEYS", gopodNumpadAllKey: "All", "KP1": "DOC", "KP2": "PIP", "KP3": "REPO", "KP4": "MIMI",
 		"KP5": "BUZZER", "KP6": "SWITCH", "KP7": "CHALKRA", "KP8": "ZOOMY", "KP9": "CHAMMY"} {
 		if got := out.Targets[key]; got != want {
@@ -75,8 +67,8 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 
 // ## EOF
 
-// 2026-10-30: KP7 with NumLock off is CHALK in its reporter suit - same persona,
-// answering as its reporter; a reserved NumLock-off key isn't live.
+// KP7 with NumLock off is CHALK in its reporter suit - same persona, answering as its reporter; a
+// reserved NumLock-off key isn't live.
 func TestNumpadNumlockOffReporter(t *testing.T) {
 	old := gopodBrobotsSettings
 	defer func() { gopodBrobotsSettings = old }()
@@ -98,17 +90,14 @@ func TestNumpadNumlockOffReporter(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (operator: "separate robot bodies from personas"; "numlock-off 0-9,
-// numlock-on 0-9"): the keyboard picker is the map - its keys parse, and a key
-// to a robot is named by its persona (KP1 Doc), never the body.
+// the keyboard picker is the map - its keys parse, and a key to a robot is named by its persona
+// (KP1 Doc), never the body.
 func TestPickerIsTheMap(t *testing.T) {
 	for in, want := range map[string]string{"kp:1": "KP1", "kp:9": "KP9", "kp:1off": "KP1off", "kp:0off": "KP0off"} {
 		if got, ok := gopodTypedKey(in); !ok || got != want {
 			t.Errorf("%s: %q %v", in, got, ok)
 		}
 	}
-	// 2026-11-16 (operator's picker: "+0 KEYS", "-0 Goverlord"): kp:0 is KEYS'
-	// key; the system's line is the picker's -0 ("system").
 	if got, ok := gopodTypedKey("kp:0"); !ok || got != "KP0" {
 		t.Errorf("kp:0: %q %v", got, ok)
 	}
@@ -125,8 +114,7 @@ func TestPickerIsTheMap(t *testing.T) {
 	}
 }
 
-// 2026-11-13 (operator: "Brobot 1 = KP1 numlock-off * Brobot 2 = KP2 numlock-off
-// * DOC = KP1 numlock-on * PIP = KP2 numlock-on"): four personas, two bodies.
+// four personas, two bodies.
 func TestFourPersonasTwoBodies(t *testing.T) {
 	for key, want := range map[string][2]string{
 		"KP1":    {"Brobot 1", gopodBrobot1ESN},
@@ -149,8 +137,7 @@ func TestFourPersonasTwoBodies(t *testing.T) {
 	}
 }
 
-// 2026-11-14 (operator: "welcoming & engaging a new visitor to GOPOD"): one
-// name for a Brobot body everywhere the chat shows it - the persona answering.
+// one name for a Brobot body everywhere the chat shows it - the persona answering.
 func TestPersonaShownOneName(t *testing.T) {
 	gopodDialZero.Delete(gopodBrobot1ESN)
 	if got := gopodPersonaShown("Brobot 1"); got != "DOC" {

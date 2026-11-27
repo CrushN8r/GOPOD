@@ -21,20 +21,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The photo egg (2026-10-14, operator: "Get Photo in front of you ... implement
-// anyways"; "robot to getPhoto, then look at photo ... then 'tell me what you
-// saw' and robot should be able to continue seamlessly ... describe the image
-// simply * Example: I see a table, chair and some book shelves ... * store the
-// image to then display in a web page * keep/snapshot the 3-2-1 countdown +
-// mirror-mode + shutter animation, then lock as a golden process"; "treat
-// these as found easter eggs throughout a live chat"). In the live chat only
-// (no draft, no run): "what's in front of you?" - the Brobot takes the photo
-// the golden way (gopodPhotoCapture), it pops up in his reply bubble with
-// Goverlord's congratulations, he thinks while the vision model
-// (photo.vision_model, through Ollama) looks at it, and says what he sees. "Tell
-// me what you saw" is answered from what he saw last; the photo is never sent
-// again. Settings: photo in gopod_brobots_settings.json.
-
 var gopodPhotoDir = gopodPathWithEnvOverride("GOPOD_PHOTO_DIR", "webroot/photos")
 
 // gopodPhotoLast: what each Brobot saw last (his ESN -> the description).
@@ -43,8 +29,8 @@ var gopodPhotoLast = struct {
 	saw map[string]string
 }{saw: map[string]string{}}
 
-// gopodPhotoKind: "ask" (take a photo), "recall" (tell what he saw) or "" for
-// this line - in the live chat only.
+// gopodPhotoKind: "ask" (take a photo), "recall" (tell what he saw) or "" for this line - in the
+// live chat only.
 func gopodPhotoKind(text string) string {
 	p := gopodBrobotsSettings.Photo
 	if gopodScriptPlaying.Load() || gopodRunActive() {
@@ -64,19 +50,11 @@ func gopodPhotoKind(text string) string {
 	return ""
 }
 
-// gopodPhotoCapture: GOLDEN, kept as Wire-Pod's own getImage takes it
-// (DoGetImage, kgsim_cmds.go) - mirror mode on, "3", "2", "1", the photo (high
-// resolution), mirror mode off, the shutter animation. A failed or empty photo
-// is an error.
+// gopodPhotoCapture: GOLDEN, kept as Wire-Pod's own getImage takes it (DoGetImage, kgsim_cmds.go) -
+// mirror mode on, "3", "2", "1", the photo (high resolution), mirror mode off, the shutter
+// animation.
 func gopodPhotoCapture(robot *vector.Vector, ctx context.Context) ([]byte, error) {
-	// 2026-10-14 (operator: "make sure brobots are awake, then 3-2-1, ...
-	// otherwise photo is taken as they're waking, head not in position"; live:
-	// "3" went 0 ms after control was granted): he wakes and settles first
-	// (golden rule 3), photo.awake_seconds.
 	time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.Photo.AwakeSeconds))
-	// 2026-11-10 (Vector's camera blows out in bright rooms): photo.camera.manual -
-	// his exposure and gain for this photo (SDK SetCameraSettings, firmware 1.7+),
-	// a moment to settle, then auto exposure again once it's taken.
 	if cam := gopodBrobotsSettings.Photo.Camera; cam.Manual {
 		if err := gopodSetCameraSettings(ctx, robot.Conn, cam.Gain, cam.ExposureMs, false); err != nil {
 			logger.Println("GOPOD_PHOTO camera settings: " + err.Error())
@@ -116,8 +94,8 @@ func gopodPhotoCapture(robot *vector.Vector, ctx context.Context) ([]byte, error
 	return resp.Data, nil
 }
 
-// gopodPhotoSave keeps the photo for the chat page (webroot/photos, private,
-// not in the repo) and returns its page path.
+// gopodPhotoSave keeps the photo for the chat page (webroot/photos, private, not in the repo) and
+// returns its page path.
 func gopodPhotoSave(name string, data []byte) (string, error) {
 	if err := gopodMkdirAll(gopodPhotoDir, 0o755); err != nil {
 		return "", err
@@ -143,10 +121,8 @@ var gopodPhotoDescribe = func(data []byte) (string, error) {
 	return gopodPhotoDescribeWith(data, gopodBrobotsSettings.Photo.Prompt)
 }
 
-// gopodPhotoDetailPrompt (2026-10-16, operator: "do not repeat without more
-// detail * I see a person, I see a person with glasses * build 2 more details
-// from 1, no repeats"): with statement 1's objects, the vision model is asked
-// for two more details about them (photo.detail_prompt), else photo.prompt.
+// gopodPhotoDetailPrompt: with statement 1's objects, the vision model is asked for two more
+// details about them (photo.detail_prompt), else photo.prompt.
 func gopodPhotoDetailPrompt(objects []string) string {
 	p := gopodBrobotsSettings.Photo
 	if list := gopodQuickLookList(objects); list != "" && strings.TrimSpace(p.DetailPrompt) != "" {
@@ -195,31 +171,12 @@ var gopodVisionAsk = func(data []byte, prompt string, most int) (string, error) 
 	return strings.TrimSpace(out.Response), nil
 }
 
-// gopodPhotoTake takes the photo, shows it, and returns the Brobot's first answer
-// (statement 1) and the rest, said after his reply. 2026-10-16 (operator: "do
-// this in 2 rounds * round 1 is from TPU quick look (while moondream looks) *
-// round 2 is from moondream"; then: "thinking please wait > photo > TPU >
-// Brobot N: I see [TPU labels] * (if background moondream look still running,
-// brobot says gathering details) * Brobot optional statement to stall for time *
-// No bubble for notes ... this is background internal stuff * build brobot
-// response as statement-2 \"I see ... ...\" from statement-1 & what moondream
-// found"). Statement 1 is the Edge TPU's objects, at once ("I see a person, a
-// chair and a keyboard."); the vision model looks meanwhile, in the background.
-// After his reply: photo.gathering_text if it's still looking, then one of
-// photo.stall_lines if it's still looking; then statement 2 (gopodPhotoDetail).
-// Failures give photo.fail_text / photo.unclear_text. The photo pops up as the
-// easter egg photo.egg_name (up to topic_pictures.max_per_session times), else
-// it shows as a picture; Goverlord's congratulations is heard before this
-// returns.
+// gopodPhotoTake takes the photo, shows it, and returns the Brobot's first answer (statement 1) and
+// the rest, said after his reply.
 func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (string, func()) {
 	p := gopodBrobotsSettings.Photo
 	name := gopodBrobotName(esn)
 	file := gopodPhotoName(esn)
-	// 2026-10-24 (operator: "Easter eggs (including slow) * Aim to render and
-	// display shell easter egg bubble + placeholders"): the egg pops up the moment
-	// it's asked for, its pictures named before they're made - the page holds an
-	// hourglass in each one's place until it's there. Goverlord's congratulations
-	// is said meanwhile, heard before this returns.
 	egg := strings.TrimSpace(p.EggName) != "" && !gopodNotEgg("photo") && !gopodScriptPlaying.Load() && !gopodRunActive() && gopodPopupAllowed("photo")
 	eggSaid := make(chan struct{})
 	if egg {
@@ -245,8 +202,8 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 	if err != nil {
 		logger.Println("GOPOD_PHOTO save failed: " + err.Error())
 	}
-	// Statement 1 first: the Edge TPU's quick look (well under a second), so the
-	// vision model can be asked for more than it named.
+	// Statement 1 first: the Edge TPU's quick look (well under a second), so the vision model can be
+	// asked for more than it named.
 	var objects []string
 	if page != "" {
 		objects, err = gopodQuickLookObjects(filepath.Join(gopodPhotoDir, filepath.Base(page)))
@@ -254,11 +211,6 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 			logger.Println("GOPOD_QUICK_LOOK " + name + ": " + err.Error())
 		}
 	}
-	// 2026-10-17 (operator: "3 images displayed * [raw snapshot][snapshot
-	// enhancement attempt][TPU object recognition on enhancement] * I see ...
-	// [TPU read on enhancement] * I see ... [moondream read of TPU]"): the
-	// enhanced snapshot and its boxes pop up beside the photo, and the vision
-	// model looks at the enhanced one, told the TPU's objects.
 	pictures, look := page, data
 	if page != "" && gopodBrobotsSettings.Photo.QuickLook.Pictures {
 		enhanced, boxes := gopodQuickLookPictures(filepath.Join(gopodPhotoDir, filepath.Base(page)))
@@ -282,16 +234,11 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 			return
 		}
 		notes = saw
-		// The notes stay in the log (background, no bubble).
 		logger.Println(fmt.Sprintf("GOPOD_PHOTO %s saw (%s, %.1fs): %s", name, p.VisionModel, time.Since(started).Seconds(), saw))
 		gopodPhotoLast.Lock()
 		gopodPhotoLast.saw[esn] = saw
 		gopodPhotoLast.Unlock()
 	}()
-	// 2026-10-24 (operator: "isn't the photo thing an easter egg also? * if not,
-	// make it an easter egg please"): the first photo of a session (live chat) is
-	// the "photo" Easter egg (above); after that, the pictures in their own
-	// picture bubble.
 	if page != "" && !egg {
 		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, pictures)
 	}
@@ -299,7 +246,6 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 	if list := gopodQuickLookList(objects); list != "" {
 		first = strings.TrimSpace(strings.ReplaceAll(p.QuickText, "{objects}", list))
 	}
-	// After his reply (kgsim.go): the stalls while it still looks, then statement 2.
 	second := func() {
 		stalls := []string{p.GatheringText}
 		if len(p.StallLines) > 0 {
@@ -320,12 +266,8 @@ func gopodPhotoTake(robot *vector.Vector, ctx context.Context, esn string) (stri
 	return first, second
 }
 
-// gopodPhotoDetail: statement 2, built up from statement 1 - what the vision
-// model saw, its own lead-in ("The image shows ...") taken off, as "I see ..."
-// (photo.detail_text). 2026-10-16 (operator: "do not repeat without more detail
-// * build 2 more details from 1, no repeats"): statement 1's objects aren't
-// added again, and a look that names nothing new (only statement 1's objects)
-// gives photo.detail_unclear_text, as does one that saw nothing.
+// gopodPhotoDetail: statement 2, built up from statement 1 - what the vision model saw, its own
+// lead-in ("The image shows ...") taken off, as "I see ..." (photo.detail_text).
 func gopodPhotoDetail(saw string, objects []string) string {
 	p := gopodBrobotsSettings.Photo
 	saw = strings.TrimSpace(saw)
@@ -385,8 +327,7 @@ func gopodPhotoRecall(esn string) string {
 	return strings.TrimSpace(strings.ReplaceAll(p.RecallText, "{saw}", gopodPhotoLowerFirst(saw)))
 }
 
-// gopodPhotoFirstSentence: the description's first sentence only - simply
-// ("I see a table, chair and some book shelves", operator), never a paragraph.
+// gopodPhotoFirstSentence: the description's first sentence only - simply, never a paragraph.
 func gopodPhotoFirstSentence(s string) string {
 	s = strings.TrimSpace(strings.ReplaceAll(s, "\n", " "))
 	for i := 0; i < len(s); i++ {

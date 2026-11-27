@@ -21,8 +21,6 @@ func TestBrobot2IndependentLLMPath(t *testing.T) {
 		t.Fatalf("CreateAIReq messages length = %d, want system and user messages", len(req.Messages))
 	}
 	systemPrompt := req.Messages[0].Content
-	// 2026-10-05: the prompt names the brother by his persona line, not his ESN.
-	// 2026-11-15 (decoupled): the persona answering from Brobot 2 (PIP at 100%).
 	if !strings.Contains(systemPrompt, "WHO I AM:\n"+gopodBrobotPersonaLines[gopodAnswerer("Brobot 2")]) {
 		t.Fatal("system prompt missing Brobot 2's own persona line")
 	}

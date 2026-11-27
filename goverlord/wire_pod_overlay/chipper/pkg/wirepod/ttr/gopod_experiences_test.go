@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// 2026-10-25 (operator: "Make pre-[sleep experience] > [nap song] >
-// post-[sleep experience]"): the nap, the Bingo way (gopod_experiences.go).
+// the nap, the Bingo way (gopod_experiences.go).
 func TestNapExperienceChain(t *testing.T) {
 	var nap *gopodExperience
 	for _, e := range gopodExperienceList() {
@@ -22,16 +21,14 @@ func TestNapExperienceChain(t *testing.T) {
 	saved := flag.Load()
 	defer flag.Store(saved)
 	flag.Store(false)
-	q := "did you have any dreams?" // 2026-11-24: an experience ask (brain_chain.experience_asks)
+	q := "did you have any dreams?" // an experience ask (brain_chain.experience_asks)
 	if gopodIsBingoQuestion(q) || !gopodIsExperienceQuestion(nap, q) {
 		t.Fatal("a dreams question is the nap's, not Bingo's")
 	}
-	// Not played: its one line says so (brain_chain.experience_no).
 	no := gopodExperienceFacts(gopodBrobot1ESN, q)
 	if gopodExperienceInMemory(nap) == false && (len(no) != 1 || !strings.Contains(no[0], "not played")) {
 		t.Errorf("before the nap: %q", no)
 	}
-	// The operator's own line doesn't count; the nap's first caption does.
 	gopodExperienceMarkPlayed("Operator", nap.RunMarker)
 	if flag.Load() {
 		t.Error("the operator's line counted as the nap")
@@ -41,14 +38,12 @@ func TestNapExperienceChain(t *testing.T) {
 	if !flag.Load() || len(yes) != 1 || !strings.Contains(yes[0], "you played it") {
 		t.Errorf("after the nap: played, its one line %q", yes)
 	}
-	// Played: his closing remark is his take, word for word.
 	if got := gopodExperienceClosing(gopodBrobot1ESN, q); got != strings.TrimSpace(nap.Closing["Brobot 1"]) {
 		t.Errorf("after the nap, his take %q", got)
 	}
 }
 
-// 2026-10-25 (operator: "' + start baby brobots' stays in 2nd brobot response
-// regardless"): the nap's move goes with the second answer, whoever gives it.
+// the nap's move goes with the second answer, whoever gives it.
 func TestNapMoveInSecondAnswer(t *testing.T) {
 	var nap *gopodExperience
 	for _, e := range gopodExperienceList() {
@@ -71,7 +66,6 @@ func TestNapMoveInSecondAnswer(t *testing.T) {
 		}
 		gopodAllFirstAnswer.Delete(esn)
 	}
-	// The second answer (or a single one) redirects with a move.
 	if got := gopodExperienceClosing(gopodBrobot2ESN, q); !strings.Contains(got, nap.RunName) {
 		t.Errorf("second answer, not played: no move to %q: %q", nap.RunName, got)
 	}

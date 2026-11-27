@@ -23,15 +23,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// GOPOD as a phone app (2026-10-24, FINISH_PLAN_001.md C3; operator: "Go on C3 for
-// my phone"): a phone offers "Install app" only for a secure (https) page, so
-// Wire-Pod also serves GOPOD securely on app.https_port - the same pages and
-// the same GOPOD, nothing copied. The certificate is GOPOD's own, made here: a
-// local GOPOD authority (kept for years - the phone trusts it once, from
-// /gopod_ca.crt) and a server certificate for this machine's names and network
-// addresses, made again whenever they change (on the road, a new network). All
-// of it lives in app.cert_dir (private, the operator's home, never the repo).
-
 func gopodCertDir() string { return gopodHomePath(gopodBrobotsSettings.App.CertDir) }
 
 // gopodMachineNames: this machine's names and network addresses, sorted.
@@ -81,8 +72,8 @@ func gopodReadPEM(path string) []byte {
 	return nil
 }
 
-// gopodEnsureCerts: GOPOD's authority (made once) and this machine's server
-// certificate (made again when its names change). The server cert and key paths.
+// gopodEnsureCerts: GOPOD's authority (made once) and this machine's server certificate (made again
+// when its names change).
 func gopodEnsureCerts() (string, string, error) {
 	dir := gopodCertDir()
 	if dir == "" {
@@ -109,9 +100,6 @@ func gopodEnsureCerts() (string, string, error) {
 			}
 		}
 	}
-	// 2026-10-31 (operator: "Do/finish up * CA fencing"): an authority without its
-	// fence is replaced by a fenced one - the old one kept aside, never deleted;
-	// phones trust the new one once.
 	dnsFence, ipFence := gopodCAFence()
 	if ca != nil && (len(dnsFence) > 0 || len(ipFence) > 0) && len(ca.PermittedDNSDomains) == 0 && len(ca.PermittedIPRanges) == 0 {
 		stamp := time.Now().Format("20060102_150405")
@@ -130,8 +118,7 @@ func gopodEnsureCerts() (string, string, error) {
 			SerialNumber: serial, Subject: pkix.Name{CommonName: name, Organization: []string{"GOPOD"}},
 			NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().AddDate(10, 0, 0),
 			IsCA: true, BasicConstraintsValid: true, MaxPathLenZero: true,
-			KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
-			// The fence: it may only ever vouch for these (app.fence_dns, app.fence_ips).
+			KeyUsage:                    x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 			PermittedDNSDomainsCritical: true, PermittedDNSDomains: dnsFence, PermittedIPRanges: ipFence,
 		}
 		der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &k.PublicKey, k)
@@ -150,8 +137,8 @@ func gopodEnsureCerts() (string, string, error) {
 		os.Remove(namesFile)
 		logger.Println("GOPOD_APP made GOPOD's own certificate authority (" + name + ")")
 	}
-	// Only the names inside the fence go in the server certificate (a browser
-	// refuses a certificate naming anything outside it).
+	// Only the names inside the fence go in the server certificate (a browser refuses a certificate
+	// naming anything outside it).
 	var names []string
 	for _, n := range gopodMachineNames() {
 		if gopodInsideFence(n, ca) {
@@ -199,9 +186,7 @@ func gopodEnsureCerts() (string, string, error) {
 	return srvCrt, srvKey, nil
 }
 
-// GopodStartHTTPS: GOPOD, securely, on app.https_port (the same pages, the same
-// handlers). Started beside Wire-Pod's own web server; a failure is logged and
-// the plain page goes on as ever.
+// GopodStartHTTPS: GOPOD, securely, on app.https_port (the same pages, the same handlers).
 func GopodStartHTTPS() {
 	port := gopodBrobotsSettings.App.HTTPSPort
 	if port <= 0 {
@@ -219,7 +204,6 @@ func GopodStartHTTPS() {
 }
 
 func init() {
-	// GOPOD's authority, for a phone to trust once (public - no key in it).
 	http.HandleFunc("/gopod_ca.crt", func(w http.ResponseWriter, r *http.Request) {
 		data, err := os.ReadFile(filepath.Join(gopodCertDir(), "ca.crt"))
 		if err != nil {
@@ -232,8 +216,8 @@ func init() {
 	})
 }
 
-// gopodCAFence: the fence from the settings - app.fence_dns (and this machine's
-// own hostname), app.fence_ips as networks.
+// gopodCAFence: the fence from the settings - app.fence_dns (and this machine's own hostname),
+// app.fence_ips as networks.
 func gopodCAFence() (dns []string, ips []*net.IPNet) {
 	a := gopodBrobotsSettings.App
 	seen := map[string]bool{}
@@ -260,8 +244,7 @@ func gopodCAFence() (dns []string, ips []*net.IPNet) {
 	return dns, ips
 }
 
-// gopodInsideFence: a name or address the authority may vouch for (no fence:
-// any).
+// gopodInsideFence: a name or address the authority may vouch for (no fence: any).
 func gopodInsideFence(name string, ca *x509.Certificate) bool {
 	if ca == nil || (len(ca.PermittedDNSDomains) == 0 && len(ca.PermittedIPRanges) == 0) {
 		return true

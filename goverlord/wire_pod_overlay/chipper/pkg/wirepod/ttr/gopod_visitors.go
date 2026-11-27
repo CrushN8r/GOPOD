@@ -18,20 +18,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// Visitors and the chat sign-up (2026-10-24, operator: "Is it easier set me
-// apart by my local PC & Laptop IP addresses? ... everyone else is a visitor ...
-// allow a chat participant gathering * initially visitor chat participation is
-// OFF"): the admin is GOPOD's own machine, or a device in the private admin
-// address list (visitors.admin_addresses_file, outside the repo); everyone else
-// is a visitor, one per device (its network address). A visitor's first line is
-// their username request (first come, first served; a taken name gets a number:
-// name1, name2); every line after it is dropped until the admin approves it in
-// the system window. With participation ON, an approved visitor with their box
-// ticked talks to the Brobots like a typed line, under their username; unticked
-// is muted. A dropped line tells the visitor why: "Waiting for approval" or
-// "Muted". A visitor never runs the show: commands (start, stop, thanks,
-// system-...) are dropped.
-
 type gopodVisitor struct {
 	Key      string `json:"key"`
 	Addr     string `json:"addr"`
@@ -51,12 +37,9 @@ var gopodVisitors = struct {
 	loaded bool
 }{byAddr: map[string]*gopodVisitor{}}
 
-// Saved profiles (2026-10-24, operator: "Save the visitor profile in case of a
-// disconnect reconnect, like the brobot reboot recovery thing"): each visitor's
-// username, approval and mute box are kept in visitors.profiles_file (private,
-// outside the repo) and come back after a dropped connection or a Wire-Pod
-// restart - by the phone's own browser ID, so a new network address after a
-// reconnect is still the same visitor. Participation itself starts OFF.
+// Saved profiles: each visitor's username, approval and mute box are kept in visitors.profiles_file
+// (private, outside the repo) and come back after a dropped connection or a Wire-Pod restart - by
+// the phone's own browser ID, so a new network address after a reconnect is still the same visitor.
 func gopodVisitorsFile() string {
 	return gopodHomePath(gopodBrobotsSettings.Visitors.ProfilesFile)
 }
@@ -103,7 +86,6 @@ func gopodVisitorsSave() {
 		}
 	}
 	if data, err := json.MarshalIndent(keep, "", "  "); err == nil {
-		// Private: made readable by the operator only, owned by the operator.
 		if _, err := os.Stat(f); err != nil {
 			if gopodWriteFile(f, nil, 0o600) == nil {
 				if _, uid, gid := gopodRecordRoot(); uid > 0 {
@@ -128,8 +110,6 @@ func gopodVisitorAddr(remoteAddr string) string {
 
 // gopodAdminAddresses: the private admin list (one address a line, # notes).
 func gopodAdminAddresses() []string {
-	// 2026-10-24 (live: the PC stayed a visitor - Wire-Pod runs as root, so "~"
-	// was root's home): "~/" is the operator's home (gopodHomePath).
 	f := gopodHomePath(gopodBrobotsSettings.Visitors.AdminAddressesFile)
 	if f == "" {
 		return nil
@@ -221,9 +201,8 @@ func gopodVisitorOn() bool {
 	return gopodVisitors.on
 }
 
-// gopodVisitorsTalking (2026-11-02): the approved visitors talking now - their
-// approved names, when participation is ON and their box is ticked - for In the
-// chat and PLAYHEAD's who's here.
+// gopodVisitorsTalking: the approved visitors talking now - their approved names, when
+// participation is ON and their box is ticked - for In the chat and PLAYHEAD's who's here.
 func gopodVisitorsTalking() []string {
 	gopodVisitors.Lock()
 	defer gopodVisitors.Unlock()
@@ -249,8 +228,8 @@ func gopodVisitorKey(remoteAddr, id string) string {
 	return gopodVisitorAddr(remoteAddr)
 }
 
-// gopodVisitorGet (locked): the visitor for this device (made on first sight;
-// a saved profile comes back).
+// gopodVisitorGet (locked): the visitor for this device (made on first sight; a saved profile comes
+// back).
 func gopodVisitorGet(remoteAddr, id, ua string) *gopodVisitor {
 	gopodVisitorsLoad()
 	addr := gopodVisitorAddr(remoteAddr)
@@ -261,8 +240,6 @@ func gopodVisitorGet(remoteAddr, id, ua string) *gopodVisitor {
 		gopodVisitors.byAddr[key] = v
 		logger.Println("GOPOD_VISITOR new device " + addr + " (" + gopodDeviceKind(ua) + ")")
 	} else if v.seen.IsZero() || time.Since(v.seen) > time.Duration(gopodBrobotsSettings.Visitors.SeenSeconds*float64(time.Second)) {
-		// 2026-10-24 (operator: "admin GOPOD access/log all incoming visitor
-		// events ... for diagnostics"): a visitor coming back is logged.
 		logger.Println("GOPOD_VISITOR " + gopodVisitorWho(v) + " is back (" + addr + ", " + gopodDeviceKind(ua) + ")")
 	}
 	v.Addr = addr
@@ -281,8 +258,8 @@ func gopodVisitorWho(v *gopodVisitor) string {
 	return "nameless-visitor"
 }
 
-// gopodVisitorState: where a visitor stands - nameless, waiting (name asked),
-// approved (participation OFF), on (talking), muted (ON, box unticked).
+// gopodVisitorState: where a visitor stands - nameless, waiting (name asked), approved
+// (participation OFF), on (talking), muted (ON, box unticked).
 func gopodVisitorState(v *gopodVisitor) string {
 	switch {
 	case v.Name == "":
@@ -297,9 +274,7 @@ func gopodVisitorState(v *gopodVisitor) string {
 	return "on"
 }
 
-// GopodVisitorStatus: a visitor's page asks where it stands (2026-10-24,
-// operator: "Upon Approval * text toggles from \"Waiting for approval\" to
-// \"Username Approved\", then clears & continues"): its state and the words for it.
+// GopodVisitorStatus: a visitor's page asks where it stands: its state and the words for it.
 func GopodVisitorStatus(remoteAddr, id, ua string) map[string]any {
 	vs := gopodBrobotsSettings.Visitors
 	gopodVisitors.Lock()
@@ -319,8 +294,7 @@ func GopodVisitorSeen(remoteAddr, id, ua string) {
 	gopodVisitors.Unlock()
 }
 
-// gopodVisitorCleanName: a typed username, tidied - letters, digits, spaces,
-// - _ . ' only, at most visitors.name_max letters.
+// gopodVisitorCleanName: a typed username, tidied - letters, digits, spaces, - _ .
 func gopodVisitorCleanName(text string) string {
 	var b strings.Builder
 	for _, r := range strings.Join(strings.Fields(text), " ") {
@@ -335,11 +309,9 @@ func gopodVisitorCleanName(text string) string {
 	return name
 }
 
-// gopodVisitorUniqueName: first come, first served - a taken name (another
-// visitor's, or one of the show's own: Operator, Goverlord, Brobot 1...) gets a
-// number: name1, name2.
+// gopodVisitorUniqueName: first come, first served - a taken name (another visitor's, or one of the
+// show's own: Operator, Goverlord, Brobot 1...) gets a number: name1, name2.
 func gopodVisitorUniqueName(name, self string) string {
-	// self: the asking visitor's key.
 	taken := map[string]bool{}
 	for _, n := range []string{"Operator", "Goverlord", "Brobots", "Brobot 1", "Brobot 2", "CHALK reporter", "PLAYHEAD reporter", gopodBrobotsSettings.SignOff.SystemRole} {
 		taken[strings.ToLower(n)] = true
@@ -365,15 +337,12 @@ func gopodVisitorCommand(text string) bool {
 		gopodStopSessionMatch(text) || gopodReplayMatch(text) || gopodIsThanks(text) || gopodTypedCommandMatch(text)
 }
 
-// GopodVisitorLine: a visitor's typed line. pass: it goes to the Brobots as
-// their line (how names them); else note says why it was dropped.
+// GopodVisitorLine: a visitor's typed line.
 func GopodVisitorLine(remoteAddr, id, ua, text string) (pass bool, how, note string) {
 	vs := gopodBrobotsSettings.Visitors
 	gopodVisitors.Lock()
 	defer gopodVisitors.Unlock()
 	v := gopodVisitorGet(remoteAddr, id, ua)
-	// Every line a visitor sends is logged with what became of it (2026-10-24:
-	// "log all incoming visitor events ... for diagnostics").
 	logLine := func(outcome string) {
 		logger.Println("GOPOD_VISITOR " + gopodVisitorWho(v) + " (" + v.Addr + ") sent \"" + gopodHeardShort(text) + "\": " + outcome)
 	}
@@ -392,8 +361,6 @@ func GopodVisitorLine(remoteAddr, id, ua, text string) (pass bool, how, note str
 		logLine("dropped - waiting for approval")
 		return false, "", vs.WaitingText
 	case "approved":
-		// Participation OFF: approved, not talking yet (operator: "Visitor chat
-		// participation OFF * \"Waiting for approval\" or \"Username Approved\"").
 		logLine("dropped - approved, participation OFF")
 		return false, "", vs.ApprovedText
 	case "muted":
@@ -408,8 +375,8 @@ func GopodVisitorLine(remoteAddr, id, ua, text string) (pass bool, how, note str
 	return true, gopodVisitorHowPrefix + v.Name, ""
 }
 
-// gopodVisitorList: the system window's list - every visitor seen lately, or
-// with a name - first seen first.
+// gopodVisitorList: the system window's list - every visitor seen lately, or with a name - first
+// seen first.
 func gopodVisitorList() []gopodVisitor {
 	gopodVisitors.Lock()
 	defer gopodVisitors.Unlock()
@@ -436,8 +403,8 @@ func gopodVisitorList() []gopodVisitor {
 	return sorted
 }
 
-// gopodVisitorAct: the admin's approve / clear / allow / participation; key is
-// the visitor's (from the list).
+// gopodVisitorAct: the admin's approve / clear / allow / participation; key is the visitor's (from
+// the list).
 func gopodVisitorAct(action, addr string, on bool) bool {
 	gopodVisitors.Lock()
 	defer gopodVisitors.Unlock()
@@ -467,17 +434,13 @@ func gopodVisitorAct(action, addr string, on bool) bool {
 	}
 	logger.Println("GOPOD_VISITOR " + action + " " + v.Addr + " (" + v.Name + ")")
 	gopodVisitorsSave()
-	// 2026-11-02: PLAYHEAD says who's here when a visitor joins or leaves the chat.
 	go gopodWhosHereAnnounce("visitor "+action, false)
 	return true
 }
 
-// gopodVisitorGate (2026-10-24, operator: "redo visitor page with no other
-// wire-pod access"): a visitor reaches the Brobots chat and nothing else - the
-// page, its scripts, styles, pictures and voices, GOPOD's own state files, the
-// chat's two calls (here / a typed line) and the heard lines. Wire-Pod's
-// settings, config, logs and every other call are refused. The admin reaches
-// everything. Robots' own "/ok" check passes.
+// gopodVisitorGate: a visitor reaches the Brobots chat and nothing else - the page, its scripts,
+// styles, pictures and voices, GOPOD's own state files, the chat's two calls (here / a typed line)
+// and the heard lines.
 var gopodVisitorPaths = []string{"/css/", "/js/", "/lib/", "/assets/", "/app/", "/gopod_reporter_audio/", "/pictures/", "/photos/", "/qr/", "/weather/", "/sdkapp/js/", "/gopod_"}
 var gopodVisitorExact = map[string]bool{"/": true, "/index.html": true, "/favicon.ico": true, "/favicon.png": true, "/ok": true, "/ok:80": true,
 	"/api/is_api_v3": true, "/api-sdk/gopod_page_shown": true, "/api-sdk/gopod_typed_input": true, "/api-sdk/gopod_display": true}
@@ -485,13 +448,8 @@ var gopodVisitorExact = map[string]bool{"/": true, "/index.html": true, "/favico
 var gopodVisitorRefused sync.Map // "address path" -> when last logged
 
 func gopodVisitorGate(w http.ResponseWriter, r *http.Request) bool {
-	// 2026-10-29: a robot's label (ESN01, ESN02) becomes its serial here (gopod_esn_labels.go).
 	gopodESNLabelsIn(r)
 	p := r.URL.Path
-	// 2026-10-25 (operator: "briefly shows home page then jumps ... prune out
-	// everything wire-pod from visitor GOPOD app page"): a visitor's "/" is the
-	// chat alone (webroot/gopod_visitor.html) from the first paint; "?visitor"
-	// shows it on GOPOD's own machine too.
 	visitorView := !GopodIsAdmin(r.RemoteAddr) || r.URL.Query().Has("visitor")
 	if visitorView && (p == "/" || p == "/index.html") {
 		page, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "gopod_visitor.html"))
@@ -517,7 +475,6 @@ func gopodVisitorGate(w http.ResponseWriter, r *http.Request) bool {
 			}
 		}
 	}
-	// Logged once a minute per device and path, not on every repeat.
 	key := gopodVisitorAddr(r.RemoteAddr) + " " + p
 	if last, ok := gopodVisitorRefused.Load(key); !ok || time.Since(last.(time.Time)) > time.Minute {
 		gopodVisitorRefused.Store(key, time.Now())
@@ -529,7 +486,6 @@ func gopodVisitorGate(w http.ResponseWriter, r *http.Request) bool {
 
 func init() {
 	vars.GopodRequestGate = gopodVisitorGate
-	// The system window's visitors slot (the admin's only).
 	http.HandleFunc("/api-sdk/gopod_visitors", func(w http.ResponseWriter, r *http.Request) {
 		if !GopodIsAdmin(r.RemoteAddr) {
 			http.Error(w, "admin only", http.StatusForbidden)

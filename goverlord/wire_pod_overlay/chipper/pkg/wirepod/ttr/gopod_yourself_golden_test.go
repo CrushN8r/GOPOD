@@ -10,12 +10,7 @@ import (
 	"testing"
 )
 
-// LOCKED 2026-11-25 (operator: "a locked card, laid out like weather_run.md,
-// holding that closing sequence and its QRs in order" - "yes"): the GOPOD
-// Yourself QR sequence is gopod_yourself_qr.md and only that. The deploy fails
-// when it changed without the operator's relock (GOPOD_RELOCK=1 saves its
-// fingerprint, gopod_probes/locks/gopod_yourself_golden.lock), when its golden
-// lines aren't the ones in use, or when a QR its lines call is missing.
+// LOCKED the GOPOD Yourself QR sequence is gopod_yourself_qr.md and only that.
 func TestGopodYourselfGoldenLock(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -43,7 +38,6 @@ func TestGopodYourselfGoldenLock(t *testing.T) {
 			t.Errorf("LOCKED: a golden line in use isn't the card's: %q", l)
 		}
 	}
-	// Each QR the sequence calls is up for its line's words.
 	data, _ := gopodSettingsMerged()
 	var page struct {
 		QrCodes struct {

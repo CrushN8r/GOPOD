@@ -9,42 +9,17 @@ import (
 	"sync/atomic"
 )
 
-// Each brother's own persona line, added after "Current robot ESN: ..." in the
-// Wire-Pod chat request. Both keep the shared bratty party-bro traits
-// (gopod_probes/topic_clusters/personas/behaviours/brobots.md), with a slight twist each - the seeds of the
-// GOPOD layer's Doc and Pip. Operator 2026-10-01: "Brobot 1 slightly on the
-// grumpy/impatient side", "Brobot 2 happily gets something a little wrong", and
-// Doc's sarcastic take "at least attempted". "Up to 10" sentences, per the
-// operator 2026-09-29: "Maybe down to 10 sentences? I like giving the brobots
-// room to talk". 2026-10-04 (operator: "Party-bro stays the base, with one mild
-// flavour each, held for the whole answer"): Brobot 1 party bro + grumpy +
-// sarcastic, Brobot 2 party bro + clueless + positive outlook.
-//
-// The brother is not named here, or in the question tag. In a gemma2:2b test
-// (2026-09-29), naming "Brobot 2" in Brobot 1's own request made Brobot 1 call
-// himself Brobot 2 in 9 of 18 replies; without it, 0 of 18. gemma2 has no system
-// slot, so the prompt sits at the top of the chat, far from the question - the
-// last name it reads near the question is the one it takes.
-// The lines are personas in gopod_brobots_settings.json, each followed by his
-// host persona (host_personas: Doc & Pip, operator 2026-10-21).
+// Each brother's own persona line, added after "Current robot ESN: ..." in the Wire-Pod chat
+// request.
 var gopodBrobotPersonaLines = gopodHostPersonaLines()
 
-// gopodHostPersona: one GOPOD host's persona - the same shape for Doc, Pip,
-// CHALK and PLAYHEAD (host_personas in gopod_brobots_settings.json).
+// gopodHostPersona: one GOPOD host's persona - the same shape for Doc, Pip, CHALK and PLAYHEAD
+// (host_personas in gopod_brobots_settings.json).
 type gopodHostPersona struct {
-	Name string `json:"name"`
-	// 2026-10-28: a nickname (Buzzer, Switch) - his bubble header is
-	// reporter_voices.nickname_label (gopodApplyNicknames).
-	Nickname string `json:"nickname"`
-	// 2026-10-30 (operator: "full name [first middle last], nickname, job name"):
-	// the persona's job name - its {job} (gopodPersonaFill).
-	JobName string `json:"job_name"`
-	// 2026-11-15 (operator: "separate robot bodies from all personas * then
-	// assign/flag the robot body for use"): the robot body it speaks through, from
-	// its card's "body:" ("Brobot 1"; "" for a voice) - a body's ESN is only in the
-	// private ~/.gopod_esns.json (gopod_esn_labels.go).
-	Body string `json:"body,omitempty"`
-	// 2026-10-27: the name others call him by (gopodCallName).
+	Name      string   `json:"name"`
+	Nickname  string   `json:"nickname"`
+	JobName   string   `json:"job_name"`
+	Body      string   `json:"body,omitempty"`
 	CallName  string   `json:"call_name"`
 	Role      string   `json:"role"`
 	Steps     []string `json:"steps"`
@@ -56,9 +31,7 @@ type gopodHostPersona struct {
 	} `json:"handover"`
 }
 
-// gopodHostPair: two hosts - their banter and stereo dial (host_pairs). Dial is
-// how far right, 0-100: 0 all left (the base), 50 pointing up, 100 all right
-// (the host persona).
+// gopodHostPair: two hosts - their banter and stereo dial (host_pairs).
 type gopodHostPair struct {
 	Hosts     []string `json:"hosts"`
 	Left      string   `json:"left"`
@@ -83,10 +56,9 @@ func gopodHostPairOf(host string) (gopodHostPair, string, bool) {
 	return gopodHostPair{}, "", false
 }
 
-// gopodHostPersonaText renders a host's persona and his pair's banter and
-// stereo dial as a few plain sentences, added after base (his own text).
+// gopodHostPersonaText renders a host's persona and his pair's banter and stereo dial as a few
+// plain sentences, added after base (his own text).
 func gopodHostPersonaText(host, base string) string {
-	// host is a persona's own name (Brobot 1, DOC) - its own labels, never resolved.
 	h := gopodBrobotsSettings.HostPersonas[host]
 	pair, partner, paired := gopodHostPairOf(host)
 	i, my := "I", "My"
@@ -111,7 +83,6 @@ func gopodHostPersonaText(host, base string) string {
 		if as == "" {
 			as = gopodBrobotsSettings.HostPersonas[partner].Name
 		}
-		// 2026-10-29: solo, the Brobots' brother banter is left out (gopodSolo).
 		if t := strings.TrimSpace(pair.Banter); t != "" && !(gopodSolo() && (host == "Brobot 1" || host == "Brobot 2")) {
 			parts = append(parts, strings.ReplaceAll(t, "{partner}", as))
 		}
@@ -122,8 +93,8 @@ func gopodHostPersonaText(host, base string) string {
 	return strings.Join(parts, " ")
 }
 
-// gopodPersonaFrame: one host persona sentence from its frame
-// (host_persona_frames): {i}, {my} and the one value filled in.
+// gopodPersonaFrame: one host persona sentence from its frame (host_persona_frames): {i}, {my} and
+// the one value filled in.
 func gopodPersonaFrame(frame, i, my, key, value string) string {
 	r := []string{"{i}", i, "{my}", my}
 	if key != "" {
@@ -144,11 +115,7 @@ func gopodHostPersonaLines() map[string]string {
 	return lines
 }
 
-// gopodPrebuildContext (2026-10-22, operator: "brobot gets an input *
-// pre-build context: I am brobt N. My role is a GOPOD rep. I have a
-// reminders-list to go through. What was asked of me? How to best answer?"):
-// the section for his prompt, from prebuild_context; "" when off. A line whose
-// token is empty is left out.
+// gopodPrebuildContext: the section for his prompt, from prebuild_context; "" when off.
 func gopodPrebuildContext(esn, question string) string {
 	pc := gopodBrobotsSettings.PrebuildContext
 	brobot := gopodBrobotName(esn)
@@ -167,27 +134,19 @@ func gopodPrebuildContext(esn, question string) string {
 	if gopodAtDialZero(brobot) || fill["role"] == "" {
 		fill["role"] = strings.TrimSpace(pc.RepRole)
 	}
-	// 2026-10-23 (A3): the score, so he answers from it too.
 	score, _ := gopodCoverageScoreText()
 	fill["score"] = score
 	fill["game"] = strings.TrimSpace(gopodBrobotsSettings.Game.Rules)
-	// 2026-10-27 (operator: "pre-generate all that for the llm, instead * Template
-	// the flow"): the here-and-now pieces (gopod_here_now.go - one source with the
-	// Gomads' note) and where this answer sits in the response chain (the notice's
-	// plan line).
 	fill["place"], fill["time"] = gopodHereNowPlaceTime()
 	fill["gender"] = gopodHereNowGender(brobot)
 	fill["cast"] = gopodHereNowCast(brobot)
 	fill["plan"] = gopodResponsePlan(esn)
 	fill["notice"] = gopodNoticeGuide(esn)
-	// 2026-10-29: solo (one robot), his note (brobots_setup.solo_note).
 	if gopodSolo() {
 		fill["solo"] = strings.TrimSpace(gopodBrobotsSettings.BrobotsSetup.SoloNote)
 	} else {
 		fill["solo"] = ""
 	}
-	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
-	// 2026-10-29 (ask ahead): his DocBS asks start now, while the line is read out.
 	gopodDocBSAskAhead(esn, question)
 	fill["roast"] = gopodRoastLine(question)
 	fill["spice"] = gopodSpiceLine(question)
@@ -222,28 +181,19 @@ func gopodReminderTopics(question string) string {
 	return strings.TrimSpace(line[len(before) : len(line)-len(after)])
 }
 
-// gopodCallName (2026-10-27): the name others call a host by - in a thank-you
-// (helper_from call_name) and a hand-over ({intern}): host_personas.<host>.
-// call_name, else its name, else the host.
-// gopodPersonaShown (2026-11-14, operator: "build it from the perspective of
-// welcoming & engaging a new visitor to GOPOD"): the one name the chat shows for
-// a Brobot body - the persona answering: Brobot N at the dial's 0%, else the
-// persona he hosts by its nickname (DOC, PIP), the same names the picker shows.
-// Any other name as it is.
+// gopodCallName: the name others call a host by - in a thank-you (helper_from call_name) and a
+// hand-over ({intern}): host_personas.<host>.
 func gopodPersonaShown(body string) string {
-	// 2026-11-15: the persona answering from the body (gopodAnswerer) - its name
-	// is its nickname key ("DOC"), or the Brobot himself.
 	return gopodAnswerer(body)
 }
 
-// gopodPersona: the labels of the persona answering as name (gopodAnswerer) -
-// a body's are the persona's on it now, never the body's own when it hosts one.
+// gopodPersona: the labels of the persona answering as name (gopodAnswerer) - a body's are the
+// persona's on it now, never the body's own when it hosts one.
 func gopodPersona(name string) gopodHostPersona {
 	return gopodBrobotsSettings.HostPersonas[gopodAnswerer(name)]
 }
 
 func gopodCallName(host string) string {
-	// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0%"): a line to both - he's Brobot N.
 	host = gopodAnswerer(host)
 	if gopodIsBrobotBody(host) {
 		return host
@@ -257,12 +207,9 @@ func gopodCallName(host string) string {
 	return ""
 }
 
-// gopodHandoverLine (2026-10-21, operator: "Each host's hand-over line * can we
-// use variations of gear-head?"): the host's hand-over line to partner, {title}
-// and {nickname} filled (gopodNicknameFill, gopod_response_chains.go); "" when
-// he has none.
+// gopodHandoverLine: the host's hand-over line to partner, {title} and {nickname} filled
+// (gopodNicknameFill, gopod_response_chains.go); "" when he has none.
 func gopodHandoverLine(host, partner string) string {
-	// The hand-over is the Brobots' own (a line to both - the dial's 0%): his card.
 	line := strings.TrimSpace(gopodBrobotsSettings.HostPersonas[host].Handover.Line)
 	if line == "" {
 		return ""
@@ -270,32 +217,11 @@ func gopodHandoverLine(host, partner string) string {
 	return gopodNicknameFill(host, strings.ReplaceAll(line, "{partner}", partner))
 }
 
-// Each brother's own take on the Bingo test, added to the shared chat's Bingo
-// snapshot note when a Bingo run is in the chat memory - so "how was Bingo?"
-// gets his side of the story, in his own words.
-// Operator 2026-10-01: Brobot 1 "the bingo tester being bothered by an
-// over-enthusiastic brobot 2 brat, and getting brobot 2 back at the end"; the
-// balls go "Real bingo number, then a test number, then an intentional
-// non-existent number"; Brobot 2 "happy to be involved, but cluelessly" messed up.
-// The real moments (operator 2026-10-01: the first takes were "too out there")
-// are the Bingo test song's own lines (01a_brobots_bingo_test/story.md), in
-// order - a change to those lines needs the same change in the settings file. The other brother
-// is "your brother", not named (see above).
-// The takes are bingo.takes in gopod_brobots_settings.json (gopodAddExperienceTakes,
-// gopod_experiences.go - every experience's takes the same way).
-
-// gopodBingoPlayed: the Bingo test has been played since this Wire-Pod start
-// (operator 2026-10-05: "a 'bingo-test-played' flag? Not played yet = 0, played
-// already = 1"). Set by the song's own lines reaching the chat feed
-// (gopod_chat_feed.go); a Wire-Pod restart sets it back to 0. Unlike the chat
-// memory, it never fades: after the 120-minute memory has let the run go, a
-// Bingo question still gets the Brobot's own take on it. With 0, a Bingo
-// question gets bingo.no_run_note ("sure, let's play").
+// gopodBingoPlayed: the Bingo test has been played since this Wire-Pod start.
 var gopodBingoPlayed atomic.Bool
 
-// gopodApplyNicknames (2026-10-28, operator: "use a bubble header template:
-// \"[nickname] (Intel 404 PNF*)\""): a host with a nickname is headed with
-// reporter_voices.nickname_label - "Buzzer (Intel 404 PNFH)".
+// gopodApplyNicknames: a host with a nickname is headed with reporter_voices.nickname_label -
+// "Buzzer (Intel 404 PNFH)".
 func gopodApplyNicknames(s *gopodBrobotsSettingsFile) {
 	tpl := strings.TrimSpace(s.ReporterVoices.NicknameLabel)
 	if tpl == "" {
@@ -312,24 +238,17 @@ func gopodApplyNicknames(s *gopodBrobotsSettingsFile) {
 	}
 }
 
-// gopodPersonaFill (2026-10-30, operator: "If this were properly templated, there
-// should be only 2 labels to change, everything else would branch from that
-// templated persona profile"; "full name [first middle last], nickname, job
-// name"): a persona's words with its {name}, {nickname} and {job} filled from
+// gopodPersonaFill: a persona's words with its {name}, {nickname} and {job} filled from
 // host_personas - so a rename is those labels alone.
 func gopodPersonaFill(host, text string) string {
 	if !strings.Contains(text, "{") {
 		return text
 	}
-	// 2026-11-08 (operator: "there shouldn't be places that quote it * there should
-	// be (global?) variables representing the single source of truth"): another
-	// persona's labels - {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job},
-	// {Brobot 1.call} (his call name) - from that persona's own profile.
 	return gopodPersonaFillAs(gopodAnswerer(host), text)
 }
 
-// gopodPersonaFillAs: gopodPersonaFill for a persona's own name (Brobot 1, DOC) -
-// its own labels, never resolved through a body.
+// gopodPersonaFillAs: gopodPersonaFill for a persona's own name (Brobot 1, DOC) - its own labels,
+// never resolved through a body.
 func gopodPersonaFillAs(persona, text string) string {
 	if !strings.Contains(text, "{") {
 		return text
@@ -341,9 +260,8 @@ func gopodPersonaFillAs(persona, text string) string {
 
 var gopodPersonaVarRE = regexp.MustCompile(`\{([^{}.]+)\.(name|nickname|job|call)\}`)
 
-
-// gopodNameVarsFill: text with every {<persona>.name|nickname|job|call} filled
-// from hps (a persona's labels, from its profile head); an unknown one stays.
+// gopodNameVarsFill: text with every {<persona>.name|nickname|job|call} filled from hps (a
+// persona's labels, from its profile head); an unknown one stays.
 func gopodNameVarsFill(text string, hps map[string]gopodHostPersona) string {
 	if !strings.Contains(text, ".") || !strings.Contains(text, "{") {
 		return text
@@ -369,8 +287,8 @@ func gopodNameVarsFill(text string, hps map[string]gopodHostPersona) string {
 	})
 }
 
-// gopodApplyNameVars: every string in the settings (struct fields, map values,
-// list items, at any depth) with its persona variables filled (gopodNameVarsFill).
+// gopodApplyNameVars: every string in the settings (struct fields, map values, list items, at any
+// depth) with its persona variables filled (gopodNameVarsFill).
 func gopodApplyNameVars(s *gopodBrobotsSettingsFile) {
 	hps := s.HostPersonas
 	var walk func(v reflect.Value)

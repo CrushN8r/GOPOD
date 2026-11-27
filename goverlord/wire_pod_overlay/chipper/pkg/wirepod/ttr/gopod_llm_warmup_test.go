@@ -25,8 +25,8 @@ func TestGopodOllamaBase(t *testing.T) {
 	}
 }
 
-// The warm-up loads the chat's own model on the chat's own endpoint, then sets
-// keep_alive from the settings file.
+// The warm-up loads the chat's own model on the chat's own endpoint, then sets keep_alive from the
+// settings file.
 func TestGopodLLMWarmupRequests(t *testing.T) {
 	var mu sync.Mutex
 	var paths []string
@@ -64,8 +64,8 @@ func TestGopodLLMWarmupRequests(t *testing.T) {
 	}
 }
 
-// The page's warm-up bubble comes from its own file, never from the chat feed,
-// so the Brobots' chat memory never sees it.
+// The page's warm-up bubble comes from its own file, never from the chat feed, so the Brobots' chat
+// memory never sees it.
 func TestGopodLLMWarmupBubbleSkippedByMemory(t *testing.T) {
 	dir := t.TempDir()
 	oldState, oldFeed := gopodLLMWarmupStatePath, gopodChatFeedPath
@@ -106,9 +106,7 @@ func TestGopodLLMWarmupBubbleSkippedByMemory(t *testing.T) {
 	}
 }
 
-// One bubble (operator 2026-10-09: "Combine into one bubble"), a line each
-// (2026-10-16: "LLM Ready, Master CrushN8r." / "Standing by for another crushing
-// performance." / "Your move.").
+// One bubble, a line each.
 func TestWarmupReadyLineIsOneBubble(t *testing.T) {
 	if got := gopodWarmupReadyLine("LLM Ready, Master CrushN8r.", "Standing by for another crushing performance.\nYour move."); got != "LLM Ready, Master CrushN8r.\nStanding by for another crushing performance.\nYour move." {
 		t.Fatalf("got %q", got)

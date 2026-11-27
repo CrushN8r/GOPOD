@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-// A song line is said one sentence at a time, and each sentence is written to
-// the speaking-now file just before it is said; the file ends inactive.
+// A song line is said one sentence at a time, and each sentence is written to the speaking-now file
+// just before it is said; the file ends inactive.
 func TestGopodSpeakSentencesWritesEachSentence(t *testing.T) {
 	saved := gopodSpeakingNowPath
 	defer func() { gopodSpeakingNowPath = saved }()
@@ -42,8 +42,8 @@ func TestGopodSpeakSentencesWritesEachSentence(t *testing.T) {
 	}
 }
 
-// A scripted song line arrives split by the song engine (segment marker); the
-// robot says exactly those pieces, through the say_text path's own cleanup.
+// A scripted song line arrives split by the song engine (segment marker); the robot says exactly
+// those pieces, through the say_text path's own cleanup.
 func TestScriptedPiecesAreSaidAsSent(t *testing.T) {
 	m := gopodBrobotsSettings.ScriptedSplit.SegmentMarker
 	acts := GetActionsFromString("{{playAnimationWI||thinking}}" + gopodAnimationLeadIn + " Bingo Test Begins." + m + "Round 1!" + m + "Ah... I like to party. Lol!")
@@ -60,10 +60,7 @@ func TestScriptedPiecesAreSaidAsSent(t *testing.T) {
 	}
 }
 
-// The split (operator 2026-10-06: "aim for a hard split between sentences,
-// even if punctuation is missing ... within each sentence, split by comma ... a
-// sentence can be one word ... forget minimum word rules"): sentences first,
-// then every comma inside each one; no length rules.
+// The split: sentences first, then every comma inside each one; no length rules.
 func TestGopodSentencesSimpleSplit(t *testing.T) {
 	for in, want := range map[string][]string{
 		"... Dude, pizza! No, really, NO. bro I'm all about flavor, and pizza is the KING! What's not to love?": {
@@ -77,21 +74,18 @@ func TestGopodSentencesSimpleSplit(t *testing.T) {
 			t.Errorf("%q -> %q, want %q", in, got, want)
 		}
 	}
-	// A comma piece keeps its comma (said as a pause); a hanging dash is a stop.
 	if end := gopodEndWithPunctuation("Okay,"); end != "Okay," {
 		t.Fatalf("comma piece said as %q", end)
 	}
 	if end := gopodEndWithPunctuation("with the right tools-"); end != "with the right tools." {
 		t.Fatalf("dash end = %q", end)
 	}
-	// A missing stop before a capital is put in during clean-up.
 	if fixed := gopodPrepareReply("spread good vibes   This ain't it."); fixed != "spread good vibes. This ain't it." {
 		t.Fatalf("missing stop = %q", fixed)
 	}
 }
 
-// An asterisk between two words leaves a space when speech drops it
-// ("fun!*Giggles merrily*" was said "fun!Giggles", live 2026-10-04 20:41).
+// An asterisk between two words leaves a space when speech drops it.
 func TestRemoveSpecialCharactersAsteriskKeepsWordGap(t *testing.T) {
 	got := removeSpecialCharacters("Who needs a deep explanation, just a little fun!*Giggles merrily*")
 	if !strings.Contains(got, "fun! Giggles merrily") {
@@ -102,8 +96,7 @@ func TestRemoveSpecialCharactersAsteriskKeepsWordGap(t *testing.T) {
 	}
 }
 
-// An emoji used as a sentence ending splits there (the page's splitSentences
-// does the same).
+// An emoji used as a sentence ending splits there (the page's splitSentences does the same).
 func TestGopodSentencesSplitAtEmojiEnding(t *testing.T) {
 	said := removeSpecialCharacters("We keep the party going in each and every sentence we say 😉 You know the vibe is real, bro, all night long!")
 	got := gopodSentences(said)
@@ -112,8 +105,7 @@ func TestGopodSentencesSplitAtEmojiEnding(t *testing.T) {
 	}
 }
 
-// 2026-10-08: joined runs break at a sentence's end when the sentence fits
-// (live 20:24: "Squawka-doodle. Doc," / "or Doc-B-S if you're in a hurry.").
+// joined runs break at a sentence's end when the sentence fits (live 20:24: "Squawka-doodle.
 func TestJoinedPiecesBreakAtSentenceEnds(t *testing.T) {
 	saved := gopodBrobotsSettings.LiveSplit.JoinUpToWords
 	defer func() { gopodBrobotsSettings.LiveSplit.JoinUpToWords = saved }()
@@ -133,8 +125,8 @@ func TestJoinedPiecesBreakAtSentenceEnds(t *testing.T) {
 	}
 }
 
-// 2026-10-08: the record-cut draft loads with reporter lines among question 7's
-// answers (a reporter's label as "brobot").
+// the record-cut draft loads with reporter lines among question 7's answers (a reporter's label as
+// "brobot").
 func TestDraftLoadsWithReporterLines(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	path := filepath.Join(home, "gopod_tts/sessions/harvest/2026-10-08/1300_record_cut_best_takes/draft_performance.json")
@@ -146,7 +138,6 @@ func TestDraftLoadsWithReporterLines(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// 2026-10-09: the script beside it is what plays, when it's there.
 	if _, err := os.Stat(filepath.Join(filepath.Dir(path), gopodDraftScriptName)); err == nil && filepath.Base(got) != gopodDraftScriptName {
 		t.Errorf("played %s, not the script beside it", got)
 	}
@@ -155,8 +146,7 @@ func TestDraftLoadsWithReporterLines(t *testing.T) {
 	}
 }
 
-// A reply's "(Cue word: thinking)" note is dropped before the split (operator
-// 2026-10-11: "messes up highlighting splits").
+// A reply's "(Cue word: thinking)" note is dropped before the split.
 func TestCueWordNotesDropped(t *testing.T) {
 	got := gopodStripCueWordNotes("It's overcast. (Cue word: thinking) Like, who cares? (cue words: love)")
 	if got != "It's overcast.  Like, who cares?" && strings.Contains(strings.ToLower(got), "cue word") {
@@ -174,9 +164,7 @@ func TestCueListKeepsLastCue(t *testing.T) {
 	}
 }
 
-// GOLDEN (2026-10-10, a combo step, operator: "Should be combined!!"): one
-// bubble, its parts said apart. A later part ("... Lol!") lights its own piece
-// of the bubble (piece_offset), and the highlight is released after it.
+// GOLDEN: one bubble, its parts said apart.
 func TestComboPartLightsItsPieceThenReleases(t *testing.T) {
 	saved := gopodSpeakingNowPath
 	defer func() { gopodSpeakingNowPath = saved }()
@@ -197,8 +185,8 @@ func TestComboPartLightsItsPieceThenReleases(t *testing.T) {
 	}
 }
 
-// 2026-10-14 (live: "‍ I'll tell you" was said "yirl"): a joined emoji
-// leaves no joiner or style mark behind in what the robot says.
+// "‍ I'll tell you" was said "yirl"): a joined emoji leaves no joiner or style mark behind in
+// what the robot says.
 func TestEmojiJoinersNotSpoken(t *testing.T) {
 	got := removeSpecialCharacters("We're just gonna give it up on that front, bro. 🙅‍♂️ I'll tell you the place.")
 	if strings.ContainsAny(got, "‍️︎") {

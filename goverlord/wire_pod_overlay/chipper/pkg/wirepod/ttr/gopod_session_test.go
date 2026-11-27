@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// GOLDEN (gopod_session.go): one run at a time, every run checks in and out, a
-// run owns the Brobots, and during a run only run words get through.
+// GOLDEN (gopod_session.go): one run at a time, every run checks in and out, a run owns the
+// Brobots, and during a run only run words get through.
 func TestSessionOneRunAtATime(t *testing.T) {
 	s := gopodBrobotsSettings.Session
 	if s.BusyText == "" || s.RunGateText == "" || s.StoppedText == "" {
@@ -31,8 +31,6 @@ func TestSessionOneRunAtATime(t *testing.T) {
 	if ok, busy := GopodRunStart("interview", "draft", 0); ok || busy != "baby brobots" {
 		t.Fatalf("a second run started (ok=%v busy=%q)", ok, busy)
 	}
-	// Rule D: a live question is dropped; the thanks is let through by the door
-	// itself (gopodOperatorLine checks gopodIsThanks first).
 	if !gopodRunGateDrop(gopodBrobot1ESN, "Typed text", "party") {
 		t.Error("a live question during a run reached the Brobots")
 	}
@@ -51,7 +49,6 @@ func TestSessionClearsAGoneRun(t *testing.T) {
 	if gopodRunActive() {
 		t.Error("a run with no process is still counted")
 	}
-	// Nothing starts before LLM Ready.
 	gopodWarmGateClosed.Store(true)
 	defer gopodWarmGateClosed.Store(false)
 	if ok, why := GopodRunStart("bingo test", "song", 0); ok || why != "warming" {

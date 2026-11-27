@@ -25,36 +25,12 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// Record Session (operator 2026-10-04, spec gopod_notes/RECORD_SESSION_SPEC_003.md):
-// a box on the chat window's typed-input line.
-//   - Ticked: recording starts at the next safe point (no Brobot reply in
-//     progress) into record_session.sessions_dir/<date>/<time><folder_suffix>/:
-//     mic_48k.wav (the Jetson USB room mic, through the golden PTT writer's own mic
-//     pick and 48 kHz path - the mic service, gopod_mic_service.go), chat.jsonl (every chat
-//     line: the page's feed and every chat question and answer), wirepod.log
-//     (every Wire-Pod log line), and chat.html at stop.
-//   - Unticked: "you stopped it" - no question: zip, keep the zip, delete the
-//     loose files.
-//   - "Thanks Brobots" while recording, or max_minutes: stop, then ask_brobot asks
-//     keep or delete. A typed or spoken line with every keep_words word keeps
-//     (zip), with every delete_words word deletes, no answer within
-//     answer_wait_minutes deletes. The answer shows as "Operator to <answer_to>";
-//     confirm_brobot says kept_text / deleted_text; the box unticks.
-//   - A Wire-Pod restart deletes a folder still waiting for an answer, and zips
-//     one cut off mid-recording (never loses a recording nobody chose to delete).
-// The page reads the box's state from webroot/gopod_record_session.json.
-
 var gopodRecordStatePath = gopodPathWithEnvOverride("GOPOD_RECORD_SESSION_STATE_PATH", "webroot/gopod_record_session.json")
 
 const (
 	gopodRecordMarkerRecording = ".recording"
 	gopodRecordMarkerPending   = ".pending"
 )
-
-// Record Session's waits are timings in the settings file (gopod_timings.go):
-// record_mic_start_seconds, record_mic_stop_seconds (a resample at the end, sox,
-// included), record_reply_stale_seconds, record_typed_same_window_seconds (a
-// typed question's answer comes this long after it at most).
 
 var gopodRecord = struct {
 	sync.Mutex
@@ -77,11 +53,9 @@ var gopodRecord = struct {
 	keptTakes   []gopodHarvestTake // the stopped session's, until kept or deleted
 }{}
 
-// gopodRecordWaitDecided waits until an open keep-or-delete question has been
-// answered and the answer said (or decided with no answer), so what comes after
-// it in the ending - "Draft run completed." and "You're welcome." - never talks
-// over it (operator 2026-10-06: "So that's us. Mic's down. started without
-// letting me answer").
+// gopodRecordWaitDecided waits until an open keep-or-delete question has been answered and the
+// answer said (or decided with no answer), so what comes after it in the ending - "Draft run
+// completed." and "You're welcome." - never talks over it.
 func gopodRecordWaitDecided() {
 	gopodRecord.Lock()
 	decided := gopodRecord.decided
@@ -94,7 +68,6 @@ func gopodRecordWaitDecided() {
 // GopodRecordSessionStart: once at Wire-Pod start (sdkapp BeginServer).
 func GopodRecordSessionStart() {
 	gopodRecordCleanupLeftovers()
-	// The session's own account, always on (gopod_session_log.go).
 	GopodSessionLogStart()
 	gopodWriteRecordState()
 	go gopodRecordLogTee()
@@ -102,8 +75,6 @@ func GopodRecordSessionStart() {
 
 // GopodRecordSessionSet is the box: on or off (sdkapp /api-sdk/gopod_record_session).
 func GopodRecordSessionSet(on bool) {
-	// 2026-10-12 (operator: "sessions cannot be recorded again"): never during a
-	// session replay (gopod_session_replay.go).
 	if on && gopodReplayPlaying.Load() {
 		logger.Println("GOPOD_RECORD_SESSION not started: a session replay is playing")
 		gopodWriteRecordState()
@@ -123,7 +94,6 @@ func GopodRecordSessionSet(on bool) {
 		gopodWriteRecordState()
 		return
 	case !on && gopodRecord.waiting:
-		// Unticked while the question is open: the operator chose - keep.
 		gopodRecord.Unlock()
 		gopodRecordDecide(true, "unticked")
 		return
@@ -145,8 +115,6 @@ func GopodRecordSessionSet(on bool) {
 func GopodRecordSessionThanks() {
 	gopodRecordEndAndAsk("thanks")
 }
-
-// --- safe point: no Brobot chat reply in progress ---
 
 var gopodReplying = struct {
 	sync.Mutex
@@ -219,15 +187,11 @@ func gopodRecordStartAtSafePoint() {
 	gopodWriteRecordState()
 }
 
-// --- recording ---
-
 func gopodRecordBegin() error {
 	root, uid, gid := gopodRecordRoot()
 	now := time.Now()
 	day := filepath.Join(root, now.Format("2006-01-02"))
 	dir := filepath.Join(day, now.Format("150405")+gopodBrobotsSettings.RecordSession.FolderSuffix)
-	// 2026-10-11 (operator: "write ALL session files ... within that session's
-	// folder"): inside the open session's folder.
 	if session := gopodSessionLogDir(); session != "" {
 		day = session
 		dir = filepath.Join(session, now.Format("150405")+gopodBrobotsSettings.RecordSession.FolderSuffix)
@@ -264,10 +228,8 @@ func gopodRecordBegin() error {
 	return nil
 }
 
-// gopodRecordStartMic starts the room-mic master through the mic service
-// (gopod_mic_service.go), the one process that owns the USB mic - so numpad
-// push-to-talk works during a recording. No USB mic: the session goes on with
-// chat and logs only.
+// gopodRecordStartMic starts the room-mic master through the mic service (gopod_mic_service.go),
+// the one process that owns the USB mic - so numpad push-to-talk works during a recording.
 func gopodRecordStartMic(dir string) bool {
 	r, err := gopodMicCall(map[string]any{"cmd": "record_start", "out": filepath.Join(dir, "mic_48k.wav")}, gopodTiming("record_mic_start_seconds"))
 	if err == nil {
@@ -336,9 +298,6 @@ func gopodRecordEndAndAsk(reason string) {
 	gopodRecord.Unlock()
 	gopodWriteRecordState()
 	s := gopodBrobotsSettings.RecordSession
-	// 2026-10-30 (operator: "Butler should be asking me this"): ask_brobot the
-	// system speaker - the Butler asks, the one voiced-line template, as he says
-	// kept or deleted.
 	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" && s.AskBrobot == role {
 		gopodReporterSay(role, s.AskText, true, true)
 		return
@@ -380,27 +339,22 @@ func gopodRecordDecide(keep bool, reason string) {
 	if keep {
 		confirm = s.KeptText
 	}
-	// 2026-10-11 (operator: "Goverlord: GOPOD Brain * Session recording
-	// deleted/kept. You're welcome."): in the thanks ending, the answer is said
-	// by Goverlord with the closing "You're welcome."; otherwise by Goverlord alone.
 	if gopodRecordInEnding.Load() {
 		gopodRecordConfirm.Store(confirm)
 		return
 	}
 	if role := gopodBrobotsSettings.SignOff.SystemRole; role != "" {
-		// 2026-10-23: the one voiced-line template (show and say: Generating, then lit).
 		gopodReporterSay(role, confirm, true, true)
 	}
 }
 
-// gopodRecordInEnding: the thanks ending is waiting on the keep-or-delete
-// answer; gopodRecordConfirm: that answer's line, for "You're welcome.".
+// gopodRecordInEnding: the thanks ending is waiting on the keep-or-delete answer;
+// gopodRecordConfirm: that answer's line, for "You're welcome.".
 var gopodRecordInEnding atomic.Bool
 var gopodRecordConfirm atomic.Value
 
-// gopodRecordKeep zips the folder next to itself and deletes the loose files,
-// and adds the session's answers to the take sheet as takes (operator
-// 2026-10-06: "keep this session take?", gopod_take_sheet.go).
+// gopodRecordKeep zips the folder next to itself and deletes the loose files, and adds the
+// session's answers to the take sheet as takes.
 func gopodRecordKeep(dir string) {
 	gopodRecord.Lock()
 	takes := gopodRecord.keptTakes
@@ -468,10 +422,8 @@ func gopodRecordZip(dir string) (string, error) {
 	return zipPath, os.Rename(tmp, zipPath)
 }
 
-// --- the answer ---
-
-// gopodRecordAnswerKind: a line with every keep_words word is "keep", with every
-// delete_words word "delete" (whole words, any order); both or neither: "".
+// gopodRecordAnswerKind: a line with every keep_words word is "keep", with every delete_words word
+// "delete" (whole words, any order); both or neither: "".
 func gopodRecordAnswerKind(text string) string {
 	have := map[string]bool{}
 	for _, w := range gopodAddressWords(text) {
@@ -495,14 +447,8 @@ func gopodRecordAnswerKind(text string) string {
 	return ""
 }
 
-// GopodRecordSessionAnswer handles a typed or heard line that answers the
-// keep-or-delete question; true means the line is taken (no chat reply). Both
-// Brobots hear a spoken answer: the second hearing, within
-// addressing.first_heard_seconds, is taken quietly.
-// how: the line's input ("Typed text", "Numpad text", a heard line) - a typed
-// answer is shown and read out like every Operator line (2026-10-24, operator:
-// "Operator to Goverlord * Keep the session recording * highlighting?"); a
-// heard one is already shown (gopodHeardLine).
+// GopodRecordSessionAnswer handles a typed or heard line that answers the keep-or-delete question;
+// true means the line is taken (no chat reply).
 func GopodRecordSessionAnswer(text, how string) bool {
 	kind := gopodRecordAnswerKind(text)
 	if kind == "" {
@@ -529,8 +475,6 @@ func GopodRecordSessionAnswer(text, how string) bool {
 	}()
 	return true
 }
-
-// --- what a session records ---
 
 type gopodRecordLine struct {
 	TimeMS int64  `json:"time_ms"`
@@ -564,8 +508,7 @@ func gopodRecordWriteLocked(line gopodRecordLine) {
 	gopodRecord.chat.Write(append(data, '\n'))
 }
 
-// gopodRecordFeedLine: a line shown on the page's feed (songs, tools, typed
-// lines, system lines).
+// gopodRecordFeedLine: a line shown on the page's feed (songs, tools, typed lines, system lines).
 func gopodRecordFeedLine(e gopodChatFeedEvent) {
 	if e.Who == "Operator" {
 		gopodRecord.Lock()
@@ -579,8 +522,6 @@ func gopodRecordFeedLine(e gopodChatFeedEvent) {
 // gopodRecordExchange: a chat question and its answer (voice or typed).
 func gopodRecordExchange(esn, question string, result gopodStreamResult) {
 	name := gopodBrobotName(esn)
-	// A typed question is already recorded, at the time it was typed (the feed
-	// line); a spoken one is recorded here.
 	gopodRecord.Lock()
 	typed := time.Since(gopodRecord.typedAt) < gopodTiming("record_typed_same_window_seconds") && gopodSameQuestion(gopodRecord.typedWords, gopodAddressWords(question))
 	input := "mic"
@@ -598,7 +539,6 @@ func gopodRecordExchange(esn, question string, result gopodStreamResult) {
 	}
 	gopodRecordWrite(gopodRecordLine{Source: "chat", Who: name, Text: result.Raw, Spoken: result.FilteredPacket})
 	gopodSessionLogAnswer(esn, question, result)
-	// The answer as a take, for the take sheet if the session is kept.
 	if active && name != "Brobot" && !gopodIsThanks(question) {
 		take := gopodLiveTake(esn, question, input, result)
 		gopodRecord.Lock()
@@ -609,8 +549,8 @@ func gopodRecordExchange(esn, question string, result gopodStreamResult) {
 	}
 }
 
-// gopodRecordOperatorInput notes how the next operator line came in (typed or
-// numpad), for its take.
+// gopodRecordOperatorInput notes how the next operator line came in (typed or numpad), for its
+// take.
 func gopodRecordOperatorInput(how string) {
 	kind := "typed"
 	if strings.Contains(strings.ToLower(how), "numpad") {
@@ -622,9 +562,6 @@ func gopodRecordOperatorInput(how string) {
 }
 
 // gopodRecordLogTee writes every Wire-Pod log line to the session's wirepod.log.
-// logger.Println offers each line on LogTrayChan without waiting; nothing else
-// reads it, and the relay below takes each line at once so none is dropped
-// while a line is written.
 func gopodRecordLogTee() {
 	ch := logger.GetLogTrayChan()
 	if ch == nil {
@@ -655,8 +592,6 @@ func gopodRecordWriteHTML(dir string) {
 		return
 	}
 	var b strings.Builder
-	// 2026-10-25 (operator: "move all css, js, etc... into files"): its look is
-	// webroot/css/gopod_session_page.css, put inside the page so it stands alone.
 	css, err := os.ReadFile(filepath.Join(gopodChipperRoot(), "webroot", "css", "gopod_session_page.css"))
 	if err != nil {
 		logger.Println("GOPOD_RECORD the session page's css is missing: " + err.Error())
@@ -694,8 +629,6 @@ func gopodRecordWriteHTML(dir string) {
 	}
 }
 
-// --- the system lines (Brobot 1 asks, Brobot 2 confirms) ---
-
 func gopodBrobotESN(name string) string {
 	switch strings.TrimSpace(name) {
 	case "Brobot 1":
@@ -707,9 +640,6 @@ func gopodBrobotESN(name string) string {
 }
 
 // gopodRecordSay shows the line on the page and has the Brobot say it.
-// gopodBodySay (2026-11-15, live: Brobot 1's own battery line headed "DOC:"):
-// a line the robot body says about itself (his battery, a freeze) - his own
-// bubble, always as the Brobot, whatever persona he hosts.
 func gopodBodySay(brobot, text string) { gopodRecordSayBy(brobot, text, brobot) }
 
 func gopodRecordSay(brobot, text string) {
@@ -718,17 +648,7 @@ func gopodRecordSay(brobot, text string) {
 
 func gopodRecordSayBy(brobot, text, by string) {
 	esn := gopodBrobotESN(brobot)
-	// 2026-10-24 (operator: "This is where Pip asks for an email, right? / Bro! *
-	// not highlighted"): his bubble the way an answer's goes (GopodChatFeedAddLive),
-	// and he speaks once it's on the page (gopodWaitReplyShown), so it lights as
-	// he says it - "Bro!" was said before its bubble showed.
-	// 2026-10-30 (operator: "a repeating highlight glitch in, Brobot 1: Session
-	// over. Keep the session recording, or [delete the session recording]?"): the
-	// bubble is cut once, its pieces joined with the segment marker, as a song's
-	// line is - the page lights each piece by its number and never re-splits.
 	if marker := gopodBrobotsSettings.ScriptedSplit.SegmentMarker; marker != "" && !strings.Contains(text, marker) {
-		// 2026-11-02 (live: "Whoa,⁣bro...⁣I'm feeling dizzy."): the pieces keep
-		// the space between them, the marker after it - as a live answer's bubble.
 		text = strings.Join(gopodSentences(text), " "+marker)
 	}
 	gopodChatFeedAddLiveBy(esn, text, by)
@@ -752,14 +672,8 @@ func gopodRecordSayBy(brobot, text, by string) {
 	select {
 	case <-granted:
 		gopodWaitReplyShown(esn)
-		// 2026-10-17 (operator, on the photo's "I see urns on the shelf ...":
-		// "text still solid white, check for loose chaining"): said a sentence
-		// at a time with the highlight's start and end, like a reply, so its
-		// bubble is lit while said and shows as said after.
 		GopodSpeakSentences(esn, text, -1, func(sentence string) {
 			gopodLogSayText(robot, ctx, &vectorpb.SayTextRequest{
-				// 2026-10-08: cleaned like a reply - emojis and symbols aren't
-				// spoken (live 14:52: "Peace out ... 😎🎉🎤💥🔥" took 12.6 s).
 				Text:           gopodApplyPronunciations(removeSpecialCharacters(sentence)),
 				UseVectorVoice: true,
 				DurationScalar: 1,
@@ -772,20 +686,16 @@ func gopodRecordSayBy(brobot, text, by string) {
 	case release <- true:
 	case <-time.After(2 * time.Second):
 	}
-	// 2026-10-09: the battery after his line too (gopod_robot_cmd_log.go).
 	gopodLogBattery(robot)
 }
-
-// --- state, folders, ownership ---
 
 func gopodWriteRecordState() {
 	gopodRecord.Lock()
 	state := struct {
-		On        bool  `json:"on"`
-		Recording bool  `json:"recording"`
-		Waiting   bool  `json:"waiting"`
-		StartedMS int64 `json:"started_ms,omitempty"`
-		// The session's start (gopod_session_log.go): the page's timer counts from it.
+		On        bool   `json:"on"`
+		Recording bool   `json:"recording"`
+		Waiting   bool   `json:"waiting"`
+		StartedMS int64  `json:"started_ms,omitempty"`
 		SessionMS int64  `json:"session_started_ms,omitempty"`
 		Folder    string `json:"folder,omitempty"`
 	}{
@@ -813,9 +723,8 @@ func gopodWriteRecordState() {
 	}
 }
 
-// gopodRecordRoot: sessions_dir, with "~" as the home of the user who owns
-// GOPOD's overlay folder (Wire-Pod runs as root), and that user's ids for the
-// files written there.
+// gopodRecordRoot: sessions_dir, with "~" as the home of the user who owns GOPOD's overlay folder
+// (Wire-Pod runs as root), and that user's ids for the files written there.
 func gopodRecordRoot() (string, int, int) {
 	dir := strings.TrimSpace(os.Getenv("GOPOD_RECORD_SESSION_DIR"))
 	uid, gid := -1, -1
@@ -846,12 +755,11 @@ func gopodRecordChown(uid, gid int, paths ...string) {
 	}
 }
 
-// gopodRecordCleanupLeftovers runs at Wire-Pod start: a folder still waiting for
-// an answer is deleted (the default); one cut off mid-recording is zipped.
+// gopodRecordCleanupLeftovers runs at Wire-Pod start: a folder still waiting for an answer is
+// deleted (the default); one cut off mid-recording is zipped.
 func gopodRecordCleanupLeftovers() {
 	root, _, _ := gopodRecordRoot()
 	dirs, _ := filepath.Glob(filepath.Join(root, "*", "*"+gopodBrobotsSettings.RecordSession.FolderSuffix))
-	// A recording inside a session's folder (2026-10-11).
 	nested, _ := filepath.Glob(filepath.Join(root, "*", "*", "*"+gopodBrobotsSettings.RecordSession.FolderSuffix))
 	for _, dir := range append(dirs, nested...) {
 		if _, err := os.Stat(filepath.Join(dir, gopodRecordMarkerPending)); err == nil {

@@ -1,40 +1,15 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_brain_chain.go
 package wirepod_ttr
 
-// The brain chain (2026-10-31, operator: "go for the brain chain * brain chain
-// should be apparent everywhere * KP test runs, should be all about mechanical
-// diagnostics that feed the llm the cleanest sufficient data set for short-term
-// memory & orientation, while maintaining long term memory & orientation"; "flow
-// guide for short & long term, self & chat memory handling, within the live chat
-// session"; "Like a chat flow guide/helper line or 2"; "Big Brains = code so llm
-// doesn't think & is more free to add persona styles").
-//
-// Every answer in the live chat adds one record, made by code - never by the
-// language model, so nothing an answer coloured is carried on: who asked, who
-// answered, the line asked, its kind (intro, answer). From the chain:
-//
-//	short-term   the records of the last brain_chain.recent_minutes, newest last
-//	long-term    the session so far - the game's score, who has spoken, who's
-//	             introduced themselves
-//	flow         one or two helper lines for what comes next
-//
-// One brain template (brain_chain.lines, the operator's 2026-10-31 scaffolding:
-// Self, Asked by, In the chat, Session, Guided Task Flow): every brain bubble
-// shows its lines, and every participant's prompt gets the same lines (after
-// brain_chain.header - the facts are true, the style is theirs), then the recent
-// chat and the long-term line; the session
-// keeps them (brain_chain.jsonl in its folder); the thanks ending starts a new
-// chain. GOPOD_BRAIN lines in the journal; system-brain shows the chain.
-
 import (
-	"regexp"
-	"sync/atomic"
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
@@ -47,7 +22,7 @@ type gopodBrainRecord struct {
 	To       string `json:"to"`
 	Question string `json:"question"`
 	Kind     string `json:"kind"`
-	Answer   string `json:"answer,omitempty"` // 2026-11-13: the after-answer note
+	Answer   string `json:"answer,omitempty"` // the after-answer note
 	Turn     int64  `json:"turn,omitempty"`   // the chat queue's turn it was said in
 }
 
@@ -57,9 +32,6 @@ var gopodBrainChain = struct {
 }{}
 
 // gopodBrainAdd: one answer's record - who answered (his call name), the line, its kind.
-// gopodBrainAdd: a record; answer is what was said back (its note), "" for none.
-// gopodUnknownAsks: this session's answers to a line no card matched (an
-// "I don't know") - the faster the reminders gravitate to what GOPOD is.
 var gopodUnknownAsks atomic.Int32
 
 func gopodBrainAdd(to, question, kind string, answer ...string) {
@@ -89,15 +61,8 @@ func gopodBrainAdd(to, question, kind string, answer ...string) {
 	}
 }
 
-// The after-answer notes (2026-11-13, operator: "summarize afterwards, as a
-// contribution to the chat, for everyone to reference * if I ask the same
-// question, its already noted"; "the group/swarm/Goverlord-assisted awareness
-// within the chat"): each answer's first words, kept with its question - every
-// Brobot's and persona's recent chat shows them, and a question asked before
-// shows its note in the brain.
-
-// gopodBrainFact: the value point given to self for this answer, as its topic
-// card writes it (one plain line); "" for none (a persona, or no point).
+// gopodBrainFact: the value point given to self for this answer, as its topic card writes it (one
+// plain line); "" for none (a persona, or no point).
 func gopodBrainFact(self string) string {
 	esn := gopodBrobotESN(self)
 	if esn == "" {
@@ -142,7 +107,6 @@ func gopodBrainMemory(question string) string {
 
 // gopodBrainNote: an answer as its note - one line, at most answer_chars.
 func gopodBrainNote(answer string) string {
-	// As the bubble shows it - no "confused___" cue (live 2026-11-13).
 	a := strings.Join(strings.Fields(strings.ReplaceAll(gopodDisplayReply(answer), "\u2063", "")), " ")
 	if n := gopodBrobotsSettings.BrainChain.AnswerChars; n > 0 && len(a) > n {
 		a = gopodCut(a, n)
@@ -158,15 +122,14 @@ func gopodBrainAnswerPart(r gopodBrainRecord) string {
 	return strings.NewReplacer("{to}", r.To, "{answer}", r.Answer).Replace(gopodBrobotsSettings.BrainChain.AnswerPart)
 }
 
-// gopodBrainAskedBefore: the newest noted record whose question is this one -
-// most of the shorter one's words (gopodPickWords), two words or more.
+// gopodBrainAskedBefore: the newest noted record whose question is this one - most of the shorter
+// one's words (gopodPickWords), two words or more.
 func gopodBrainAskedBefore(question string) (gopodBrainRecord, bool) {
 	q := gopodPickWords(question)
 	if len(q) == 0 {
 		return gopodBrainRecord{}, false
 	}
 	bc := gopodBrobotsSettings.BrainChain
-	// The recent minutes first, then deeper.
 	for _, minutes := range []float64{bc.RecentMinutes, bc.DeepMinutes} {
 		if r, ok := gopodBrainAskedIn(q, gopodBrainWithin(gopodBrainSnapshot(), minutes)); ok {
 			return r, true
@@ -179,9 +142,6 @@ func gopodBrainAskedBefore(question string) (gopodBrainRecord, bool) {
 func gopodBrainAskedIn(q map[string]bool, recs []gopodBrainRecord) (gopodBrainRecord, bool) {
 	for i := len(recs) - 1; i >= 0; i-- {
 		r := recs[i]
-		// 2026-11-13 (live: Pip repeated Doc's answer word for word - Doc's line,
-		// same turn, was shown him as "asked before"): this turn's own answers
-		// aren't "before"; his brother's reaches him through the follow-up.
 		if r.Answer == "" || (r.Turn != 0 && r.Turn == gopodTurnNow.Load()) {
 			continue
 		}
@@ -217,8 +177,7 @@ func gopodBrainWithin(recs []gopodBrainRecord, minutes float64) []gopodBrainReco
 	return out
 }
 
-// gopodBrainReset: a new chain (the thanks ending, the comm check's end). The runs
-// the Brobots performed are kept until the session ends (keepPerformed).
+// gopodBrainReset: a new chain (the thanks ending, the comm check's end).
 func gopodBrainReset(keepPerformed ...bool) {
 	gopodBrainChain.Lock()
 	var kept []gopodBrainRecord
@@ -232,15 +191,15 @@ func gopodBrainReset(keepPerformed ...bool) {
 	}
 	gopodBrainChain.recs = kept
 	gopodBrainChain.Unlock()
-	gopodJobRouteReset() // 2026-11-23: a new session, no strikes
+	gopodJobRouteReset() // a new session, no strikes
 	gopodUnknownAsks.Store(0)
 }
 
 // gopodBrainPerformedKind: a run the Brobots performed (a song, the interview).
 const gopodBrainPerformedKind = "performed"
 
-// gopodBrainPerformed: a run's record - who performed it (brain_chain.performers)
-// and its name; stopped runs say so.
+// gopodBrainPerformed: a run's record - who performed it (brain_chain.performers) and its name;
+// stopped runs say so.
 func gopodBrainPerformed(run, reason string) {
 	what := run
 	if reason == "stopped" {
@@ -288,19 +247,11 @@ func gopodBrainFacts(self, question string) map[string]string {
 		}
 		return strings.Join(l, ", ")
 	}
-	// The flow: what comes next, from what the chain shows - an intro's task, then
-	// the first to speak, or the recent chat (flow.recent; 2026-10-31, operator:
-	// "Guided Task Flow: Does the recent chat help me answer the question asked").
-	// 2026-11-02 (operator's brain bubble: "Guided Task Flow: a) Introduce
-	// yourself. b) Name who's in the chat right now. c) If you're the first to
-	// speak this session, open it up."; live: Doc's intro to All went to the
-	// weather, steered by "Does the recent chat help..."): an intro's flow is the
-	// intro task alone.
+	// The flow: what comes next, from what the chain shows - an intro's task, then the first to speak,
+	// or the recent chat.
 	var flow []string
 	switch {
 	case gopodIsIntro(question):
-		// 2026-11-03 (operator's group chat intro: "c) Keys will be the first to
-		// speak, to open up the session"; Keys's own: "You're first - open it").
 		if o := strings.TrimSpace(bc.IntroOpener); o != "" && strings.EqualFold(gopodCallName(self), o) && bc.Flow["intro_first"] != "" {
 			flow = append(flow, bc.Flow["intro_first"])
 		} else {
@@ -311,9 +262,6 @@ func gopodBrainFacts(self, question string) map[string]string {
 	default:
 		flow = append(flow, strings.ReplaceAll(bc.Flow["recent"], "{asked}", bc.Asked))
 	}
-	// Self (2026-10-31, operator: "I am Pip (Brobot 2), a party-bro GOPOD sales rep.
-	// I'm clueless & happy. Brobot 1 & I are robot brothers."): his call name, his
-	// name when it's another, then his profile's "In short" (else his job title).
 	self0 := gopodCallName(self)
 	if name := strings.TrimSuffix(gopodPersonaProfileField(self, "My name"), "."); name != "" && !strings.EqualFold(name, self0) {
 		self0 += " (" + name + ")"
@@ -321,9 +269,8 @@ func gopodBrainFacts(self, question string) map[string]string {
 	if short := gopodBrainDescription(self, true); short != "" {
 		self0 += ", " + short
 	}
-	// In the chat (operator: "In the chat: Doc [description from md] (me), Pip
-	// [description from md], ..."): everyone here but the operator, in cast order,
-	// each with his profile's job title (brain_chain.cast_item); he is "(me)".
+	// In the chat: everyone here but the operator, in cast order, each with his profile's job title
+	// (brain_chain.cast_item); he is "(me)".
 	var described []string
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
 		if c.Who == bc.OperatorWho {
@@ -340,7 +287,6 @@ func gopodBrainFacts(self, question string) map[string]string {
 	if g := gopodCastGrouped(self); g != "" {
 		castLine = g
 	}
-	// Reminders: the topics his reminder names this answer (gopodBrainReminders).
 	reminders := ""
 	if v, ok := gopodBrainReminders.Load(self); ok {
 		if names := v.([]string); len(names) > 0 {
@@ -353,40 +299,23 @@ func gopodBrainFacts(self, question string) map[string]string {
 		"{spoken_count}": strconv.Itoa(len(spoken)), "{introduced_count}": strconv.Itoa(len(intro)),
 		"{flow}": strings.Join(flow, " "), "{asked}": bc.Asked, "{performed}": join(performed),
 		"{relationships}": gopodBrainRelationships(self),
-		// 2026-11-08 (operator's brain bubble: "Name:Brobot 2, Nickname:BRUH *
-		// JOB-TITLE: proud party-bro GOPOD rep * JOB-ROLE: sell GOPOD, CTA:GOPOD
-		// Yourself * TASK: answer all that is asked of me in a few sentences"): his
-		// card's name, nickname and job title, and the task for this line.
-		"{my_name}": gopodBrainCardPart(self, "My name"), "{my_nickname}": gopodBrainCardPart(self, "My informal name (nickname)"),
-		"{my_job_title}": strings.Replace(strings.TrimPrefix(strings.TrimPrefix(gopodBrainCardPart(self, "My job title"), "a "), "the "), "GOPOD's ", "GOPOD ", 1),
-		"{my_task}": gopodBrainTask(self, question),
-		// 2026-11-09 (operator: "there is the company/employee, employee/employee,
-		// employee/intern * separate it all out, remap into an inherently sequential
-		// build or chain of thought"): one relationship per line, from his card.
+		"{my_name}":       gopodBrainCardPart(self, "My name"), "{my_nickname}": gopodBrainCardPart(self, "My informal name (nickname)"),
+		"{my_job_title}":     strings.Replace(strings.TrimPrefix(strings.TrimPrefix(gopodBrainCardPart(self, "My job title"), "a "), "the "), "GOPOD's ", "GOPOD ", 1),
+		"{my_task}":          gopodBrainTask(self, question),
 		"{my_company}":       gopodPersonaCompany(),
 		"{my_answer_to}":     gopodBrainCardSection(self, "Who I answer to", "I answer to "),
 		"{my_works_with}":    gopodBrainCardSection(self, "Who works with me", "I work with "),
 		"{my_answers_to_me}": gopodBrainCardSection(self, "Who answers to me", ""),
-		"{full_self}":     gopodBrainFullSelf(self),
-		// 2026-11-13 (the frozen root: TIME, TASK, FACT, MEMORY): his one fact line
-		// and the memory of this question asked before - "" leaves the line out.
-		"{fact}":   "",
-		"{memory}": gopodBrainMemory(question),
-		// 2026-11-13 (operator: "Both brobots should know the time and respond accordingly"): the clock.
-		"{time}":     gopodBrainTime(),
-		"{day_part}": gopodDayPart(time.Now().Hour()),
-		// 2026-11-16: what GEMMA saw last, while it's fresh (gopod_gemma_eyes.go).
-		"{room}": gopodGemmaRoomLine(),
-		// 2026-11-23: is it my job? - not, the line saying where to send them (gopod_job_route.go).
-		"{route}": gopodJobRouteNote(self),
-		// 2026-11-24: the session's aura - Goverlord's, the same for every persona (gopod_session_aura.go).
-		"{aura}": "",
-		// 2026-11-25 (operator: "keep the checklist in the background/group thinking *
-		// not needed in brain bubbles"): the voices heard - a line the bubble hides.
-		"{voices}": gopodAuraVoices(),
+		"{full_self}":        gopodBrainFullSelf(self),
+		"{fact}":             "",
+		"{memory}":           gopodBrainMemory(question),
+		"{time}":             gopodBrainTime(),
+		"{day_part}":         gopodDayPart(time.Now().Hour()),
+		"{room}":             gopodGemmaRoomLine(),
+		"{route}":            gopodJobRouteNote(self),
+		"{aura}":             "",
+		"{voices}":           gopodAuraVoices(),
 	}
-	// An intro's brain stays its one FACT line, from his card (2026-11-15); every
-	// answer thinks inside the session's aura.
 	if !gopodIsIntro(question) {
 		m["{aura}"] = gopodSessionAura()
 	} else {
@@ -395,13 +324,9 @@ func gopodBrainFacts(self, question string) map[string]string {
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
 		m["{fact}"] = gopodBrainIntroFact(m)
 	} else if e := gopodExperienceFacts(gopodBrobotESN(self), question); len(e) > 0 {
-		// 2026-11-24: an experience question's FACT is its one played / not-played
-		// line - no look-up chain beside it (gopod_experiences.go).
 		m["{fact}"] = e[0]
 	} else {
 		m["{fact}"] = gopodBrainFact(self)
-		// 2026-11-16: no value point - the look-up's cards (gopod_lookup.go).
-		// 2026-11-18: not when the question already has its own facts (one source).
 		if m["{fact}"] == "" && !gopodHasQuestionFacts(self) {
 			m["{fact}"], _ = gopodLookupFact(self, question)
 		}
@@ -412,14 +337,11 @@ func gopodBrainFacts(self, question string) map[string]string {
 // gopodIntroFactAsk: an intro line, for an intro's facts (gopodBrainFacts).
 const gopodIntroFactAsk = "Introduce yourself"
 
-// gopodBrainIntroFact: an intro's one FACT line - the intro_fact pieces, filled
-// from his card; a piece whose value isn't on it is left out.
+// gopodBrainIntroFact: an intro's one FACT line - the intro_fact pieces, filled from his card; a
+// piece whose value isn't on it is left out.
 func gopodBrainIntroFact(m map[string]string) string {
 	var out []string
 	for _, piece := range gopodBrobotsSettings.BrainChain.IntroFact {
-		// 2026-11-17 (operator: "looked up and added to the chat, so no sense
-		// repeating it"): in the comm check the company is in the crew bubble
-		// once - no intro says it again.
 		if gopodCommCheckRunning.Load() && strings.Contains(piece, "{my_company}") && len(gopodBrobotsSettings.CommCheck.Crew) > 0 {
 			continue
 		}
@@ -447,9 +369,9 @@ func gopodBrainPairs(m map[string]string) []string {
 // gopodBrainReminders: the reminder topics of each Brobot's answer now (his name -> []string).
 var gopodBrainReminders sync.Map
 
-// gopodBrainDescription: who's description - "In short" from his profile when
-// self (and he has one); else his line in the crew roster (gopodCrewRoster),
-// else his profile's job title, its last full stop off.
+// gopodBrainDescription: who's description - "In short" from his profile when self (and he has
+// one); else his line in the crew roster (gopodCrewRoster), else his profile's job title, its last
+// full stop off.
 func gopodBrainDescription(who string, self bool) string {
 	if self {
 		if v := strings.TrimSpace(gopodPersonaProfileField(who, "In short")); v != "" {
@@ -466,10 +388,8 @@ func gopodBrainDescription(who string, self bool) string {
 	return strings.TrimSuffix(strings.TrimSpace(gopodPersonaProfileField(who, "My job title")), ".")
 }
 
-// gopodCrewRoster (2026-10-31, operator: "This can be a full GOPOD crew roster
-// (sub) topic-cluster? * Crew roster please"): the crew roster - one topic-cluster
-// in the master format (brain_chain.roster, its "## Crew" points "Name:
-// description") - call name (small letters) -> description.
+// gopodCrewRoster: the crew roster - one topic-cluster in the master format (brain_chain.roster,
+// its "## Crew" points "Name: description") - call name (small letters) -> description.
 func gopodCrewRoster() map[string]string {
 	out := map[string]string{}
 	for _, g := range gopodRosterGroups() {
@@ -480,8 +400,8 @@ func gopodCrewRoster() map[string]string {
 	return out
 }
 
-// gopodRosterGroup: one of the crew roster's groups - its "## " label, then its
-// points "Name: description", in order.
+// gopodRosterGroup: one of the crew roster's groups - its "## " label, then its points "Name:
+// description", in order.
 type gopodRosterGroup struct {
 	Label string
 	Names []string
@@ -491,9 +411,7 @@ type gopodRosterGroup struct {
 // gopodEmployeesPrefix: a company card section listing employees.
 const gopodEmployeesPrefix = "Our employees - "
 
-// gopodRosterGroups (2026-11-02, operator: "GOPOD party-brobot reps: Brobot 1
-// [grumpy, impatient], Brobot 2 [clueless, happy]. CRUSHN8R CREW'd news station
-// Gomads mentoring interns: ..."): the roster's groups in file order.
+// gopodRosterGroups: the roster's groups in file order.
 func gopodRosterGroups() []gopodRosterGroup {
 	path := gopodTopicPath(gopodBrobotsSettings.BrainChain.Roster) // moved, found by its file name
 	if path == "" {
@@ -511,8 +429,6 @@ func gopodRosterGroups() []gopodRosterGroup {
 			inBody = t == "---"
 			continue
 		}
-		// 2026-11-20 (operator: "company > employee roles > employees"): the
-		// roster is the company card's "## Our employees - <group>" sections.
 		if strings.HasPrefix(t, "## ") {
 			label, isGroup := strings.CutPrefix(strings.TrimSpace(t[3:]), gopodEmployeesPrefix)
 			group = isGroup
@@ -534,9 +450,8 @@ func gopodRosterGroups() []gopodRosterGroup {
 	return out
 }
 
-// gopodCastGrouped: In the chat by the roster's groups - "Group: Name
-// [description], Name [description]. Next group: ..." - everyone here but the
-// operator, self marked (brain_chain.cast_me). "" with one group (the flat line).
+// gopodCastGrouped: In the chat by the roster's groups - "Group: Name [description], Name
+// [description].
 func gopodCastGrouped(self string) string {
 	groups := gopodRosterGroups()
 	if len(groups) < 2 {
@@ -559,8 +474,6 @@ func gopodCastGrouped(self string) string {
 			if !ok {
 				continue
 			}
-			// 2026-11-13 (operator: "separate robot bodies from personas"): "(me)"
-			// is the persona answering, not every persona on his body.
 			me := ""
 			if self != "" && strings.EqualFold(n, gopodCallName(self)) {
 				me = bc.CastMe
@@ -571,7 +484,6 @@ func gopodCastGrouped(self string) string {
 			parts = append(parts, g.Label+": "+strings.Join(items, ", "))
 		}
 	}
-	// The approved visitors talking now (participation ON, box ticked).
 	if names := gopodVisitorsTalking(); len(names) > 0 {
 		label := strings.TrimSpace(bc.VisitorsLabel)
 		if label == "" {
@@ -585,14 +497,11 @@ func gopodCastGrouped(self string) string {
 	return strings.Join(parts, ". ") + "."
 }
 
-// gopodBrainBubbleLines: the brain template's lines as a brain bubble shows them -
-// without the lines starting with brain_chain.bubble_hide (the swarm list is
-// PLAYHEAD's to say; every prompt still gets it, gopodBrainText).
+// gopodBrainBubbleLines: the brain template's lines as a brain bubble shows them - without the
+// lines starting with brain_chain.bubble_hide (the swarm list is PLAYHEAD's to say; every prompt
+// still gets it, gopodBrainText).
 func gopodBrainBubbleLines(self, question string) []string {
 	var out []string
-	// 2026-11-18 (operator: "where are the brains?" - small talk looked nothing
-	// up, its FACT was empty, so no LOOKED UP line came): the bubble always opens
-	// with what was looked up - his own card at least.
 	lines := gopodBrainLines(self, question)
 	hasFact := false
 	for _, l := range lines {
@@ -604,10 +513,6 @@ func gopodBrainBubbleLines(self, question string) []string {
 		}
 	}
 	for _, l := range lines {
-		// 2026-11-16 (operator: "Brain bubbles contain repeated-bloat. No look ups
-		// from where the info is coming from"): the bubble shows where the FACT was
-		// looked up (brain_chain.looked_up), not its words again - the prompt still
-		// gets them (gopodBrainText).
 		if strings.HasPrefix(l, "FACT:") {
 			src := gopodBrainSources(self, question)
 			if src == "" {
@@ -629,11 +534,9 @@ func gopodBrainBubbleLines(self, question string) []string {
 	return out
 }
 
-// gopodBrainSources: the files this answer's FACT was looked up in - an intro's,
-// his card (and the company card for KEYS' company intro); an answer's, the topic
-// card of each value point given ("what-gopod-is.md #1"). "" for none.
-// 2026-11-18 (operator: "GOVERLORD Brain * has no lookups"; "all files looked up
-// are listed"): every brain names its own card first, whatever else it looked up.
+// gopodBrainSources: the files this answer's FACT was looked up in - an intro's, his card (and the
+// company card for KEYS' company intro); an answer's, the topic card of each value point given
+// ("what-gopod-is.md #1").
 func gopodBrainSources(self, question string) string {
 	own := filepath.Base(gopodPersonaProfileFile(self))
 	list := gopodBrainSourcesLooked(self, question)
@@ -654,8 +557,6 @@ func gopodBrainSources(self, question string) string {
 func gopodBrainSourcesLooked(self, question string) string {
 	var out []string
 	if gopodCommCheckRunning.Load() || gopodIsIntro(question) {
-		// 2026-11-18 (operator: "Yes to own card under LOOKED UP * all files
-		// looked up are listed"): his own card is named too.
 		out = append(out, filepath.Base(gopodPersonaProfileFile(self)))
 		if self == gopodBrobotsSettings.SystemBubble.VoicePersona && len(gopodBrobotsSettings.CompanyIntro.Lines) > 0 {
 			if f := gopodTopicTreeFind("math-aftermath-news-channel.md"); f != "" {
@@ -664,7 +565,6 @@ func gopodBrainSourcesLooked(self, question string) string {
 		}
 		return strings.Join(out, ", ")
 	}
-	// 2026-11-16: no value point given - the look-up's cards (gopod_lookup.go).
 	esn := gopodBrobotESN(self)
 	if esn == "" || len(gopodGivenPoints(esn)) == 0 {
 		_, looked := gopodLookupFact(self, question)
@@ -684,8 +584,8 @@ func gopodBrainSourcesLooked(self, question string) string {
 	return strings.Join(out, ", ")
 }
 
-// gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the
-// names they're called, then the talking visitors by their approved names.
+// gopodWhosHere: the chat's people as PLAYHEAD says them - everyone here by the names they're
+// called, then the talking visitors by their approved names.
 func gopodWhosHere() []string {
 	var names []string
 	for _, n := range strings.Split(gopodIntroCast(""), ", ") {
@@ -701,9 +601,8 @@ var gopodWhosHereLast struct {
 	line string
 }
 
-// gopodWhosHereAnnounce (2026-11-02, operator: "PLAYHEAD Gomad generates a dynamic
-// In the chat list as participants join/leave"): whos_here_host says who's here,
-// when it's changed since he last said it; wait: until it's been heard.
+// gopodWhosHereAnnounce: whos_here_host says who's here, when it's changed since he last said it;
+// wait: until it's been heard.
 func gopodWhosHereAnnounce(reason string, wait bool) {
 	bc := gopodBrobotsSettings.BrainChain
 	host, text := strings.TrimSpace(bc.WhosHereHost), strings.TrimSpace(bc.WhosHereText)
@@ -723,7 +622,7 @@ func gopodWhosHereAnnounce(reason string, wait bool) {
 	gopodReporterSayTo(host, "", line, true, wait)
 }
 
-// gopodBrainList: "a, b, c, & d" (operator: "Reminders: [], [], [], & []").
+// gopodBrainList: "a, b, c, & d".
 func gopodBrainList(names []string) string {
 	if len(names) < 2 {
 		return strings.Join(names, "")
@@ -738,8 +637,8 @@ func gopodBrainFill(tmpl string, facts map[string]string) string {
 	return strings.TrimSpace(tmpl)
 }
 
-// gopodDayPart: the part of the day this hour is in - the greetings' parts
-// (gopodPartOfDay), the one source.
+// gopodDayPart: the part of the day this hour is in - the greetings' parts (gopodPartOfDay), the
+// one source.
 func gopodDayPart(hour int) string {
 	now := time.Now()
 	return gopodPartOfDay(time.Date(now.Year(), now.Month(), now.Day(), hour, 0, 0, 0, now.Location()))
@@ -750,24 +649,14 @@ func gopodBrainTime() string {
 	return time.Now().Format(gopodBrobotsSettings.HereNow.ClockFormat)
 }
 
-// gopodBrainLines: the brain template's lines for self (brain_chain.lines) - the
-// one template every brain bubble shows and every prompt gets. A line with
-// nothing after its label isn't kept.
+// gopodBrainLines: the brain template's lines for self (brain_chain.lines) - the one template every
+// brain bubble shows and every prompt gets.
 func gopodBrainLines(self, question string) []string {
 	facts := gopodBrainFacts(self, question)
-	// 2026-11-13 (operator: "why is the comm-check orientation in the thought
-	// bubbles when not in comm-check * that's my fucking point!!"): who he is and
-	// who he works with (intro_lines) only in the comm check or an intro; any
-	// other line's brain is its own thinking (lines).
-	// The topic this line asks about is already in the brain: its value point
-	// (the notice's point lines) - one path, nothing else added here.
-	// 2026-11-15 (operator: "All this can sit in a look up file, rather than as
-	// bloat in the brian bubble"): an intro's brain is the same four lines - its
-	// FACT the one line looked up from his card (gopodBrainIntroFact).
+	// who he is and who he works with (intro_lines) only in the comm check or an intro; any other
+	// line's brain is its own thinking (lines).
 	var out []string
 	for _, l := range gopodBrobotsSettings.BrainChain.Lines {
-		// A line whose value is missing (to come, or not on his card) isn't shown -
-		// its slot empty (2026-11-25), or nothing after its label.
 		if slots := gopodBrainSlotRE.FindAllString(l, -1); len(slots) == 1 && strings.TrimSpace(facts[slots[0]]) == "" {
 			continue
 		}
@@ -781,8 +670,8 @@ func gopodBrainLines(self, question string) []string {
 // gopodBrainSlotRE: a slot in a brain line ("{fact}").
 var gopodBrainSlotRE = regexp.MustCompile(`\{[a-z_]+\}`)
 
-// gopodBrainText: the brain for self's prompt - the header, the brain template's
-// lines (the same as his brain bubble), the recent chat, the long-term line.
+// gopodBrainText: the brain for self's prompt - the header, the brain template's lines (the same as
+// his brain bubble), the recent chat, the long-term line.
 func gopodBrainText(self, question string) string {
 	bc := gopodBrobotsSettings.BrainChain
 	if strings.TrimSpace(bc.Header) == "" {
@@ -817,9 +706,7 @@ func gopodSystemBrain() string {
 	return gopodJoinLines(out)
 }
 
-// gopodBrainFullSelf (2026-11-02, operator's brain bubble: "My full name is
-// KEYNOTE VALE, known at GOPOD as 'Keys' the Butler ..."): his full name and
-// job from his profile, then his profile's "In short".
+// gopodBrainFullSelf: his full name and job from his profile, then his profile's "In short".
 func gopodBrainFullSelf(who string) string {
 	if strings.TrimSpace(who) == "" {
 		return ""
@@ -845,8 +732,6 @@ func gopodBrainFullSelf(who string) string {
 	if head != nil {
 		job = strings.TrimSpace(gopodPersonaFill(who, head["job"]))
 	}
-	// 2026-11-06 (operator: "go with formal first names on company time * let's
-	// keep nicknames for bantering"): the brain says his formal name, not his nickname.
 	out := "My full name is " + name
 	if job != "" {
 		out += ", the " + job
@@ -862,9 +747,8 @@ func gopodBrainFullSelf(who string) string {
 	return out
 }
 
-
-// gopodBrainCardPart: a Self line of his card, up to its first " - " (the label
-// itself, not its story), its full stop off.
+// gopodBrainCardPart: a Self line of his card, up to its first " - " (the label itself, not its
+// story), its full stop off.
 func gopodBrainCardPart(who, label string) string {
 	v := gopodPersonaProfileField(who, label)
 	if at := strings.Index(v, " - "); at > 0 {
@@ -873,14 +757,11 @@ func gopodBrainCardPart(who, label string) string {
 	return strings.TrimSuffix(strings.TrimSpace(v), ".")
 }
 
-// gopodBrainTask: the task for this line - an intro's (brain_chain.flow.task_intro),
-// else answering it (brain_chain.flow.task_answer).
+// gopodBrainTask: the task for this line - an intro's (brain_chain.flow.task_intro), else answering
+// it (brain_chain.flow.task_answer).
 func gopodBrainTask(self, question string) string {
 	bc := gopodBrobotsSettings.BrainChain
 	f := bc.Flow
-	// 2026-11-09 (operator: "KEYNOTE's introduction should establish the chain of
-	// command and the core definition of GOPOD in a single, reusable outline"):
-	// the one who opens the session (brain_chain.intro_opener) says our outline.
 	if gopodIsIntro(question) && f["task_intro_opener"] != "" && strings.EqualFold(gopodCallName(self), strings.TrimSpace(bc.IntroOpener)) {
 		return f["task_intro_opener"]
 	}
@@ -890,10 +771,9 @@ func gopodBrainTask(self, question string) string {
 	return f["task_answer"]
 }
 
-
-// gopodBrainCardSection: his card's section as one line - its points (filled,
-// "(to come)" left out) joined, each without the start the label already says
-// ("I answer to "), its last full stop off; "" when there's none.
+// gopodBrainCardSection: his card's section as one line - its points (filled, "(to come)" left out)
+// joined, each without the start the label already says ("I answer to "), its last full stop off;
+// "" when there's none.
 func gopodBrainCardSection(who, section, start string) string {
 	var out []string
 	for _, p := range gopodPersonaProfileSections(who)[section] {
@@ -909,8 +789,8 @@ func gopodBrainCardSection(who, section, start string) string {
 	return strings.Join(out, "; ")
 }
 
-// gopodPersonaCompany: the company every persona works for - the label of the
-// persona file with "## Our company" (company-schema.md, the template, aside).
+// gopodPersonaCompany: the company every persona works for - the label of the persona file with "##
+// Our company" (company-schema.md, the template, aside).
 func gopodPersonaCompany() string {
 	folder := gopodTopicPath(gopodBrobotsSettings.PersonaProfiles.Folder)
 	name := ""
@@ -927,9 +807,8 @@ func gopodPersonaCompany() string {
 	return name
 }
 
-
-// gopodQuestionHasFacts: this Brobot's question came with its own facts (value
-// points, help) - his brain's look-up stays out (2026-11-18, one fact source).
+// gopodQuestionHasFacts: this Brobot's question came with its own facts (value points, help) - his
+// brain's look-up stays out.
 var gopodQuestionHasFacts sync.Map // esn -> bool
 
 func gopodHasQuestionFacts(self string) bool {

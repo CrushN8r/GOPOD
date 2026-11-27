@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-// TestJSONFileDelete: a key comes out of a group (first, middle, last; one line
-// or many), the rest kept, the file still JSON.
+// TestJSONFileDelete: a key comes out of a group (first, middle, last; one line or many), the rest
+// kept, the file still JSON.
 func TestJSONFileDelete(t *testing.T) {
 	src := "{\n  \"a\": {\n    \"x\": \"1\",\n    \"y\": \"2\",\n    \"z\": \"3\"\n  },\n  \"b\": {\"p\": 1, \"q\": 2, \"r\": 3}\n}\n"
 	for _, c := range [][]string{{"a", "x"}, {"a", "y"}, {"a", "z"}, {"b", "p"}, {"b", "q"}, {"b", "r"}} {
@@ -61,7 +61,6 @@ func TestLingoBrobots(t *testing.T) {
 
 // TestTopicPointsWrite: the say lines and the numbered points stay one list.
 func TestTopicPointsWrite(t *testing.T) {
-	// 2026-10-29: the topic-cluster md format (TOPIC_TEMPLATE.md).
 	src := "# x\n\n- **words:** a, b\n- **say 1:** One.\n- **say 2:** Two.\n\n---\n\nIntro. Reveal these, in order:\n1. One.\n2. Two.\n"
 	lines := strings.Split(src, "\n")
 	out := strings.Join(gopodTopicPointsWrite(lines, 5, []string{"One.", "Two!", "Three."}), "\n")
@@ -75,10 +74,9 @@ func TestTopicPointsWrite(t *testing.T) {
 	}
 }
 
-// TestTopicClusterFormat (2026-10-29, operator: "template out a topic-cluster
-// format for md files"): every topic and chapter file is a topic-cluster md file -
-// its settings lines all read by the one format reader, a blank line around
-// "---" - and the reader takes "# label", "- **key:** value" and a bare "key: value".
+// TestTopicClusterFormat: every topic and chapter file is a topic-cluster md file - its settings
+// lines all read by the one format reader, a blank line around "---" - and the reader takes "#
+// label", "- **key:** value" and a bare "key: value".
 func TestTopicClusterFormat(t *testing.T) {
 	for line, want := range map[string][2]string{"# BBQs": {"label", "BBQs"}, "- **say 2:** Two: yes": {"say 2", "Two: yes"}, "words: a, b": {"words", "a, b"}} {
 		if k, v, ok := gopodTopicHeadKV(line); !ok || k != want[0] || v != want[1] {
@@ -89,7 +87,6 @@ func TestTopicClusterFormat(t *testing.T) {
 		t.Error("the format writer changed")
 	}
 	files, _ := filepath.Glob(filepath.Join(gopodChaptersDir(), "*", "*"))
-	// The template folder too (gopod_probes/topic_clusters/_topic_cluster/).
 	tpl, _ := filepath.Glob(filepath.Join(filepath.Dir(gopodChaptersDir()), "_topic_cluster", "*.md"))
 	for _, f := range tpl {
 		if filepath.Base(f) != "README.md" {

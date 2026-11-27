@@ -7,10 +7,8 @@ import (
 	"testing"
 )
 
-// 2026-10-31 (operator: "Topic-clusters please * Easter eggs * Golden answers *
-// The Butler's lines * Nicknames"): the clusters are the one source - the
-// settings files don't hold their values, and every value reaches Wire-Pod and
-// the page.
+// the clusters are the one source - the settings files don't hold their values, and every value
+// reaches Wire-Pod and the page.
 func TestTopicClusters(t *testing.T) {
 	if problems, n := gopodClustersCheck(); len(problems) > 0 || n < 40 {
 		t.Fatalf("clusters: %d points, problems %v", n, problems)
@@ -32,21 +30,18 @@ func TestTopicClusters(t *testing.T) {
 	if len(s.ValuePoints.ReminderEggs) != 2 || s.ValuePoints.ReminderEggs[1].Label != "Get Photo" || s.Photo.EggName != "Get Photo" || len(s.Photo.AskPhrases) != 7 {
 		t.Errorf("phrase eggs: %+v, photo %q %v", s.ValuePoints.ReminderEggs, s.Photo.EggName, s.Photo.AskPhrases)
 	}
-	// The page gets them too.
 	data, _ := gopodSettingsMerged()
 	var page map[string]json.RawMessage
 	if json.Unmarshal(gopodClustersOverlay(data), &page) != nil || !strings.Contains(string(page["session"]), "Right away, sir") || !strings.Contains(string(page["golden_answers"]), "AI wordplay") {
 		t.Error("the page's settings don't carry the clusters")
 	}
-	// The settings files themselves don't hold them (one source).
 	if strings.Contains(string(data), "Executing your commands through Goverlord") || strings.Contains(string(data), "squeaky treads") || strings.Contains(string(data), "\"egg_names\"") {
 		t.Error("a cluster's value is still in the settings files")
 	}
 }
 
-// 2026-11-03 (step 1 of the clusters plan: the shell window's words): the system
-// texts and the help list come from system-texts.md and system-help.md - a
-// status line keeps its leading spaces, "\n" is a break, " | " stays words, and
+// the shell window's words): the system texts and the help list come from system-texts.md and
+// system-help.md - a status line keeps its leading spaces, "\n" is a break, " | " stays words, and
 // the help keeps its columns.
 func TestSystemTextsFromClusters(t *testing.T) {
 	st := gopodBrobotsSettings.SystemText
@@ -68,9 +63,8 @@ func TestSystemTextsFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (operator: "one CHALK file"; step 2): each persona's settings come
-// from its own profile's "## My settings (managers.personas.<HOST>)" - and the
-// profile's own sections stay out of the settings.
+// each persona's settings come from its own profile's "## My settings (managers.personas.<HOST>)" -
+// and the profile's own sections stay out of the settings.
 func TestPersonaSettingsFromProfiles(t *testing.T) {
 	per := gopodBrobotsSettings.Managers.Personas
 	for _, host := range []string{"CHALK", "PLAYHEAD", "GIT REPO", "CACHE PYC", "INTEL 404 PNFH", "INTEL 404 PNFT", "CAMEO", "BUTLER"} {
@@ -86,16 +80,14 @@ func TestPersonaSettingsFromProfiles(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 3: the Brobots' brain and reply rules): brobot-brain.md,
-// reply-rules.md and big-picture.md fill the brain - a backticked value keeps its
-// leading space, the brain's lines are a line each, "\n" stays a break.
+// the Brobots' brain and reply rules): brobot-brain.md, reply-rules.md and big-picture.md fill the
+// brain - a backticked value keeps its leading space, the brain's lines are a line each, "\n" stays
+// a break.
 func TestBrainFromClusters(t *testing.T) {
 	bc := gopodBrobotsSettings.BrainChain
 	if bc.CastMe != " (me)" || !strings.HasPrefix(bc.RemindersPart, " Reminders:") {
 		t.Errorf("backticked texts lost their space: %q %q", bc.CastMe, bc.RemindersPart)
 	}
-	// 2026-11-13: the comm check's lines (intro_lines), then every answer's (lines);
-	// 2026-11-23: ROUTE - is it my job? (gopod_job_route.go); 2026-11-24: AURA first (gopod_session_aura.go).
 	if len(bc.IntroFact) != 5 || bc.IntroFact[0] != "I'm the proud {my_job_title}." || len(bc.Lines) != 6 || bc.Lines[0] != "AURA: {aura}" || bc.Lines[1] != "FACT: {fact}" || bc.Lines[2] != "MEMORY: {memory}" || bc.Lines[3] != "ROOM: {room}" || bc.Lines[4] != "ROUTE: {route}" || !strings.HasPrefix(bc.Lines[5], "In the chat:") {
 		t.Errorf("brain lines: %q %q", bc.IntroFact, bc.Lines)
 	}
@@ -104,9 +96,8 @@ func TestBrainFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 4: spice, here and now, host pairs): spice.md,
-// here-and-now.md and host-pairs.md fill them; each pair's dial stays in the
-// settings, laid under its words; "; " keeps its space.
+// spice, here and now, host pairs): spice.md, here-and-now.md and host-pairs.md fill them; each
+// pair's dial stays in the settings, laid under its words; "; " keeps its space.
 func TestCastWordsFromClusters(t *testing.T) {
 	if len(gopodBrobotsSettings.Spice.Exclamations) == 0 || gopodBrobotsSettings.Spice.Text == "" {
 		t.Error("spice not read from spice.md")
@@ -120,9 +111,9 @@ func TestCastWordsFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 5: the Goverlord level): the reporters' opening and closing
-// and the sign-off are "who: line" points in preshow.md, in order; the page's
-// words and the Butler's own persona text come from their files.
+// the Goverlord level): the reporters' opening and closing and the sign-off are "who: line" points
+// in preshow.md, in order; the page's words and the Butler's own persona text come from their
+// files.
 func TestPreshowFromClusters(t *testing.T) {
 	rv := gopodBrobotsSettings.ReporterVoices
 	if len(rv.Opening) < 5 || rv.Opening[0].Host != "CHALK reporter" || !strings.HasPrefix(rv.Opening[0].Text, "Okay. We're about to go live.") {
@@ -133,8 +124,8 @@ func TestPreshowFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03: system-set on a value a cluster fills says which file to edit -
-// it never writes the settings file the cluster would win over.
+// system-set on a value a cluster fills says which file to edit - it never writes the settings file
+// the cluster would win over.
 func TestSystemSetNamesTheCluster(t *testing.T) {
 	if f := gopodClusterHolds("spice.exclamations"); f != "spice.md" {
 		t.Errorf("spice.exclamations: %q, want spice.md", f)
@@ -150,9 +141,9 @@ func TestSystemSetNamesTheCluster(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 6: the game, pictures, math, photo, notices): their words
-// come from game-words.md, topic-pictures.md, math.md, photo.md and
-// bubble-notices.md - a card keeps its line break, "• " its space.
+// the game, pictures, math, photo, notices): their words come from game-words.md,
+// topic-pictures.md, math.md, photo.md and bubble-notices.md - a card keeps its line break, "• "
+// its space.
 func TestOtherWordsFromClusters(t *testing.T) {
 	s := gopodBrobotsSettings
 	if s.Math.Bullet != "• " || !strings.Contains(s.TopicPictures.Cards["roast_battle"], "\n") {
@@ -163,9 +154,8 @@ func TestOtherWordsFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 7, the format step): a number in the place is a list's entry,
-// "(path[])" a line list, a bare number/true/false/[] is typed, a backticked
-// number stays text, and an entry out of order is a problem, not a guess.
+// a number in the place is a list's entry, "(path[])" a line list, a bare number/true/false/[] is
+// typed, a backticked number stays text, and an entry out of order is a problem, not a guess.
 func TestClusterFormatNestedAndTyped(t *testing.T) {
 	all := map[string]json.RawMessage{"x": json.RawMessage(`{"keep": 1}`)}
 	blocks := map[string]any{}
@@ -195,7 +185,6 @@ func TestClusterFormatNestedAndTyped(t *testing.T) {
 	if blocks["x"].(map[string]any)["keep"] != float64(1) {
 		t.Error("the settings' own value was lost")
 	}
-	// The live files: the menu's scriptures, a tour's lines, a command's switch.
 	merged, _ := gopodSettingsMerged()
 	var page struct {
 		SystemMenu struct {
@@ -218,9 +207,8 @@ func TestClusterFormatNestedAndTyped(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 7b, the remaining groups): the run cards, the topics' map,
-// DocBS, the roast dial, addressing and the brand words come from their files -
-// an empty list or group ("[]", "{}") stays one.
+// the run cards, the topics' map, DocBS, the roast dial, addressing and the brand words come from
+// their files - an empty list or group ("[]", "{}") stays one.
 func TestNestedGroupsFromClusters(t *testing.T) {
 	merged, _ := gopodSettingsFull()
 	var s struct {
@@ -247,9 +235,8 @@ func TestNestedGroupsFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 8 of the clusters plan): the texts left in the settings
-// files only come down - more than topic_clusters.words_left_allowed fails the
-// deploy, so a new spoken line goes into a topic-cluster, not the settings.
+// the texts left in the settings files only come down - more than topic_clusters.words_left_allowed
+// fails the deploy, so a new spoken line goes into a topic-cluster, not the settings.
 func TestWordsLeftOnlyComeDown(t *testing.T) {
 	left, allowed := gopodWordsLeft()
 	if len(left) > allowed {
@@ -257,8 +244,8 @@ func TestWordsLeftOnlyComeDown(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (step 8b: the words left moved; none are in the settings files now):
-// "(.)" fills the settings' top level - its lines come back as they were.
+// the words left moved; none are in the settings files now): "(.)" fills the settings' top level -
+// its lines come back as they were.
 func TestTopLevelFromClusters(t *testing.T) {
 	merged, _ := gopodSettingsFull()
 	var top map[string]any
@@ -278,9 +265,8 @@ func TestTopLevelFromClusters(t *testing.T) {
 	}
 }
 
-// 2026-11-04 (operator: "The shared Brobots persona * go on its own topic-cluster
-// file"): the shared Brobots prompt is built from clusters/brobots.md, its blocks
-// a blank line apart - the old wire-pod_brobots_prompt.txt, byte for byte.
+// the shared Brobots prompt is built from clusters/brobots.md, its blocks a blank line apart - the
+// old wire-pod_brobots_prompt.txt, byte for byte.
 func TestBrobotsPromptFromCluster(t *testing.T) {
 	got, err := gopodBrobotsPromptBytes()
 	if err != nil {
@@ -292,9 +278,8 @@ func TestBrobotsPromptFromCluster(t *testing.T) {
 	}
 }
 
-// 2026-11-04 (operator: "keyboard-numpad mapping selector for the 2 numpad
-// configs"; "Two key layouts"): numpad-mapper.md holds a usb and a pc layout;
-// numpad_ptt.layout picks one, usb unless named; the map read is that layout's.
+// numpad-mapper.md holds a usb and a pc layout; numpad_ptt.layout picks one, usb unless named; the
+// map read is that layout's.
 func TestNumpadLayouts(t *testing.T) {
 	m := gopodBrobotsSettings.NumpadMaps
 	if len(m["usb"]) <= 2 || len(m["pc"]) <= 2 {

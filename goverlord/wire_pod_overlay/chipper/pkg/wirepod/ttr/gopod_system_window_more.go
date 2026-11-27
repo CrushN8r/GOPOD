@@ -1,14 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_system_window_more.go
 package wirepod_ttr
 
-// Run everything from the system window (2026-10-29, operator: "Aim for a point
-// where I can run everything currently GOPOD from the system window * all
-// possible edits to calibrations, songs, scripted handling, live response chains
-// and the chains within, etc... * most of what I'm asking for is done, just check
-// during your sweep"). The sweep's two missing commandments:
-//   system-record on|off                      Record Session (the page's box, from the keyboard)
-//   system-docbs [<pool> [add|remove <line>]] DocBS's pool files (gopod_probes/topic_clusters/personas/behaviours/dials/docbs): list, show, edit
-
 import (
 	"os"
 	"path/filepath"
@@ -31,8 +23,6 @@ func gopodSystemRecord(text string) string {
 var gopodDocBSVowelRE = regexp.MustCompile(`[aeiouAEIOU]`)
 
 // gopodSystemDocBS: system-docbs - the pools and their lines; add or remove one.
-// An _18 pool's line goes uncensored into its private z-copy (when there) and
-// starred into the public file.
 func gopodSystemDocBS(text string) string {
 	dir := gopodTopicPath(gopodBrobotsSettings.DocBS.Folder) // moved, found by its folder name
 	f := strings.Fields(text)
@@ -90,7 +80,6 @@ func gopodSystemDocBS(text string) string {
 			return "system-docbs: not changed - " + err.Error()
 		}
 	}
-	// The next pick reads it fresh.
 	gopodDocBSDecks.Lock()
 	gopodDocBSDecks.left = map[string][]string{}
 	gopodDocBSDecks.Unlock()

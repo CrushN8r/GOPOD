@@ -12,15 +12,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// Typed and numpad cube commands run the robot's own native cube behavior
-// (operator 2026-10-08: "backpack vocal cube command should respond as native
-// 'cube' command by default"). A spoken one already does: Wire-Pod matches it
-// to the intent (intent-data/en-US.json) and Vector runs it. A typed or numpad
-// line has no voice request, so it would go to the chat; a line holding one of
-// native_cube.intents' phrases is sent as that intent instead, the way
-// /api-sdk/cloud_intent does (AppIntent). The chat's stay-in-place hold lets
-// go of that Brobot first so his own behavior can run.
-
 // gopodNativeCubeIntent: the native intent for a line, or "".
 func gopodNativeCubeIntent(text string) string {
 	lower := " " + strings.Join(strings.Fields(strings.ToLower(text)), " ") + " "

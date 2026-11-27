@@ -16,45 +16,20 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The managers (2026-10-18, operator: "CHALK & PLAYHEAD can take over system
-// commands * KP1, what's the weather * 'weather' detected * CHALK says, I'll help
-// you with that, and takes over the request * after I can still ask the brobots
-// about the weather and other system results in the chat * they get the same
-// thought bubbles * I see a lot of ways that reduce the load on the brobots";
-// then: "PLAYHEAD * he now takes over 'time & location' stuff * WAWN, where are
-// we now? * weather * his bubble background is tape ribbon color of vintage video
-// tape cassettes"; "CHALK (display) now is to take ownership of: search-results
-// box ... system-status and the other system bubbles * hidden/surprise egg
-// cards"). In the live chat, a line with one of a take's words: its manager (a
-// reporter voice, its own colour) says take_text, then does the job - the
-// weather (its egg, then the weather line) or the time and place. The Brobots
-// still get the facts in their prompt, but don't open their reply with the
-// weather for release_seconds. CHALK's display bubbles are drawn by the page
-// (managers.display_host).
-
 // gopodManagerWeatherAt: when a manager last said the weather (unix ms).
 var gopodManagerWeatherAt atomic.Int64
 
 type gopodManagerTake struct {
-	Host     string   `json:"host"`
-	Kind     string   `json:"kind"`
-	Words    []string `json:"words"`
-	TakeText string   `json:"take_text"`
-	// 2026-10-22: the Brobot says the result, the manager only take_text.
-	BrobotSays bool `json:"brobot_says"`
-	// 2026-10-26: an intern's take - this Gomad hands it over first
-	// (managers.handoff_text), then the intern takes over.
-	Via string `json:"via"`
-	// 2026-11-04 (operator: "Git Repo does the api call to get the raw weather
-	// details * Git Repo handsoff to Cache PYC for display details"; "intern name
-	// should be pulled from its topic-cluster"): the intern the details come from -
-	// {from} in the take's lines, his call name from his persona file.
-	From string `json:"from"`
+	Host       string   `json:"host"`
+	Kind       string   `json:"kind"`
+	Words      []string `json:"words"`
+	TakeText   string   `json:"take_text"`
+	BrobotSays bool     `json:"brobot_says"`
+	Via        string   `json:"via"`
+	From       string   `json:"from"`
 }
 
-// gopodHandoff (2026-10-26, operator: "Gomad can now 'also' say [intern] will
-// help you with that ... & intern takes over"): via says managers.handoff_text
-// with the intern's name, in to's bubble.
+// gopodHandoff: via says managers.handoff_text with the intern's name, in to's bubble.
 func gopodHandoff(via, intern, to string) {
 	text := strings.TrimSpace(gopodBrobotsSettings.Managers.HandoffText)
 	if via == "" || text == "" {
@@ -63,16 +38,13 @@ func gopodHandoff(via, intern, to string) {
 	gopodReporterSayTo(via, to, strings.ReplaceAll(text, "{intern}", gopodCallName(intern)), true, true)
 }
 
-// gopodWeatherInternReady (2026-11-03, operator's flow: "Cache PYC * Weather
-// info received from Git repo. Ready when you are Bro!" in both brain bubbles;
-// "Said and shown"): the intern's ready line (weather_lines.intern_ready, the
-// golden weather run), in her voice, in to's bubble.
+// gopodWeatherInternReady: the intern's ready line (weather_lines.intern_ready, the golden weather
+// run), in her voice, in to's bubble.
 func gopodWeatherInternReady(intern, to string) {
 	line := strings.TrimSpace(gopodBrobotsSettings.WeatherLines["intern_ready"])
 	if intern == "" || line == "" {
 		return
 	}
-	// {from}: the intern the weather details come from (the take's from).
 	for _, t := range gopodBrobotsSettings.Managers.Takes {
 		if t.Kind == "weather" && t.Host == intern && strings.TrimSpace(t.From) != "" {
 			line = strings.ReplaceAll(line, "{from}", gopodCallName(t.From))
@@ -120,12 +92,8 @@ func gopodManagerTookWeather() bool {
 	return t != 0 && time.Since(time.UnixMilli(t)) < gopodSecondsToDuration(gopodBrobotsSettings.Managers.ReleaseSeconds)
 }
 
-// gopodManagerTo (2026-10-18, operator: "If I ask CHALK, PLAYHEAD, brobots or
-// 'All' = take over trigger * CHALK or PLAYHEAD takes over * If I ask brobot N =
-// weather trigger * PLAYHEAD takes over in PLAYHEAD bubble * PLAYHEAD bubble
-// displays inside brobot N bubble * at top before brobot N 'Got it'"): the Brobot
-// the newest operator line went to ("Brobot 1"), whose bubble the manager's lines
-// go in; "" when it went to the Brobots, All or a manager (its own bubbles).
+// gopodManagerTo: the Brobot the newest operator line went to ("Brobot 1"), whose bubble the
+// manager's lines go in; "" when it went to the Brobots, All or a manager (its own bubbles).
 func gopodManagerTo() string {
 	gopodChatFeed.Lock()
 	defer gopodChatFeed.Unlock()
@@ -134,11 +102,6 @@ func gopodManagerTo() string {
 			if e.To == "Brobot 1" || e.To == "Brobot 2" {
 				return e.To
 			}
-			// 2026-10-18 (operator: "In the run the line went to both Brobots * so
-			// the managers will show in their own bubbles: incorrect * Once
-			// managers have dealt with the brobot that asked. Their jobs are
-			// done"): a line to both - inside the bubble of the Brobot answering
-			// first. A line to a manager - its own bubbles.
 			if _, ok := gopodBrobotsSettings.Managers.Personas[e.To]; ok || gopodHostIsManager(e.To) {
 				return ""
 			}
@@ -148,18 +111,16 @@ func gopodManagerTo() string {
 	return ""
 }
 
-// gopodManagerBusy: a manager has the floor (gopodManagerDo) - a Brobot's
-// searching waits (gopodThinkingProcess).
+// gopodManagerBusy: a manager has the floor (gopodManagerDo) - a Brobot's searching waits
+// (gopodThinkingProcess).
 var gopodManagerBusy atomic.Bool
 
 // gopodManagerLastHost: the manager who last had the floor ("PLAYHEAD").
 var gopodManagerLastHost atomic.Value
 
-// gopodManagerStepIn (2026-10-22, the Brobot Bubble template's notice line 3):
-// the take this Brobot's line asks for (its words, or a native intent's), done
-// now - after his "Got it!" and value point line, while his answer is being
-// written; its lines go in his notice. Once per line (the second Brobot in a line
-// to both doesn't take it again).
+// gopodManagerStepIn: the take this Brobot's line asks for (its words, or a native intent's), done
+// now - after his "Got it!" and value point line, while his answer is being written; its lines go
+// in his notice.
 var gopodManagerStepped = struct {
 	sync.Mutex
 	line string
@@ -187,10 +148,7 @@ func gopodManagerStepIn(brobot, question string) {
 	gopodManagerDoFor(take, question, brobot)
 }
 
-// gopodWeatherLineEnd (2026-10-22, operator: "add weather image centered below,
-// after weather report fully spoken * then the rest of the response"): this
-// spoken piece ends the golden weather line ("... as of 4:45 AM or 0445 Hours
-// Military Time.").
+// gopodWeatherLineEnd: this spoken piece ends the golden weather line ("...
 func gopodWeatherLineEnd(said string) bool {
 	l := strings.ToLower(said)
 	return strings.Contains(l, "as of ") && (strings.Contains(l, "military time") || strings.Contains(l, "ay-emm") || strings.Contains(l, "pee-emm") || strings.Contains(l, " am") || strings.Contains(l, " pm"))
@@ -199,8 +157,8 @@ func gopodWeatherLineEnd(said string) bool {
 // gopodWeatherShowMark: the page shows his weather picture and plays its sound.
 const gopodWeatherShowMark = "weathershow:"
 
-// gopodWeatherLineSaid: his weather line is said - the page shows its picture
-// and plays its sound; he waits weather_card.pause_seconds, then goes on.
+// gopodWeatherLineSaid: his weather line is said - the page shows its picture and plays its sound;
+// he waits weather_card.pause_seconds, then goes on.
 func gopodWeatherLineSaid(esn string) {
 	brobot := gopodBrobotName(esn)
 	if (brobot != "Brobot 1" && brobot != "Brobot 2") || !gopodBrobotsSettings.WeatherCard.Picture {
@@ -233,21 +191,16 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 	}
 	switch t.Kind {
 	case "weather":
-		// 2026-10-22 (operator: "no weather voice generation or display, weather
-		// spoken by brobot"): his reply opens with the golden weather line.
 		if t.BrobotSays {
 			gopodWeatherInternReady(t.Host, to)
 			return
 		}
 		line, _ := gopodWeatherSayAt(gopodBrobot1ESN, place)
-		// 2026-10-18 (operator: "please remove easter egg status from weather * no
-		// more weather pop up. too common"): no egg - the line only.
 		if line != "" {
 			gopodReporterSayTo(t.Host, to, line, true, true)
 		}
 		gopodManagerWeatherAt.Store(time.Now().UnixMilli())
 	case "usb":
-		// 2026-10-26: Git Repo, the ethical hacker intern - what's plugged in.
 		if line := gopodManagerUSBLine(); line != "" {
 			gopodReporterSayTo(t.Host, to, line, true, true)
 		}
@@ -256,8 +209,6 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 			gopodReporterSayTo(t.Host, to, line, true, true)
 		}
 	case "url_qr":
-		// 2026-10-18 (operator: "PLAYHEAD bubble displays, i can help message,
-		// then generated QR of [url] location"): the QR, made now, in his bubble.
 		if url := gopodManagerURL(userMessage); url != "" {
 			if page, err := gopodMakeQR(url); err == nil {
 				gopodChatFeedAddEventVia(t.Host, to, "", "", gopodManagerQRMark+page+"|"+url)
@@ -271,8 +222,8 @@ func gopodManagerDoFor(t gopodManagerTake, userMessage, to string) {
 	}
 }
 
-// gopodManagerUSBLine: managers.usb_text - {count} USB devices, the {mic}
-// and the {numpad} ("plugged in" or "missing").
+// gopodManagerUSBLine: managers.usb_text - {count} USB devices, the {mic} and the {numpad}
+// ("plugged in" or "missing").
 func gopodManagerUSBLine() string {
 	text := gopodBrobotsSettings.Managers.USBText
 	list, err := gopodUSBDevicesErr()
@@ -294,12 +245,9 @@ type gopodManagerQRShown struct{ to, line string }
 
 var gopodManagerQRShowing atomic.Value
 
-// gopodManagerQRShow (2026-10-18, operator: "CHALK BUBBLE === I can help with
-// that. QR code displayed. [live generated QR for url]" after "Brobot 1:
-// [response]"; "Brobot 2 then responds or doesn't, accordingly"): when the first
-// Brobot's answer ends, CHALK (display_host) says qr_display_text and shows the
-// same QR - in his bubble, at the bottom, for a line to him; in her own bubble
-// otherwise. Before his answer's end is told, so the other Brobot comes after.
+// gopodManagerQRShow: when the first Brobot's answer ends, CHALK (display_host) says
+// qr_display_text and shows the same QR - in his bubble, at the bottom, for a line to him; in her
+// own bubble otherwise.
 func gopodManagerQRShow() {
 	q, _ := gopodManagerQRShowing.Swap(gopodManagerQRShown{}).(gopodManagerQRShown)
 	host := gopodBrobotsSettings.Managers.DisplayHost
@@ -310,7 +258,6 @@ func gopodManagerQRShow() {
 		gopodReporterSayTo(host, q.to, s, true, true)
 	}
 	gopodChatFeedAddEventVia(host, q.to, "", "", q.line)
-	// Their jobs are done: the other Brobot answers like before, no QR note.
 	gopodManagerQRAt.Store(0)
 }
 
@@ -355,8 +302,8 @@ func gopodManagerURL(text string) string {
 	return "https://" + strings.TrimRight(m[1], ".,!?)")
 }
 
-// gopodManagerQRNote: the Brobot's thought bubble (managers.qr_note) while a QR
-// PLAYHEAD made is in his bubble (release_seconds), or "".
+// gopodManagerQRNote: the Brobot's thought bubble (managers.qr_note) while a QR PLAYHEAD made is in
+// his bubble (release_seconds), or "".
 func gopodManagerQRNote() string {
 	t := gopodManagerQRAt.Load()
 	url, _ := gopodManagerQR.Load().(string)
@@ -384,8 +331,8 @@ var gopodMakeQR = func(url string) (string, error) {
 	return "/qr/made/" + name, nil
 }
 
-// gopodTimePlaceLine: "Windsor Ontario Canada 🇨🇦, Sunday, October 18, 2026, 1405
-// Hours Military Time or 2:05 PM." (managers.time_place_text), or offline_text.
+// gopodTimePlaceLine: "Windsor Ontario Canada 🇨🇦, Sunday, October 18, 2026, 1405 Hours
+// Military Time or 2:05 PM." (managers.time_place_text), or offline_text.
 func gopodTimePlaceLine(place string) string {
 	facts, err := gopodLiveWeatherFacts(place)
 	if err != nil && place != "" {

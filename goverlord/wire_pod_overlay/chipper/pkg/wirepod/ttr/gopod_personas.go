@@ -10,18 +10,6 @@ import (
 	"strings"
 )
 
-// The reporters' live personas (2026-10-18, operator: "Shared reporters persona =
-// scripted + voices * reporter 1 & 2 lines = scaffolding for CHALK & PLAYHEAD
-// live chat personas"; "KP7/8, Who are you? * I'm CHALK BORED, display manager
-// at the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my
-// long time partner PLAYHEAD ZUMINTU * I'm PLAYHEAD ZUMINTU, session manager at
-// the CRUSHN8R CREW'd news station, CREW'd on location news reporter with my long
-// time partner CHALK BORED"). A voice-only key (KP7, KP8 in the persona map)
-// talks to its persona's host (managers.personas): the operator's line, then the
-// persona's answer from the language model - its identity, and its reporter's
-// scripted lines as the style to talk in - said in its reporter voice, in its
-// own bubble.
-
 // gopodPersonaFor: the host a voice-only persona talks through, or "".
 func gopodPersonaFor(persona string) string {
 	p, ok := gopodBrobotsSettings.Managers.Personas[strings.ToUpper(strings.TrimSpace(persona))]
@@ -34,21 +22,15 @@ func gopodPersonaFor(persona string) string {
 // gopodPersonaPrompt: the persona's identity and its reporter's lines to talk like.
 func gopodPersonaPrompt(host string) string { return gopodPersonaPromptFor(host, false) }
 
-// gopodPersonaPromptFor: the prompt; for an intro, the profile's intro sections
-// only (persona_profiles.intro_sections) - the opening says the name, nickname and why.
+// gopodPersonaPromptFor: the prompt; for an intro, the profile's intro sections only
+// (persona_profiles.intro_sections) - the opening says the name, nickname and why.
 func gopodPersonaPromptFor(host string, intro bool) string {
 	p := gopodBrobotsSettings.Managers.Personas[host]
 	var b strings.Builder
 	b.WriteString(gopodPersonaFill(host, p.Prompt))
-	// 2026-10-21 (operator: "One persona shape for all four hosts"): its host
-	// persona and its pair's banter and stereo dial (gopod_brobot_personas.go).
-	// 2026-11-17 (operator: "CLEAR OUT YOUR ... BLOAT"): an intro gets its prompt,
-	// its voice and the brain only - no banter dial, no cast, no bits, no
-	// scripted reporter lines (CHALK mixed her pre-show lines into her intro).
 	if t := gopodHostPersonaText(host, p.Prompt); t != "" && !intro {
 		b.WriteString(" " + t)
 	}
-	// 2026-10-30: its profile - self, voice, banter (gopod_persona_profiles.go).
 	profile := gopodPersonaProfileText(host)
 	if is := gopodBrobotsSettings.PersonaProfiles.IntroSections; intro && len(is) > 0 {
 		profile = gopodPersonaProfileTextOf(host, is)
@@ -56,11 +38,9 @@ func gopodPersonaPromptFor(host string, intro bool) string {
 	if profile != "" {
 		b.WriteString(" " + profile)
 	}
-	// 2026-10-26: who, where, when, who else, what's happening (gopod_here_now.go).
 	if n := gopodHereNow(host); n != "" && !intro {
 		b.WriteString(" " + n)
 	}
-	// 2026-10-28: its bits in the works, to try when the moment fits.
 	if w := gopodPersonaWIP(host); w != "" && !intro {
 		b.WriteString(" " + w)
 	}
@@ -116,24 +96,11 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return "", err
 	}
-	// 2026-11-18 (operator: "allow/encourage emojis"): emojis stay in the
-	// answer's bubble; the voice skips them (gopodSpeakNoEmojis).
 	reply := strings.TrimSpace(out.Message.Content)
 	reply = strings.Join(strings.Fields(strings.ReplaceAll(reply, "*", "")), " ")
-	// 2026-10-26 (live: "thinking___ Party's in full swing..." - CHALK, PNFT):
-	// the Brobots' shared chat keeps their animation cues (word___), and a
-	// persona copied them; a voice persona has no animations, so they're dropped.
 	reply = strings.TrimSpace(gopodAnimationMarkerPattern.ReplaceAllString(reply, ""))
-	// 2026-10-31 (live: "[The operator, Master CrushN8r, greets me.]", "I say
-	// flatly", answers in quote marks): a voice answer is the words said - no
-	// bracketed stage notes, no quote marks around it, no "I say" tags.
 	reply = gopodPersonaStageRE.ReplaceAllString(reply, "")
-	// 2026-11-18 (live: GOVERLORD "... brain. KEYNOTE: The chat began, ..." - a
-	// speaker label copied from his brain): a persona's name and a colon at a
-	// sentence's start is a label, not words - it goes.
 	reply = gopodDropSpeakerLabels(reply)
-	// 2026-11-24 (live: KEYS "Right away, sir. Master CrushN8r: Are you hiring? ..."):
-	// the question read back word for word is never his answer.
 	if q := strings.TrimSpace(text); len(strings.Fields(q)) >= 3 {
 		reply = strings.Replace(reply, q, "", 1)
 	}
@@ -141,10 +108,7 @@ var gopodPersonaAsk = func(host, text string) (string, error) {
 	reply = gopodDropNeverWords(reply)
 	reply = gopodPersonaSayTagRE.ReplaceAllString(reply, "")
 	reply = strings.Join(strings.Fields(strings.NewReplacer("\u201c", "", "\u201d", "", "\"", "").Replace(reply)), " ")
-	// The gaps a removed note leaves ("Cache PYC , and") are closed.
 	reply = gopodPersonaGapRE.ReplaceAllString(reply, "$1")
-	// 2026-10-31 (live: PLAYHEAD and Cameo opened with the operator's whole line):
-	// an answer that repeats the question back starts after it.
 	reply = gopodStripEcho(reply, text)
 	if reply == "" {
 		return "", errors.New("the language model said nothing")
@@ -160,8 +124,7 @@ func gopodPersonaNumPredict() int {
 	return 400
 }
 
-// gopodEndAtWholeSentence: a reply that ran out mid-sentence ends at its last whole
-// one (2026-10-30, live: Keys' "Anything else I can").
+// gopodEndAtWholeSentence: a reply that ran out mid-sentence ends at its last whole one.
 func gopodEndAtWholeSentence(reply string) string {
 	reply = strings.TrimSpace(reply)
 	if reply == "" || strings.ContainsAny(reply[len(reply)-1:], ".!?\"')") {
@@ -179,20 +142,11 @@ var (
 	gopodPersonaSayTagRE = regexp.MustCompile(`(?i),?\s*\b(I|she|he) (say|says|said|chuckle|chuckles|laugh|laughs)\b[^.!?,"\x{201d}]*[,.]?`)
 )
 
-// gopodPersonaMessages (2026-10-21, operator: "a manager is still a participant
-// in the chat, so yes to context is required, so yes to chat history access"):
-// the persona's prompt, the Brobots' shared chat (the same recent exchanges the
-// Brobots answer from), then the line.
-// 2026-10-27 (live: every Gomad's "tell me all about yourself" came back as
-// the Brobots' own answer - "rescued Brobots! NGL, bro!", Cache PYC "I'm a
-// Brobot 2"): the Brobots' answers were handed over as the persona's own past
-// replies, so it repeated them. Now the chat is one note of other people's
-// lines (here_now.chat_note, each answer as here_now.chat_answer), then the line.
+// gopodPersonaMessages: the persona's prompt, the Brobots' shared chat (the same recent exchanges
+// the Brobots answer from), then the line.
 func gopodPersonaMessages(host, text string) []map[string]string {
 	msgs := []map[string]string{{"role": "system", "content": gopodPersonaPromptFor(host, gopodIsIntro(text))}}
 	hn := gopodBrobotsSettings.HereNow
-	// 2026-10-31: the brain chain - code-made memory, instead of the raw chat
-	// (brain_chain.gomads_raw_chat: true keeps the raw chat too).
 	if b := gopodBrainText(host, text); b != "" {
 		msgs = append(msgs, map[string]string{"role": "user", "content": b})
 	}
@@ -213,7 +167,6 @@ func gopodPersonaMessages(host, text string) []map[string]string {
 	if len(lines) > 0 {
 		msgs = append(msgs, map[string]string{"role": "user", "content": hn.ChatNote + "\n" + strings.Join(lines, "\n")})
 	}
-	// 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 	if intro := gopodIntroRecipe(host, text); intro != "" {
 		text += "\n\n" + intro
 	}
@@ -225,34 +178,26 @@ func gopodPersonaReply(host, text, how string) {
 	gopodPersonaReplyAs(host, host, text, how)
 }
 
-// gopodPersonaReplyAs: host's answer, said and shown as sayAs - its reporter,
-// for the reporter suit (2026-10-30, NumLock-off KP7/KP8).
+// gopodPersonaReplyAs: host's answer, said and shown as sayAs - its reporter, for the reporter
+// suit.
 func gopodPersonaReplyAs(host, sayAs, text, how string) {
 	gopodOperatorShow(host, text, how)
-	// 2026-11-03 (operator: "doable to lessen the time gap?"): the answer is
-	// made while the line is read out (gopodGomadAnswerStart).
 	early := gopodGomadAnswerStart(host, sayAs, text)
-	// 2026-10-18 (operator: "KP7 to CHALK ... ["Generating..." + hourglass]/
-	// [transcription]"): read in the Operator voice, like a line to the Brobots.
 	gopodOperatorRead(host, text, how)
-	// 2026-10-21: the gomad_persona answer chain (gopod_answer_chain.go) - the
-	// who line, a manager's take, the persona's answer, in its order.
 	gopodGomadAnswerEarly(host, sayAs, text, early)
 }
 
 // gopodSpeaksAsSystem: host speaks with the butler's lingo (reporter_voices.
-// system_say_words) - the system speaker, or a persona with its voice (the Butler).
 func gopodSpeaksAsSystem(host string) bool {
 	sr := gopodBrobotsSettings.SignOff.SystemRole
 	if sr == "" {
 		return false
 	}
-	// 2026-11-16: GOVERLORD (the overlord, -0) speaks the system's lingo too.
 	return host == sr || strings.EqualFold(host, sr) || strings.TrimSpace(gopodBrobotsSettings.Managers.Personas[host].VoiceOf) == sr
 }
 
-// gopodStripEcho: the reply without a leading copy of the question (its words,
-// in order, at the reply's start - punctuation and case aside).
+// gopodStripEcho: the reply without a leading copy of the question (its words, in order, at the
+// reply's start - punctuation and case aside).
 func gopodStripEcho(reply, question string) string {
 	norm := func(s string) []string {
 		var out []string
@@ -279,7 +224,6 @@ func gopodStripEcho(reply, question string) string {
 			matched++
 		}
 	}
-	// The whole question, or its greeting and most of it, came back first.
 	if matched >= len(q) || (matched >= 4 && matched*2 >= len(q)) {
 		if rest := strings.TrimSpace(strings.Join(words[wi:], " ")); rest != "" {
 			return rest

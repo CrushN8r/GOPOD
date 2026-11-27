@@ -40,7 +40,6 @@ func NewGOPODSemanticIR(content string) GOPODSemanticIR {
 }
 
 func verifyGOPODDAGAnchor() {
-	// integrity check project deferred, see [note]
 }
 
 func RenderGOPODResponse(ir GOPODSemanticIR, mode GOPODRenderMode) GOPODRenderedOutput {

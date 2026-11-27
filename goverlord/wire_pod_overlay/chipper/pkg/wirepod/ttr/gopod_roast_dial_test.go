@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-// TestRoastDial: each level's text goes in his pre-build context; human swears
-// only from a level that allows them; a sensitive topic goes neutral with no
-// spice unless the Jekyll/Hyde override is on; PLAYHEAD's prompt has his WIP bit.
+// TestRoastDial: each level's text goes in his pre-build context; human swears only from a level
+// that allows them; a sensitive topic goes neutral with no spice unless the Jekyll/Hyde override is
+// on; PLAYHEAD's prompt has his WIP bit.
 func TestRoastDial(t *testing.T) {
 	saved := gopodBrobotsSettings.RoastDial
 	defer func() { gopodBrobotsSettings.RoastDial = saved }()
@@ -51,7 +51,6 @@ func TestRoastDial(t *testing.T) {
 	if gopodRoastLine(sad) != rd.Levels[rd.Level].Text || gopodSpiceLine(sad) == "" {
 		t.Errorf("Jekyll/Hyde didn't override")
 	}
-	// The private z-copy, uncensored, wins when it's there; the public list is starred.
 	for _, w := range gopodBrobotsSettings.Spice.HumanSwears {
 		if strings.ContainsAny(w, "aeiouAEIOU") {
 			t.Errorf("public human swear %q has a vowel", w)

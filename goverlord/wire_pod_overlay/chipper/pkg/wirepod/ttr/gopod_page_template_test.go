@@ -10,19 +10,14 @@ import (
 	"testing"
 )
 
-// TestPageRunsFromSettings (2026-10-29, operator: "decouple dumb code from flexible
-// data & bridge the two by loading external already templated files ... then code
-// blindly runs templates from loaded files"): the chat page keeps no value of its
-// own for what the settings file holds - every one is in the settings, and none is
-// written into the page as well.
+// TestPageRunsFromSettings: the chat page keeps no value of its own for what the settings file
+// holds - every one is in the settings, and none is written into the page as well.
 func TestPageRunsFromSettings(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
 		t.Skip("no overlay here")
 	}
 	data, _ := gopodSettingsMerged()
-	// 2026-11-03 (the clusters plan, step 5): the page reads the settings with
-	// the topic-clusters laid over them (gopod_settings_folder.go) - so does this.
 	data = gopodClustersOverlay(data)
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(data, &top); err != nil {
@@ -35,7 +30,6 @@ func TestPageRunsFromSettings(t *testing.T) {
 			s[k] = block
 		}
 	}
-	// block.key: may it be empty?
 	need := map[string]bool{
 		"chat_window.max_bubbles": false, "chat_window.max_seen": false, "chat_window.baton_max_ms": false,
 		"chat_window.speaking_max_ms": false, "chat_window.bubble_ready_max_ms": false, "chat_window.reply_delay_ms": false,
@@ -77,9 +71,8 @@ func TestPageRunsFromSettings(t *testing.T) {
 	}
 }
 
-// TestLookIsTokens (2026-10-29, pass 2 of FLEXIBLE_DATA_SURVEY_001.md): every colour
-// the GOPOD pages use is a look token, set once in a :root block; no rule types a
-// colour of its own.
+// TestLookIsTokens: every colour the GOPOD pages use is a look token, set once in a :root block; no
+// rule types a colour of its own.
 func TestLookIsTokens(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -98,9 +91,8 @@ func TestLookIsTokens(t *testing.T) {
 	}
 }
 
-// TestSystemTextKeys (2026-10-29, pass 3 of FLEXIBLE_DATA_SURVEY_001.md): every
-// system reply the code asks for (gopodSystemText) is in system_text, and its
-// {names} are the ones the code fills - none missing, none left over.
+// TestSystemTextKeys: every system reply the code asks for (gopodSystemText) is in system_text, and
+// its {names} are the ones the code fills - none missing, none left over.
 func TestSystemTextKeys(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -150,9 +142,8 @@ func TestSystemTextKeys(t *testing.T) {
 	}
 }
 
-// TestTimingsInSettings (2026-10-29, pass 4 of FLEXIBLE_DATA_SURVEY_001.md): every
-// show timing the code asks for (gopodTiming) is in the settings' timings block,
-// more than 0.
+// TestTimingsInSettings: every show timing the code asks for (gopodTiming) is in the settings'
+// timings block, more than 0.
 func TestTimingsInSettings(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {

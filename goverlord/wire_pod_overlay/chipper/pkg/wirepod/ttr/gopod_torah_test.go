@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-// TestTorahMatches: GOPOD_SYSTEM_SCROLLS.md is the system as it is now (GOPOD_WRITE_TORAH=1
-// writes it again); every system window command is in it.
+// TestTorahMatches: GOPOD_SYSTEM_SCROLLS.md is the system as it is now (GOPOD_WRITE_TORAH=1 writes
+// it again); every system window command is in it.
 func TestTorahMatches(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
 		t.Skip("not in the repo here")
@@ -27,7 +27,6 @@ func TestTorahMatches(t *testing.T) {
 			t.Errorf("the Scrolls has no %q", want)
 		}
 	}
-	// The tour: every scripture opens "Scripture N, ...".
 	for i, sc := range gopodTorahScriptures() {
 		if !strings.HasPrefix(sc.Title, "Scripture "+strconv.Itoa(i+1)+",") {
 			t.Errorf("scripture %d: %q", i+1, sc.Title)
@@ -46,9 +45,8 @@ func TestTorahMatches(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-15 (operator: "lists/stuff like that should be written to files that
-// are auto-updated"): the README's cast table is the numpad map's - GOPOD writes
-// it (GOPOD_WRITE_TORAH=1 or system-scrolls); it fails when behind.
+// the README's cast table is the numpad map's - GOPOD writes it (GOPOD_WRITE_TORAH=1 or
+// system-scrolls); it fails when behind.
 func TestReadmeCastMatches(t *testing.T) {
 	if os.Getenv("GOPOD_WRITE_TORAH") == "1" {
 		if err := gopodWriteReadmeCast(); err != nil {
@@ -69,9 +67,7 @@ func TestReadmeCastMatches(t *testing.T) {
 	}
 }
 
-// 2026-11-16 (operator: "can the system tour be segmented by folder tree & contents?
-// ... scripture-0/[topic-cluster/intro] * scripture-1/[scripture 1 stuff]"): the tour
-// is the scrolls' folders, in order - scripture 0 the intro, the lingo improver a stop.
+// the tour is the scrolls' folders, in order - scripture 0 the intro, the lingo improver a stop.
 func TestTourIsTheScrollsTree(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
 		t.Skip("not in the repo here")

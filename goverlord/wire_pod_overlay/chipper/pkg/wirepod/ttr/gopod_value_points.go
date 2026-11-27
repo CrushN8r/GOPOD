@@ -12,25 +12,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Value-point coverage (2026-10-06, operator: "My two brobots are party-bros as
-// well as expert level GOPOD reps. For topics/chapters ... the brobots keep a
-// list of, has this topic been previously discussed, what value points were
-// revealed and do they remind me of other value points to cover. End goal ...
-// cover all or as many value points in all topics, per interview session").
-// The code keeps the list, not the LLM, and the LLM is given less:
-//   - A topic pack's numbered lines ("1. ...") are its value points; a pack
-//     with none is one point. Its other lines are its opening.
-//   - When a topic loads, the LLM gets the opening and only the next point not
-//     yet revealed; it's ticked off then (both Brobots share one list). Once all
-//     are revealed the topic is covered, and asked again it gets the whole pack.
-//   - "Hey, that reminds me..." (a scripted_snippets entry with when "reminder")
-//     points to the next topic, in the interview's chapter order, that isn't
-//     covered yet and has a line in value_points.reminders - the operator's
-//     words.
-//   - At "Thanks Brobots" the score shows in a Goverlord bubble (value_points.
-//     score_text) and is logged (GOPOD_COVERAGE), with the list.
-// One interview session is one Wire-Pod start: the list starts empty.
-
 var gopodPointLine = regexp.MustCompile(`^\s*\d+\.\s+`)
 
 // gopodSplitPoints splits a pack into its opening and its numbered points.
@@ -77,29 +58,27 @@ func gopodRemind(names ...string) {
 	}
 }
 
-// gopodCoverageFacts is what the LLM gets for one loaded topic: its opening and
-// the next point (marked revealed), or the whole pack once covered.
+// gopodCoverageFacts is what the LLM gets for one loaded topic: its opening and the next point
+// (marked revealed), or the whole pack once covered.
 func gopodCoverageFacts(name string, content []byte) []byte {
 	facts, _ := gopodCoverageReveal(name, content)
 	return facts
 }
 
-// gopodCoverageReveal is gopodCoverageFacts, plus the point it gave out
-// ("doc_and_pip 1/3"), "" when none.
+// gopodCoverageReveal is gopodCoverageFacts, plus the point it gave out ("doc_and_pip 1/3"), ""
+// when none.
 func gopodCoverageReveal(name string, content []byte) ([]byte, string) {
 	return gopodCoverageRevealFor(name, content, "")
 }
 
-// gopodCoverageSaid: which of a topic's points have been given (topic -> point
-// number -> true), beside revealed's count; cleared when the count is reset.
+// gopodCoverageSaid: which of a topic's points have been given (topic -> point number -> true),
+// beside revealed's count; cleared when the count is reset.
 var gopodCoverageSaid = map[string]map[int]bool{}
 
 var gopodPickWordRE = regexp.MustCompile(`[a-z0-9']+`)
 
-// gopodTopicLinksFor (2026-10-23, operator: "livestream > content engine > ...
-// > subscribe * Where you can further decouple for easier reordering/shuffling,
-// please do"): the topics this one leads to - the next step of every funnel it's
-// in (value_points.funnels), then its topic_links.
+// gopodTopicLinksFor: the topics this one leads to - the next step of every funnel it's in
+// (value_points.funnels), then its topic_links.
 func gopodTopicLinksFor(from string) []string {
 	var out []string
 	seen := map[string]bool{}
@@ -120,9 +99,8 @@ func gopodTopicLinksFor(from string) []string {
 	return out
 }
 
-// gopodCorePoint (2026-10-23, FINISH_PLAN_001.md A3; CORE_TOPICS_002.md): with
-// value_points.core_points set, only those are value points (topic#n); the rest
-// of a topic stays known, never a target.
+// gopodCorePoint: with value_points.core_points set, only those are value points (topic#n); the
+// rest of a topic stays known, never a target.
 func gopodCorePoint(topic string, n int) bool {
 	core := gopodBrobotsSettings.ValuePoints.CorePoints
 	if len(core) == 0 {
@@ -137,8 +115,8 @@ func gopodCorePoint(topic string, n int) bool {
 	return false
 }
 
-// gopodPickWords: a text's words for matching - lower case, "pip's" -> "pip",
-// three letters or more, not in value_points.pick_skip_words.
+// gopodPickWords: a text's words for matching - lower case, "pip's" -> "pip", three letters or
+// more, not in value_points.pick_skip_words.
 func gopodPickWords(text string) map[string]bool {
 	skip := map[string]bool{}
 	for _, w := range gopodBrobotsSettings.ValuePoints.PickSkipWords {
@@ -147,7 +125,6 @@ func gopodPickWords(text string) map[string]bool {
 	out := map[string]bool{}
 	for _, w := range gopodPickWordRE.FindAllString(strings.ToLower(text), -1) {
 		w = strings.TrimSuffix(strings.Trim(w, "'"), "'s")
-		// "runs" and "run" count as one word.
 		if len(w) > 3 && strings.HasSuffix(w, "s") && !strings.HasSuffix(w, "ss") {
 			w = strings.TrimSuffix(w, "s")
 		}
@@ -158,18 +135,10 @@ func gopodPickWords(text string) map[string]bool {
 	return out
 }
 
-// gopodPickPoint (2026-10-22, live: "Tell me about Pip" got Doc's point and "Who
-// is Doc" got Pip's - points went out in order, not by what was asked;
-// operator: "go on step 1"): of a topic's points not said yet, the one whose
-// words (the point, its notes, its say line) share the most with the question;
-// with none shared, the next in order - the pull stays. 0-based; -1 = none left.
+// gopodPickPoint: of a topic's points not said yet, the one whose words (the point, its notes, its
+// say line) share the most with the question; with none shared, the next in order - the pull stays.
 func gopodPickPoint(name string, points []string, said map[int]bool, question string) int {
 	asked := gopodPickWords(question)
-	// Words that name the topic itself ask for the topic, not one of its points:
-	// the whole name in the question ("what's the community path?"), or a
-	// one-word name's start ("book" for booking) - four letters or more.
-	// ("a decimal back into a fraction" still picks its point: the name isn't
-	// said whole.)
 	phrase := strings.ReplaceAll(name, "_", " ")
 	nameWords := gopodPickWords(phrase)
 	if strings.Contains(strings.ToLower(question), phrase) {
@@ -196,7 +165,6 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 		key := name + " " + strconv.Itoa(i+1)
 		words := gopodPickWords(p + " " + gopodBrobotsSettings.ValuePoints.Notes[key] + " " + gopodBrobotsSettings.ValuePoints.SayLines[key])
 		score := 0
-		// A longer word is a more telling one ("granny" over "live").
 		for w := range asked {
 			if words[w] {
 				score += len(w)
@@ -209,11 +177,8 @@ func gopodPickPoint(name string, points []string, said map[int]bool, question st
 	return best
 }
 
-// gopodCoverageRevealFor: gopodCoverageReveal for this question - the point it
-// asks about first (gopodPickPoint).
-// gopodBackgroundTopic (2026-10-22, operator: "Do 1 and 2 together first";
-// CORE_TOPICS_002.md - seven core topics): a topic the Brobots still know, but
-// never a value point - no point given, not in the score, never reminded.
+// gopodCoverageRevealFor: gopodCoverageReveal for this question - the point it asks about first
+// (gopodPickPoint).
 func gopodBackgroundTopic(name string) bool {
 	for _, t := range gopodBrobotsSettings.ValuePoints.BackgroundTopics {
 		if t == name {
@@ -262,8 +227,6 @@ func gopodCoverageRevealFor(name string, content []byte, question string) ([]byt
 	if len(points) == 0 {
 		return content, given
 	}
-	// 2026-10-22 (operator: "should be note form for the llm to flavour"): a
-	// point with notes goes to the model as its notes.
 	point := points[n]
 	if title, notes := gopodPointNotes(name, n+1); title != "" {
 		point = fmt.Sprintf("%d. %s: %s", n+1, title, strings.Join(notes, "; "))
@@ -271,8 +234,8 @@ func gopodCoverageRevealFor(name string, content []byte, question string) ([]byt
 	return []byte(opening + "\n" + point + "\n"), given
 }
 
-// gopodPointNotes: a point's note form (its topic's "notes N:" line) - its
-// title and notes; "" when it has none.
+// gopodPointNotes: a point's note form (its topic's "notes N:" line) - its title and notes; "" when
+// it has none.
 func gopodPointNotes(topic string, n int) (string, []string) {
 	raw := strings.TrimSpace(gopodBrobotsSettings.ValuePoints.Notes[topic+" "+strconv.Itoa(n)])
 	if raw == "" {
@@ -288,8 +251,8 @@ func gopodPointNotes(topic string, n int) (string, []string) {
 	return strings.TrimSpace(parts[0]), notes
 }
 
-// The points given out for each Brobot's current question ("doc_and_pip 1/3"),
-// for its say line and its take (gopod_take_sheet.go).
+// The points given out for each Brobot's current question ("doc_and_pip 1/3"), for its say line and
+// its take (gopod_take_sheet.go).
 var gopodGiven = struct {
 	sync.Mutex
 	points map[string][]string // esn -> points
@@ -307,14 +270,9 @@ func gopodGivenPoints(esn string) []string {
 	return append([]string(nil), gopodGiven.points[esn]...)
 }
 
-// gopodSayLine is the exact line for a point just given out to this Brobot
-// (value_points.say_lines, keyed "topic N"; operator 2026-10-06: "From the take
-// sheet? what is hard for the llm to comply with, make a scripted snippet" -
-// names, numbers, gear and his own phrasing). Said word for word at the start of
-// the reply, after the cue; the LLM adds the rest. "" when none.
+// gopodSayLine is the exact line for a point just given out to this Brobot.
 func gopodSayLine(esn string) string {
 	for _, given := range gopodGivenPoints(esn) {
-		// 2026-10-26: a summary ask's point is scored, not said (gopod_topic_asks.go).
 		if gopodSummaryGivenHas(esn, given) {
 			continue
 		}
@@ -322,9 +280,6 @@ func gopodSayLine(esn string) string {
 		if i := strings.LastIndex(key, "/"); i >= 0 {
 			key = key[:i]
 		}
-		// 2026-10-22 (operator: "only the model's flavoured version of the notes *
-		// I'd rather the llm go brobots party on the idea * details don't matter as
-		// much"): a point with notes has no exact line - the model flavours them.
 		if gopodBrobotsSettings.ValuePoints.Notes[key] != "" {
 			continue
 		}
@@ -349,9 +304,8 @@ func gopodGivenHasNotes(esn string) bool {
 	return false
 }
 
-// gopodTopicCovered: the topic is done - one point said with value_points.target
-// "topics" (2026-10-23, operator: "Perhaps its the topics I'm after * value points
-// ... too much to handle at this stage * Go"), all its points with "points".
+// gopodTopicCovered: the topic is done - one point said with value_points.target "topics", all its
+// points with "points".
 func gopodTopicCovered(name string, total int) bool {
 	gopodCoverage.Lock()
 	defer gopodCoverage.Unlock()
@@ -386,8 +340,6 @@ func gopodPackPointCounts() ([]string, map[string]int) {
 		if counts[p.Name] == 0 {
 			counts[p.Name] = 1
 		}
-		// 2026-10-23 (A3): only its value points count (core_points); a topic with
-		// none isn't a target.
 		if len(gopodBrobotsSettings.ValuePoints.CorePoints) > 0 {
 			n := 0
 			for i := 1; i <= counts[p.Name]; i++ {
@@ -406,20 +358,8 @@ func gopodPackPointCounts() ([]string, map[string]int) {
 	return names, counts
 }
 
-// gopodReminderLine is the "Hey, that reminds me..." line after a reply on the
-// question's topics; "" when there's none. It never says a value point
-// (operator 2026-10-07: "do not reveal any value points" - the old per-topic
-// lines were points, and gave the next answer away). It points:
-//   - after a chapter's last topic, to the next two chapters with topics left,
-//     each with its summary (interview_chapters.summary, reminder_chapters_text);
-//   - otherwise to the reminder_topic_count topics left that are most alike,
-//     chained - the closest to this topic, then the closest to that one (the
-//     "3d grid": how alike two topics' packs are, worked out by the code) -
-//     named by interview_chapters.topic_labels (reminder_topics_text).
-//
-// Neither points at the next reminder_skip_next_topics topics: the interview is
-// about to ask those.
-// gopodReminderNames: the topics the last reminder for a line named (line -> []string).
+// gopodReminderLine is the "Hey, that reminds me..." line after a reply on the question's topics;
+// "" when there's none.
 var gopodReminderNames sync.Map
 
 func gopodReminderLine(userMessage string) string {
@@ -446,14 +386,10 @@ func gopodReminderLine(userMessage string) string {
 			last = i
 		}
 	}
-	// 2026-10-31 (operator: "Should the reminders name eggs? * no, but GOPOD easter
-	// eggs should still work"): with no topic in the question, the reminder names
-	// open topics from the top of the order - never eggs.
 	if last < 0 && (gopodIsThanks(userMessage) || vp.ReminderTopicsText == "") {
 		return ""
 	}
 	_, counts := gopodPackPointCounts()
-	// A topic whose egg was found is off the list too.
 	eggTopic := map[string]bool{}
 	for _, e := range gopodEggList() {
 		eggTopic[e.Key] = true
@@ -465,10 +401,6 @@ func gopodReminderLine(userMessage string) string {
 	for k := 1; k <= vp.ReminderSkip && last+k < len(order); k++ {
 		skip[order[last+k]] = true
 	}
-	// 2026-10-27 (operator: "once all reminders have been suggested, brobots go
-	// through the reminder's list again less what's already talked about * as
-	// GOPOD reps, that's their employment obligation, lol"): when every open
-	// topic has been reminded, a new round starts - covered topics stay off.
 	fresh := false
 	for _, t := range order {
 		if open(t) && !skip[t] && ic.TopicLabels[t] != "" && !gopodReminded(t) {
@@ -484,9 +416,8 @@ func gopodReminderLine(userMessage string) string {
 		current = order[last]
 	}
 	if current != "" && lastOfChapter[current] && vp.ReminderChaptersText != "" {
-		// The next chapter with its summary, then the one after by title only
-		// (2026-10-07: two summaries were long out loud); a chapter once named
-		// isn't named again.
+		// The next chapter with its summary, then the one after by title only; a chapter once named isn't
+		// named again.
 		var next, named []string
 		for ci := chapterAt[current] + 1; ci < len(ic.Chapters) && len(next) < 2; ci++ {
 			c := ic.Chapters[ci]
@@ -519,14 +450,6 @@ func gopodReminderLine(userMessage string) string {
 	}
 	used := map[string]bool{current: true}
 	var chain, chainTopics []string
-	// GOLDEN merry-go-round (2026-11-16, operator: "I see the reminders list like
-	// a merry-go-round * wherever you step onto the merry-go-round, you're in the
-	// GOPOD tour * you can explore all around the merry-go-round until you've sat
-	// in every seat * reminders list still has an order of information, from
-	// opener, what is GOPOD, to more specific details"): the seats are the topics
-	// in the chapters' order; the next ones named are those after the seat you're
-	// on, round and round from the top again - each open, not just reminded. A
-	// topic's own links (topic_links, the designed ride) go first.
 	at := -1
 	for i, t := range order {
 		if t == current {
@@ -539,7 +462,6 @@ func gopodReminderLine(userMessage string) string {
 	lead := gopodReminderLead(userMessage, seat)
 	for from := current; len(chain) < want; {
 		best := ""
-		// 2026-11-25: the ride starts where the question links on (gopodReminderLead).
 		if len(chain) == 0 && lead != "" && seat(lead) {
 			best = lead
 		}
@@ -578,11 +500,6 @@ func gopodReminderLine(userMessage string) string {
 			gopodRemind(t)
 		}
 	}
-	// 2026-10-29 (operator: "then reps' reminders to prep for accessmath demo";
-	// "go reminders"): the reminder invites with one of Ron's probers (the probers
-	// list, gopod_probers_list.go). 2026-11-16 (operator: "please ensure the 'try
-	// asking' suggestions match with the 'hey that reminds me'"): its topic is
-	// named first, so the question asked about is the first one reminded of.
 	prober := ""
 	if strings.TrimSpace(vp.ReminderProberText) != "" {
 		for i, topic := range chainTopics {
@@ -593,11 +510,9 @@ func gopodReminderLine(userMessage string) string {
 			}
 		}
 	}
-	// 2026-10-31: the names, for the brain bubble's Reminders (gopodReminderNames).
 	gopodReminderNames.Store(userMessage, append([]string(nil), chain...))
 	line := strings.ReplaceAll(vp.ReminderTopicsText, "{topics}", gopodNameList(chain))
 	if prober != "" {
-		// 2026-11-03 (operator: "start \"Try asking: ... \" on a new line"): its own line.
 		line += gopodThoughtGap() + strings.ReplaceAll(strings.TrimSpace(vp.ReminderProberText), "{prober}", prober)
 	}
 	return line
@@ -609,11 +524,9 @@ func gopodCoverageScoreText() (string, string) {
 	return text, detail
 }
 
-// gopodCoverageScoreWith: tmpl filled with the session score - {topics},
-// {topics_total}, {points}, {points_total}, {eggs}, {eggs_total}, and (2026-10-25,
-// operator: "Topics 3 of 7: ===---- * 3 single lines with dynamic scores aligned
-// vertically") {topics_bar}, {points_bar}, {eggs_bar}: one value_points.score_bar
-// "done" mark per one found, one "left" mark per one to go.
+// gopodCoverageScoreWith: tmpl filled with the session score - {topics}, {topics_total}, {points},
+// {points_total}, {eggs}, {eggs_total}, and {topics_bar}, {points_bar}, {eggs_bar}: one
+// value_points.score_bar "done" mark per one found, one "left" mark per one to go.
 func gopodCoverageScoreWith(tmpl string) (string, string) {
 	names, counts := gopodPackPointCounts()
 	gopodCoverage.Lock()
@@ -634,9 +547,6 @@ func gopodCoverageScoreWith(tmpl string) (string, string) {
 	}
 	sort.Strings(detail)
 	topicsTotal := len(names)
-	// 2026-10-23 (A3; operator: "keep list score for topics, easter eggs, value
-	// points N of N so I can see my progress * and so can the brobots"): topics
-	// are the seven core topics (core_topics), opened by any of their points.
 	if ct := gopodBrobotsSettings.ValuePoints.CoreTopics; len(ct) > 0 {
 		topics, topicsTotal = 0, len(ct)
 		for _, files := range ct {
@@ -657,8 +567,6 @@ func gopodCoverageScoreWith(tmpl string) (string, string) {
 			eggs++
 		}
 	}
-	// 2026-10-23 (operator: "List hidden easter eggs as well"): the surprise eggs
-	// (topic_pictures.not_listed) count too, when they're eggs.
 	for _, k := range gopodBrobotsSettings.TopicPictures.NotListed {
 		if !listed[k] && !gopodNotEgg(k) {
 			eggsTotal++
@@ -686,8 +594,8 @@ func gopodCoverageScoreWith(tmpl string) (string, string) {
 	return text, strings.Join(detail, " ")
 }
 
-// gopodCoverageScore shows the score once per ending (a new question that isn't
-// a thanks allows the next one, gopodCoverageNewQuestion).
+// gopodCoverageScore shows the score once per ending (a new question that isn't a thanks allows the
+// next one, gopodCoverageNewQuestion).
 func gopodCoverageScore() {
 	vp := gopodBrobotsSettings.ValuePoints
 	gopodCoverage.Lock()
@@ -699,8 +607,6 @@ func gopodCoverageScore() {
 	gopodCoverage.Unlock()
 	text, detail := gopodCoverageScoreText()
 	logger.Println("GOPOD_COVERAGE " + text + " | " + detail)
-	// 2026-10-08: score_role "" keeps the score in the log only (operator: "remove:
-	// 'Covered 0 of 78 value points in 0 of 38 topics' offset the scrolling").
 	if vp.ScoreRole != "" {
 		GopodChatFeedAdd(vp.ScoreRole, text)
 	}
@@ -712,10 +618,8 @@ func gopodCoverageNewQuestion() {
 	gopodCoverage.Unlock()
 }
 
-// gopodWhatElseFacts answers "what else can we talk about?" (operator
-// 2026-10-06: "the brobot GOPOD pros know ... refer to the 'topics & value
-// points covered' list"): the next chapters, in interview order, with points not
-// covered yet, and the score so far.
+// gopodWhatElseFacts answers "what else can we talk about?": the next chapters, in interview order,
+// with points not covered yet, and the score so far.
 func gopodWhatElseFacts(content []byte) []byte {
 	_, counts := gopodPackPointCounts()
 	want := gopodBrobotsSettings.ValuePoints.WhatElseCount
@@ -726,7 +630,6 @@ func gopodWhatElseFacts(content []byte) []byte {
 	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
 		for _, t := range c.Topics {
 			if !gopodTopicCovered(t, counts[t]) {
-				// 2026-10-07: with the chapter's summary - the Brobots' map of what's left.
 				line := "- " + c.Title
 				if c.Summary != "" {
 					line += ": " + c.Summary
@@ -744,12 +647,7 @@ func gopodWhatElseFacts(content []byte) []byte {
 	return []byte(strings.TrimRight(string(content), "\n") + "\n" + strings.Join(left, "\n") + "\n(" + score + " so far.)\n")
 }
 
-// The scripted lines are the code's, never the LLM's (operator 2026-10-06: "Fix
-// 'Hey, that reminds me...'" - in the harvest, 59 of 83 takes said a reminder:
-// the code adds one at most half the time, the LLM copied the rest from its own
-// earlier replies in the chat memory). So every flavour line and reminder line
-// is dropped from the remembered replies, and a "Hey, that reminds me..." the
-// LLM writes itself is cut from its reply, to the end - that phrase is the code's.
+// The scripted lines are the code's, never the LLM's.
 var gopodReminderPhrase = regexp.MustCompile(`(?is)\s*\bhey\W+that\s+reminds\s+me\b.*$`)
 
 var gopodScriptedLinePatterns = func() []*regexp.Regexp {
@@ -760,8 +658,6 @@ var gopodScriptedLinePatterns = func() []*regexp.Regexp {
 	for _, line := range gopodBrobotsSettings.ValuePoints.Reminders {
 		lines = append(lines, line)
 	}
-	// 2026-10-06: and the hard points' say lines - one Brobot repeated the
-	// other's (TIGHTEN_RESPONSES_FROM_TAKES_001.md).
 	for _, line := range gopodBrobotsSettings.ValuePoints.SayLines {
 		lines = append(lines, line)
 	}
@@ -775,8 +671,6 @@ var gopodScriptedLinePatterns = func() []*regexp.Regexp {
 		for i := range w {
 			w[i] = regexp.QuoteMeta(w[i])
 		}
-		// The words in order, any punctuation or spacing between and after
-		// (the reply's tidy-up turns "..." into ", ").
 		out = append(out, regexp.MustCompile(`(?i)\b`+strings.Join(w, `[^\pL\pN']+`)+`[^\pL\pN\s]*`))
 	}
 	return out
@@ -796,16 +690,6 @@ func gopodDropLLMReminder(text string) string {
 	return strings.TrimRight(gopodReminderPhrase.ReplaceAllString(text, ""), " \t")
 }
 
-// gopodReminderLead (2026-11-25, operator: "is there a link or association, that
-// follows the logic * weather (location)? * hey that reminds me > lookup
-// 'location' variants > bookings.md * remember its all about selling GOPOD,
-// everything must gravitate towards that * unless the specificity of query
-// carries more weight * the more 'I don't know', the faster the gravitation to
-// README.md + welcome"): the first seat of the reminders' ride - after enough
-// "I don't know"s, what GOPOD is (brain_chain.unknown_pull); else the open topic
-// whose card words share the most with the question and the cards it looked up
-// (same words counted as one - the location bridge); else the sales pull
-// (brain_chain.reminder_pull). "" leaves the ride as it was.
 func gopodReminderLead(question string, seat func(string) bool) string {
 	bc := gopodBrobotsSettings.BrainChain
 	list := func(s string) []string {
@@ -824,20 +708,15 @@ func gopodReminderLead(question string, seat func(string) bool) string {
 			}
 		}
 	}
-	// 2026-11-25 (operator: "In the reminder"): the pinball's bounce - the point
-	// the question lands on, then its strongest link (gopodValueGridBounce).
 	if t := gopodValueGridBounce(question, seat); t != "" {
 		return t
 	}
-	// The question's words and its cards' words, same words as one - only the
-	// telling ones (gopodLookupMeaningful: no little words, no lookup_skip's).
 	asked := gopodLookupMeaningful(strings.Join(gopodSameWordsExpand(gopodLookupTokens(question)), " "))
 	for _, c := range gopodLookup(question) {
 		for w := range gopodLookupMeaningful(strings.Join(gopodSameWordsExpand(c.Words), " ")) {
 			asked[w] = true
 		}
 	}
-	// A tie goes to the sales pull ("everything must gravitate towards that").
 	pull := map[string]bool{}
 	for _, t := range list(bc.ReminderPull) {
 		pull[t] = true

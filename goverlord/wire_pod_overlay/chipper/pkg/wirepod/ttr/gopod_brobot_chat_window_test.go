@@ -36,8 +36,8 @@ func brobotChatText(t *testing.T) string {
 	return strings.Join(parts, "\n")
 }
 
-// The shared Brobots chat leaves out exchanges older than 120 minutes and
-// anything from before the current Wire-Pod start.
+// The shared Brobots chat leaves out exchanges older than 120 minutes and anything from before the
+// current Wire-Pod start.
 func TestSharedBrobotChatWindowDropsOldAndPreStartExchanges(t *testing.T) {
 	savedStart := gopodSharedBrobotChatStart
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
@@ -48,7 +48,6 @@ func TestSharedBrobotChatWindowDropsOldAndPreStartExchanges(t *testing.T) {
 		{Timestamp: now.Add(-1 * time.Minute), ESN: "ESN02", UserMessage: "one minute ago", RawResponse: "new answer"},
 	})
 
-	// Started long ago: only the 120-minute limit applies.
 	gopodSharedBrobotChatStart = now.Add(-5 * time.Hour)
 	chat := brobotChatText(t)
 	if strings.Contains(chat, "three hours ago") || strings.Contains(chat, "old answer") {
@@ -58,7 +57,6 @@ func TestSharedBrobotChatWindowDropsOldAndPreStartExchanges(t *testing.T) {
 		t.Fatalf("recent exchanges missing:\n%s", chat)
 	}
 
-	// Started 10 minutes ago: the 30-minute-old exchange is from before the start.
 	gopodSharedBrobotChatStart = now.Add(-10 * time.Minute)
 	chat = brobotChatText(t)
 	if strings.Contains(chat, "thirty minutes ago") {
@@ -69,8 +67,7 @@ func TestSharedBrobotChatWindowDropsOldAndPreStartExchanges(t *testing.T) {
 	}
 }
 
-// A line that is only a stage direction is skipped; the lines after it are
-// still spoken.
+// A line that is only a stage direction is skipped; the lines after it are still spoken.
 func TestNormalizeGOPODRobotSpeechSkipsStageDirectionOnlyLine(t *testing.T) {
 	input := "happy... It was an awesome time, you know?\n*giggles and winks*\nAlright folks, that's the gist. Go team GOPOD!"
 	got, _ := normalizeGOPODRobotSpeech(input)
@@ -82,9 +79,8 @@ func TestNormalizeGOPODRobotSpeechSkipsStageDirectionOnlyLine(t *testing.T) {
 	}
 }
 
-// Performed lines from the chat feed: a Bingo run becomes one snapshot note (the
-// song is scripted), placed in time order; other lines (go search) come back as
-// they were performed.
+// Performed lines from the chat feed: a Bingo run becomes one snapshot note (the song is scripted),
+// placed in time order; other lines (go search) come back as they were performed.
 func TestSharedBrobotChatSnapshotsBingoRuns(t *testing.T) {
 	savedStart := gopodSharedBrobotChatStart
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
@@ -125,8 +121,8 @@ func TestSharedBrobotChatSnapshotsBingoRuns(t *testing.T) {
 	}
 }
 
-// Past 13 questions the oldest are left out and the Brobots are told they don't
-// remember them; Bingo runs from before them are still remembered, as one run.
+// Past 13 questions the oldest are left out and the Brobots are told they don't remember them;
+// Bingo runs from before them are still remembered, as one run.
 func TestSharedBrobotChatKeeps13QuestionsAndTheBingoSnapshot(t *testing.T) {
 	savedStart := gopodSharedBrobotChatStart
 	defer func() { gopodSharedBrobotChatStart = savedStart }()
@@ -159,9 +155,7 @@ func TestSharedBrobotChatKeeps13QuestionsAndTheBingoSnapshot(t *testing.T) {
 	}
 }
 
-// 2026-11-24 (operator: "Q: did you have [this] experience? y/n * if no, say so
-// and move on or redirect * if yes, give your take"): a Bingo question's facts are
-// its one line - not played, then played - and never the pitch pack.
+// a Bingo question's facts are its one line - not played, then played - and never the pitch pack.
 func TestBingoExperienceOneLine(t *testing.T) {
 	gopodBingoPlayed.Store(false)
 	t.Cleanup(func() { gopodBingoPlayed.Store(false) })
@@ -197,8 +191,8 @@ func TestBingoExperienceOneLine(t *testing.T) {
 	}
 }
 
-// A line labelled with a Brobot's name (the model writing for someone else) is
-// not chat content: the shared chat skips it. Live 2026-10-04 18:48.
+// A line labelled with a Brobot's name (the model writing for someone else) is not chat content:
+// the shared chat skips it.
 func TestDropNameLabelLines(t *testing.T) {
 	raw := "confused... \"Uh, hmm, sleep?\" 🤔 But you know what I say about power naps. 😴\n\n🚀  Brobot 2:  Dude,  \"Sleep\"? Brobots, NO!! 😏 |||1|||"
 	got := strings.TrimSpace(gopodDropNameLabelLines(raw))
@@ -216,9 +210,9 @@ func TestDropNameLabelLines(t *testing.T) {
 	}
 }
 
-// The Bingo-played flag: a Brobot's Bingo test line sets it, the operator typing
-// "Bingo Test Live" doesn't; once set, a Bingo question gets the snapshot and
-// the brother's take even with no run in the chat memory.
+// The Bingo-played flag: a Brobot's Bingo test line sets it, the operator typing "Bingo Test Live"
+// doesn't; once set, a Bingo question gets the snapshot and the brother's take even with no run in
+// the chat memory.
 func TestBingoPlayedFlag(t *testing.T) {
 	gopodBingoPlayed.Store(false)
 	t.Cleanup(func() { gopodBingoPlayed.Store(false) })

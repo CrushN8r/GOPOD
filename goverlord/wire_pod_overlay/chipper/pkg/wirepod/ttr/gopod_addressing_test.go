@@ -86,9 +86,8 @@ func TestGopodShouldAnswerNamed(t *testing.T) {
 	}
 }
 
-// No name: the first Brobot heard answers, his brother hearing the same
-// question stays quiet; a different question, or one after the window, is
-// answered.
+// No name: the first Brobot heard answers, his brother hearing the same question stays quiet; a
+// different question, or one after the window, is answered.
 func TestGopodShouldAnswerNoName(t *testing.T) {
 	resetFirstHeard()
 	now := time.Now()
@@ -107,7 +106,6 @@ func TestGopodShouldAnswerNoName(t *testing.T) {
 	if answer, _ := gopodShouldAnswer(gopodBrobot2ESN, "tell me about yourself", now.Add(window+time.Second)); !answer {
 		t.Errorf("same question after the window: quiet, want answer")
 	}
-	// The same Brobot asked again is never quiet.
 	if answer, _ := gopodShouldAnswer(gopodBrobot2ESN, "tell me about yourself", now.Add(window+2*time.Second)); !answer {
 		t.Errorf("same Brobot again: quiet, want answer")
 	}

@@ -10,28 +10,6 @@ import (
 	"strings"
 )
 
-// The interview as a song folder, set up like the Bingo test (operator
-// 2026-10-09: "can I get a standardized format now for interview and bingo? ...
-// I want to edit interview and bingo runs and I'm familiar with bingo test song
-// folder set up"): goverlord/runtime/songs/02_brobots_interview/
-//
-//   - story.md - the words: "## SECTION: <question's title>", then one
-//     "## STEP <id>" with "> TEXT: <words>" per spoken line, in order.
-//   - knobs.json (zKnobs.json, the private working copy, wins when it's there) -
-//     what each step is: "note" "ask" (the question, read by its reporter, to
-//     "to") or "line" (said by "speaker"), the Brobot's animation "cue" and his
-//     "moves" at their words (arm, nod, cube).
-//     2026-10-12 (operator's interview score): "chapter" on a section's first
-//     step starts a chapter - its title shows (and is said) before the question,
-//     and stays until the next one; "pictures" on an ask shows those files from
-//     the pictures folder with the question; note "closer" is said after
-//     the run's complete line.
-//
-// Before a section's ask, reporter lines are its banter; after it, the
-// answers, the brother's lines and the reporters' handoffs, in order. "start
-// interview" plays it (interview_script.song_id) exactly as it played
-// draft_script.md: gopodInterviewSongDraft turns it into the same gopodDraft.
-
 type gopodInterviewKnobs struct {
 	SongID   string                    `json:"song_id"`
 	SongType string                    `json:"song_type"`
@@ -96,14 +74,8 @@ func gopodInterviewStory(text string) (map[string]string, error) {
 			texts[step] = strings.TrimSpace(strings.TrimPrefix(line, "> TEXT:"))
 			inText = true
 		case step != "" && strings.HasPrefix(line, ">") && texts[step] != "":
-			// A TEXT can run over several lines.
 			texts[step] += " " + strings.TrimSpace(strings.TrimPrefix(line, ">"))
 		case step != "" && inText && line != "":
-			// 2026-10-17 (operator: "this multi-line edit broke the code ... Can
-			// you upgrade globally to support multi-line edits?"): a line right
-			// under "> TEXT:", no blank line between, is the text's next line -
-			// the bubble shows the line break. The song engine's own rule
-			// (run_robot_control_song_001.py parse_control_story_md).
 			if texts[step] == "" {
 				texts[step] = line
 			} else {
@@ -119,10 +91,8 @@ func gopodInterviewStory(text string) (map[string]string, error) {
 // gopodInterviewSongDraft reads a song folder into the draft the player plays.
 func gopodInterviewSongDraft(dir string) (gopodDraft, error) {
 	var d gopodDraft
-	// 2026-10-11 (operator: "go for knobs.json (clean version of dirty zKnobs)
-	// * if no clean knobs, create a knobs file from zKnobs"): knobs.json plays.
 	knobsPath := filepath.Join(dir, "knobs.json")
-	gopodKnobsMDBuild(dir) // 2026-11-04: zKnobs.md, the one source, first
+	gopodKnobsMDBuild(dir) // zKnobs.md, the one source, first
 	if _, err := os.Stat(knobsPath); err != nil {
 		if data, rerr := os.ReadFile(filepath.Join(dir, "zKnobs.json")); rerr == nil {
 			_ = gopodWriteFile(knobsPath, data, 0o644)

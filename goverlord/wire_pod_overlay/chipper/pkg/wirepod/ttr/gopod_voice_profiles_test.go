@@ -8,10 +8,6 @@ import (
 	"testing"
 )
 
-// 2026-10-26 (operator: "per-audio-file-profile-tag ... generation date, # of
-// times used, time last used"; "popular repeating live questions, 'regenerate'
-// ... takes over the per-audio-file-profile-tag, now with a # of
-// regenerations"; "add a report-run ... past 3-days/week/month/year").
 func TestVoiceProfilesUseTakeOverReport(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv(gopodChipperRootEnvVar, root)

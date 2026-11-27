@@ -6,15 +6,6 @@ import (
 	"strings"
 )
 
-// The game sweep (2026-10-24, operator: "Test every: Topic, Value Point, Easter
-// Egg * fullest run without live brobots"): every topic is found by its own
-// words; every value point is picked by its own question (the interview's
-// golden questions, each topic card's "ask N" lines); every Easter egg
-// on the list is reachable (its chapter's topics, or its topic). Each topic's
-// questions are asked in order, the points already revealed set aside. Nothing is
-// said, no model asked, the game's score untouched. system-test-game, and a
-// test on every deploy (TestGameSweep).
-
 type gopodSweepItem struct {
 	Kind, Item string
 	OK         bool
@@ -31,7 +22,6 @@ func gopodGameSweep() []gopodSweepItem {
 		}
 		return false
 	}
-	// Topics: found by their own first word.
 	topicOK := map[string]bool{}
 	contents := map[string]string{}
 	for _, p := range gopodTopicRegistry() {
@@ -50,16 +40,10 @@ func gopodGameSweep() []gopodSweepItem {
 		}
 		out = append(out, gopodSweepItem{"topic", p.Name, ok, why})
 	}
-	// Value points: each one's golden question through the real pipeline
-	// (gopodQuestionFactsFor - the point a live question is given), each topic's
-	// questions in order, the way the game plays them. The live score is put back
-	// as it was after.
-	// 2026-11-25: the game's questions, from their cards ("ask N" lines).
 	qfile := struct{ Questions []gopodGameQuestion }{gopodBrobotsSettings.GameQuestions}
 	if len(qfile.Questions) == 0 {
 		out = append(out, gopodSweepItem{"value point", "the cards' ask lines", false, "no game questions on the cards"})
 	}
-	// As at a session's start: no experience played yet (it changes its pitch).
 	for _, e := range gopodExperienceList() {
 		flag := gopodExperiencePlayed(e)
 		played := flag.Load()
@@ -88,7 +72,6 @@ func gopodGameSweep() []gopodSweepItem {
 		if gopodBackgroundTopic(q.Topic) || !gopodCorePoint(q.Topic, n) {
 			continue
 		}
-		// A run's own pack is reached by asking how the run went (an experience ask), not swept here.
 		if gopodIsRunPack(q.Topic) {
 			continue
 		}
@@ -106,7 +89,6 @@ func gopodGameSweep() []gopodSweepItem {
 			out = append(out, gopodSweepItem{"value point", item, false, fmt.Sprintf("\"%s\" is given %v", q.Ask, got)})
 		}
 	}
-	// Easter eggs: reachable.
 	chapterTopics := map[string][]string{}
 	for _, c := range gopodBrobotsSettings.InterviewChapters.Chapters {
 		chapterTopics["chapter:"+strings.TrimSpace(c.Title)] = c.Topics
@@ -124,8 +106,6 @@ func gopodGameSweep() []gopodSweepItem {
 		}
 		out = append(out, gopodSweepItem{"easter egg", e.Label, ok, why})
 	}
-	// The surprise eggs (topic_pictures.not_listed): off the list, still in the
-	// score - counted the score's way (gopodCoverageScoreText).
 	listed := map[string]bool{}
 	for _, e := range gopodEggList() {
 		listed[e.Key] = true
@@ -144,8 +124,8 @@ func gopodGameSweep() []gopodSweepItem {
 	return out
 }
 
-// gopodGameSweepLine: "Topics 31/31 · Value points 91/91 · Easter eggs 4/4", and
-// the first misses.
+// gopodGameSweepLine: "Topics 31/31 · Value points 91/91 · Easter eggs 4/4", and the first
+// misses.
 func gopodGameSweepLine(items []gopodSweepItem) (bool, string) {
 	total, good := map[string]int{}, map[string]int{}
 	var misses []string

@@ -17,16 +17,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The take sheet (operator 2026-10-06: raw runs spliced into one scripted
-// interview, "like how a lead guitarist will record several takes and splice
-// together"). One entry per value point, in interview order; under it, every
-// take: from every harvest dry run (gopod_harvest_test.go) and, since "keep
-// this session take?" (2026-10-06), from every live session the operator keeps
-// (Record Session's keep, gopod_record_session.go). The operator marks the
-// keeper ("keep": true) and edits its words ("say"); adding takes never changes
-// those. take_sheet.md, to read, is drawn by
-// gopod_probes/tools/gopod_take_sheet_render.py.
-
 type gopodHarvestTake struct {
 	Take       string   `json:"take"`
 	Chapter    string   `json:"chapter"`
@@ -58,10 +48,8 @@ type gopodTakeSheet struct {
 
 const gopodTakeSheetAbout = "The take sheet (operator 2026-10-06: raw runs spliced into one scripted interview). One entry per value point, in interview order; under it, every take from every harvest run and every kept live session. To pick: set \"keep\": true on the take you want (one per point). To change the words: edit its \"say\". A point with no takes needs another harvest. input is typed, numpad or mic; stt_heard is what speech-to-text heard. Made by gopod_take_sheet.go; adding takes never changes your marks or edits."
 
-// gopodTakeSheetAdd adds a run's takes to the take sheet at path: a take goes
-// under every point it was given, and under its own topic's first point when it
-// was given none of its own. Takes already there, and their keep marks and
-// edits, stay as they are.
+// gopodTakeSheetAdd adds a run's takes to the take sheet at path: a take goes under every point it
+// was given, and under its own topic's first point when it was given none of its own.
 func gopodTakeSheetAdd(path, run string, takes []gopodHarvestTake) error {
 	var sheet gopodTakeSheet
 	if data, err := os.ReadFile(path); err == nil {
@@ -90,9 +78,6 @@ func gopodTakeSheetAdd(path, run string, takes []gopodHarvestTake) error {
 	for _, take := range takes {
 		placed := false
 		for _, pt := range take.Points {
-			// Under every point it was given - its own topic's and any other
-			// topic the question also loaded (live run 18:41: booking 2/3 was
-			// only ever given alongside another topic's question).
 			if i, ok := index[pt]; ok {
 				sheet.Points[i].Takes = append(sheet.Points[i].Takes, take)
 				placed = placed || strings.HasPrefix(pt, take.Topic+" ")
@@ -125,14 +110,9 @@ func gopodTakeSheetRender(path string) error {
 	return nil
 }
 
-// --- live session takes (Record Session) ---
-
 var gopodInternalCue = regexp.MustCompile(`^\s*([A-Za-z][A-Za-z0-9-]*)\.\.\.\s+`)
 
 // gopodLiveTake is one Brobot answer in a recorded live session, as a take.
-// input: how the question came in - typed, numpad or mic (a spoken question
-// with no typed or numpad line before it); stt_heard: the question as
-// speech-to-text heard it (numpad and mic).
 func gopodLiveTake(esn, question, input string, result gopodStreamResult) gopodHarvestTake {
 	points := gopodGivenPoints(esn)
 	sort.Strings(points)
@@ -157,8 +137,8 @@ func gopodLiveTake(esn, question, input string, result gopodStreamResult) gopodH
 	return take
 }
 
-// gopodTakeSheetPath is record_session.take_sheet, "~" the home of the user who
-// owns GOPOD's overlay folder (Wire-Pod runs as root); "" when not set.
+// gopodTakeSheetPath is record_session.take_sheet, "~" the home of the user who owns GOPOD's
+// overlay folder (Wire-Pod runs as root); "" when not set.
 func gopodTakeSheetPath() (string, int, int) {
 	path := strings.TrimSpace(gopodBrobotsSettings.RecordSession.TakeSheet)
 	if env := strings.TrimSpace(os.Getenv("GOPOD_TAKE_SHEET")); env != "" {
@@ -175,8 +155,8 @@ func gopodTakeSheetPath() (string, int, int) {
 	return path, uid, gid
 }
 
-// gopodRecordTakesToSheet adds a kept session's takes to the take sheet, the
-// session folder's name as the run, and redraws take_sheet.md.
+// gopodRecordTakesToSheet adds a kept session's takes to the take sheet, the session folder's name
+// as the run, and redraws take_sheet.md.
 func gopodRecordTakesToSheet(dir string, takes []gopodHarvestTake) error {
 	path, uid, gid := gopodTakeSheetPath()
 	if path == "" {

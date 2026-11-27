@@ -8,19 +8,6 @@ import (
 	"sync"
 )
 
-// The response-chain template (2026-10-25, operator: "Do response-chain template
-// as proposed last time to make the rest inherent * this to me falls under,
-// flexible data sets"). A response is its answers in turn - single (one Brobot)
-// or duo (A, then B; multi later). Each answer is one Brobot's answer-chain, his
-// thought bubbles (answer_chains.<chain>). Everything about an answer's place in
-// the response lives in response_chains in the settings:
-//   chain     - its answer-chain group
-//   opener    - what he says first, while thinking (openers.<name>)
-//   ends_with, no_reminder, keep_reminder_types, weather_type, no_manager - the
-//              duo rules every answer type follows in that place (was duo)
-//   plan      - the notice bubble's plan line for the response ("" = none)
-// One nickname list (nicknames) serves every opener and hand-over.
-
 type gopodChainAnswer struct {
 	Chain             string   `json:"chain"`
 	Opener            string   `json:"opener"`
@@ -36,8 +23,8 @@ type gopodResponseChain struct {
 	Answers []gopodChainAnswer `json:"answers"`
 }
 
-// gopodResponseSlot: this Brobot's response-chain and his place in it - duo 0
-// (first in a line to both), duo 1 (following up), else single 0.
+// gopodResponseSlot: this Brobot's response-chain and his place in it - duo 0 (first in a line to
+// both), duo 1 (following up), else single 0.
 func gopodResponseSlot(esn string) (string, int) {
 	if gopodIsFollowingUp(esn) {
 		return "duo", 1
@@ -75,10 +62,9 @@ var gopodNicknameAt = struct {
 // gopodNicknameSaid: each host's last nickname, as said (host -> string).
 var gopodNicknameSaid sync.Map
 
-// gopodNicknameFill fills {title} and {nickname} in line for host: a random
-// title (nicknames.titles) and a random nickname, never his last one
-// (host_personas.<host>.handover.nicknames when he has his own, else
-// nicknames.list).
+// gopodNicknameFill fills {title} and {nickname} in line for host: a random title
+// (nicknames.titles) and a random nickname, never his last one
+// (host_personas.<host>.handover.nicknames when he has his own, else nicknames.list).
 func gopodNicknameFill(host, line string) string {
 	nn := gopodBrobotsSettings.Nicknames
 	list := gopodBrobotsSettings.HostPersonas[host].Handover.Nicknames
@@ -93,9 +79,6 @@ func gopodNicknameFill(host, line string) string {
 	if len(list) > 0 {
 		gopodNicknameAt.Lock()
 		last, seen := gopodNicknameAt.last[host]
-		// 2026-11-03 (live: Pip called Doc "Mrs incompatible-particulate" and
-		// Doc's "Nice try" threw the same one back): never his brother's last
-		// nickname either.
 		brotherNick := ""
 		if b := map[string]string{"Brobot 1": "Brobot 2", "Brobot 2": "Brobot 1"}[host]; b != "" {
 			if v, ok := gopodNicknameSaid.Load(b); ok {
@@ -119,12 +102,12 @@ func gopodNicknameFill(host, line string) string {
 	return strings.Join(strings.Fields(line), " ")
 }
 
-// gopodChainOpenerSaid: the opener each Brobot said for this answer (his notice
-// shows the same words).
+// gopodChainOpenerSaid: the opener each Brobot said for this answer (his notice shows the same
+// words).
 var gopodChainOpenerSaid sync.Map
 
-// gopodOpenerPick: his opener for this answer (openers.<his answer's opener>),
-// {got_it} his own Got it words; his Got it when there's none.
+// gopodOpenerPick: his opener for this answer (openers.<his answer's opener>), {got_it} his own Got
+// it words; his Got it when there's none.
 func gopodOpenerPick(esn string) string {
 	text := gopodGotItFor(esn).Text
 	if a, ok := gopodChainAnswerFor(esn); ok {
@@ -146,9 +129,8 @@ func gopodOpenerText(esn string) string {
 	return gopodGotItFor(esn).Text
 }
 
-// gopodResponsePlan: the notice bubble's plan line for his response - who
-// answers in turn ({order}), his place ({n} of {total}); "" when the response's
-// plan is empty.
+// gopodResponsePlan: the notice bubble's plan line for his response - who answers in turn
+// ({order}), his place ({n} of {total}); "" when the response's plan is empty.
 func gopodResponsePlan(esn string) string {
 	kind, n := gopodResponseSlot(esn)
 	rc := gopodBrobotsSettings.ResponseChains[kind]
@@ -171,12 +153,8 @@ func gopodResponsePlan(esn string) string {
 	})
 }
 
-
-// gopodOpenerShow (2026-10-25, operator: "'Got it!' & 'Nice try, Mr/Mrs [funny
-// nickname]!' * move these brobots spoken parts, out of notice-bubble, into and as
-// part of the brobot response * just add the nice try before the notice bubble"):
-// the opener he just said, the top line of his bubble, above his notice
-// ("opener:" to him; the page's brobotOpener).
+// gopodOpenerShow: the opener he just said, the top line of his bubble, above his notice ("opener:"
+// to him; the page's brobotOpener).
 func gopodOpenerShow(esn string) {
 	if gopodNoticeTitle(esn) == "" {
 		return

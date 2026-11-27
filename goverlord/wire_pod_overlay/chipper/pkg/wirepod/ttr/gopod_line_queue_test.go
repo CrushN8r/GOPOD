@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// TestLineQueue: two questions sent together - the second starts only once the
-// first has its answer on the feed.
+// TestLineQueue: two questions sent together - the second starts only once the first has its answer
+// on the feed.
 func TestLineQueue(t *testing.T) {
 	saved := gopodBrobotsSettings.LineQueue
 	defer func() { gopodBrobotsSettings.LineQueue = saved }()
@@ -43,9 +43,8 @@ func TestLineQueue(t *testing.T) {
 
 // ## EOF
 
-// CLOCK_AUDIT_001.md A (2026-10-30): a question's idle wait doesn't count while an
-// answer is going - a Brobot's reply from its start (his thinking too) to its end,
-// or a Gomad's answer being made.
+// CLOCK_AUDIT_001.md A: a question's idle wait doesn't count while an answer is going - a Brobot's
+// reply from its start (his thinking too) to its end, or a Gomad's answer being made.
 func TestLineQueueIdleWaitsForAnswer(t *testing.T) {
 	if gopodAnswerGoing([]string{"Brobot 1"}) {
 		t.Fatal("no reply going yet")

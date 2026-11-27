@@ -9,13 +9,9 @@ import (
 	"testing"
 )
 
-// LOCKED 2026-11-03 (operator: "searching animation is breaking again. please
-// isolate into a robust golden note and fucking lock it and refer only to it";
-// "Fail the deploy"): the deploy fails when the golden note
-// (gopod_probes/locks/searching_golden.md) is missing or broken, when it changed
-// without the operator's relock, or when any other code sends the searching
-// clip. Changing the note is the operator's word only; then GOPOD_RELOCK=1
-// saves its new fingerprint (gopod_probes/locks/searching_golden.lock).
+// LOCKED the deploy fails when the golden note (gopod_probes/locks/searching_golden.md) is missing
+// or broken, when it changed without the operator's relock, or when any other code sends the
+// searching clip.
 func TestSearchingGoldenLock(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -40,7 +36,6 @@ func TestSearchingGoldenLock(t *testing.T) {
 	} else if strings.TrimSpace(string(want)) != got {
 		t.Errorf("LOCKED: the searching golden note changed (operator's word only, then GOPOD_RELOCK=1)")
 	}
-	// The note is the one source: no other code names the searching clip.
 	files, _ := filepath.Glob(filepath.Join(root, "pkg", "wirepod", "*", "*.go"))
 	for _, f := range files {
 		if strings.HasSuffix(f, "_test.go") {

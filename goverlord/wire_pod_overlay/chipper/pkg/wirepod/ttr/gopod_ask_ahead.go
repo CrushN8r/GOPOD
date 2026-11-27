@@ -1,15 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_ask_ahead.go
 package wirepod_ttr
 
-// Ask ahead (2026-10-29, operator: "Maybe get gemma to help with guiding the flow
-// with small background asks from the code in between steps? Hey gemma how would
-// you colour this part?"; "re: each small background ask ... runs while the
-// previous bubble is being spoken * yes, please build"). A small ask to the
-// language model starts the moment its question is known - while the line is
-// read out and the bubbles before it play - and its answer waits here until the
-// answer chain needs it: speaking time is thinking time. The model's own queue
-// keeps them in order with the main answer.
-
 import (
 	"bytes"
 	"encoding/json"
@@ -43,12 +34,11 @@ func gopodAskAhead(key, prompt string, numPredict int) {
 		a.text = gopodOllamaAsk(prompt, numPredict, 0.9)
 		logger.Println("GOPOD_ASK_AHEAD " + key + " (" + time.Since(t0).Round(100*time.Millisecond).String() + "): " + gopodCut(strings.ReplaceAll(a.text, "\n", " / "), 120))
 	}()
-	// Unclaimed answers don't stay forever.
 	time.AfterFunc(5*time.Minute, func() { gopodAheads.Delete(key) })
 }
 
-// gopodAskAheadGet: the ask's answer, waiting for it up to wait; "" when there's
-// none (never asked, or not back in time).
+// gopodAskAheadGet: the ask's answer, waiting for it up to wait; "" when there's none (never asked,
+// or not back in time).
 func gopodAskAheadGet(key string, wait time.Duration) string {
 	v, ok := gopodAheads.Load(key)
 	if !ok {
@@ -65,8 +55,8 @@ func gopodAskAheadGet(key string, wait time.Duration) string {
 	}
 }
 
-// gopodOllamaAsk: one short ask to the language model, "" on any failure (a
-// variable, so a test can stand in for the model).
+// gopodOllamaAsk: one short ask to the language model, "" on any failure (a variable, so a test can
+// stand in for the model).
 var gopodOllamaAsk = func(prompt string, numPredict int, temperature float64) string {
 	base, model, ok := gopodWarmupOllama()
 	if !ok || model == "" {

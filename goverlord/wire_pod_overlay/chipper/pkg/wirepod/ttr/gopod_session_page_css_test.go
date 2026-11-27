@@ -7,8 +7,7 @@ import (
 	"testing"
 )
 
-// 2026-10-25 (operator: "move all css, js, etc... into files"): a saved session
-// page carries its look from webroot/css/gopod_session_page.css.
+// a saved session page carries its look from webroot/css/gopod_session_page.css.
 func TestSessionPageCarriesItsCSS(t *testing.T) {
 	dir := t.TempDir()
 	os.WriteFile(filepath.Join(dir, "chat.jsonl"), []byte(`{"time":"1","who":"Operator","text":"hi"}`+"\n"), 0644)

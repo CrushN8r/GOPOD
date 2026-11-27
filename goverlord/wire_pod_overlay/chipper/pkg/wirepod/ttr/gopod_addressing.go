@@ -2,9 +2,9 @@
 package wirepod_ttr
 
 import (
-	"sort"
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -14,29 +14,15 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Only the Brobot you call answers (operator 2026-10-04: "The vocal rule is to
-// call for "Brobot 1" or "Brobot 2"", "one short animation & default to first
-// brobot heard, answers"). "Hey Vector" wakes both robots in their own firmware,
-// and each sends its own transcript. Before the chat request:
-//   - a question that opens with a Brobot's name (addressing.names, the "brobot"
-//     forms first, "robot" only if none match) is answered by that Brobot only;
-//   - a question with no name is answered by the Brobot heard first; the other
-//     one, hearing the same question within addressing.first_heard_seconds,
-//     stays quiet.
-// The quiet Brobot plays addressing.quiet_animation once and goes back to idle:
-// no chat request, no speech, nothing in the shared chat or the session memory.
-
-// gopodAddressedTo returns the Brobot a question opens with ("Brobot 1",
-// "Brobot 2"), or "" when it names none. The name counts only within the first
-// addressing.start_within_words words ("hey brobot one, ..."), so "tell me about
-// your brother bro bought one" names nobody.
+// gopodAddressedTo returns the Brobot a question opens with ("Brobot 1", "Brobot 2"), or "" when it
+// names none.
 func gopodAddressedTo(text string) string {
 	to, _, _ := gopodFindCall(text)
 	return to
 }
 
-// gopodFindCall finds the Brobot a question opens with and the byte span of the
-// name as heard in text.
+// gopodFindCall finds the Brobot a question opens with and the byte span of the name as heard in
+// text.
 func gopodFindCall(text string) (string, int, int) {
 	spans := gopodAddressWordSpans(text)
 	words := make([]string, len(spans))
@@ -59,10 +45,7 @@ func gopodFindCall(text string) (string, int, int) {
 	return "", 0, 0
 }
 
-// gopodFirstNamed (2026-10-23, operator: "When 'All' selected, whatever Brobot N
-// is called in the input first, that typically means, for both brobots, starting
-// with brobot N answering first"): the Brobot named first anywhere in the line
-// (addressing.names), "" for none.
+// gopodFirstNamed: the Brobot named first anywhere in the line (addressing.names), "" for none.
 func gopodFirstNamed(text string) string {
 	spans := gopodAddressWordSpans(text)
 	words := make([]string, len(spans))
@@ -87,10 +70,8 @@ func gopodFirstNamed(text string) string {
 	return best
 }
 
-// gopodCanonicalCall writes the opening call as the Brobot's own name ("bro
-// bought two, can you hear me" -> "Brobot 2, can you hear me"), so the chat
-// model sees it's being called (operator 2026-10-04: "brobots acknowledge my
-// heard call").
+// gopodCanonicalCall writes the opening call as the Brobot's own name ("bro bought two, can you
+// hear me" -> "Brobot 2, can you hear me"), so the chat model sees it's being called.
 func gopodCanonicalCall(text string) string {
 	to, from, until := gopodFindCall(text)
 	if to == "" {
@@ -141,8 +122,7 @@ func gopodWordsEqual(a, b []string) bool {
 	return true
 }
 
-// The last no-name question a Brobot took, so his brother, hearing the same
-// question, stays quiet.
+// The last no-name question a Brobot took, so his brother, hearing the same question, stays quiet.
 var gopodFirstHeard = struct {
 	sync.Mutex
 	esn   string
@@ -150,8 +130,7 @@ var gopodFirstHeard = struct {
 	at    time.Time
 }{}
 
-// gopodShouldAnswer decides whether this Brobot answers; to is the Brobot named
-// ("" for none).
+// gopodShouldAnswer decides whether this Brobot answers; to is the Brobot named ("" for none).
 func gopodShouldAnswer(esn, text string, now time.Time) (answer bool, to string) {
 	answer, to = gopodDecideAnswer(esn, text, now)
 	if !answer {
@@ -159,27 +138,20 @@ func gopodShouldAnswer(esn, text string, now time.Time) (answer bool, to string)
 	return answer, to
 }
 
-// gopodAnswerNext: a Brobot who answers the next line even though his brother
-// heard it first ("All", gopodTypedInputAll).
+// gopodAnswerNext: a Brobot who answers the next line even though his brother heard it first
+// ("All", gopodTypedInputAll).
 var gopodAnswerNext sync.Map
 
-// gopodAllFirstAnswer: the Brobot answering first in a line to both - his answer
-// ends with addressing.redirect_text (2026-10-21).
+// gopodAllFirstAnswer: the Brobot answering first in a line to both - his answer ends with
+// addressing.redirect_text.
 var gopodAllFirstAnswer sync.Map
 
-// gopodFollowingUp: a Brobot answering after his brother on the same line (All,
-// Explain the Math) - operator 2026-10-15: '"All" = Brobot 1 \'answers\',
-// Brobot 2 \'follows up\', no repeats'. While it's set his reply follows up:
-// addressing.follow_up_note before the question (math.follow_up_note for
-// Explain the Math). His weather line (his own robot's units) and reminder stay
-// (operator: "keep Brobot 2 repeats the weather line"; "keep the 'Hey, that
-// reminds me...' lines as they were").
+// gopodFollowingUp: a Brobot answering after his brother on the same line (All, Explain the Math) -
+// operator '"All" = Brobot 1 \'answers\', Brobot 2 \'follows up\', no repeats'.
 var gopodFollowingUp sync.Map
 
-// gopodDialZero (2026-11-06, operator: "Brobot 1/2 = Dials @ 0% * DOC & PIP =
-// Dials @ 100%"; "Keep DOC/PIP seperate personas from brobots"): a Brobot
-// answering a line to both (KP*, "All") answers at the dial's 0% - as Brobot 1
-// or 2, the party-bro GOPOD rep, not the persona he hosts (gopodPersonaProfileRead).
+// gopodDialZero: a Brobot answering a line to both (KP*, "All") answers at the dial's 0% - as
+// Brobot 1 or 2, the party-bro GOPOD rep, not the persona he hosts (gopodPersonaProfileRead).
 var gopodDialZero sync.Map // esn -> true
 
 // gopodAtDialZero: the Brobot by this name is answering at the dial's 0%.
@@ -193,14 +165,7 @@ func gopodAtDialZero(name string) bool {
 	return false
 }
 
-// GOLDEN root (2026-11-15, operator: "decouple brobots from DOC/PIP completely *
-// They only share the same robot bodies * All else is unique to the respective
-// personas"): a Brobot body and the persona answering from it are two names.
-// gopodAnswerer is the one place a body becomes a persona: at the dial's 0% the
-// Brobot himself ("Brobot 1"), else the persona his card hosts ("DOC", "PIP" -
-// that card's nickname). Any other name is a persona already, returned as is.
-// Every persona fact (its card, its labels, its colours, its lingo) is looked
-// up by the persona's own name - never by the body's.
+// GOLDEN root: a Brobot body and the persona answering from it are two names.
 func gopodAnswerer(name string) string {
 	if !gopodIsBrobotBody(name) || gopodAtDialZero(name) {
 		return name
@@ -214,8 +179,8 @@ func gopodAnswerer(name string) string {
 // gopodIsBrobotBody: the name is one of the two robot bodies.
 func gopodIsBrobotBody(name string) bool { return name == "Brobot 1" || name == "Brobot 2" }
 
-// gopodHostedPersona: the persona a body hosts at the dial's 100% - the persona
-// (not the Brobot himself) whose card says "body: <this body>" ("DOC"); "" for none.
+// gopodHostedPersona: the persona a body hosts at the dial's 100% - the persona (not the Brobot
+// himself) whose card says "body: <this body>" ("DOC"); "" for none.
 func gopodHostedPersona(body string) string {
 	var found []string
 	for who, hp := range gopodBrobotsSettings.HostPersonas {
@@ -247,8 +212,6 @@ func gopodDecideAnswer(esn, text string, now time.Time) (bool, string) {
 		return to == self, to
 	}
 	window := gopodSecondsToDuration(gopodBrobotsSettings.Addressing.FirstHeardSeconds)
-	// The brother heard it as a voice command ("bingo test live" on one, "the
-	// goat test live" on the other, live 2026-10-04 10:3x): he took it.
 	if gopodBrotherRanCommand(esn, now, window) {
 		return false, ""
 	}
@@ -263,8 +226,8 @@ func gopodDecideAnswer(esn, text string, now time.Time) (bool, string) {
 	return true, ""
 }
 
-// gopodBrotherRanCommand: the other Brobot ran a custom voice command (Wire-Pod's
-// "Bot <ESN> Executing:" log line) within window before now.
+// gopodBrotherRanCommand: the other Brobot ran a custom voice command (Wire-Pod's "Bot <ESN>
+// Executing:" log line) within window before now.
 func gopodBrotherRanCommand(esn string, now time.Time, window time.Duration) bool {
 	brother := gopodBrobot1ESN
 	if strings.TrimSpace(esn) == gopodBrobot1ESN {
@@ -280,7 +243,6 @@ func gopodBrotherRanCommand(esn string, now time.Time, window time.Duration) boo
 		if err != nil {
 			continue
 		}
-		// Log stamps are whole seconds.
 		if now.Sub(at) > window+time.Second {
 			return false
 		}
@@ -291,8 +253,8 @@ func gopodBrotherRanCommand(esn string, now time.Time, window time.Duration) boo
 	return false
 }
 
-// gopodSameQuestion: the two robots' transcripts of one question - each has its
-// own mics, so a word may differ - share at least half their words.
+// gopodSameQuestion: the two robots' transcripts of one question - each has its own mics, so a word
+// may differ - share at least half their words.
 func gopodSameQuestion(a, b []string) bool {
 	if len(a) == 0 || len(b) == 0 {
 		return false
@@ -326,8 +288,8 @@ func gopodAddressingLog(esn, to string, answer bool) {
 	logger.Println(fmt.Sprintf("BROBOT_ADDRESSED to=%s self=%s action=%s", to, gopodBrobotName(esn), action))
 }
 
-// gopodQuietBrother ends this Brobot's turn: one short animation under behavior
-// control, the voice request closed the way a chat reply closes it, control back.
+// gopodQuietBrother ends this Brobot's turn: one short animation under behavior control, the voice
+// request closed the way a chat reply closes it, control back.
 func gopodQuietBrother(req interface{}, robot *vector.Vector, esn, text string, isKG bool) {
 	ctx := context.Background()
 	granted := make(chan bool, 1)
@@ -345,8 +307,6 @@ func gopodQuietBrother(req interface{}, robot *vector.Vector, esn, text string, 
 		logger.Println("BROBOT_ADDRESSED quiet animation skipped: no behavior control")
 	}
 	if !isKG && req != nil {
-		// No transcribed text: the chat page makes the operator's bubble from this
-		// log line, and the answering brother already logs it (one bubble, not two).
 		IntentPass(req, "intent_greeting_hello", "", map[string]string{}, false)
 	}
 	select {

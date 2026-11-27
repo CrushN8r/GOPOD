@@ -15,24 +15,11 @@ import (
 	"unicode/utf8"
 )
 
-// From the old pages and the JSON tree viewer (2026-10-20, operator: "do all 8
-// please * and corrected tpu +/- rotation"; gopod_notes/PAGES_AND_VIEWER_ABSORB_SURVEY_001.md):
-//   system-cams [tpu]                          Brobot 1, Brobot 2 and the USB webcam side by side;
-//                                              tpu = the selected feed's Edge TPU result (system-visual)
-//   system-chats <words> [operator|brobots|managers]   every saved session's chat searched
-//   system-chat-save [session]                 a readable chat.md in the session's folder
-//   system-menu-theme <dark|light|blue|green|purple>   system_menu.themes into system_menu.look
-//   system-numpad (alone)                      each key: persona, body, live or not
-// (camera feeds as a surprise egg: chapters/_always, gopod_interview_chapters.go)
-
 func gopodSystemCams(text string) string {
 	f := strings.Fields(strings.ToLower(text))
 	if len(f) > 1 && f[1] == "tpu" {
 		return gopodSystemVisual("system-visual")
 	}
-	// 2026-10-20 (operator: "Multi (more than 1) cam feeds * brobot 1 photo,
-	// brobot 2 photo, TPU bounding boxes on enhanced version"): every feed's
-	// photo now, then the selected one's TPU boxes.
 	r := gopodVisualAll()
 	gopodVisualPost(r)
 	return gopodVisualLine(r)
@@ -103,7 +90,6 @@ func gopodSystemChats(text string) string {
 					continue
 				}
 			}
-			// Review: not the searches themselves (the typed command, its answer).
 			if l.Who == gopodSystemSetRole() || strings.HasPrefix(strings.ToLower(strings.TrimSpace(l.Text)), "system-") {
 				continue
 			}
@@ -114,8 +100,6 @@ func gopodSystemChats(text string) string {
 			at, end := loc[0], loc[1]
 			found++
 			if len(out) < 30 {
-				// The match marked >>like this<<, a little either side.
-				// Offsets from the text itself, on character boundaries (review).
 				from, to := at-60, end+60
 				if from < 0 {
 					from = 0
@@ -229,8 +213,6 @@ func gopodSystemTPU(text string) string {
 		gopodQuickLook.Lock()
 		gopodQuickLookRestartLocked()
 		gopodQuickLook.Unlock()
-		// 2026-10-20 (operator: "do I wait for a response? Or WTF?"): the answer
-		// comes when the worker is up (or isn't, after 30 s).
 		for i := 0; i < 60; i++ {
 			time.Sleep(500 * time.Millisecond)
 			gopodQuickLook.Lock()

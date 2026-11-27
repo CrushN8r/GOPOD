@@ -11,19 +11,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The _llm_song run (2026-10-20, operator: "load 'internal-run' from expected
-// required external mini-run/song file, per llm * then all llm warmings load an
-// expected run (required. the run file can be a non-run, 0 setting) * I can
-// then mix/shuffle internal runs as I desire without breaking GOPOD"; "If
-// _llm_song folder name is unchanged, that's how we make the folders
-// interchangeable"). Every LLM warm-up - the opener (00_llm_warming) and each
-// song's - says its folder's _llm_song run between "Voices ready" and "LLM
-// ready": _llm_song/knobs.json (steps, note "line", speaker a reporter host)
-// and _llm_song/story.md (each step's words). Swap the folder to change it;
-// no steps = nothing said. The guards: system-check flags a warm-up with no
-// _llm_song; a missing or unreadable one plays as no lines and logs
-// GOPOD_CHECK; Esc / system-skip skips its lines on the page.
-
 const gopodLLMSongDir = "_llm_song"
 
 // gopodLLMSongLines: the run's lines, and whether the folder was there to read.

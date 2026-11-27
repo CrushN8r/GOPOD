@@ -2,8 +2,8 @@ package wirepod_ttr
 
 import "testing"
 
-// Live 2026-09-30 openings: animation words plus a wide gap are dropped; an
-// ordinary opening with a single space is left alone.
+// Live animation words plus a wide gap are dropped; an ordinary opening with a single space is left
+// alone.
 func TestGopodStripLeadingAnimationWords(t *testing.T) {
 	tests := map[string]string{
 		"celebrate  Oh man! Get ready.":           "Oh man! Get ready.",
@@ -27,8 +27,8 @@ func TestGopodStripLeadingAnimationWords(t *testing.T) {
 	}
 }
 
-// The one-dot opening cue (live 2026-09-30 21:47-21:55) is dropped from the
-// chat display; a capitalised word or a non-animation word is kept.
+// The one-dot opening cue is dropped from the chat display; a capitalised word or a non-animation
+// word is kept.
 func TestGopodStripAnimationCueForDisplay(t *testing.T) {
 	tests := map[string]string{
 		"happy. hey there!  so, uhh":         "hey there!  so, uhh",

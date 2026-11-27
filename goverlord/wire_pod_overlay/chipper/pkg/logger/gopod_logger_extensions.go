@@ -6,10 +6,9 @@ func LogDebugUI(a ...any) {
 	LogTray(a...)
 }
 
-// LogUIPlain/LogDebugUIPlain: same storage as LogUI/LogDebugUI above, but
-// without the timestamp prefix - for the one BROBOT_RICH_DISPLAY line in
-// sdkapp/server.go that wants just "Brobot 1: <text>", not every other
-// wire-pod log line (which keeps LogUI/LogDebugUI unchanged).
+// LogUIPlain/LogDebugUIPlain: same storage as LogUI/LogDebugUI above, but without the timestamp
+// prefix - for the one BROBOT_RICH_DISPLAY line in sdkapp/server.go that wants just "Brobot 1:
+// <text>", not every other wire-pod log line (which keeps LogUI/LogDebugUI unchanged).
 func LogUIPlain(a ...any) {
 	LogArray = append(LogArray, fmt.Sprint(a...)+"\n")
 	if len(LogArray) >= 50 {

@@ -1,17 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_readme_cast.go
 package wirepod_ttr
 
-// The README's cast table (2026-11-15, operator: "lists/stuff like that should be
-// written to files that are either auto-updated on the spot/per-session/daily?
-// Like if/when persona(s) join/leave/replace cast members already listed"):
-// GOPOD writes the README's "Meet the cast" table itself, between its two
-// markers, from the one source - the numpad map's live keys, in its order - with
-// each persona's names from its card and what it does from the crew roster. A
-// key made live or off in numpad-mapper.md, or a renamed persona, changes the
-// table; nothing is written by hand. system-scrolls writes it (with the Scrolls);
-// system-check and TestReadmeCastMatches fail when it's behind. Its few words:
-// readme_cast (numpad-mapper.md).
-
 import (
 	"os"
 	"path/filepath"
@@ -72,7 +61,6 @@ func gopodReadmeCastTable() string {
 			row(shown, named(nick, gopodPersona(host).Name), what(gopodCallName(host), host))
 		default:
 			body := gopodBrobotName(target)
-			// A body's key (NumLock on) reaches the persona it hosts (DOC, PIP).
 			hosted := gopodHostedPersona(body)
 			row(shown, fill(rc.OnBody, "{who}", named(nick, gopodBrobotsSettings.HostPersonas[hosted].Name), "{body}", body), what(gopodCallName(hosted), hosted))
 		}
@@ -83,8 +71,8 @@ func gopodReadmeCastTable() string {
 
 func gopodReadmePath() string { return filepath.Join(gopodRepoRoot(), "README.md") }
 
-// gopodReadmeCastWant: the README with its table as it should be; false when the
-// README has no markers.
+// gopodReadmeCastWant: the README with its table as it should be; false when the README has no
+// markers.
 func gopodReadmeCastWant() (string, string, bool) {
 	data, err := os.ReadFile(gopodReadmePath())
 	if err != nil {

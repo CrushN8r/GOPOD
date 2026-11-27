@@ -189,15 +189,8 @@ func buildGOPODSessionMemoryPrompt(exchanges []gopodSessionExchange) string {
 		exchanges = exchanges[len(exchanges)-6:]
 	}
 	var builder strings.Builder
-	// Header text is derived from system_speech_content.json - see
-	// gopod_system_speech_content.go. The per-exchange lines below stay in
-	// Go: they're generated from live session data (loop + byte-budget
-	// truncation), not fixed content, so externalizing them would move
-	// control flow into data rather than remove it.
 	builder.WriteString(loadedGOPODSystemSpeechContent.SessionMemoryHeader)
 	for _, exchange := range exchanges {
-		// GOPOD 2026-09-29: name which brother answered (by ESN), so each Brobot
-		// can pick up the chat instead of repeating its brother's answer.
 		who := gopodBrobotName(exchange.ESN)
 		sm := gopodBrobotsSettings.SessionMemory
 		line := strings.NewReplacer("{who}", who, "{asked}", compactGOPODMemoryText(exchange.UserMessage), "{answered}", compactGOPODMemoryText(exchange.SpokenOutput)).Replace(sm.Line)
@@ -218,10 +211,6 @@ func buildGOPODSessionMemoryPrompt(exchanges []gopodSessionExchange) string {
 }
 
 func compactGOPODMemoryText(text string) string {
-	// GOPOD 2026-09-29: memory is read back by the model as an example of how to
-	// talk, so it holds plain words only - no "thinking..." cues, no |||C|||
-	// markers, no emoji, and no "..." (the model copies all of these into new
-	// replies, and a copied "word..." splits the spoken reply).
 	text = gopodMemoryMarkerPattern.ReplaceAllString(text, " ")
 	text = gopodMemoryActionCuePattern.ReplaceAllStringFunc(text, func(cue string) string {
 		word := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(cue), "..."))
@@ -250,7 +239,6 @@ func compactGOPODMemoryText(text string) string {
 	if len(runes) <= maxRunes {
 		return text
 	}
-	// Cut at a word boundary, with no trailing "..." for the model to copy.
 	cut := string(runes[:maxRunes])
 	if i := strings.LastIndex(cut, " "); i > 0 {
 		cut = cut[:i]
@@ -264,12 +252,8 @@ var (
 	gopodMemoryDotsPattern      = regexp.MustCompile(`\.{2,}`)
 )
 
-// gopodMemoryNameLabelLinePattern: a line of a saved answer that opens with a
-// Brobot's name and a colon ("🚀  Brobot 2: What's up?"). That's the model
-// writing a line for someone else, not chat content, so the shared chat skips it
-// (operator 2026-10-05: "when brobots review chat history for answering, skip
-// those types of lines"). One such line in memory was copied into most of the
-// replies after it (replay on gemma2:2b: 7 of 12, vs 2 of 24 with none).
+// gopodMemoryNameLabelLinePattern: a line of a saved answer that opens with a Brobot's name and a
+// colon ("🚀 Brobot 2: What's up?").
 var gopodMemoryNameLabelLinePattern = regexp.MustCompile(`(?m)^[^\p{L}\p{N}\n]*Brobot\s*\d\s*:.*$`)
 
 // gopodDropNameLabelLines removes those lines from a saved answer.
@@ -294,18 +278,15 @@ func recordCompletedGOPODSessionExchange(esn, userMessage string, result gopodSt
 	gopodRecordExchange(esn, userMessage, result)
 }
 
-// The Brobots' robot serials (ESNs): their labels until Wire-Pod's start works
-// out who they are (gopodBrobotsSetup, gopod_brobots_setup.go; the labels,
-// gopod_esn_labels.go) - one robot alone is Brobot 1, solo.
+// The Brobots' robot serials (ESNs): their labels until Wire-Pod's start works out who they are
+// (gopodBrobotsSetup, gopod_brobots_setup.go; the labels, gopod_esn_labels.go) - one robot alone is
+// Brobot 1, solo.
 var (
 	gopodBrobot1ESN = gopodESN1
 	gopodBrobot2ESN = gopodESN2
 )
 
-// gopodBrobotName maps a robot ESN to its Brobot name. Unknown ESNs stay "Brobot".
-// GopodBrobotOrder (2026-10-10, operator: "upon detection of more than 1 robot,
-// list Brobot 1 first, then Brobot 2"): a robot's place in a list - Brobot 1,
-// Brobot 2, then any other robot.
+// gopodBrobotName maps a robot ESN to its Brobot name.
 func GopodBrobotOrder(esn string) int {
 	switch gopodBrobotName(strings.ToLower(esn)) {
 	case "Brobot 1":
@@ -331,17 +312,11 @@ func gopodBrobotName(esn string) string {
 
 // The shared chat's limits and notes below are shared_chat (and bingo) in
 // gopod_brobots_settings.json.
-//
-// gopodSharedBrobotChatExchanges is how many recent exchanges (both robots) come
-// back as the shared chat. Operator 2026-10-01: "cap at 13 most recent
-// questions+ snapshot bingo experiences, after that brobots say they don't
-// remember".
 var gopodSharedBrobotChatExchanges = gopodBrobotsSettings.SharedChat.MaxQuestions
 
-// gopodSharedBrobotChatMaxAge: exchanges older than this are left out of the
-// shared chat, and so is anything from before this Wire-Pod start - so a restart
-// or a break gives a fresh chat, and an old made-up detail (an invented name)
-// isn't fed back forever. The session log itself keeps everything.
+// gopodSharedBrobotChatMaxAge: exchanges older than this are left out of the shared chat, and so is
+// anything from before this Wire-Pod start - so a restart or a break gives a fresh chat, and an old
+// made-up detail (an invented name) isn't fed back forever.
 var gopodSharedBrobotChatMaxAge = time.Duration(gopodBrobotsSettings.SharedChat.MaxMinutes) * time.Minute
 
 var gopodSharedBrobotChatStart = time.Now()
@@ -354,33 +329,13 @@ func gopodTagForBrobot(esn, text string) string {
 	return "[to " + gopodBrobotName(esn) + "] " + gopodNormalizeGOPODName(text)
 }
 
-// gopodForgottenNote opens the shared chat when older exchanges since this
-// Wire-Pod start were left out (past the 13 newest, or older than 120 minutes).
+// gopodForgottenNote opens the shared chat when older exchanges since this Wire-Pod start were left
+// out (past the 13 newest, or older than 120 minutes).
 var gopodForgottenNote = gopodBrobotsSettings.SharedChat.ForgottenNote
 
-// An experience's run_marker (gopod_experiences.go): a performed line holding it
-// starts its run ("Bingo Test Begins. Round 1!"); the run is every performed
-// line from there until the next question, or until the feed goes quiet for its
-// run_gap_seconds (other lines after it, such as go search, are kept).
-
-// gopodSharedBrobotChat returns the recent exchanges of both robots as one chat:
-// the tagged question, then the answer as the model wrote it (split markers
-// removed). It also carries what the brothers performed in between, from
-// Wire-Pod's chat feed (gopod_chat_feed.go):
-//   - The Bingo test is scripted, so every run is the same. Its lines are not
-//     carried; one snapshot note stands for them - however many runs, remembered
-//     as the same single run - since this Wire-Pod start and within
-//     gopodSharedBrobotChatMaxAge, however many questions came after
-//     (gopodBingoSnapshotNote, plus the asking brother's take, gopodAddBingoTake).
-//     Operator 2026-10-01: "can the brobots just respond as if the same single
-//     run, since its a scripted performance?"
-//   - Other performed lines (go search answers) come as one note per run of
-//     lines (gopodSharedFeedNote), from the oldest remembered exchange on.
+// gopodSharedBrobotChat returns the recent exchanges of both robots as one chat: the tagged
+// question, then the answer as the model wrote it (split markers removed).
 func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
-	// 2026-11-06 (COMM_FART_RAPID_RUNS_REVIEW_001.md: in the All round Brobot 1
-	// said "I'm Brobot 1, my nickname is BRUH!" then carried on DOC's intro): at
-	// the dial's 0% his earlier answers - said as the persona he hosts - come back
-	// as that persona's lines ("BARFALLONYOU said: ..."), not his own.
 	saidBy := len(asSaid) > 0 && asSaid[0]
 	cutoff := time.Now().Add(-gopodSharedBrobotChatMaxAge)
 	if gopodSharedBrobotChatStart.After(cutoff) {
@@ -402,8 +357,6 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 		forgotten = true
 	}
 
-	// Split the performed lines into experience runs (the Bingo test, the nap)
-	// and the rest.
 	exps := gopodExperienceList()
 	saw := make([]bool, len(exps))
 	last := make([]time.Time, len(exps))
@@ -439,9 +392,6 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 	}
 	var feed []gopodChatFeedEvent
 	for _, e := range other {
-		// The song's countdown and Bingo ball lines are page-only, never remembered;
-		// so are the chapter titles, topic pictures, reporter voice files and the
-		// reporter hosts' lines (2026-10-06).
 		if gopodPageOnlyRole(e.Who) {
 			continue
 		}
@@ -461,8 +411,6 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 	for x := range exps {
 		placed[x] = !saw[x]
 	}
-	// Each run's one snapshot note goes where its last run was, before the
-	// question that came after it (before: at the start; none after: at the end).
 	place := func(before func(time.Time) bool) {
 		for x, exp := range exps {
 			if !placed[x] && before(last[x]) {
@@ -491,13 +439,6 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 		}
 		flush()
 		place(func(t time.Time) bool { return t.Before(ex.Timestamp) })
-		// Lines labelled with a Brobot's name are skipped (gopodDropNameLabelLines),
-		// and the code's scripted lines are taken out (gopodDropScriptedLines,
-		// 2026-10-06) so the LLM never learns them to copy.
-		// Each saved answer also gets its owner's name back (gopodFixSelfName), so an
-		// old "It's Brobot 2" from Brobot 1 isn't copied into the next reply.
-		// The cue goes back to the "happy___" form the prompt asks for
-		// (gopodInternalToAnimationMarker), so memory doesn't teach the old "...".
 		answer := strings.TrimSpace(gopodInternalToAnimationMarker(gopodSpellNames(gopodFixSelfName(ex.ESN, gopodCorrectNames(gopodMemoryMarkerPattern.ReplaceAllString(gopodPlaceholderWordPattern.ReplaceAllString(gopodDropScriptedLines(gopodDropNameLabelLines(ex.RawResponse)), ""), " "))))))
 		if answer == "" {
 			continue
@@ -523,13 +464,11 @@ func gopodSharedBrobotChat(asSaid ...bool) []openai.ChatCompletionMessage {
 	return chat
 }
 
-// gopodBingoSnapshotNote stands for the Bingo test in the chat window, however
-// many times it ran; the asking brother's own take is added to it
-// (gopodAddBingoTake). The text is bingo.snapshot_note in gopod_brobots_settings.json.
+// gopodBingoSnapshotNote stands for the Bingo test in the chat window, however many times it ran;
+// the asking brother's own take is added to it (gopodAddBingoTake).
 var gopodBingoSnapshotNote = gopodBrobotsSettings.Bingo.SnapshotNote
 
-// gopodSharedFeedMaxLines bounds the other performed lines carried in the shared
-// chat.
+// gopodSharedFeedMaxLines bounds the other performed lines carried in the shared chat.
 var gopodSharedFeedMaxLines = gopodBrobotsSettings.SharedChat.MaxPerformedLines
 
 // gopodSharedFeedLineMaxRunes bounds each performed line.
@@ -538,8 +477,8 @@ var gopodSharedFeedLineMaxRunes = gopodBrobotsSettings.SharedChat.MaxPerformedLi
 // gopodSharedFeedNotePrefix opens every performed-lines note.
 var gopodSharedFeedNotePrefix = gopodBrobotsSettings.SharedChat.PerformedNote
 
-// gopodSharedFeedNote is one note for a run of performed lines - scripted, not a
-// chat, so the model reads it as something that happened, not a question to answer.
+// gopodSharedFeedNote is one note for a run of performed lines - scripted, not a chat, so the model
+// reads it as something that happened, not a question to answer.
 func gopodSharedFeedNote(lines []gopodChatFeedEvent) string {
 	var b strings.Builder
 	b.WriteString(gopodSharedFeedNotePrefix)
@@ -553,8 +492,7 @@ func gopodSharedFeedNote(lines []gopodChatFeedEvent) string {
 	return b.String()
 }
 
-// gopodPageOnlyRole: a feed line the page shows (or plays) that the Brobots
-// never remember.
+// gopodPageOnlyRole: a feed line the page shows (or plays) that the Brobots never remember.
 func gopodPageOnlyRole(who string) bool {
 	s := gopodBrobotsSettings
 	for _, role := range []string{s.Countdown.Role, s.BingoBall.Role, s.InterviewChapters.Role, s.TopicPictures.Role, s.ReporterVoices.Role, s.ValuePoints.ScoreRole, s.SignOff.SystemRole, s.ReporterVoices.SongAudioRole, s.ReporterVoices.NarratorRole} {

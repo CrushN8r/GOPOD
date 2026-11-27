@@ -10,30 +10,20 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN rule: a bubble is not its spoken words (operator 2026-10-09: "please
-// understand/make a f*ck*ng rule: a bubble is not the same as the f*ck*ng
-// expected contents of the bubble!!"; "Do not go forward if an expected sleep is
-// not f*ck*ng spoken!!"). A song's system line ("Sleep.") is made into its
-// voice file first; then its bubble, its voice and a heard marker go into the
-// page's queue together, so the bubble shows with the voice. The page tells
-// Wire-Pod when it reaches the marker - the voice has played - and only then
-// does the song go on. Not heard (no page playing, no voice file) is a "no".
-
-// reporter_voices.heard_marker: a voice-queue line "<marker><token>"; the page
-// answers it on /api-sdk/gopod_voice_heard instead of playing it.
+// reporter_voices.heard_marker: a voice-queue line "<marker><token>"; the page answers it on
+// /api-sdk/gopod_voice_heard instead of playing it.
 var gopodSayHeard = struct {
 	sync.Mutex
 	waiting map[string]chan struct{}
 }{waiting: map[string]chan struct{}{}}
 
-// gopodWaitHeard waits up to most for the page to have played every voice line
-// queued before now (the heard marker); true once heard.
+// gopodWaitHeard waits up to most for the page to have played every voice line queued before now
+// (the heard marker); true once heard.
 func gopodWaitHeard(most time.Duration) bool {
 	rv := gopodBrobotsSettings.ReporterVoices
 	if most <= 0 || rv.HeardMarker == "" {
 		return false
 	}
-	// 2026-11-09: the run check's sound off - heard as said, no wait on the page.
 	if gopodRunCheckSilent() {
 		return true
 	}
@@ -56,9 +46,8 @@ func gopodWaitHeard(most time.Duration) bool {
 	}
 }
 
-// GopodSystemSayHeard says text in Goverlord's voice with its bubble and, when
-// most > 0, waits up to most for the page to have played it. It returns true
-// once heard (or at once when not waiting and the line was queued).
+// GopodSystemSayHeard says text in Goverlord's voice with its bubble and, when most > 0, waits up
+// to most for the page to have played it.
 func GopodSystemSayHeard(text string, most time.Duration) bool {
 	rv := gopodBrobotsSettings.ReporterVoices
 	role := gopodBrobotsSettings.SignOff.SystemRole
@@ -81,9 +70,6 @@ func GopodSystemSayHeard(text string, most time.Duration) bool {
 		gopodSayHeard.waiting[token] = heard
 		gopodSayHeard.Unlock()
 	}
-	// 2026-10-13: the system sting, then the speech (gopodSystemSting).
-	// 2026-10-17 (operator: "if \"(music)\" is in the story.md ... play djent"):
-	// a line ending with (music) has it after its words instead.
 	musicFirst, musicLast := gopodMusicMarks(text)
 	sting, stingSeconds := gopodSystemStingNow(text)
 	if musicFirst {
@@ -104,7 +90,6 @@ func GopodSystemSayHeard(text string, most time.Duration) bool {
 	if most <= 0 || rv.HeardMarker == "" {
 		return true
 	}
-	// 2026-10-14: no longer than the lines' own length plus heard_margin_seconds.
 	if limit := gopodHeardLimit(ends); limit < most {
 		most = limit
 	}
@@ -123,8 +108,6 @@ func GopodSystemSayHeard(text string, most time.Duration) bool {
 }
 
 // GopodVoiceHeard: the page has played every voice line up to this marker.
-// GopodVoiceHeardSkipped: the page passed a heard marker; skipped voices before
-// it didn't play, and the journal says so.
 func GopodVoiceHeardSkipped(token, skipped string) {
 	if n := strings.TrimSpace(skipped); n != "" && n != "0" {
 		logger.Println("GOPOD_HEARD " + n + " voice(s) before it didn't play on the page (missing or blocked)")

@@ -5,11 +5,9 @@ import (
 	"testing"
 )
 
-// TestNicknamesAndKeys: on company time the guards go by their formal names
-// (2026-11-06, operator: "go with formal first names on company time * let's
-// keep nicknames for bantering") - headed, called and saying so by them; Buzzer
-// and Switch stay their nicknames, for banter; the page's 1-9 menu sends 3 to 9
-// to that numpad key.
+// TestNicknamesAndKeys: on company time the guards go by their formal names - headed, called and
+// saying so by them; Buzzer and Switch stay their nicknames, for banter; the page's 1-9 menu sends
+// 3 to 9 to that numpad key.
 func TestNicknamesAndKeys(t *testing.T) {
 	want := map[string]string{"INTEL 404 PNFH": "BUZZER", "INTEL 404 PNFT": "SWITCH"}
 	for host, nick := range want {
@@ -28,7 +26,6 @@ func TestNicknamesAndKeys(t *testing.T) {
 			t.Errorf("%s -> %q", in, k)
 		}
 	}
-	// 2026-11-16: kp:0 is KEYS now (the picker's +0); the system is -0, "system".
 	for _, in := range []string{"all", "kp:10", "ESN01"} {
 		if _, ok := gopodTypedKey(in); ok {
 			t.Errorf("%s taken as a key", in)

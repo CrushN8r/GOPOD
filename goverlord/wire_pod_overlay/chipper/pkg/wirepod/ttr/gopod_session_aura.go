@@ -1,21 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_session_aura.go
 package wirepod_ttr
 
-// The SESSION aura (2026-11-24, operator: "Make Goverlord a session aura brain
-// bubble that each persona can then think with"; the scratch pad:
-// gopod_notes/SESSION_AURA_SCRATCH_PAD_001.md - "SESSION Aura is bigger than
-// Persona Aura ... the contextual identity of the entire experience"). Goverlord
-// is the group-think persona, the silent background aura: his brain bubble's
-// AURA line is the session's, the same for every persona that thinks this turn.
-//
-// Code-made from what the session already knows, never invented - its dimensions
-// as the scratch pad names them: WHEN and WHERE (environment), WHO is here
-// (human), what's happening NOW (activity), the TOPICS in play (object/interest),
-// the VIBE (the activity's, then the pace of the chat) and, with both on stage,
-// Doc and Pip's tension. Each persona keeps its own identity; the aura is the
-// variable context ("Identity Kernel + ... + Variable Context = Output Behaviour").
-// Its words are Goverlord's card's (brain_chain.aura).
-
 import (
 	"strconv"
 	"strings"
@@ -30,9 +15,6 @@ func gopodSessionAura() string {
 	}
 	recs := gopodBrainSnapshot()
 	now := time.Now()
-	// WHO: the people (the operator, the talking visitors), then the voices heard.
-	// 2026-11-24 (operator: "People here: Master CrushN8r * redundant ... and
-	// confusing"): the operator is always here - only visitors are news.
 	people := gopodVisitorsTalking()
 	peoplePart := ""
 	if len(people) > 0 {
@@ -45,8 +27,6 @@ func gopodSessionAura() string {
 	for i := len(recs) - 1; i >= 0; i-- {
 		r := recs[i]
 		if r.Kind == gopodBrainPerformedKind {
-			// 2026-11-24 (operator: "is there an aura ... keeping tabs on the chat to
-			// help the personas?"): the latest run the session played.
 			if justPlayed == "" {
 				justPlayed = r.Question
 			}
@@ -60,7 +40,6 @@ func gopodSessionAura() string {
 			questions = append(questions, r.Question)
 		}
 	}
-	// NOW: the activity - the comm check, a run, the session's first line, or chat.
 	doing := a["chat"]
 	switch run, running := gopodRunNow(); {
 	case gopodCommCheckRunning.Load():
@@ -70,7 +49,6 @@ func gopodSessionAura() string {
 	case len(recs) == 0:
 		doing = a["first"]
 	}
-	// VIBE: the activity's own, then the pace - lines in the last few minutes.
 	vibe := a["vibe_chat"]
 	switch {
 	case gopodCommCheckRunning.Load():
@@ -105,7 +83,6 @@ func gopodSessionAura() string {
 			break
 		}
 	}
-	// Doc and Pip both on stage: their tension is the session's too.
 	tension := ""
 	if heard[gopodCallName("DOC")] && heard[gopodCallName("PIP")] {
 		tension = a["tension_doc_pip"]
@@ -125,8 +102,8 @@ func gopodSessionAura() string {
 	).Replace(a["line"]))
 }
 
-// gopodAuraVoices: the voices heard this session, latest first - background
-// thinking (the brain's "In the chat:" line, hidden from the bubble).
+// gopodAuraVoices: the voices heard this session, latest first - background thinking (the brain's
+// "In the chat:" line, hidden from the bubble).
 func gopodAuraVoices() string {
 	recs := gopodBrainSnapshot()
 	var voices []string

@@ -8,10 +8,7 @@ import (
 	"testing"
 )
 
-// TestLookupsList (2026-11-20, operator: "a cheap system test run to catch
-// look-up drift"): every line of the lookups list looks up the cards it lists.
-// GOPOD_WRITE_LOOKUPS=1 writes the cards as they are now; GOPOD_DUMP_LOOKUPS=1
-// writes each line's exact FACT and cards to gopod_notes (private, never the repo).
+// TestLookupsList: every line of the lookups list looks up the cards it lists.
 func TestLookupsList(t *testing.T) {
 	cases, _, err := gopodLookupsList()
 	if err != nil || len(cases) == 0 {
@@ -49,11 +46,10 @@ func TestLookupsList(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-20 (live: CAMEO said "Goverlord (aka ME)" - nine linked cards' lines
-// fed in): the wide answer is the card asked about; its linked cards are listed, not said.
+// CAMEO said "Goverlord (aka ME)" - nine linked cards' lines fed in): the wide answer is the card
+// asked about; its linked cards are listed, not said.
 func TestLinkedCardsShareOneBudget(t *testing.T) {
 	fact, src := gopodLookupFact("CAMEO", "who all works in your company?")
-	// The company card answers it (and it's already in her prompt - no words again).
 	if len(src) == 0 || src[0] != "math-aftermath-news-channel.md" || strings.Contains(fact, "I think alone") {
 		t.Errorf("cards %v, fact %q", src, gopodCut(fact, 200))
 	}
@@ -61,10 +57,7 @@ func TestLinkedCardsShareOneBudget(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-20 (operator: "The company has GOPOD reps who demo the GOPOD repo via a
-// game engine - via self look-ups that let the GOPOD brain give a tour of
-// itself"; "declare it and ensure its implemented that way"): a rep's question
-// gets a game topic told from a repo file, and the brain's look-up of the repo.
+// a rep's question gets a game topic told from a repo file, and the brain's look-up of the repo.
 func TestRepsTourTheRepo(t *testing.T) {
 	q := "tell me about the rig"
 	packets := gopodTopicPackets(q)

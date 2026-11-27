@@ -10,21 +10,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Tighter replies (operator 2026-10-06, from the three harvest takes:
-// "Tighten the responses" - a typical answer was 145 words, about a minute of
-// speech; TIGHTEN_RESPONSES_FROM_TAKES_001.md). The code does it, the prompt is
-// unchanged (reply_tighten in gopod_brobots_settings.json):
-//   - drop_lists: numbered and bulleted list lines and ``` blocks are cut, and
-//     **bold** keeps its words only (the LLM dumped packs as pages);
-//   - drop_stage_directions: *stage directions* are cut - a span of two words
-//     or more, or one on stage_directions.json - so the bubble has no "🎬 ..."
-//     lines (speech already had none); a single stressed *word* keeps its word;
-//   - the response budget (operator 2026-10-07, "Can you hear me? vs Tell me
-//     all about yourself"): the LLM's part keeps its first N sentences, N
-//     worked out per question by gopodResponseBudget - not one cap for all.
-// It runs on the LLM's reply only, before the scripted lines are stitched in,
-// so a say line or flavour line is never cut or counted.
-
 var (
 	gopodCodeBlockPattern = regexp.MustCompile("(?s)```.*?(```|$)")
 	gopodListLinePattern  = regexp.MustCompile(`(?m)^[ \t]*(?:\d+[.)]|[-•*])[ \t]+.*$`)
@@ -33,10 +18,9 @@ var (
 	gopodStarSpanPattern  = regexp.MustCompile(`\*([^*\n]+?)\*`)
 )
 
-// gopodResponseBudget is how many sentences a question gets: base_sentences,
-// plus per_topic_sentences per topic it loads (or the topic's own
-// topic_sentences), plus more_sentences when it asks
-// for more (more_words), never over max_sentences.
+// gopodResponseBudget is how many sentences a question gets: base_sentences, plus
+// per_topic_sentences per topic it loads (or the topic's own topic_sentences), plus more_sentences
+// when it asks for more (more_words), never over max_sentences.
 func gopodResponseBudget(question string) int {
 	t := gopodBrobotsSettings.ReplyTighten
 	n := t.BaseSentences
@@ -60,16 +44,13 @@ func gopodResponseBudget(question string) int {
 	return n
 }
 
-// Anything in square brackets is a placeholder or a note, never speech
-// ("[Name]", "[end]", 2026-10-07 dry run - said out loud). Code drops it.
+// Anything in square brackets is a placeholder or a note, never speech.
 var gopodStarRunPattern = regexp.MustCompile(`(^|\s)\*{2,}(\s|$)`)
 
 var gopodBracketPlaceholderPattern = regexp.MustCompile(`[ \t]*\[[^\[\]\n]*\]`)
 
-// gopodTightenReply tightens the LLM's reply (marker form, "thinking___ ...")
-// to the question's budget. After a point's scripted line (gopodSayLine) the
-// LLM's part gets say_line_sentences instead (2026-10-07: its talk after the
-// line argued with it - "No time for that right now" after the websites line).
+// gopodTightenReply tightens the LLM's reply (marker form, "thinking___ ...") to the question's
+// budget.
 var gopodEmphasisPattern = regexp.MustCompile(`\*([^*\s]+)\*`)
 
 func gopodTightenReply(reply, question, esn string) string {
@@ -82,11 +63,7 @@ func gopodTightenReply(reply, question, esn string) string {
 	before := len(strings.Fields(body))
 	body = gopodStripLeaks(body)
 	body = gopodBracketPlaceholderPattern.ReplaceAllString(body, "")
-	// A run of stars on its own ("***", 2026-10-07 dry run) is never speech.
 	body = gopodStarRunPattern.ReplaceAllString(body, " ")
-	// A sentence where the LLM talks about its own answer ("The response
-	// reflects each part of what makes a great Goverlord teaching answer",
-	// 2026-10-07 dry run - said out loud) is cut: drop_sentences_with.
 	for _, phrase := range t.DropSentencesWith {
 		body = regexp.MustCompile(`(?i)[^.!?\n]*\b`+regexp.QuoteMeta(phrase)+`\b[^.!?\n]*[.!?]*`).ReplaceAllString(body, "")
 	}
@@ -108,15 +85,8 @@ func gopodTightenReply(reply, question, esn string) string {
 			body = regexp.MustCompile(`(?m)^[ \t]*`+regexp.QuoteMeta(e)+`.*$`).ReplaceAllString(body, "")
 		}
 	}
-	// 2026-11-02 (live: Pip's "you can't exactly *make* someone"): a one-word
-	// emphasis left after the stage directions is markdown - its word, no stars.
 	body = gopodEmphasisPattern.ReplaceAllString(body, "$1")
-	// 2026-10-09 (operator: "every 'robot' possible = 'brobot' ... for
-	// branding"): brand_words, whole words, any case.
 	for _, w := range t.BrandWords {
-		// 2026-10-23 (operator: "Keep exact test string: 'MAth' * If I say Keep
-		// 'MAth' update the template"): a phrase that starts or ends with a mark
-		// ("... Explain the MAth!") has no word edge there.
 		re := regexp.QuoteMeta(w.From)
 		if r := []rune(w.From); len(r) > 0 && (unicode.IsLetter(r[0]) || unicode.IsDigit(r[0])) {
 			re = `\b` + re
@@ -126,9 +96,6 @@ func gopodTightenReply(reply, question, esn string) string {
 		}
 		body = regexp.MustCompile(`(?i)`+re).ReplaceAllString(body, w.To)
 	}
-	// 2026-10-31 (operator: "FULLY REVIEW EVERYTHING!! PUNCTUATION"; live: Doc's
-	// "symphony!\"" and "What is, \" Is that ..."): quote marks that don't pair up
-	// are the model's slip, never speech - an odd count drops them all.
 	if strings.Count(body, "\"")+strings.Count(body, "“")+strings.Count(body, "”") > 0 &&
 		(strings.Count(body, "\"")%2 == 1 || strings.Count(body, "“") != strings.Count(body, "”")) {
 		body = strings.NewReplacer("\"", "", "“", "", "”", "").Replace(body)
@@ -136,27 +103,19 @@ func gopodTightenReply(reply, question, esn string) string {
 	}
 	body = strings.Join(strings.Fields(body), " ")
 	if strings.TrimFunc(body, func(r rune) bool { return !unicode.IsLetter(r) }) == "" {
-		// All list or stage direction: keep the words, flattened.
 		body = strings.Join(strings.Fields(strings.NewReplacer("*", "", "`", "").Replace(reply[len(cue):])), " ")
 	}
 	budget := gopodResponseBudget(question)
 	if t.SayLineSentences > 0 && gopodSayLine(esn) != "" && budget > t.SayLineSentences {
 		budget = t.SayLineSentences
 	}
-	// 2026-10-08 (operator: "remove 2-sentence clamps & stuff"): with
-	// budget_off, no reply is cut to a sentence count; the clean-up stays.
 	if t.BudgetOff {
 		budget = 0
 	}
-	// 2026-10-22: a colour slot's colour is capped all the same (colour_slots).
-	// The point bubbles bound his notes' answer themselves (gopod_point_bubbles.go).
 	pointBubbles := gopodGivenHasNotes(esn) && gopodChainHas(esn, "point_bubbles")
 	if c := gopodBrobotsSettings.ColourSlots.MaxSentences; c > 0 && !pointBubbles && (gopodSayLine(esn) != "" || gopodGivenHasNotes(esn)) && gopodChainHas(esn, "colour:value_point") && (budget == 0 || budget > c) {
 		budget = c
 	}
-	// 2026-10-24 (operator: "Brobot 1 response * is amazing, lol, but too long"):
-	// a free answer (no value point; a greeting too) keeps at most
-	// reply_tighten.free_max_sentences, budget_off or not.
 	if f := t.FreeMaxSentences; f > 0 && !pointBubbles && gopodSayLine(esn) == "" && !gopodGivenHasNotes(esn) && gopodAnswerType(esn, question) == "free" && (budget == 0 || budget > f) {
 		budget = f
 	}
@@ -172,9 +131,7 @@ func gopodTightenReply(reply, question, esn string) string {
 	return strings.TrimRight(cue, " \t") + " " + body
 }
 
-// gopodFirstSentences keeps the first n sentences. A sentence ends at ! or ?,
-// or a single . (not "..."), followed by a space or the end; the closing quotes
-// and emoji right after it stay with it.
+// gopodFirstSentences keeps the first n sentences.
 func gopodFirstSentences(text string, n int) string {
 	r := []rune(text)
 	count := 0
@@ -202,7 +159,6 @@ func gopodFirstSentences(text string, n int) string {
 		}
 		count++
 		if count == n {
-			// Emoji standing after the last sentence stay with it ("bro! 🚀").
 			for k := j; k < len(r); {
 				for k < len(r) && unicode.IsSpace(r[k]) {
 					k++
@@ -236,18 +192,13 @@ func gopodNotSentenceEnd(upTo []rune) bool {
 	return false
 }
 
-// gopodLeakTagRE / gopodLeakLabelRE (2026-11-19, live: Brobot 2 said "<thinking>",
-// GIT REPO "emoji: ... note: ..."): a tag or a working label in a reply is the
-// model's scaffolding, not speech - it goes.
+// gopodLeakTagRE / gopodLeakLabelRE: a tag or a working label in a reply is the model's
+// scaffolding, not speech - it goes.
 var gopodLeakTagRE = regexp.MustCompile(`</?[a-zA-Z_]{2,20}>`)
 var gopodLeakLabelRE = regexp.MustCompile(`(?i)(^|[.!?\s])(?:note|notes|emoji|emojis|response|answer|reply|output)\s*:\s*`)
 
 func gopodStripLeaks(s string) string {
-	// 2026-11-24 (live: "...help others | she helped Master CrushN8r ..." - a value
-	// point's notes, pipes and all): a note separator is never said.
 	s = strings.ReplaceAll(s, " | ", ", ")
-	// 2026-11-24 (live: SWITCH gave a made-up Google Docs link for booking): a
-	// link goes only to GOPOD's own places (reply_tighten.link_hosts).
 	s = gopodDropStrangeLinks(s)
 	s = gopodLeakTagRE.ReplaceAllString(s, "")
 	s = gopodLeakLabelRE.ReplaceAllString(s, "$1")

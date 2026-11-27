@@ -1,17 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_admin_run.go
 package wirepod_ttr
 
-// The 100% admin run, a standing self-check (2026-10-28, operator: "Yes!! Make
-// the 100% admin run a standing self-check * each point not revealed * each egg
-// not found * each prize not given * each reminder that went dry * add this
-// 'admin run standing self-check' to GOPOD system item"). system-test-admin-run
-// plays system_tests.admin_run.file - every line, in order - through the game's
-// own code, as the room would: no robots, no model, nothing said. A song line
-// must be a run card's start; a line to a Brobot gets his points (the same pick
-// as live), the egg it would pop (its chapter's or topic's, Explain the Math,
-// Get Photo), and the reminder after it. The live game is saved first and put
-// back after, so a session's score is untouched.
-
 import (
 	"fmt"
 	"os"
@@ -22,15 +11,15 @@ import (
 // gopodAdminRunResult: what the run found missing.
 type gopodAdminRunResult struct {
 	Lines, Points, PointsWant, Eggs, EggsWant int
-	Grand, Master                              bool
-	Missed                                     []string // points not revealed
-	EggsMissed, RunsMissed, Dry                []string
-	Keys                                       int
-	KeysMissed                                 []string
+	Grand, Master                             bool
+	Missed                                    []string // points not revealed
+	EggsMissed, RunsMissed, Dry               []string
+	Keys                                      int
+	KeysMissed                                []string
 }
 
-// gopodAdminRunEgg: the egg a line pops - its topics' chapter (or the topic
-// itself), Explain the Math, Get Photo; "" for none.
+// gopodAdminRunEgg: the egg a line pops - its topics' chapter (or the topic itself), Explain the
+// Math, Get Photo; "" for none.
 func gopodAdminRunEggs(text string) []string {
 	var out []string
 	for _, p := range loadScenarioPacketsForMessage(text) {
@@ -83,7 +72,6 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 	if gopodRunActive() || gopodScriptPlaying.Load() {
 		return res, fmt.Errorf("a run is going - try again after it")
 	}
-	// Save the live game, play from 0, put it back.
 	gopodCoverage.Lock()
 	keepRevealed, keepReminded, keepScored := gopodCoverage.revealed, gopodCoverage.reminded, gopodCoverage.scored
 	keepSaid := gopodCoverageSaid
@@ -153,9 +141,6 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 			}
 			continue
 		}
-		// 2026-10-28 (operator: "Can you add a simulated KP1-9 to the test?"): a
-		// numpad key, as holding it - a Brobot's key reaches that Brobot; a
-		// persona's key reaches its persona, and "who are you" gets its who line.
 		if strings.HasPrefix(strings.ToUpper(to), "KP") {
 			res.Keys++
 			if miss := gopodAdminRunKey(strings.ToUpper(to), gopodSpellNames(line)); miss != "" {
@@ -166,8 +151,6 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 		esn := gopodBrobotESN(to)
 		text := gopodSpellNames(line)
 		gopodQuestionFactsFor(esn, text)
-		// The reminder after his answer: dry when it names no topic while
-		// points are left.
 		rem := gopodReminderLine(text)
 		for _, p := range gopodGivenPoints(esn) {
 			got[p] = true
@@ -179,10 +162,6 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 				gopodInterviewShown.Unlock()
 			}
 		}
-		// Dry (the live 2026-10-27 find: from question 8 on, only eggs were
-		// named): a topic question whose reminder names no topic or chapter -
-		// or any empty reminder - while points are left. A line on no topic
-		// (a song's ask, the photo, a math entry) names eggs, as it should.
 		named := false
 		for _, l := range labels {
 			if l != "" && strings.Contains(rem, l) {
@@ -195,8 +174,6 @@ func gopodAdminRunPlay() (gopodAdminRunResult, error) {
 			}
 		}
 		topical := len(loadScenarioPacketsForMessage(text)) > 0
-		// 2026-11-14: the reminder never names the topic in hand - points left
-		// only there (Gangster Granny's last two) leave it nothing to name.
 		inHand := map[string]bool{}
 		for _, p := range gopodGivenPoints(esn) {
 			if f := strings.Fields(p); len(f) > 0 {

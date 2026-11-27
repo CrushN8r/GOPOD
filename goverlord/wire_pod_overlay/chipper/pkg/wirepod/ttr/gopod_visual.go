@@ -17,19 +17,6 @@ import (
 	"github.com/fforchino/vector-go-sdk/pkg/vectorpb"
 )
 
-// GOPOD VISUAL CONTROL - the TPU +/- rotation (2026-10-20, operator: "Focus on
-// adding the tpu +/- rotation"; golden guts from the retired 8011 demo,
-// wdtm_demo.html: VISUAL_SOURCE_RING ["doc_robot", "pip_robot", "usb_c920"],
-// KP+ next / KP- previous, wrapping; the page shows the selected feed, the
-// Edge TPU's result on it, live or cached). The ring is visual_sources in the
-// settings. A turn grabs one frame from the selected source - a Brobot's camera
-// (woken first, gopodRobotCall) or the USB webcam (ffmpeg, v4l2) - runs the
-// Edge TPU quick look on it (its objects and the copy with their boxes), and
-// keeps it as webroot/visual/<id>.jpg. A source that can't give a frame now
-// shows its last frame, marked cached.
-//   KP+ / KP- on the chat page (numpad on)   next / previous source
-//   system-visual [next|prev|<id>]           the same, typed
-
 type gopodVisualResult struct {
 	Index   int      `json:"index"`
 	Count   int      `json:"count"`
@@ -37,13 +24,8 @@ type gopodVisualResult struct {
 	Label   string   `json:"label"`
 	Live    bool     `json:"live"`
 	Frame   string   `json:"frame"`
-	// 2026-10-20 (operator: "single cam has 3 image display: brobot photo,
-	// enhancement, TPU bounding boxes * the "I see..." part"; "Multi cam feeds *
-	// brobot 1 photo, brobot 2 photo, TPU bounding boxes on enhanced version"):
-	// the row of pictures, and the vision model's "I see ...".
-	Frames []string `json:"frames"`
-	// Only one feed there now: KP+ / KP- have nothing to turn (the page does nothing).
-	Single bool `json:"single"`
+	Frames  []string `json:"frames"`
+	Single  bool     `json:"single"`
 	Objects []string `json:"objects"`
 	Status  string   `json:"status"`
 	At      string   `json:"at"`
@@ -73,9 +55,6 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 	if len(ring) == 0 {
 		return gopodVisualResult{Status: "no visual_sources in the settings"}
 	}
-	// 2026-10-20 (operator: "no multiple feeds to rotate = not applicable"):
-	// KP+ / KP- turn only through the feeds that are there now (a webcam not
-	// plugged in is skipped); with one, nothing turns.
 	there := func(i int) bool {
 		d := ring[i].Device
 		if d == "" {
@@ -130,7 +109,6 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 	var err error
 	switch {
 	case src.Robot != "" && (gopodScriptPlaying.Load() || gopodRunActive()):
-		// Review: a run owns the Brobots - its last frame, no wake.
 		err = fmt.Errorf("a run is playing")
 	case src.Robot != "":
 		esn := gopodBrobotESN(src.Robot)
@@ -149,7 +127,6 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 		if _, e := os.Stat(src.Device); e != nil {
 			err = fmt.Errorf("%s not plugged in", src.Device)
 		} else {
-			// Review: a webcam that never sends a frame can't hang the call.
 			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 			out, e := gopodAsOperator(exec.CommandContext(ctx, "ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "v4l2", "-i", src.Device, "-frames:v", "1", file)).CombinedOutput()
 			cancel()
@@ -197,18 +174,15 @@ func gopodVisualTurn(dir string) gopodVisualResult {
 	return res
 }
 
-// gopodVisualAll (multi-cam): every source's photo now, in a row, then the
-// selected source's Edge TPU boxes on its enhanced copy - one more picture for
-// each feed found (a webcam plugged in makes it 4).
+// gopodVisualAll (multi-cam): every source's photo now, in a row, then the selected source's Edge
+// TPU boxes on its enhanced copy - one more picture for each feed found (a webcam plugged in makes
+// it 4).
 func gopodVisualAll() gopodVisualResult {
 	ring := gopodBrobotsSettings.VisualSources.Ring
 	gopodVisual.Lock()
 	sel := gopodVisual.index
 	gopodVisual.Unlock()
-	// 2026-10-20 (operator: "if only a single brobot is detected/called and
-	// sends photo, only the photo, enhancement, tpu + boxes on enhanced ... if
-	// more than a single brobot ... brobots 1 photo, brobots 2 photo, tpu + boxes
-	// on 'selected' enhanced"): only feeds that sent a photo now count.
+	// only feeds that sent a photo now count.
 	var live []gopodVisualResult
 	main := gopodVisualResult{}
 	for i, src := range ring {
@@ -244,8 +218,8 @@ func gopodVisualAll() gopodVisualResult {
 	return main
 }
 
-// gopodSystemVisual: the answer to "system-visual [next|prev|<id>]" - its line,
-// and the frame in the chat (the menu's results while it's open).
+// gopodSystemVisual: the answer to "system-visual [next|prev|<id>]" - its line, and the frame in
+// the chat (the menu's results while it's open).
 func gopodSystemVisual(text string) string {
 	f := strings.Fields(text)
 	dir := ""
@@ -257,13 +231,12 @@ func gopodSystemVisual(text string) string {
 	return gopodVisualLine(r)
 }
 
-// gopodMenuPictureMark: a system command's picture row (review: only these go in
-// the system menu's results while it's open; a song's or a topic's stay in the chat).
+// gopodMenuPictureMark: a system command's picture row (review: only these go in the system menu's
+// results while it's open; a song's or a topic's stay in the chat).
 const gopodMenuPictureMark = "menu:"
 
 // gopodVisualPost: the row of pictures in the chat (the menu's results while it's open).
 func gopodVisualPost(r gopodVisualResult) {
-	// Review: the ?t= stamps kept, so a new grab isn't shown as the old picture.
 	if len(r.Frames) > 0 {
 		GopodChatFeedAdd(gopodBrobotsSettings.TopicPictures.Role, gopodMenuPictureMark+strings.Join(r.Frames, "|"))
 	}

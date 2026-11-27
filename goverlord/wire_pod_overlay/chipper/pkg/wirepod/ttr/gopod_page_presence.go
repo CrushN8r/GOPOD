@@ -8,16 +8,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// The chat page here or away (2026-10-17, operator: "instead, system message,
-// Goverlord awaits your return... + hourglass, and waits, nothing plays * upon
-// page focus, opening llm should, go through each message ... in correct proper
-// order"; "both the terminal run & web page run must be the same run"). The page
-// reports shown/hidden on each change and every 5 s (GopodPageShown); one not
-// heard from for session.page_present_seconds - closed, or never opened - is
-// away too, the same as hidden: session.page_hidden_file is kept, so a song run
-// waits (and says so in the terminal), and the opener waits before each step
-// with session.awaits_text (gopodOpenerAwaitPage).
-
 // gopodPageSeenMS: when the page last said it's showing (unix ms; 0 = never).
 var gopodPageSeenMS atomic.Int64
 
@@ -57,8 +47,8 @@ func gopodPageWatchStart() {
 	}()
 }
 
-// gopodOpenerAwaitPage: the opener waits here while the page is away, the
-// System llm bubble showing awaits_text with its hourglass; nothing plays.
+// gopodOpenerAwaitPage: the opener waits here while the page is away, the System llm bubble showing
+// awaits_text with its hourglass; nothing plays.
 func gopodOpenerAwaitPage() {
 	if gopodPageHere() {
 		return
@@ -73,12 +63,7 @@ func gopodOpenerAwaitPage() {
 	gopodOpenerAwaits(false)
 }
 
-// gopodOpenerAwaits (2026-10-29, operator: "llm warmup is flaking out on me"):
-// the System llm bubble shows awaits_text (on) or its own message again (off).
-// One switch for every wait on the page - before a step (above), and while the
-// queued opening waits to be heard (gopodReporterOpening): after a restart the
-// page reloads itself and plays nothing until it's clicked, and with a warm
-// model the chat sat still with no word why.
+// gopodOpenerAwaits: the System llm bubble shows awaits_text (on) or its own message again (off).
 var gopodOpenerAwaitsSaved string
 
 func gopodOpenerAwaits(on bool) {

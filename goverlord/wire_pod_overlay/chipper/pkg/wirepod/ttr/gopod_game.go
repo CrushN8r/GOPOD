@@ -8,21 +8,12 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// Win and reset (2026-10-23, FINISH_PLAN_001.md step A4; operator: "aim to reveal
-// all value points as the grand prize * Go on A4"): the game's grand prize - every
-// value point revealed - gets Goverlord's game.win_text (with the session score),
-// once per session, after the answer that revealed the last one has been said.
-// The session's end ("thanks", gopodThanksEnding) resets the game: the score,
-// the points said, the reminders, the chapters cleared and the eggs found all go
-// back to 0 for the next session.
-
 var gopodGame = struct {
 	sync.Mutex
 	won, masterWon bool
 }{}
 
-// gopodGameEggsFound (2026-10-24, operator: "Logic of NEW, 2 Grand Prizes"): the
-// game's own eggs all found (gopodEggList), and the hidden ones too
+// gopodGameEggsFound: the game's own eggs all found (gopodEggList), and the hidden ones too
 // (topic_pictures.not_listed that are eggs).
 func gopodGameEggsFound() (game, hidden bool) {
 	game, hidden = true, true
@@ -67,13 +58,9 @@ func gopodGameWinText() string {
 	return strings.ReplaceAll(text, "{score}", score)
 }
 
-// gopodGameWinCheck: after every answer to a line has been said - the prizes,
-// each once a session (2026-10-24, operator: "Grand Prize: Revealed upon all
-// reached except hidden eggs, after all responses are properly completed *
-// Master Grand Prize: Revealed upon all reached, after all responses are properly
-// completed"): the Grand Prize for every value point and every game egg; the
-// Master Grand Prize for those and every hidden egg too. True when one was
-// announced now.
+// gopodGameWinCheck: after every answer to a line has been said - the prizes, each once a session:
+// the Grand Prize for every value point and every game egg; the Master Grand Prize for those and
+// every hidden egg too.
 func gopodGameWinCheck() bool {
 	if gopodScriptPlaying.Load() || gopodRunActive() || !gopodGameAllRevealed() {
 		return false
@@ -124,8 +111,6 @@ func gopodGameFill(text string) string {
 
 // gopodGameReset: a new session - the game starts at 0.
 func gopodGameReset(why string) {
-	// 2026-10-31: a new brain chain with the new game; the runs the Brobots
-	// performed stay until the session ends (the thanks ending).
 	gopodBrainReset(why != "thanks")
 	gopodCoverage.Lock()
 	gopodCoverage.revealed = map[string]int{}

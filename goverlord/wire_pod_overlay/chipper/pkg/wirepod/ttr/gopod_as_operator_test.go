@@ -10,8 +10,7 @@ import (
 	"testing"
 )
 
-// TestPythonRunsAsOperator: every Python GOPOD starts goes through
-// gopodAsOperator (Wire-Pod runs as root; the libraries are the operator's).
+// TestPythonRunsAsOperator: every Python GOPOD starts goes through gopodAsOperator.
 func TestPythonRunsAsOperator(t *testing.T) {
 	if cmd := gopodAsOperator(exec.Command("true")); !strings.Contains(strings.Join(cmd.Env, "\n"), "\nHOME="+strings.TrimRight(gopodHomePath("~/"), "/")) {
 		t.Error("gopodAsOperator no longer gives the operator's home (HOME)")
@@ -27,11 +26,7 @@ func TestPythonRunsAsOperator(t *testing.T) {
 		}
 		data, _ := os.ReadFile(f)
 		for i, line := range strings.Split(string(data), "\n") {
-			// 2026-10-24 (operator: "RULE!! ANYTHING UNDER ROOT, FIX TO MY HOME"):
-			// every program GOPOD starts runs with the operator's home - only the
-			// system's own tools that must stay root (systemctl, lsusb) don't.
 			if start.MatchString(line) && !strings.Contains(line, "gopodAsOperator(") && !strings.Contains(line, `"systemctl"`) && !strings.Contains(line, `"lsusb"`) {
-				// a start wrapped on its own line just after (cmd.Env set first)
 				lines := strings.Split(string(data), "\n")
 				wrapped := false
 				for j := i + 1; j < len(lines) && j <= i+3; j++ {

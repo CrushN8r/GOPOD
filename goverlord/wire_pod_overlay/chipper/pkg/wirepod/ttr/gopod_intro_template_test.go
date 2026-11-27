@@ -11,13 +11,9 @@ import (
 	"testing"
 )
 
-// 2026-10-31 (operator: "FIX IT CORRECT & PROPER"): every intro is a template -
-// the code's opening, the model's middle, the code's cast line, once.
+// every intro is a template - the code's opening, the model's middle, the code's cast line, once.
 func TestIntroTemplate(t *testing.T) {
-	// 2026-11-18 (operator: "I prefer it be flow guided"): a persona with an intro
-	// guide says his whole intro himself - the wrap adds no opening, facts or cast.
 	for _, who := range []string{"Brobot 1", "Brobot 2", "BUTLER", "GIT REPO", "CHALK", "PLAYHEAD", "CAMEO"} {
-		// 2026-11-19: the guide, word for word, is the base; the model's line its colour.
 		middle := "Party mode is on, bro!"
 		guide := gopodIntroGuide(who)
 		got := gopodIntroWrap(who, middle)
@@ -25,7 +21,6 @@ func TestIntroTemplate(t *testing.T) {
 			t.Errorf("%s: %q", who, got)
 		}
 	}
-	// An intro line: no value point, its own type, the brobots_intro chain wraps it.
 	if gopodQuestionFactsFor("ESN01", "Hey Doc! You party animal! Introduce yourself fully to the chat") != "" {
 		t.Error("an intro got value point facts")
 	}
@@ -37,8 +32,7 @@ func TestIntroTemplate(t *testing.T) {
 	}
 }
 
-// 2026-10-31 (operator: "Should the reminders name eggs? * no, but GOPOD easter
-// eggs should still work"): a free answer's reminder names topics, never eggs.
+// a free answer's reminder names topics, never eggs.
 func TestRemindersNameNoEggs(t *testing.T) {
 	for i := 0; i < 6; i++ {
 		line := gopodReminderLine("tpu")
@@ -53,7 +47,7 @@ func TestRemindersNameNoEggs(t *testing.T) {
 	}
 }
 
-// 2026-10-31: the crew roster - everyone in the chat has his line; In the chat reads it.
+// the crew roster - everyone in the chat has his line; In the chat reads it.
 func TestCrewRoster(t *testing.T) {
 	roster := gopodCrewRoster()
 	for _, c := range gopodBrobotsSettings.HereNow.Cast {
@@ -61,15 +55,12 @@ func TestCrewRoster(t *testing.T) {
 			t.Errorf("%s isn't on the crew roster", gopodCallName(c.Who))
 		}
 	}
-	// 2026-11-08: the cast, grouped by the roster, for whoever still asks for it.
 	if g := gopodCastGrouped("Brobot 1"); !strings.Contains(g, "KEYNOTE [Butler, Goverlord's voice]") || !strings.Contains(g, "BARFALLONYOU [the host - explains too hard, on purpose] (me)") || strings.Contains(g, "Brobot 1 [grumpy, impatient] (me)") {
 		t.Errorf("the cast: %v", g)
 	}
 }
 
-// 2026-11-01 (operator: "update weird [chunking to sentences to commas] splits *
-// try to keep sentences generated whole, then play out the pauses"): a chunk is
-// whole sentences - never cut at a comma.
+// a chunk is whole sentences - never cut at a comma.
 func TestChunksAreWholeSentences(t *testing.T) {
 	for _, line := range []string{
 		"Correct. The system works. Two hosts, one mission: get you people hyped before two Brobots who used to be considered trash, have an actual conversation.",
@@ -88,9 +79,8 @@ func TestChunksAreWholeSentences(t *testing.T) {
 	}
 }
 
-// 2026-11-01 (live: the comm check stopped while Git Repo's answer was being
-// made; it came 2 minutes later and played): a stop run while a Gomad's answer
-// is made drops it - nothing is said.
+// the comm check stopped while Git Repo's answer was being made; it came 2 minutes later and
+// played): a stop run while a Gomad's answer is made drops it - nothing is said.
 func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	ask := gopodPersonaAsk
 	defer func() { gopodPersonaAsk = ask }()
@@ -101,7 +91,6 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	said := false
 	dry := gopodDryVoice
 	defer func() { gopodDryVoice = dry }()
-	// 2026-11-05: his Got it is said at once (the Brobots' order) - only the answer is dropped.
 	gopodDryVoice = func(host, text string, show bool) { said = said || text != gopodGotItNamed("GIT REPO").Text }
 	if !gopodGomadAnswerAs("GIT REPO", "GIT REPO", "tell me a joke") {
 		t.Fatal("the llm part didn't take the line")
@@ -111,9 +100,8 @@ func TestStopDropsGomadAnswerBeingMade(t *testing.T) {
 	}
 }
 
-// 2026-11-03 (operator: "there is too much time between exchanges"; his OK: the
-// answer made while the question is read out): a Gomad's answer started early
-// is asked for once, before the read-out ends, and that answer is the one said.
+// a Gomad's answer started early is asked for once, before the read-out ends, and that answer is
+// the one said.
 func TestGomadAnswerMadeEarly(t *testing.T) {
 	ask := gopodPersonaAsk
 	defer func() { gopodPersonaAsk = ask }()
@@ -145,10 +133,8 @@ func TestGomadAnswerMadeEarly(t *testing.T) {
 	}
 }
 
-// 2026-11-02 (operator: "Add in the score in every brain bubble"): the score
-// rows - topics, value points, eggs, each label then its bar.
+// the score rows - topics, value points, eggs, each label then its bar.
 func TestBrainScoreRows(t *testing.T) {
-	// 2026-11-16: shown when the score changed since the last showing - fresh here.
 	gopodBrainScoreShown.Store("")
 	rows := gopodBrainScoreRows()
 	if len(rows) != 3 || !strings.HasPrefix(rows[0], "Topics ") || !strings.HasPrefix(rows[2], "Easter Eggs ") {
@@ -161,24 +147,21 @@ func TestBrainScoreRows(t *testing.T) {
 	}
 }
 
-// 2026-11-02 (live: Pip's KP2 intro said only "I'm Brobot 2, my nickname is
-// Pip."; Doc's and Pip's All intros skipped their first thought): every part of a
-// Brobot's templated intro is spoken - the opening, each of his thoughts, the cast.
+// Pip's KP2 intro said only "I'm Brobot 2, my nickname is Pip."; Doc's and Pip's All intros skipped
+// their first thought): every part of a Brobot's templated intro is spoken - the opening, each of
+// his thoughts, the cast.
 func TestBrobotIntroAllSpoken(t *testing.T) {
 	m := gopodAnimationMarker
 	for _, middle := range []string{
 		"thinking" + m + " Let me tell you a little something about myself! You know the party's on.",
 		"Okay, so long story short, I'm the party guy! 😜\nhappy" + m + " Our gig? We help folks get it.",
 	} {
-		// 2026-11-19: an intro is his guide coloured - the guide is its base.
 		wrapped := gopodIntroWrap("Brobot 2", gopodIntroGuide("Brobot 2")+" "+middle, true)
-		// 2026-11-04 (operator: "remove who's here in the chat from every response"): no cast line.
 		if strings.Contains(wrapped, "Here in the chat with us") {
 			t.Errorf("still lists who's here: %q", wrapped)
 		}
 		r := buildGOPODStreamResultWithRepair(context.Background(), gopodAnimationMarkerToInternal(wrapped), "test", nil)
 		said := strings.Join(gopodSpokenPieceTexts(r.AudibleChunks), " ")
-		// 2026-11-06 (company time: formal names): his opening is said, whole.
 		for _, w := range strings.Fields(strings.NewReplacer("thinking"+m, "", "happy"+m, "", "😜", "").Replace(middle)) {
 			if !strings.Contains(said, strings.Trim(w, ".,!?")) {
 				t.Errorf("his word %q not said:\n%s", w, said)
@@ -188,8 +171,8 @@ func TestBrobotIntroAllSpoken(t *testing.T) {
 	}
 }
 
-// 2026-11-02 (live): the opening is never said twice, however the model
-// repeats it, and the model's own "here in the chat" sentence goes.
+// the opening is never said twice, however the model repeats it, and the model's own "here in the
+// chat" sentence goes.
 func TestIntroOpeningOnce(t *testing.T) {
 	m := gopodAnimationMarker
 	cases := []struct{ who, middle, gone, kept string }{
@@ -198,7 +181,6 @@ func TestIntroOpeningOnce(t *testing.T) {
 		{"Brobot 2", "thinking" + m + " I'm Brobot 2, and hey! You know the party's on.", "zzz-not-there", "Hey!"},
 		{"Brobot 1", "I'm BARFALLONYOU, Brobot 1, which means I get to be the party guy. Here in the chat: all our brothers are rocking it, including Pip.", "all our brothers", "Which means I get to be the party guy."},
 	}
-	// 2026-11-18: the guided intro - his name once, the chat line gone, his words kept.
 	for _, c := range cases {
 		got := gopodIntroWrap(c.who, c.middle, c.who == "Brobot 1" || c.who == "Brobot 2")
 		if strings.Contains(got, c.gone) || strings.Contains(strings.ToLower(got), "in the chat") {
@@ -207,9 +189,8 @@ func TestIntroOpeningOnce(t *testing.T) {
 	}
 }
 
-// 2026-11-04 (operator: "shared root persona > individual personas"): each
-// persona's group root comes first in his profile - Doc and Pip (on the
-// Brobots), the Gomads, the interns, the guards, the GOPOD System (Keys).
+// each persona's group root comes first in his profile - Doc and Pip (on the Brobots), the Gomads,
+// the interns, the guards, the GOPOD System (Keys).
 func TestPersonaRoots(t *testing.T) {
 	for who, want := range map[string]string{
 		"Brobot 1":       "BARFALLONYOU and PIP: GOPOD's host and his sidekick",
@@ -230,7 +211,7 @@ func TestPersonaRoots(t *testing.T) {
 	}
 }
 
-// 2026-11-05 (live 08:34): a model line wrapped in asterisks never wraps the opening.
+// 34): a model line wrapped in asterisks never wraps the opening.
 func TestIntroNoAsterisks(t *testing.T) {
 	m := gopodAnimationMarker
 	got := gopodIntroWrap("Brobot 1", "*confused"+m+" I'm Brobot 1, my nickname is Doc.*\n"+gopodIntroGuide("Brobot 1")+" Ugh, fine - I keep it clear.", true)
@@ -239,8 +220,7 @@ func TestIntroNoAsterisks(t *testing.T) {
 	}
 }
 
-// 2026-11-05 (operator: "everybody's personas ... that same robot's bubble type
-// and mechanism"): anyone's Got it, by name - Keys' own, the golden one otherwise.
+// anyone's Got it, by name - Keys' own, the golden one otherwise.
 func TestGotItNamed(t *testing.T) {
 	if got := gopodGotItNamed("BUTLER").Text; got != "Message received, sir." {
 		t.Errorf("Keys' Got it: %q", got)
@@ -253,7 +233,6 @@ func TestGotItNamed(t *testing.T) {
 	}
 }
 
-// 2026-11-06 (operator: "Brobot 1/2 = Dials @ 0% * DOC & PIP = Dials @ 100%"):
 // a line to both - the Brobots at the dial's 0%, BRUH!; one Brobot - his persona.
 func TestDialZeroBrobots(t *testing.T) {
 	if got := gopodIntroOpening("Brobot 1"); !strings.HasPrefix(got, "I'm DOCTRINE BARFALLONYOU SPEWER") {
@@ -266,9 +245,8 @@ func TestDialZeroBrobots(t *testing.T) {
 	}
 }
 
-// 2026-11-06 (operator: "FIX IT SO IT WORKS WITHOUT ME"): the one highlight gear -
-// a word the voice says as several ("404", "P-N-F-T") never pulls the words after
-// it early; they keep their heard times (gopod_reporter_voice_worker.py align_heard).
+// the one highlight gear - a word the voice says as several ("404", "P-N-F-T") never pulls the
+// words after it early; they keep their heard times (gopod_reporter_voice_worker.py align_heard).
 func TestHighlightOneGear(t *testing.T) {
 	root := os.Getenv("GOPOD_OVERLAY_CHIPPER")
 	if root == "" {
@@ -299,8 +277,7 @@ print(json.dumps(align_heard(words, heard)))
 	}
 }
 
-// 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ?"): a how-to
-// gets its system-menu command as facts; any other line gets none.
+// a how-to gets its system-menu command as facts; any other line gets none.
 func TestHelpLookup(t *testing.T) {
 	if got := gopodHelpLookup("Brobot 1, how do I raise the volume for you?"); !strings.Contains(got, "system-brobot volume") {
 		t.Errorf("volume how-to: %q", got)
@@ -314,7 +291,7 @@ func TestHelpLookup(t *testing.T) {
 // TestDocLookup: naming a root doc by its file name loads its game cards (gopodDocNameWords).
 func TestDocLookup(t *testing.T) {
 	for ask, want := range map[string]string{
-		"Hey, brobot 1, tell me about WIRED-POD.md":              "WIRED-POD.md#",
+		"Hey, brobot 1, tell me about WIRED-POD.md":                "WIRED-POD.md#",
 		"Hey, brobot 2, tell me about the GOPOD alias play studio": "ALIAS-PLAY-STUDIO.md#",
 	} {
 		found := false
@@ -327,40 +304,30 @@ func TestDocLookup(t *testing.T) {
 	}
 }
 
-// 2026-11-15 (operator: "Yes" - the code says an intro's facts): an intro says
-// its card's facts word for word, after the opening, the model's line after them.
+// an intro says its card's facts word for word, after the opening, the model's line after them.
 func TestIntroSaysCardFacts(t *testing.T) {
-	// 2026-11-18 (operator: "card facts the model words in its own way each
-	// time"): the card's facts are in his brain, the model words them.
 	if b := gopodBrainText("CHALK", "Next up, CHALKRA! Introduce yourself to the chat"); !strings.Contains(b, "Display Gomad") {
 		t.Errorf("CHALK's brain has no facts: %q", b)
 	}
 }
 
-// 2026-11-16 (operator: "have Keys do like a brief self intro * then ... an intro
-// of the company & employee/employer relationship * then Keys continues his own
-// intro"): KEYS' intro - his opening, the company intro word for word, then his facts.
+// KEYS' intro - his opening, the company intro word for word, then his facts.
 func TestKeysIntroducesTheCompany(t *testing.T) {
-	// 2026-11-18 (operator's own intro for KEYS): the company is in his intro guide.
 	if g := gopodIntroGuide("BUTLER"); !strings.Contains(g, "CRUSHN8R CREW'd news station") || !strings.Contains(g, "Gominions") {
 		t.Errorf("KEYS' intro guide: %q", g)
 	}
 }
 
-// 2026-11-16 (operator: "Same repeat-loops in responses"; live: CHALK's model line
-// said the code's facts again, word for word, and "I'm CHALK-RA" left "RA,"): the
-// model's lines that repeat the code are dropped; its own line stays, once.
+// the model's lines that repeat the code are dropped; its own line stays, once.
 func TestIntroDropsTheModelsRepeats(t *testing.T) {
-	// 2026-11-18: a guided intro drops only the model's own repeats.
 	got := gopodIntroWrap("CHALK", gopodIntroGuide("CHALK")+" Boards are my canvas. Boards are my canvas!")
 	if strings.Count(got, "Boards are my canvas") != 1 || !strings.Contains(got, "Display Gomad") {
 		t.Errorf("the model's own line: %q", got)
 	}
 }
 
-// 2026-11-19 (live comm check: KEYS and GEMMA ended with Goverlord's "Few words,
-// each one final."; "GOVERLORD's voice deep and resonant:"): one persona's intro
-// line is never another's, and a voice described is never said.
+// KEYS and GEMMA ended with Goverlord's "Few words, each one final."; "GOVERLORD's voice deep and
+// resonant:"): one persona's intro line is never another's, and a voice described is never said.
 func TestIntroNeverRepeatsAnother(t *testing.T) {
 	was := gopodCommCheckRunning.Swap(true)
 	defer func() { gopodIntroHeardReset(); gopodCommCheckRunning.Store(was) }()
@@ -379,10 +346,9 @@ func TestIntroNeverRepeatsAnother(t *testing.T) {
 	}
 }
 
-// 2026-11-20 (live: BRUH-2 said BRUH-1's intro): an intro that doesn't name its
-// own speaker is his guide, word for word.
+// BRUH-2 said BRUH-1's intro): an intro that doesn't name its own speaker is his guide, word for
+// word.
 func TestIntroNamesItsOwnSpeaker(t *testing.T) {
-	// BRUH-1 and BRUH-2: the robots themselves (the dial's 0%).
 	gopodDialZero.Store(gopodBrobot1ESN, true)
 	gopodDialZero.Store(gopodBrobot2ESN, true)
 	defer gopodDialZero.Delete(gopodBrobot1ESN)

@@ -1,18 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_lookup.go
 package wirepod_ttr
 
-// The look-up (2026-11-16, operator: "Rather than repeat brain bubble bloat, do a
-// swap in/out of topic clusters for the task at hand (based on key value
-// words/phrases) * do look ups from the repo read me files * in the brain bubble,
-// list which topic clusters were aggregated"; "matching topic clusters to the
-// question's key words * repo's md files in topic-cluster format as the search
-// pool"): every md file in the pool (brain_chain.lookup_files - topic_clusters/,
-// the repo's own pages, the scrolls, the studio) is a card: its words (its
-// "- **words:**" head line; a page without one is named by its file name), its
-// first lines. A question picks the cards whose words it says (the longest word
-// first, whole words); the brain's FACT is their first lines, and the bubble
-// names them (LOOKED UP). Nothing is copied - each card is read where it lives.
-
 import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"io/fs"
@@ -28,16 +16,12 @@ import (
 )
 
 type gopodLookupCard struct {
-	Path  string
-	Words []string
-	Lines []string
-	Owner string   // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
-	Body  []string // every point and paragraph line, for the depth a question asks (gopodLookupFact)
-	// 2026-11-18 (operator: "build the 'see also' multi-look-up"): its "see also"
-	// cards' file names - looked up with it, one step out.
-	SeeAlso []string
-	// 2026-11-20 (operator: "Build 2 indexes ... index-2 an actual repo lookup of
-	// whatever wordage is there"): its headings - the repo file's own topics.
+	Path     string
+	Words    []string
+	Lines    []string
+	Owner    string   // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
+	Body     []string // every point and paragraph line, for the depth a question asks (gopodLookupFact)
+	SeeAlso  []string
 	Headings []string
 }
 
@@ -57,13 +41,9 @@ func gopodLookupCards() []gopodLookupCard {
 		return gopodLookupCache.cards
 	}
 	var cards []gopodLookupCard
-	// 2026-11-17 (operator: "Gap 3, privacy? Fix first"): only the public repo -
-	// the files git tracks; a work file on disk (untracked, ignored) is never a
-	// card. No list from git (git missing, not a repo): no cards, said in the log.
 	tracked := gopodLookupTracked()
 	add := func(path string) {
 		base := filepath.Base(path)
-		// 2026-11-20: a "-schema.md" is a blank template ("(to come)"), not a fact.
 		if !strings.HasSuffix(base, ".md") || strings.HasPrefix(base, "z") || strings.HasSuffix(base, ".local.md") || strings.HasSuffix(base, "-schema.md") || !tracked[filepath.Clean(path)] {
 			return
 		}
@@ -116,8 +96,8 @@ func gopodLookupTracked() map[string]bool {
 	return tracked
 }
 
-// gopodLookupRead: a card - its words, then its first lines (a topic cluster's
-// first section's points; a page's first paragraph).
+// gopodLookupRead: a card - its words, then its first lines (a topic cluster's first section's
+// points; a page's first paragraph).
 func gopodLookupRead(path string) (gopodLookupCard, bool) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -125,8 +105,8 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 	}
 	c := gopodLookupCard{Path: path}
 	inBody, sections := false, 0
-	// A topic cluster opens "# title" then its head lines ("- **words:** ...");
-	// anything else is a page (its "---" is a rule, not a head's end).
+	// A topic cluster opens "# title" then its head lines ("- **words:** ..."); anything else is a
+	// page (its "---" is a rule, not a head's end).
 	var heads []string
 	for _, l := range strings.Split(string(data), "\n") {
 		if t := strings.TrimSpace(l); t != "" {
@@ -136,7 +116,6 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			}
 		}
 	}
-	// 2026-11-18: a plain-topped card ("- nickname: DOC") is a card too.
 	cluster := len(heads) == 2 && strings.HasPrefix(heads[0], "# ") && (strings.HasPrefix(heads[1], "- **") || (strings.HasPrefix(heads[1], "- ") && strings.Contains(heads[1], ":")))
 	var para []string
 	summary := false
@@ -149,12 +128,9 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if k, _, ok := gopodTopicHeadKV(t); ok && k == "summary" && cluster {
 				summary = true
 			}
-			// A card's summary head line is its lines (a chapter card's).
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "summary" && cluster && strings.TrimSpace(v) != "" {
 				c.Lines = []string{strings.TrimSpace(v)}
 			}
-			// A cluster's title and its head's own lines (not its words, its ask or
-			// its build notes) are lines too - a settings card says what it is.
 			if cluster && strings.HasPrefix(t, "# ") {
 				c.Body = append(c.Body, strings.TrimPrefix(t, "# "))
 			}
@@ -210,14 +186,11 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 		} else if t != "" && !strings.HasPrefix(t, "#") && !strings.HasPrefix(t, "|") && !strings.HasPrefix(t, "<") && !strings.HasPrefix(t, "!") && t != "---" {
 			c.Body = append(c.Body, strings.TrimLeft(t, "-*> "))
 		}
-		// Its first section's points (or those before any section), unless a summary said it.
 		if m := gopodProfilePointRE.FindStringSubmatch(t); m != nil && sections <= 1 && !summary {
 			c.Lines = append(c.Lines, m[1])
 		}
 	}
 	if !cluster {
-		// A page (no topic-cluster head): named by its file name too
-		// ("GOPOD_YOURSELF.md" -> "gopod yourself"), its first paragraph its lines.
 		name := strings.TrimSuffix(filepath.Base(path), ".md")
 		if strings.EqualFold(name, "README") {
 			name = filepath.Base(filepath.Dir(path))
@@ -251,10 +224,9 @@ func gopodLookupTokens(text string) []string {
 	return out
 }
 
-// gopodLookup: the cards a question asks about - a card's phrase counts when its
-// words come in the question in a row (endings aside), by its meaningful letters
-// (not the little words, not lookup_skip's common ones); up to lookup_max cards,
-// the best, and any as near it.
+// gopodLookup: the cards a question asks about - a card's phrase counts when its words come in the
+// question in a row (endings aside), by its meaningful letters (not the little words, not
+// lookup_skip's common ones); up to lookup_max cards, the best, and any as near it.
 func gopodLookup(question string) []gopodLookupCard {
 	q := " " + strings.Join(gopodLookupTokens(question), " ") + " "
 	skip := map[string]bool{}
@@ -287,10 +259,6 @@ func gopodLookup(question string) []gopodLookupCard {
 			hits = append(hits, hit{c, best})
 		}
 	}
-	// 2026-11-20 (operator: "Build 2 indexes"): index 1, the words people say -
-	// each topic's words point to its repo file ("rig" -> MOBILE_GEAR.md); index 2,
-	// the repo's own words - a file's name and headings. A card either index
-	// picks counts at its best score.
 	at := map[string]int{}
 	for i, h := range hits {
 		at[filepath.Clean(h.card.Path)] = i
@@ -327,7 +295,6 @@ func gopodLookup(question string) []gopodLookupCard {
 			bump(v.path, score)
 		}
 	}
-	// Index 2 only when the words people say found nothing.
 	meaningful := map[string]bool{}
 	if len(hits) == 0 {
 		meaningful = gopodLookupMeaningful(question)
@@ -342,9 +309,6 @@ func gopodLookup(question string) []gopodLookupCard {
 		}
 		bump(c.Path, score)
 	}
-	// 2026-11-17 (operator: "Aim for full coverage"): no card's words said - the
-	// cards whose lines say the most of the question's meaningful words (two or
-	// more of them), by the letters matched.
 	if len(hits) == 0 {
 		words := gopodLookupMeaningful(question)
 		for _, c := range gopodLookupCards() {
@@ -369,7 +333,6 @@ func gopodLookup(question string) []gopodLookupCard {
 	most := gopodBrobotsSettings.BrainChain.LookupMax
 	var out []gopodLookupCard
 	for _, h := range hits {
-		// The best card, and any as near its words (within 2 letters of it).
 		if most > 0 && len(out) >= most || h.score < hits[0].score-2 {
 			break
 		}
@@ -378,12 +341,9 @@ func gopodLookup(question string) []gopodLookupCard {
 	return out
 }
 
-// gopodLookupFact: what the brain's FACT says from the cards - each card's first
-// lines, then (2026-11-17, operator: "Gap 2, depth? Add sufficient depth without
-// repeating (fix brains, the selves within the group)") its other lines that say
-// the question's words, no line twice, at most brain_chain.lookup_chars a card;
-// and their names, for LOOKED UP. self's own card and the company's card are
-// already in his prompt - never looked up again.
+// gopodLookupFact: what the brain's FACT says from the cards - each card's first lines, then its
+// other lines that say the question's words, no line twice, at most brain_chain.lookup_chars a
+// card; and their names, for LOOKED UP.
 func gopodLookupFact(self, question string) (fact string, sources []string) {
 	chars := gopodBrobotsSettings.BrainChain.LookupChars
 	skipCard := map[string]bool{}
@@ -403,35 +363,24 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 		byName[strings.ToLower(filepath.Base(c.Path))] = c
 	}
 	listed := map[string]bool{}
-	// one card's lines: its first lines, then those that say the question's words;
-	// at most chars, no line said twice.
 	cardText := func(c gopodLookupCard, chars int, swept bool) string {
 		var lines []string
 		add := func(l string) {
 			l = strings.TrimSpace(strings.NewReplacer("**", "", "`", "").Replace(l))
 			key := strings.ToLower(l)
-			// A card label with nothing filled in ("My informal name (nickname): .").
 			l = strings.TrimRight(l, ". ")
-			// "My job title: X" - the value, not the label; an empty value ("{job}"
-			// unfilled) is dropped.
 			if v, ok := strings.CutPrefix(l, "My job title:"); ok {
 				l = strings.TrimLeft(strings.TrimSpace(v), "- ")
 			}
 			if gopodLookupEmptyLabelRE.MatchString(l) || gopodLookupNameLabelRE.MatchString(l) {
 				return
 			}
-			// A setting ("label: ANY PERSONA") or a dated build note is the
-			// machine's, not a fact to say.
 			if l == "" || said[key] || gopodLookupMachineRE.MatchString(l) {
 				return
 			}
 			said[key] = true
 			lines = append(lines, l)
 		}
-		// 2026-11-23 (operator: "I sort those value-points into meaningful
-		// sequence, from which, to then formulate my final response"): the lines
-		// that say the question's words first, then the card's own first lines and
-		// topics - the most to the point leads, and survives the cut.
 		for _, l := range c.Body {
 			for _, w := range gopodLookupTokens(l) {
 				if words[w] {
@@ -444,7 +393,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			for _, l := range c.Lines {
 				add(l)
 			}
-			// 2026-11-20: the wide look - the repo file's own topics, its headings.
 			if len(c.Headings) > 1 {
 				h := c.Headings
 				if len(h) > 8 {
@@ -454,7 +402,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			}
 		}
 		if len(lines) == 0 && !swept {
-			// Nothing here to say (a settings card): its title and head, then.
 			for _, l := range c.Body {
 				if len(lines) < 2 {
 					add(l)
@@ -476,8 +423,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			return
 		}
 		listed[name] = true
-		// Every card looked up is named (operator: "all files looked up are
-		// listed"); his own card and the company's add no words - they're in his prompt.
 		sources = append(sources, gopodLookupName(c.Path))
 		if skipCard[name] || chars < 0 { // listed only: the link budget is spent
 			return
@@ -487,24 +432,15 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 		}
 	}
 	most := gopodBrobotsSettings.BrainChain.LookupChainMax
-	// 2026-11-18 (operator: "look ups load to the end of the chain ... then sweep
-	// for information required and how to answer the question"): the picked
-	// cards, then their "see also" cards, theirs in turn, to the chain's end - each
-	// card once, at most lookup_chain_max of them; a linked card gives only its
-	// lines that say the question's words.
+	// the picked cards, then their "see also" cards, theirs in turn, to the chain's end - each card
+	// once, at most lookup_chain_max of them; a linked card gives only its lines that say the
+	// question's words.
 	var queue []gopodLookupCard
 	picked := gopodLookup(question)
-	// 2026-11-23: asked a third time outside another's job, the rep gives a short
-	// GOPOD welcome from the README (gopod_job_route.go).
 	welcome := gopodJobRouteWelcome(self)
 	if welcome {
 		picked = nil
 	}
-	// 2026-11-18 (operator: "Since GOPOD game is essentially a git repo tour, have
-	// 'duh' responses, default to look up the README.md file ... gravitate to GOPOD
-	// Yourself * I don't know. GOPOD Yourself!"): a question no card matches gets
-	// the repo's README (brain_chain.lookup_default, a path from the repo's top),
-	// and its line (lookup_default_line).
 	if len(picked) == 0 {
 		if d := strings.TrimSpace(gopodBrobotsSettings.BrainChain.LookupDefault); d != "" {
 			want := filepath.Clean(filepath.Join(gopodRepoRoot(), d))
@@ -523,7 +459,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 			}
 		}
 	}
-	// Two (or more) cards tie for the question: both briefly, his job's part only.
 	if len(picked) >= 2 {
 		if line := strings.TrimSpace(gopodBrobotsSettings.BrainChain.TwoMatchesLine); line != "" {
 			facts = append(facts, line)
@@ -541,10 +476,6 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 				break
 			}
 			if lc, ok := byName[strings.ToLower(l)]; ok && !listed[filepath.Clean(lc.Path)] {
-				// 2026-11-20 (operator: "CAMEO was a wide/deep probe"; live: fed nine
-				// linked cards' "I" lines, she said "Goverlord (aka ME)"): the wide
-				// answer is the card asked about - its "see also" cards are listed
-				// (LOOKED UP), not said; asking about one of them is the deep look.
 				take(lc, -1, true)
 				queue = append(queue, lc)
 			}
@@ -553,8 +484,8 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	return strings.Join(facts, " "), sources
 }
 
-// gopodLookupMachineRE: a line that's a setting (a key: value), a build note
-// (dated, or quoting the operator) or a path - not a fact to say.
+// gopodLookupMachineRE: a line that's a setting (a key: value), a build note or a path - not a fact
+// to say.
 var gopodLookupMachineRE = regexp.MustCompile(`^_?[a-z][a-z0-9_.\[\]]*:\s|\b20\d\d-\d\d-\d\d\b|operator:|[\w-]+/[\w./-]+\.(md|go|js|json|py)\b`)
 
 // gopodLookupEmptyLabelRE: a label line whose value is empty.
@@ -563,8 +494,8 @@ var gopodLookupEmptyLabelRE = regexp.MustCompile(`^[^:]{1,40}:\s*\.?\s*$`)
 // gopodLookupNameLabelRE: a card's own name labels - said for him, not a fact.
 var gopodLookupNameLabelRE = regexp.MustCompile(`^My (informal name|name)\b`)
 
-// gopodLookupMeaningful: a question's words worth matching a line on (stemmed;
-// not the little words, not lookup_skip's).
+// gopodLookupMeaningful: a question's words worth matching a line on (stemmed; not the little
+// words, not lookup_skip's).
 func gopodLookupMeaningful(question string) map[string]bool {
 	skip := map[string]bool{}
 	for _, w := range gopodBrobotsSettings.BrainChain.LookupSkip {
@@ -587,11 +518,8 @@ func gopodLookupName(path string) string {
 	return filepath.Base(path)
 }
 
-// gopodNonsenseLine (2026-11-19, operator: "I input for [persona-name]:
-// rgvthrtgh$^$%^gfdgdrfg * the reaction should match the non-sense * like; what is
-// 'rgvthrtgh$^$%^gfdgdrfg'? I don't know, let's start at README.md; rather than
-// engage the nonsense query"): a line with none of brain_chain.real_words and no
-// card its words pick gets brain_chain.nonsense_line, said as is; "" otherwise.
+// gopodNonsenseLine: a line with none of brain_chain.real_words and no card its words pick gets
+// brain_chain.nonsense_line, said as is; "" otherwise.
 func gopodNonsenseLine(text string) string {
 	bc := gopodBrobotsSettings.BrainChain
 	t := strings.TrimSpace(text)
@@ -609,8 +537,8 @@ func gopodNonsenseLine(text string) string {
 	return strings.ReplaceAll(bc.NonsenseLine, "{asked}", t)
 }
 
-// gopodLookupVocab: index 1 - each topic's words (the words people say) and
-// the repo file its topic tells (its source, else its own card), read with the cards.
+// gopodLookupVocab: index 1 - each topic's words (the words people say) and the repo file its topic
+// tells (its source, else its own card), read with the cards.
 type gopodVocabEntry struct {
 	tokens []string
 	path   string
@@ -628,8 +556,7 @@ func gopodLookupVocab() []gopodVocabEntry {
 	if gopodVocabCache.entries != nil && time.Since(gopodVocabCache.at) < time.Minute {
 		return gopodVocabCache.entries
 	}
-	// 2026-11-20 (operator: "from repo-index 2, generate Index 1, the words people
-	// say"): index 1 is its own file, written from index 2 (gopod_repo_index.go).
+	// index 1 is its own file, written from index 2 (gopod_repo_index.go).
 	var out []gopodVocabEntry
 	index := gopodReadWordsIndex()
 	var rels []string

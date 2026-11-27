@@ -8,9 +8,7 @@ import (
 	"testing"
 )
 
-// 2026-10-26 (operator: "[topic]? = summary response * [more]? = detailed
-// response * so always summarize first"; "go for \"tell me about\" vs \"tell me
-// all about\""): the topic ask template.
+// the topic ask template.
 func TestTopicAsksSummaryThenMore(t *testing.T) {
 	for q, want := range map[string]string{
 		"tell me about your mobile gear":     "summary",
@@ -29,7 +27,6 @@ func TestTopicAsksSummaryThenMore(t *testing.T) {
 	if _, _, ok := gopodTopicSummary("mobile_gear", "tell me all about your gear"); ok {
 		t.Error("a detail ask got the summary")
 	}
-	// "tell me more" names no topic: the last topic asked.
 	if p := gopodTopicPackets("what's your gear like?"); len(p) == 0 {
 		t.Skip("the gear question loads no topic here")
 	}
@@ -43,8 +40,7 @@ func TestTopicAsksSummaryThenMore(t *testing.T) {
 	}
 }
 
-// 2026-10-26 (operator: "as I update the repo, I want the game to match the
-// repo"): every topic's source: file is in the repo.
+// every topic's source: file is in the repo.
 func TestTopicSourcesInRepo(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
 		t.Skip("not in the repo here")
@@ -56,8 +52,7 @@ func TestTopicSourcesInRepo(t *testing.T) {
 	}
 }
 
-// 2026-10-26: BROBOT_ASKS.md is the game's topics, as they are now
-// (GOPOD_WRITE_ASKS=1 writes it again).
+// BROBOT_ASKS.md is the game's topics, as they are now (GOPOD_WRITE_ASKS=1 writes it again).
 func TestBrobotAsksPageMatches(t *testing.T) {
 	path := filepath.Join(gopodRepoRoot(), "BROBOT_ASKS.md")
 	if _, err := os.Stat(filepath.Join(gopodRepoRoot(), "README.md")); err != nil {
@@ -76,8 +71,7 @@ func TestBrobotAsksPageMatches(t *testing.T) {
 	}
 }
 
-// 2026-10-26 (operator: "Apply pre/post template to all, even minimally"): every
-// topic gets a pre note until the room has covered it, then a post note.
+// every topic gets a pre note until the room has covered it, then a post note.
 func TestTopicPrePost(t *testing.T) {
 	gopodCoverage.Lock()
 	saved := gopodCoverage.revealed
@@ -100,7 +94,6 @@ func TestTopicPrePost(t *testing.T) {
 	if post := gopodTopicPrePost("mobile_gear", true); post == "" || post == pre {
 		t.Errorf("post: %q", post)
 	}
-	// Every chaptered topic gets one (the template's defaults at least).
 	chapters, _, _ := gopodReadChaptersFolder()
 	for _, c := range chapters {
 		for _, tf := range c.Topics {

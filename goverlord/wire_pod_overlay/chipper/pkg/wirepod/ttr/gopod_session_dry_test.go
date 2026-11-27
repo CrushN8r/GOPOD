@@ -18,20 +18,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// The session dry run (operator 2026-10-11: "Full run done by you, no robots,
-// nothing spoken"; "I want a full run with a full account of all events of a
-// session starting from timer 0 until ended, and timer reset to 0"). One
-// session through Wire-Pod's own paths - the session log (gopod_session_log.go),
-// the chat feed, the Brobots' real chat path with the real LLM, the session's
-// run lines, the songs from their own story.md and knobs.json, and the song
-// engine's own dry run for their runs/ - with no robot and no sound: a voice
-// line is looked up in the voice library and logged (gopodDryVoice), never
-// played. session_dry_run.sh runs it.
-//
-//   live:  "Do you like to party?" and "What's the weather like?" to both
-//   runs:  start interview, start bingo test, start baby brobots
-//   live:  "How did bingo go for you?" to both, then "thx bros" (the ending)
-
 var gopodDryStoryStep = regexp.MustCompile(`^## STEP (\S+)\s*$`)
 var gopodDryStorySection = regexp.MustCompile(`^## SECTION:\s*(.+?)\s*$`)
 
@@ -52,8 +38,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 	if endpoint == "" || model == "" {
 		t.Fatal("GOPOD_HARVEST_ENDPOINT and GOPOD_HARVEST_MODEL are needed")
 	}
-	// Nothing live: chat memory, feed and state files in the run folder; the
-	// session folder under out/sessions.
 	t.Setenv("GOPOD_SESSION_DIR", filepath.Join(out, "chat_memory"))
 	t.Setenv("GOPOD_RECORD_SESSION_DIR", filepath.Join(out, "sessions"))
 	gopodChatFeedPath = filepath.Join(out, "chat_feed.json")
@@ -68,7 +52,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 	gopodSession.run = nil
 	gopodSession.Unlock()
 
-	// A voice line: looked up in the library, logged, never played.
 	gopodDryVoice = func(host, text string, show bool) {
 		_, _, cached := gopodReporterCached(host, gopodReporterSays(text))
 		state := "new (would be made, then played)"
@@ -83,7 +66,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 	}
 	defer func() { gopodDryVoice = nil }()
 
-	// Every log line into the session's wirepod.log, as inside Wire-Pod.
 	logger.Init()
 	go gopodRecordLogTee()
 	GopodSessionLogStart()
@@ -100,13 +82,11 @@ func TestGopodSessionDryRun(t *testing.T) {
 	client := openai.NewClientWithConfig(cfg)
 	esnOf := map[string]string{"Brobot 1": gopodBrobot1ESN, "Brobot 2": gopodBrobot2ESN}
 
-	// operator: a typed line to a Brobot (or both), shown and read out.
 	operator := func(to, text string) {
 		gopodChatFeedAddOperator(to, text, "Keyboard")
 		gopodReporterReadsOperator(text, "Typed text", to)
 		t.Logf("OPERATOR Keyboard to %s: %s", to, text)
 	}
-	// answer: one Brobot's answer through the live chat's path (the harvest's).
 	answer := func(b, text string) {
 		esn := esnOf[b]
 		req := CreateAIReq(text, esn, false, false)
@@ -128,7 +108,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 			raw = gopodStitchEndSnippet(snippet, raw)
 		}
 		result := buildGOPODStreamResult(gopodAnimationMarkerToInternal(raw))
-		// What would be sent to the Brobot, as live logs it (kgsim.go).
 		for _, chunk := range result.AudibleChunks {
 			packet := gopodPronounceCommandPacket(commandPacketFromFilteredChunk(chunk))
 			logger.LogDebugUI("FILTERED_SPLIT_SENT:\n" + gopodVaryDefaultAnimation(packet, result.Raw))
@@ -148,11 +127,9 @@ func TestGopodSessionDryRun(t *testing.T) {
 		}
 	}
 
-	// --- live ---
 	ask("Brobots", "Do you like to party?")
 	ask("Brobots", "What's the weather like?")
 
-	// --- start interview: the interview song, played as the chat plays it ---
 	operator("Brobots", "start interview")
 	if _, draft, err := gopodLoadDraft(); err != nil {
 		t.Errorf("interview: %v", err)
@@ -190,7 +167,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 		GopodRunEnd("interview", "done")
 	}
 
-	// --- the songs: their own story.md and knobs.json, and the engine's dry run ---
 	song := func(command, runName, songID string) {
 		operator("Brobots", command)
 		songDir, err := gopodFindSong(songID)
@@ -224,7 +200,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 				GopodChatFeedAdd("Countdown", "done")
 			}
 		}
-		// The song engine's own dry run, for its runs/ files.
 		cmd := exec.Command("python3", "run_golden_song_001.py")
 		cmd.Dir = filepath.Join(gopodSongsDir(), "tools")
 		cmd.Env = append(os.Environ(), "GOPOD_GOLDEN_SONG_ID="+songID)
@@ -241,7 +216,6 @@ func TestGopodSessionDryRun(t *testing.T) {
 	song("start bingo test", "Bingo Test Live", "brobots_bingo")
 	song("start baby brobots", "Start Baby Brobots", "brobots_baby_robots_sleep")
 
-	// --- live again, then the thanks ending ---
 	ask("Brobots", "How did bingo go for you?")
 	operator("Brobots", "thx bros")
 	for _, b := range []string{"Brobot 1", "Brobot 2"} {
@@ -273,8 +247,8 @@ func gopodDryHost(label string) string {
 	return label
 }
 
-// gopodDrySongSteps: a song's steps in order (knobs.json), each with its words
-// (story.md), a combo's words on its first part.
+// gopodDrySongSteps: a song's steps in order (knobs.json), each with its words (story.md), a
+// combo's words on its first part.
 func gopodDrySongSteps(t *testing.T, dir string) []gopodDrySongStep {
 	var knobs struct {
 		Steps []gopodDrySongStep `json:"steps"`

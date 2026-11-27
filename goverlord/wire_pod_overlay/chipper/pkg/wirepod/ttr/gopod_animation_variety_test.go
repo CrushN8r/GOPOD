@@ -2,8 +2,8 @@ package wirepod_ttr
 
 import "testing"
 
-// Extra animations go after the 2nd, 4th and 6th sentence of a part, never
-// after its last sentence, and a short part gets none.
+// Extra animations go after the 2nd, 4th and 6th sentence of a part, never after its last sentence,
+// and a short part gets none.
 func TestSprinkleAnimationsUpToThreePerPart(t *testing.T) {
 	part := func(n int) []RobotAction {
 		var acts []RobotAction
@@ -29,9 +29,8 @@ func TestSprinkleAnimationsUpToThreePerPart(t *testing.T) {
 	}
 }
 
-// The native lead-in after an animation survives GOPOD's speech cleanup, which
-// says every other "..." as a comma pause (native Wire-Pod:
-// "{{playAnimationWI||happy}}... text").
+// The native lead-in after an animation survives GOPOD's speech cleanup, which says every other
+// "..." as a comma pause (native Wire-Pod: "{{playAnimationWI||happy}}...
 func TestAnimationLeadInReachesTheVoice(t *testing.T) {
 	if got := gopodKeepLeadIn(gopodAnimationLeadIn+" Hello... there, bro.", cleanRobotSpeechText); got != gopodAnimationLeadIn+" Hello, there, bro." {
 		t.Fatalf("lead-in = %q", got)

@@ -15,39 +15,17 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
 
-// GOLDEN - the session's own account (operator 2026-10-10: "I want a full run
-// with a full account of all events of a session starting from timer 0 until
-// ended, and timer reset to 0"; "extend/elevate runs/notations to a session *
-// auto-log everything * recording/saving audio files requires Recording?
-// checked"; "new session should be taken from same single source of truth,
-// "_new_song" folder").
-//
-// A session starts at Wire-Pod start (the page's timer at 00:00:00) and ends
-// after the thanks ending ("You're welcome."); the next one starts at 0. It is
-// always logged, Record? or not, into record_session.sessions_dir/<date>/
-// <time>_session/, laid out like a song folder (_new_song):
-//   - story.md and knobs.json, composed as it happens: every chat line is a
-//     step (its words in story.md, its kind, who and second in knobs.json,
-//     "timeline": "srt"); each run is its own section;
-//   - runs/: each run's own log and json, copied from its song's runs/ when it
-//     ends; notation/: empty, as in a song;
-//   - chat.jsonl (every line) and wirepod.log (every Wire-Pod log line).
-// Record? adds the room audio (gopod_record_session.go) and turns the timer red.
-
 type gopodSessionStep struct {
-	StepID       string  `json:"step_id"`
-	Note         string  `json:"note"`
-	Speaker      string  `json:"speaker"`
-	To           string  `json:"to,omitempty"`
-	Via          string  `json:"via,omitempty"`
-	Section      string  `json:"section"`
-	StartSeconds float64 `json:"start_seconds"`
-	// 2026-10-12 (operator: "should the cues and moves be logged into the score
-	// so a replay includes them? * yes please"): an answer's words as the Brobot
-	// got them, its cue marked ("happy___ words"), and a scripted answer's moves.
-	Say   string           `json:"say,omitempty"`
-	Moves []gopodDraftMove `json:"moves,omitempty"`
-	text  string
+	StepID       string           `json:"step_id"`
+	Note         string           `json:"note"`
+	Speaker      string           `json:"speaker"`
+	To           string           `json:"to,omitempty"`
+	Via          string           `json:"via,omitempty"`
+	Section      string           `json:"section"`
+	StartSeconds float64          `json:"start_seconds"`
+	Say          string           `json:"say,omitempty"`
+	Moves        []gopodDraftMove `json:"moves,omitempty"`
+	text         string
 }
 
 var gopodSessionLog = struct {
@@ -90,16 +68,14 @@ func GopodSessionLogStart() {
 }
 
 // gopodSessionLogDir: the open session's folder ("" before the first one).
-// 2026-10-11 (operator: "default to write ALL session files (logs, WAVs,
-// etc...) to 'within that session's folder'"): numpad WAVs and a recording go here.
 func gopodSessionLogDir() string {
 	gopodSessionLog.Lock()
 	defer gopodSessionLog.Unlock()
 	return gopodSessionLog.dir
 }
 
-// GopodSessionLogEnd closes the session after the thanks ending and starts the
-// next one (the timer back to 0).
+// GopodSessionLogEnd closes the session after the thanks ending and starts the next one (the timer
+// back to 0).
 func GopodSessionLogEnd(reason string) {
 	gopodSessionLog.Lock()
 	dir, took := gopodSessionLog.dir, time.Since(gopodSessionLog.started).Round(time.Second)
@@ -174,8 +150,8 @@ func gopodSessionLogFeed(e gopodChatFeedEvent) {
 	gopodSessionLogLine(gopodRecordLine{TimeMS: e.TimeMS, Source: "feed", Who: e.Who, To: e.To, Text: gopodShownText(e.Text), FeedID: e.ID}, note, via)
 }
 
-// gopodShownText: a line's words without its voice tag ("generating:wait:<file>|"
-// or "generating:lit:<file>|", gopodSayShown) - what the session log keeps.
+// gopodShownText: a line's words without its voice tag ("generating:wait:<file>|" or
+// "generating:lit:<file>|", gopodSayShown) - what the session log keeps.
 func gopodShownText(text string) string {
 	m := gopodBrobotsSettings.ReporterVoices.GeneratingMarker
 	for _, tag := range []string{"wait:", "lit:"} {
@@ -191,21 +167,20 @@ func gopodShownText(text string) string {
 }
 
 // gopodSessionLogAnswer: a Brobot's chat answer (live or scripted).
-// The bubble's words, without the cue ("dartingEyes... GOPOD can" -> "GOPOD can").
 func gopodSessionLogAnswer(esn, question string, result gopodStreamResult) {
 	moves := gopodScriptTakeLoggedMoves(esn)
 	gopodSessionLogLine(gopodRecordLine{Source: "chat", Who: gopodBrobotName(esn), Text: gopodDisplayReply(result.Raw), Spoken: result.FilteredPacket}, "answer", "",
 		func(s *gopodSessionStep) { s.Say, s.Moves = strings.TrimSpace(result.Raw), moves })
 }
 
-// gopodSessionLogHeard: a line a Brobot heard himself (Hey Vector, the backpack
-// button) - the page shows it from Wire-Pod's log, so it's logged here.
+// gopodSessionLogHeard: a line a Brobot heard himself (Hey Vector, the backpack button) - the page
+// shows it from Wire-Pod's log, so it's logged here.
 func gopodSessionLogHeard(to, text string) {
 	gopodSessionLogLine(gopodRecordLine{Source: "chat", Who: "Operator", To: to, Text: text}, "operator_line", "Backpack")
 }
 
-// gopodSessionLogRunStart / End: a run is its own section; at its end, its
-// song's run files are copied into the session's runs/.
+// gopodSessionLogRunStart / End: a run is its own section; at its end, its song's run files are
+// copied into the session's runs/.
 func gopodSessionLogRunStart(name string) {
 	shown := gopodRunText("{run}", name)
 	if shown == "Run" {
@@ -266,8 +241,8 @@ func gopodSessionLogWire(line string) {
 	gopodSessionLog.Unlock()
 }
 
-// gopodSessionLogWriteLocked rewrites story.md and knobs.json from the steps so
-// far, on _new_song's knobs.json (its top keys) - the caller holds the lock.
+// gopodSessionLogWriteLocked rewrites story.md and knobs.json from the steps so far, on _new_song's
+// knobs.json (its top keys) - the caller holds the lock.
 func gopodSessionLogWriteLocked() {
 	dir := gopodSessionLog.dir
 	if dir == "" {

@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-// Every chat-page line gets its own number, even the same words twice, and
-// the feed keeps only its newest gopodChatFeedMax() lines.
+// Every chat-page line gets its own number, even the same words twice, and the feed keeps only its
+// newest gopodChatFeedMax() lines.
 func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 	savedPath := gopodChatFeedPath
 	defer func() { gopodChatFeedPath = savedPath }()
@@ -20,9 +20,6 @@ func TestGopodChatFeedNumbersEveryLine(t *testing.T) {
 	GopodChatFeedAdd("Brobot 1", "Bingo Test Begins. Round 1!")
 	GopodChatFeedAdd("Brobot 1", "Bingo Test Begins. Round 1!")
 	GopodChatFeedAdd("", "no speaker is ignored")
-	// 2026-10-18 (flaky: another test's background line could land in this
-	// feed and shift the count): the property itself - the same words twice
-	// get two numbers, every number is new and rising - not an exact total.
 	gopodChatFeed.Lock()
 	var bingo []int
 	for _, e := range gopodChatFeed.events {

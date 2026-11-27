@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-// TestSessionAura (2026-11-24): Goverlord's AURA line - from the card's words,
-// filled by the code; the pace and tension pieces keep their leading space/comma.
+// TestSessionAura: Goverlord's AURA line - from the card's words, filled by the code; the pace and
+// tension pieces keep their leading space/comma.
 func TestSessionAura(t *testing.T) {
 	a := gopodBrobotsSettings.BrainChain.Aura
 	if a["line"] == "" || !strings.HasPrefix(a["pace_lively"], ", ") || !strings.HasPrefix(a["tension_doc_pip"], " ") {
@@ -36,8 +36,7 @@ func TestSessionAura(t *testing.T) {
 	}
 }
 
-// TestNeverIn (2026-11-24): a line naming a never word is caught on the way in;
-// a clean one isn't.
+// TestNeverIn: a line naming a never word is caught on the way in; a clean one isn't.
 func TestNeverIn(t *testing.T) {
 	words := gopodBrobotsSettings.CleanPolitics.NeverWords
 	if len(words) == 0 || gopodBrobotsSettings.CleanPolitics.NeverInLine == "" {
@@ -51,8 +50,7 @@ func TestNeverIn(t *testing.T) {
 	}
 }
 
-// TestSpeechTidy (2026-11-24): note separators and made-up links never get said;
-// GOPOD's own links stay.
+// TestSpeechTidy: note separators and made-up links never get said; GOPOD's own links stay.
 func TestSpeechTidy(t *testing.T) {
 	got := gopodStripLeaks("A granny | she helped. See (https://www.google.com/url?q=x) or https://crushn8r.ca/subscribe today.")
 	if strings.Contains(got, "|") || strings.Contains(got, "google") || !strings.Contains(got, "https://crushn8r.ca/subscribe") {
@@ -60,9 +58,8 @@ func TestSpeechTidy(t *testing.T) {
 	}
 }
 
-// TestCommCheckCrewLive (2026-11-24): the crew bubble from the company folders -
-// whatever they're called: every persona in one crew line, KEYS marked, the
-// company named, no slot left unfilled.
+// TestCommCheckCrewLive: the crew bubble from the company folders - whatever they're called: every
+// persona in one crew line, KEYS marked, the company named, no slot left unfilled.
 func TestCommCheckCrewLive(t *testing.T) {
 	keys := gopodBrobotsSettings.SystemBubble.VoicePersona
 	got := gopodCommCheckCrewLines(keys)
@@ -70,7 +67,6 @@ func TestCommCheckCrewLive(t *testing.T) {
 	if strings.Contains(all, "{") || !strings.Contains(all, "(Myself)") || !strings.Contains(all, "Company: MATH AFTERMATH NEWS") {
 		t.Fatalf("crew bubble:\n%s", all)
 	}
-	// 2026-11-24 (operator: "Admin Crew: OPERATOR, GOVERLORD, KEYS"): his card, first in the chain.
 	if !strings.Contains(all, "--- Admin Crew --- OPERATOR, GOVERLORD, KEYS (Myself)") {
 		t.Fatalf("admin crew:\n%s", all)
 	}
@@ -88,9 +84,7 @@ func TestCommCheckCrewLive(t *testing.T) {
 	t.Log("\n" + all)
 }
 
-// TestReminderLead (2026-11-25, operator: "weather (location)? > bookings.md (at
-// a location) * gravitate towards [selling GOPOD] * the more 'I don't know', the
-// faster the gravitation to README.md + welcome"): where the reminders' ride starts.
+// TestReminderLead: where the reminders' ride starts.
 func TestReminderLead(t *testing.T) {
 	labels := gopodBrobotsSettings.InterviewChapters.TopicLabels
 	seat := func(topic string) bool { return labels[topic] != "" }
@@ -110,8 +104,7 @@ func TestReminderLead(t *testing.T) {
 	}
 }
 
-// TestNativeWeatherNeedsWeather (2026-11-25, live: stray YouTube audio became a
-// weather report for Drop, Poland): a weather take only for a weather line.
+// TestNativeWeatherNeedsWeather: a weather take only for a weather line.
 func TestNativeWeatherNeedsWeather(t *testing.T) {
 	if gopodLineIsKind("there's number the water to go that's how you get the way that had to drop", "weather") {
 		t.Fatal("stray words took the weather")

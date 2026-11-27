@@ -16,19 +16,8 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// The live weather line a scripted answer can carry ({weather}; operator
-// 2026-10-08: "tell you the weather (can you insert a live real-time weather
-// check here?) ... if online is detected"; "Brobot 2 then does a verify, (same
-// real weather check) and repeats results in brobot 2 default imperial and
-// 12-hour clock values (brobot 1 is metric/24-hour clock)"). Ported from the
-// golden Awaken weather (gopod_weather_fetch_001.py, format_for_robot with
-// location and date): one OpenWeatherMap fetch in Celsius, then each robot's
-// own unit and clock first - read from his own Wire-Pod RobotSettings - and the
-// other second. Offline (the fetch fails), there is no line.
-
 type gopodWeatherFacts struct {
 	Name, State string
-	// Country: its two-letter code ("US"), for the line's flag (2026-10-17).
 	Country     string
 	Description string
 	TempC       float64
@@ -45,16 +34,16 @@ var gopodWeatherCache = struct {
 	places map[string]gopodWeatherCached
 }{places: map[string]gopodWeatherCached{}}
 
-// gopodWeatherPlaceRE: the place a weather question names - "the weather in
-// toronto ontario, right now?", "weather for Toronto, ON, CA, please".
+// gopodWeatherPlaceRE: the place a weather question names - "the weather in toronto ontario, right
+// now?", "weather for Toronto, ON, CA, please".
 var gopodWeatherPlaceRE = regexp.MustCompile(`(?i)\bweather\b.*?\b(?:in|for|at)\s+([\p{L}][\p{L} .,'-]*?)\s*(?:,?\s*\b(?:right now|now|today|tonight|currently|please|bro)\b|[?!.]|$)`)
 
-// gopodWeatherPlaceBeforeRE: "in Honolulu Hawaii", "to New York" - a place
-// in capitals anywhere in the line.
+// gopodWeatherPlaceBeforeRE: "in Honolulu Hawaii", "to New York" - a place in capitals anywhere in
+// the line.
 var gopodWeatherPlaceBeforeRE = regexp.MustCompile(`\b(?:in|to|at|from)\s+(\p{Lu}[\p{L}'-]*(?:,?\s+\p{Lu}[\p{L}'-]*)*)`)
 
-// gopodWeatherPlaceSmallRE / gopodWeatherNotPlace: a place typed small ("in
-// jerusalem"), and the words that are never one (or end one).
+// gopodWeatherPlaceSmallRE / gopodWeatherNotPlace: a place typed small ("in jerusalem"), and the
+// words that are never one (or end one).
 var gopodWeatherPlaceSmallRE = regexp.MustCompile(`\b(?:in|to|from)\s+([a-z][a-z'-]*(?:\s+[a-z][a-z'-]*)?)`)
 var gopodWeatherNotPlace = map[string]bool{
 	"a": true, "an": true, "the": true, "my": true, "your": true, "our": true, "his": true, "her": true,
@@ -70,10 +59,7 @@ var gopodWeatherNotPlace = map[string]bool{
 	"him": true, "them": true, "us": true, "do": true, "be.": true, "work": true, "bingo": true,
 }
 
-// gopodWeatherPlace (2026-10-13, operator: "toronto weather was troublesome" -
-// live 07:40, the question named Toronto, the fetch was Windsor's and the
-// Brobot made Toronto's up): the place the question names, or "" for the
-// usual live_weather.location.
+// gopodWeatherPlace: the place the question names, or "" for the usual live_weather.location.
 func gopodWeatherPlace(message string) string {
 	place := ""
 	if m := gopodWeatherPlaceRE.FindStringSubmatch(message); m != nil {
@@ -83,10 +69,6 @@ func gopodWeatherPlace(message string) string {
 	case "", "here", "there", "the chat", "the room", "the building":
 		place = ""
 	}
-	// 2026-10-16 (live: "I want to visit my granny in Honolulu Hawaii. How is
-	// the weather there today?" got Windsor's; operator: "Windsor is default as
-	// fallback not over ride"): a place named before the weather - "in" or "to"
-	// a name in capitals - when none comes after it.
 	if place == "" {
 		for _, m := range gopodWeatherPlaceBeforeRE.FindAllStringSubmatch(message, -1) {
 			name := strings.Trim(strings.TrimSpace(m[1]), " ,.'-")
@@ -98,9 +80,6 @@ func gopodWeatherPlace(message string) string {
 			place = name
 		}
 	}
-	// 2026-10-16 (live: "my granny lives in jerusalem what's the weather there
-	// today" got Windsor's): typed small too - one or two words after in/to/from,
-	// up to a word like "what's" (gopodWeatherNotPlace).
 	if place == "" {
 		for _, m := range gopodWeatherPlaceSmallRE.FindAllStringSubmatch(strings.ToLower(message), -1) {
 			var words []string
@@ -118,10 +97,6 @@ func gopodWeatherPlace(message string) string {
 	if place == "" {
 		return ""
 	}
-	// 2026-10-16 (live: "is it granny weather for bingo?" fetched "Bingo, North
-	// Kivu"): an easter egg's word ("bingo") isn't a place.
-	// 2026-10-16: any topic's word typed small ("bingo" has no egg picture since
-	// chocolate moved to the food egg); a name in capitals ("Windsor") stays a place.
 	small := place == strings.ToLower(place)
 	for _, packet := range gopodTopicRegistry() {
 		if !small && len(gopodBrobotsSettings.TopicPictures.Pictures[packet.Name]) == 0 {
@@ -136,9 +111,9 @@ func gopodWeatherPlace(message string) string {
 	return place
 }
 
-// gopodLiveWeatherFacts fetches the weather at place ("" = live_weather.location),
-// or returns that place's last fetch when it is newer than
-// live_weather.cache_seconds (so Brobot 2 checks the same reading).
+// gopodLiveWeatherFacts fetches the weather at place ("" = live_weather.location), or returns that
+// place's last fetch when it is newer than live_weather.cache_seconds (so Brobot 2 checks the same
+// reading).
 func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	lw := gopodBrobotsSettings.LiveWeather
 	if strings.TrimSpace(place) == "" {
@@ -166,29 +141,17 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 		}
 		return json.NewDecoder(resp.Body).Decode(into)
 	}
-	// A spoken place ("toronto ontario") is tried as given, then in the
-	// comma forms (geocodeCandidates), then its first word alone.
 	tries := geocodeCandidates(place)
 	if f := strings.Fields(strings.ReplaceAll(place, ",", " ")); len(f) > 1 {
 		tries = append(tries, f[0])
 	}
-	// 2026-10-17 (operator: "Toronto is a city in Jefferson County, Ohio, United
-	// States ... send all parameters as-is, to api * [City], [state/province],
-	// [Country] = Toronto, \"\", USA * so weather station has at least
-	// City/Country"; live: "My granny is in Toronto USA" got Toronto, Ontario):
-	// a country named in the place (clean_politics.countries, the flags' own
-	// list) is sent as its code, "Toronto,,US", first - and only a place in it wins.
 	city, country := gopodWeatherCountry(place)
-	// 2026-10-23: a continent isn't a city; a country alone is its capital.
 	for _, c := range gopodBrobotsSettings.CleanPolitics.Continents {
 		city = strings.TrimSpace(strings.ReplaceAll(" "+strings.ToLower(city)+" ", " "+c+" ", " "))
 	}
 	if country != "" && city == "" {
 		city = gopodBrobotsSettings.CleanPolitics.Capitals[country]
 	}
-	// 2026-11-03 (live: "the weather of Oz in Kansas, USA" got Kansas, Alabama;
-	// operator: "Its capital"): a state or province alone - or "<somewhere> in
-	// <state>" - is looked up at its capital, in that state.
 	if state, capital := gopodStateCapital(city); capital != "" {
 		tries = append([]string{capital + ", " + state}, tries...)
 		if country != "" {
@@ -199,10 +162,9 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	if country != "" && city != "" {
 		tries = append([]string{city + ",," + country, city + "," + country}, tries...)
 	}
-	// 2026-10-14 (live 13:14, "Is it the same party weather in Windsor
-	// Ontario?" was answered with Windsor England): each try asks for a few
-	// places, and the one in the province/state/country the question named
-	// wins (gopodPickPlace); with none named, the first.
+	// 14, "Is it the same party weather in Windsor Ontario?" was answered with Windsor England): each
+	// try asks for a few places, and the one in the province/state/country the question named wins
+	// (gopodPickPlace); with none named, the first.
 	var geo []gopodGeoPlace
 	var found *gopodGeoPlace
 	for _, q := range tries {
@@ -231,7 +193,6 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 		}
 	}
 	if found == nil && len(geo) > 0 {
-		// The named region matched nothing: still the first place found.
 		found = &geo[0]
 	}
 	if found == nil {
@@ -263,9 +224,8 @@ func gopodLiveWeatherFacts(place string) (gopodWeatherFacts, error) {
 	return facts, nil
 }
 
-// gopodStateCapital: the state (or province) a place is, alone or as
-// "<somewhere> in <state>", and its capital (clean_politics.state_capitals);
-// "", "" for any other place. The longest state name wins (West Virginia).
+// gopodStateCapital: the state (or province) a place is, alone or as "<somewhere> in <state>", and
+// its capital (clean_politics.state_capitals); "", "" for any other place.
 func gopodStateCapital(place string) (string, string) {
 	lc := strings.ToLower(strings.Join(strings.Fields(strings.ReplaceAll(place, ",", " ")), " "))
 	if lc == "" {
@@ -281,8 +241,8 @@ func gopodStateCapital(place string) (string, string) {
 	return best, capital
 }
 
-// gopodWeatherCountry: the place without a country named in it, and that
-// country's code ("Toronto USA" -> "Toronto", "US"); "" when none is named.
+// gopodWeatherCountry: the place without a country named in it, and that country's code ("Toronto
+// USA" -> "Toronto", "US"); "" when none is named.
 func gopodWeatherCountry(place string) (string, string) {
 	lower := " " + strings.ToLower(strings.Join(strings.Fields(strings.ReplaceAll(place, ",", " ")), " ")) + " "
 	best, code := "", ""
@@ -296,15 +256,14 @@ func gopodWeatherCountry(place string) (string, string) {
 		return place, ""
 	}
 	city := strings.TrimSpace(strings.Replace(lower, " "+strings.ToLower(best)+" ", " ", 1))
-	// The city as written (its capitals).
 	if i := strings.Index(strings.ToLower(place), city); i >= 0 && city != "" {
 		city = place[i : i+len(city)]
 	}
 	return strings.Trim(city, " ,"), code
 }
 
-// gopodWeatherCountriesSaid: the countries of the weather lines said in the
-// last two minutes - their flags are right (gopodCleanPolitics keeps them).
+// gopodWeatherCountriesSaid: the countries of the weather lines said in the last two minutes -
+// their flags are right (gopodCleanPolitics keeps them).
 func gopodWeatherCountriesSaid() []string {
 	gopodWeatherCache.Lock()
 	defer gopodWeatherCache.Unlock()
@@ -326,9 +285,8 @@ type gopodGeoPlace struct {
 	Lon     float64 `json:"lon"`
 }
 
-// gopodPickPlace: the place among got whose state or country is one the
-// question named after the city ("windsor ontario" -> State "Ontario"), or -1.
-// With nothing named after the city, the first place.
+// gopodPickPlace: the place among got whose state or country is one the question named after the
+// city ("windsor ontario" -> State "Ontario"), or -1.
 func gopodPickPlace(got []gopodGeoPlace, place string) int {
 	if len(got) == 0 {
 		return -1
@@ -350,8 +308,8 @@ func gopodPickPlace(got []gopodGeoPlace, place string) int {
 	return -1
 }
 
-// gopodRobotWeatherFormat: this robot's own unit and clock, from his Wire-Pod
-// RobotSettings (temp_is_fahrenheit, clock_24_hour); Celsius/24 h when unread.
+// gopodRobotWeatherFormat: this robot's own unit and clock, from his Wire-Pod RobotSettings
+// (temp_is_fahrenheit, clock_24_hour); Celsius/24 h when unread.
 func gopodRobotWeatherFormat(esn string) (fahrenheit, clock24 bool) {
 	jdoc, ok := vars.GetJdoc("vic:"+esn, "vic.RobotSettings")
 	if !ok {
@@ -367,17 +325,13 @@ func gopodRobotWeatherFormat(esn string) (fahrenheit, clock24 bool) {
 	return s.TempIsFahrenheit, s.Clock24Hour
 }
 
-// GOLDEN (2026-10-10, operator: "scripted comes from live, so elevate the
-// 'call/fallback-response' process to live, stamp golden, then apply back to
-// scripted 'weather' call in interview"): the one weather call, live chat and
-// scripted draft alike - the real weather line, or offline
-// live_weather.offline_text, or "" when that's empty too.
+// GOLDEN: the one weather call, live chat and scripted draft alike - the real weather line, or
+// offline live_weather.offline_text, or "" when that's empty too.
 func gopodWeatherSay(esn string) (string, bool) {
 	return gopodWeatherSayAt(esn, "")
 }
 
 // gopodWeatherSayAt: the same, at a place the question named ("" = the usual).
-// A named place that isn't found gets the usual place's weather.
 func gopodWeatherSayAt(esn, place string) (string, bool) {
 	if line := gopodLiveWeatherLine(esn, place); line != "" {
 		return line, true
@@ -399,9 +353,6 @@ func gopodLiveWeatherLine(esn, place string) string {
 	fahrenheit, _ := gopodRobotWeatherFormat(esn)
 	c := int(math.Round(facts.TempC))
 	f := int(math.Round(facts.TempC*9/5 + 32))
-	// 2026-10-14 (operator: "from: 62 degrees Fahrenheit or 17 degrees Celsius
-	// * to: 62° Fahrenheit or 17° Celsius"): the bubble shows °, the robot says
-	// "degrees" (spoken_symbols).
 	units := fmt.Sprintf("%d° Celsius or %d° Fahrenheit", c, f)
 	if fahrenheit {
 		units = fmt.Sprintf("%d° Fahrenheit or %d° Celsius", f, c)
@@ -411,14 +362,9 @@ func gopodLiveWeatherLine(esn, place string) string {
 		where, facts.Local.Format("January 2"), facts.Local.Year(), units, facts.Description, clock)
 }
 
-// gopodWeatherReportLine (2026-10-22, operator's multiple responses template:
-// "BROBOT N responding first: Brobot Weather Report for [Windsor Ontario Canada]
-// [🇨🇦], [October 22, 2026]. Temperature is [68° Fahrenheit] and [clear] sky as of
-// 3:49 PM * brobot 2 is imperial/F/12-hour clock"; "BROBOT N responding next:
-// Confirmed. Temperature is [20° Celsius] at [1549 Hours Military Time] * brobot 1
-// is metric/C/24-hour clock"): the weather line in a weather_lines format -
-// "report" (first or only) or "confirm" (next) - in this robot's own unit and
-// clock; "" when that format is empty or there's no weather (the golden line then).
+// gopodWeatherReportLine: the weather line in a weather_lines format - "report" (first or only) or
+// "confirm" (next) - in this robot's own unit and clock; "" when that format is empty or there's no
+// weather (the golden line then).
 func gopodWeatherReportLine(esn, place, kind string) string {
 	format := strings.TrimSpace(gopodBrobotsSettings.WeatherLines[kind])
 	if format == "" {
@@ -448,23 +394,13 @@ func gopodWeatherReportLine(esn, place, kind string) string {
 		"{temp}", temp, "{sky}", facts.Description, "{time}", clock).Replace(format)
 }
 
-// gopodPlaceAndClock: the place ("Windsor Ontario Canada 🇨🇦") and the time
-// ("1405 Hours Military Time or 2:05 PM") as the weather line says them - shared
-// with PLAYHEAD's time and place line (gopod_managers.go).
+// gopodPlaceAndClock: the place ("Windsor Ontario Canada 🇨🇦") and the time ("1405 Hours
+// Military Time or 2:05 PM") as the weather line says them - shared with PLAYHEAD's time and place
+// line (gopod_managers.go).
 func gopodPlaceAndClock(esn string, facts gopodWeatherFacts) (string, string) {
 	_, clock24 := gopodRobotWeatherFormat(esn)
-	// 2026-10-09 (operator: "have 12/24-hour time speech as 11:30 am, not
-	// 'eleven thirty' am * see bubbles"): the time in digits, the bubble and the
-	// speech alike.
-	// 2026-10-14 (operator: "from: 6:14 PM or 18:14 * to: 6:14 AM/PM or 18:14
-	// (Military Time)"): the 24-hour time carries its label; the robot says it
-	// as military time (gopodSpeakMilitaryTime).
 	h24, h12 := facts.Local.Format("15:04"), facts.Local.Format("3:04 PM")
-	// 2026-10-14 (operator: "Now take 24-hour clock, convert to military
-	// time"; "Always use four digits (written without a colon: 1814)").
 	if label := gopodBrobotsSettings.LiveWeather.MilitaryLabel; label != "" {
-		// 2026-10-14 (operator: "\"(Military Time)\" (hours) = \"Hours Military Time\"
-		// (hours military time)").
 		h24 = facts.Local.Format("1504") + " " + label
 	}
 	clock := h24 + " or " + h12
@@ -472,14 +408,9 @@ func gopodPlaceAndClock(esn string, facts gopodWeatherFacts) (string, string) {
 		clock = h12 + " or " + h24
 	}
 	where := facts.Name
-	// 2026-10-16 (live: "Jerusalem Jerusalem District"): a region named after
-	// the city isn't said twice.
 	if facts.State != "" && !strings.HasPrefix(strings.ToLower(facts.State), strings.ToLower(facts.Name)) {
 		where += " " + facts.State
 	}
-	// 2026-10-17 (operator: "add country correct flag"; then "display
-	// [country][flag], say country"): the country's name and flag after the
-	// place; the flag isn't said (gopodSpeakFlags).
 	if facts.Country != "" {
 		if name := gopodCountryName(facts.Country); name != "" {
 			where += " " + name
@@ -511,8 +442,6 @@ func gopodMilitaryTimeSpoken(hour, minute int) string {
 	if hour == 0 {
 		hw = "zero"
 	} else if hour < 10 {
-		// 2026-11-10 (operator: "0726 would be spoken as 0-7,26 (zero-seven,
-		// twenty-six)"): the hour is one group, HH.
 		hw = "zero-" + gopodDigitWords[hour]
 	}
 	if minute == 0 {
@@ -524,8 +453,7 @@ func gopodMilitaryTimeSpoken(hour, minute int) string {
 	return hw + " " + gopodTwoDigitWord(minute)
 }
 
-// gopodTwelveHourTimeSpoken: "eight twenty-five pm", "eight o'clock 'a' m" (the
-// operator's own spelling for "am", which the robot otherwise says as a word).
+// gopodTwelveHourTimeSpoken: "eight twenty-five pm", "eight o'clock 'a' m".
 func gopodTwelveHourTimeSpoken(hour24, minute int) string {
 	hour := hour24 % 12
 	if hour == 0 {

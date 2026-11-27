@@ -6,20 +6,6 @@ import (
 	"time"
 )
 
-// The here-and-now note (2026-10-26, operator: "all chat participants should
-// be aware of themselves & others in the chat, in spacetime (time & location)";
-// 2026-10-27: "rather than the llm asses all that * pre-generate all that for
-// the llm, instead * Time is [time]. You are [name], located in [Windsor Ontario
-// Canada]. You're chatting with friends, [list chat participants]. Check recent
-// chat history for context"; "Template the flow"). All worked out in code: a
-// Gomad's prompt gets here_now.text; a Brobot gets the same pieces as tokens in
-// his pre-build context (prebuild_context.lines, gopodPrebuildContext). here_now.text has {time}, {self},
-// {gender}, {place} (the live place, else here_now.place), {cast} (everyone but
-// him, each "name (gender, role)"; to a Brobot his brother is brother_line,
-// never named) and {batteries} (only for a battery guard, battery_watch.guards).
-// Gender: here_now.genders, else his voice (reporter_voices.hosts: Kokoro's
-// af_/am_ - the second letter, voice_genders).
-
 // gopodHereNow: the note for self ("Brobot 1", "CHALK", ...); "" when off.
 func gopodHereNow(self string) string {
 	hn := gopodBrobotsSettings.HereNow
@@ -67,7 +53,6 @@ func gopodHereNowCast(self string) string {
 		case c.Who == self:
 			continue
 		case brobot && (c.Who == "Brobot 1" || c.Who == "Brobot 2"):
-			// 2026-10-29: solo, no brother in the room.
 			if !gopodSolo() {
 				out = append(out, hn.BrotherLine)
 			}

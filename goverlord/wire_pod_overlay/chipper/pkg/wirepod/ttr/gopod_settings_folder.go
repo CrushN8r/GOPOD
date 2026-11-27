@@ -1,16 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_settings_folder.go
 package wirepod_ttr
 
-// The settings folder (2026-10-29, operator: "a named folder with correct &
-// organized contents"; pass 6 of FLEXIBLE_DATA_SURVEY_001.md). GOPOD's settings
-// are one set of blocks kept in a folder, a short file per area
-// (webroot/gopod_settings/: 00_about, 01_brain, 02_cast, 03_chat_page, 04_game,
-// 05_voices_and_robots, 06_system), each block in exactly one file. Wire-Pod
-// loads them as one (gopodSettingsMerged) and serves that whole to the chat page
-// at /gopod_brobots_settings.json; an edit goes to the file holding its block
-// (gopodSettingsFileFor) - system-set, system-add/remove, the lingo, the voices
-// menu, the menu look; system-locate and system-find answer file:line in it.
-
 import (
 	"bytes"
 	"encoding/json"
@@ -33,7 +23,6 @@ func gopodSettingsFiles() []string {
 }
 
 // gopodSettingsMerged: every file's blocks as one JSON object, in file order.
-// A block in two files is an error.
 func gopodSettingsMerged() ([]byte, error) {
 	files := gopodSettingsFiles()
 	if len(files) == 0 {
@@ -65,8 +54,8 @@ func gopodSettingsMerged() ([]byte, error) {
 	return append(append([]byte("{\n  "), bytes.Join(parts, []byte(",\n  "))...), []byte("\n}\n")...), nil
 }
 
-// gopodSettingsFileFor: the file holding a setting's block (path[0]); a new
-// block goes into the first file.
+// gopodSettingsFileFor: the file holding a setting's block (path[0]); a new block goes into the
+// first file.
 func gopodSettingsFileFor(path []string) string {
 	files := gopodSettingsFiles()
 	if len(path) > 0 {
@@ -89,8 +78,8 @@ func gopodSettingsFileFor(path []string) string {
 	return filepath.Join(gopodSettingsDir, "00_about.json")
 }
 
-// GopodSettingsHandler: the settings as one, for the chat page
-// (/gopod_brobots_settings.json - the address it has always read).
+// GopodSettingsHandler: the settings as one, for the chat page (/gopod_brobots_settings.json - the
+// address it has always read).
 func GopodSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := gopodSettingsMerged()
 	if err != nil {
@@ -99,8 +88,6 @@ func GopodSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
-	// 2026-10-30: each persona's labels from its profile, the one master source.
-	// 2026-10-31: the topic-clusters laid over them (gopod_topic_clusters.go).
 	w.Write(gopodPersonaProfileLabelsJSON(gopodClustersOverlay(data)))
 }
 

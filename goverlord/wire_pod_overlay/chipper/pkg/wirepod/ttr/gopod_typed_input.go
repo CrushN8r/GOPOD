@@ -15,19 +15,9 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// Typed input from the chat page (operator 2026-10-04: "add a line for keyboard
-// input at the very left ... radio buttons to select robot 1 or 2. And then a
-// text input where I can type a command rather than speak"). The typed line goes
-// the way a heard one does after speech-to-text: a GOPOD voice command
-// (customIntents.json) runs its script; anything else is a Brobots chat question
-// to the chosen Brobot. Native Wire-Pod intents ("sleep", ...) need the robot's
-// own voice request, so typed they go to the chat.
-
-// gopodTypedAll is the serial the page sends for its "All Brobots" button
-// (operator 2026-10-04: "please add a 3rd All brobots () radio button"): both
-// Brobots get the line, as when both hear a spoken one with no name - the
-// addressing rule picks who answers (Brobot 1 first, his brother defers). A
-// voice command runs once, on Brobot 1.
+// gopodTypedAll is the serial the page sends for its "All Brobots" button: both Brobots get the
+// line, as when both hear a spoken one with no name - the addressing rule picks who answers (Brobot
+// 1 first, his brother defers).
 const gopodTypedAll = "all"
 
 // GopodTypedInput handles one typed line for the robot with this ESN.
@@ -35,25 +25,10 @@ func GopodTypedInput(esn, text string) error {
 	if gopodNeverIn(text, "the keyboard") {
 		return nil
 	}
-	// The control lane's thread: what this line posts itself (a command's answer,
-	// stop run's line) is no turn's; a question goes on to the queue's own turn.
 	defer gopodTurnOwn(0)()
-	// 2026-10-29 (operator: "add a 0 to the All drop down menu for system calls *
-	// bypass '0' on app visitor pages"): the admin's 0 - the system.
 	if strings.EqualFold(strings.TrimSpace(esn), gopodTypedSystem) {
 		return gopodGoverlordCall(text, "Typed text")
 	}
-	// 2026-10-29 (operator: "re: All with '0' NOT selected * when system-
-	// commandment is entered, should be a sting bubble, did you mean to dial '0'
-	// for the operator? * that trains me to learn to avoid being stung"): a system-
-	// command typed to anyone but 0 doesn't run - its line, then Goverlord's sting.
-	// 2026-10-30 (live: "system-end-keep-recording" typed to All went to the
-	// Brobots): any system- line, a known command or not.
-	// 2026-11-16 (operator: "I can't get to the correct 'KP0' for Keys"; "Keys ...
-	// is supposed to be the voice of Goverlord"): KEYS (+0) takes a system command
-	// to Goverlord, as -0 does.
-	// 2026-11-19 (live: "sytem-comm-check" typed to KEYS was answered as talk):
-	// KEYS reads a system command's typo the way Goverlord does (gopodSystemTypo).
 	if key, ok := gopodTypedKey(esn); ok && key == "KP0" {
 		if fixed := gopodSystemTypo(strings.TrimSpace(text)); fixed != "" && gopodSystemCommandMatch(fixed) {
 			text = fixed
@@ -76,8 +51,8 @@ func GopodTypedInput(esn, text string) error {
 	return gopodOperatorLine(esn, text, "Typed text")
 }
 
-// gopodTypedTo: who a typed line is shown to - a Brobot, or All (a persona key's
-// line shows as to All).
+// gopodTypedTo: who a typed line is shown to - a Brobot, or All (a persona key's line shows as to
+// All).
 func gopodTypedTo(esn string) string {
 	if _, ok := gopodTypedKey(esn); ok {
 		return gopodTypedAll
@@ -88,19 +63,16 @@ func gopodTypedTo(esn string) string {
 // gopodTypedSystem: the page's 0 - a line to the system itself.
 const gopodTypedSystem = "system"
 
-// gopodSystemCommandMatch: a line the system runs, whoever it's typed to -
-// system-..., stop run, start <run>, stop session, replay <session>.
+// gopodSystemCommandMatch: a line the system runs, whoever it's typed to - system-..., stop run,
+// start <run>, stop session, replay <session>.
 func gopodSystemCommandMatch(text string) bool {
 	return gopodSystemSetMatch(text) || gopodScriptCommandMatch(text) || gopodStopRunMatch(text) ||
 		gopodStopSessionMatch(text) || gopodReplayMatch(text)
 }
 
-// GOLDEN Goverlord on -0 (2026-11-16, operator: "Goverlord only answers when
-// called"; "When you call Goverlord on -0, should he speak his answer out loud in
-// the deep voice? * yes"): a line to -0 (typed, or KP0 held with NumLock off)
-// runs as a line to the system, and the system's answer to it is said by
-// GOVERLORD (his own voice host, reporter_voices.hosts) - its first line, in his
-// deep voice, his own bubble. KEYS' line to the system (+0) runs it too, unsaid.
+// GOLDEN Goverlord on -0: a line to -0 (typed, or KP0 held with NumLock off) runs as a line to the
+// system, and the system's answer to it is said by GOVERLORD (his own voice host,
+// reporter_voices.hosts) - its first line, in his deep voice, his own bubble.
 const gopodGoverlordHost = "GOVERLORD"
 
 var gopodGoverlordCalledAt atomic.Int64 // unix ms of the last -0 line
@@ -108,9 +80,6 @@ var gopodGoverlordCalledAt atomic.Int64 // unix ms of the last -0 line
 // gopodGoverlordCall: a line to Goverlord (-0).
 func gopodGoverlordCall(text, how string) error {
 	gopodGoverlordCalledAt.Store(time.Now().UnixMilli())
-	// 2026-11-17 (operator: "next will be responses from new goverlord-brain.md"):
-	// a line that isn't a command is for Goverlord himself - he answers, as a
-	// persona, in his own voice (his card, goverlord-brain.md).
 	if t := gopodSystemTypo(strings.TrimSpace(text)); t != "" && !gopodSystemCommandMatch(t) {
 		if _, ok := gopodBrobotsSettings.Managers.Personas[gopodGoverlordHost]; ok {
 			gopodGoverlordCalledAt.Store(0)
@@ -120,8 +89,8 @@ func gopodGoverlordCall(text, how string) error {
 	return gopodTypedToSystem(text, how)
 }
 
-// gopodGoverlordAnswer: the system's answer to a -0 line, said by Goverlord -
-// once, and only within a few seconds of the call.
+// gopodGoverlordAnswer: the system's answer to a -0 line, said by Goverlord - once, and only within
+// a few seconds of the call.
 func gopodGoverlordAnswer(answer string) bool {
 	at := gopodGoverlordCalledAt.Load()
 	if at == 0 || time.Since(time.UnixMilli(at)) > 15*time.Second || !gopodGoverlordCalledAt.CompareAndSwap(at, 0) {
@@ -132,16 +101,12 @@ func gopodGoverlordAnswer(answer string) bool {
 	if first == "" {
 		return false
 	}
-	// 2026-11-17 (operator: "system-comm-check to Goverlord produced some weird
-	// overlap"): said before the command goes on - the command's own lines
-	// (the comm check's first call, the tour's first scripture) wait for him.
 	gopodReporterSay(gopodGoverlordHost, first, true, true)
 	return true
 }
 
-// gopodSystemTypo: "sysem-comm-check" read as "system-comm-check" (2026-11-17,
-// operator: "sysem-comm-check was my typo * got a little wonky") - a first word
-// within two letters of "system", before its "-", is "system".
+// gopodSystemTypo: "sysem-comm-check" read as "system-comm-check" - a first word within two letters
+// of "system", before its "-", is "system".
 func gopodSystemTypo(text string) string {
 	head, rest, ok := strings.Cut(strings.TrimSpace(text), "-")
 	if !ok || strings.EqualFold(head, "system") || len(head) < 4 || gopodEditDistance(strings.ToLower(head), "system") > 2 {
@@ -150,8 +115,8 @@ func gopodSystemTypo(text string) string {
 	return "system-" + rest
 }
 
-// gopodTypedToSystem: a line typed to 0 - a system command runs; anything else
-// gets the system's one-line pointer (system_text.typed_system.not_a_command).
+// gopodTypedToSystem: a line typed to 0 - a system command runs; anything else gets the system's
+// one-line pointer (system_text.typed_system.not_a_command).
 func gopodTypedToSystem(text, how string) error {
 	text = strings.TrimSpace(text)
 	if text == "" {
@@ -170,7 +135,6 @@ func gopodTypedToSystem(text, how string) error {
 }
 
 // GopodVisitorTypedInput: an approved visitor's line, under their username.
-// A visitor has no 0 (the system is the admin's).
 func GopodVisitorTypedInput(esn, text, how string) error {
 	if gopodNeverIn(text, "a visitor") {
 		return nil
@@ -185,34 +149,23 @@ func GopodVisitorTypedInput(esn, text, how string) error {
 }
 
 // gopodTypedKey: the page's "kp:N" (its 1-9 menu, 3 to 9) as the numpad key "KPN".
-// 2026-11-13 (operator: "there should be numlock-off 0-9, numlock-on 0-9"): the
-// keyboard's picker is the numpad map - "kp:1" a NumLock-on key, "kp:1off" its
-// NumLock-off key (0off too; plain 0 is the system's own line).
 func gopodTypedKey(esn string) (string, bool) {
 	n := strings.TrimPrefix(strings.TrimSpace(esn), "kp:")
 	if n == esn {
 		return "", false
 	}
-	// 2026-11-17: the picker's "." - any persona.
 	if n == "dot" {
 		return gopodNumpadAnyKey, true
 	}
 	num, _ := strings.CutSuffix(n, gopodNumlockOffSuffix)
-	// 2026-11-16 (operator's picker: "+0 KEYS"): 0 too - NumLock on, KEYS.
 	if len(num) != 1 || num < "0" || num > "9" {
 		return "", false
 	}
 	return "KP" + n, true
 }
 
-// gopodTypedToKey (2026-10-28, operator: "Extend brobots selection drop down
-// menu from 1 to 9 * so I can communicate via keyboard to all * so app users can
-// communicate to all as well"): a typed line to a numpad key's persona, as
-// holding the key and speaking does (GopodNumpadPTTStop) - a persona answers in
-// its own bubble; a Brobot's key goes to that Brobot. A system- command still
-// runs as one - 2026-10-29 (operator: "Cameo, mechanically ok, but no system
-// override"; live 14:42:05 - "stop run" with 9 picked went to Cameo): so does
-// every system command (gopodSystemCommandMatch).
+// gopodTypedToKey: a typed line to a numpad key's persona, as holding the key and speaking does
+// (GopodNumpadPTTStop) - a persona answers in its own bubble; a Brobot's key goes to that Brobot.
 func gopodTypedToKey(key, text, how string) error {
 	text = strings.TrimSpace(text)
 	if text == "" {
@@ -228,13 +181,12 @@ func gopodTypedToKey(key, text, how string) error {
 	if err != nil {
 		return err
 	}
-	// 2026-11-13: the one key path, the same as a held key (gopodKeyLine).
 	return gopodKeyLine(target, gopodCapsTypoFix(gopodSpellNames(text)), how)
 }
 
-// GopodVoiceCommandInput: a line a voice command's script hands over (start
-// interview, stop run, GOPOD Yourself) - the robot heard it, so the page already
-// shows it as the operator's line and no second one is added.
+// GopodVoiceCommandInput: a line a voice command's script hands over (start interview, stop run,
+// GOPOD Yourself) - the robot heard it, so the page already shows it as the operator's line and no
+// second one is added.
 func GopodVoiceCommandInput(esn, text string) error {
 	return gopodOperatorLine(esn, text, gopodVoiceCommandHow)
 }
@@ -244,48 +196,29 @@ const gopodVoiceCommandHow = "Voice command"
 // gopodCapsTypoRE: a word typed small then capitals ("iS", "tHE").
 var gopodCapsTypoRE = regexp.MustCompile(`\b\p{Ll}\p{Lu}+\b`)
 
-// gopodCapsTypoFix (2026-10-16, live: "How iS the weather there today?" was
-// read out as "i S"): a word typed small-then-capitals is made small ("is");
-// "iPhone" and "eBay" stay as typed.
+// gopodCapsTypoFix: a word typed small-then-capitals is made small ("is"); "iPhone" and "eBay" stay
+// as typed.
 func gopodCapsTypoFix(text string) string {
 	return gopodCapsTypoRE.ReplaceAllStringFunc(text, strings.ToLower)
 }
 
-// gopodOperatorLine: a typed line, or the words of a numpad push-to-talk capture
-// (how names which in the log), for one Brobot or "all".
+// gopodOperatorLine: a typed line, or the words of a numpad push-to-talk capture (how names which
+// in the log), for one Brobot or "all".
 func gopodOperatorLine(esn, text, how string) error {
 	text = gopodCapsTypoFix(strings.TrimSpace(text))
 	if text == "" {
 		return errors.New("empty text")
 	}
-	// A new question: an earlier pop-up's picture isn't its business.
 	gopodPictureForget()
-	// 2026-10-17 (operator: "system-set ... from web page keyboard as a
-	// terminal-command"): a fixed list of edits, answered in a terminal bubble
-	// (gopod_system_set.go); any time, warm-up or not.
 	if gopodSystemSetMatch(text) {
 		gopodSystemSetLine(esn, text, how)
 		return nil
 	}
-	// 2026-10-09: "stop run" stops a playing draft or a running song at its
-	// next safe spot, any time (gopod_thanks_close_out.go).
-	// 2026-10-11 (live: "No run is going." was heard before "stop run" - its voice
-	// file was still being made): the line is shown and read out first, then acted on.
-	// 2026-10-29 (operator: "Escaping the run still an issue"; live 14:42:34 - the
-	// stop waited 8 s behind the tour's lines to be read out): with something
-	// going, it stops at once, then the line shows; with nothing going, as before.
-	// 2026-10-29 (live: a stop run typed during the warm-up waited for LLM Ready):
-	// the control lane never waits - stop run comes before the warm-up hold.
 	if gopodStopRunMatch(text) {
 		songRun := gopodRunActive() || gopodScriptPlaying.Load()
 		if gopodStopRuns("stop run") {
-			// The control lane's own line, through the whole template (shown, read
-			// out, heard) - no turn's, so the drop never takes it.
 			defer gopodTurnOwn(0)()
 			gopodShowCommandLine(esn, text, how)
-			// 2026-10-29 (operator: "Goverlord brain should respond with run stopped
-			// message we have already"): then session.stopped_text - a song run
-			// says it as it checks out (GopodRunEnd); the tour and the comm check here.
 			if !songRun {
 				gopodStoppedSay()
 			}
@@ -295,26 +228,17 @@ func gopodOperatorLine(esn, text, how string) error {
 		gopodStopRunCommand(text)
 		return nil
 	}
-	// 2026-10-13: during an LLM warm-up, every line waits for LLM Ready
-	// (gopod_llm_warmup.go gopodWarmupHold).
 	if gopodWarmupHold(esn, text, how) {
 		return nil
 	}
-	// The answer to Record Session's keep-or-delete question, whichever Brobot is
-	// chosen (gopod_record_session.go).
 	if GopodRecordSessionAnswer(text, how) {
 		return nil
 	}
-	// interview_script.play_words ("start interview") (gopod_interview_script.go).
-	// 2026-10-10 (operator: "some system commands weren't displayed"): a command
-	// line gets its Operator bubble and its read-out too.
 	if gopodScriptCommandMatch(text) {
 		gopodShowCommandLine(esn, text, how)
 		gopodScriptCommand(text)
 		return nil
 	}
-	// 2026-10-12 (operator: "replay [session-name]"): a session's score played
-	// back (gopod_session_replay.go).
 	if gopodStopSessionMatch(text) {
 		gopodShowCommandLine(esn, text, how)
 		gopodStopSessionCommand()
@@ -325,29 +249,18 @@ func gopodOperatorLine(esn, text, how string) error {
 		gopodReplayCommand(text)
 		return nil
 	}
-	// 2026-10-06: before the green light, typed and numpad lines go nowhere
-	// (gopod_llm_warmup.go).
 	if gopodWarmGateDrop(esn, how, text) {
 		return nil
 	}
-	// 2026-10-10, Rule D (gopod_session.go): during a run only run words get
-	// through - thanks (just below) closes the run out; the rest is dropped.
 	if !gopodIsThanks(text) && gopodRunGateDrop(esn, how, text) {
 		return nil
 	}
-	// 2026-10-09: a thanks while a draft or song is going closes them out
-	// first, then comes back here (gopod_thanks_close_out.go).
 	if gopodThanksCloseOut(esn, text, how) {
 		return nil
 	}
-	// 2026-10-09: "GOPOD Yourself" gets each Brobot's call to action (gopod_yourself.go).
 	if gopodYourselfCommand(esn, text, how) {
 		return nil
 	}
-	// 2026-10-29 (operator: "even if a few requests come in together, they still
-	// must each get processed until completion before another bubbles starts"):
-	// a question waits its turn in the line queue (gopod_line_queue.go).
-	// 2026-10-29 (the single-bot setup): solo, a line to All goes to Brobot 1 alone.
 	if esn == gopodTypedAll && gopodSolo() {
 		esn = gopodBrobot1ESN
 	}
@@ -360,7 +273,6 @@ func gopodOperatorLine(esn, text, how string) error {
 
 // gopodOperatorAsk: a question to one Brobot or "all", in its turn.
 func gopodOperatorAsk(esn, text, how string) error {
-	// How it came in, for a recorded session's take (gopod_take_sheet.go).
 	gopodRecordOperatorInput(how)
 	if esn == gopodTypedAll {
 		return gopodTypedInputAll(text, how)
@@ -369,13 +281,9 @@ func gopodOperatorAsk(esn, text, how string) error {
 		return errors.New("not a Brobot: " + esn)
 	}
 	logger.Println("Bot " + esn + " " + how + ": " + text)
-	// 2026-10-07: a new chapter's title before the question, not after it
-	// (gopod_interview_chapters.go; shown once, so the reply doesn't repeat it).
 	gopodShowChapter(gopodSpellNames(text))
 	gopodOperatorShow(gopodBrobotName(esn), text, how)
 	run := gopodRunAllowed(text)
-	// 2026-10-10 (operator: "\"start bingo test\" not spoken"): a typed run
-	// command is read out first, then the run starts.
 	if run && gopodTypedCommandMatch(text) {
 		go func() {
 			gopodOperatorRead(gopodBrobotName(esn), text, how)
@@ -390,11 +298,7 @@ func gopodOperatorAsk(esn, text, how string) error {
 		return nil
 	}
 	go func() {
-		// 2026-10-06: the reporter voice reads the line out first (gopod_reporter_voices.go).
 		gopodOperatorRead(gopodBrobotName(esn), text, how)
-		// 2026-10-08: the topic's pictures after the question, before the reply.
-		// 2026-10-13 (operator: "live pop up started before \"granny\" voice file
-		// was generated"): once the question has been read out.
 		gopodShowTopicPictures(esn, text)
 		if _, err := StreamingKGSim(nil, esn, text, false); err != nil {
 			logger.Println("LLM error (typed): " + err.Error())
@@ -403,8 +307,7 @@ func gopodOperatorAsk(esn, text, how string) error {
 	return nil
 }
 
-// gopodTypedAll's gap between the two Brobots' requests, so Brobot 1 is the
-// one heard first.
+// gopodTypedAll's gap between the two Brobots' requests, so Brobot 1 is the one heard first.
 const gopodTypedAllGap = 100 * time.Millisecond
 
 func gopodTypedInputAll(text, how string) error {
@@ -426,27 +329,18 @@ func gopodTypedInputAll(text, how string) error {
 	if run && gopodRunTypedCommand(gopodBrobot1ESN, text) {
 		return nil
 	}
-	// A cube command to all: each Brobot runs it with his own cube.
 	if gopodNativeCubeIntent(text) != "" {
 		gopodRunNativeCube(gopodBrobot1ESN, text)
 		gopodRunNativeCube(gopodBrobot2ESN, text)
 		return nil
 	}
-	// 2026-10-06: the reporter voice reads the line out once, before both answer.
 	read := make(chan struct{})
 	go func() {
 		gopodOperatorRead(to, text, how)
-		// 2026-10-13: the pictures once the question has been read out;
-		// the Brobot answering first carries the pop-up.
 		gopodShowTopicPictures(gopodAllFirst(text), text)
 		close(read)
 	}()
-	// 2026-10-14: "Explain the Math" - Brobot 1 answers, and his follow-up by
-	// Brobot 2 comes on its own (gopodMathFollowUpStart). 2026-10-16 (live: "convert
-	// 0.1234 repeating into a fraction" ran the All sequence and the math
-	// follow-up both - each Brobot answered twice): a fraction-word line too.
 	if _, _, ok := gopodMathParts(text); ok {
-		// 2026-10-24: Brobot 2 first (the All menu, or named first) leads the math.
 		lead := gopodAllFirst(text)
 		if lead != gopodBrobot1ESN {
 			gopodMathLeadPick.Store(strings.TrimSpace(text), lead)
@@ -460,18 +354,9 @@ func gopodTypedInputAll(text, how string) error {
 		}()
 		return nil
 	}
-	// 2026-10-14 (operator: "if I ask a question to both (All), Brobot 1
-	// responds, then Brobot 2 responds"): with no Brobot named, Brobot 1 answers,
-	// then - once his answer is done - Brobot 2 answers the same line
-	// (addressing.all_next_wait_seconds at most). A named Brobot answers alone.
-	// 2026-10-17 (operator: "This question is for the both of you. Starting with
-	// Brobot 2 ... this reverses, so brobot 2 answers, brobot [1] follows up * but
-	// they maintain their slightly different coloured personas"): "starting with
-	// Brobot 2" (or "Brobot 2 first") turns the order round.
 	first := gopodAllFirst(text)
 	if gopodAddressedTo(text) == "" || gopodAllStartsWith(text) != "" {
 		second := gopodBrotherOf(first)
-		// 2026-10-24 (link 5): the line's turn is held until the second answer is done.
 		gopodExchangeOpen(text, second)
 		go func() {
 			<-read
@@ -488,11 +373,6 @@ func gopodTypedInputAll(text, how string) error {
 					close(failed)
 				}
 			}()
-			// 2026-10-30 (operator: "Brobot 1 long response * Brobot 2 start mid
-			// brobot 1 long response * its queued timings"): all_next_wait_seconds
-			// counted from the question, his thinking time too - a long answer was
-			// still being said when it ran out. While his reply is going, his
-			// brother waits for its end; the wait only runs out on a reply gone quiet.
 		wait:
 			for {
 				select {
@@ -532,13 +412,8 @@ func gopodTypedInputAll(text, how string) error {
 	return nil
 }
 
-// gopodRunTypedCommand runs the first custom voice command whose phrase is in
-// the typed text, the same match Wire-Pod uses for a heard one (system and Lua
-// intents are left to voice). It logs "Bot <ESN> Executing:" like Wire-Pod, so
-// the brother check in gopod_addressing.go sees it.
-// gopodAllStartsWithRE: "starting with Brobot 2", "Brobot 2 first", "Pip first".
-// 2026-10-17 (live: "starting with bro bought to"): the mic's spellings of
-// "Brobot 2" too ("bro bought to", "brobot two").
+// gopodRunTypedCommand runs the first custom voice command whose phrase is in the typed text, the
+// same match Wire-Pod uses for a heard one (system and Lua intents are left to voice).
 var gopodAllStartsWithRE = regexp.MustCompile(`(?i)\b(?:start(?:ing)?\s+with|begin(?:ning)?\s+with)\s+(` + gopodAllNameRE + `)\b|\b(` + gopodAllNameRE + `)\s+(?:goes\s+|answers\s+)?first\b`)
 
 const gopodAllNameRE = `(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:[12]|one|two|too|to)|doc|pip`
@@ -561,8 +436,6 @@ func gopodAllStartsWith(text string) string {
 
 // gopodAllFirst: the Brobot answering first in a line to both (Brobot 1 unless told).
 func gopodAllFirst(text string) string {
-	// The words first: "Starting with Brobot 2", then the Brobot named first in
-	// the line (gopodFirstNamed), then the All menu (typed_line.all_first).
 	switch gopodAllStartsWith(text) {
 	case "Brobot 2":
 		return gopodBrobot2ESN
@@ -581,10 +454,7 @@ func gopodAllFirst(text string) string {
 	return gopodBrobot1ESN
 }
 
-// The page's All menu (2026-10-22, operator: "replace 'All' radio button with a
-// small drop down menu: 1/2 * default = '1' (brobot 1) * '2' = (brobot 2) *
-// template drop down menu selection with default brobot 1/'Starting with Brobot
-// 2'"): "2" is the same as "Starting with Brobot 2" for that line - kept by its
+// The page's All menu: "2" is the same as "Starting with Brobot 2" for that line - kept by its
 // words, so only that line is turned round (typed_line.all_first).
 var gopodAllFirstPick = struct {
 	sync.Mutex
@@ -599,8 +469,6 @@ func GopodAllFirstPick(text, first string) {
 		first = strings.TrimSpace(gopodBrobotsSettings.TypedLine.AllFirst)
 		from = "typed_line.all_first (no pick sent)"
 	}
-	// 2026-11-16 (operator: "ensure these selections are logged for later easy
-	// debug-reference"): every pick, with the line it came with.
 	line := "GOPOD_PICK all-first=" + first + " (" + from + ")"
 	if t := strings.TrimSpace(text); t != "" {
 		line += " for: " + gopodCut(t, 80)
@@ -608,9 +476,6 @@ func GopodAllFirstPick(text, first string) {
 	logger.Println(line)
 	gopodAllFirstPick.Lock()
 	gopodAllFirstPick.text, gopodAllFirstPick.first = strings.TrimSpace(text), first
-	// 2026-10-24 (live: a numpad line to All with "2" picked went Brobot 1 first -
-	// its words aren't known until it's heard): the page's pick stands for every
-	// line until it changes - typed or spoken.
 	gopodAllFirstPick.standing = first
 	gopodAllFirstPick.Unlock()
 }
@@ -624,8 +489,8 @@ func gopodAllFirstPicked(text string) string {
 	return gopodAllFirstPick.standing
 }
 
-// gopodShowCommandLine: a command line's Operator bubble ("Keyboard to Brobot
-// 1"), read out in the background.
+// gopodShowCommandLine: a command line's Operator bubble ("Keyboard to Brobot 1"), read out in the
+// background.
 func gopodShowCommandLine(esn, text, how string) {
 	to := gopodBrobotName(esn)
 	if esn == gopodTypedAll {
@@ -635,12 +500,8 @@ func gopodShowCommandLine(esn, text, how string) {
 	gopodOperatorRead(to, text, how) // made if new, then heard
 }
 
-// gopodStartNotFound (2026-10-10, operator: "start [anything else] = not
-// found"): a "start ..." line that is no run command gets session.not_found_text
-// with its name. True when it took the line.
-// 2026-10-11 (live: "the park not found." was heard before "start the park" -
-// its voice file was still being made): readOut reads the line out first, then
-// the not-found line is said, same order as "stop run".
+// gopodStartNotFound: a "start ..." line that is no run command gets session.not_found_text with
+// its name.
 func gopodStartNotFound(text string, readOut func()) bool {
 	lower := strings.ToLower(strings.TrimSpace(text))
 	if !strings.HasPrefix(lower, "start ") || gopodTypedCommandMatch(text) {
@@ -655,8 +516,8 @@ func gopodStartNotFound(text string, readOut func()) bool {
 	return true
 }
 
-// gopodRunFromZero: the next run command came on 0 (KEYS) - the only key that
-// runs one (2026-11-18); taken once by the line it came with.
+// gopodRunFromZero: the next run command came on 0 (KEYS) - the only key that runs one; taken once
+// by the line it came with.
 var gopodRunFromZero atomic.Bool
 
 // gopodRunCommandLine: a run command or a "start ..." line.
@@ -664,8 +525,7 @@ func gopodRunCommandLine(text string) bool {
 	return gopodTypedCommandMatch(text) || strings.HasPrefix(strings.ToLower(strings.TrimSpace(text)), "start ")
 }
 
-// gopodRunAllowed: this line's run command came on 0; taken once. Any other
-// key's run command is talk.
+// gopodRunAllowed: this line's run command came on 0; taken once.
 func gopodRunAllowed(text string) bool {
 	if !gopodRunCommandLine(text) {
 		return false

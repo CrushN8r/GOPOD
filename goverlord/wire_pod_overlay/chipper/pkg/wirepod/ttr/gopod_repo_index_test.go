@@ -6,9 +6,8 @@ import (
 	"testing"
 )
 
-// TestRepoIndexLocked (2026-11-20, operator: "get the repo index locked
-// solid"): index 2 and index 1 are written from the repo; a change shows here
-// until GOPOD_WRITE_INDEX=1 writes them again, on purpose.
+// TestRepoIndexLocked: index 2 and index 1 are written from the repo; a change shows here until
+// GOPOD_WRITE_INDEX=1 writes them again, on purpose.
 func TestRepoIndexLocked(t *testing.T) {
 	for _, f := range []struct {
 		path string
@@ -17,7 +16,6 @@ func TestRepoIndexLocked(t *testing.T) {
 	}{
 		{gopodRepoIndexPath(), gopodRepoIndexText, "repo index 2"},
 		{gopodWordsIndexPath(), gopodWordsIndexText, "index 1 (the words people say)"},
-		// made after index 1 is written - its questions come from it
 		{gopodIndexQuestionsPath(), gopodIndexQuestionsText, "the index questions"},
 	} {
 		f := struct{ path, text, name string }{f.path, f.make(), f.name}

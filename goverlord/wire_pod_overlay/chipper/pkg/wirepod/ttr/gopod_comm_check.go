@@ -1,22 +1,6 @@
 // goverlord/wire_pod_overlay/chipper/pkg/wirepod/ttr/gopod_comm_check.go
 package wirepod_ttr
 
-// The comm check (2026-10-28, operator: "Simulate the whole KPN 1-9 range to
-// record those bubbles as well * same test question, Hey party animal. Who are
-// you and what do you do?"; "make the 'who are you?' profile development part of
-// this run as well * like a communication check with all chat participants,
-// before the show starts * at bare minimum, do they all know who they are & each
-// other? * who they are: do they all know the diff between tell me about you &
-// tell me all about you * & each other: if I ask CHALK/PLAYHEAD tell me about
-// their interns, if I ask any chat participant about any other chat participant >
-// Hey [chat participant], who all else is here with us?"). system-comm-check plays
-// comm_check's rounds - each line on each of its keys in turn, as if the key were
-// held and the words spoken: the page draws the key's bubbles (numpad_sim), the
-// line goes where the key goes (the same as GopodNumpadPTTStop), live - the
-// model, the voices, the robots - and the next waits for the answer to finish
-// (the feed quiet, the page caught up). The game goes back to 0 after: the show
-// starts clean. Record Session keeps it all.
-
 import (
 	"context"
 	"encoding/json"
@@ -54,9 +38,6 @@ func gopodPagePlayedUpTo() int {
 
 // gopodCommCheckWaitPage: until the page has played id (or max).
 func gopodCommCheckWaitPage(id int, max time.Duration) {
-	// 2026-11-09 (operator: the silent comm check ran 48-64 min, not ~14): with the
-	// run check's sound off nobody's listening - the run doesn't wait on the page,
-	// whose hidden tab the browser slows; the page plays it all in order, muted.
 	if gopodRunCheckSilent() {
 		return
 	}
@@ -67,8 +48,8 @@ func gopodCommCheckWaitPage(id int, max time.Duration) {
 	}
 }
 
-// gopodCommCheckWaitQuiet: until the feed has had no new line for quiet and the
-// page has played it all (or max).
+// gopodCommCheckWaitQuiet: until the feed has had no new line for quiet and the page has played it
+// all (or max).
 func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 	last, since := gopodFeedLastID(), time.Now()
 	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(500 * time.Millisecond) {
@@ -82,8 +63,7 @@ func gopodCommCheckWaitQuiet(quiet, max time.Duration) {
 	}
 }
 
-// gopodCommCheckLines: every round's text on each of its keys, in order, with
-// who asks it.
+// gopodCommCheckLines: every round's text on each of its keys, in order, with who asks it.
 func gopodCommCheckLines() [][4]string {
 	cc := gopodBrobotsSettings.CommCheck
 	var lines [][4]string // key, text, asker, "self" for the asker's own turn
@@ -94,13 +74,8 @@ func gopodCommCheckLines() [][4]string {
 			keys = cc.Keys
 		}
 		for _, k := range keys {
-			// 2026-11-13 (operator: "make it dynamic so it runs off the same core
-			// numpad mapping of all live/active keys * start with keys, then
-			// brobots, then ..."): "map" - every live key of the numpad map, in its
-			// order, that an earlier step hasn't asked.
 			if strings.EqualFold(k, gopodCommCheckMapKeys) {
 				for _, mk := range gopodNumpadLiveKeys() {
-					// The system's key (Goverlord) isn't asked to introduce itself.
 					if _, t, _ := gopodNumpadBrobot(mk); t == gopodTypedSystem {
 						continue
 					}
@@ -139,10 +114,8 @@ func gopodPersonaNick(who string) string {
 	return gopodCallName(who)
 }
 
-// gopodCommCheckHandover (2026-11-17, operator: "GOVERLORD to KEYNOTE ... KEYNOTE:
-// Message received, sir. --- System Crew --- ..."): Goverlord's line handing the
-// comm check to KEYS - KEYS answers it with his Got it and the crew brain bubble
-// only (comm_check.crew), not an intro.
+// gopodCommCheckHandover: Goverlord's line handing the comm check to KEYS - KEYS answers it with
+// his Got it and the crew brain bubble only (comm_check.crew), not an intro.
 func gopodCommCheckHandover(host, text string) bool {
 	return gopodCommCheckRunning.Load() && host == gopodBrobotsSettings.SystemBubble.VoicePersona &&
 		strings.EqualFold(gopodCommCheckAsker(text), gopodGoverlordHost)
@@ -158,21 +131,11 @@ func gopodCommCheckCrew(host, to string) {
 	}
 }
 
-// gopodCommCheckCrewLines (2026-11-24, operator: "I want lookups to be dynamic";
-// "I want to be able to rename a folder and/or move it, and new build from new
-// lookup will be no problem"): the crew bubble from the company's folders - the
-// folder a persona card sits in is its crew. The line "{crews}" (comm_check.crew)
-// becomes one line per folder holding persona cards, in folder order: its top
-// folder names the crew ("2_gomads" -> "Gomads Crew"), the folders under it its
-// part ("system/security" -> "(System Security)"); the nicknames in the company
-// roster's order, the asker marked (Myself). Move or rename a folder and the
-// bubble follows; nothing here names anyone. {company} comes from the company card.
+// gopodCommCheckCrewLines: the crew bubble from the company's folders - the folder a persona card
+// sits in is its crew.
 func gopodCommCheckCrewLines(host string) []string {
 	company := gopodTopicPath(gopodBrobotsSettings.BrainChain.Roster)
 	dir := filepath.Dir(company)
-	// Order: where each one first appears in the company card's chain of command
-	// (operator: "Operator > Goverlord > Keys > Gomads/Interns > Gominions"), then
-	// the company roster's order, then the file name.
 	chain, roster := "", ""
 	if data, err := os.ReadFile(company); err == nil {
 		for _, l := range strings.Split(string(data), "\n") {
@@ -208,9 +171,12 @@ func gopodCommCheckCrewLines(host string) []string {
 			}
 		}
 	}
-	// Each persona card by the folder it sits in - any card in a folder under the
-	// company's, but a group's ("group-") or a schema; named by its nickname.
-	type card struct{ path, nick string; names []string }
+	// Each persona card by the folder it sits in - any card in a folder under the company's, but a
+	// group's ("group-") or a schema; named by its nickname.
+	type card struct {
+		path, nick string
+		names      []string
+	}
 	hostFile := filepath.Clean(gopodPersonaProfileFileIn(gopodBrobotsSettings.PersonaProfiles.Folder, host))
 	byDir := map[string][]card{}
 	_ = filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
@@ -299,11 +265,9 @@ func gopodCommCheckCrewLines(host string) []string {
 	return out
 }
 
-// gopodCommCheckAsking (2026-11-04, operator: "Goverlord, to orchestrate,
-// delegates butler Keys to get the party started * Keys will now do the round
-// robin"): the comm check line going out and who asks it - its bubble is his
-// (gopodScriptQuestionReader) and it's read in his voice
-// (gopodReporterReadsOperator), not the Operator's.
+// gopodCommCheckAsking: the comm check line going out and who asks it - its bubble is his
+// (gopodScriptQuestionReader) and it's read in his voice (gopodReporterReadsOperator), not the
+// Operator's.
 var gopodCommCheckAsking atomic.Value // [2]string{text, asker}
 
 // gopodCommCheckAsker: who asks this comm check line, "" when it isn't one.
@@ -315,8 +279,7 @@ func gopodCommCheckAsker(text string) string {
 	return a[1]
 }
 
-// gopodCommCheckWaitAnswer: until a feed line after from comes from who
-// (his answer), or max.
+// gopodCommCheckWaitAnswer: until a feed line after from comes from who (his answer), or max.
 func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
 	for end := time.Now().Add(max); time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(500 * time.Millisecond) {
 		gopodChatFeed.Lock()
@@ -328,9 +291,6 @@ func gopodCommCheckWaitAnswer(from int, who string, max time.Duration) {
 			}
 		}
 		gopodChatFeed.Unlock()
-		// 2026-10-30 (live 15:48:04: KP8 started while CHALK's voice was still
-		// being made - his line was on the feed, his answer wasn't over): his
-		// line on the feed, and his answer ended - made, said, heard.
 		if found && !gopodAnswerGoing([]string{who}) {
 			return
 		}
@@ -353,30 +313,21 @@ func gopodSystemCommCheck() string {
 	lines := gopodCommCheckLines()
 	go func() {
 		defer gopodCommCheckRunning.Store(false)
-		// 2026-10-29: the comm check is a turn of the master chat queue; its KP1-9
-		// questions are its own nested lines (gopod_chat_queue.go).
 		defer gopodTurnBeginOwn("comm_check", false)()
 		quiet := gopodSecondsToDuration(cc.QuietSeconds)
 		max := gopodSecondsToDuration(cc.LineMaxSeconds)
 		gopodCommCheckStop.Store(false)
 		gopodIntroHeardReset()
-		// 2026-11-02 (live 16:38-16:41: KP0's answer was over, but the check sat
-		// still - the voice library was still being made at start, and every
-		// answer counts as going while any voice is being made): it starts once
-		// the library is ready (at most ten minutes).
 		if gopodVoicesAtStart.Load() {
 			logger.Println("GOPOD_COMM_CHECK waiting for the voice library to be ready")
 			for end := time.Now().Add(10 * time.Minute); gopodVoicesAtStart.Load() && time.Now().Before(end) && !gopodCommCheckStop.Load(); time.Sleep(time.Second) {
 			}
 			logger.Println("GOPOD_COMM_CHECK voice library ready - starting")
 		}
-		// 2026-11-19: the guards' security sweep, as every run's (gopodSecuritySweep).
 		if !gopodSecuritySweep() {
 			logger.Println("GOPOD_COMM_CHECK held: security sweep")
 			return
 		}
-		// 2026-11-04 (operator: "Add in wake calls to new songs"): the song's
-		// wake_both - each Brobot woken (control taken, the settle, given back).
 		if cc.Wake {
 			for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 				if strings.TrimSpace(esn) != "" {
@@ -384,9 +335,6 @@ func gopodSystemCommCheck() string {
 				}
 			}
 		}
-		// 2026-11-04 (operator: "remove who's here in the chat from every
-		// response, too repetitive"): no who's-here line before the first key -
-		// Goverlord hands it to Keys, and Keys calls everyone in.
 		defer gopodCommCheckAsking.Store([2]string{})
 		defer gopodGameWelcomePending.Store(false)
 		for i, l := range lines {
@@ -400,8 +348,6 @@ func gopodSystemCommCheck() string {
 			}
 			key := strings.ToUpper(strings.TrimSpace(l[0]))
 			var label, target, name string
-			// 2026-11-17 (operator: "Start with me"): "persona:<name>" - a persona
-			// with no key of its own (Goverlord), called by name.
 			if p, ok := strings.CutPrefix(strings.TrimSpace(l[0]), gopodCommCheckPersonaKey); ok {
 				label, target, name = p, gopodPersonaMark+p, gopodPersonaNick(p)
 			} else {
@@ -411,29 +357,18 @@ func gopodSystemCommCheck() string {
 					logger.Println("GOPOD_COMM_CHECK " + key + ": " + err.Error())
 					continue
 				}
-				// 2026-11-15 (operator: "KP# = [nickname]"): the key's name as the
-				// picker shows it - its persona's nickname (gopodNumpadKeyLabelIn).
 				name, _ = gopodNumpadKeyLabelIn(gopodNumpadLayout(), key)
 			}
-			// 2026-11-02 (live: "Hey All! You party animal!", and Pip said "Hey All!"
-			// back): the line to both is to the Brobots (comm_check.all_name).
 			if n := strings.TrimSpace(cc.AllName); n != "" && strings.EqualFold(label, "All") {
 				name = n
 			}
 			text := gopodSpellNames(strings.ReplaceAll(l[1], "{name}", name))
 			logger.Println("GOPOD_COMM_CHECK " + strconv.Itoa(i+1) + "/" + strconv.Itoa(len(lines)) + " " + key + " -> " + label + ": " + text)
-			// 2026-11-17 (operator, review: "remove - Numpad to KEYS ... keep holding
-			// ... Recording ... transcribing"; "yes, include KEYS & GOVERLORD"): no
-			// numpad status bubbles - the asker's line is the call.
 			gopodNumpadLastKey.Store(key)
 			gopodCommCheckAsking.Store([2]string{text, strings.TrimSpace(l[2])})
-			// 2026-11-04: the last line's answer ends with the game welcome.
 			if i == len(lines)-1 {
 				gopodGameWelcomePending.Store(true)
 			}
-			// 2026-10-29 (live 05:13: KP2 went before Brobot 1 had answered, and
-			// the replies landed among KP3's bubbles): the next key waits for
-			// this one's own answer - a line from who was asked - then the quiet.
 			from := gopodFeedLastID()
 			answerer := label
 			switch {
@@ -444,22 +379,17 @@ func gopodSystemCommCheck() string {
 			case strings.HasPrefix(target, gopodDialZeroMark):
 				answerer = gopodBrobotName(strings.TrimPrefix(target, gopodDialZeroMark))
 			}
-			// 2026-10-30 (the full numpad: * held is All): All's line is answered
-			// by both Brobots, Brobot 1 then Brobot 2 - it ends with Brobot 2's
-			// (solo, Brobot 1's).
 			if target == gopodTypedAll {
 				answerer = "Brobot 2"
 				if gopodSolo() {
 					answerer = "Brobot 1"
 				}
 			}
-			// The asker's own turn: he just answers, no line to himself.
 			if l[3] == "self" && strings.HasPrefix(target, gopodPersonaMark) {
 				gopodCommCheckSelf.Store(true)
 				gopodGomadAnswer(strings.TrimPrefix(target, gopodPersonaMark), text)
 				gopodCommCheckSelf.Store(false)
 			} else if err := gopodKeyLine(target, text, "Numpad text"); err != nil {
-				// The one key path (gopodKeyLine) - the same as a typed or held key.
 				logger.Println("GOPOD_COMM_CHECK " + err.Error())
 			}
 			gopodCommCheckWaitAnswer(from, answerer, max)
@@ -468,7 +398,6 @@ func gopodSystemCommCheck() string {
 		gopodGameReset("comm check")
 		logger.Println("GOPOD_COMM_CHECK done: " + strconv.Itoa(len(lines)) + " lines")
 		if t := strings.TrimSpace(cc.DoneText); t != "" {
-			// 2026-11-17 (operator, review: "KEYNOTE - Comm check complete"): KEYS says it.
 			if role := gopodBrobotsSettings.SystemBubble.VoicePersona; role != "" {
 				gopodReporterSay(role, strings.ReplaceAll(t, "{n}", strconv.Itoa(len(lines))), true, false)
 			}
@@ -477,14 +406,12 @@ func gopodSystemCommCheck() string {
 	return strings.ReplaceAll(cc.StartText, "{n}", strconv.Itoa(len(lines)))
 }
 
-// gopodGameWelcomePending (2026-11-04, operator: "GOPOD game = 1st reminder,
-// however coloured/flavoured"; "brobot 2 ends the song * point robust
-// per-persona flavour mechanism at brobot 2"): the comm song's last line is
-// out - its answer by comm_check.game_welcome.by ends with the game welcome.
+// gopodGameWelcomePending: the comm song's last line is out - its answer by
+// comm_check.game_welcome.by ends with the game welcome.
 var gopodGameWelcomePending atomic.Bool
 
-// gopodGameWelcomeLine: the game welcome for this Brobot's reminder, once -
-// the base word for word or one of his flavours, at random; "" otherwise.
+// gopodGameWelcomeLine: the game welcome for this Brobot's reminder, once - the base word for word
+// or one of his flavours, at random; "" otherwise.
 func gopodGameWelcomeLine(esn string) string {
 	gw := gopodBrobotsSettings.CommCheck.GameWelcome
 	name := gopodBrobotName(esn)
@@ -506,10 +433,9 @@ func gopodGameWelcomeLine(esn string) string {
 // gopodCommCheckNotes: the comm check song's one note - a line asked on its keys.
 var gopodCommCheckNotes = map[string]bool{"ask": true, "wake_both": true}
 
-// gopodApplyCommCheckSong (2026-11-04, operator: "Make system-comm-check a GOPOD
-// song"): the comm check's rounds come from its song (comm_check.song, a song_id:
-// runtime/songs/05_comm_check) - each "ask" step's line from story.md, asked on
-// each of its keys (knobs.json) in order.
+// gopodApplyCommCheckSong: the comm check's rounds come from its song (comm_check.song, a song_id:
+// runtime/songs/05_comm_check) - each "ask" step's line from story.md, asked on each of its keys
+// (knobs.json) in order.
 func gopodApplyCommCheckSong(s *gopodBrobotsSettingsFile) {
 	id := strings.TrimSpace(s.CommCheck.Song)
 	if id == "" {

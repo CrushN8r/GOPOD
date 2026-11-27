@@ -8,15 +8,8 @@ import (
 	"time"
 )
 
-// The Brobots chat's settings live in one folder, webroot/gopod_settings/ (a short
-// file per area, loaded as one - gopod_settings_folder.go; until 2026-10-29 one file,
-// webroot/gopod_brobots_settings.json, still the address the page reads them from),
-// read here at Wire-Pod start and by the chat page on load (operator 2026-10-01:
-// "offload values like "___" to a file as a single source of truth to refer to,
-// rather than getting changed in code by mistake. same with any data sets"). The
-// code holds no copy of them. Like animation_vocab.json, the file is required: a
-// missing or broken file stops Wire-Pod at start with a clear message, instead of
-// running with a marker or a persona nobody chose.
+// The Brobots chat's settings live in one folder, webroot/gopod_settings/, read here at Wire-Pod
+// start and by the chat page on load.
 type gopodBrobotsSettingsFile struct {
 	AnimationMarker     string            `json:"animation_marker"`
 	PlaceholderWord     string            `json:"placeholder_word"`
@@ -25,17 +18,15 @@ type gopodBrobotsSettingsFile struct {
 	FinalOutputCheck    string            `json:"final_output_check"`
 	QuestionFactsHeader string            `json:"question_facts_header"`
 	OffTopicNote        string            `json:"off_topic_note"`
-	// 2026-10-26: the topic ask template (gopod_topic_asks.go).
-	TopicAsks struct {
-		DetailWords  []string `json:"detail_words"`
-		SummaryWords []string `json:"summary_words"`
-		BareMaxWords int      `json:"bare_max_words"`
-		TheTopic     bool     `json:"the_topic"`
-		// 2026-10-26: the topic pre/post template's defaults ({topic} = its label).
-		PreDefault    string `json:"pre_default"`
-		PostDefault   string `json:"post_default"`
-		SummaryNotice string `json:"summary_notice"`
-		SummaryFacts  string `json:"summary_facts"`
+	TopicAsks           struct {
+		DetailWords   []string `json:"detail_words"`
+		SummaryWords  []string `json:"summary_words"`
+		BareMaxWords  int      `json:"bare_max_words"`
+		TheTopic      bool     `json:"the_topic"`
+		PreDefault    string   `json:"pre_default"`
+		PostDefault   string   `json:"post_default"`
+		SummaryNotice string   `json:"summary_notice"`
+		SummaryFacts  string   `json:"summary_facts"`
 	} `json:"topic_asks"`
 	WebLinks struct {
 		KeepWith string `json:"keep_with"`
@@ -51,8 +42,6 @@ type gopodBrobotsSettingsFile struct {
 		Endings      []string `json:"word_endings"`
 		KeepWhole    []string `json:"keep_whole"`
 	} `json:"merged_words"`
-	// 2026-11-25: the game's golden questions, read from each topic card's
-	// "ask N" lines at load (gopod_chapters_folder.go) - never written in a settings file.
 	GameQuestions    []gopodGameQuestion `json:"game_questions,omitempty"`
 	ScriptedSnippets struct {
 		Lines []gopodSnippetLine `json:"lines"`
@@ -60,13 +49,11 @@ type gopodBrobotsSettingsFile struct {
 	AnimationLeadIn      string   `json:"animation_lead_in"`
 	StageDirectionEmojis []string `json:"stage_direction_emojis"`
 	SpokenSymbols        struct {
-		RepeatingWord string `json:"repeating_word"`
-		HmmSaid       string `json:"hmm_said"`
-		// 2026-10-27: spoken forms the bubble shows too (gopodDisplayForSpeech).
-		ShowAsSaid []string          `json:"show_as_said"`
-		Words      map[string]string `json:"words"`
-		// 2026-10-14: "−3" is said "negative 3" (gopodSpeakSymbols).
-		NegativeWord string `json:"negative_word"`
+		RepeatingWord string            `json:"repeating_word"`
+		HmmSaid       string            `json:"hmm_said"`
+		ShowAsSaid    []string          `json:"show_as_said"`
+		Words         map[string]string `json:"words"`
+		NegativeWord  string            `json:"negative_word"`
 	} `json:"spoken_symbols"`
 	ScriptedSplit struct {
 		SegmentMarker string   `json:"segment_marker"`
@@ -74,13 +61,11 @@ type gopodBrobotsSettingsFile struct {
 		JoinTrailing  []string `json:"join_trailing"`
 	} `json:"scripted_split"`
 	LiveSplit struct {
-		SentenceEnds string `json:"sentence_ends"`
-		// 2026-11-16: phrases never cut (gopodCutAt).
-		KeepWhole []string `json:"keep_whole"`
-		CommaEnds string   `json:"comma_ends"`
-		// 2026-10-08: short pieces said as one run (gopodJoinPieces).
-		JoinUpToWords int  `json:"join_up_to_words"`
-		ThoughtLines  bool `json:"thought_lines"`
+		SentenceEnds  string   `json:"sentence_ends"`
+		KeepWhole     []string `json:"keep_whole"`
+		CommaEnds     string   `json:"comma_ends"`
+		JoinUpToWords int      `json:"join_up_to_words"`
+		ThoughtLines  bool     `json:"thought_lines"`
 	} `json:"live_split"`
 	Countdown struct {
 		Role               string  `json:"role"`
@@ -90,16 +75,13 @@ type gopodBrobotsSettingsFile struct {
 		AsleepNote string `json:"asleep_note"`
 	} `json:"brothers"`
 	Addressing struct {
-		StartWithinWords int `json:"start_within_words"`
-		// 2026-10-21: the first answer in a line to both ends handing over.
-		RedirectText      string  `json:"redirect_text"`
-		FirstHeardSeconds float64 `json:"first_heard_seconds"`
-		QuietAnimation    string  `json:"quiet_animation"`
-		// 2026-10-14: "All": Brobot 1 answers, then Brobot 2 (gopodTypedInputAll).
-		AllNextWaitSeconds float64 `json:"all_next_wait_seconds"`
-		// 2026-10-15: before the question in a follow-up's prompt (gopodFollowingUp).
-		FollowUpNote string                         `json:"follow_up_note"`
-		Names        map[string]map[string][]string `json:"names"`
+		StartWithinWords   int                            `json:"start_within_words"`
+		RedirectText       string                         `json:"redirect_text"`
+		FirstHeardSeconds  float64                        `json:"first_heard_seconds"`
+		QuietAnimation     string                         `json:"quiet_animation"`
+		AllNextWaitSeconds float64                        `json:"all_next_wait_seconds"`
+		FollowUpNote       string                         `json:"follow_up_note"`
+		Names              map[string]map[string][]string `json:"names"`
 	} `json:"addressing"`
 	ChatHold struct {
 		IdleMinutes   float64  `json:"idle_minutes"`
@@ -111,13 +93,10 @@ type gopodBrobotsSettingsFile struct {
 		Script string `json:"script"`
 	} `json:"mic_service"`
 	NumpadPTT struct {
-		MapFile string `json:"map_file"`
-		// 2026-11-04: which numpad_maps layout the numpad uses ("usb", "pc").
-		Layout string `json:"layout"`
-		// 2026-10-20: the mic's USB id, and what Goverlord says when it's missing.
-		MicUSBIDs      []string `json:"mic_usb_ids"`
-		MicMissingText string   `json:"mic_missing_text"`
-		// 2026-10-21: the USB watch (gopod_usb_watch.go).
+		MapFile            string            `json:"map_file"`
+		Layout             string            `json:"layout"`
+		MicUSBIDs          []string          `json:"mic_usb_ids"`
+		MicMissingText     string            `json:"mic_missing_text"`
 		NumpadUSBIDs       []string          `json:"numpad_usb_ids"`
 		USBWatchSeconds    float64           `json:"usb_watch_seconds"`
 		MicFoundText       string            `json:"mic_found_text"`
@@ -126,12 +105,9 @@ type gopodBrobotsSettingsFile struct {
 		USBHost            string            `json:"usb_host"`
 		MicDisabledSeconds float64           `json:"mic_disabled_seconds"`
 		BodyToBrobot       map[string]string `json:"body_to_brobot"`
-		// 2026-10-14: Goverlord says texts.on / texts.exit; made at start (gopodSystemLines).
-		Texts map[string]string `json:"texts"`
-		// 2026-10-16: 0 held talks to all the Brobots (gopod_numpad_ptt.go).
-		AllLabel string `json:"all_label"`
-		// 2026-11-17: the "." key - any persona (gopod_any_persona.go).
-		Any struct {
+		Texts              map[string]string `json:"texts"`
+		AllLabel           string            `json:"all_label"`
+		Any                struct {
 			Label        string `json:"label"`
 			DefaultOwner string `json:"default_owner"`
 			RedirectText string `json:"redirect_text"`
@@ -154,27 +130,19 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"record_session"`
 	LiveWeatherNote string `json:"live_weather_note"`
 	ChatMoves       struct {
-		NodEvery       int     `json:"nod_every"`
-		NodSpeed       float64 `json:"nod_speed"`
-		NodHoldSeconds float64 `json:"nod_hold_seconds"`
-		// 2026-11-03: the searching pace is the golden note's only
-		// (gopod_probes/locks/searching_golden.md, gopodSearchingGolden).
-		// 2026-10-10: the words said while the model works on a reply.
-		ThinkingText string `json:"thinking_text"`
-		// 2026-10-09: the moves before "Thinking, please wait." ("arm", "nod").
-		ThinkingMoves []string `json:"thinking_moves"`
-		// 2026-10-09: speech after an animation, and the wait for its done.
-		SpeechAfterAnimationSeconds float64 `json:"speech_after_animation_seconds"`
-		AnimationDoneMostSeconds    float64 `json:"animation_done_most_seconds"`
-		// 2026-10-24: the golden "Got it" sequence, one copy per Brobot (gopodGotItFor).
-		GotIt map[string]gopodGotIt `json:"got_it"`
+		NodEvery                    int                   `json:"nod_every"`
+		NodSpeed                    float64               `json:"nod_speed"`
+		NodHoldSeconds              float64               `json:"nod_hold_seconds"`
+		ThinkingText                string                `json:"thinking_text"`
+		ThinkingMoves               []string              `json:"thinking_moves"`
+		SpeechAfterAnimationSeconds float64               `json:"speech_after_animation_seconds"`
+		AnimationDoneMostSeconds    float64               `json:"animation_done_most_seconds"`
+		GotIt                       map[string]gopodGotIt `json:"got_it"`
 	} `json:"chat_moves"`
 	LLM struct {
-		WarmupText string `json:"warmup_text"`
-		// 2026-10-16: the opener song (gopod_opener_song.go).
-		OpenerSongID string `json:"opener_song_id"`
-		VoicesText   string `json:"voices_text"`
-		// 2026-11-18: shown while the voice engine still loads (the opening waits for it).
+		WarmupText         string  `json:"warmup_text"`
+		OpenerSongID       string  `json:"opener_song_id"`
+		VoicesText         string  `json:"voices_text"`
 		VoicesEngineText   string  `json:"voices_engine_text"`
 		WaitText           string  `json:"wait_text"`
 		WarmupCheckSeconds float64 `json:"warmup_check_seconds"`
@@ -207,17 +175,10 @@ type gopodBrobotsSettingsFile struct {
 		PerformedNote         string `json:"performed_note"`
 		ForgottenNote         string `json:"forgotten_note"`
 	} `json:"shared_chat"`
-	// 2026-10-25 (operator: "pre-[bingo experience] > [bingo test] >
-	// post-[bingo experience] * duo answer-chain template * Make pre-[sleep
-	// experience] > [nap song] > post-[sleep experience]"): Bingo is the first
-	// experience; experiences holds the rest (the nap), the same keys.
-	Bingo       gopodExperience   `json:"bingo"`
-	Experiences []gopodExperience `json:"experiences"`
-	// 2026-10-26: the moves to start it, one picked at random, in the second
-	// answer (gopodExperienceClosing).
-	ExperienceMoves []string `json:"experience_moves"`
-	// 2026-10-27: the line that asks for a riff on a closing_riff, {line} filled.
-	ClosingRiffText   string `json:"closing_riff_text"`
+	Bingo             gopodExperience   `json:"bingo"`
+	Experiences       []gopodExperience `json:"experiences"`
+	ExperienceMoves   []string          `json:"experience_moves"`
+	ClosingRiffText   string            `json:"closing_riff_text"`
 	InterviewChapters struct {
 		Role     string `json:"role"`
 		Label    string `json:"label"`
@@ -229,17 +190,14 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"chapters"`
 		TopicLabels map[string]string `json:"topic_labels"`
 	} `json:"interview_chapters"`
-	// 2026-10-21: the thought bubbles template (gopod_answer_chain.go).
 	AnswerChains map[string]struct {
 		From  string   `json:"from"`
 		Parts []string `json:"parts"`
 	} `json:"answer_chains"`
-	// 2026-10-20: the system menu's theme presets (system-menu-theme).
 	SystemMenu struct {
 		Themes map[string]map[string]string `json:"themes"`
-		Intro  string                       `json:"intro"` // 2026-11-16: scripture 0 (gopodTorahIntro)
+		Intro  string                       `json:"intro"` // scripture 0 (gopodTorahIntro)
 	} `json:"system_menu"`
-	// 2026-10-20: the TPU +/- rotation's sources (gopod_visual.go).
 	VisualSources struct {
 		Ring []struct {
 			ID     string `json:"id"`
@@ -248,7 +206,6 @@ type gopodBrobotsSettingsFile struct {
 			Device string `json:"device"`
 		} `json:"ring"`
 	} `json:"visual_sources"`
-	// 2026-10-19: the 126 sleep beats by family (system-robot beat / beats).
 	SleepBeats struct {
 		Families map[string][]struct {
 			Alias string `json:"alias"`
@@ -256,19 +213,15 @@ type gopodBrobotsSettingsFile struct {
 			Kind  string `json:"kind"`
 		} `json:"families"`
 	} `json:"sleep_beats"`
-	// 2026-10-18: system-test-all's order (gopod_system_tests.go).
 	SystemTests struct {
-		Audit []string `json:"audit"`
-		// 2026-10-28: the 100% admin run self-check (gopod_admin_run.go).
+		Audit    []string `json:"audit"`
 		AdminRun struct {
 			File string `json:"file"`
 		} `json:"admin_run"`
-		// 2026-10-29: the probers list (gopod_probers_list.go).
 		ProbersList struct {
 			File      string  `json:"file"`
 			PassShare float64 `json:"pass_share"`
 		} `json:"probers_list"`
-		// 2026-11-20: the lookups list (gopod_lookups_list.go).
 		LookupsList struct {
 			File string `json:"file"`
 		} `json:"lookups_list"`
@@ -282,35 +235,21 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"audio"`
 	} `json:"system_tests"`
 	TopicPictures struct {
-		Role     string              `json:"role"`
-		Folder   string              `json:"folder"`
-		Pictures map[string][]string `json:"pictures"`
-		// 2026-10-27 (operator: birthday & bbq pictures, 20 and 6): at most this
-		// many of a topic's pictures show at once, picked at random (0: all).
-		MaxShown int `json:"max_shown"`
-		// 2026-10-18: eggs never on the egg list (halloween).
-		NotListed []string `json:"not_listed"`
-		// 2026-10-18: eggs taken out (their key, "chapter:<title>"): never pop up, not on the list.
-		NotEggs []string `json:"not_eggs"`
-		// 2026-10-22: the only eggs (when set) - gopodNotEgg.
-		EggsKeep []string `json:"eggs_keep"`
-		// 2026-10-13: a live pop-up's congratulations, shown and said.
-		PopupText string `json:"popup_text"`
-		// 2026-10-13: how many times a topic's pictures show per Wire-Pod start.
-		MaxPerSession int `json:"max_per_session"`
-		// 2026-10-24: the silence between the egg voice's pieces (gopod_egg_voice.go).
-		EggVoiceGapMS  int `json:"egg_voice_gap_ms"`
-		EggVoiceEdgeMS int `json:"egg_voice_edge_ms"`
-		// 2026-10-16: each egg's congratulations, {name}: the word that found it.
-		EggText string `json:"egg_text"`
-		// 2026-10-16: under a zoomable prize (gopodShowEgg).
-		EggZoomText string `json:"egg_zoom_text"`
-		// 2026-10-16: an egg's name by topic (else the word that found it), and
-		// the eggs whose prize is a card, not a picture (the roast battle).
-		EggNames map[string]string `json:"egg_names"`
-		Cards    map[string]string `json:"cards"`
-		// 2026-10-15: pop-up pictures the vision model describes for the reply
-		// (gopod_picture_describe.go).
+		Role                string              `json:"role"`
+		Folder              string              `json:"folder"`
+		Pictures            map[string][]string `json:"pictures"`
+		MaxShown            int                 `json:"max_shown"`
+		NotListed           []string            `json:"not_listed"`
+		NotEggs             []string            `json:"not_eggs"`
+		EggsKeep            []string            `json:"eggs_keep"`
+		PopupText           string              `json:"popup_text"`
+		MaxPerSession       int                 `json:"max_per_session"`
+		EggVoiceGapMS       int                 `json:"egg_voice_gap_ms"`
+		EggVoiceEdgeMS      int                 `json:"egg_voice_edge_ms"`
+		EggText             string              `json:"egg_text"`
+		EggZoomText         string              `json:"egg_zoom_text"`
+		EggNames            map[string]string   `json:"egg_names"`
+		Cards               map[string]string   `json:"cards"`
 		Describe            []string            `json:"describe"`
 		DescribeWaitSeconds float64             `json:"describe_wait_seconds"`
 		DescribeNote        string              `json:"describe_note"`
@@ -320,88 +259,65 @@ type gopodBrobotsSettingsFile struct {
 		DescribeDoneText    string              `json:"describe_done_text"`
 	} `json:"topic_pictures"`
 	ReporterVoices struct {
-		Role           string            `json:"role"`
-		Python         string            `json:"python"`
-		Worker         string            `json:"worker"`
-		AudioFolder    string            `json:"audio_folder"`
-		Hosts          map[string]string `json:"hosts"`
-		SystemVoice    string            `json:"system_voice"`
-		Speed          float64           `json:"speed"`
-		HFHome         string            `json:"hf_home"`
-		SystemSayRole  string            `json:"system_say_role"`
-		SongAudioRole  string            `json:"song_audio_role"`
-		NarratorRole   string            `json:"narrator_role"`
-		NarratorLead   float64           `json:"narrator_lead_seconds"`
-		HeardMarker    string            `json:"heard_marker"`
-		OperatorHost   string            `json:"operator_host"`
-		ReadLinesFrom  []string          `json:"read_lines_from"`
-		PageLagSeconds float64           `json:"page_lag_seconds"`
-		// 2026-10-31 (operator: "chunks are lines in that one chat bubble * core
-		// rule: applies globally"): a voiced line longer than this many words is
-		// said in chunks of whole sentences - one bubble, a line each, its own
-		// voice (gopodSpokenChunks, gopodSayLinesInBubble). 0: never.
-		ChunkWords int `json:"chunk_words"`
-		// 2026-10-31: a sentence shorter than this joins the next chunk.
-		ChunkMinWords      int     `json:"chunk_min_words"`
-		MaxWaitSeconds     float64 `json:"max_wait_seconds"`
-		HeardMarginSeconds float64 `json:"heard_margin_seconds"`
-		// 2026-10-14: "Generating..." while a shown line's voice is made (gopodSayShown: the line waits in its own bubble).
-		GeneratingMarker string  `json:"generating_marker"`
-		StartWaitSeconds float64 `json:"start_wait_seconds"`
-		// 2026-10-17: the words while a voice file is made (also the page's).
-		GeneratingText string            `json:"generating_text"`
-		SayWords       map[string]string `json:"say_words"`
-		ReadBy         map[string]string `json:"read_by"`
-		OpeningEndText string            `json:"opening_end_text"`
-		GateMaxSeconds float64           `json:"gate_max_seconds"`
-		GapSeconds     float64           `json:"gap_seconds"`
-		Labels         map[string]string `json:"labels"`
-		NicknameLabel  string            `json:"nickname_label"`
-		SystemPersona  string            `json:"system_persona"`
-		SystemSayWords map[string]string `json:"system_say_words"`
-		// 2026-10-13: the voice that reads a live operator line.
-		OperatorVoice string `json:"operator_voice"`
-		// 2026-10-26 (operator: "reassign/remap Operator voice & role to Cameo
-		// * KP9 Cameo voice = anything spoken that's unassigned"): with no
-		// operator_voice, this host's voice reads it (CAMEO).
-		UnassignedVoiceHost string `json:"unassigned_voice_host"`
-		// 2026-10-26 (operator: "use sox for slight but noticable pitch shift"):
-		// a host's own speed and pitch (cents, sox), over the shared speed.
-		VoiceTweaks map[string]struct {
+		Role                string            `json:"role"`
+		Python              string            `json:"python"`
+		Worker              string            `json:"worker"`
+		AudioFolder         string            `json:"audio_folder"`
+		Hosts               map[string]string `json:"hosts"`
+		SystemVoice         string            `json:"system_voice"`
+		Speed               float64           `json:"speed"`
+		HFHome              string            `json:"hf_home"`
+		SystemSayRole       string            `json:"system_say_role"`
+		SongAudioRole       string            `json:"song_audio_role"`
+		NarratorRole        string            `json:"narrator_role"`
+		NarratorLead        float64           `json:"narrator_lead_seconds"`
+		HeardMarker         string            `json:"heard_marker"`
+		OperatorHost        string            `json:"operator_host"`
+		ReadLinesFrom       []string          `json:"read_lines_from"`
+		PageLagSeconds      float64           `json:"page_lag_seconds"`
+		ChunkWords          int               `json:"chunk_words"`
+		ChunkMinWords       int               `json:"chunk_min_words"`
+		MaxWaitSeconds      float64           `json:"max_wait_seconds"`
+		HeardMarginSeconds  float64           `json:"heard_margin_seconds"`
+		GeneratingMarker    string            `json:"generating_marker"`
+		StartWaitSeconds    float64           `json:"start_wait_seconds"`
+		GeneratingText      string            `json:"generating_text"`
+		SayWords            map[string]string `json:"say_words"`
+		ReadBy              map[string]string `json:"read_by"`
+		OpeningEndText      string            `json:"opening_end_text"`
+		GateMaxSeconds      float64           `json:"gate_max_seconds"`
+		GapSeconds          float64           `json:"gap_seconds"`
+		Labels              map[string]string `json:"labels"`
+		NicknameLabel       string            `json:"nickname_label"`
+		SystemPersona       string            `json:"system_persona"`
+		SystemSayWords      map[string]string `json:"system_say_words"`
+		OperatorVoice       string            `json:"operator_voice"`
+		UnassignedVoiceHost string            `json:"unassigned_voice_host"`
+		VoiceTweaks         map[string]struct {
 			Speed      float64 `json:"speed"`
 			PitchCents float64 `json:"pitch_cents"`
-			// 2026-10-28: a robot_fx preset and its carrier (Hz), on top of the pitch.
-			RobotFX string  `json:"robot_fx"`
-			Carrier float64 `json:"carrier"`
+			RobotFX    string  `json:"robot_fx"`
+			Carrier    float64 `json:"carrier"`
 		} `json:"voice_tweaks"`
-		// 2026-10-28 (operator: "give my 2 Intel 404 security guards a robotic
-		// voice flavouring, slightly offset * Do the same for the 'intern' voices *
-		// brobots say in the app demos, use PLAYHEAD's voice"): the sox chains
-		// ({carrier} filled per host), mixed wet over the clean voice
-		// (gopodReporterFX); demo_voices - a demo host speaks with that host's voice.
 		RobotFXPresets map[string]struct {
 			Chain string  `json:"chain"`
 			Wet   float64 `json:"wet"`
 		} `json:"robot_fx_presets"`
-		DemoVoices map[string]string `json:"demo_voices"`
-		// 2026-10-13: days an unused Operator voice file is kept.
-		OperatorKeepDays  float64 `json:"operator_keep_days"`
-		FinishWaitSeconds float64 `json:"finish_wait_seconds"`
-		ScriptedKeepDays  float64 `json:"scripted_keep_days"`
-		LiveKeepDays      float64 `json:"live_keep_days"`
-		LiveOnceKeepDays  float64 `json:"live_once_keep_days"`
-		PopularUses       int     `json:"popular_uses"`
-		PopularKeepDays   float64 `json:"popular_keep_days"`
-		// 2026-10-13: the sting before a system line (gopodSystemSting).
-		SystemStings map[string]struct {
-			File string `json:"file"`
-			// 2026-10-17: "" (default) or a percentage of chat_audio.volume ("40%").
+		DemoVoices        map[string]string `json:"demo_voices"`
+		OperatorKeepDays  float64           `json:"operator_keep_days"`
+		FinishWaitSeconds float64           `json:"finish_wait_seconds"`
+		ScriptedKeepDays  float64           `json:"scripted_keep_days"`
+		LiveKeepDays      float64           `json:"live_keep_days"`
+		LiveOnceKeepDays  float64           `json:"live_once_keep_days"`
+		PopularUses       int               `json:"popular_uses"`
+		PopularKeepDays   float64           `json:"popular_keep_days"`
+		SystemStings      map[string]struct {
+			File   string          `json:"file"`
 			Volume json.RawMessage `json:"volume"`
 		} `json:"system_stings"`
 		Opening []gopodHostLine `json:"opening"`
 		Closing []gopodHostLine `json:"closing"`
 	} `json:"reporter_voices"`
-	// 2026-10-25: the bubble sounds template (gopodBubbleSting; the page's bubbleSound).
 	BubbleSounds struct {
 		DefaultFile string `json:"default_file"`
 		Goverlord   struct {
@@ -410,10 +326,6 @@ type gopodBrobotsSettingsFile struct {
 			Mute   bool            `json:"mute"`
 		} `json:"Goverlord"`
 	} `json:"bubble_sounds"`
-	// 2026-10-17 (operator: "One master default knobs setting all other knobs
-	// refers to"; "evaluate audio files to normalize all volumes to -3db"): the
-	// master volume (the page's), and the level every sound is evened to first.
-	// 2026-10-17: GOPOD's own web search (gopod_system_search.go).
 	SystemSearch struct {
 		URL            string  `json:"url"`
 		Results        int     `json:"results"`
@@ -425,11 +337,9 @@ type gopodBrobotsSettingsFile struct {
 		HandoffHost    string  `json:"handoff_host"`
 		ResultsHost    string  `json:"results_host"`
 	} `json:"system_search"`
-	// 2026-10-17: system-set's terminal bubble (gopod_system_set.go).
 	SystemSet struct {
 		Role string `json:"role"`
 	} `json:"system_set"`
-	// 2026-10-18: CHALK and PLAYHEAD take system asks (gopod_managers.go).
 	Managers struct {
 		Takes          []gopodManagerTake `json:"takes"`
 		ReleaseSeconds float64            `json:"release_seconds"`
@@ -439,41 +349,29 @@ type gopodBrobotsSettingsFile struct {
 		HandoffText    string             `json:"handoff_text"`
 		QRNote         string             `json:"qr_note"`
 		QRDisplayText  string             `json:"qr_display_text"`
-		// 2026-10-18: the reporters' live personas (gopod_personas.go).
-		Personas map[string]struct {
-			Host      string `json:"host"`
-			Reporter  string `json:"reporter"`
-			Prompt    string `json:"prompt"`
-			LinesNote string `json:"lines_note"`
-			WhoLine   string `json:"who_line"`
-			// 2026-10-28: its bits still in the works (gopodPersonaWIP).
-			WIP []string `json:"wip"`
-			// 2026-10-30 (the Butler): the speaker whose voice and lingo it speaks with,
-			// in its own bubble - the Butler, the butler's (sign_off.system_role).
-			VoiceOf string `json:"voice_of"`
+		Personas       map[string]struct {
+			Host      string   `json:"host"`
+			Reporter  string   `json:"reporter"`
+			Prompt    string   `json:"prompt"`
+			LinesNote string   `json:"lines_note"`
+			WhoLine   string   `json:"who_line"`
+			WIP       []string `json:"wip"`
+			VoiceOf   string   `json:"voice_of"`
 		} `json:"personas"`
-		WIPText string `json:"wip_text"`
-		// 2026-10-30 (operator: "let my personas speak!! * why the cut-off?"):
-		// a persona's answer, at most this many tokens (it was 120, written in).
+		WIPText          string   `json:"wip_text"`
 		AnswerNumPredict int      `json:"answer_num_predict"`
 		WhoWords         []string `json:"who_words"`
 	} `json:"managers"`
-	// 2026-10-18: a native intent's silent system bubble (gopodNativeBubble).
-	// 2026-10-22: after his weather line, its picture and sound, then a pause.
 	WeatherCard struct {
 		PauseSeconds float64 `json:"pause_seconds"`
 		Picture      bool    `json:"picture"`
 	} `json:"weather_card"`
-	// 2026-10-22: the weather line's formats, per answer position (gopodWeatherReportLine).
 	WeatherLines map[string]string `json:"weather_lines"`
-	// 2026-10-22: the answer chain's prompt lines (gopodChainPrompt).
 	ChainPrompts map[string]string `json:"chain_prompts"`
-	// 2026-10-22: topics that get their own answer chain group (gopodTopicGroupFor).
-	TopicGroups map[string]struct {
+	TopicGroups  map[string]struct {
 		Topics   []string `json:"topics"`
 		RuleLine string   `json:"rule_line"`
 	} `json:"topic_groups"`
-	// 2026-10-23: the point bubbles part (gopod_point_bubbles.go).
 	PointBubbles struct {
 		Prompt   string `json:"prompt"`
 		Fallback struct {
@@ -483,41 +381,31 @@ type gopodBrobotsSettingsFile struct {
 		Hype          map[string][]string `json:"hype"`
 		KeepLeadLines int                 `json:"keep_lead_lines"`
 	} `json:"point_bubbles"`
-	// 2026-10-23 (A3): the game's rules, for the Brobots (prebuild_context {game}).
 	Game struct {
-		Rules string `json:"rules"`
-		// 2026-10-23 (A4): the grand prize line, and when the game resets.
-		WinText string `json:"win_text"`
-		// 2026-10-24: the Master Grand Prize - hidden eggs too.
-		MasterText string `json:"master_text"`
-		ResetOn    string `json:"reset_on"`
-		// 2026-10-27: the game engine's run cards; they fill bingo, experiences
-		// and the run names at load (gopod_game_engine.go).
-		Runs []gopodGameRun `json:"runs"`
+		Rules      string         `json:"rules"`
+		WinText    string         `json:"win_text"`
+		MasterText string         `json:"master_text"`
+		ResetOn    string         `json:"reset_on"`
+		Runs       []gopodGameRun `json:"runs"`
 	} `json:"game"`
-	// 2026-10-23: exact answers to golden questions (the golden_line part).
 	GoldenAnswers []struct {
 		Queries []string `json:"queries"`
 		Line    string   `json:"line"`
 	} `json:"golden_answers"`
-	// 2026-10-23 (A5): the interview song built from the game (gopod_interview_from_game.go).
 	InterviewBuild struct {
 		Cues       map[string]string `json:"cues"`
 		Reporters  []string          `json:"reporters"`
 		DefaultAsk string            `json:"default_ask"`
 	} `json:"interview_build"`
-	// 2026-10-23 (template sweep): the host persona's sentences (gopod_brobot_personas.go).
 	HostPersonaFrames struct {
 		Name      string `json:"name"`
 		Steps     string `json:"steps"`
 		Signature string `json:"signature"`
 		Dial      string `json:"dial"`
 	} `json:"host_persona_frames"`
-	// 2026-10-23 (template sweep): words that carry no meaning of their own (gopod_brother_repeat.go).
 	BrotherRepeat struct {
 		PlainWords []string `json:"plain_words"`
 	} `json:"brother_repeat"`
-	// 2026-10-24: good morning / afternoon / evening / night (gopod_greetings.go).
 	Greetings struct {
 		Parts []struct {
 			Name string `json:"name"`
@@ -526,21 +414,15 @@ type gopodBrobotsSettingsFile struct {
 		} `json:"parts"`
 		RightText string `json:"right_text"`
 		WrongText string `json:"wrong_text"`
-		// 2026-11-15: the greeting every answer opens with when the line greets no
-		// part of the day (the answer chain's greeting part).
-		DayText string `json:"day_text"`
+		DayText   string `json:"day_text"`
 	} `json:"greetings"`
-	// 2026-10-24: GOPOD as a phone app - the secure page (gopod_https.go).
 	App struct {
-		HTTPSPort int    `json:"https_port"`
-		CertDir   string `json:"cert_dir"`
-		CAName    string `json:"ca_name"`
-		// 2026-10-31 ("CA fencing"): the names and addresses GOPOD's authority may
-		// ever vouch for, written into it (X.509 name constraints).
-		FenceDNS []string `json:"fence_dns"`
-		FenceIPs []string `json:"fence_ips"`
+		HTTPSPort int      `json:"https_port"`
+		CertDir   string   `json:"cert_dir"`
+		CAName    string   `json:"ca_name"`
+		FenceDNS  []string `json:"fence_dns"`
+		FenceIPs  []string `json:"fence_ips"`
 	} `json:"app"`
-	// 2026-10-24: visitors and the chat sign-up (gopod_visitors.go).
 	Visitors struct {
 		Participation      bool    `json:"participation"`
 		AdminAddressesFile string  `json:"admin_addresses_file"`
@@ -552,13 +434,11 @@ type gopodBrobotsSettingsFile struct {
 		ApprovedText       string  `json:"approved_text"`
 		ApprovedShowMS     int     `json:"approved_show_ms"`
 	} `json:"visitors"`
-	// 2026-10-23 (template sweep): the session memory's lines (gopod_session_memory.go).
 	SessionMemory struct {
 		Line      string `json:"line"`
 		Scenario  string `json:"scenario"`
 		EmptyText string `json:"empty_text"`
 	} `json:"session_memory"`
-	// 2026-10-23: the summary answer type (gopod_summary_answer.go).
 	Summary struct {
 		Queries    []string `json:"queries"`
 		MinTopics  int      `json:"min_topics"`
@@ -567,44 +447,33 @@ type gopodBrobotsSettingsFile struct {
 		FactsNote  string   `json:"facts_note"`
 		Fallback   string   `json:"fallback"`
 	} `json:"summary"`
-	// 2026-10-25: the response-chain template (gopod_response_chains.go).
 	ResponseChains map[string]gopodResponseChain `json:"response_chains"`
 	Openers        map[string]string             `json:"openers"`
 	Nicknames      struct {
 		Titles []string `json:"titles"`
 		List   []string `json:"list"`
 	} `json:"nicknames"`
-	// 2026-10-23: the golden answer shapes (gopod_answer_shapes.go).
 	AnswerShapes struct {
 		Shapes    map[string][]string `json:"shapes"`
 		Marks     map[string]string   `json:"marks"`
 		MarkOrder []string            `json:"mark_order"`
 	} `json:"answer_shapes"`
-	// 2026-10-22: the typed line's All menu - who answers first by default.
 	TypedLine struct {
 		AllFirst string `json:"all_first"`
 	} `json:"typed_line"`
-	// 2026-10-22: the colour slots' cap (gopod_answer_chain.go).
 	ColourSlots struct {
 		MaxSentences int `json:"max_sentences"`
 	} `json:"colour_slots"`
-	// 2026-10-22: the pre-build context in every Brobot answer (gopodPrebuildContext).
-	// 2026-10-29: the system window tour (gopod_system_tour.go).
 	SystemTour struct {
 		QuietSeconds float64 `json:"quiet_seconds"`
 		StartText    string  `json:"start_text"`
 		EndText      string  `json:"end_text"`
 	} `json:"system_tour"`
-	// 2026-10-29: the single-bot setup (gopod_brobots_setup.go).
 	BrobotsSetup struct {
 		Brobot1  string `json:"brobot_1"`
 		Brobot2  string `json:"brobot_2"`
 		SoloNote string `json:"solo_note"`
 	} `json:"brobots_setup"`
-	// 2026-10-29: the Torah's words (gopod_torah.go, gopod_system_tour.go).
-	// 2026-11-15 (operator: "lists/stuff like that should be written to files
-	// that are auto-updated"): the README's cast table, written from the numpad
-	// map (gopod_readme_cast.go) - its few words.
 	ReadmeCast struct {
 		Head       string `json:"head"`
 		Rule       string `json:"rule"`
@@ -617,214 +486,138 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"readme_cast"`
 	Torah struct {
 		Opening     string `json:"opening"`
-		IntroTitle  string `json:"intro_title"` // 2026-11-16: scripture 0's title
+		IntroTitle  string `json:"intro_title"` // scripture 0's title
 		Scripture   string `json:"scripture"`
 		Commandment string `json:"commandment"`
 		NextFrom    string `json:"next_from"`
 		NextTo      string `json:"next_to"`
 	} `json:"torah"`
-	// 2026-10-29: the line queue - one question at a time (gopod_line_queue.go).
 	LineQueue struct {
 		On               bool    `json:"on"`
 		AnswerMaxSeconds float64 `json:"answer_max_seconds"`
 		IdleSeconds      float64 `json:"idle_seconds"`
 		PageMaxSeconds   float64 `json:"page_max_seconds"`
 	} `json:"line_queue"`
-	// 2026-10-29: DocBS, Doc's brain wiring (gopod_docbs.go).
 	DocBS struct {
-		Folder     string `json:"folder"`
-		Share      int    `json:"share"`
-		SlotPrompt string `json:"slot_prompt"`
-		Fallback   string `json:"fallback"`
-		NumPredict int    `json:"num_predict"`
-		// 2026-10-29 (ask ahead): the colour ask - one escalated-metaphor line.
-		ColourPrompt   string `json:"colour_prompt"`
-		ColourPrompt18 string `json:"colour_prompt_18"`
-		// 2026-10-30 (the Master Library, DOCBS_LIBRARY.md): the chains - each
-		// a list of beats (a pool; "a|b" one of them; "colour" gemma's line),
-		// allowed from min_share of the dial up.
-		Chains []gopodDocBSChain `json:"chains"`
+		Folder         string            `json:"folder"`
+		Share          int               `json:"share"`
+		SlotPrompt     string            `json:"slot_prompt"`
+		Fallback       string            `json:"fallback"`
+		NumPredict     int               `json:"num_predict"`
+		ColourPrompt   string            `json:"colour_prompt"`
+		ColourPrompt18 string            `json:"colour_prompt_18"`
+		Chains         []gopodDocBSChain `json:"chains"`
 	} `json:"docbs"`
-	// 2026-10-31: the brain chain - short-term, long-term, flow (gopod_brain_chain.go).
-	// 2026-11-25 (operator: "a golden locked sequence personas can call and build a
-	// response from"): the GOPOD Yourself QR card (gopod_yourself_qr.md) - the
-	// golden lines any persona says after his own line (gopodYourselfStitch).
 	GopodYourselfQr struct {
 		KeepUpWords string `json:"keep_up_words"`
 		KeepUpLine  string `json:"keep_up_line"`
 		ContactLine string `json:"contact_line"`
 	} `json:"gopod_yourself_qr"`
 	BrainChain struct {
-		// 2026-11-02 (operator: "swarm level awareness * something Goverlord would
-		// assign to PLAYHEAD Gomad * a dynamic In the chat list as participants
-		// join/leave * include accepted visitors"): the brain bubble leaves out the
-		// lines starting with bubble_hide (the prompt keeps them); whos_here_host
-		// says whos_here_text when the chat's people change; visitors_label heads
-		// the approved visitors in In the chat.
-		BubbleHide    []string `json:"bubble_hide"`
-		WhosHereHost  string   `json:"whos_here_host"`
-		WhosHereText  string   `json:"whos_here_text"`
-		VisitorsLabel string   `json:"visitors_label"`
-		Header        string   `json:"header"`
-		ShortHeader   string   `json:"short_header"`
-		// 2026-11-13 (operator: "chat look back time ranges? Local recent lookup
-		// (10 minutes), if not sufficient, look back deeper (30 minutes)").
-		RecentMinutes float64 `json:"recent_minutes"`
-		DeepMinutes   float64 `json:"deep_minutes"`
-		RecordLine    string  `json:"record_line"`
-		// 2026-11-13: the after-answer notes (gopodBrainNote).
-		AnswerPart  string            `json:"answer_part"`
-		AskedBefore string            `json:"asked_before"`
-		AnswerChars int               `json:"answer_chars"`
-		LongLine    string            `json:"long_line"`
-		FlowLine    string            `json:"flow_line"`
-		Flow        map[string]string `json:"flow"`
-		// 2026-11-03 (operator: "c) Keys will be the first to speak, to open up
-		// the session"): his call name; his own intro flow is flow.intro_first.
-		IntroOpener string   `json:"intro_opener"`
-		Lines       []string `json:"lines"`
-		IntroFact   []string `json:"intro_fact"`
-		// 2026-11-16: the bubble's FACT line - where it was looked up ({sources}).
-		LookedUp string `json:"looked_up"`
-		// 2026-11-16: the look-up's pool (repo paths), how many cards, how long each (gopod_lookup.go).
-		LookupFiles []string `json:"lookup_files"`
-		LookupMax   int      `json:"lookup_max"`
-		LookupChars int      `json:"lookup_chars"`
-		// 2026-11-18: the most cards one look-up follows down its "see also" chain.
-		LookupChainMax int `json:"lookup_chain_max"`
-		// 2026-11-18: nothing matched - this card (a repo path: the README) and its line.
-		LookupDefault     string   `json:"lookup_default"`
-		LookupDefaultLine string   `json:"lookup_default_line"`
-		LookupSkip        []string `json:"lookup_skip"`
-		// 2026-11-19: a nonsense line's answer, and the words that make a line real.
-		NonsenseLine string `json:"nonsense_line"`
-		// 2026-11-20 (operator: "'Many-words-one-meaning' words people may use for
-		// the same"): one meaning per " / ", its words with commas between.
-		SameWords string `json:"same_words"`
-		// 2026-11-20 (operator: "Two matches that are tied, the brobot answers both
-		// briefly, and only as far as his job allows, otherwise redirect"): said
-		// to the model when the look-up's best two cards tie.
-		TwoMatchesLine string `json:"two_matches_line"`
-		// 2026-11-23 (operator's loop: once, redirect; twice, Brobot 1 & README.md;
-		// three times, Brobot 1 & README.md's welcome): the ROUTE lines, the rep,
-		// the third strike's hand-off line and the rep's welcome (gopod_job_route.go).
-		RouteRep     string `json:"route_rep"`
-		RouteOther   string `json:"route_other"`
-		RouteAgain   string `json:"route_again"`
-		RouteHandoff string `json:"route_handoff"`
-		RouteWelcome string `json:"route_welcome"`
-		// 2026-11-24 (operator: "Info GOPOD staff can provide: general/wide-sweep
-		// redirects * contact info"): a line asking for these is every staffer's job.
-		RouteStaffWords string `json:"route_staff_words"`
-		// 2026-11-24: Goverlord's one cold line handing a line down to KEYS ({keys}).
-		RouteGoverlord string `json:"route_goverlord"`
-		// 2026-11-24: the third strike's welcome, said word for word by the rep.
-		RouteWelcomeLine string `json:"route_welcome_line"`
-		// 2026-11-24: an experience question's one brain line - played or not ({run}).
-		ExperienceYes string `json:"experience_yes"`
-		ExperienceNo  string `json:"experience_no"`
-		// 2026-11-24: the words that make a question an experience ask ("how was", "did you").
-		ExperienceAsks string `json:"experience_asks"`
-		// 2026-11-25 (operator: "hey that reminds me > lookup 'location' variants >
-		// bookings.md * everything must gravitate towards [selling GOPOD], unless the
-		// specificity of query carries more weight * the more 'I don't know', the
-		// faster the gravitation to README.md + welcome"): where the reminders' ride
-		// starts when nothing in the question links on (gopodReminderLead).
-		ReminderPull     string `json:"reminder_pull"`
-		UnknownPull      string `json:"unknown_pull"`
-		UnknownPullAfter string `json:"unknown_pull_after"`
-		// 2026-11-24 (operator: "Make Goverlord a session aura brain bubble that each
-		// persona can then think with"): the AURA line's template and words
-		// (gopod_session_aura.go).
-		Aura          map[string]string `json:"aura"`
-		RealWords     string            `json:"real_words"`
-		CastItem      string            `json:"cast_item"`
-		Roster        string            `json:"roster"`
-		CastMe        string            `json:"cast_me"`
-		RemindersPart string            `json:"reminders_part"`
-		Asked         string            `json:"asked"`
-		None          string            `json:"none"`
-		QuestionChars int               `json:"question_chars"`
-		GomadsRawChat bool              `json:"gomads_raw_chat"`
-		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
-		OperatorWho string `json:"operator_who"`
-		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
-		Performers string `json:"performers"`
+		BubbleHide        []string          `json:"bubble_hide"`
+		WhosHereHost      string            `json:"whos_here_host"`
+		WhosHereText      string            `json:"whos_here_text"`
+		VisitorsLabel     string            `json:"visitors_label"`
+		Header            string            `json:"header"`
+		ShortHeader       string            `json:"short_header"`
+		RecentMinutes     float64           `json:"recent_minutes"`
+		DeepMinutes       float64           `json:"deep_minutes"`
+		RecordLine        string            `json:"record_line"`
+		AnswerPart        string            `json:"answer_part"`
+		AskedBefore       string            `json:"asked_before"`
+		AnswerChars       int               `json:"answer_chars"`
+		LongLine          string            `json:"long_line"`
+		FlowLine          string            `json:"flow_line"`
+		Flow              map[string]string `json:"flow"`
+		IntroOpener       string            `json:"intro_opener"`
+		Lines             []string          `json:"lines"`
+		IntroFact         []string          `json:"intro_fact"`
+		LookedUp          string            `json:"looked_up"`
+		LookupFiles       []string          `json:"lookup_files"`
+		LookupMax         int               `json:"lookup_max"`
+		LookupChars       int               `json:"lookup_chars"`
+		LookupChainMax    int               `json:"lookup_chain_max"`
+		LookupDefault     string            `json:"lookup_default"`
+		LookupDefaultLine string            `json:"lookup_default_line"`
+		LookupSkip        []string          `json:"lookup_skip"`
+		NonsenseLine      string            `json:"nonsense_line"`
+		SameWords         string            `json:"same_words"`
+		TwoMatchesLine    string            `json:"two_matches_line"`
+		RouteRep          string            `json:"route_rep"`
+		RouteOther        string            `json:"route_other"`
+		RouteAgain        string            `json:"route_again"`
+		RouteHandoff      string            `json:"route_handoff"`
+		RouteWelcome      string            `json:"route_welcome"`
+		RouteStaffWords   string            `json:"route_staff_words"`
+		RouteGoverlord    string            `json:"route_goverlord"`
+		RouteWelcomeLine  string            `json:"route_welcome_line"`
+		ExperienceYes     string            `json:"experience_yes"`
+		ExperienceNo      string            `json:"experience_no"`
+		ExperienceAsks    string            `json:"experience_asks"`
+		ReminderPull      string            `json:"reminder_pull"`
+		UnknownPull       string            `json:"unknown_pull"`
+		UnknownPullAfter  string            `json:"unknown_pull_after"`
+		Aura              map[string]string `json:"aura"`
+		RealWords         string            `json:"real_words"`
+		CastItem          string            `json:"cast_item"`
+		Roster            string            `json:"roster"`
+		CastMe            string            `json:"cast_me"`
+		RemindersPart     string            `json:"reminders_part"`
+		Asked             string            `json:"asked"`
+		None              string            `json:"none"`
+		QuestionChars     int               `json:"question_chars"`
+		GomadsRawChat     bool              `json:"gomads_raw_chat"`
+		OperatorWho       string            `json:"operator_who"`
+		Performers        string            `json:"performers"`
 	} `json:"brain_chain"`
-	// 2026-10-31: the system bubbles' header, for the source check (the page fills it).
 	SystemBubble struct {
 		Label        string `json:"label"`
 		VoicePersona string `json:"voice_persona"`
 	} `json:"system_bubble"`
-	// 2026-10-31: the intro recipe, one for every participant (gopod_intro_recipe.go).
 	IntroRecipe struct {
-		Words []string `json:"words"`
-		Text  string   `json:"text"`
-		// 2026-10-31: the opening and the cast line, said by code around the
-		// model's middle part: "I'm {name}{nickname_part}." ... cast_line.
-		CastLine string `json:"cast_line"`
-		// 2026-11-04: "<profile section>|<label>" - his working relationships, in his facts.
-		Relations    []string `json:"relations"`
-		Opening      string   `json:"opening"`
-		NicknamePart string   `json:"nickname_part"`
-		WhyPart      string   `json:"why_part"`
-		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
-		// md, then weather topic cluster md"): his take on the weather, after his
-		// intro (gopod_probes/topic_clusters/personas/behaviours/group-chat-intro.md).
-		WeatherText     string `json:"weather_text"`
-		WeatherTextNext string `json:"weather_text_next"`
+		Words           []string `json:"words"`
+		Text            string   `json:"text"`
+		CastLine        string   `json:"cast_line"`
+		Relations       []string `json:"relations"`
+		Opening         string   `json:"opening"`
+		NicknamePart    string   `json:"nickname_part"`
+		WhyPart         string   `json:"why_part"`
+		WeatherText     string   `json:"weather_text"`
+		WeatherTextNext string   `json:"weather_text_next"`
 	} `json:"intro_recipe"`
-	// 2026-10-30: every persona's profile, looked up for its prompt (gopod_persona_profiles.go).
 	PersonaProfiles struct {
-		Folder   string   `json:"folder"`
-		Sections []string `json:"sections"`
-		// 2026-11-06 (COMM_FART_RAPID_RUNS_REVIEW_001.md): the sections an intro
-		// gets - no Self, Banter or The name: the opening already says them.
+		Folder        string   `json:"folder"`
+		Sections      []string `json:"sections"`
 		IntroSections []string `json:"intro_sections"`
 		Text          string   `json:"text"`
 	} `json:"persona_profiles"`
-	// 2026-10-30: every persona's chains - DocBS's template (gopod_persona_chains.go).
 	PersonaChains struct {
 		Folder   string                        `json:"folder"`
 		Personas map[string]gopodPersonaChains `json:"personas"`
 	} `json:"persona_chains"`
-	// 2026-10-28: the pre-show comm check (gopod_comm_check.go).
 	CommCheck struct {
 		Keys   []string `json:"keys"`
 		Rounds []struct {
-			Text string   `json:"text"`
-			Keys []string `json:"keys"`
-			// 2026-11-04 (operator: "Keys will now do the round robin"): who asks
-			// it - its bubble and voice (empty: the Operator, as before).
-			Asker string `json:"asker"`
-			// 2026-11-17 (operator: "Start with me, then yourself"): the asker's
-			// own turn - no line shown or said, he just answers it.
-			Self bool `json:"self"`
+			Text  string   `json:"text"`
+			Keys  []string `json:"keys"`
+			Asker string   `json:"asker"`
+			Self  bool     `json:"self"`
 		} `json:"rounds"`
-		// 2026-11-17 (operator: "a brain bubble for that once, so as not to be
-		// repeated by everyone"): the crews, the company and the cast - KEYS'
-		// brain bubble once, at the handover.
 		Crew           []string `json:"crew"`
 		QuietSeconds   float64  `json:"quiet_seconds"`
 		LineMaxSeconds float64  `json:"line_max_seconds"`
 		RecordSeconds  float64  `json:"record_seconds"`
 		StartText      string   `json:"start_text"`
 		DoneText       string   `json:"done_text"`
-		// 2026-11-02: {name} for the line to All ("Hey Brobots!").
-		AllName string `json:"all_name"`
-		// 2026-11-04: the song the rounds come from (gopodApplyCommCheckSong).
-		Song string `json:"song"`
-		// 2026-11-04: the song has a wake_both step (both Brobots woken first).
-		Wake bool `json:"wake"`
-		// 2026-11-04: the game welcome - the song's last answer's first reminder
-		// (gopodGameWelcomeLine): by, base, and each persona's flavours.
-		GameWelcome struct {
+		AllName        string   `json:"all_name"`
+		Song           string   `json:"song"`
+		Wake           bool     `json:"wake"`
+		GameWelcome    struct {
 			By       string              `json:"by"`
 			Base     string              `json:"base"`
 			Flavours map[string][]string `json:"flavours"`
 		} `json:"game_welcome"`
 	} `json:"comm_check"`
-	// 2026-10-28: the roast dial and the spice (gopod_roast_dial.go).
 	RoastDial struct {
 		Level  int `json:"level"`
 		Levels []struct {
@@ -837,56 +630,45 @@ type gopodBrobotsSettingsFile struct {
 		JekyllHyde     bool     `json:"jekyll_hyde"`
 	} `json:"roast_dial"`
 	Spice struct {
-		Text             string   `json:"text"`
-		Pick             int      `json:"pick"`
-		PickExclamations int      `json:"pick_exclamations"`
-		RobotSwears      []string `json:"robot_swears"`
-		HumanSwears      []string `json:"human_swears"`
-		// 2026-10-28: the uncensored list, private, in his home (gopodHumanSwears).
+		Text               string   `json:"text"`
+		Pick               int      `json:"pick"`
+		PickExclamations   int      `json:"pick_exclamations"`
+		RobotSwears        []string `json:"robot_swears"`
+		HumanSwears        []string `json:"human_swears"`
 		HumanSwearsPrivate string   `json:"human_swears_private"`
 		Exclamations       []string `json:"exclamations"`
 	} `json:"spice"`
 	PrebuildContext struct {
-		Header string `json:"header"`
-		// 2026-11-15 (operator: "'My role is a GOPOD rep' is fine for Brobots"):
-		// his {role} at the dial's 0%; hosting DOC or PIP, it's the persona's job.
+		Header  string   `json:"header"`
 		RepRole string   `json:"rep_role"`
 		Lines   []string `json:"lines"`
 	} `json:"prebuild_context"`
-	// 2026-10-22: the Brobot Bubble's steps, in order (gopodBubbleStep).
 	BrobotBubble struct {
 		Steps []string `json:"steps"`
 	} `json:"brobot_bubble"`
-	// 2026-10-22: what goes in each notice in a Brobot's bubble (gopod_value_points_notice.go).
 	BubbleNotices struct {
-		// 2026-10-30 (operator: "everybody gets a brain bubble"): a Gomad's
-		// brain lines (gopodGomadBrain).
 		ValuePoints struct {
-			Title   string   `json:"title"`
-			Parts   []string `json:"parts"`
-			Points  string   `json:"points"`
-			Weather string   `json:"weather"`
-			Search  string   `json:"search"`
-			None    string   `json:"none"`
-			GotIt   string   `json:"got_it"`
-			Note    string   `json:"note"`
-			// 2026-10-27: what he's told for each notice line (gopodNoticeGuide).
-			Guide map[string]string `json:"guide"`
-			// 2026-10-26: a point's notes on one line.
-			Notes     string `json:"notes"`
-			NotesJoin string `json:"notes_join"`
-			// 2026-10-22: one notice per bubble - the egg's line; the game lines.
-			Egg      string `json:"egg"`
-			Combo    string `json:"combo"`
-			Chapter  string `json:"chapter"`
-			Recovery string `json:"recovery"`
-			Next     string `json:"next"`
-			Summary  string `json:"summary"`
-			Score    string `json:"score"`
-			// 2026-10-22: the notice log's 4th line (gopodNoticeGotItAgain).
-			GotItAgain  string   `json:"got_it_again"`
-			SecondGotIt string   `json:"second_got_it"`
-			HelperFrom  []string `json:"helper_from"`
+			Title       string            `json:"title"`
+			Parts       []string          `json:"parts"`
+			Points      string            `json:"points"`
+			Weather     string            `json:"weather"`
+			Search      string            `json:"search"`
+			None        string            `json:"none"`
+			GotIt       string            `json:"got_it"`
+			Note        string            `json:"note"`
+			Guide       map[string]string `json:"guide"`
+			Notes       string            `json:"notes"`
+			NotesJoin   string            `json:"notes_join"`
+			Egg         string            `json:"egg"`
+			Combo       string            `json:"combo"`
+			Chapter     string            `json:"chapter"`
+			Recovery    string            `json:"recovery"`
+			Next        string            `json:"next"`
+			Summary     string            `json:"summary"`
+			Score       string            `json:"score"`
+			GotItAgain  string            `json:"got_it_again"`
+			SecondGotIt string            `json:"second_got_it"`
+			HelperFrom  []string          `json:"helper_from"`
 		} `json:"value_points"`
 		Egg          gopodNoticeWords `json:"egg"`
 		NativeIntent gopodNoticeWords `json:"native_intent"`
@@ -896,7 +678,6 @@ type gopodBrobotsSettingsFile struct {
 		Text        string  `json:"text"`
 		OnceSeconds float64 `json:"once_seconds"`
 	} `json:"native_intent"`
-	// 2026-10-18: the engine times itself by the page (gopod_page_sync.go).
 	SystemText map[string]string  `json:"system_text"`
 	Timings    map[string]float64 `json:"timings"`
 	Lightning  struct {
@@ -912,7 +693,6 @@ type gopodBrobotsSettingsFile struct {
 		CaptureFile string            `json:"capture_file"`
 		Voices      map[string]string `json:"voices"`
 	} `json:"robots_off"`
-	// 2026-11-08: a how-to's look-up in the system menu (gopodHelpLookup).
 	HelpLookup struct {
 		Words  []string `json:"words"`
 		Skip   []string `json:"skip"`
@@ -920,7 +700,6 @@ type gopodBrobotsSettingsFile struct {
 		Header string   `json:"header"`
 		Item   string   `json:"item"`
 	} `json:"help_lookup"`
-	// 2026-11-08: the silent run-check (gopod_robots_off.go gopodSystemRunCheck).
 	RunCheck struct {
 		File              string   `json:"file"`
 		MuteMarker        string   `json:"mute_marker"`
@@ -951,8 +730,7 @@ type gopodBrobotsSettingsFile struct {
 	ValuePoints struct {
 		ScoreRole string `json:"score_role"`
 		ScoreText string `json:"score_text"`
-		// 2026-10-25: the score's bars ({topics_bar} ...): a mark per found, a mark per to go.
-		ScoreBar struct {
+		ScoreBar  struct {
 			Done string `json:"done"`
 			Left string `json:"left"`
 		} `json:"score_bar"`
@@ -964,28 +742,20 @@ type gopodBrobotsSettingsFile struct {
 		ReminderTopicsText   string            `json:"reminder_topics_text"`
 		ReminderProberText   string            `json:"reminder_prober_text"`
 		ReminderTopicCount   int               `json:"reminder_topic_count"`
-		// 2026-10-17: the eggs that aren't a topic's (gopod_egg_list.go).
-		ReminderEggs []struct {
+		ReminderEggs         []struct {
 			Key   string `json:"key"`
 			Label string `json:"label"`
 		} `json:"reminder_eggs"`
-		ReminderEggCount int               `json:"reminder_egg_count"`
-		SayLines         map[string]string `json:"say_lines"`
-		// 2026-10-22: points in note form, "topic N" -> "title | note | note".
-		Notes map[string]string `json:"notes"`
-		// 2026-10-22: words left out when matching a question to a point.
-		PickSkipWords []string `json:"pick_skip_words"`
-		// 2026-10-22: topics the Brobots know, never a value point target.
-		BackgroundTopics []string `json:"background_topics"`
-		// 2026-10-23: what the game counts - "topics" (one point opens a topic) or "points".
-		Target string `json:"target"`
-		// 2026-10-23 (A3): the value points themselves, and the seven core topics.
-		CorePoints []string            `json:"core_points"`
-		CoreTopics map[string][]string `json:"core_topics"`
-		// 2026-10-23: the answer chain map - which topics lead to which.
-		TopicLinks map[string][]string `json:"topic_links"`
-		// 2026-10-23: the funnels - lists of topics in order (gopodTopicLinksFor).
-		Funnels [][]string `json:"funnels"`
+		ReminderEggCount int                 `json:"reminder_egg_count"`
+		SayLines         map[string]string   `json:"say_lines"`
+		Notes            map[string]string   `json:"notes"`
+		PickSkipWords    []string            `json:"pick_skip_words"`
+		BackgroundTopics []string            `json:"background_topics"`
+		Target           string              `json:"target"`
+		CorePoints       []string            `json:"core_points"`
+		CoreTopics       map[string][]string `json:"core_topics"`
+		TopicLinks       map[string][]string `json:"topic_links"`
+		Funnels          [][]string          `json:"funnels"`
 	} `json:"value_points"`
 	ReplyTighten struct {
 		BudgetOff           bool           `json:"budget_off"`
@@ -1001,47 +771,35 @@ type gopodBrobotsSettingsFile struct {
 		NotSentenceEnds     []string       `json:"not_sentence_ends"`
 		DropLists           bool           `json:"drop_lists"`
 		DropStageDirections bool           `json:"drop_stage_directions"`
-		// 2026-11-24: the only places a reply may link to (gopodDropStrangeLinks).
-		LinkHosts  []string `json:"link_hosts"`
-		BrandWords []struct {
+		LinkHosts           []string       `json:"link_hosts"`
+		BrandWords          []struct {
 			From string `json:"from"`
 			To   string `json:"to"`
 		} `json:"brand_words"`
 	} `json:"reply_tighten"`
 	InterviewScript struct {
-		// 2026-10-09: the interview's song folder (gopod_interview_song.go).
-		SongID    string `json:"song_id"`
-		DraftsDir string `json:"drafts_dir"`
-		// 2026-11-25: the harvest dry run's input kind and its sign-off line (its
-		// questions are the cards' own - game_questions).
-		HarvestInput   string  `json:"harvest_input"`
-		HarvestEndText string  `json:"harvest_end_text"`
-		Draft          string  `json:"draft"`
-		PlayWords      string  `json:"play_words"`
-		StopWords      string  `json:"stop_words"`
-		GapSeconds     float64 `json:"gap_seconds"`
-		// 2026-10-08: the played draft's own opening/closing host lines stand in
-		// for reporter_voices.opening/closing (the record cut's script).
-		BookendsFromDraft bool `json:"bookends_from_draft"`
-		// 2026-10-08: the reporters' lines after "Draft run started.", before question 1.
-		StartLines []struct {
+		SongID            string  `json:"song_id"`
+		DraftsDir         string  `json:"drafts_dir"`
+		HarvestInput      string  `json:"harvest_input"`
+		HarvestEndText    string  `json:"harvest_end_text"`
+		Draft             string  `json:"draft"`
+		PlayWords         string  `json:"play_words"`
+		StopWords         string  `json:"stop_words"`
+		GapSeconds        float64 `json:"gap_seconds"`
+		BookendsFromDraft bool    `json:"bookends_from_draft"`
+		StartLines        []struct {
 			Who  string `json:"who"`
 			Text string `json:"text"`
 		} `json:"start_lines"`
 		LLMReadyText string `json:"llm_ready_text"`
 	} `json:"interview_script"`
-	Personas map[string]string `json:"personas"`
-	// 2026-10-21: the Doc & Pip persona template (gopod_brobot_personas.go).
-	// 2026-11-18 (operator: "write for me first, then the code, so it understands
-	// what's written for me"): what a card no longer says - its group (the card it
-	// grows from) and the robot it plays on - by card file.
+	Personas     map[string]string `json:"personas"`
 	PersonaCards map[string]struct {
 		Group string `json:"group"`
 		Body  string `json:"body"`
 	} `json:"persona_cards"`
 	HostPersonas map[string]gopodHostPersona `json:"host_personas"`
-	// 2026-11-16: GEMMA's eyes - the C920, then the Brobots' cameras (gopod_gemma_eyes.go).
-	GemmaEyes struct {
+	GemmaEyes    struct {
 		Device      []string `json:"device"`
 		Size        string   `json:"size"`
 		SkipFrames  int      `json:"skip_frames"`
@@ -1051,21 +809,16 @@ type gopodBrobotsSettingsFile struct {
 		SayText     string   `json:"say_text"`
 		FailText    string   `json:"fail_text"`
 	} `json:"gemma_eyes"`
-	// 2026-11-16: the company intro KEYS says after his opening (math-aftermath-news-channel.md).
 	CompanyIntro struct {
 		Lines []string `json:"lines"`
 	} `json:"company_intro"`
-	// 2026-11-15: each persona's colours, the one place (03_chat_page.json) - the
-	// page's bubbles and a Brobot body's robot eyes (gopod_eye_colors.go).
 	PersonaColours map[string]struct {
 		Background string `json:"background"`
 		Border     string `json:"border"`
 		Text       string `json:"text"`
 	} `json:"persona_colours"`
-	// 2026-10-21: each pair of hosts - partner, banter, stereo dial.
 	HostPairs map[string]gopodHostPair `json:"host_pairs"`
-	// 2026-10-08: lines said after the "thanks Brobots" sign-off.
-	SignOff struct {
+	SignOff   struct {
 		Lines []struct {
 			Who  string `json:"who"`
 			Text string `json:"text"`
@@ -1094,35 +847,28 @@ type gopodBrobotsSettingsFile struct {
 		SafeScript  string   `json:"safe_script"`
 		WaitSeconds float64  `json:"wait_seconds"`
 	} `json:"song_stop"`
-	// 2026-10-10: Wire-Pod's own voice answers on or off (gopod_native.go).
 	Native struct {
-		OnAtStart bool     `json:"on_at_start"`
-		AlwaysOn  []string `json:"always_on"`
-		// 2026-10-21: native intents a manager takes instead (gopodNativeToManager).
+		OnAtStart bool              `json:"on_at_start"`
+		AlwaysOn  []string          `json:"always_on"`
 		ToManager map[string]string `json:"to_manager"`
 	} `json:"native"`
-	// 2026-10-10: the session and its runs (gopod_session.go).
 	Session struct {
-		BusyText       string   `json:"busy_text"`
-		RunGateText    string   `json:"run_gate_text"`
-		StoppedText    string   `json:"stopped_text"`
-		NoRunText      string   `json:"no_run_text"`
-		StartedText    string   `json:"started_text"`
-		CompleteText   string   `json:"complete_text"`
-		NotFoundText   string   `json:"not_found_text"`
-		ReplayWord     string   `json:"replay_word"`
-		ReplayName     string   `json:"replay_name"`
-		StopSession    []string `json:"stop_session_words"`
-		PausedText     string   `json:"paused_text"`
-		ContinuesText  string   `json:"continues_text"`
-		PauseAfterMS   int      `json:"pause_after_ms"`
-		PageHiddenFile string   `json:"page_hidden_file"`
-		// 2026-10-17: the chat page away (gopod_page_presence.go).
-		AwaitsText         string  `json:"awaits_text"`
-		PagePresentSeconds float64 `json:"page_present_seconds"`
-		// 2026-11-25 (operator: "it should've known to hold my input until KEYS'
-		// run-closing message * then continue with 'start bingo test'"): a run that
-		// starts during the comm check waits this long for it to close.
+		BusyText             string            `json:"busy_text"`
+		RunGateText          string            `json:"run_gate_text"`
+		StoppedText          string            `json:"stopped_text"`
+		NoRunText            string            `json:"no_run_text"`
+		StartedText          string            `json:"started_text"`
+		CompleteText         string            `json:"complete_text"`
+		NotFoundText         string            `json:"not_found_text"`
+		ReplayWord           string            `json:"replay_word"`
+		ReplayName           string            `json:"replay_name"`
+		StopSession          []string          `json:"stop_session_words"`
+		PausedText           string            `json:"paused_text"`
+		ContinuesText        string            `json:"continues_text"`
+		PauseAfterMS         int               `json:"pause_after_ms"`
+		PageHiddenFile       string            `json:"page_hidden_file"`
+		AwaitsText           string            `json:"awaits_text"`
+		PagePresentSeconds   float64           `json:"page_present_seconds"`
 		CommCheckWaitSeconds float64           `json:"comm_check_wait_seconds"`
 		RunNames             map[string]string `json:"run_names"`
 	} `json:"session"`
@@ -1132,7 +878,6 @@ type gopodBrobotsSettingsFile struct {
 			Phrases []string `json:"phrases"`
 		} `json:"intents"`
 	} `json:"native_cube"`
-	// 2026-10-08: the live weather a draft answer can say (gopod_live_weather.go).
 	LiveWeather struct {
 		Location        string  `json:"location"`
 		CacheSeconds    float64 `json:"cache_seconds"`
@@ -1141,9 +886,6 @@ type gopodBrobotsSettingsFile struct {
 		FollowUpKitLine string  `json:"follow_up_kit_line"`
 	} `json:"live_weather"`
 	Photo struct {
-		// 2026-11-10 (operator: Vector camera overexposed / greenish; "Do the safe
-		// to build white balance & exposure"): the camera's exposure for a photo -
-		// manual on: exposure_ms and gain set before it, auto again after it.
 		Camera struct {
 			Manual        bool    `json:"manual"`
 			ExposureMs    uint32  `json:"exposure_ms"`
@@ -1162,19 +904,16 @@ type gopodBrobotsSettingsFile struct {
 		FailText           string   `json:"fail_text"`
 		UnclearText        string   `json:"unclear_text"`
 		AwakeSeconds       float64  `json:"awake_seconds"`
-		// 2026-10-16: two rounds - the Edge TPU's quick look, then the vision
-		// model's details (gopod_photo_quick_look.go).
-		QuickLook struct {
-			Enabled        bool    `json:"enabled"`
-			Python         string  `json:"python"`
-			Worker         string  `json:"worker"`
-			Model          string  `json:"model"`
-			Labels         string  `json:"labels"`
-			MinScore       float64 `json:"min_score"`
-			TimeoutSeconds float64 `json:"timeout_seconds"`
-			// 2026-10-17: the enhanced snapshot and its boxes (gopodQuickLookPictures).
-			Pictures bool               `json:"pictures"`
-			Enhance  map[string]float64 `json:"enhance"`
+		QuickLook          struct {
+			Enabled        bool               `json:"enabled"`
+			Python         string             `json:"python"`
+			Worker         string             `json:"worker"`
+			Model          string             `json:"model"`
+			Labels         string             `json:"labels"`
+			MinScore       float64            `json:"min_score"`
+			TimeoutSeconds float64            `json:"timeout_seconds"`
+			Pictures       bool               `json:"pictures"`
+			Enhance        map[string]float64 `json:"enhance"`
 		} `json:"quick_look"`
 		QuickText           string   `json:"quick_text"`
 		QuickNoneText       string   `json:"quick_none_text"`
@@ -1186,29 +925,16 @@ type gopodBrobotsSettingsFile struct {
 		DetailPrompt        string   `json:"detail_prompt"`
 		EggName             string   `json:"egg_name"`
 	} `json:"photo"`
-	// 2026-10-16: clean GOPOD - flags and politics (gopod_clean_politics.go).
 	CleanPolitics struct {
-		AllowedTopics []string `json:"allowed_topics"`
-		Words         []string `json:"words"`
-		// 2026-11-20 (operator: "stay the fuck away from anything Palestine ...
-		// BLOCK THAT SHIT AWAY FROM MY CLEAN GOPOD!!"): never said, by anyone,
-		// anywhere - the roast battle too.
-		NeverWords []string `json:"never_words"`
-		// 2026-11-24 (operator: "Extend never-list to guards what comes in, to
-		// GOPOD as well"): a line coming in that names a never word goes no
-		// further - not to the page, not to the model; where it was spoken to a
-		// Brobot or persona, this line is said instead (gopodNeverIn).
-		NeverInLine string            `json:"never_in_line"`
-		Countries   map[string]string `json:"countries"`
-		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
-		Capitals map[string]string `json:"capitals"`
-		// 2026-11-03: a US state or Canadian province alone is its capital
-		// (gopod_probes/topic_clusters/personas/behaviours/state_capitals.md, gopodStateCapital).
+		AllowedTopics []string          `json:"allowed_topics"`
+		Words         []string          `json:"words"`
+		NeverWords    []string          `json:"never_words"`
+		NeverInLine   string            `json:"never_in_line"`
+		Countries     map[string]string `json:"countries"`
+		Capitals      map[string]string `json:"capitals"`
 		StateCapitals map[string]string `json:"state_capitals"`
 		Continents    []string          `json:"continents"`
 	} `json:"clean_politics"`
-	// 2026-10-15: the battery watchdog (gopod_battery_watch.go).
-	// 2026-10-26: the here-and-now note (gopod_here_now.go).
 	HereNow struct {
 		Text string `json:"text"`
 		Cast []struct {
@@ -1227,57 +953,37 @@ type gopodBrobotsSettingsFile struct {
 
 		VoiceGenders map[string]string `json:"voice_genders"`
 	} `json:"here_now"`
-	// 2026-11-04 (operator: "The shared Brobots persona * go on its own
-	// topic-cluster file"): the shared Brobots prompt, block by block (clusters/brobots.md).
-	// 2026-11-04 (operator: "build numpad-mapper.md as the one source"): the numpad
-	// map, both NumLock layers and the fixed lanes (clusters/system/numpad-mapper.md).
-	// 2026-11-04: the one folder of every topic-cluster file (topic_clusters.folder).
-	// 2026-11-04 (operator: "The root docs are the source"): root_docs - the repo-root
-	// docs holding game cards (gopodTopicDocCards, gopod_chapters_folder.go).
 	TopicClusters struct {
 		Folder   string   `json:"folder"`
 		RootDocs []string `json:"root_docs"`
 	} `json:"topic_clusters"`
-	NumpadMap json.RawMessage `json:"numpad_map"`
-	// 2026-11-04 (operator: "I have 2 keyboards * my PC keyboard ... the connected
-	// USB numpad * can you add a keyboard-numpad mapping selector for the 2 numpad
-	// configs?"; "Two key layouts"): one map per keyboard (usb, pc) - numpad_ptt.layout
-	// picks one (system-numpad-layout).
+	NumpadMap     json.RawMessage            `json:"numpad_map"`
 	NumpadMaps    map[string]json.RawMessage `json:"numpad_maps"`
 	BrobotsPrompt struct {
-		Blocks [][]string `json:"blocks"`
-		// 2026-11-09: the blocks that are the Brobots' own persona - their
-		// prompt at the dial's 0% only (gopodBrobotsPersonaFor, kgsim.go).
-		DialZeroBlocks []string `json:"dial_zero_blocks"`
+		Blocks         [][]string `json:"blocks"`
+		DialZeroBlocks []string   `json:"dial_zero_blocks"`
 	} `json:"brobots_prompt"`
 	BatteryWatch struct {
-		Enabled         bool    `json:"enabled"`
-		IntervalSeconds float64 `json:"interval_seconds"`
-		LowVolts        float64 `json:"low_volts"`
-		RecoverVolts    float64 `json:"recover_volts"`
-		// 2026-10-30: a drop this big between two readings is a dip.
-		DipVolts float64             `json:"dip_volts"`
-		Lines    map[string][]string `json:"lines"`
-		// 2026-11-03 (dizzy-brobots.md): said after his line off the charger only;
-		// his line once he's back from a freeze or a reboot; the misses in a row that are one.
-		HomeLines       map[string]string `json:"home_lines"`
-		BackLines       map[string]string `json:"back_lines"`
-		BackAfterMisses int               `json:"back_after_misses"`
-		Guards          map[string]string `json:"guards"`
-		GuardWarning    string            `json:"guard_warning"`
-		GuardHandover   string            `json:"guard_handover"`
-		// 2026-11-19: the guards' security sweep before a run (gopodSecuritySweep).
-		SweepClear   string `json:"sweep_clear"`
-		SweepMissing string `json:"sweep_missing"`
-		SweepLow     string `json:"sweep_low"`
-		// 2026-11-27: full on his charger (gopodBatteryFull), and KEYS' stop line when a sweep fails.
-		SweepFull string `json:"sweep_full"`
-		// 2026-11-27: the unlock SSH key, for the network watch (gopod_robot_network.go).
-		SSHKey string `json:"ssh_key"`
-		SweepStop string `json:"sweep_stop"`
-		Reply     string `json:"reply"`
+		Enabled         bool                `json:"enabled"`
+		IntervalSeconds float64             `json:"interval_seconds"`
+		LowVolts        float64             `json:"low_volts"`
+		RecoverVolts    float64             `json:"recover_volts"`
+		DipVolts        float64             `json:"dip_volts"`
+		Lines           map[string][]string `json:"lines"`
+		HomeLines       map[string]string   `json:"home_lines"`
+		BackLines       map[string]string   `json:"back_lines"`
+		BackAfterMisses int                 `json:"back_after_misses"`
+		Guards          map[string]string   `json:"guards"`
+		GuardWarning    string              `json:"guard_warning"`
+		GuardHandover   string              `json:"guard_handover"`
+		SweepClear      string              `json:"sweep_clear"`
+		SweepMissing    string              `json:"sweep_missing"`
+		SweepLow        string              `json:"sweep_low"`
+		SweepFull       string              `json:"sweep_full"`
+		SSHKey          string              `json:"ssh_key"`
+		SweepStop       string              `json:"sweep_stop"`
+		Reply           string              `json:"reply"`
 	} `json:"battery_watch"`
-	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {
 		Enabled              bool              `json:"enabled"`
 		Trigger              string            `json:"trigger"`
@@ -1301,8 +1007,6 @@ type gopodHostLine struct {
 	Text string `json:"text"`
 }
 
-// The settings are the settings folder's files, loaded as one (gopod_settings_folder.go).
-
 var gopodBrobotsSettings = loadGOPODBrobotsSettings()
 
 func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
@@ -1311,26 +1015,15 @@ func loadGOPODBrobotsSettings() gopodBrobotsSettingsFile {
 	if err != nil {
 		panic("GOPOD Brobots settings missing at " + gopodSettingsDir + ": " + err.Error())
 	}
-	// 2026-10-31: the topic-clusters laid over them (gopod_topic_clusters.go).
 	data = gopodClustersOverlay(data)
 	if err := json.Unmarshal(data, &s); err != nil {
 		panic("GOPOD Brobots settings unreadable at " + gopodSettingsDir + ": " + err.Error())
 	}
-	// 2026-10-08: the topics' parts come from the chapters folder (gopod_chapters_folder.go).
 	gopodApplyChaptersFolder(&s)
-	// 2026-11-04: the comm check's rounds from its song (gopod_comm_check.go).
 	gopodApplyCommCheckSong(&s)
-	// 2026-10-27: every run from its card (gopod_game_engine.go).
 	gopodApplyGameRuns(&s)
-	// 2026-10-30: every persona's labels from its profile (gopod_persona_profiles.go).
 	gopodApplyPersonaProfiles(&s)
-	// 2026-10-28: nickname headers (gopodApplyNicknames).
 	gopodApplyNicknames(&s)
-	// 2026-11-08 (operator: "Like fucking everywhere, can variables replace
-	// quotes? * UNIFIED TEMPLATED GOPOD GAME ENGINE"): every text in the settings
-	// and the clusters laid over them gets its persona variables filled -
-	// {Brobot 1.name}, {BUTLER.nickname}, {CHALK.job}, {Brobot 1.call} - from
-	// each persona's one source (gopodApplyNameVars, gopod_brobot_personas.go).
 	gopodApplyNameVars(&s)
 	var missing []string
 	check := func(ok bool, name string) {
@@ -1422,10 +1115,9 @@ func gopodSecondsToDuration(seconds float64) time.Duration {
 	return time.Duration(seconds * float64(time.Second))
 }
 
-// gopodExperience: a scripted song's pre/post chat (the duo answer-chain
-// template, gopod_experiences.go): before its run, a question about it gets
-// its <name>_not_played lines and no_run_note; after, the snapshot note, each
-// Brobot's take and his closing remark.
+// gopodExperience: a scripted song's pre/post chat (the duo answer-chain template,
+// gopod_experiences.go): before its run, a question about it gets its <name>_not_played lines and
+// no_run_note; after, the snapshot note, each Brobot's take and his closing remark.
 type gopodExperience struct {
 	Name          string            `json:"name"`
 	RunMarker     string            `json:"run_marker"`
@@ -1436,29 +1128,17 @@ type gopodExperience struct {
 	PitchPack     string            `json:"pitch_pack"`
 	NoRunNote     string            `json:"no_run_note"`
 	Takes         map[string]string `json:"takes"`
-	// 2026-10-25: each Brobot's closing remark after a run (gopodExperienceClosing).
-	Closing map[string]string `json:"closing"`
-	// 2026-10-25 (operator: "another scoped set of value points for the sleep
-	// song"): its own topic (chapters/_always), outside the chapters, loaded for
-	// its questions; run_pack (the Bingo test's) only once it has played.
-	Pack    string `json:"pack"`
-	RunPack string `json:"run_pack"`
-	// 2026-10-26 (operator: "scripted in: \"If you're watching me right now, tell
-	// Goverlord to start [run-name]!\""): its name in experience_move.
-	RunName string `json:"run_name"`
-	// 2026-10-26 (operator: "b1 framing ... [Ugh... whatever...]"): each
-	// Brobot's attitude, before and after it has played, with the facts.
-	PreAttitude  map[string]string `json:"pre_attitude"`
-	PostAttitude map[string]string `json:"post_attitude"`
-	// 2026-10-27 (operator: "New closing lines * randomly take turns from run to
-	// run"; "Use these base lines, riff on them"): each Brobot's base line; per
-	// run, his closing is either the word-for-word closing or a riff on this
-	// (closing_riff_text), picked at random (gopodExperienceClosingTurn).
-	ClosingRiff map[string]string `json:"closing_riff"`
+	Closing       map[string]string `json:"closing"`
+	Pack          string            `json:"pack"`
+	RunPack       string            `json:"run_pack"`
+	RunName       string            `json:"run_name"`
+	PreAttitude   map[string]string `json:"pre_attitude"`
+	PostAttitude  map[string]string `json:"post_attitude"`
+	ClosingRiff   map[string]string `json:"closing_riff"`
 }
 
-// gopodSnippetLine: one scripted_snippets entry (a run card's lines fill some at
-// load - gopod_game_engine.go).
+// gopodSnippetLine: one scripted_snippets entry (a run card's lines fill some at load -
+// gopod_game_engine.go).
 type gopodSnippetLine struct {
 	When   string   `json:"when"`
 	Words  []string `json:"words"`

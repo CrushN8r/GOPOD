@@ -13,18 +13,6 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
 )
 
-// The Brobots stay in place while chatting (operator 2026-10-04: "once I start
-// brobot chatting, the brobots are instructed to stay in place and not
-// take-off/wander/explore", "Hold both Brobots between answers", "I should have a
-// thanks brobots cue to re-engage"). After a Brobot's chat answer, both Brobots
-// are held under behavior control at DEFAULT priority - the same hold the songs
-// use (sdkapp assume_behavior_control), with which voice commands still reach a
-// held robot. A Brobot's hold is let go while he answers or defers (his own
-// control takes over) and taken again after. The hold ends on "thanks Brobots"
-// (GopodChatHoldEnd), when a run starts (gopod_session.go), after
-// chat_hold.idle_minutes with no question, or for one robot when anything else
-// assumes his control through Wire-Pod (a song, an alias, phcal).
-
 var gopodChatHold = struct {
 	sync.Mutex
 	active   bool
@@ -33,8 +21,8 @@ var gopodChatHold = struct {
 	watching bool
 }{release: map[string]chan bool{}}
 
-// gopodChatHoldBeforeAnswer: this Brobot is about to answer or defer - his hold
-// is let go so his own control takes over.
+// gopodChatHoldBeforeAnswer: this Brobot is about to answer or defer - his hold is let go so his
+// own control takes over.
 func gopodChatHoldBeforeAnswer(esn string) {
 	gopodChatHold.Lock()
 	gopodChatHold.last = time.Now()
@@ -42,8 +30,7 @@ func gopodChatHoldBeforeAnswer(esn string) {
 	gopodChatHoldLetGo(esn)
 }
 
-// gopodChatHoldAfterAnswer: a chat answer is done - the hold starts (or goes on)
-// for both Brobots.
+// gopodChatHoldAfterAnswer: a chat answer is done - the hold starts (or goes on) for both Brobots.
 func gopodChatHoldAfterAnswer() {
 	gopodChatHold.Lock()
 	if !gopodChatHold.active {
@@ -72,8 +59,8 @@ func gopodChatHoldResume(esn string) {
 	}
 }
 
-// gopodIsThanks: the question is a "thanks Brobots" (chat_hold.thanks_phrases,
-// whole words) - the Brobot signs off and the hold ends after his answer.
+// gopodIsThanks: the question is a "thanks Brobots" (chat_hold.thanks_phrases, whole words) - the
+// Brobot signs off and the hold ends after his answer.
 func gopodIsThanks(text string) bool {
 	padded := " " + strings.Join(gopodAddressWords(text), " ") + " "
 	for _, phrase := range gopodBrobotsSettings.ChatHold.ThanksPhrases {
@@ -97,15 +84,13 @@ func GopodChatHoldEnd(reason string) {
 	}
 }
 
-// GopodChatHoldRelease lets go of one robot's hold because something else is
-// taking his control through Wire-Pod (sdkapp assume_behavior_control). The
-// hold comes back with the next chat answer.
+// GopodChatHoldRelease lets go of one robot's hold because something else is taking his control
+// through Wire-Pod (sdkapp assume_behavior_control).
 func GopodChatHoldRelease(esn string) {
 	gopodChatHoldLetGo(esn)
 }
 
-// The answering Brobot's own control is released when his reply ends; the hold
-// is taken just after.
+// The answering Brobot's own control is released when his reply ends; the hold is taken just after.
 const gopodChatHoldRetakeDelay = 500 * time.Millisecond
 
 func gopodChatHoldTakeBoth() {
@@ -131,10 +116,6 @@ func gopodChatHoldWatchIdle() {
 
 // gopodChatHoldTake holds one robot (if the hold is on and he isn't held yet).
 func gopodChatHoldTake(esn string) {
-	// 2026-10-10 (live 07:40: the hold from a "Party" answer was still on when
-	// "start baby brobots" put the Brobots to sleep over the direct SDK - two
-	// controls on one robot): a run owns the Brobots; no hold is taken
-	// (gopod_session.go, Rule C).
 	if gopodRunActive() {
 		return
 	}
@@ -194,7 +175,6 @@ func gopodChatHoldLetGo(esn string) {
 	}
 	select {
 	case release <- true:
-		// A moment for the release to reach the robot before new control.
 		time.Sleep(200 * time.Millisecond)
 	case <-time.After(2 * time.Second):
 	}

@@ -6,33 +6,8 @@ import (
 	"unicode"
 )
 
-// GOLDEN - the chat bubble's speaking highlight (operator 2026-10-06: "it has
-// bugs, we fix, its fixed, we update and same bugs come back ... fix once
-// correct & proper, lock it as a golden process").
-//
-// Why the bugs came back: the rule (sentence first, then commas) lived twice -
-// here, on the text the robot SAYS, and in the chat page, on the text the
-// bubble SHOWS - and those two texts differ (pronunciations, emojis, dashes and
-// "..." said as pauses, asterisks, snippets, merged-word hyphens). Every new
-// speech change made the two splits disagree, and the page then guessed which
-// piece was being said by matching words.
-//
-// The golden process - one split, made here, nowhere else:
-//  1. The pieces the robot will say are worked out once, before it speaks
-//     (gopodSpokenPieceTexts - the same steps the speech loop takes).
-//  2. The bubble text gets an invisible marker (scripted_split.segment_marker)
-//     between its pieces, at the words where each spoken piece starts
-//     (gopodSegmentDisplay). Words are lined up by their longest common run,
-//     so a changed word ("GOPOD" said "Gowp-awd") never moves a boundary.
-//  3. While speaking, gopod_speaking_now.json names the piece by its number
-//     ("piece": 2). The page shows the pieces as given and lights that number:
-//     it never splits a marked bubble and never guesses.
-// A new speech change needs nothing here or in the page. Locked by
-// TestHighlightPiecesGolden (gopod_brobots_settings_test.go).
-
-// gopodSpokenPieceTexts: the SayText pieces the speech loop in StreamingKGSim
-// will say for these chunks, in order - the same steps, minus the animations
-// (they add no words).
+// gopodSpokenPieceTexts: the SayText pieces the speech loop in StreamingKGSim will say for these
+// chunks, in order - the same steps, minus the animations (they add no words).
 func gopodSpokenPieceTexts(chunks []string) []string {
 	var out []string
 	for _, chunk := range chunks {
@@ -60,10 +35,6 @@ func gopodHighlightWords(text string) []gopodWordAt {
 	var out []gopodWordAt
 	start := -1
 	for i, r := range text + " " {
-		// A curly apostrophe (It’s) is one too (live 2026-10-06 14:43: "It’s" in
-		// the bubble against "It's" spoken split the word and moved the piece).
-		// 2026-10-15: a repeating decimal's bar (U+0305, the math) stays inside
-		// its number ("1̅4̅2̅8̅5̅7̅" is the word "142857", said "142857 repeating").
 		isWord := unicode.IsLetter(r) || unicode.IsDigit(r) || r == '\'' || r == '\u2019' || r == '\u2018' || (start >= 0 && unicode.Is(unicode.Mn, r))
 		if isWord && start < 0 {
 			start = i
@@ -76,11 +47,9 @@ func gopodHighlightWords(text string) []gopodWordAt {
 	return out
 }
 
-// gopodSegmentDisplay puts the segment marker into the bubble text where each
-// spoken piece starts, and returns, for every spoken piece, the number of the
-// bubble piece it lights (a spoken piece with no word in the bubble lights the
-// piece before it). With no pieces, or nothing lined up, the text comes back
-// unmarked and every number is -1 (the page then lights nothing by number).
+// gopodSegmentDisplay puts the segment marker into the bubble text where each spoken piece starts,
+// and returns, for every spoken piece, the number of the bubble piece it lights (a spoken piece
+// with no word in the bubble lights the piece before it).
 func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 	segOf := make([]int, len(pieces))
 	for i := range segOf {
@@ -103,8 +72,6 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 	if len(spoken) == 0 || len(shown) == 0 {
 		return display, segOf
 	}
-	// Longest common run of words (LCS), then each spoken word's matched
-	// bubble word.
 	n, m := len(spoken), len(shown)
 	table := make([][]int, n+1)
 	for i := range table {
@@ -150,11 +117,6 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 			}
 			lead++
 		}
-		// 2026-11-15 (live: "...party bus of theirs, yeah?. Goverlord's got" -
-		// "Goverlord's" said "Guhverlord's" opens a piece, the border slid to
-		// "got", and that piece's light never went out): a piece starts at its
-		// first word even when it's said another way - back by the piece's words
-		// said differently before its first match, never behind the piece before.
 		if first >= 0 && lead > 0 {
 			if back := first - lead; back > lastWord {
 				first = back
@@ -162,10 +124,6 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 				first = lastWord + 1
 			}
 		}
-		// 2026-10-08: a piece whose words are all said differently ("PipTA" said
-		// "Pip-T-A", "crushn8r.ca" said "Crush-Ehnaydir-dotseeay") matches no
-		// bubble word, and it merged into the piece before it. It gets the
-		// unmatched bubble words between the piece before and the next match.
 		if first < 0 && p > 0 {
 			next := m
 			for i := range spoken {
@@ -179,17 +137,11 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 			}
 		}
 		if p > 0 && first > lastWord && (lastWord >= 0 || first > 0) {
-			// The cut goes before the whole token ("*blink*", "\"Hey"), so a
-			// marker never lands inside one.
-			// A long dash ends a token too: the robot pauses there
-			// ("cameras—literally" is said "cameras, literally", 2026-10-07).
 			c := shown[first].start
 			for c > 0 && display[c-1] != ' ' && display[c-1] != '\n' &&
 				!strings.HasSuffix(display[:c], "\u2014") && !strings.HasSuffix(display[:c], "\u2013") {
 				c--
 			}
-			// 2026-10-15: a bullet ("• ", math.bullet) goes with its own line,
-			// not the end of the piece before it.
 			if b := gopodBrobotsSettings.Math.Bullet; b != "" && strings.HasSuffix(display[:c], b) {
 				c -= len(b)
 			}
@@ -218,7 +170,6 @@ func gopodSegmentDisplay(display string, pieces []string) (string, []int) {
 			b.WriteString(strings.TrimRight(piece, " "))
 			b.WriteString(" " + marker)
 		} else {
-			// At a long dash: the marker alone, no space added.
 			b.WriteString(piece + marker)
 		}
 		last = c

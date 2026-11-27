@@ -6,9 +6,8 @@ import (
 	"testing"
 )
 
-// TestCleanPolitics (live 2026-10-16: 🇵🇸 in a "Jerusalem, Israel" reply): the
-// right flag for the country named; political sentences go, except in a roast
-// battle.
+// TestCleanPolitics: the right flag for the country named; political sentences go, except in a
+// roast battle.
 func TestCleanPolitics(t *testing.T) {
 	if len(gopodBrobotsSettings.CleanPolitics.Countries) == 0 {
 		t.Skip("no clean_politics settings")
@@ -33,9 +32,7 @@ func TestCleanPolitics(t *testing.T) {
 
 // ## EOF
 
-// 2026-11-20 (operator: "stay the fuck away from anything Palestine"; live:
-// Brobot 1 said "I hear you want to know about Palestine too"): a never word's
-// sentence goes from every reply, the roast battle too; the place asked keeps.
+// a never word's sentence goes from every reply, the roast battle too; the place asked keeps.
 func TestNeverWordsNeverSaid(t *testing.T) {
 	reply := "We got the weather for Jerusalem. Also, I hear you want to know about Palestine too because bro you gotta stay informed. That's how GOPOD rolls!"
 	got := gopodCleanPolitics(reply, "weather for jerusalem Israel, please")

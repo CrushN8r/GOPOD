@@ -8,10 +8,9 @@ import (
 	"testing"
 )
 
-// TestSessionReplayPlan: a session score becomes the replay's acts - reporters,
-// questions with their logged answers (cue kept), songs started again (their
-// own lines skipped), the interview's section from the score, and the thanks
-// ending live (2026-10-12, gopod_session_replay.go).
+// TestSessionReplayPlan: a session score becomes the replay's acts - reporters, questions with
+// their logged answers (cue kept), songs started again (their own lines skipped), the interview's
+// section from the score, and the thanks ending live.
 func TestSessionReplayPlan(t *testing.T) {
 	live, iv := gopodSessionLiveSection, strings.ToUpper(gopodRunText("{run}", "interview"))
 	st := func(note, who, to, section, text, say string) gopodSessionStep {
@@ -65,7 +64,6 @@ func TestSessionReplayPlan(t *testing.T) {
 	if n, ok := gopodReplayName("replay 095819_session"); !ok || n != "095819_session" {
 		t.Fatalf("replay name = %q %v", n, ok)
 	}
-	// A kept session on this machine, if there is one: its plan is printed.
 	if home, err := os.UserHomeDir(); err == nil {
 		dir := filepath.Join(home, "gopod_tts", "sessions", "2026-10-12", "095819_session")
 		if s, err := gopodReplayLoad(dir); err == nil {
