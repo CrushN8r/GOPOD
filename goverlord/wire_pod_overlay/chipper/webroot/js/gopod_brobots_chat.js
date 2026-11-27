@@ -1,10 +1,3 @@
-// goverlord/wire_pod_overlay/chipper/webroot/js/gopod_brobots_chat.js
-// GOPOD's Brobots chat display for Wire-Pod's web page (index.html's LOGS
-// section): Copy Logs, the Brobots Chat / Clear Chat buttons, the chat bubbles,
-// the spoken-sentence highlight and the chat auto-scroll. Moved out of
-// index.html 2026-09-30 (operator: "offload as much as possible to external css
-// and js files"), unchanged apart from the move. Loaded by index.html at the
-// same spot the inline script sat, right after the chat's own markup.
 
     function copyText(text) {
         const tmp = document.createElement("textarea");
@@ -15,8 +8,6 @@
         tmp.remove();
     }
 
-    // visibleChatText: the text a person sees in el, line by line - hidden parts
-    // (not shown, see-through, or not yet placed) left out, invisible marks gone.
     function visibleChatText(el) {
         var out = [];
         var line = "";
@@ -30,7 +21,6 @@
             if (node.nodeType !== 1) { return; }
             var cs = window.getComputedStyle(node);
             if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) === 0 || node.dataset.staged === "1" || node.getAttribute("aria-hidden") === "true") { return; }
-            // The typing row (Brobots / All / 0-9 / Record? / clock) isn't the chat.
             if (node.tagName === "FORM" || node.classList.contains("gopod-typed-input") || /^(SELECT|BUTTON|INPUT|TEXTAREA)$/.test(node.tagName)) { return; }
             if (node.tagName === "BR") { flush(); return; }
             if (node.tagName === "IMG") { if (node.alt && /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(node.alt)) { line += node.alt; } return; }
@@ -45,9 +35,6 @@
     }
 
     function copyToClipboard(all) {
-        // 2026-10-01 (operator: "fast track the copy to all logs"): Copy All Logs
-        // copies Wire-Pod's full log (the "Show all logs" one, /api/get_debug_logs)
-        // straight away - no need to close the chat or tick the box first.
         if (all) {
             fetch("/api/get_debug_logs", { cache: "no-store" })
                 .then(function (r) { return r.text(); })
@@ -58,15 +45,8 @@
                 .catch(function () { alert("Couldn't read all logs from Wire-Pod."); });
             return;
         }
-        // 2026-09-28: when the Brobots chat-bubbles window is showing, copy its
-        // bubbles instead of the hidden log text - so this one button copies
-        // whichever of the three displays is on screen: Logs, all logs, or bubbles.
         const bubbles = document.getElementById("brobot-chat-bubbles-container");
         if (bubbles && bubbles.classList.contains("expanded")) {
-            // 2026-11-03 (operator: "Copy Window Button not copying correctly"):
-            // the chat as it's seen - every header, notice and line, links as
-            // their words - not each bubble's raw text (that left out "Doc:",
-            // "Got it!", the brain titles, and kept the invisible marks).
             const text = visibleChatText(bubbles);
             copyText(text);
             alert("Copied the text: " + text);
@@ -80,22 +60,9 @@
         alert("Copied the text: " + botTranscriptedTextArea.value);
     }
 
-    // 2026-08-08: chat-bubbles container. 2026-09-30: shown by default (operator:
-    // "Brobots Chat Window is now ON by default. Only the button hides/unhides
-    // Brobots Chat Window (with display content still intact)").
     (function () {
       var container = document.getElementById("brobot-chat-bubbles-container");
       var textarea = document.getElementById("botTranscriptedTextArea");
-      // 2026-09-30: the chat keeps its own copy (operator: "survives a screen saver
-      // event, even survives a page refresh, contents only cleared upon button
-      // clicked"). Wire-Pod's /api/get_logs only returns its last 50 lines, so the
-      // page can't rebuild history from it - every bubble is saved in this browser
-      // (localStorage) and redrawn on load; a new run adds below instead of
-      // wiping; only Clear Chat empties it. The log lines already turned into
-      // bubbles are remembered too (as short hashes), so a reload never shows them
-      // twice. Whether the chat was open is remembered as well. Any storage
-      // failure (private window, storage full) falls back to the old in-page
-      // behaviour instead of breaking the chat.
       var CHAT_STORE_KEY = "gopod_brobots_chat_v1";
       var CHAT_OPEN_KEY = "gopod_brobots_chat_open";
       var CHAT_MAX_BUBBLES;
@@ -123,7 +90,6 @@
         try {
           window.localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(chatStore));
         } catch (e) {
-          // Storage full: keep the newer half and try once more.
           chatStore.bubbles = chatStore.bubbles.slice(Math.floor(chatStore.bubbles.length / 2));
           try { window.localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(chatStore)); } catch (e2) { /* in-page only */ }
         }
@@ -161,51 +127,23 @@
         });
         restoringChat = false;
         lastOperatorBubble = null;
-        // 2026-10-16 (comb-through: the marquee stuck after a reload): a restored
-        // egg's exchange is over.
         popupExchange = false;
         popupWraps = {};
-        // A restored chat has all been heard (2026-10-15).
         Array.prototype.forEach.call(container.querySelectorAll(".brobot-say"), function (s) { s.classList.add("spoken"); });
         container.scrollTop = container.scrollHeight;
       }
       function setChatOpen(open) {
         try { window.localStorage.setItem(CHAT_OPEN_KEY, open ? "1" : "0"); } catch (e) { /* in-page only */ }
       }
-      // Shown unless the viewer hid it with the button (remembered per browser,
-      // until the next Wire-Pod start - see pollFeed).
       function chatWasOpen() {
         try { return window.localStorage.getItem(CHAT_OPEN_KEY) !== "0"; } catch (e) { return true; }
       }
-      // 2026-10-04 (operator: "At the bottom of the robot's chat bubble ... add a
-      // line for keyboard input at the very left ... radio buttons to select robot
-      // 1 or 2. And then a text input where I can type a command rather than
-      // speak"): one line at the bottom of the chat window. Enter sends the line to the chosen
-      // Brobot (POST /api-sdk/gopod_typed_input, gopod_typed_input.go): a voice
-      // command runs, anything else is a chat question. The choice of Brobot
-      // starts on All at every page load (see savedRobot below).
-      // Which Brobot each robot ESN is (also used for the "zzz" bubble below).
-      // 2026-10-29 (operator: "publically all people see is ESN01, ESN02 labels"): the
-      // page names each Brobot's robot by its label; Wire-Pod knows who they are
-      // (gopod_esn_labels.go) and changes a label to the robot at its door.
       var ESN_TO_BROBOT = { "ESN01": "Brobot 1", "ESN02": "Brobot 2" };
-      // The admin (2026-10-23, operator: "System Window for admin users only
-      // (me)"): the page opened on GOPOD's own machine. Other devices are
-      // visitors (an admin PIN for them comes with C5).
-      // Wire-Pod says which page is the admin (gopod_main_page.go): one opened on
-      // GOPOD's own machine, by localhost or its network address. Until it says,
-      // no page is.
       var isAdminPage = false;
       var typedRow = document.createElement("form");
       typedRow.className = "gopod-typed-input";
       typedRow.setAttribute("autocomplete", "off");
-      // 2026-10-09 (operator: "default to ALL brobots radio button"): every page
-      // load starts on All; a choice holds until the page is reloaded.
       var savedRobot = "all";
-      // 2026-10-04 (operator: "please add a 3rd All brobots () radio button"):
-      // both Brobots get the line, as when both hear it spoken (gopod_typed_input.go).
-      // 2026-10-08 (operator: "Brobots ()1 ()2 ()All | Numpad? [] | Record? [] |
-      // 00:00:00"): the line's layout.
       function typedRowText(text, className) {
         var span = document.createElement("span");
         span.className = className;
@@ -213,39 +151,9 @@
         typedRow.appendChild(span);
       }
       typedRowText("Brobots", "gopod-typed-name");
-      // 2026-10-22 (operator: "replace 'All' radio button with a small drop down
-      // menu: 1/2 * default selection = '1' (brobot 1) * selection '2' = (brobot 2)
-      // * template drop down menu selection with default brobot 1/'Starting with
-      // Brobot 2'"): All is a small 1/2 menu - who answers first (typed_line.all_first,
-      // the same rule as "Starting with Brobot 2"); choosing it is choosing All.
-      // 2026-10-31 (operator: "new: Brobots [x] All [menu] [Type to the Brobot,
-      // press Enter] * [x] = checked checkbox for 'All' (1 or 2 as selected) * [ ] =
-      // unchecked checkbox for 0-9 * Better? Less complexity? * ensure visitor app
-      // page follows updates"): one box and one menu. All ticked: both Brobots, the
-      // menu's 1 or 2 first. Unticked: the menu's number is who the line is to - 0
-      // the system (the admin's), 1 Brobot 1, 2 Brobot 2, 3 to 9 that numpad key's
-      // persona (gopodTypedToKey). 2026-10-31 (operator: "[x] = checked, with other
-      // than 1 or 2 selected, defaults to 1 then 2"): All ticked with 0 or 3-9 picked
-      // is All, Brobot 1 first (the menu shows 1 when the box is ticked). The visitor
-      // page is this same code.
       var allFirstSelect = null;
       var numpadLayoutSelect = null, NUMPAD_LAYOUT_KEY = "gopod_numpad_layout", numpadMapLoad = null;
-      // The layout this page uses: its menu's pick ("" until it has one - the one in use).
       function numpadLayoutNow() { return numpadLayoutSelect && numpadLayoutSelect.dataset.picked === "1" ? numpadLayoutSelect.value : ""; }
-      // 2026-11-13 (operator: "the admin menu doesn't fully reflect the numpad
-      // mapping * there should be numlock-off 0-9, numlock-on 0-9 * what about the
-      // '*' for all brobots?"; "Yes do that root fix/replacement"): one picker, the
-      // numpad map itself - * all the Brobots (Brobot 1 first), *2 (Brobot 2 first),
-      // 0 the system (the admin's), 1-9 NumLock on, 0off-9off NumLock off - each
-      // named by the persona the map gives its key (relabelPicker). It replaces the
-      // All box and its 1/2 order menu. The visitor page is this same code.
-      // 2026-11-16 (operator's picker: "+* BROBOTS 1,2 ... +0 KEYS ... +9 CHAMMY, -*
-      // BROBOTS 2,1, -0 Goverlord, -1 BRUH! ... -9 unassigned"): the picker is the
-      // numpad map, NumLock on (+) then NumLock off (-) - * all the Brobots (on:
-      // Brobot 1 first; off: Brobot 2 first), 0-9 each key's persona by its
-      // nickname, its title "N Numlock ON: <persona>"; -0 is Goverlord (the system,
-      // the admin's); a key with no one on it reads "unassigned", greyed out. Its
-      // words: numpad_ptt.picker (numpad-mapper.md).
       var PICKER_KEYS = ["+*", "+.", "+0", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9",
         "-*", "-0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"];
       function pickerKey(v) {
@@ -261,7 +169,6 @@
         Array.prototype.forEach.call(allFirstSelect.options, function (o) {
           var n = o.value.slice(1), off = o.value.charAt(0) === "-";
           if (n === "*") { o.textContent = (off ? w.all_second : w.all_first) || o.value; return; }
-          // 2026-11-17: "." - any persona (name who you ask).
           if (n === ".") { o.textContent = targets.KPdot || o.value; o.title = w.any || ""; o.disabled = !targets.KPdot; return; }
           var key = pickerKey(o.value), who = targets[key] || "";
           var entry = ((off ? map.numlock_off : map.numlock_on) || {})["KP" + n] || {};
@@ -282,18 +189,12 @@
           var o = document.createElement("option");
           o.value = n;
           o.textContent = n;
-          // -0 (Goverlord, the system) is the admin's alone.
           if (n === "-0") { o.className = "gopod-brain"; o.hidden = true; o.disabled = true; }
           allFirstSelect.appendChild(o);
         });
         allFirstSelect.value = savedRobot === "all" ? "+*" : "+1";
         label.appendChild(allFirstSelect);
         typedRow.appendChild(label);
-        // 2026-11-04 (operator: "duplicate existing 'All' drop down menu * assign PC
-        // numpad mapping to menu-1 * assign USB-numpad mapping to menu-2"; "no
-        // visitor page - they use their text input"): the numpad's key layout, the All
-        // menu's look - 1 the PC keyboard's numpad, 2 the USB numpad; this page's own
-        // pick, kept, sent with every key press (numpad-mapper.md). Not on a visitor page.
         numpadLayoutSelect = document.createElement("select");
         numpadLayoutSelect.className = "gopod-all-first gopod-numpad-layout";
         numpadLayoutSelect.title = "";
@@ -313,14 +214,12 @@
         layoutPick.className = "gopod-layout-pick";
         layoutPick.appendChild(numpadLayoutSelect);
         typedRow.appendChild(layoutPick);
-        // 2026-10-24: a visitor's Submit, after the menu (gopod_responsive.css).
         var typedSubmit = document.createElement("button");
         typedSubmit.type = "submit";
         typedSubmit.className = "gopod-typed-submit";
         typedSubmit.textContent = "";
         typedRow.appendChild(typedSubmit);
       })();
-      // typedChoice: who the line goes to now - its serial, and who answers first.
       function typedChoice() {
         var v = allFirstSelect ? allFirstSelect.value : "+*";
         if (v === "+*") { return { serial: "all", first: "1" }; }
@@ -328,27 +227,12 @@
         if (v === "-0") { return { serial: "system", first: "" }; }
         if (v === "+.") { return { serial: "kp:dot", first: "" }; }
         var n = v.slice(1) + (v.charAt(0) === "-" ? "off" : "");
-        // 2026-11-13 (operator: "the admin menu doesn't fully reflect the numpad
-        // mapping"; "separate robot bodies from personas"): 1 and 2 go through the
-        // numpad map like 3-9 - the key's persona answers (KP1 Doc on Vector 1), not
-        // the robot body.
         return { serial: "kp:" + n, first: "" };
       }
-      // A line to All, sent with Brobot 2 first: its Operator icons in that order.
       var allSecondFirst = {};
       typedRowText("|", "gopod-typed-sep");
-      // 2026-10-19 (operator: "New Operator Line: Brobots ()1 ()2 ()All [Type to the
-      // Brobot, press Enter] | Record? [] | HH:MM:SS 🔇 * make Native?[] Numpad?[]
-      // part of system- commands * prune Native?[] & Numpad?[] altogether"): the
-      // two boxes are gone - system-native on|off and system-numpad on|off
-      // (gopod_system_edit.go); the numpad's state is kept per browser as before.
       var NUMPAD_KEY = "gopod_brobots_numpad_on";
       var typedFirstSep = typedRow.lastElementChild;
-      // 2026-10-04 (operator: "after 'All Brobots' checkbox add a 'Record Session'
-      // checkbox"; spec gopod_notes/RECORD_SESSION_SPEC_003.md): ticked records the
-      // session from the next safe point, unticked stops and keeps it zipped. The
-      // box follows Wire-Pod's own state (gopod_record_session.json), so it unticks
-      // itself once a "Thanks Brobots" ending is answered.
       var recordLabel = document.createElement("label");
       recordLabel.className = "gopod-record-session";
       var recordBox = document.createElement("input");
@@ -364,19 +248,10 @@
       recordLabel.appendChild(recordBox);
       typedRow.appendChild(recordLabel);
       typedRowText("|", "gopod-typed-sep");
-      // 2026-10-07 (operator: "add a session timer after '[] Record Session'
-      // 00:00:00 (hh:mm:ss)"): it counts from page load; when recording starts it
-      // restarts from Wire-Pod's own start time (gopod_record_session.json
-      // started_ms), red; when it stops it goes back to 0 and keeps counting
-      // (showSessionTimer).
       var sessionTimer = document.createElement("span");
       sessionTimer.className = "gopod-session-timer";
       sessionTimer.textContent = "00:00:00";
       typedRow.appendChild(sessionTimer);
-      // 2026-10-08 (operator: "timer should start ticking immediately"; "upon
-      // recording on/off the last thing is the timer is reset to 0 and starts
-      // counting again"): it counts from the page load, and starts again from 0
-      // when recording starts and when it stops.
       var timerFromMs = Date.now(), recordStartedMs = 0, wasRecording = null;
       function showSessionTimer() {
         var ms = Date.now() - timerFromMs;
@@ -386,28 +261,10 @@
         sessionTimer.classList.toggle("recording", !!recordStartedMs);
       }
       setInterval(showSessionTimer, 1000);
-      // 2026-10-13 (operator: "a 6s loop * I want to run the loop in the
-      // background very quiet, try 10% volume * keyboard line record/session
-      // clock: upon any/every reset to 00:00:00 * ensure loop runs every 6s"):
-      // background_loop's file played over and over with no gap (Web Audio), at
-      // its volume, from its top again at every 00:00:00. A browser plays sound
-      // only after a click, so it starts at the page's first click if need be.
-      // 2026-10-13 (operator: "add a speaker on/off toggle icon thingy, after the
-      // keyboard input text field"; "all songs (scripted runs) * remember speaker
-      // toggle * toggle speaker (loop audio) off * after run, last thing is to
-      // set back to remembered toggle"): the speaker toggle (kept in this
-      // browser) turns the loop on or off; a run quiets it (Wire-Pod's
-      // loop_pause line) and its end sets it back to the toggle (loop_resume).
       var backgroundLoop = (function () {
         var volumeCfg = 0.14;
         var file = "", volume = 0.14, ctx = null, buffer = null, source = null, gain = null, wanted = false, setupDone = false;
-        // 2026-10-24 (operator: "Page refresh now shows background loop speaker
-        // icon = ON, should be/it starts OFF"): every page load starts with the
-        // speaker as background_loop.starts_on says (off); a toggle holds for this
-        // page only - nothing kept in the browser.
         var speakerOn = false, runQuiet = false;
-        // 2026-10-17: volume is a share of the master (chat_audio.volume), evened
-        // like every sound (audioLevel).
         function level() { return speakerOn && !runQuiet ? chatLevel(volume * audioLevel(file)) : 0; }
         function applyLevel() { if (gain) { gain.gain.value = level(); } }
         function start() {
@@ -439,14 +296,9 @@
           if (ctx && ctx.state === "suspended") { ctx.resume(); }
         }, true);
         return {
-          // 2026-10-20 (operator: "upon mouseover, display a vertical volume bar
-          // + knob to adjust volume * range = 0% to 100% * knob position set to
-          // current default"): the loop's share, set from the speaker's bar.
           volume: function () { return volume; },
           setVolume: function (v) {
             volume = Math.max(0, Math.min(1, v));
-            // Review: kept with the settings' value it overrode - a new value in
-            // the settings (system-set) wins again.
             applyLevel();
           },
           setup: function (cfg) {
@@ -465,7 +317,6 @@
             applyLevel();
           },
           runQuiet: function (quiet) { runQuiet = !!quiet; applyLevel(); },
-          // A run is going (its loop_pause came, its loop_resume not yet).
           inRun: function () { return runQuiet; }
         };
       })();
@@ -477,9 +328,6 @@
             recordBox.checked = !!state.on;
             recordLabel.classList.toggle("recording", !!state.recording);
             var recording = !!state.recording;
-            // 2026-10-11 (operator: "while Record? is ticked * 00:00:00 timer runs
-            // red * that's the difference"): the timer is the session's, from its
-            // 00:00:00 (gopod_session_log.go), back to 0 when a new session starts.
             if (state.session_started_ms) {
               if (state.session_started_ms !== timerFromMs) { backgroundLoop.restart(); }
               timerFromMs = state.session_started_ms;
@@ -496,7 +344,6 @@
       typedText.placeholder = typedPlaceholder;
       typedText.setAttribute("aria-label", "Type to the chosen Brobot");
       typedRow.insertBefore(typedText, typedFirstSep);
-      // The loop's speaker toggle, at the end of the line.
       var speakerToggle = document.createElement("button");
       speakerToggle.type = "button";
       speakerToggle.className = "gopod-loop-speaker";
@@ -510,23 +357,13 @@
       speakerToggle.addEventListener("click", function () {
         backgroundLoop.setSpeaker(!backgroundLoop.speaker());
         showSpeaker();
-        // 2026-10-19 (operator: "🔇 opens it * 🔊 closes it"): the system menu
-        // opens with the loop, and closes with it - for the admin only
-        // (2026-10-23, operator: "for visitors, detach System Window from 🔇 *
-        // 🔇 + System Window for admin users only (me)"): a visitor's 🔇 is the
-        // loop alone.
         if (!isAdminPage) { return; }
         if (!backgroundLoop.speaker()) { volumeWrap.classList.remove("open"); }
         if (backgroundLoop.speaker()) { systemMenuOpen(); } else { systemMenuClose(); }
       });
       showSpeaker();
-      // 2026-10-23 (operator: "| 00:56:42 |🔇"): a bar before the speaker too.
       typedRowText("|", "gopod-typed-sep");
       typedRow.appendChild(speakerToggle);
-      // 2026-11-09 (operator: "snapshot loop icon golden guts & add after the loop
-      // icon * ... 00:00:00 | 🔇 🔇 * make the 2nd 🔇 a simple master mute toggle"):
-      // the loop speaker's own button, a second time - it mutes every sound the
-      // page plays (chatLevel), the loop too; remembered on this browser.
       var masterToggle = document.createElement("button");
       masterToggle.type = "button";
       masterToggle.className = "gopod-loop-speaker";
@@ -545,7 +382,6 @@
       });
       showMasterMute();
       typedRow.appendChild(masterToggle);
-      // The speaker's volume bar: shown while the mouse is over the speaker (or the bar).
       var volumeWrap = document.createElement("div");
       volumeWrap.className = "gopod-loop-volume";
       var volumeBar = document.createElement("input");
@@ -564,8 +400,6 @@
         volumeBar.value = String(pct);
         volumeLabel.textContent = pct + "%";
       }
-      // 2026-10-21 (operator: "background loop volume setting to remember over full
-      // system restarts"): saved to the settings (background_loop.volume) when let go.
       var volumeSave = null;
       volumeBar.addEventListener("input", function () {
         backgroundLoop.setVolume(parseInt(volumeBar.value, 10) / 100);
@@ -580,23 +414,16 @@
         }, 600);
       });
       var volumeHide = null;
-      // The volume bar only while the speaker is on (2026-10-24, operator: "When
-      // speaker icon is OFF, no volume bar").
       function volumeOpen() { clearTimeout(volumeHide); if (!backgroundLoop.speaker()) { volumeWrap.classList.remove("open"); return; } showVolume(); volumeWrap.classList.add("open"); }
       function volumeClose() { clearTimeout(volumeHide); volumeHide = setTimeout(function () { volumeWrap.classList.remove("open"); }, 400); }
       [speakerToggle, volumeWrap].forEach(function (el) {
         el.addEventListener("mouseenter", volumeOpen);
         el.addEventListener("mouseleave", volumeClose);
       });
-      // 2026-10-09: Esc leaves the text box (2026-10-10: the numpad's own keys
-      // are push-to-talk even in the box, when Numpad? is ticked).
       typedText.addEventListener("keydown", function (ev) {
         if (ev.key === "Escape") { typedText.blur(); }
       });
       document.addEventListener("keydown", function (ev) {
-        // 2026-10-29 (operator: "to me, Esc & stop run = exit the run, skip = skip
-        // to next scripture"): Esc exits whatever is running (Wire-Pod stops it);
-        // with nothing running - the opener's warm-up - it skips the lines waiting.
         if (ev.key === "Escape" && !typingInBox()) { escapeRun(); }
       });
       typedRow.addEventListener("submit", function (ev) {
@@ -604,16 +431,11 @@
         var text = typedText.value.trim();
         if (!text) { return; }
         typedText.value = "";
-        // 2026-10-20 (operator: "Goverlord should know by context what a skip
-        // command means * upon 'skip' input, obey same as 'Esc' key press"): a
-        // line that's only "skip" (or system-skip) skips - it's never a question.
         if (/^(system-)?skip[.!]?$/i.test(text)) { skipReporters("typed"); return; }
-        // system-numpad on|off: the numpad is this page's - switched here too.
         var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(text);
         if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
         sendTypedLine("", text);
       });
-      // serial "": the line's box and menu choose (typedChoice); "system": the system's.
       function sendTypedLine(serial, text) {
         var c = serial ? { serial: serial, first: "" } : typedChoice();
         serial = c.serial;
@@ -627,22 +449,13 @@
           if (!r.ok) { typedText.value = text; return null; }
           return r.text();
         }).then(function (body) {
-          // 2026-10-24 (gopod_visitors.go): a visitor's dropped line says why -
-          // "Waiting for approval" or "Muted" - in the text field.
           var note = "";
           try { note = body && body.charAt(0) === "{" ? (JSON.parse(body).note || "") : ""; } catch (err) { note = ""; }
           typedText.placeholder = note || typedPlaceholder;
           typedText.classList.toggle("gopod-typed-note", !!note);
         }).catch(function () { typedText.value = text; });
       }
-      // 2026-10-04 (operator: "the keyboard input line would be inside within the
-      // robots chat bubble"): inside the chat window, kept on its bottom edge
-      // (CSS: last in the window's order, sticky to its bottom) while bubbles are
-      // added above it.
       container.appendChild(typedRow);
-      // 2026-10-23 (operator: "New responsive Brobots-Input-Row single line can
-      // adjust to 3 lines"): one line while everything fits beside a usable text
-      // field, else three (.stacked, gopod_responsive.css).
       var TYPED_TEXT_MIN_PX;
       function fitTypedRow() {
         if (TYPED_TEXT_MIN_PX == null) { return; } // until the settings load
@@ -654,8 +467,6 @@
         var room = typedRow.clientWidth - (parseFloat(getComputedStyle(typedRow).paddingLeft) || 0) - (parseFloat(getComputedStyle(typedRow).paddingRight) || 0);
         typedRow.classList.toggle("stacked", room > 0 && need > room);
       }
-      // The row's height changes (one line to two, a visitor's shorter row): a
-      // chat at its end stays at its end, its newest bubble just above the row.
       var typedRowHeight = 0;
       function typedRowResized() {
         fitTypedRow();
@@ -668,10 +479,6 @@
       if (typeof ResizeObserver === "function") { new ResizeObserver(typedRowResized).observe(typedRow); }
       window.addEventListener("resize", fitTypedRow);
 
-      // 2026-10-14 (operator: "When I refresh & click log button, I get Brobots Log
-      // correctly * ensure bubbles window also scrolls to bottom position"): the
-      // chat is restored while the Log section is closed (no height, so no scroll);
-      // the moment the window gets its height, it goes straight to its end.
       if (typeof ResizeObserver === "function") {
         var chatHadHeight = container.clientHeight > 0;
         new ResizeObserver(function () {
@@ -689,14 +496,10 @@
         textarea.style.display = open ? "none" : "";
       }
 
-      // Brobots Chat button: the only show/hide. Never touches the chat's content.
       window.showBrobotChatBubbles = function () {
         var open = !container.classList.contains("expanded");
         setChatOpen(open);
         showChat(open);
-        // 2026-10-08 (operator: "If I click the brobots chat button (off/on)
-        // scrolling doesn't reach full bottom position"): shown again, the chat
-        // goes straight to its end, once the window has its size back.
         if (open) {
           requestAnimationFrame(function () {
             if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
@@ -705,19 +508,11 @@
         }
       };
 
-      // GOLDEN chat-only view (2026-10-23, FINISH_PLAN_001.md C2; operator: "C2
-      // please, but from the wire-pod page 'Log' button tap"): on a visitor's
-      // device (a phone - "phone = visitor"), tapping Log opens the chat alone -
-      // the Brobots chat and the typing row, the whole screen, no Wire-Pod
-      // settings; "‹ Wire-Pod" goes back. The admin's Log stays as it was.
-      // "?visitor" in the address shows the visitor's view on GOPOD's machine.
       var chatBack = document.createElement("button");
       chatBack.type = "button";
       chatBack.className = "gopod-chat-back";
       chatBack.textContent = "\u2039 Wire-Pod";
       chatBack.addEventListener("click", function () { document.body.classList.remove("gopod-chat-only"); });
-      // 2026-10-24 (live: the PC got the visitor's view - Log was tapped before
-      // Wire-Pod had said who the page is): it waits for that answer.
       var chatOnlyPending = false;
       function chatOnlyOn() {
         if (!pageRoleKnown) { chatOnlyPending = true; return; }
@@ -727,16 +522,10 @@
         document.body.classList.add("gopod-chat-only");
         if (!container.classList.contains("expanded")) { window.showBrobotChatBubbles(); }
       }
-      // GOPOD as a phone app (2026-10-24, C3): on a secure page the app's small
-      // background script is set up (a phone offers "Install app" then), and the
-      // app opens on the chat (its start, "?app": the Log, a visitor's chat-only).
       if ("serviceWorker" in navigator && window.isSecureContext) {
         navigator.serviceWorker.register("/gopod_sw.js").catch(function () { /* no app - the page works as ever */ });
       }
       var appStart = /[?&]app(=|&|$)/.test(location.search);
-      // A visitor's chat opens on its own, without Wire-Pod's Log (its log polling
-      // is the admin's - live: the phone asked for Wire-Pod's log four times a
-      // second, refused each time).
       function visitorOpenChat() {
         if (typeof window.toggleVisibility === "function") {
           window.toggleVisibility(["section-intents", "section-log", "section-botauth", "section-version", "section-uicustomizer"], "section-log", "icon-Logs");
@@ -756,9 +545,6 @@
         };
       });
 
-      // Clear Chat button: empties the bubbles now, and the saved copy. Lines
-      // already shown stay marked as seen, so they don't come back on the next poll.
-      // The only thing that empties the chat (2026-09-30).
       window.clearBrobotChat = function () {
         clearBubbles();
         chatStore.bubbles = [];
@@ -773,10 +559,6 @@
         typedRow.style.marginTop = "";
       }
 
-      // 2026-09-28: rich display in the robot bubbles - the Brobot's reply as written:
-      // **bold**, *italic*, and math (\[...\], $$...$$, \(...\)) rendered by KaTeX.
-      // Text is HTML-escaped first; math is cut out before the markdown pass and put
-      // back as KaTeX output. If KaTeX is missing, the math shows as written.
       function escapeHtml(s) {
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       }
@@ -788,15 +570,7 @@
           return escapeHtml(tex);
         }
       }
-      // Only for an old, unmarked bubble from saved history - a live reply or a
-      // song line comes marked by Wire-Pod (gopod_highlight_pieces.go) and is
-      // never split here. Same plain rule as gopod_speech_sentences.go
-      // (operator 2026-10-06: sentences first, then every comma inside each;
-      // no length rules). Emojis right after an ending stay with it.
       var TRAILING_EMOJI_RE = /^(\s*(?:\p{Extended_Pictographic}|\uFE0F|\u200D)+)+(?=\s|$)/u;
-      // An emoji used as a sentence ending ("in each sentence 😉 You know") is one
-      // too: Wire-Pod says a period there (gopodEmojiSentenceEnd), so the page splits
-      // there as well - after a word, emojis, a space, then a capital.
       var EMOJI_END_RE = /^[ \t]*(?:(?:\p{Extended_Pictographic}|\uFE0F|\u200D)[ \t]*)+[ \t]+\p{Lu}/u;
       function hardEnd(text, i) {
         var c = text[i];
@@ -810,12 +584,6 @@
         if (dashPause(text, i)) { return true; }
         return c === "\u2026" || (c === "." && text[i - 1] === ".");
       }
-      // A dash used as a pause between words is a comma in speech
-      // (gopod_spoken_dashes.go, and "—" in kgsim.go), so it can end a piece
-      // here too (2026-10-05, live 18:59: "disco balls - a big ball" was said in
-      // two pieces but lit as one). An em dash always; an en dash or hyphen when
-      // spaced ("a - b"), hanging off a word ("are- but") or doubled
-      // ("laugh--that"). A hyphen inside a word, or between numbers, is not.
       function dashPause(text, i) {
         var c = text[i];
         if (c === "\u2014") { return true; }
@@ -835,14 +603,11 @@
           if (isEnd(text, i)) {
             var emoji = text.slice(i + 1).match(TRAILING_EMOJI_RE);
             if (emoji) { cur += emoji[0]; i += emoji[0].length; }
-            // An ellipsis between two words ("for the...thinks") ends a piece too:
-            // Wire-Pod says it as ", " (gopodEllipsisToComma), live 2026-10-04 20:36.
             var ellipsis = text[i] === "\u2026" || (text[i] === "." && text[i - 1] === ".");
             if (text[i + 1] === " " || (ellipsis && isEnd === softEnd && /[A-Za-z0-9]/.test(text[i + 1] || "")) || (isEnd === softEnd && dashPause(text, i))) { out.push(cur); cur = ""; }
           }
         }
         if (cur.trim()) { out.push(cur); }
-        // The pieces keep their own spacing, so joining them gives back the text.
         return out;
       }
       function splitSentences(line) {
@@ -852,18 +617,11 @@
         });
         return out;
       }
-      // 2026-10-15 (the Weather Kit link in Brobot 2's weather follow-up): a
-      // "[words](/page.html)" link shows as its words, a link that opens in a new
-      // tab (Wire-Pod's own pages or a full web address); the robot says the words.
       function bubbleLinks(html) {
         return String(html).replace(/\[([^\]\n]+)\]\((\/[^)\s]*|https?:\/\/[^)\s]+)\)/g, function (m, words, href) {
           return "<a class=\"bubble-link\" href=\"" + href.replace(/"/g, "&quot;") + "\" target=\"_blank\" rel=\"noopener\">" + words + "</a>";
         });
       }
-      // 2026-10-17 (operator: "can you replace flag-text with flag emoji"): some
-      // browsers (Windows) draw a flag emoji as its two letters ("US"); a known
-      // country's flag (clean_politics.countries) is drawn as its picture
-      // (assets/flags, Twemoji), the emoji kept as its alt text.
       var flagCodes = {};
       function flagPictures(html) {
         return String(html).replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}/g, function (flag) {
@@ -881,19 +639,7 @@
           .replace(/\\\[([\s\S]*?)\\\]/g, function (m, tex) { return keep(tex, true); })
           .replace(/\$\$([\s\S]*?)\$\$/g, function (m, tex) { return keep(tex, true); })
           .replace(/\\\(([\s\S]*?)\\\)/g, function (m, tex) { return keep(tex, false); });
-        // 2026-09-29: each sentence is its own span, so the one the robot is saying
-        // can light up (pollSpeakingNow below).
-        // GOLDEN 2026-10-06 (gopod_highlight_pieces.go): a marked bubble - every
-        // live reply and every scripted song line - is shown exactly as Wire-Pod
-        // cut it, piece by piece, line breaks kept inside its piece, and never
-        // split again here. Its pieces are numbered in this order, and Wire-Pod
-        // names the number it is saying. splitSentences below is only for an
-        // old, unmarked bubble.
         if (segmentMarker && t.indexOf(segmentMarker) >= 0) {
-          // 2026-10-16 (operator: "please add a line between thought bubbles
-          // ... thought bubbles as (spaced) paragraphs"): a piece after a line
-          // break (live_split.thought_lines: a new thought) starts a new
-          // paragraph, a blank line below the last.
           var newThought = false;
           var marked = escapeHtml(t).split(segmentMarker).map(function (p) {
             var item = { text: p.trim(), gap: newThought };
@@ -923,10 +669,6 @@
         return t.replace(/\u0000(\d+)\u0000/g, function (m, n) { return math[+n]; });
       }
 
-      // 2026-09-30: GOPOD's own names as speech-to-text hears them ("go pod",
-      // "govern lord") written the way the repo spells them (GOPOD, Goverlord) -
-      // display only. Same list and rules as gopod_name_spelling.go: longest first,
-      // case-insensitive, whole words (gopod_name_spellings.json).
       var nameSpellings = [];
       function spellNames(text) {
         var out = String(text);
@@ -958,75 +700,41 @@
         }
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble " + (who === "Operator" ? "operator" : who === "Brobot 1" ? "brobot-1" : "brobot-2");
-        // 2026-11-15: a line a persona asks (the comm check's) wears its colours;
-        // a Brobot's, the persona he answers as.
         if (byWho) { bubble.classList.add("host-" + personaSlug(byWho)); }
         else if (/^Brobot [12]$/.test(who)) { brobotHostClass(bubble, who, brobotBy[who]); }
-        // 2026-09-29: Wire-Pod chat replies get the speaking highlight (gopod_chat_bubbles.css).
         if (format === "llm") { bubble.className += " brobot-bubble-live"; }
-        // 2026-10-01: a scripted song line (split with the segment marker, the
-        // Bingo test) lights per sentence the same way (operator: "I did not see
-        // sentence highlighting in bingo bubbles").
         else if (segmentMarker && String(spoken).indexOf(segmentMarker) >= 0) { bubble.className += " brobot-bubble-scripted"; }
         if (who === "Operator" && !restoringChat && /^system-/i.test(String(spoken).trim()) && systemMenuResult(String(spoken).trim(), "ask")) { next(); return; }
         if (who === "Operator") {
-          // 2026-09-28: the operator's own words - dark grey, centered, no robot face.
           var opText = document.createElement("span");
           opText.className = "brobot-bubble-text";
           opText.dataset.raw = who + ": " + spoken;
-          // 2026-11-19 (operator: "upon bubble display text appears as solid white,
-          // then is set to 0% solid ... correct is text goes in as 0% solid before,
-          // not after bubble display"): a live line goes in hidden - the highlight
-          // template's own span and mark - and lights when it's heard.
           if (!restoringChat) {
             var opSay = document.createElement("span");
             opSay.className = "brobot-say";
             opSay.textContent = spoken;
             opText.appendChild(opSay);
             bubble.classList.add("voice-lit");
-            // Its voice never came (voices off, an error): shown after 30 s anyway.
             setTimeout(function () { if (!opSay.classList.contains("speaking") && !opSay.classList.contains("spoken")) { opSay.classList.add("spoken"); } }, 30000);
           } else {
             opText.textContent = spoken;
           }
-          // 2026-10-24 (link 4): the Operator's line names itself for its voice.
           if (!restoringChat) { voiceLineAhead(spoken, opText); }
           var opHead = operatorHead(to || operatorTarget(spoken), via, spoken);
           bubble.appendChild(opHead);
-          // 2026-11-18 (operator: "All, KEYNOTE to [name] ... don't seem to have
-          // Keys' colours * can they also be built dynamically?"): a line a persona
-          // sends (an asker - KEYNOTE, GOVERLORD) wears that persona's colours
-          // (persona_colours, the same host-<slug> rules as its own bubbles).
           if (opHead.dataset.sender) { bubble.classList.add("host-" + personaSlug(opHead.dataset.sender)); }
           bubble.appendChild(opText);
           bubbleSound("Operator");
           bubble.dataset.own = "1"; // the operator's own line
-          // A new question: an unanswered pop-up keeps only its prize. 2026-10-24
-          // (the root-to-leaf pass, link 3b): a backpack line comes on the feed the
-          // moment it's heard, before its answer (gopodHeardLine) - placed like
-          // every Operator line (the old "goes above its answer" moves are gone).
           popupWraps = {}; popupExchange = false; eggMarked = {};
-          // 2026-10-29 (live 05:13, the comm check: KP2's line came before Brobot
-          // 1's reply - his opened bubble was wiped, so his reply drew a second
-          // bubble under an empty one): a new line clears only the opened bubble
-          // of whoever it's to; a reply still on its way keeps its own.
           var shellFor = to || operatorTarget(spoken);
           if (/^Brobot [12]$/.test(shellFor)) { delete nestShells[shellFor]; }
           else if (shellFor === "Brobots" || shellFor === "All" || !shellFor) { nestShells = {}; }
-          // GOLDEN operator bubble (2026-10-18, operator: "Operator bubble: (not
-          // manager bubble) * KP7 to CHALK / keep holding… / Recording for CHALK /
-          // Got it - transcribing… / ["Generating..." + hourglass]/[transcription]"):
-          // a numpad line takes over its key's status bubble - its header becomes
-          // the Operator's, the status lines stay, the words go under them.
           var st = numpadOpStatus;
           numpadOpStatus = null;
           if (st && !restoringChat && st.bubble && st.bubble.isConnected && /^KP/.test(String(via || ""))) {
             st.bubble.className = bubble.className;
-            // 2026-10-26 (operator: "KPN to [Gomad] bubbles * apply template
-            // settings * text = 75% header-size * notive-bubbles = 50%").
             if (managerHosts[to]) { st.bubble.classList.add("numpad-to-gomad"); }
-            // 2026-10-27 (operator: "KPN to [persona-name] * Header 100% * Numpad
-            // notices 50% * Answer-chain 75%"): every numpad line, to anyone.
             st.bubble.classList.add("numpad-line");
             st.bubble.replaceChild(bubble.firstChild, st.bubble.firstChild);
             st.textEl.className = "numpad-lines";
@@ -1039,14 +747,7 @@
           }
           container.appendChild(bubble);
           if (restoringChat) { next(); return; }
-          // 2026-10-04: an operator line that arrives during the warm-up (the
-          // second robot's "Bingo Test Live") goes above the warm-up bubble.
           if (warmupBubble && warmupBubble.isConnected) { container.appendChild(warmupBubble); }
-          // 2026-09-29: the operator's question (or a song's opening line, e.g.
-          // "Bingo Test Live") goes to the top of the chat window; the reply below
-          // it follows the spoken sentence (focusSpeaking). 2026-09-30: always,
-          // even when the reply is longer than the window - except "sleep",
-          // which (with its "zzz") is placed like any other bubble.
           if (format === "plain") {
             lastOperatorBubble = null;
           } else {
@@ -1061,24 +762,11 @@
         textEl.className = "brobot-bubble-text";
         textEl.dataset.raw = who + ": " + spoken;
         textEl.innerHTML = renderRich(spoken);
-        // GOLDEN pop-up rule (2026-10-15, operator: '"All" = ALL brobots in
-        // sequence ... applies everywhere, including pop ups'; "brobot 2 should
-        // ... also have marquee lights, to indicate visually, he's part of the
-        // same pop up"): every Brobot answering a pop-up's question gets his own
-        // marquee bubble, his "Brobot N:" header kept; the eggs are bubbles of
-        // their own above (2026-10-15) - the pop-ups and the All sequence stay
-        // separate processes; this only dresses the reply.
-        // 2026-10-25 (operator: "NEW RULE: The brobot bubble indicates revealed
-        // easter eggs upon 1st reveal * no more pop ups * however, the marquee
-        // lights stay, as an indicator of a revealed easter egg"): a reply whose
-        // line hit an egg wears it too, pop-up or not (eggMarked).
         var inPopup = (popupExchange || eggMarked[who]) && /^Brobot [12]$/.test(who);
         delete eggMarked[who];
-        // His reply fills the bubble a manager's part opened for him (nestShell).
         var shell = nestShells[who];
         if (shell && shell.isConnected && !shell.dataset.filled && !restoringChat) {
           shell.dataset.filled = "1";
-          // The name he answered as (brobotBy), on the bubble opened before his reply.
           var shellWho = shell.querySelector(".brobot-bubble-who");
           if (shellWho && brobotBy[who]) { shellWho.textContent = brobotBy[who] + ":"; }
           if (feedIdNow) { shell.dataset.feed = String(feedIdNow); }
@@ -1090,7 +778,6 @@
           attachPendingBall(shell, spoken);
           if (inPopup) { marqueeAttach(shell); }
           addQrCodes(shell);
-          // 2026-10-22: his weather line's picture in this bubble too.
           addWeatherFace(shell);
           next();
           return;
@@ -1100,43 +787,14 @@
         bubble.appendChild(bubbleHead(who));
         bubble.appendChild(textEl);
         attachPendingBall(bubble, spoken);
-        // A Brobot's own bubble, on the raw bubble template (built and loaded
-        // hidden, then shown); the marquee lights once it's in the chat.
         placeBubble(bubble, next, function (b) { if (inPopup) { marqueeAttach(b); } });
       }
 
-      // 2026-09-30, one rule for every new bubble - a backpack question and its
-      // reply, a Bingo run's lines alike (operator: "a short intentional delay
-      // before displaying the operator chat bubble with the response, positioned
-      // at the top ... apply the same positioning to the bingo chat bubbles").
-      // A new bubble is added hidden (it still takes its room), the chat moves to
-      // where it should be, and the new bubbles appear together once the move is
-      // done - never before CHAT_REPLY_DELAY_MS. Bubbles that arrive together (a
-      // question and its reply are logged together) are placed and shown together.
-      // Where (operator: "every operator bubble aims to go to the top, or as
-      // high as it can go depending on the length of the following brobot
-      // response"): a new operator line goes to the top, or as high as the
-      // chat below it lets it scroll - no empty room is added. Lines that come
-      // later under it (a Bingo run) keep the newest line's end in view. With
-      // no operator line, the bottom. Placing never waits for a robot to stop
-      // speaking (2026-09-30: song lines now light per sentence, and waiting
-      // left new Bingo bubbles below the window). While a robot speaks, the
-      // spoken-sentence centring also moves the chat down.
       var pendingReveal = [];
       var revealTimer = null;
       var placeAgain = false;
       var operatorInBatch = false; // the bubbles being placed include an operator line
-      // 2026-10-04 (operator: "Operator bubbles not jumping to top alignment
-      // correctly"): a typed line shows at once and its reply comes ~10 s later,
-      // as its own batch - which was placed as "later lines", scrolling to the
-      // reply's end and pushing the question off the top. The first robot bubble
-      // after an operator line is its reply: placed like it came with it.
       var awaitingReply = false;
-      // 2026-10-13 (operator: "when the next bubble is being rendered and audio
-      // loaded, do not open scroll space for it * render/load the next bubble *
-      // WHEN ITS READY then adjust scroll & display * do not go to the wedding,
-      // then dress for it"): a new bubble is built out of the chat's flow
-      // (hidden, taking no room), and joins it only when it's ready to show.
       function stageBubble(b) {
         if (getComputedStyle(container).position === "static") { container.style.position = "relative"; }
         var pad = getComputedStyle(container).paddingLeft;
@@ -1155,12 +813,9 @@
       function revealWhenPlaced(bubble) {
         bubble.style.visibility = "hidden";
         stageBubble(bubble);
-        // 2026-10-12: the voice that comes right after this bubble's line.
         if (nextBubbleVoice) { bubble._voice = nextBubbleVoice; nextBubbleVoice._bubble = bubble; nextBubbleVoice = null; }
         bubble._feedId = feedIdNow;
         pendingReveal.push(bubble);
-        // Drawn hidden: its voiced lines go into the template before it shows
-        // (after this event has filled it in, before anything is painted).
         Promise.resolve().then(voiceTieAhead);
         if (revealTimer === null) {
           revealTimer = setTimeout(placeNewBubbles, 0);
@@ -1168,9 +823,6 @@
           placeAgain = true; // arrived during a move: place again before showing
         }
       }
-      // 2026-10-16 (comb-through: the chat stopped following the highlight while
-      // a next bubble waited - that bubble is staged at the top, out of the
-      // chat's flow): the newest bubble that's placed, never a staged one.
       function lastPlacedChild() {
         var el = container.lastElementChild;
         while (el && (el.dataset.staged === "1" || el === typedRow)) { el = el.previousElementSibling; }
@@ -1178,77 +830,35 @@
       }
       function chatContentEnd() {
         var newest = lastPlacedChild();
-        // The typed-input line sits on the window's bottom edge: the newest
-        // bubble ends above it, not behind it.
         var typedHeight = newest && newest !== typedRow ? typedRow.offsetHeight : 0;
         return newest ? contentY(newest) + newest.offsetHeight + CHAT_TOP_GAP_PX + typedHeight - container.clientHeight : 0;
       }
-      // 2026-10-04 (operator: "Operator bubble not correctly being positioned at
-      // the top of the window"): with a short reply (or none yet) there wasn't
-      // enough chat below the operator line for it to scroll to the top. Room is
-      // added above the typed-input line, just enough for the line to reach the
-      // top, and taken away again as the reply fills it.
       function roomBelowOperator(questionTop) {
         var current = parseFloat(typedRow.style.marginTop) || 0;
         var need = questionTop === null ? 0 : Math.max(0, Math.ceil(questionTop + container.clientHeight - (container.scrollHeight - current)));
         if (need !== current) { typedRow.style.marginTop = need ? need + "px" : ""; }
       }
       function placeTarget() {
-        // 2026-10-11 (operator: "Then the next bubble appears at the bottom pushing
-        // the others up * scrolling position stays at bottom"): every bubble, the
-        // operator's too, goes at the bottom; no room is added above the typing line.
         roomBelowOperator(null);
         var first = pendingReveal.length ? pendingReveal[0] : null;
         if (!first || !container.contains(first)) { return chatContentEnd(); }
         return bubbleTarget(first);
       }
-      // GOLDEN rule 14, every chat bubble (operator 2026-10-10: "create a golden
-      // rule about creating the full bubble hidden, then handover the baton in
-      // olympic fashion"; "elevate the narrator bubble rule globally to all chat
-      // bubbles"): a new bubble waits hidden in its lane, no scroll, while a
-      // bubble on screen is still being said or sung (its highlight lit); then
-      // the chat scrolls once and it shows. The operator's own line waits too (2026-10-11).
-      // At most CHAT_BATON_MAX_MS, so a highlight left on never holds the chat.
-      // 2026-10-13 (operator: "15-second cap * please fix/resolve"; rule: "every
-      // chat bubble must run & finish 100% before the next bubble"): 15 s let a
-      // long answer be overtaken while still being said; now only a highlight
-      // stuck on for 2 minutes lets go.
       var CHAT_BATON_MAX_MS, SPEAKING_MAX_MS;
       function batonHeld() {
         if (narratorLines.some(function (n) { return n.shown; })) { return true; }
         return Array.prototype.some.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
           var b = el.closest(".brobot-bubble");
-          // 2026-10-18 (leak backstop): a line lit longer than
-          // chat_window.speaking_max_ms (a robot that froze, a lost "done")
-          // no longer holds the next bubble.
-          // 2026-10-23: a line lit some other way gets its lit time when first seen,
-          // so it times out like every other (never holds the chat for good).
           if (!el._litAt) { el._litAt = Date.now(); }
           if (Date.now() - el._litAt > SPEAKING_MAX_MS) { return false; }
           return b && !b.classList.contains("narrator") && b.style.visibility !== "hidden";
         });
       }
-      // 2026-10-12 (operator: "Ensure every chat bubble is fully visually
-      // rendered, audio loaded (or waiting to be loaded if is being generated) &
-      // ready to play. Only then is the chat bubble measured for scrolling, to
-      // insert from the bottom up ... whichever top or bottom of that chat bubble
-      // reaches position first holds there ... shorter bubbles stop at bottom
-      // since top-border did not reach * taller bubbles stop at top since
-      // bottom-border did not reach * llm warm ups are the exception"): a new
-      // bubble (or the bubbles arriving with it) that fits the window ends at its
-      // bottom; one taller than the window starts at its top. The LLM warm-up
-      // bubble never goes through here.
       function bubbleTarget(first) {
         var last = lastPlacedChild();
         if (!last) { last = first; }
         var typedHeight = last !== typedRow ? typedRow.offsetHeight : 0;
         var room = container.clientHeight - typedHeight - 2 * CHAT_TOP_GAP_PX;
-        // 2026-10-14 (operator: "the bubble needs to be repositioned down to where
-        // the, [icon] Brobot N: , header is ... aim for brobot header at top of
-        // window, if bottom of bubble hits bottom of window first, that's the stop
-        // scroll position, no extra space below the bubble"): a pop-up the reply
-        // has joined aims its reply header ("Brobot N:" under the prize) at the top.
-        // The reply's "Brobot N:" header under the prize.
         var replyHeads = first.classList.contains("popup-wrap") ? first.querySelectorAll(":scope > .popup-system ~ .brobot-bubble-head") : [];
         var replyHead = replyHeads.length ? replyHeads[replyHeads.length - 1] : null;
         var top = contentY(replyHead || first);
@@ -1257,8 +867,6 @@
         scrollLog("target: taller than the window (" + Math.round(tall) + " of " + Math.round(room) + ") - its top at the window's top");
         return top - CHAT_TOP_GAP_PX;
       }
-      // Calls then once every picture in the bubbles has loaded and each one's
-      // voice can play (at most BUBBLE_READY_MAX_MS).
       var BUBBLE_READY_MAX_MS;
       function whenBubblesReady(bubbles, then) {
         var from = performance.now();
@@ -1269,25 +877,18 @@
             return imgs || voice;
           });
           if (waiting && performance.now() - from < BUBBLE_READY_MAX_MS) {
-            // 2026-10-23 (live: every bubble after the granny photo waited until
-            // F5): its own timer - revealTimer means "bubbles being placed", and
-            // a picture's wait (showPictures) must never leave it set.
             setTimeout(check, 50);
             return;
           }
           then();
         })();
       }
-      // 2026-10-23 (live: the interview's end held ~57 s): a bubble waiting on the
-      // baton longer than 10 s logs what holds it (a lit line, its text).
       var batonNoted = 0;
       function batonHolder() {
         var held = Array.prototype.filter.call(container.querySelectorAll(".brobot-say.speaking"), function (el) {
           var b = el.closest(".brobot-bubble");
           return b && !b.classList.contains("narrator") && b.style.visibility !== "hidden" && !(el._litAt && Date.now() - el._litAt > SPEAKING_MAX_MS);
         })[0];
-        // 2026-10-24 (live: an emoji cut in half broke the note and stopped every
-        // bubble from showing): cut by whole characters.
         if (held) { return "lit line: " + Array.from(String(held.textContent)).slice(0, 60).join("") + (held._litAt ? "" : " (no lit time)"); }
         if (narratorLines.some(function (n) { return n.shown; })) { return "narrator line"; }
         return "";
@@ -1295,9 +896,6 @@
       function placeNewBubbles() {
         var waitFrom = performance.now(), litNow = "";
         (function waitForBaton() {
-          // CLOCK_AUDIT_001.md D (2026-10-30): a long answer still being said moves
-          // on to its next piece - while it does, the baton's wait starts again;
-          // CHAT_BATON_MAX_MS only counts once the lit line stops changing.
           var lit = batonHolder();
           if (lit && lit !== litNow) { litNow = lit; waitFrom = performance.now(); }
           if (performance.now() - waitFrom > 10000 && Date.now() - batonNoted > 10000 && batonHeld()) {
@@ -1306,9 +904,6 @@
             held.set("note", "GOPOD_CHECK baton held 10 s+ by " + batonHolder());
             fetch("/api-sdk/gopod_page_note", { method: "POST", body: held }).catch(function () {});
           }
-          // 2026-10-11 (operator: "upon new operator bubble appearing, scrolling
-          // gets messed up again"): the operator's own line waits its turn too,
-          // so it never scrolls away a reply still being said.
           if (batonHeld() && performance.now() - waitFrom < CHAT_BATON_MAX_MS) {
             revealTimer = setTimeout(waitForBaton, 100);
             return;
@@ -1316,19 +911,11 @@
           whenBubblesReady(pendingReveal.slice(), placeNewBubblesNow);
         })();
       }
-      // 2026-10-13 (operator: "\"System llm bubble\" displays first and always
-      // stays at the bottom of what ever happens until LLM Ready"): a warming
-      // bubble moves back under every new bubble.
       function warmupToBottom() {
         if (warmupBubble && warmupBubble.isConnected && container.lastElementChild !== warmupBubble) {
           container.appendChild(warmupBubble);
         }
       }
-      // 2026-10-13 (operator: "upon last message update, the bubble resized
-      // correctly, however scrolling didn't account for the resize and the bubble
-      // was visually cut off"): the newest bubble on screen that grows (a new
-      // message, a picture loading, a highlight) is placed again, whole - only
-      // while it's in view, so reading back up isn't pulled away.
       var bubbleSizes = typeof ResizeObserver === "function" ? new ResizeObserver(function (entries) {
         entries.forEach(function (entry) {
           var b = entry.target;
@@ -1370,12 +957,10 @@
           operatorInBatch = false;
           var shown = pendingReveal;
           if (shown.some(function (b) { return !b.classList.contains("operator"); })) {
-            // The reply is placed; lines after it are placed as before.
             setTimeout(function () { awaitingReply = false; }, 0);
           }
           pendingReveal = [];
           shown.forEach(function (b) { b.style.visibility = ""; watchSize(b); });
-          // The baton has passed: every bubble above these has been heard.
           if (shown.length) {
             var firstShown = shown[0];
             Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble"), function (b) {
@@ -1385,23 +970,9 @@
         })();
       }
 
-      // 2026-09-29: centre-focused auto-scroll (operator's ask). The operator's
-      // question goes to the top; once the spoken sentence's line gets past the
-      // middle of the chat window, the window scrolls so that line stays in the
-      // middle, down to the end of the reply (the browser stops at the bottom).
-      // It never scrolls back up on its own.
       var CHAT_REPLY_DELAY_MS;
       var CHAT_TOP_GAP_PX;
       var lastOperatorBubble = null;
-      // 2026-09-30, v10 (operator: "a NEW revised scroller of our own with a 1s ease").
-      // One controller is the only thing that moves the chat. Each move eases in and
-      // out over 1 second. A new target during a move does not stop and restart it:
-      // the move carries on from where it is, at the speed it has, and eases into the
-      // new target over the next second (a cubic Hermite curve: start position, start
-      // speed, end position, end speed 0). The controller keeps its own exact position
-      // so rounding never builds up. Once the end of the chat reaches the bottom,
-      // centring stops and the highlight carries on down (no empty space). Instant when
-      // the viewer asks for reduced motion.
       var CHAT_SCROLL_MS;
       var chatMove = null; // { from, to, speed (px per ms at the start), start (ms), frame }
       function chatMoveAt(now) {
@@ -1413,9 +984,6 @@
         return { t: t, pos: pos, speed: speed };
       }
       function chatMaxScroll() { return Math.max(0, container.scrollHeight - container.clientHeight); }
-      // 2026-10-24 (operator: "ensure bubbles scroll correct & proper to adjusted
-      // brobots row-height"): the chat's visible height - above the typing row
-      // (one, two or three lines, whatever it is now).
       function chatViewHeight() {
         return Math.max(1, container.clientHeight - (typedRow.isConnected && typedRow.offsetParent !== null ? typedRow.offsetHeight : 0));
       }
@@ -1424,10 +992,6 @@
         var rect = el.getBoundingClientRect();
         return rect.top - box.top + container.scrollTop;
       }
-      // 2026-10-31 (operator: "CORE SCROLLING NOT WORKING!! WHY?" then "Add scroll
-      // event logging"): every scroll decision goes to Wire-Pod's journal as
-      // "GOPOD_PAGE scroll ..." (chat_window.scroll_log) - the main page only, so a
-      // run shows who moved the chat, from where to where, and what it skipped.
       var SCROLL_LOG = false;
       var scrollLogLast = "", scrollLogAt = 0;
       function scrollLog(what) {
@@ -1439,7 +1003,6 @@
         body.set("note", line.slice(0, 200));
         fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () {});
       }
-      // The function that asked for a move (its name, from the call stack).
       function scrollCaller() {
         var lines = String(new Error().stack || "").split("\n");
         for (var i = 3; i < lines.length; i++) {
@@ -1448,21 +1011,12 @@
         }
         return "?";
       }
-      // The newest bubble on screen, named for the log (its kind and first words).
       function scrollWho(el) {
         if (!el) { return "none"; }
         var head = el.querySelector(".brobot-bubble-head");
         var name = head ? head.textContent.trim().slice(0, 24) : (el.dataset.kind || el.className.split(" ")[1] || "?");
         return name + (el.style.visibility === "hidden" ? " (hidden)" : "") + " h=" + el.offsetHeight;
       }
-      // 2026-10-31 (operator: "Integrate adjustable scroll bar please * will this
-      // show up on app visitor pages?"): the chat window's own scroll bar - the
-      // browser's is hidden (gopod_chat_bubbles.css), wheel, touch and keys still
-      // scroll as before. Drag the thumb to scroll; drag either end of it to make
-      // it longer or shorter - a longer thumb, less travel from top to bottom (the
-      // chat itself is unchanged); double-click it for its natural size. Its
-      // length is kept in this browser. Same on the admin, visitor and app pages.
-      // Values: chat_window.scroll_bar.
       var scrollBar = { on: true, width_px: 12, min_thumb_px: 30, max_thumb_share: 0.8, handle_px: 7 };
       var sbTrack = null, sbThumb = null, sbThumbPx = 0, sbDrag = null;
       function sbKept() { try { return parseFloat(localStorage.getItem("gopod_scroll_thumb_px")) || 0; } catch (e) { return 0; } }
@@ -1482,16 +1036,11 @@
         sbTrack.appendChild(sbThumb);
         document.body.appendChild(sbTrack);
         document.documentElement.classList.add("gopod-own-scrollbar");
-        // 2026-11-04 (operator, visitor page: "when the scroll appears, the bubbles
-        // haven't accounted for the scroll bar width and they end up getting cut off
-        // ... on the right side"): the chat keeps room for its own scroll bar on the
-        // right from the start (its width and its 4 px from the edge, plus 4 px).
         document.documentElement.style.setProperty("--gopod-scroll-room", (scrollBar.width_px + 8) + "px");
         sbThumbPx = sbKept();
         sbThumb.addEventListener("pointerdown", function (ev) {
           var end = ev.target.dataset ? ev.target.dataset.end : "";
           sbDrag = { end: end || "", y: ev.clientY, top: parseFloat(sbThumb.style.top) || 0, len: sbThumb.offsetHeight };
-          // The viewer has the chat: the chat's own move stops.
           if (chatMove) { cancelAnimationFrame(chatMove.frame); chatMove = null; }
           try { sbThumb.setPointerCapture(ev.pointerId); } catch (e) {}
           sbThumb.classList.add("dragging");
@@ -1520,7 +1069,6 @@
         sbThumb.addEventListener("pointerup", done);
         sbThumb.addEventListener("pointercancel", done);
         sbThumb.addEventListener("dblclick", function () { sbThumbPx = 0; sbKeep(0); sbUpdate(); });
-        // A click on the track: a page up or down.
         sbTrack.addEventListener("pointerdown", function (ev) {
           if (ev.target !== sbTrack) { return; }
           var above = ev.clientY < sbThumb.getBoundingClientRect().top;
@@ -1553,9 +1101,6 @@
         sbThumb.style.top = top + "px";
         Array.prototype.forEach.call(sbThumb.children, function (h) { h.style.height = scrollBar.handle_px + "px"; });
       }
-      // The scroll position (operator: "and scrolling position if possible"): once
-      // the chat stops moving (300 ms quiet), where it rests - its top, the most it
-      // can go, how far from the bottom - and whether code or a hand moved it.
       var scrollRestTimer = null, scrollByCode = false, chatMovedAt = 0;
       container.addEventListener("scroll", function () {
         if (!SCROLL_LOG) { return; }
@@ -1610,57 +1155,30 @@
         chatMovedAt = Date.now();
         chatMove.frame = requestAnimationFrame(chatMoveStep);
       }
-      // The spoken sentence: once it is below the middle of the chat window, the
-      // window scrolls so the sentence's middle lands on the window's middle.
-      // 2026-10-15 (operator: "highlighting scrolling aims to be vertically
-      // centered within the bottom/bottom top/top rule * so from top of window,
-      // highlighting continues normally * then upon reaching/passing the
-      // vertical center, the bubble will move up to ensure the text being
-      // highlighted is in full view"): back on, in that rule.
       var FOCUS_DEAD_ZONE;
       function focusSpeaking(span) {
         if (!span || !container.contains(span)) { return; }
         var rect = span.getBoundingClientRect();
         var middle = contentY(span) + rect.height / 2;
-        // 2026-10-15 (operator: "Add a dead zone: chat holds still until
-        // highlight is ~1/4 of the window, below centre * then one smooth move to
-        // re-centre, unless bottom/bottom is reached first"): no move until the
-        // lit piece is FOCUS_DEAD_ZONE of the window below centre (the window's
-        // own scroll included), then one move back to centre.
         var view = chatViewHeight();
         var below = middle - (container.scrollTop + view / 2);
         if (below < view * FOCUS_DEAD_ZONE && !chatMove) { return; }
         scrollLog("highlight: lit line " + Math.round(below) + " px below the middle");
         var target = middle - view / 2;
-        // It stops at the chat's end.
         target = Math.min(target, chatContentEnd());
         if (target > container.scrollTop + 4) { scrollChatTo(target); }
       }
 
-      // The animation marker and the prompt's placeholder word come from
-      // gopod_brobots_settings.json, the same file Wire-Pod reads (2026-10-01,
-      // operator: one source of truth). Until it loads, nothing is stripped.
       var cueMarkerPattern = null;
       var placeholderPattern = null;
-      // A scripted song line comes already split by the song engine, its pieces
-      // joined with scripted_split.segment_marker (an invisible character) - the
-      // same pieces the robot says, so those are what light up.
       var segmentMarker = null;
-      // The chat split (live_split in the settings file, the same rule Wire-Pod
-      // says a reply with): the characters that end a sentence and a comma
-      // piece. The defaults hold until the settings load.
       var liveSentenceEnds = ".!?";
       var liveCommaEnds = ",";
-      // The song's countdown lines (countdown.role in the settings file).
       var countdownRole;
-      // The song's Bingo ball lines (bingo_ball in the settings file).
       var ballRole;
       function escapeForRegExp(text) {
         return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       }
-      // The page's own words (page_text in the settings file, 2026-10-29: "sweep for
-      // all flexible data ... names, labels ... export to external files"): a key,
-      // its {placeholders} filled.
       var pageTexts = {};
       function pageText(key, values) {
         var t = String(pageTexts[key] == null ? "" : pageTexts[key]);
@@ -1683,7 +1201,6 @@
             var marker = String(settings.animation_marker || "");
             if (marker) {
               var last = escapeForRegExp(marker.slice(-1));
-              // 2026-10-04: a cue in markdown bold ("**confused**___") is a cue too.
               cueMarkerPattern = new RegExp("\\*{0,3}[A-Za-z][A-Za-z0-9-]*\\*{0,3}[ \\t]*" + escapeForRegExp(marker) + last + "*[ \\t]*", "g");
             }
             if (settings.scripted_split && settings.scripted_split.segment_marker) {
@@ -1695,11 +1212,6 @@
             }
             if (settings.addressing) { addressing = settings.addressing; }
             if (settings.system_bubble && settings.system_bubble.label) { systemLabel = settings.system_bubble.label; }
-            // 2026-10-30 (operator: "replace templated this: Goverlord: GOPOD Brain,
-            // with: KEYNOTE: Butler * anything with KEYNOTE's voice, please update at
-            // the template level"): the label is filled from the persona whose voice it
-            // is (system_bubble.voice_persona) - {first} {middle} {last} {name}
-            // {nickname} {job}, its labels.
             var vp = settings.system_bubble && settings.system_bubble.voice_persona;
             var vpp = vp && (settings.host_personas || {})[vp];
             if (vpp) {
@@ -1713,8 +1225,6 @@
             systemVoicePersona = vp || "";
             personaColours(settings.persona_colours || {});
             personaHeads(settings.persona_colours || {}, settings.persona_heads || {});
-            // Every persona is a host on the page - its own voice or another's
-            // (managers.personas, voice_of): the master list.
             personaVoiceOf = {};
             Object.keys(((settings.managers || {}).personas) || {}).forEach(function (k) {
               var p = settings.managers.personas[k] || {};
@@ -1723,22 +1233,16 @@
             if (settings.numpad_ptt) { numpad.cfg = settings.numpad_ptt; }
             if (settings.comm_check && settings.comm_check.record_seconds) { commCheckRecordSeconds = settings.comm_check.record_seconds; }
             if (settings.system_menu) { systemMenuData = settings.system_menu.groups || []; systemMenuIntro = settings.system_menu.intro || ""; systemMenuLook = settings.system_menu.look || {}; systemMenuCopy = settings.system_menu.copy || systemMenuCopy; }
-            // 2026-10-27 (the game engine, gopod_game_engine.go): a group with
-            // "runs": true starts with one line per run card (game.runs).
             var runCards = (settings.game && settings.game.runs) || [];
             systemMenuData = systemMenuData.map(function (g) {
               if (!g.runs) { return g; }
               var copy = Object.assign({}, g);
-              // A pending run (its card's "pending") isn't on the menu yet.
               copy.items = runCards.filter(function (r) { return !r.pending; }).map(function (r) { return { cmd: r.start, about: r.menu_about, fill: r.start }; }).concat(g.items || []);
               return copy;
             });
             if (settings.math && settings.math.popup_title) { mathPopupTitle = settings.math.popup_title; }
             if (settings.digit_highlight) { digitHighlight = settings.digit_highlight; }
             if (settings.word_reveal) { wordReveal = settings.word_reveal; }
-            // 2026-10-18 (operator: "ensure flexible data/info values/variables are in
-            // loadable files * code is dumb flow guiding machine"): the window's
-            // timings and sizes come from chat_window (the numbers here are the fallbacks).
             if (settings.chat_window) {
               var cw = settings.chat_window;
               if (typeof cw.max_bubbles === "number") { CHAT_MAX_BUBBLES = cw.max_bubbles; }
@@ -1814,7 +1318,6 @@
             }
             if (settings.bubble_sounds) { bubbleSounds = settings.bubble_sounds; }
             if (typeof settings.animation_lead_in === "string") { leadInText = settings.animation_lead_in.trim(); }
-            // 2026-10-17: the stings loaded once, ready to play again and again.
             if (settings.reporter_voices && settings.reporter_voices.system_stings) {
               var stings = settings.reporter_voices.system_stings;
               preloadStings(Object.keys(stings).map(function (k) { return stings[k] && stings[k].file; }).filter(Boolean));
@@ -1832,14 +1335,11 @@
             if (settings.topic_pictures && settings.topic_pictures.in_question) {
               picturesInQuestion = settings.topic_pictures.in_question;
             }
-            // 2026-11-05: anyone's Got it words (chat_moves) - a persona's opens its bubble.
             if (settings.chat_moves) { chatMoves = settings.chat_moves; }
             if (settings.reporter_voices) {
               reporterRole = settings.reporter_voices.role || reporterRole;
               hostNames = settings.reporter_voices.hosts || hostNames;
               hostLabels = settings.reporter_voices.labels || hostLabels;
-              // 2026-10-28: a nickname header - reporter_voices.nickname_label,
-              // "Buzzer (Intel 404 PNFH)" (gopodApplyNicknames, the same rule).
               var nickTpl = settings.reporter_voices.nickname_label || "";
               Object.keys(settings.host_personas || {}).forEach(function (h) {
                 var hp = settings.host_personas[h] || {};
@@ -1874,15 +1374,10 @@
           .replace(/\|\|\|[01C]\|\|\|/g, "")
           .replace(/\{\{[^}]*\}\}/g, "");
         if (placeholderPattern) { out = out.replace(placeholderPattern, ""); }
-        // 2026-09-30: Wire-Pod already removes the animation cue from this line;
-        // a leftover marker is removed here. A leading "Ah..." is speech and stays.
         if (cueMarkerPattern) { out = out.replace(cueMarkerPattern, ""); }
         return out.trim();
       }
 
-      // 2026-09-29: one bubble per spoken line. If the same reply shows up in two
-      // log formats back to back (a "Brobot N:" line and an "LLM response for"
-      // line), only the first becomes a bubble.
       var lastRobotBubble = { who: "", norm: "", format: "" };
       function robotBubbleOnce(who, text, format, then) {
         var norm = String(text).toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -1892,36 +1387,13 @@
         appendBubble(who, text, format, undefined, undefined, then);
         return "";
       }
-      // 2026-10-17 (operator: "If a reply bubble goes missing or shows twice ...
-      // can you account for to reveal this possible glitch, in all-logs?"): each
-      // live reply's fate goes to Wire-Pod's log - "GOPOD_PAGE live reply <id>
-      // Brobot N: shown", or "NOT shown - <why>" - under its "GOPOD_FEED <id>".
       function noteLiveReply(e, why) {
         var body = new URLSearchParams();
         body.set("note", "live reply " + e.id + " " + e.who + ": " + (why ? "NOT shown - " + why : "shown"));
         fetch("/api-sdk/gopod_page_note", { method: "POST", body: body }).catch(function () { /* Wire-Pod gone */ });
       }
 
-      // 2026-10-24: a line a Brobot heard himself comes on the feed now
-      // (gopodHeardLine), the moment it's heard - Wire-Pod's log is never read.
-
-      // 2026-10-01 (operator: "after please wait, add a countdown timer in the
-      // brobots window"): a small centred bubble counts the seconds of the
-      // rattle's wait down, then goes. Never saved with the chat. A countdown
-      // already over (a page opened later) is skipped.
-      // 2026-10-02 (operator: "[brobot icon] Brobot N: / [chat text]"): each bubble
-      // opens with a header row - the animated eyes icon and the speaker's name -
-      // and the chat text gets the full bubble width below it.
-      // 2026-10-04 (operator: "[icon] Operator to Brobot N [icon] ... if unnamed,
-      // ... Operator to Brobots"): the operator's bubble names who it went to -
-      // the Brobot the line opens with ("Brobot 1, can you hear me", the same
-      // name forms Wire-Pod answers to, addressing in the settings file), the
-      // Brobot a typed line went to, or the Brobots - and ends with that Brobot's
-      // icon in his own colour (both for the Brobots).
       var addressing = null;
-      // 2026-10-23 (operator: "When 'All' selected, whatever Brobot N is called in
-      // the input first ... starting with brobot N answering first"): the Brobot
-      // named first anywhere in the line (Wire-Pod's gopodFirstNamed, the same names).
       function firstNamedBrobot(text) {
         if (!addressing || !addressing.names) { return ""; }
         var words = String(text).toLowerCase().split(/[^a-z0-9']+/).filter(Boolean);
@@ -1956,48 +1428,15 @@
         }
         return "Brobots";
       }
-      // 2026-10-04 (operator: "this operator bubble however, has operator icons at
-      // both ends indicating a system response, Operator to Goverlord", "same chat
-      // brobot icon in grey"): an answer to Goverlord (Record Session's
-      // keep-or-delete) - the grey icon at both ends of the header.
-      // 2026-10-04 (operator: "label these timers as system messages ... for all
-      // timers [icon] Goverlord: GOPOD Brain [icon]"): the timers (the LLM
-      // warm-up, the rattle countdown) carry the same grey-icon header, labelled
-      // system_bubble.label from the settings file.
       var SYSTEM_TARGET = "Goverlord";
       var systemLabel;
       function systemHead(label) {
-        // 2026-11-18: the one header (makeHead) - its icon is whoever the label
-        // names (KEYNOTE: KEYS' head; "CHALK Brain": CHALK's), else the system's.
         var sysHead = makeHead(label, label, [], true);
         sysHead.classList.add("system-head");
         return sysHead;
       }
-      // 2026-10-08: the first icon of an operator line is the operator's own
-      // (from-operator, gopod_chat_bubbles.css's icon template).
-      // 2026-10-10 (operator: "'Operator' now update message according to input *
-      // "[input] to Brobot [N]", "KP[N] to Brobot [N]" ... "Mic to Brobot [N]",
-      // "KP1 to Brobot 1", "Reporter [N] to Brobot [N]""): the same white-eyed
-      // Operator bubble, its label naming the input (via) when it's known.
-      // 2026-10-17 (operator: "When \"starting with brobot 2\" * [icon] [input]
-      // to Brobots [icon brobot eyes 1] [icon brobot eyes 2] * switch to [icon
-      // brobot eyes 2] [icon brobot eyes 1], as a visual indicator"): the same
-      // words Wire-Pod takes as "Brobot 2 first" (gopodAllStartsWith).
       var BROBOT2_FIRST = /\b(?:start(?:ing)?\s+with|begin(?:ning)?\s+with)\s+(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\b|\b(?:(?:brobot|bro\s*bo(?:ugh)?t|bro\s*but)\s*(?:2|two|too|to)|pip)\s+(?:goes\s+|answers\s+)?first\b/i;
-      // GOLDEN persona colours (2026-11-15, operator: "The colouring of the bubbles
-      // should be dynamic per-persona everywhere, as much as safely possible"):
-      // each persona's colours (persona_colours in 03_chat_page.json - background,
-      // border, text) make its rules - its bubbles, its eyes, its outdoor
-      // suit's border, its search box - one source, nothing hand-written per persona.
-      // A persona with none (DOC, PIP) keeps its Brobot body's bubble.
       function personaSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
-      // 2026-11-18 (operator: "yes, replace all except brobots & reporters * Make
-      // field news reporters 1 & 2 heads, from CHALK & PLAYHEAD heads * so only
-      // brobots have the brobots eyes icon * make other icons same size as brobots
-      // eyes icon"): every persona's icon is one head, coloured from its
-      // persona_colours (the one colour source), with its props (persona_heads);
-      // the Brobots and the operator (Brobot 0) keep the eyes. "system" is the
-      // system icon's head (KEYS, the system's voice).
       function headProp(name, ring, badge) {
         switch (name) {
           case "crown": return '<path d="M30 30 L36 14 L46 26 L50 10 L54 26 L64 14 L70 30 Z" fill="' + ring + '"/><circle cx="50" cy="10" r="3" fill="#fff"/>';
@@ -2044,8 +1483,6 @@
         var root = document.documentElement.style;
         var each = [];
         Object.keys(colours).forEach(function (who) {
-          // 2026-11-15 (decoupled): every persona is its own key - Brobot 1, DOC,
-          // PIP alike; a Brobot's own colours are also his --brobot-N vars (his eyes).
           var c = colours[who] || {};
           each.push([who, c]);
           if (/^Brobot [12]$/.test(who)) {
@@ -2063,8 +1500,6 @@
           if (c.text) { body.push("color: " + c.text); }
           if (c.border) { body.push("box-shadow: 0 0 0 var(--bubble-border-width) " + c.border); }
           rules.push(b + " { " + body.join("; ") + "; }");
-          // 2026-11-18: the sender's icon only - a receiver's icon (a Brobot's eyes
-          // in "KEYNOTE to Brobot 1") keeps its own colours.
           if (c.border) { rules.push(".host-" + s + " .brobot-bubble-avatar:first-child, .brobot-bubble .host-" + s + " .brobot-bubble-avatar:first-child, " + b + " > .brobot-bubble-head > .brobot-bubble-avatar:first-child { --eye-fill: " + c.border + "; }"); }
           if (c.background) {
             rules.push(".suit-" + s + " { --suit-border: " + c.background + "; }");
@@ -2075,12 +1510,7 @@
         if (!el) { el = document.createElement("style"); el.id = "gopod-persona-colours"; document.head.appendChild(el); }
         el.textContent = rules.join("\n");
       }
-      // A Brobot's bubble wears the persona he answers as (2026-11-15): the line's
-      // to_as, else his reply's "by", else his own name - its colours (personaColours).
       function brobotAs(who) { return brobotTo[who] || brobotBy[who] || who; }
-      // 2026-11-16 (bubble log: "DOC:" over Brobot 1's colours, then "Brobot 1:"):
-      // the header and the colours from the same name - as (the reply's own "by"
-      // once it's in), else who the line reaches (brobotAs).
       function brobotHostClass(shell, who, as) {
         as = as || brobotAs(who);
         Array.prototype.slice.call(shell.classList).forEach(function (c) { if (/^host-/.test(c)) { shell.classList.remove(c); } });
@@ -2091,9 +1521,6 @@
         if (ic) { headIconClass(ic, as); }
       }
       function operatorHead(to, via, text) {
-        // 2026-11-18 (operator: "[sender-icon] [header text] [receiver-icon(s)]"):
-        // the sender is who the line says it's from (an asker - KEYNOTE, GOVERLORD
-        // - or the operator, Brobot 0, by input); the receivers are who it reaches.
         var senderKey = headNameKey(via);
         var sender = senderKey ? via : HEAD_OPERATOR;
         var made = operatorHeadMade(to, via, text, sender);
@@ -2102,51 +1529,28 @@
       }
       function operatorHeadMade(to, via, text, sender) {
         if (to === SYSTEM_TARGET) {
-          // 2026-11-15: the system voice's persona (system_bubble.label - KEYNOTE).
           return makeHead(sender, keyShown(via || "Operator") + " to " + (systemLabel || to), [HEAD_SYSTEM], true, via);
         }
-        // 2026-11-15 (live: "GOVERLORD to BUTLER"): a line to the system voice's
-        // persona names it the way its own bubbles do (KEYNOTE).
         var toShown = brobotTo[to] || (to && to === systemVoicePersona ? systemLabel : to);
-        // 2026-11-16: a system command goes to the system's voice (KEYNOTE).
         var systemCmd = /^\s*system-/i.test(String(text || ""));
         if (systemCmd) { toShown = systemLabel || toShown; }
         var text0 = keyShown(via || "Operator") + " to " + toShown;
         if (systemCmd) { return makeHead(sender, text0, [HEAD_SYSTEM], true, via); }
         var receivers = to === "Brobots" ? ["Brobot 1", "Brobot 2"] : [to];
         if (to === "Brobots" && (BROBOT2_FIRST.test(String(text || "")) || firstNamedBrobot(text) === "Brobot 2" || ((allSecondFirst[String(text || "")] || (/^KP/.test(String(via || "")) && allFirstSelect && allFirstSelect.value === "-*")) && firstNamedBrobot(text) !== "Brobot 1"))) { receivers.reverse(); }
-        // A line to a Brobot hosting a persona (DOC on Brobot 1) shows that persona.
         if (receivers.length === 1 && brobotTo[to]) { receivers = [brobotTo[to]]; }
         return makeHead(sender, text0, receivers, true, via);
       }
 
-      // 2026-10-13 (operator: "Reporter & Brobot bubbles: [white/transparent EYED
-      // icon]"; then "correct to \"Reporter 1: Brobot 3\" follows same format as
-      // \"Goverlord: GOPOD Brain\""): a reporter's header, its label as written
-      // (no colon after it), white-eyed icons at both ends.
       function reporterHead(label) {
-        // 2026-11-18: the one header - the reporter's own head ("CHALK – reporter").
         var head = makeHead(label, label, [], true);
         head.classList.add("system-head");
         return head;
       }
       function bubbleHead(who, noColon) {
-        // 2026-11-06 (operator: "page's header names should be running through a
-        // templated pathway to a single source of truth"): a Brobot's bubble wears
-        // the name Wire-Pod answered as (his reply's "by"), else his call name
-        // (host_personas.<who>.call_name), else who.
         var shown = brobotBy[who] || ((hostPersonasNow || {})[who] || {}).call_name || who;
         return makeHead(brobotBy[who] || who, noColon ? shown : shown + ":", [], true);
       }
-      // THE ONE HEADER (2026-11-18, operator: "the header mechanism isn't
-      // responsive dynamically * icons appear to be transposed * [sender-icon]
-      // [header text] [receiver-icon(s)] * isolate the header as an independent
-      // process that gets called into each chat bubble * account for
-      // internal-headers"): every bubble's header and every header inside one -
-      // the sender's icon, the text, then each receiver's icon (none for a
-      // bubble's own speaker). headIcon picks every icon: the Brobots' eyes in
-      // their colours, the operator's (Brobot 0) eyes with the input's badge, a
-      // persona's head (persona_heads), else the system's.
       var HEAD_OPERATOR = "\u0000operator", HEAD_SYSTEM = "\u0000system";
       function makeHead(from, text, to, noColon, via) {
         var head = document.createElement("div");
@@ -2178,16 +1582,11 @@
         var m = /^Brobot ([12])$/.exec(String(name || ""));
         if (m) { icon.classList.add("to-brobot-" + m[1]); return; }
         var k = headNameKey(name);
-        // "Brobot 1 Brain" names Brobot 1: his eyes, not a head.
         var mk = /^Brobot ([12])$/.exec(k);
         if (mk) { icon.classList.add("to-brobot-" + mk[1]); return; }
         if (k && (window.gopodPersonaHeads || {})[k]) { icon.classList.add("head-" + personaSlug(k)); return; }
         icon.classList.add("to-system");
       }
-      // headNameKey: the persona a header's text names (its key in persona_heads,
-      // or a Brobot) - by key, call name, nickname or name, the longest first, at
-      // the text's start ("CHALK – reporter" -> "CHALK reporter", "PLAYHEAD Brain"
-      // -> "PLAYHEAD", "KEYNOTE" -> the system voice's persona).
       function headNameKey(label) {
         var norm = function (x) { return String(x || "").toLowerCase().replace(/[\u2013\u2014]/g, "-").replace(/[^a-z0-9]+/g, " ").trim(); };
         var n = norm(label);
@@ -2209,21 +1608,11 @@
         return "";
       }
 
-      // 2026-10-04 (operator: "timer too fast to hear rattle audio - have visuals
-      // respond to what's there"): the timer stays until the song says the rattle
-      // has finished (countdown.end_text from the countdown role, see pollFeed);
-      // the seconds are only a fallback, plus 10, if that never comes.
       var countdownEndText = "done";
       function endCountdowns() {
         countdownDoneAt = 0;
         Array.prototype.slice.call(container.querySelectorAll(".brobot-bubble.countdown")).forEach(function (b) { b.remove(); });
       }
-      // 2026-10-11 (operator: "Timer displays and stays in place at least 3s, or
-      // until ball image & "Brobot 1: Bingo ball captured ..." are ready to
-      // display"): at the rattle's end the timer stays; the next bubble (the big
-      // ball, or the next line) takes its place, never sooner than
-      // COUNTDOWN_HOLD_MS after the end. A timer with nothing after it goes after
-      // COUNTDOWN_HOLD_MOST_MS.
       var COUNTDOWN_HOLD_MS, COUNTDOWN_HOLD_MOST_MS, countdownDoneAt = 0;
       function countdownHold() {
         if (!container.querySelector(".brobot-bubble.countdown")) { countdownDoneAt = 0; return; }
@@ -2231,10 +1620,6 @@
         var at = countdownDoneAt;
         setTimeout(function () { if (countdownDoneAt === at) { endCountdowns(); } }, COUNTDOWN_HOLD_MOST_MS);
       }
-      // 2026-10-11 (operator: "timer animation: upon display, timer stays in
-      // place, does not move or hide, scrolls normally"): only the big ball
-      // replaces it; before any other bubble it stays where it is, a bubble
-      // like the rest, and scrolls up with the chat.
       function keepCountdowns() {
         countdownDoneAt = 0;
         Array.prototype.slice.call(container.querySelectorAll(".brobot-bubble.countdown")).forEach(function (b) {
@@ -2249,8 +1634,6 @@
         var wait = COUNTDOWN_HOLD_MS - (Date.now() - countdownDoneAt);
         setTimeout(function () { endCountdowns(); then(); }, Math.max(0, wait));
       }
-      // 2026-10-24 (the root-to-leaf pass, link 3c): the raw bubble template,
-      // placed the one way; the next line waits for it (then).
       function showCountdown(seconds, sentMs, then) {
         var next = function () { if (then) { then(); } };
         if (!(seconds > 0)) { next(); return; }
@@ -2265,13 +1648,7 @@
         placeBubble(bubble, then);
       }
 
-      // The countdown's moving part - the juggled balls and the rocking hourglass
-      // - put into box; it runs until bubble leaves the page. Used by the rattle
-      // countdown and the LLM warm-up bubble.
       function addJuggleTimer(bubble, box) {
-        // 2026-10-02 (operator: "give me something for 'Juggling Big Shiny Bingo
-        // Balls. Please Wait.'"): five small Bingo balls, B I N G O, juggled
-        // beside the count (B, N, O in Brobot 1's colour; I, G in Brobot 2's).
         var juggle = document.createElement("div");
         juggle.className = "countdown-juggle";
         ["B", "I", "N", "G", "O"].forEach(function (letter) {
@@ -2281,31 +1658,17 @@
           juggle.appendChild(ball);
         });
         box.appendChild(juggle);
-        // 2026-10-04 (operator: "remove motion lines ... make the 5 balls bigger &
-        // simply move them up & down ... Make balls stay in position horizontally,
-        // and switch vertical between UPPER/LOWER"; earlier "mildly 'shake' the
-        // hourglass at 12fps"): each ball keeps its place, B I N G O left to right,
-        // half a ball apart so neighbours overlap. B, N, O and
-        // I, G glide up and down opposite each other, swapping UPPER and LOWER;
-        // the upper ones are drawn over the lower ones. The hourglass rocks a
-        // little. No numbers: the hourglass is the wait.
         var jugBalls = juggle.querySelectorAll(".juggle-ball");
         var glass = document.createElement("span");
         glass.className = "countdown-hourglass";
         glass.textContent = "\u23F3";
         box.appendChild(glass);
-        // 2026-10-04 (operator: "make balls swap start first at 6 fps; start 12fps
-        // hourglass to start, offset by +3"): the balls move 6 frames a second and
-        // start at once; the hourglass rocks 12 frames a second, starting 3 of its
-        // frames (0.25 s) later.
         var jugFrame = 0;
         var jugTimer = setInterval(function () {
           if (!bubble.isConnected && jugFrame > 0) { clearInterval(jugTimer); return; }
-          // Places fit the juggle box, so they scale with the phone layout.
           var ballSize = jugBalls.length ? jugBalls[0].offsetWidth : 56;
           var step = Math.max(0, juggle.clientWidth - ballSize) / Math.max(1, jugBalls.length - 1);
           var travel = Math.max(0, juggle.clientHeight - ballSize);
-          // 0 = UPPER, 1 = LOWER, gliding over 9 frames (1.5 s) each way.
           var swing = (1 - Math.cos(jugFrame / 9 * Math.PI)) / 2;
           for (var b = 0; b < jugBalls.length; b++) {
             var low = b % 2 === 0 ? swing : 1 - swing;  // B N O vs I G
@@ -2317,9 +1680,6 @@
         rockHourglass(bubble, glass, 3 * 1000 / 12);
       }
 
-      // The hourglass rocks a little, 12 frames a second, starting after
-      // delayMs, until bubble leaves the page. Used by the rattle countdown and
-      // the LLM warm-up bubble.
       function rockHourglass(bubble, glass, delayMs) {
         var glassFrame = 0;
         setTimeout(function () {
@@ -2333,40 +1693,15 @@
         }, delayMs);
       }
 
-      // 2026-10-03 (operator: "I prefer a pre-warm up and then have it stay
-      // loaded", "the bubble disappears", "Use the timer as well as part of a
-      // visual cue during the warm up"): while Wire-Pod loads the Brobots' LLM
-      // after a start (gopod_llm_warmup.go), one operator bubble shows the
-      // warm-up text (llm.warmup_text in the settings file) with the countdown's
-      // juggled balls and hourglass, and goes when the warm-up is done. Read from
-      // its own file, never saved with the chat, never in the chat memory.
       var warmupBubble = null;
-      // 2026-10-12 (operator: "The opening llm system bubble completed before I
-      // started, so the bubble stayed on top rather than under"): a warm-up
-      // bubble that finished before the reporters' opening still moves under
-      // each host line, until the opening ends.
       var warmupBeforeOpening = null, openingDone = false;
       var warmupPolling = false;
-      // 2026-10-04 (operator: "make it like a horizontal battery power level
-      // indicator ... a series of vertical LEDs, no bingo balls ... left to right,
-      // red to green, cold llm to fully warmed up llm ... message changes, LLM
-      // Warming Up to LLM Ready ... use same hour glass following LLM power
-      // level"; then "it is to stay. Keep it in"): the warm-up bubble is a
-      // battery of llm.leds LEDs, red to green. While warming they light one by
-      // one over llm.expected_seconds from the start (never the last one); when
-      // the model is loaded all are lit, the text turns to llm.ready_text and the
-      // hourglass settles (sand run through). It stays in the window, saved with
-      // the chat like the Bingo balls. One bubble per warm-up (Wire-Pod's start,
-      // each Bingo test), known by its start time.
       var llmWarm = { warmText: "LLM Warming Up", readyText: "LLM Ready", waitText: "Please wait.", checkMs: 3000, expectedSeconds: 120, leds: 10 };
       function buildWarmupBubble(startedMs) {
         var bubble = document.createElement("div");
         bubble.className = "brobot-bubble operator warmup";
         bubble.dataset.started = String(startedMs);
         bubble.appendChild(systemHead(systemLabel));
-        // 2026-10-04 (operator: "ReOrder to (center-aligned): [grey icon] Goverlord:
-        // GOPOD Brain [grey icon] / [llm power level] ⌛ / LLM Warming/Ready"): the
-        // header, the battery row, then the text under it.
         var text = document.createElement("span");
         text.className = "brobot-bubble-text";
         var row = document.createElement("div");
@@ -2377,7 +1712,6 @@
         for (var i = 0; i < llmWarm.leds; i++) {
           var led = document.createElement("span");
           led.className = "llm-led";
-          // Red (hue 0) on the left to green (hue 120) on the right.
           led.style.setProperty("--led-color", "hsl(" + Math.round(120 * i / Math.max(1, llmWarm.leds - 1)) + ", 90%, 50%)");
           battery.appendChild(led);
         }
@@ -2395,35 +1729,23 @@
         }
         return bubble;
       }
-      // 2026-10-09 (operator: "maybe this time say LLM ready for Bingo?"): a song's
-      // warm-up names its own ready text (its knobs.json llm_ready_text), else
-      // llm.ready_text.
       function showWarmupLevel(bubble, lit, ready, readyText, warmingText) {
-        // 2026-10-13: while warming, Wire-Pod's message ("Voices are being
-        // generated. Please wait.", "LLM Warming Up. Please wait.", "Please wait.").
         var label = ready ? (readyText || llmWarm.readyText) : (warmingText || llmWarm.warmText);
         var labelEl = bubble.querySelector(".brobot-bubble-text");
-        // 2026-10-23: the same words keep their voice's lit line (voiceForLine).
         if (voiceLineWords(labelEl.textContent) !== voiceLineWords(label)) {
           labelEl.textContent = label;
-          // 2026-10-24 (link 4): each of its lines names itself for its voice.
           String(label).split("\n").forEach(function (one) { voiceLineAhead(one, labelEl); });
-          // Its lines already said stay said; the next line is tied before it shows.
           Object.keys(bubble._spoken || {}).forEach(function (t) {
             var said = voiceLineSpan(labelEl, t);
             if (said) { said.classList.add("spoken"); }
           });
           voiceTieAhead();
         }
-        // 2026-10-16 (operator: "NEW system message ... lines"): one line each.
         labelEl.style.whiteSpace = "pre-line";
         var leds = bubble.querySelectorAll(".llm-led");
         for (var i = 0; i < leds.length; i++) { leds[i].classList.toggle("lit", i < lit); }
         bubble.querySelector(".llm-battery").setAttribute("aria-label", label + ", " + lit + " of " + leds.length);
         bubble.classList.toggle("ready", !!ready);
-        // 2026-10-06 (operator: "make the (rocking) hourglass animation empty the
-        // sand from top full to bottom full over the range of the warming level
-        // ... 10 LEDS, so 5 hourglass sprites?"): two LEDs a sprite.
         var sprites = HOURGLASS_SPRITES - 1;
         var stage = ready ? sprites : Math.min(sprites, Math.floor(lit * HOURGLASS_SPRITES / Math.max(1, leds.length)));
         var glass = bubble.querySelector(".warmup-hourglass");
@@ -2432,9 +1754,6 @@
           glass.innerHTML = hourglassSprite(stage);
         }
       }
-      // The warm-up hourglass, sprite stage 0 (top full) to 4 (bottom full): the
-      // sand in the top bulb drains to the neck, the bottom bulb fills from its
-      // base, with a thin stream between while it runs.
       var HOURGLASS_SPRITES;
       var hourglassCfg = {};
       function hourglassSprite(stage, steps) {
@@ -2452,14 +1771,10 @@
           "<path class=\"hg-glass\" d=\"M4 4 L20 4 L12.8 16 L20 28 L4 28 L11.2 16 Z\"/>" +
           "</svg>";
       }
-      // A saved ready bubble, redrawn on page load (restoreChat).
       function restoreWarmupBubble(saved) {
         var parts = String(saved).split("|");
         var warm = buildWarmupBubble(parts[0]);
         showWarmupLevel(warm, llmWarm.leds, true, parts.slice(1).join("|"));
-        // 2026-10-28 (operator: "Opener llm warming * Upon page refresh, spoken
-        // lines reset to 100% solid, not 85%"): its lines were all said - each
-        // shows as said (85%), like every restored line.
         var label = warm.querySelector(".brobot-bubble-text");
         String(label.textContent).split("\n").forEach(function (one) {
           if (!one.trim()) { return; }
@@ -2467,13 +1782,6 @@
           if (said) { said.classList.add("spoken"); }
         });
       }
-      // 2026-10-13 (operator: "chat bubbles must run in an orderly sequence so
-      // Goverlord's orchestration is presented correctly"; "reporter lines ...
-      // contained in between must appear before llm system bubble"): the
-      // warm-up file only drives the warming LEDs. The bubble turns ready (or,
-      // after a warm start with no warming, first appears, ready) at the feed's
-      // "warmup_ready|<started_ms>|<ready text>" line - in the chat's order,
-      // after every line before it.
       function warmupReadyLine(text) {
         var rest = String(text).slice("warmup_ready|".length);
         var cut = rest.indexOf("|");
@@ -2502,7 +1810,6 @@
         warmupBubble.dataset.text = message;
         var lit = warmupBubble.querySelectorAll(".llm-led.lit").length;
         showWarmupLevel(warmupBubble, Math.max(1, lit), false, "", message);
-        // "Please wait." alone (the lines are next) isn't held.
         return message.trim() !== llmWarm.waitText.trim();
       }
       function pollWarmup() {
@@ -2513,21 +1820,15 @@
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (state) {
             if (!state || !state.started_ms) { return; }
-            // A restart clears the chat (clearBubbles), this bubble with it.
             if (warmupBubble && !warmupBubble.isConnected) { warmupBubble = null; }
-            // Already finished and kept in the chat (or restored from it).
             if (isSeen("warm|" + state.started_ms)) { return; }
             var mine = warmupBubble && warmupBubble.dataset.started === String(state.started_ms);
             if (!state.active) {
-              // Warm now; its ready line in the feed turns it ready.
               if (mine) { showWarmupLevel(warmupBubble, llmWarm.leds - 1, false, "", warmupBubble.dataset.text); }
               return;
             }
             if (!mine) { warmupBubble = buildWarmupBubble(state.started_ms); }
             var level = Math.max(0, Date.now() - state.started_ms) / (llmWarm.expectedSeconds * 1000);
-            // 2026-10-17 (operator: "Goverlord awaits your return... + hourglass,
-            // and waits, nothing plays"): while Wire-Pod waits for this page, the
-            // bubble shows its awaits text; its own message comes back after.
             var shownText = state.awaits && state.text ? state.text : warmupBubble.dataset.text;
             showWarmupLevel(warmupBubble, Math.min(llmWarm.leds - 1, 1 + Math.floor(level * llmWarm.leds)), false, "", shownText);
           })
@@ -2535,62 +1836,21 @@
           .then(function () { warmupPolling = false; });
       }
 
-      // 2026-10-02 (operator: "make a really big bingo ball number display for
-      // B-1, I-9 & O-0"): a big ball, centred, coloured by its letter, for the
-      // called number ("B-1"). 2026-10-04 (operator: "Please keep the bingo balls
-      // displayed in the chat bubbles window"): it stays, is saved with the page's
-      // chat and comes back after a refresh; only Clear Chat removes it. Never in
-      // the Brobots' chat memory.
-      // 2026-10-06 (operator: "think of it like a long interview video on youtube,
-      // segmented with chapters"): a chapter title, in a system bubble
-      // (interview_chapters in the settings file, gopod_interview_chapters.go).
       var chapterRole, chapterLabel;
-      // 2026-10-24 (the root-to-leaf pass, link 3): on the raw bubble template and
-      // placed the one way (placeBubble) - the next line waits for it (then).
       function showChapter(title, then) {
         if (!restoringChat) { recordBubble(chapterRole, String(title), "chapter"); }
         placeBubble(rawBubble({ kind: "chapter", classes: "operator system-status chapter", head: systemHead(chapterLabel.replace("{title}", String(title))) }), then);
       }
-      // 2026-10-06 (operator: "Yes, please build this way, with score bubble"):
-      // the session's value-point score at "Thanks Brobots", in a Goverlord
-      // system bubble (value_points, gopod_value_points.go).
       var scoreRole;
-      // 2026-10-08 (operator: "Operator bubble: system message (... GOPOD
-      // Brain) with \"Draft run completed.\""): sign_off.system_role's lines
-      // show in the same system bubble.
       var systemRole;
-      // 2026-10-17 (operator: "terminal-results are sent back to chat bubbles
-      // window * In terminal-results chat bubble, make terminal-bubble-text
-      // font-size 50% of current bubble-text font-size"): system-set's answers,
-      // in a system bubble with small text (not kept in the saved chat).
       var terminalRole;
-      // 2026-10-18 (operator: "CHALK (display) now is to take ownership of:
-      // search-results box (same smaller size, no audio) * system-status and the
-      // other system bubbles"): these bubbles carry CHALK's header and board
-      // (managers.display_host); with none, Goverlord's as before.
       var displayHost = "";
       function displayHead(bubble) { return hostHeadFor(bubble, displayHost); }
-      // A manager's header and colour on a bubble (CHALK's display, PLAYHEAD's search).
       function hostHeadFor(bubble, who) {
         if (!who) { return systemHead(systemLabel); }
         bubble.classList.add("host-" + who.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
         return reporterHead(hostHeader(who));
       }
-      // GOLDEN raw bubble template (2026-10-21, operator: "before bubble types
-      // there is the raw bubble scaffolding * build up bubble types from the raw
-      // basic bubble boiler template * whatever processes/rules apply to a bubble
-      // must complete before the next bubble"; "every bubble ... must fully render
-      // & pre-load hidden * somewhere so as not to affect live scrolling"). Every
-      // bubble type is built on these, one type at a time:
-      //   rawBubble(spec)        the bubble, whole: kind, classes, header, lines
-      //   bubbleTask(b, promise) a job it must finish before it shows
-      //   placeBubble(b, then)   built in the hidden staging area (outside the
-      //                          chat - no scroll), its tasks (and its pictures
-      //                          loading) done, then into the chat and shown;
-      //                          "then" - the next event - only after that.
-      // Types on it so far: system/terminal answers; reporter and manager lines;
-      // Goverlord's lines; Brobot replies. Exceptions (their own rules): the chat window, the
-      // Operator bubble (the one input type), the system window (menu).
       var bubbleStaging = null, BUBBLE_TASK_MAX_MS = 10000;
       function bubbleStage() {
         if (!bubbleStaging || !bubbleStaging.isConnected) {
@@ -2615,12 +1875,6 @@
         b._tasks = [];
         return b;
       }
-      // 2026-10-24 (the photo egg froze the chat: its bubble isn't a rawBubble,
-      // so a photo still loading had no task list to wait in): any bubble gets one.
-      // An hourglass in a picture's place until the picture is there. A picture
-      // not made yet (a slow Easter egg's photo) is asked for again every
-      // chat_window.picture_retry_ms, at most picture_wait_max_ms, then its
-      // place is let go.
       var pictureRetryMs = 1000, pictureWaitMaxMs = 30000;
       function pictureWait(b, img) {
         var spot = document.createElement("span");
@@ -2647,11 +1901,6 @@
         if (img.complete) { if (img.naturalWidth) { there(); } else { again(); } }
       }
       function bubbleTask(b, promise) { (b._tasks = b._tasks || []).push(promise); return promise; }
-      // GOLDEN bubble log (2026-11-15, operator: "LOG IT ALL in ALL LOGS!! * log
-      // 100% everything we're having an issue with * stop redirecting me into
-      // forced labour"): every bubble the main page shows says, in the journal,
-      // what it shows - its header, its persona colours class, its background and
-      // ring as drawn - so a run is checked from the journal, not by the operator.
       function bubbleNote(b, why) {
         if (restoringChat || (pageRoleKnown && !isMainPage) || !b || !b.classList) { return; }
         var head = b.querySelector(":scope > .brobot-bubble-head");
@@ -2679,23 +1928,12 @@
         var stage = bubbleStage();
         stage.style.width = container.clientWidth + "px";
         stage.appendChild(b);
-        // 2026-10-24 (operator: "All chat bubbles * aim to render and display a
-        // shell bubble + placeholders * new placeholder 2: [hourglass per
-        // image]/display image(s)"): a picture still loading doesn't hold its
-        // bubble back - it shows as an hourglass in its place until it's there.
         Array.prototype.forEach.call(b.querySelectorAll("img"), function (img) {
           if (!img.complete || !img.naturalWidth) { pictureWait(b, img); }
         });
         var tasks = (b._tasks || []).map(function (t) { return Promise.resolve(t).catch(function () {}); });
         Promise.race([Promise.all(tasks), new Promise(function (ok) { setTimeout(ok, BUBBLE_TASK_MAX_MS); })]).then(finish);
       }
-      // GOLDEN results template (2026-10-29, operator: "results outputs are
-      // center-aligned, not read friendly * can you set up a templated results
-      // output format?"): every system answer - in the chat's Terminal bubble or
-      // the system window's results - is drawn the one way, left-aligned: its
-      // first line the title (bold), then each line in order; lines that read
-      // "<command>  <what it does>" (two or more spaces between) line up as a
-      // two-column table, the command in code style; any other line stays as is.
       function resultTemplate(text) {
         var out = document.createElement("div");
         out.className = "gopod-result";
@@ -2711,7 +1949,6 @@
             out.appendChild(title);
             return;
           }
-          // The last wide gap splits the columns ("system-skip  (or Esc)      skip ...").
           var cols = /^\s*(\S.*\S)\s{2,}(\S.*)$/.exec(line);
           if (cols) {
             if (!table) {
@@ -2740,36 +1977,23 @@
         return out;
       }
       function showTerminal(text, then) {
-        // While the system menu is open, its answers go in its results (systemMenuResult).
         if (systemMenuResult(String(text), "answer")) { if (then) { then(); } return; }
-        // 2026-10-21: a system answer is Goverlord's (the Captain's).
         var b = rawBubble({ kind: "terminal", classes: "operator system-status score terminal gopod-admin-only",
           head: systemHead(systemLabel), text: "", lineClass: "terminal-text" });
         var line = b.querySelector(".terminal-text");
         if (line) { line.appendChild(resultTemplate(text)); }
         placeBubble(b, then);
       }
-      // 2026-10-17 (operator: "Don't speak or highlight search results * put a
-      // centered rounded-rectangle bubble around the search results * search
-      // results font @ 50% size * do a fast character by character reveal * then
-      // brobot responses"): the results of a "search ..." line, never spoken,
-      // typed in a character at a time (system_search.reveal_ms_per_char, at
-      // most reveal_max_seconds).
       var searchSettings = { results_role: "Search Results" };
       function showSearchResults(text, to, then) {
         var next = function () { if (then) { then(); } };
         var bubble = document.createElement("div");
-        // 2026-10-21: a "search ..." to a Brobot - PLAYHEAD's part at the top of his bubble.
         var nestTo = /^Brobot [12]$/.test(String(to || "")) && !restoringChat ? to : "";
         bubble.className = "brobot-bubble search-results";
-        // 2026-10-19 (operator: "system-search = location = PLAYHEAD, not CHALK"):
-        // system_search.results_host draws them (else the display host).
         var resultsHost = searchSettings.results_host || displayHost;
         if (resultsHost) { bubble.appendChild(hostHeadFor(bubble, resultsHost)); }
         var line = document.createElement("span");
         line.className = "brobot-bubble-text search-results-text";
-        // Built whole (golden: placed at its full size), every character
-        // hidden until typed in.
         var chars = [];
         Array.from(String(text)).forEach(function (c) {
           if (c === "\n") { line.appendChild(document.createElement("br")); return; }
@@ -2790,7 +2014,6 @@
           if (reply) { shell.insertBefore(bubble, reply); } else { shell.appendChild(bubble); }
         }
         else if (inMenu) { inMenu.appendChild(bubble); inMenu.scrollTop = inMenu.scrollHeight; }
-        // 2026-10-24 (link 3c): in the chat, placed the one way - the next line waits.
         if (restoringChat) { if (!nestTo && !inMenu) { container.appendChild(bubble); } bubble.classList.add("typed"); next(); return; }
         if (!inMenu && !nestTo) { placeBubble(bubble, then); } else { next(); }
         var per = searchSettings.reveal_ms_per_char || 6;
@@ -2803,27 +2026,9 @@
           while (shown < want) { chars[shown++].classList.add("on"); }
           if (shown < chars.length) { requestAnimationFrame(step); } else { bubble.classList.add("typed"); }
         }
-        // Typed in once the bubble shows.
         whenShown(bubble, function () { requestAnimationFrame(step); });
       }
-      // 2026-10-12 (operator: Reporter 0, "Reporter 0, Goverlord"): Goverlord's
-      // own lines are headed with its reporter label (reporter_voices.labels).
-      // GOLDEN "lines:" (2026-10-29, the tour; 2026-10-31, operator: "chunks are
-      // lines in that one chat bubble * core rule: applies globally"): one bubble,
-      // one line each, every line its own voice - named ahead, so each starts
-      // dormant and lights as its voice plays. The system's bubble and every
-      // host's (a Gomad's, a reporter's) are filled the one way.
       function linesInto(bubble, text) {
-          // 2026-10-29 (operator: "The highlighting mechanism is loose inside the
-          // torah bubbles * Entire paragraph lit up before its turn * Upon ... stop
-          // run ... the text didn't default to 85% solid white"): each line's words
-          // are its voice's line from the moment it's drawn - dormant (0%) until
-          // its voice plays, 85% after, or shown whole by a skip or a stop.
-          // 2026-11-14 (operator: "keeping the text the way it is written in the
-          // story.md file * this current chunking & splitting method to remain"):
-          // a line is "\n"-split as written; inside it, voice chunks (joined by
-          // U+2063, gopodSameLineMark) sit side by side on that line, each still
-          // its own voice and lit on its own.
           String(text).slice(6).split("\n").forEach(function (lineText) {
             var el = document.createElement("span");
             el.className = "brobot-bubble-text brobot-bubble-line";
@@ -2843,13 +2048,7 @@
       }
       function showScore(text, label, then) {
         if (!restoringChat) { recordBubble(scoreRole, String(text), "score"); }
-        // On the raw bubble template (built and loaded hidden, then shown).
         var bubble = rawBubble({ kind: "system", classes: "operator system-status score", head: systemHead(label || systemLabel) });
-        // 2026-10-29 (operator: "each scripture in its own bubble * generate audio
-        // for system tour * rather than a long wait for a single audio wav file
-        // ... send segment for processing, while the brobot speaks send next
-        // segment"): "lines:" - one bubble, one line each, every line its own voice
-        // (named ahead, so each starts dormant and lights as its voice plays).
         if (String(text).indexOf("lines:") === 0) {
           linesInto(bubble, text);
           placeBubble(bubble, then);
@@ -2861,42 +2060,11 @@
         voiceLitLine(bubble, line, text);
         placeBubble(bubble, then);
       }
-      // GOLDEN, one slot for a voice being made (2026-10-18, operator: "where a
-      // voice is being generated displays the generating + hourglass 'message'
-      // until the voice is generated & the 'message' is updated * my worry is
-      // tiny adjustments like these aren't properly implemented as a
-      // non-thinking sub-processes that just work everywhere"): Wire-Pod's
-      // generating_marker+"on" opens a slot (generating_text and the
-      // hourglass); the next voiced line - Goverlord's or a reporter's - fills
-      // that same bubble with its own header and words, in place (no swap, no
-      // jump). The Operator's own bubble does the same in itself ("op").
-      // GOLDEN highlight for voices the page plays (2026-10-18, operator:
-      // "Highlighting mechanism is awesome * can you apply this independent
-      // working mechanism to system and reporter voices?"): a reporter's or
-      // Goverlord's line is one piece, its words hidden until said, revealed
-      // word by word across its voice's own length (the Brobots' word reveal,
-      // scaled like an SRT line), then 85%. Its voice is the next one played
-      // after it that isn't a sting (playVoiceThen); with no voice, its words
-      // show anyway once it has been up voiceLitWaitMs.
       var voiceLitNext = null, voiceLitWaitMs = 15000;
-      // GOLDEN global message variable (2026-10-18, operator: "decouple generating
-      // + hourglass into its own 'global message variable' available to all
-      // bubbles * [message0]/[message1] * message0: "Generating..." + hourglass *
-      // message1: generated playable voice wav file + [transcription]"): every
-      // voiced line - Goverlord's, a reporter's, a manager's, the Operator's own
-      // (slotWaiting) - waits in its own bubble with generatingText and the
-      // hourglass (generatingGlass), and turns into its words as its voice plays.
       var lineWaits = false, lineVoice = "", voiceWaits = [], voiceWaitFor = {};
-      // THE one Generating template (2026-10-21, operator: "A single robust
-      // bulletproof clean boring deterministic 'Generating...' mechanism template"):
-      // voiceWaitOn puts generatingText + the hourglass just before an element
-      // (a voiced line's words, or the Operator's own words), keyed by the voice
-      // file it waits for; voiceWaitEnd takes it away and shows the words - when
-      // that voice starts (voiceLitStart), or for all on "off" (voiceWaitsGone).
       function voiceWaitOn(bubble, el, file) {
         var wait = document.createElement("span");
         wait.className = "voice-wait";
-        // 2026-10-22 (operator: "generating + hourglass, not hourglass + generating").
         wait.appendChild(document.createTextNode(generatingText));
         wait.appendChild(generatingGlass(bubble));
         el.parentNode.insertBefore(wait, el);
@@ -2908,15 +2076,9 @@
         if (say && say._wait) { say._wait.remove(); say._wait = null; }
         voiceWaits = voiceWaits.filter(function (x) { return x !== say; });
       }
-      // "off": the voice failed - the waiting lines show their words.
       function voiceWaitsGone() {
         voiceWaits.slice().forEach(function (say) { voiceWaitEnd(say); saidWhole(say); });
       }
-      // 2026-10-29 (live: a tour paragraph lit up whole before its turn - its
-      // voice was still being made while the long one above it played): a voiced
-      // line with no voice is shown anyway after voiceLitWaitMs - counted from its
-      // turn, once every line above it in its bubble has been said, never from
-      // when the bubble showed.
       function lineTurnCome(bubble, say) {
         var lines = bubble.querySelectorAll(".brobot-say");
         for (var i = 0; i < lines.length && lines[i] !== say; i++) {
@@ -2942,8 +2104,6 @@
           setTimeout(showAnyway, 500);
         })();
       }
-      // A line shown said without its voice - and the line said last in the
-      // same voice (the egg's "MouseOver to Zoom In"), dormant until then.
       function saidWhole(say) {
         say.classList.add("spoken");
         (say._parts || []).forEach(function (p) { p.classList.add("spoken"); });
@@ -2952,28 +2112,21 @@
         line.textContent = "";
         var say = document.createElement("span");
         say.className = "brobot-say";
-        // 2026-10-18 (operator, CHALK's weather line: "no flag"): flags drawn
-        // as their pictures, like a Brobot's bubble.
         say.innerHTML = flagPictures(escapeHtml(String(text)));
         line.appendChild(say);
         var waits = lineWaits;
         lineWaits = false;
         if (lineVoice) { voiceWaitFor[lineVoice] = say; lineVoice = ""; }
         if (restoringChat) { say.classList.add("spoken"); return; }
-        // Skipping the reporters' lines: shown whole, not waited on.
         if (skippingReporters) { say.classList.add("spoken"); bubble.classList.add("voice-lit"); return; }
         bubble.classList.add("voice-lit");
         voiceLitNext = say;
-        // message0 until its voice plays: "Generating..." and the hourglass.
         if (waits) { voiceWaitOn(bubble, say, typeof waits === "string" ? waits : ""); }
         showOnItsTurn(bubble, say);
       }
-      // Its voice starts: the words revealed across seconds, then said.
       function voiceLitStart(seconds, words, src, audio) {
-        // The line waiting for this very voice file, else the line shown last.
         var path = String(src || "").replace(/#.*$/, "").replace(/^https?:\/\/[^/]+/, "");
         var own = path && voiceWaitFor[path];
-        // A voice-only line not on the page when its voice was named: tied now.
         if (!own && path && voiceForText[path]) { own = voiceLineTie(path, voiceForText[path], false); }
         if (path) { delete voiceForText[path]; }
         if (own) { delete voiceWaitFor[path]; }
@@ -2985,22 +2138,12 @@
         say.dataset.at = "0";
         say.dataset.end = String(seconds);
         say._spokenWords = words || null;
-        // 2026-11-10 (operator: "It's the timings with the voice. That's really
-        // important"): the voice is the clock - its words light at its playing
-        // position, never on timers of their own.
         say._voice = audio || null;
         say._voiceFrom = 0;
-        // 2026-10-24 (operator: "please check that the highlighting mechanism is
-        // inherently part of this bubble"): a voiced line shown in parts (the egg's
-        // congratulations, then "MouseOver to Zoom In" under the prize) is one
-        // sentence - each part lit in turn, at its own words' times when the voice
-        // has them, else its share of the voice's length.
         var parts = (say._parts || []).filter(function (p) { return p.isConnected && !p.classList.contains("spoken"); });
         if (parts.length) {
           var counts = [say].concat(parts).map(function (p) { return Math.max(1, sayWords(p.textContent).length); });
           var total = counts.reduce(function (a, c) { return a + c; }, 0);
-          // The voice's words (its times list has the marks too): where each part's
-          // words start in it.
           var real = [];
           (words || []).forEach(function (w, k) { if (/[A-Za-z0-9]/.test(String(w.t || ""))) { real.push(k); } });
           var cut = function (n) { return n < real.length ? real[n] : (words || []).length; };
@@ -3012,8 +2155,6 @@
             var n = counts[i + 1], startAt = seconds * from / total;
             p.dataset.at = "0";
             if (timed) {
-              // Its own words' times, from its first word (it lights then).
-              // The last part runs to the voice's end (a word said as two, "mouse over").
               var mine = words.slice(cut(from), i === parts.length - 1 ? words.length : cut(from + n));
               startAt = +mine[0].s || startAt;
               p._spokenWords = mine.map(function (w) { return { t: w.t, s: (+w.s || 0) - startAt, e: (+w.e || 0) - startAt }; });
@@ -3036,26 +2177,13 @@
           parts.forEach(function (p) { p.classList.remove("speaking"); p.classList.add("spoken"); });
         };
       }
-      // 2026-10-06 (operator: "Pictures in the chat"): a topic's pictures, one
-      // row in a system bubble; the line is their paths, "|" between them.
       var pictureRole, picturesInQuestion = [];
       var eggZoomText;
-      // A Brobot's pop-up wrapper waiting for his reply (showPictures).
       var popupWraps = {};
-      // A pop-up was found for the question being answered (reset by the next
-      // operator line): every Brobot's answer to it wears the marquee.
       var popupExchange = false;
       var eggMarked = {}; // Brobot -> his line hit an egg (eggmark:)
-      // 2026-10-13 (operator: "Make these live Pop Ups appear like a winner's
-      // chat bubble * system message from Goverlord, congratulations finding
-      // this pop-up"; "use system chat bubbles"; "I still want the zoom
-      // feature"): a live topic's pictures ("popup:" on the line) in a Goverlord
-      // system bubble, popup_text over them, zoom as ever.
       var popupText;
       var mathPopupTitle;
-      // 2026-10-24 (the root-to-leaf pass, link 3d): placed the one way
-      // (placeBubble: built hidden, its pictures loaded, then shown); the next
-      // line waits for it (then); the marquee and the weather sound once placed.
       function showPictures(list, then) {
         var next = function () { if (then) { then(); } };
         voiceLitNext = null; // the next voice is this egg's, not an earlier line's
@@ -3065,9 +2193,6 @@
         bubble.className = "brobot-bubble operator system-status pictures";
         var row = document.createElement("div");
         row.className = "topic-pictures";
-        // 2026-10-12 (operator: "move granny photo into reporter bubble, one line
-        // down, still centered + mouse-over-zoom"): topic_pictures.in_question
-        // pictures go inside the question bubble just above, under its words.
         var files = String(list).split("|").filter(function (src) { return src.trim(); });
         var question = container.lastElementChild;
         if (warmupBubble && question === warmupBubble) { question = question.previousElementSibling; }
@@ -3079,9 +2204,6 @@
           row.classList.add("in-question");
           question.appendChild(row);
           if (restoringChat) { next(); return; }
-          // 2026-10-12 (operator: "the bubble stopped at the end of text and the
-          // photo was cut off from view"): the question is placed again, whole,
-          // once its picture has loaded.
           if (question.style.visibility === "hidden") { placeAgain = true; next(); return; }
           whenBubblesReady([question], function () { scrollChatTo(bubbleTarget(question)); });
           next();
@@ -3092,15 +2214,10 @@
           if (weatherSound) { weatherSoundOnShow(b, weatherSound); }
         });
       }
-      // A prize's items (pictures, a card, the math challenge, a weather face):
-      // cards and math into the holder, pictures and faces into the row. Returns
-      // the weather sound to play when it shows ("" for none).
       function prizeItems(list, holder, row) {
         var weatherSound = "";
         String(list).split("|").forEach(function (src) {
           if (!src.trim()) { return; }
-          // 2026-10-16: a card prize ("card:<words>", the roast battle's) - its
-          // words in the egg, bold, where a picture would be.
           if (src.trim().indexOf("card:") === 0) {
             var cardBox = document.createElement("div");
             cardBox.className = "brobot-bubble-text";
@@ -3111,8 +2228,6 @@
             holder.appendChild(cardBox);
             return;
           }
-          // 2026-10-14: the "Explain the Math" pop-up ("math:<statement>"):
-          // math.popup_title over the challenge; both Brobots' answers join it.
           if (src.trim().indexOf("math:") === 0) {
             var mathBox = document.createElement("div");
             mathBox.className = "brobot-bubble-text";
@@ -3124,8 +2239,6 @@
             holder.appendChild(mathBox);
             return;
           }
-          // 2026-10-14: the weather pop-up ("weather:<words>@<hour>"):
-          // Vector's weather face for it, and its sound as the pop-up shows.
           if (src.trim().indexOf("weather:") === 0) {
             var wx = /^weather:(.*)@(\d+)$/.exec(src.trim());
             var wface = weatherCard && wx ? weatherFaceFor(wx[1].toLowerCase(), parseInt(wx[2], 10)) : null;
@@ -3138,65 +2251,35 @@
           var img = document.createElement("img");
           img.src = src.trim();
           img.alt = "";
-          // 2026-10-09: grows to the bubble's width under the mouse (one at a
-          // time; it shrinks when the mouse leaves the pictures, so the grown
-          // picture moving under the mouse doesn't flicker); a tap toggles it
-          // (gopod_chat_bubbles.css .zoomed).
           magnify(row, img);
           row.appendChild(img);
         });
         return weatherSound;
       }
-      // An egg's line, read: "[Brobot N::|HOST::][msg=<congratulations>::]<prize>".
       function eggSpec(list) {
         var spec = { who: "", host: "", text: popupText, zoom: "", prize: list };
-        // 2026-10-14 (operator: "combine a brobot's response bubble with a pop-up
-        // wrapper ... like more of a surprise prize"): a pop-up that names its
-        // Brobot ("Brobot 2::<pictures>") is his next reply bubble.
         var m = /^(Brobot [12])::/.exec(spec.prize);
         if (m) { spec.who = m[1]; spec.prize = spec.prize.slice(m[0].length); }
-        // 2026-10-18 (operator: "'weather' can still be an easter egg, but with a
-        // chalkboard color background"): a host's egg ("CHALK::") - its own board.
         m = !spec.who ? /^([A-Za-z][A-Za-z0-9 ]*)::/.exec(spec.prize) : null;
         if (m && m[1] !== "msg=" && hostNames[m[1]]) { spec.host = m[1]; spec.prize = spec.prize.slice(m[0].length); }
-        // 2026-10-16 (operator: '"Congratulations, Master CrushN8r! You found the
-        // easter egg, [easter egg name/trigger]"'): the egg's own congratulations.
         m = /^msg=([^]*?)::/.exec(spec.prize);
         if (m) { spec.text = m[1]; spec.prize = spec.prize.slice(m[0].length); }
-        // 2026-10-17 (operator: "MouseOver to Zoom In goes below the images"):
-        // the zoom line goes under the prize.
         if (eggZoomText && spec.text.trim().slice(-eggZoomText.length) === eggZoomText) {
           spec.zoom = eggZoomText;
           spec.text = spec.text.trim().slice(0, -eggZoomText.length).trim();
         }
         return spec;
       }
-      // GOLDEN Easter egg template (2026-10-24, operator: "Easter eggs (including
-      // slow) * Aim to render and display shell easter egg bubble + placeholders";
-      // "please check that the highlighting mechanism is inherently part of this
-      // bubble"): one way for every egg - the shell (a Brobot's marquee wrapper,
-      // or Goverlord's / a host's board), Goverlord's congratulations as one
-      // voiced line (Generating + hourglass, then lit word by word), the prize
-      // (pictures held by hourglasses until they're there, a card, the math, a
-      // weather face), the zoom line under it - the same voiced line's last
-      // words, dormant until its voice reaches them - and, for a Brobot's egg,
-      // his reply joining it. The voiced line is the bubble's own: its words are
-      // named ahead (voiceLineAhead), so its voice comes to it, never found by a
-      // search of the chat.
       function eggBubble(spec, then) {
         var b, holder, line;
         if (spec.who) {
           b = rawBubble({ kind: "egg", classes: (spec.who === "Brobot 1" ? "brobot-1" : "brobot-2") + " popup-winner popup-wrap" });
-          // GOLDEN pop-up rule (2026-10-15, operator: 'Correct: "no more top-most
-          // header" only'): no "Brobot N:" above Goverlord's block.
           holder = document.createElement("div");
           holder.className = "popup-system";
           holder.appendChild(systemHead(systemLabel));
           line = document.createElement("span");
           line.className = "popup-congrats";
           b.appendChild(holder);
-          // 2026-10-15: every Brobot answering this question wears the marquee;
-          // his reply joins the first egg's wrapper.
           popupExchange = true;
           if (!popupWraps[spec.who]) { popupWraps[spec.who] = b; }
         } else {
@@ -3206,11 +2289,8 @@
           line = document.createElement("span");
           line.className = "brobot-bubble-text";
         }
-        // 2026-10-16: "MouseOver to Zoom View" on its own line.
         line.style.whiteSpace = "pre-line";
         holder.appendChild(line);
-        // 2026-10-23 (operator: "I prefer to see a single generating + hourglass
-        // for both lines"): the congratulations wait as one line.
         lineWaits = true;
         voiceLitLine(b, line, spec.text);
         var say = line.querySelector(".brobot-say");
@@ -3227,9 +2307,6 @@
           zoomSay.textContent = spec.zoom;
           zoomEl.appendChild(zoomSay);
           holder.appendChild(zoomEl);
-          // 2026-10-24 (operator: "The line, mouseover to zoom in, starts dormant as
-          // 0% solid white * upon voice file ready, highlighting kicks in to display
-          // consistently with other spoken lines"): the voiced line's last part.
           if (!say || restoringChat || skippingReporters || say.classList.contains("spoken")) { zoomSay.classList.add("spoken"); }
           else { say._parts = [zoomSay]; }
           words += " " + spec.zoom;
@@ -3240,14 +2317,6 @@
           if (weatherSound) { weatherSoundOnShow(placed, weatherSound); }
         });
       }
-      // 2026-10-13 (operator: "For marquee lights, please grab golden guts from
-      // this unrelated response and apply to live pop ups * how to handle bubble
-      // resizing?"): real bulbs placed evenly along the pop-up's rounded border
-      // (straight sides and corner arcs), cycling Chase, Groups, Pairs and
-      // Twinkle every MARQUEE_PATTERN_MS. The bubble's size and corner radius are
-      // read live, and a ResizeObserver lays the bulbs out again whenever the
-      // bubble changes size (text wrapping, a picture loading, the window), the
-      // count following the border's length so the spacing stays even.
       var MARQUEE_SPACING_PX, MARQUEE_INSET_PX, MARQUEE_PATTERN_MS;
       var marquees = [], marqueeFrame = null, marqueePattern = 0, marqueeSwitch = 0;
       var marqueeSizes = typeof ResizeObserver === "function" ? new ResizeObserver(function (entries) {
@@ -3268,10 +2337,6 @@
         bubble.appendChild(layer);
         marqueeTrack(bubble, layer);
       }
-      // A marquee's bulbs, laid out and lit by this page for its own screen - a
-      // visitor's too (2026-10-24, operator: "decouple easter egg marquee sizing
-      // so phone can do its own correct sizing"): the main page sends the layer
-      // empty, the visitor fills it.
       function marqueeTrack(bubble, layer) {
         var m = { bubble: bubble, layer: layer, lights: [] };
         marquees.push(m);
@@ -3279,8 +2344,6 @@
         marqueeLayout(m);
         if (marqueeFrame === null) { marqueeFrame = requestAnimationFrame(marqueeTick); }
       }
-      // The point d along a rounded rectangle's border (w x h, corner radius r),
-      // clockwise from the top side's left end.
       function marqueePoint(d, w, h, r, per) {
         d = ((d % per) + per) % per;
         var q = Math.PI * r / 2, top = w - 2 * r, side = h - 2 * r, a;
@@ -3322,8 +2385,6 @@
           return false;
         });
         if (!marquees.length) { marqueeFrame = null; return; }
-        // 2026-10-13 (operator: "marquee lights look good, not they're not
-        // animating"): they always animate, the PC's reduce-motion setting too.
         var still = false;
         if (now - marqueeSwitch > MARQUEE_PATTERN_MS) {
           marqueePattern = (marqueePattern + 1) % marqueePatterns.length;
@@ -3333,7 +2394,6 @@
         marquees.forEach(function (m) {
           var n = m.lights.length;
           for (var i = 0; i < n; i++) {
-            // Reduced motion: every other bulb lit, still.
             var on = still ? i % 2 === 0 : fn(t, i, n);
             m.lights[i].classList.toggle("on", on);
             m.lights[i].classList.toggle("on-warm", on && !still && marqueePattern === 1);
@@ -3342,18 +2402,9 @@
         });
         marqueeFrame = requestAnimationFrame(marqueeTick);
       }
-      // 2026-10-14 (operator: "QR codes for crushn8r.ca & newsletter * add them
-      // in whenever crushn8r.ca or newsletter is in the chat bubble,
-      // aligned-top-right"): every bubble, however it was made, is checked as it
-      // joins the chat (qr_codes, gopod_brobots_settings.json). The pictures go
-      // in while the bubble is still hidden, so it shows with them.
       var qrCodes = [];
       function addQrCodes(bubble) {
         if (!qrCodes.length || !bubble.classList || !bubble.classList.contains("brobot-bubble") || bubble.querySelector("img.gopod-qr")) { return; }
-        // 2026-11-19 (operator: "shouldn't be in Keyboard to Brobot 1 bubble";
-        // "roots up template driven"): the template's rule - a QR goes with an
-        // answer's own spoken words (ownSays: never a brain or notice line, never the
-        // opener, never a manager's part) and never with the question asked.
         if (bubble.classList.contains("operator")) { return; }
         var textEl = bubble.querySelector(".brobot-bubble-text");
         var says = ownSays(bubble);
@@ -3364,9 +2415,6 @@
           (code.not_words || []).forEach(function (w) { text = text.split(String(w).toLowerCase()).join(" "); });
           return (code.words || []).some(function (w) { return text.indexOf(String(w).toLowerCase()) >= 0; });
         });
-        // 2026-10-18 (operator: "QR codes handled by CHALK (system stuff)"): the
-        // QR codes (and the call to action's, qr_codes.second) go in CHALK's own
-        // board bubble, after the Brobot's, not in his corner.
         if (displayHost) { chalkQrs(bubble, found); return; }
         if (!found.length) { return; }
         var box = cornerBox(bubble, textEl, found.length * 70);
@@ -3381,24 +2429,12 @@
         });
         addSecondQr(bubble);
       }
-      // 2026-10-17 (operator: "2 QR CODES * QR1 is in the top-right corner * QR2
-      // is added after the call to action, invisible, revealed as highlighted
-      // last"; "Wanna know more? Get CREW'd by subscribing to our newsletter!
-      // [QR2]"): the call to action's own QR code goes right after its words,
-      // in its piece, the last step of its word reveal (qr_codes.second).
-      // CHALK's QR bubble: each code with its title, the magnifier on each.
       function chalkQrs(bubble, found) {
         var codes = found.slice();
-        // 2026-11-19 (live: "Newsletter: crushn8r.ca/subscribe" twice on one line):
-        // the call to action's QR, once it's shown, is never on the board too.
         if (chalkCta(bubble) || bubble.querySelector(".chalk-cta")) { codes = codes.filter(function (code) { return code.image !== secondQr.image; }); }
-        // 2026-10-25 (operator: "duplicate qr display bug * 1st CHALK should be single
-        // crushn8r.ca/subscribe qr * 2nd CHALK should be single crushn8r.ca qr"): a QR
-        // the call to action's part already shows isn't on the board again.
         var cta = bubble.querySelector(".chalk-cta img.gopod-qr");
         if (cta) { codes = codes.filter(function (code) { return code.image !== cta.getAttribute("src"); }); }
         if (!codes.length) { return; }
-        // In a Brobot's bubble: CHALK's part at its bottom, after his answer.
         var inBrobot = (bubble.classList.contains("brobot-1") || bubble.classList.contains("brobot-2")) && !bubble.classList.contains("nested-host");
         var board = document.createElement("div");
         board.className = "brobot-bubble operator system-status chalk-qr" + (inBrobot ? " nested-host" : "");
@@ -3424,9 +2460,6 @@
         container.appendChild(board);
         if (!restoringChat) { revealWhenPlaced(board); }
       }
-      // 2026-10-18 (operator: "please put: * CHALK [QR code] Newsletter:
-      // crushn8r.ca/subscribe * before wanna know more CTA"): CHALK's part, with
-      // the newsletter QR and its title, just before the call to action's piece.
       function chalkCta(bubble) {
         if (!secondQr || !secondQr.after || bubble.querySelector(".chalk-cta")) { return; }
         var after = String(secondQr.after).toLowerCase(), hit = null;
@@ -3434,12 +2467,9 @@
         says.forEach(function (say) {
           if (!hit && String(say.textContent || "").toLowerCase().indexOf(after) >= 0) { hit = say; }
         });
-        // 2026-10-20 (live: "Join the CRUSHN8R CREW'd newsletter at crushn8r.ca!"
-        // opened an answer, in the model's own words): any newsletter line.
         if (!hit) { says.forEach(function (say) { if (!hit && /newsletter/i.test(say.textContent || "")) { hit = say; } }); }
         if (!hit) { return; }
         var ctaEnd = hit;
-        // The call to action starts at "Wanna know more?" - the piece before, when it's that.
         var prev = hit.previousElementSibling;
         if (prev && prev.classList.contains("brobot-say") && /know more/i.test(prev.textContent || "") && !/know more/i.test(hit.textContent || "")) { hit = prev; }
         var box = nestPart("cta", "chalk-qr chalk-cta", null);
@@ -3459,11 +2489,6 @@
         fig.appendChild(cap);
         row.appendChild(fig);
         box.appendChild(row);
-        // 2026-10-20 (operator: "upon opening with newsletter, add the QRs bubble
-        // right after ... upon closing with newsletter, insert the QRs bubble
-        // just before ... as if manager bubbles prefer to stay away (phobic) from
-        // top/bottom of brobots response window"): on the inner side of the
-        // newsletter line - after it when it opens the answer, before it otherwise.
         if (hit === says[0] && ctaEnd !== says[says.length - 1]) { ctaEnd.parentNode.insertBefore(box, ctaEnd.nextSibling); }
         else { hit.parentNode.insertBefore(box, hit); }
         return true;
@@ -3485,12 +2510,6 @@
         hit.appendChild(document.createTextNode(" "));
         hit.appendChild(img);
       }
-      // 2026-10-17 (operator: "in a tall response bubble, QR code gets scrolled
-      // up & out of view * RULE: upon the bottom of QR1 passing the top of the
-      // chat window, the QR code jumps to reposition at the bottom-right,
-      // respecting the same inner-width changes for marquee lights"): a bubble
-      // whose top-right QR codes are scrolled above the chat's top has them at
-      // its bottom-right instead, back at the top once its top shows again.
       function placeCornerQrs() {
         if (!container) { return; }
         var top = container.getBoundingClientRect().top;
@@ -3509,9 +2528,6 @@
         window.addEventListener("scroll", placeCornerQrs, { passive: true });
         window.addEventListener("resize", placeCornerQrs);
       }
-      // The bubble's top-right corner, shared by its QR codes and weather face:
-      // in the header row's corner (the header keeps room for it); a bubble with
-      // no header has them on their own line, at the right.
       function cornerBox(bubble, textEl, width) {
         var box = bubble.querySelector(".gopod-corner");
         var head = bubble.querySelector(".brobot-bubble-head");
@@ -3529,17 +2545,7 @@
         if (head) { head.style.paddingRight = ((parseInt(head.style.paddingRight, 10) || 0) + width) + "px"; }
         return box;
       }
-      // 2026-10-14 (operator: "In chat bubbles, use the animations where
-      // possible (cold has no animation) * pre-load related audio to play @ 10 %
-      // volume * use same rule: aligned top-right * display 50% of actual
-      // size"): a bubble holding the live weather line (its "degrees Celsius")
-      // gets Vector's own weather face for it (webroot/weather/, the weather
-      // kit), in the speaking Brobot's eye colour, and that weather's sound
-      // plays once as the bubble shows (weather_card, gopod_brobots_settings.json).
       var weatherCard = null;
-      // Vector's weather face for these weather words ("light rain") at this
-      // hour: {name, sound}, or null (weather_card.faces; clear at night is the
-      // stars).
       function weatherFaceFor(words, hour) {
         var face = null;
         (weatherCard.faces || []).some(function (f) {
@@ -3554,7 +2560,6 @@
         }
         return picked;
       }
-      // Vector's face screen with the weather face, the magnifier as every picture.
       function weatherScreen(name, row) {
         var screen = document.createElement("div");
         screen.className = "gopod-weather-face";
@@ -3566,14 +2571,12 @@
         magnify(row, screen);
         return screen;
       }
-      // His weather line is said: the newest waiting weather picture of his shows.
       function weatherShowFor(brobot) {
         var cls = brobot === "Brobot 2" ? "brobot-2" : "brobot-1";
         var boxes = container.querySelectorAll(".brobot-bubble." + cls + " .gopod-weather-after:not(.shown)");
         var box = boxes.length ? boxes[boxes.length - 1] : null;
         if (box && box._show) { box._show(); }
       }
-      // The weather sound, loaded now (played by its picture's showing).
       function weatherSoundLoad(sound) {
         if (!sound) { return null; }
         var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
@@ -3582,7 +2585,6 @@
         try { audio.load(); } catch (err) { /* no audio */ }
         return audio;
       }
-      // The weather sound, loaded now, played once as bubble shows (weather_card.volume).
       function weatherSoundOnShow(bubble, sound) {
         if (restoringChat || !sound) { return null; }
         var audio = new Audio(normSrc(weatherCard.folder + "/sounds/" + sound + ".mp3"));
@@ -3590,16 +2592,11 @@
         audio.addEventListener("ended", function () { audio._playedOnce = true; });
         try { audio.load(); } catch (err) { /* no audio */ }
         whenShown(bubble, function () {
-          // 2026-10-17: a share of the master, like every volume knob.
           audio.volume = chatLevel(volumeShare(weatherCard.volume));
           audio.play().catch(function () { audio._playedOnce = true; /* the page hasn't been clicked yet */ });
         }, 60000);
         return audio;
       }
-      // 2026-11-03 (operator: "In the template, make the weather audio play upon:
-      // \"Brobot Weather Report ... \""): the sound waits for his piece holding
-      // weather_card.sound_at (the weather template, weather_run.md) to light;
-      // with no such piece, as the bubble shows. Already said: no sound.
       function weatherSoundOnLit(bubble, textEl, sound) {
         var at = String(weatherCard.sound_at || "").toLowerCase().trim();
         var piece = !at ? null : Array.prototype.filter.call(textEl.querySelectorAll(".brobot-say"), function (x) {
@@ -3622,20 +2619,11 @@
         watch.observe(piece, { attributes: true, attributeFilter: ["class"] });
         return audio;
       }
-      // A Brobot bubble with the weather line, during a run: the face in its
-      // corner. 2026-10-14 (operator: "during live, can you treat 'weather'
-      // requests like live pop-up bubbles?"): in the live chat the weather is
-      // the pop-up's instead (showPictures), so it shows once.
       function addWeatherFace(bubble) {
-        // 2026-10-17 (operator: "no longer easter eggs: Weather"): live too.
         if (!weatherCard || !bubble.classList || !bubble.classList.contains("brobot-bubble") || bubble.querySelector(".gopod-weather-face")) { return; }
-        // His own words - not a notice's or a manager's part nested in it.
         var textEl = bubble.querySelector(":scope > .brobot-bubble-text");
         if (!textEl) { return; }
         var said = String(textEl.textContent || "").toLowerCase();
-        // Only the weather's own words ("... degrees Fahrenheit, and light rain,
-        // as of ..."), never the place's ("Windsor" holds "wind").
-        // 2026-10-22: the Weather Report form too ("68° Fahrenheit and clear sky as of").
         var what = /(?:degrees|°) (?:celsius|fahrenheit),? and (.+?),? as of /.exec(said);
         if (!what) { return; }
         var hour = null;
@@ -3646,20 +2634,10 @@
         }
         var face = weatherFaceFor(what[1], hour);
         if (!face) { return; }
-        // 2026-10-22 (operator: "pin weather image for later * remove weather image
-        // from response for now, too much complexity * keep the 1st weather audio
-        // played"): with weather_card.picture off, only its sound, once, as the
-        // bubble shows.
         if (weatherCard.picture === false) {
           if (!bubble._weatherSound) { bubble._weatherSound = true; weatherSoundOnLit(bubble, textEl, face.sound); }
           return;
         }
-        // 2026-10-22 (operator: "current position isn't a good spot for it * add
-        // weather image centered below, after weather report fully spoken *
-        // weather audio still plays 1st without the weather image * then the rest
-        // of the response"): the picture goes centred right under the weather
-        // line, hidden until that line has been said - then it shows and its
-        // sound plays, together. (A bubble without pieces: the corner, as before.)
         var pieces = Array.prototype.filter.call(textEl.querySelectorAll(".brobot-say"), function (x) { return !x.closest(".nested-host"); });
         var endPiece = null, seenAsOf = false;
         for (var p = 0; p < pieces.length && !endPiece; p++) {
@@ -3678,14 +2656,8 @@
         }
         var screen = weatherScreen(face.name, function () { return box; });
         box.appendChild(screen);
-        // 2026-10-22 (operator: "keep as-was, play audio (less the image) once
-        // only upon bubble display * then weather image centered underneath + 3 s
-        // wait"): the sound once as the bubble shows (a background effect); the
-        // picture once his weather line is said.
         var sound = weatherSoundOnShow(bubble, face.sound);
         function showNow() { box.classList.add("shown"); }
-        // Shown when Wire-Pod says his weather line is said ("weathershow:",
-        // weatherShowFor), or once the next piece lights, whichever comes first.
         if (!endPiece || restoringChat || endPiece.classList.contains("spoken")) {
           if (endPiece) { box.classList.add("shown"); if (sound) { sound._playedOnce = true; } } else { showNow(); }
         } else {
@@ -3696,13 +2668,8 @@
           });
           watch.observe(endPiece, { attributes: true, attributeFilter: ["class"] });
         }
-        // 2026-10-22 (operator: "after weather audio has finished playing the 1st
-        // time, upon zoomed mouseclick, play the image's audio again * can only
-        // play once at a time no matter how many image clicks"): after the first
-        // play, a click plays it again - never twice at once.
         if (sound) {
           screen.addEventListener("click", function () {
-            // Any click (the hover already zooms it; a click may unzoom it).
             if (!sound._playedOnce || !sound.paused) { return; }
             sound.currentTime = 0;
             sound.volume = chatLevel(volumeShare(weatherCard.volume));
@@ -3710,11 +2677,6 @@
           });
         }
       }
-      // 2026-10-22 (operator: "Goverlord orchestrates * Gomads do most of the
-      // thinking * Gominions do with little to no thinking * There should be 5
-      // bubbles essentially now"): every bubble in the chat gets its kind
-      // (bubble_kinds.rules, first match: operator, gominion, other, gomad,
-      // goverlord) as data-tier; one with none is logged as a loose chain.
       var bubbleKinds = [], untaggedSeen = {};
       function tagBubbleKind(node) {
         if (!node || !node.classList || !node.classList.contains("brobot-bubble") || !bubbleKinds.length) { return; }
@@ -3743,11 +2705,6 @@
           });
         }).observe(container, { childList: true });
       }
-      // GOLDEN magnifier, one helper (2026-10-18, operator: "whatever other
-      // processes are the same but scattered, share from one shared slot"):
-      // every picture, QR code and weather face - the one under the mouse grows
-      // (the others in its row shrink), a tap toggles it, leaving the row
-      // shrinks it. row may be a function giving the row (the weather face's).
       function magnify(row, el) {
         var rowOf = function () { return typeof row === "function" ? row() : row; };
         el.addEventListener("mouseenter", function () { zoomOnly(rowOf(), el); });
@@ -3760,8 +2717,6 @@
           r.addEventListener("mouseleave", function () { zoomOnly(r, null); });
         }
       }
-      // GOLDEN "once it shows", one helper: fn runs once the bubble is shown
-      // (placed, not hidden, not staged) - at once if it already is.
       function whenShown(bubble, fn, mostMs) {
         var ran = false;
         function tryRun() {
@@ -3780,36 +2735,16 @@
           other.classList.toggle("zoomed", other === img);
         });
       }
-      // 2026-10-06 (operator: "have the female/male voices speak operator
-      // bubble"; "can you channel the audio to play through the wire-pod web
-      // page?"): the reporter hosts (Brobots 3 and 4) - their opening and closing
-      // lines in a system bubble under the host's name, and every voice file
-      // Wire-Pod makes played here (reporter_voices, gopod_reporter_voices.go).
-      // A browser plays sound only after the page has been clicked or typed in.
-      // 2026-10-06 (operator: "Reporter 1, Brobot 3:" / "Reporter 2, Brobot 4:"):
-      // the header is the host's label (reporter_voices.labels).
       var reporterRole, hostNames = {}, hostLabels = {}, chatMoves = {};
-      // gotItOf (2026-11-05, operator: "everybody's personas ... that same robot's
-      // bubble type and mechanism"): who's Got it words - his own, else the golden.
       function gotItOf(who) {
         var g = (chatMoves.got_it || {})[who] || {};
         return String(g.text || chatMoves.thinking_text || "").trim();
       }
-      // openReceipt: who's bubble at the bottom, opened by his Got it, still waiting for his answer.
       function openReceipt(who) {
         var at = openHostBox();
         return at && at.who === who && at.outer.dataset.receipt ? at.outer : null;
       }
-      // 2026-10-22 (operator: "a bubble's header in a scripted run should have
-      // what values? default (CHALK), fallback (Brobot 7), remembered edits
-      // (CHALK BORED)? * editable"): the header template (display_names) - a
-      // remembered edit, else the default (the GOPOD persona), else the fallback
-      // from the numpad map ("Brobot 7": the key whose persona it is), else its label.
       var displayNames = {};
-      // 2026-10-22 (operator: "numpad mapping sounds like a good template to form
-      // from"): the default is the numpad map's persona - a scripted voice's own
-      // persona (persona_reporters: "Brobot 3" -> CHALK) or the persona itself -
-      // unless display_names.default names one.
       function numpadPersona(who) {
         var on = numpad.map && numpad.map.numlock_on, name = (numpad.personaReporters || {})[who] || who;
         for (var k in (on || {})) {
@@ -3817,49 +2752,29 @@
         }
         return null;
       }
-      // 2026-10-30 (CHALK & PLAYHEAD, 2 suits): a reporter line - a speaker that
-      // belongs to another persona (numpad.personaReporters: "Brobot 3" -> CHALK) -
-      // wears the outdoor reporter suit, its anchor's colour as the border.
       function reporterSuit(who) {
         var anchor = (numpad.personaReporters || {})[who];
         if (!anchor || String(anchor).toUpperCase() === String(who).toUpperCase()) { return ""; }
         return " reporter-suit suit-" + String(anchor).toLowerCase().replace(/[^a-z0-9]+/g, "-");
       }
-      // 2026-10-30 (the Butler: "Keys (KEYNOTE VALE)"): a host with a nickname is
-      // headed by the nickname label - its name and nickname, the persona's labels.
       var nickLabels = {}, personaVoiceOf = {}, systemVoicePersona = "";
       function hostHeader(who) {
-        // 2026-10-30: anything in the system speaker's voice wears its label.
         if (who === systemVoicePersona || (personaVoiceOf[who] && personaVoiceOf[who] === systemRole)) { return systemLabel; }
         if (nickLabels[who]) { return nickLabels[who]; }
         var np = numpadPersona(who);
         var dn = displayNames || {}, edits = dn.edits || {}, def = (dn["default"] || {})[who] || (np ? np.name : "");
         if (def && edits[def]) { return edits[def]; }
         if (edits[who]) { return edits[who]; }
-        // 2026-11-14 (operator: "CHALK – reporter * CHALK – news anchor"): the
-        // labels (reporter_voices.labels, each persona's name filled in) are the
-        // header's one source; the numpad persona only when a speaker has none.
         if (hostLabels[who]) { return hostLabels[who]; }
         if (def) { return def; }
         if (np && dn.fallback) { return String(dn.fallback).replace("{n}", np.key.replace(/^KP/, "")); }
         return hostLabels[who] || who;
       }
-      // 2026-10-09 (the nap, a lyric video): a song's soundtrack plays in the
-      // background, and its captions show as the narrator's bubbles.
       var songAudioRole, narratorRole, songAudio = null;
-      // GOLDEN nesting (2026-10-18, operator: "If I ask brobot N = weather trigger *
-      // PLAYHEAD takes over in PLAYHEAD bubble * PLAYHEAD bubble displays inside
-      // brobot N bubble * at top before brobot N 'Got it'"; QR: "CHALK bubble
-      // displays inside brobot N bubble * at bottom after brobot N response"): a
-      // manager's line for Brobot N opens his bubble (a shell, his header) with
-      // the manager's part at the top; his reply fills the same bubble below it
-      // (appendBubble); CHALK's QR codes go in at the bottom (chalkQrs).
       var nestShells = {};
       function nestShell(brobot) {
         var shell = nestShells[brobot];
         if (shell && shell.isConnected && !shell.dataset.filled) { return shell; }
-        // 2026-10-24 (the root-to-leaf pass, link 3e): the raw bubble template,
-        // placed the one way.
         shell = rawBubble({ kind: "shell", classes: (brobot === "Brobot 2" ? "brobot-2" : "brobot-1") + " nest-shell", head: bubbleHead(brobot) });
         shell.dataset.nest = brobot;
         brobotHostClass(shell, brobot);
@@ -3867,10 +2782,6 @@
         placeBubble(shell);
         return shell;
       }
-      // GOLDEN nested part (2026-10-24, link 3e): every part inside a Brobot's
-      // bubble - his notice, a manager's part, CHALK's QR - is built one way
-      // (nestPart) and goes in one way (nestPlace): at the top, above his reply,
-      // or at the bottom.
       function nestPart(kind, classes, head, line, lineClass) {
         return rawBubble({ kind: kind, classes: "operator system-status nested-host " + classes, head: head, lines: line == null ? [] : [line], lineClass: lineClass });
       }
@@ -3879,12 +2790,9 @@
         if (atTop && reply) { shell.insertBefore(part, reply); } else { shell.appendChild(part); }
         return part;
       }
-      // A manager's part (its header and colour) inside a Brobot's bubble.
       function nestBox(shell, who, atTop) {
         var box = nestPart("host", "host host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-") + reporterSuit(who), reporterHead(hostHeader(who)));
         box.dataset.host = who;
-        // 2026-10-22 (operator's notice log, line 3): a manager's part at the top
-        // goes in his notice, after its lines - its header and line on one row.
         var notice = atTop ? shell.querySelector(":scope > .bubble-notice") : null;
         if (notice) {
           box.classList.add("in-notice");
@@ -3894,11 +2802,6 @@
         }
         return nestPlace(shell, box, atTop);
       }
-      // 2026-11-02 (operator: "Upon: PLAYHEAD Cache PYC will help you with that.
-      // Thanks for your help, Cache PYC. * scroll down so the bottom of the brain
-      // bubble is above the bottom of the display area"): when a line lands in a
-      // brain bubble, the chat scrolls just enough to show its bottom - checked
-      // again once the line's words have filled in.
       function brainInView(el) {
         function keep() {
           if (!el || !container.contains(el)) { return; }
@@ -3912,7 +2815,6 @@
         setTimeout(keep, 80);
         setTimeout(keep, 600);
       }
-      // PLAYHEAD's QR ("qr:<picture>|<url>"): the code and its address, shown, not said.
       function hostQr(box, text) {
         var parts = String(text).slice(3).split("|");
         var fig = document.createElement("figure");
@@ -3931,9 +2833,6 @@
         row.appendChild(fig);
         box.appendChild(row);
       }
-      // CHALK's part for Brobot N (2026-10-18, operator: "CHALK BUBBLE === I can
-      // help with that. QR code displayed." after "Brobot 1: [response]"): at
-      // the bottom of his newest bubble, after his answer.
       function chalkBottom(who, text, to) {
         var cls = to === "Brobot 2" ? "brobot-2" : "brobot-1", target = null;
         Array.prototype.forEach.call(container.querySelectorAll(":scope > .brobot-bubble." + cls), function (b) { target = b; });
@@ -3951,16 +2850,8 @@
         voiceLitLine(target, nline, text);
         return true;
       }
-      // GOLDEN manager bubble (2026-10-18, operator: "PLAYHEAD ["Generating..." +
-      // hourglass]/[I'll help you with that.] ["Generating..." + hourglass]/[weather]
-      // * all [message0]/[message1] in the same bubble * still do a generated
-      // file checks * instantly toggle/update upon voice file generated & ready
-      // to play"): a manager's next line goes in its bubble from this exchange
-      // (its own, or its part in a Brobot's), each line waiting with the
-      // hourglass while its voice is made, its words when it's ready.
       var managerHosts = {};
       function hostSlug(who) { return String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
-      // The manager's bubble a next line joins: the newest in the chat, nothing after it.
       function openHostBox() {
         var last = container.lastElementChild;
         while (last && (last === warmupBubble || last === warmupBeforeOpening || last.classList.contains("generating-slot"))) { last = last.previousElementSibling; }
@@ -3972,7 +2863,6 @@
         }
         return null;
       }
-      // The line's words in its manager's bubble, a new line in it.
       function hostLineInto(who, text) {
         var at = openHostBox();
         if (!at || at.who !== who || !managerHosts[who]) { return null; }
@@ -3999,7 +2889,6 @@
         }
         if (/^Brobot [12]$/.test(String(to || ""))) {
           if (who === displayHost && chalkBottom(who, text, to)) { next(); return; }
-          // Inside Brobot N's bubble, at its top.
           generatingGone();
           var shell = nestShell(to);
           var boxes = shell.querySelectorAll(".nested-host.host-" + String(who).toLowerCase().replace(/[^a-z0-9]+/g, "-"));
@@ -4014,7 +2903,6 @@
           next();
           return;
         }
-        // Its own bubble, on the raw bubble template (built and loaded hidden, then shown).
         bubbleSound("Manager");
         var bubble = rawBubble({ kind: "host", classes: hostClass, head: reporterHead(hostHeader(who)) });
         bubble.dataset.host = who;
@@ -4025,7 +2913,6 @@
         }
         if (!restoringChat) { recordBubble(who, String(text), "host"); }
         if (String(text).indexOf("lines:") === 0) {
-          // 2026-11-05: his answer goes in the bubble his Got it opened, under his brain.
           var receipt = openReceipt(who);
           if (receipt) {
             delete receipt.dataset.receipt;
@@ -4044,8 +2931,6 @@
         }
         var line = document.createElement("span");
         line.className = "brobot-bubble-text";
-        // 2026-11-05: his Got it opens his bubble, the Brobots' way - its top line
-        // (an opener), his brain and his answer go in under it.
         if (gotItOf(who) && String(text).trim() === gotItOf(who)) {
           var opener = document.createElement("div");
           opener.className = "brobot-opener";
@@ -4058,37 +2943,12 @@
         hostBrain(bubble, who);
         voiceLitLine(bubble, line, text);
         placeBubble(bubble, next, function () {
-          // 2026-10-06 (operator: "ensure this timer is always 'after' all
-          // reporter bubbles as they appear"): the warm-up timer moves back under it.
           if (warmupBubble && warmupBubble.isConnected) { container.appendChild(warmupBubble); }
           else if (warmupBeforeOpening && warmupBeforeOpening.isConnected) { container.appendChild(warmupBeforeOpening); }
         });
       }
 
-      // 2026-10-09 (operator: "instead of line by line, do several phrases in
-      // fewer bigger chat bubbles * use same highlighting per narration
-      // segment"): the song engine sends one narrator line per poem section, its
-      // captions joined by the segment marker, each "@start-end words". The
-      // bubble shows the words; each phrase lights at its seconds on the
-      // soundtrack's own clock (songAudio), or, with no soundtrack playing, from
-      // when the bubble arrived.
-      // GOLDEN chat bubble rule (operator 2026-10-09: "scrolling sucks with
-      // narrator bubbles, fix like the others & set a golden rule"; "draw out
-      // full narrator bubbles off screen or while invisible * then display/make
-      // visible the full narrator chat bubble at actual speech time"): the song
-      // sends the bubble reporter_voices.narrator_lead_seconds early; it is built
-      // whole while invisible (taking its room), the chat scrolls once so all of
-      // it will be in view, and it shows at its first line's second. Its phrases
-      // light in place - nothing scrolls again until the next bubble.
-      // 2026-10-10 (operator: "the bubble scrolls up and highlighting stops"):
-      // the next bubble arrives narrator_lead_seconds early, while this one is
-      // still being sung. It waits hidden, takes its room below without
-      // scrolling, and the chat scrolls for it only once the bubble above is
-      // done (or CHAT_SCROLL_MS before its own first line, whichever is later);
-      // each bubble lights its own phrases to its own end.
       var NARRATOR_PIECE_RE = /^@(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)\s+(?:~([A-Za-z0-9+\/=]+)\s+)?/;
-      // One narrator piece's span: its words, its seconds, and - when the song
-      // has them (forced alignment, 2026-10-18) - each word's time from its start.
       function narratorSpan(piece) {
         var m = NARRATOR_PIECE_RE.exec(piece.trim());
         var span = document.createElement("span");
@@ -4106,16 +2966,10 @@
       var narratorLines = [], narratorTimer = null, narratorLead = 0;
       function showNarratorLine(text) {
         if (!restoringChat) { recordBubble(narratorRole, String(text), "narrator"); }
-        // 2026-10-24 (the root-to-leaf pass, link 3f): the raw bubble template; its
-        // reveal stays its own - timed to the song (SRT), by design.
         var bubble = rawBubble({ kind: "narrator", classes: "operator system-status host narrator", head: systemHead((hostLabels[narratorRole] || narratorRole) + ":") });
         var line = document.createElement("div");
         line.className = "brobot-bubble-text brobot-bubble-line";
         var pieces = segmentMarker ? String(text).split(segmentMarker) : [String(text)];
-        // 2026-10-15 (operator: "one image for each narrator bubble * image is
-        // inside the narrator bubble under highlighted text"): a "picture:<path>"
-        // piece (the song's section_pictures) shows under the words, magnifier
-        // and all, like every chat picture.
         var narratorPictures = pieces.filter(function (p) { return p.trim().indexOf("picture:") === 0; });
         var narratorSingle = pieces.some(function (p) { return p.trim() === "narrator:single"; });
         var narratorLast = pieces.some(function (p) { return p.trim() === "narrator:last"; });
@@ -4145,26 +2999,13 @@
         var first = line.querySelector(".brobot-say[data-at]");
         if (!first) { revealWhenPlaced(bubble); return; }
         bubble.style.visibility = "hidden";
-        // 2026-10-13 (operator: "good catch"): built out of the chat's flow too,
-        // taking no room until it's placed.
         stageBubble(bubble);
-        // A narrator line is never the reply an operator line waits for (live
-        // 2026-10-09: after "Start Baby Brobots" the chat kept aiming at that
-        // line, stuck near the top, as the narrator bubbles grew below it).
         awaitingReply = false;
         operatorInBatch = false;
         narratorLines.push({ bubble: bubble, firstAt: parseFloat(first.dataset.at), shownMs: Date.now(), lit: null, shown: false, placed: false });
         if (narratorTimer === null) { narratorTimer = setInterval(lightNarrator, 100); }
         lightNarrator();
       }
-      // 2026-10-15 (the nap's single-bubble copy, operator: "use only a single
-      // narrator chat bubble for all 5 narrations"; "A single narration bubble
-      // stays the size of the image * 5 narrations are run in sequence";
-      // "narration take replaces previous take"; "same applies to static
-      // background images"): one narrator bubble, its picture's own shape at the
-      // bubble's full width (the magnifier's size). Each section is a part: its
-      // picture behind its words, fading in to 50% as the section starts and out
-      // after its last words; the next section's part then replaces it.
       var narratorStage = null;
       var NARRATOR_FADE_IN_S, NARRATOR_FADE_OUT_MAX_S, NARRATOR_FADE_OUT_END_S;
       function showNarratorSingle(pieces, pictures, last) {
@@ -4177,14 +3018,12 @@
         });
         var first = line.querySelector(".brobot-say[data-at]");
         var firstAt = first ? parseFloat(first.dataset.at) : 0;
-        // A new run starts over (its first section comes earlier than the last one).
         var reuse = narratorStage && narratorStage.isConnected && firstAt > narratorStage._lastAt;
         var bubble, stage;
         if (reuse) {
           bubble = narratorStage;
           stage = bubble.querySelector(".narrator-stage");
         } else {
-          // 2026-10-15 (operator: "remove narrator header"): the picture is the bubble.
           bubble = rawBubble({ kind: "narrator", classes: "operator system-status host narrator narrator-single" });
           stage = document.createElement("div");
           stage.className = "narrator-stage";
@@ -4225,7 +3064,6 @@
         if (narratorTimer === null) { narratorTimer = setInterval(lightNarrator, 100); }
         lightNarrator();
       }
-      // This section's part replaces the last; its picture fades in over fadeIn s.
       function narratorShowPart(stage, part, fadeIn) {
         Array.prototype.forEach.call(stage.querySelectorAll(".narrator-part.current"), function (p) { p.classList.remove("current"); });
         part.classList.add("current");
@@ -4238,8 +3076,6 @@
       }
       function narratorSeconds(n) {
         if (songAudio && !songAudio.paused && !songAudio.ended && songAudio.currentTime > 0) { return songAudio.currentTime; }
-        // No soundtrack playing yet (the nap's first bubble comes before it): the
-        // bubble was sent narrator_lead_seconds early, so it waits that long.
         return n.firstAt - narratorLead + (Date.now() - n.shownMs) / 1000;
       }
       function lightNarrator() {
@@ -4252,8 +3088,6 @@
         narratorLines.slice().forEach(function (n, k) {
           var t = narratorSeconds(n);
           if (!n.placed) {
-            // Scroll for it once the bubble above is done, a scroll's length
-            // ahead of its first line at the earliest.
             if (k > 0 || t < n.firstAt - CHAT_SCROLL_MS / 1000 || batonHeld()) { return; }
             n.placed = true;
             unstageBubble(n.bubble);
@@ -4272,18 +3106,13 @@
             var until = next ? parseFloat(next.dataset.at) : parseFloat(spans[i].dataset.end);
             if (t >= parseFloat(spans[i].dataset.at) && t < until) { pick = spans[i]; break; }
           }
-          // The same phrase: keep it lit (a robot's highlight clears all of them).
           if (pick === n.lit) { if (pick) { pick.classList.add("speaking"); } return; }
           if (n.lit) { n.lit.classList.remove("speaking"); n.lit.classList.add("spoken"); }
           n.lit = pick;
           if (pick) {
             lightSpan(pick);
           } else if (t >= parseFloat(spans[spans.length - 1].dataset.end)) {
-            // The section is over; the next bubble scrolls in.
             revealRest(n.part || n.bubble);
-            // Single bubble: its picture fades out before the next section
-            // (over the gap, at most NARRATOR_FADE_OUT_MAX_S; the last one slower).
-            // The last section's picture stays at 50% (operator 2026-10-15).
             if (n.bg && !n.last) {
               var after = narratorLines[narratorLines.indexOf(n) + 1];
               var gap = after ? after.firstAt - parseFloat(spans[spans.length - 1].dataset.end) : NARRATOR_FADE_OUT_END_S;
@@ -4295,10 +3124,6 @@
         });
       }
 
-      // 2026-10-12 (operator: '"Bingo ball captured. [ball number]" * upon
-      // saying/highlighting "B-1" = [ball number] image appears underneath'): the
-      // called ball waits for the next Brobot bubble that says it, goes in under
-      // its words (its room kept while hidden), and shows when that piece lights.
       var pendingBall = null;
       function showBingoBall(call) {
         if (!restoringChat) { recordBubble(ballRole, String(call).trim(), "ball"); }
@@ -4351,10 +3176,6 @@
         return bubble;
       }
 
-      // 2026-09-30: Wire-Pod's numbered feed of chat-page lines
-      // (webroot/gopod_chat_feed.json, gopod_chat_feed.go): every display line a
-      // song or tool sends, each with its own number. Each number shows once, and
-      // numbers restart with a new Wire-Pod start (boot), so the key is boot + id.
       var feedPolling = false;
       function pollFeed() {
         if (feedPolling) { return; }
@@ -4363,9 +3184,6 @@
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (feed) {
             if (!feed || !Array.isArray(feed.events)) { return; }
-            // A new Wire-Pod start (a different boot stamp) clears the chat
-            // (operator: "upon wpr 2, clear out brobots chat window contents").
-            // The very first boot this browser sees is only remembered.
             if (feed.boot && chatStore.boot !== feed.boot) {
               var hadBoot = !!chatStore.boot;
               feedQueue = [];
@@ -4378,39 +3196,19 @@
               }
               chatStore.boot = feed.boot;
               saveChat();
-              // 2026-10-10 (operator: "upon wpr 2 web page defaults are * Brobots
-              // =All * Native? = checked * Numpad? = checked * Record?= not
-              // checked"): Numpad? is ticked again at every new start (Brobots is
-              // All at every load; Native? and Record? come from Wire-Pod's start).
               try { window.localStorage.setItem(NUMPAD_KEY, "1"); } catch (e) { /* in-page only */ }
               if (!hadBoot) { setNumpadOn(true); }
-              // And the chat window is shown again, even if it was hidden with
-              // the button (operator 2026-10-01: "Upon restart of wire-pod,
-              // ensure brobots chat window is ON/displayed").
               setChatOpen(true);
               showChat(true);
-              // 2026-10-19 (operator: "restart default value = background loop
-              // icon OFF * restart OFF = no sound, no menu until icon clicked").
               backgroundLoop.setSpeaker(false);
               showSpeaker();
-              // 2026-10-06: and the page reloads itself once, so it always runs
-              // the chat code Wire-Pod started with (live 15:45: a page loaded
-              // before an update played the hosts' opening all at once). The
-              // new boot is saved first, so it reloads only once.
               if (hadBoot) {
                 window.location.reload();
                 return;
               }
             }
             if (feed.boot && feed.boot !== playedBoot) { playedBoot = feed.boot; playedId = 0; playedSent = 0; }
-            // A viewer plays none of it (the display mirror) - nothing queued.
             if (pageRoleKnown && !isMainPage) { return; }
-            // 2026-10-28 (operator: "Esc key not working * why did it break yet
-            // again?"; "skip not working"): the skip gate after a reload - the page
-            // reloads itself on Wire-Pod's new start, often just after skip_on
-            // played, and a line already seen isn't played again, so the gate
-            // stayed shut. Once per page load: skip_on already seen and the
-            // opening not over yet = the gate is open.
             var seenSkipOn = false, seenOpeningEnd = false;
             feed.events.forEach(function (e) {
               var key = "feed|" + feed.boot + "|" + e.id;
@@ -4418,15 +3216,8 @@
                 if (String(e.text).trim() === "skip_on") { seenSkipOn = true; }
                 if (String(e.text).trim() === openingEndText) { seenOpeningEnd = true; }
               }
-              // 2026-10-24 (live: after an F5 the dry run waited, the page never
-              // said it had caught up): a line this page already played counts as
-              // played again, so Wire-Pod knows how far it is.
               if (isSeen(key) && e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; }
               if (isSeen(key) || feedQueued[key] || !e.who || !e.text) { return; }
-              // GOLDEN, the master chat queue (2026-10-29, operator: "every event
-              // should go in a main chat-queue of nested chat-queues"; Wire-Pod's
-              // gopod_chat_queue.go): a turn's drop acts the moment it arrives -
-              // never in its place in line - and a dropped turn's lines never play.
               if (e.who === reporterRole && String(e.text).indexOf(turnDropMark) === 0) { markSeen(key); dropTurn(Number(String(e.text).slice(turnDropMark.length))); return; }
               if (e.turn && droppedTurns[e.turn]) { markSeen(key); if (e.id > playedId && !feedQueue.length && !feedRunning) { playedId = e.id; } return; }
               queueBubble(key, e);
@@ -4441,18 +3232,7 @@
           .then(function () { feedPolling = false; });
       }
 
-      // 2026-10-06 (operator: "upon restart, all is logged and queued to play
-      // upon wire-pod Log button-click ... Just pause the chat bubbles from
-      // running until its clicked to and viewable ... upon viewable, start the
-      // sequence running whatever's been queued then continue"): feed lines wait
-      // in order until the Log section shows the chat and the page has been
-      // clicked (a browser plays sound only after a click); then they run one at
-      // a time, each reporter voice line to its end (reporter_voices.gap_seconds
-      // between). The opening_end_text line tells Wire-Pod the hosts' opening was
-      // heard, and only then is it LLM Ready.
       var feedQueue = [], feedQueued = {}, feedRunning = false;
-      // The master chat queue's drops (gopod_chat_queue.go): the turns dropped, and
-      // the line being shown now.
       var turnDropMark = "drop:", droppedTurns = {}, feedItemNow = null;
       function dropTurn(turn) {
         if (!turn) { return; }
@@ -4468,7 +3248,6 @@
           }
         });
         feedQueue = kept;
-        // Its line on screen now: its voice stops, its words show whole.
         if (feedItemNow && feedItemNow.e && feedItemNow.e.turn === turn) {
           if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
           skipFinishWaiting();
@@ -4478,21 +3257,15 @@
         fetch("/api-sdk/gopod_page_note", { method: "POST", body: note }).catch(function () { /* Wire-Pod gone */ });
         runFeedQueue();
       }
-      // 2026-10-17: the page's side of the dialogue - each second, how far it has
-      // played the feed goes back to Wire-Pod (/api-sdk/gopod_page_played), which
-      // writes "GOPOD_PAGE played <id> ..." under its own "GOPOD_FEED <id> ...".
       var playedId = 0, playedSent = 0, playedBoot = 0, heldMost = { id: 0, ms: 0 };
-      // 2026-10-24: told within a quarter second, so a visitor follows closely.
       setInterval(function () {
         if (!playedBoot || playedId <= playedSent) { return; }
         var body = new URLSearchParams();
         body.set("boot", String(playedBoot));
         body.set("id", String(playedId));
         body.set("page", pageId);
-        // 2026-10-18 (step 3): the longest a line waited here before it showed.
         if (heldMost.id) { body.set("held_id", String(heldMost.id)); body.set("held_ms", String(heldMost.ms)); heldMost = { id: 0, ms: 0 }; }
         playedSent = playedId;
-        // Not taken (Wire-Pod busy, or a viewer for a moment): said again next tick.
         fetch("/api-sdk/gopod_page_played", { method: "POST", body: body })
           .then(function (r) { return r.text(); })
           .then(function (t) { if (t !== "ok") { playedSent = 0; } })
@@ -4500,21 +3273,10 @@
       }, 250);
       var pageClicked = false, openingEndText = "opening_end", voiceGapMs = 300;
       var heardMarker = "";
-      // 2026-10-14 (operator: "rule: Display 'generating...' during the lag time *
-      // upon voice generated, update to message and play"): Wire-Pod puts
-      // generating_marker+"on" in the feed while a shown line's voice is made; a
-      // grey bubble says generating_text until the line arrives - a Goverlord
-      // line fills it, any other bubble takes its place ("off": the voice failed).
       var generatingMarker = "", generatingText = "Generating...", generatingBubble = null;
       function generatingGone() {
         if (generatingBubble) { generatingBubble.remove(); generatingBubble = null; }
       }
-      // 2026-10-16 (operator: "Operator bubble (as voice file is being generated)
-      // * update message to \"Voice file generating.\" + hourglass * update
-      // message upon voice wav play"): Wire-Pod sends generating_marker+"op"
-      // while the Operator line's voice is made - the Operator bubble shows
-      // generating_text with the warm-up hourglass, and gets its words back when
-      // its voice starts to play ("off": the voice failed - its words come back).
       function generatingGlass(bubble) {
         var row = document.createElement("div");
         row.className = "warmup-timer generating-timer";
@@ -4523,13 +3285,7 @@
         glass.innerHTML = hourglassSprite(0);
         row.appendChild(glass);
         rockHourglass(bubble, glass, 0);
-        // 2026-10-23 (operator: "animated hourglass: make sand empty from top/fill
-        // the bottom, then loop from top"): a smooth drain, a short hold full at
-        // the bottom, then from the top again (hourglass.steps, step_ms, hold_ms).
         var steps = hourglassCfg.steps || 16, stepMs = hourglassCfg.step_ms || 150, holdMs = hourglassCfg.hold_ms || 400;
-        // 2026-10-24 (operator: "generating hourglass loop animation not emptying
-        // sand"): it's made before it's placed - the drain waits to be on the page
-        // (up to 10 s) and stops only once it's gone from it.
         var placedOnce = false, madeAt = Date.now();
         (function drain(stage) {
           if (bubble.classList.contains("ready")) { return; }
@@ -4545,17 +3301,10 @@
         })(0);
         return row;
       }
-      // GOLDEN slot, the two halves every "Generating" uses (2026-10-18,
-      // operator: "finish step 2 * whatever other processes are the same but
-      // scattered, share from one shared slot"): slotWaiting puts
-      // generating_text and the hourglass in a bubble (its own words kept);
-      // slotReady takes them out and gives it its words (its own, or new ones).
       function slotWaiting(bubble) {
         var text = bubble.querySelector(".brobot-bubble-text");
         if (!text || bubble.querySelector(".generating-timer")) { return false; }
         bubble.dataset.words = text.textContent;
-        // 2026-10-22: the one Generating look - its text, then the hourglass
-        // (the text's height, on its line; .voice-wait).
         text.textContent = generatingText;
         text.classList.add("voice-wait");
         text.appendChild(generatingGlass(bubble));
@@ -4571,19 +3320,9 @@
         delete bubble.dataset.words;
         return text;
       }
-      // GOLDEN voice template, for a line shown some other way (2026-10-23,
-      // operator: "RULE: Every voiced line gets generating+hourglass/voice
-      // per-word highlighting * when any voiced line is created, the f*ck*ng
-      // template applies!!"): Wire-Pod names the voice and its words
-      // ("forwait:" being made, "forlit:" made); the newest shown line with those
-      // words - a warm-up or opener line, the Operator's own line - becomes the
-      // voice's line: "Generating..." and the hourglass while it's made, then lit
-      // word by word as it plays. A line already in the template is left as is.
-      // Not on the page yet: tied when its voice plays (voiceLitStart).
       var voiceForText = {};
       function voiceLineWords(t) { return String(t).replace(/\s+/g, " ").trim(); }
       function voiceLineSpan(el, t) {
-        // 2026-11-19: a line that went in hidden already has its span - that one.
         var ready = el.querySelectorAll(".brobot-say:not(.spoken):not(.speaking)");
         for (var r = 0; r < ready.length; r++) {
           if (voiceLineKey(ready[r].textContent) === voiceLineKey(t)) { return ready[r]; }
@@ -4608,25 +3347,15 @@
         el.appendChild(whole);
         return whole;
       }
-      // A template bubble names its voiced line's words ahead (eggBubble): the
-      // voice with those words is that line's, tied without searching the chat.
-      // 2026-10-24 (link 4, the voice): every voiced line shown some other way -
-      // the Operator's own line, a warm-up line, an egg - is named by its bubble
-      // when it's drawn: its words (letters and digits only, so a respelled name
-      // still matches) and the element that holds them. The search of the chat
-      // below is only a fallback for a line no template named.
       var voiceLinesAhead = {};
       function voiceLineKey(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); }
       function voiceLineAhead(words, el) { if (voiceLineKey(words)) { voiceLinesAhead[voiceLineKey(words)] = el; } }
-      // A line in a bubble becomes its voice's line: Generating while it's made,
-      // its words dormant until the voice plays, shown anyway if it never does.
       function voiceLineTieIn(el, bubble, file, t, waits, trust) {
         var mine = Array.prototype.filter.call(el.querySelectorAll(".brobot-say"), function (x) {
           return voiceLineWords(x.textContent) === t && !x.classList.contains("spoken");
         })[0];
         if (mine) { return mine; }
         var say = voiceLineSpan(el, t);
-        // A named line whose words were respelled on the page: the whole line.
         if (!say && trust && !el.querySelector(".brobot-say") && voiceLineKey(el.textContent) === voiceLineKey(t)) {
           say = document.createElement("span");
           say.className = "brobot-say";
@@ -4645,7 +3374,6 @@
         if (ahead) {
           delete voiceLinesAhead[key];
           if (ahead.isConnected && !ahead.classList.contains("spoken")) {
-            // Already a voiced line (the egg's): that line. Else the line it named.
             if (ahead.classList.contains("brobot-say")) {
               var host = ahead.closest(".brobot-bubble");
               if (waits && host && !ahead._wait && !ahead.classList.contains("speaking")) { voiceWaitOn(host, ahead, file); }
@@ -4660,18 +3388,12 @@
         for (var i = els.length - 1; i >= 0 && i >= els.length - 40; i--) {
           var el = els[i], bubble = el.closest(".brobot-bubble");
           if (!bubble || voiceLineWords(el.textContent).indexOf(t) < 0) { continue; }
-          // Already in the template (its own bubble's line, or tied ahead): that line.
           if (el.closest(".brobot-say") && !el.closest(".brobot-say").classList.contains("spoken")) { return el.closest(".brobot-say"); }
           var say = voiceLineTieIn(el, bubble, file, t, waits, false);
           if (say) { return say; }
         }
         return null;
       }
-      // GOLDEN, from the ground up (2026-10-23, operator: "a message text appears
-      // solid, then vanishes then appears as highlighted * TEMPLATE!! ...
-      // applies everywhere!!"): a voiced line is in the template from the moment
-      // it's drawn, never after - when a line is drawn, any voice named for its
-      // words still waiting in the queue ties to it right then, before it shows.
       function voiceTieAhead() {
         if (!generatingMarker || restoringChat) { return; }
         feedQueue.forEach(function (item) {
@@ -4698,33 +3420,20 @@
       document.addEventListener("keydown", function () { pageClicked = true; setTimeout(function () { reportShown(false); }, 0); }, true);
       function chatViewable() {
         var log = document.getElementById("section-log");
-        // 2026-10-17 (operator: "Fix collapsed chat > \"here\""): a collapsed chat
-        // (the Brobots Chat button) is away too - nothing plays into it.
-        // 2026-10-24: a visitor plays no sound, so it needs no click to follow.
-        // 2026-11-08 (system-run-check off): the silent run plays on in a hidden tab.
         if (runCheckMuted && pageClicked && (!log || log.style.display !== "none")) { return true; }
         return pageClicked && document.visibilityState === "visible" &&
           (!log || log.style.display !== "none") && container.offsetParent !== null &&
           container.classList.contains("expanded");
       }
-      // GOLDEN, the feed is the one line (2026-10-24, the root-to-leaf pass, link 2):
-      // everything the page shows comes from Wire-Pod's numbered feed, played in its
-      // own numbers' order (2026-10-07: "one bubble must complete before the next
-      // appears"; the old time order merged lines read from Wire-Pod's log, which
-      // the page no longer reads).
       function queueBubble(key, e) {
         feedQueued[key] = true;
         var item = { key: key, e: e, at: Date.now() };
         var at = feedQueue.length;
         while (at > 0 && feedQueue[at - 1].e.id > e.id) { at--; }
         feedQueue.splice(at, 0, item);
-        // 2026-10-23 (operator: "audio files don't appear to be pre-loading for
-        // instant playability upon bubble display"): every voice starts loading
-        // the moment it reaches the page, not when its turn comes.
         if (isMainPage && item.e && isVoiceEvent(item.e) && !restoringChat && !stingFiles[String(item.e.text).replace(/#vol=[0-9.]+$/, "").split("/").pop()]) { voiceAudio(item.e.text); }
         runFeedQueue();
       }
-      // A page error goes to Wire-Pod's log ("GOPOD_PAGE error ...").
       function pageError(what) {
         var body = new URLSearchParams();
         body.set("note", "error " + String(what).slice(0, 300));
@@ -4734,15 +3443,11 @@
       window.addEventListener("unhandledrejection", function (ev) { pageError("promise: " + (ev.reason && ev.reason.message || ev.reason)); });
       var feedItemMaxMs = 90000;
       function runFeedQueue() {
-        // Only the main page runs the chat; every other page only shows what the
-        // main page shows (the display mirror, below).
         if (feedRunning || !feedQueue.length || !chatViewable() || !pageRoleKnown || !isMainPage) { return; }
         feedRunning = true;
         var item = feedQueue.shift();
         delete feedQueued[item.key];
         feedItemNow = item;
-        // 2026-10-18 (step 3, "the engine conducts"): how long this line waited
-        // here (the bubble above, a countdown, the warm-up) - told to Wire-Pod.
         if (item.e && item.e.id && Date.now() - item.at > heldMost.ms) { heldMost = { id: item.e.id, ms: Date.now() - item.at }; }
         markSeen(item.key);
         var went = false, guard = null;
@@ -4750,43 +3455,22 @@
           if (went) { return; }
           went = true;
           clearTimeout(guard);
-          // 2026-10-17 (operator: "the web page and terminal must have some sort
-          // of coordinated dialogue"): how far this page has played the feed.
           if (item.e && item.e.id > playedId) { playedId = item.e.id; }
           feedRunning = false;
           runFeedQueue();
         };
-        // 2026-10-24 (live: the chat stopped after Brobot 2's reply until F5): a
-        // line that hasn't handed on after page_sync.item_max_ms is written to
-        // Wire-Pod's log with what it waits on, and passed.
         guard = setTimeout(function () {
           pageError("stuck " + Math.round(feedItemMaxMs / 1000) + " s on feed " + (item.e && item.e.id) + " " + (item.e && item.e.who) + " (" + (batonHolder() || "no lit line") + ") - passed");
           next();
         }, feedItemMaxMs);
-        // 2026-10-12: the voice right behind this line loads with its bubble.
         nextBubbleVoice = !isVoiceEvent(item.e) && feedQueue.length && isVoiceEvent(feedQueue[0].e) ? voiceAudio(feedQueue[0].e.text) : null;
-        // 2026-10-24 (operator: "GOPOD should be able to handle that/sort it
-        // out"): a line that breaks is told to Wire-Pod's log and passed, so the
-        // chat goes on instead of stopping until F5.
         try { showFeedEvent(item.e, next); } catch (err) {
           pageError("feed " + (item.e && item.e.id) + ": " + (err && err.message));
           next();
         }
         nextBubbleVoice = null;
       }
-      // 2026-10-07 (operator: "make the run pause on web-page not the focus, and
-      // continue upon focus again"): Wire-Pod is told when this page is showing
-      // the chat or not (another tab, minimised, another section); a playing
-      // draft waits before its next question while it isn't
-      // (/api-sdk/gopod_page_shown, gopod_interview_script.go).
       var lastShown = null;
-      // GOLDEN, one page owns the show (2026-10-23, FINISH_PLAN_001.md C1,
-      // gopod_main_page.go): Wire-Pod names one main page - it plays the sound,
-      // and its shown/played/heard reports time the run. Every other open page
-      // is a viewer: the same bubbles, silent (chatLevel 0), its reports
-      // ignored. The page's id lives with its tab, so F5 keeps its role; "?view"
-      // in the address makes it a viewer by choice. Nothing plays until its
-      // role is known.
       var pageId = "", pageViewOnly = /[?&]view(=|&|$)/.test(location.search);
       var isMainPage = false, pageRoleKnown = false;
       try { pageId = sessionStorage.getItem("gopod_page_id") || ""; } catch (err) { /* no storage */ }
@@ -4794,21 +3478,12 @@
         pageId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         try { sessionStorage.setItem("gopod_page_id", pageId); } catch (err) { /* no storage */ }
       }
-      // A visitor's own ID (2026-10-24, operator: "Save the visitor profile in case
-      // of a disconnect reconnect"): kept in this browser, so Wire-Pod knows the
-      // same phone again after a reconnect, even on a new network address.
       var visitorId = "";
       try { visitorId = localStorage.getItem("gopod_visitor_id") || ""; } catch (err) { /* no storage */ }
       if (!visitorId) {
         visitorId = "v" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
         try { localStorage.setItem("gopod_visitor_id", visitorId); } catch (err) { /* no storage */ }
       }
-      // A visitor's standing in the text field (2026-10-24, operator: "Upon
-      // Approval * text toggles from \"Waiting for approval\" to \"Username
-      // Approved\", then clears & continues like before"): waiting - the waiting
-      // words; approved - "Username Approved" for a few seconds (once per name,
-      // remembered in this browser), then the field as ever. A line sent still
-      // answers with its own note (sendTypedLine).
       var visitorLastState = "", visitorClearTimer = null, secondAdminShown = "";
       function visitorStanding(v) {
         var state = v.state || "";
@@ -4853,29 +3528,11 @@
         displayMirror();
         runFeedQueue();
       }
-      // GOLDEN display mirror (2026-10-24, operator: "the visitor page does no
-      // thinking * visitor page zombie follows regardless of a nuclear war going on
-      // next door * visitor page zombie follows GOPOD admin feed"): the main page
-      // sends what it shows - its newest bubbles as drawn (highlights, Generating,
-      // hourglass and all), each with its own key - through Wire-Pod
-      // (/api-sdk/gopod_display), whenever they change (at most every
-      // page_sync.display_ms). Every other page runs none of the chat - no feed, no
-      // voices, no warm-up - it only paints what the main page sent: a bubble it
-      // already has is changed only where it changed (pictures never reload, no
-      // flicker - live: "highlighting starts ok, then starts to flicker"), a new
-      // one is added, a gone one removed. Scrolling is each device's own (operator:
-      // "Decouple admin scrolling from phone scrolling * devices follow GOPOD's
-      // scrolling on their own devices"): GOPOD's rules - a new bubble placed
-      // bottom/bottom or top/top, the lit words followed - on its own screen. Its
-      // own typing row (sign-up, notes) stays its own.
       var DISPLAY_BUBBLES, DISPLAY_MS;
       var displaySendTimer = null, displaySent = "", displayObserver = null, displayPollTimer = null, displaySeen = 0;
       var displayKeys = new WeakMap(), displayNextKey = 0;
       function displayBubbles() {
         return Array.prototype.filter.call(container.children, function (el) {
-          // The visitor's template only: the admin's own bubbles (the system window,
-          // system command answers - gopod-admin-only) never reach a visitor
-          // (2026-10-24, live: the system window showed on the phone).
           return el !== typedRow && el.dataset.staged !== "1" && el.style.visibility !== "hidden" && !el.classList.contains("gopod-admin-only");
         }).slice(-DISPLAY_BUBBLES);
       }
@@ -4885,7 +3542,6 @@
         var items = displayBubbles().map(function (b) {
           if (!displayKeys.has(b)) { displayKeys.set(b, ++displayNextKey); }
           var h = b.outerHTML;
-          // The marquee's bulbs are each page's own (sized for its screen).
           if (b.querySelector(".marquee-lights")) {
             var copy = b.cloneNode(true);
             Array.prototype.forEach.call(copy.querySelectorAll(".marquee-lights"), function (l) { l.textContent = ""; });
@@ -4896,10 +3552,6 @@
         var body = JSON.stringify({ items: items });
         if (body === displaySent) { return; }
         displaySent = body;
-        // 2026-10-25 (live, the phone: "punctuation & ending emojis flicker"): one
-        // send at a time - two at once could land out of order, and the phone
-        // stepped back to the older picture for a moment (the marks and emojis,
-        // lit right after their word, showed it). The next waits for this one.
         displaySending = true;
         fetch("/api-sdk/gopod_display", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
           .catch(function () { displaySent = ""; })
@@ -4914,7 +3566,6 @@
         if (displaySending) { displayPending = true; return; }
         if (displaySendTimer === null) { displaySendTimer = setTimeout(displaySend, DISPLAY_MS); }
       }
-      // Make a look like b, keeping a's own nodes wherever they match.
       function displayMorph(a, b) {
         if (a.nodeType !== b.nodeType || a.nodeName !== b.nodeName) { a.parentNode.replaceChild(b, a); return; }
         if (a.nodeType === 3 || a.nodeType === 8) { if (a.nodeValue !== b.nodeValue) { a.nodeValue = b.nodeValue; } return; }
@@ -4929,8 +3580,6 @@
         while (a.childNodes.length > bk.length) { a.removeChild(a.lastChild); }
       }
       function displayPaint(d) {
-        // 2026-10-25 (operator: "Visitor page, upon any refresh, auto-scroll to
-        // bottom"): the first paint after a load or refresh starts at the end.
         var firstPaint = !Array.prototype.some.call(container.children, function (el) { return el !== typedRow && el.dataset.mid; });
         var have = {};
         Array.prototype.forEach.call(container.children, function (el) { if (el !== typedRow && el.dataset.mid) { have[el.dataset.mid] = el; } });
@@ -4947,18 +3596,15 @@
           order.push(el);
         });
         Array.prototype.slice.call(container.children).forEach(function (el) { if (el !== typedRow && !keep[el.dataset.mid]) { el.remove(); } });
-        // Bubbles already in place stay put (never moved); new ones go after them.
         var placed = order.filter(function (el) { return el.parentNode === container; });
         var now = Array.prototype.filter.call(container.children, function (el) { return el !== typedRow; });
         var lastPlaced = placed.length ? order.indexOf(placed[placed.length - 1]) : -1;
         var inOrder = now.length === placed.length && now.every(function (el, i) { return el === placed[i]; }) &&
           order.every(function (el, i) { return el.parentNode === container || i > lastPlaced; });
         order.forEach(function (el) { if (!inOrder || el.parentNode !== container) { container.appendChild(el); } });
-        // Its marquees: bulbs laid out for this screen.
         Array.prototype.forEach.call(container.querySelectorAll(".marquee-lights"), function (layer) {
           if (!marquees.some(function (m) { return m.layer === layer; })) { marqueeTrack(layer.parentElement, layer); }
         });
-        // GOPOD's scrolling rules, on this device's own screen.
         var speaking = container.querySelector(".brobot-say.speaking");
         if (firstPaint && firstNew) {
           var toEnd = function () { container.scrollTop = chatMaxScroll(); window.scrollTo(0, document.body.scrollHeight); };
@@ -4980,7 +3626,6 @@
         if (displayObserver) { displayObserver.disconnect(); displayObserver = null; }
         if (isMainPage) {
           displayObserver = new MutationObserver(function (records) {
-            // A marquee's blinking is this page's own - not a change to send.
             var real = records.some(function (r) {
               var el = r.target.nodeType === 1 ? r.target : r.target.parentElement;
               return !(el && el.closest && el.closest(".marquee-lights"));
@@ -4994,12 +3639,6 @@
           displayPoll();
         }
       }
-      // 2026-10-29 (operator: "system menu bubble: [system-commandment] * single
-      // click is fine in results window * new (global rule applies to all): upon a
-      // detected double click, copy [system-commandment] into input text field,
-      // example [system-torah]"): anywhere on the page - a bubble, the system
-      // window, its results - a double click on a system-... word puts it in the
-      // text field (the admin page; a click on it runs nothing).
       function commandmentAt(x, y) {
         var node = null, at = 0;
         if (document.caretRangeFromPoint) {
@@ -5026,8 +3665,6 @@
       }, true);
       function reportShown(force) {
         var log = document.getElementById("section-log");
-        // 2026-10-17 (survey E1: the page said "shown" before it could play - it
-        // plays nothing until it's been clicked): here only once it can play.
         var shown = chatViewable();
         if (!force && shown === lastShown) { return; }
         lastShown = shown;
@@ -5039,30 +3676,22 @@
           .then(function (d) {
             if (!d || typeof d.main !== "boolean") { return; }
             isAdminPage = d.admin === true;
-            // The All menu's 0 (the system) is the admin's alone.
             var zero = allFirstSelect && allFirstSelect.querySelector(".gopod-brain");
             if (zero) {
               zero.hidden = !isAdminPage;
               zero.disabled = !isAdminPage;
               if (!isAdminPage && allFirstSelect.value === "-0") { allFirstSelect.value = "+*"; }
             }
-            // A visitor's typing row is two lines (2026-10-24, operator: "remove
-            // 3rd line: | Record? [] | 00:25:46 | 🔇"): the Brobots, then the text.
             if (document.body.classList.contains("gopod-visitor") === isAdminPage) {
               document.body.classList.toggle("gopod-visitor", !isAdminPage);
               fitTypedRow();
             }
             if (isAdminPage) { document.body.classList.remove("gopod-chat-only"); }
-            // A visitor's page is the chat alone, always - no way back to Wire-Pod
-            // (2026-10-24, operator: "redo visitor page with no other wire-pod access").
             if (!isAdminPage && !document.body.classList.contains("gopod-chat-only")) { visitorOpenChat(); }
-            // The app's start (?app): the admin's Log, a visitor's chat.
             if (appStart) { appStart = false; if (isAdminPage && typeof window.showLog === "function") { window.showLog(); } }
             if (chatOnlyPending) { chatOnlyPending = false; setTimeout(chatOnlyOn, 0); }
             setPageRole(d.main);
             if (d.visitor) { visitorStanding(d.visitor); }
-            // 2026-10-29 (operator: "add a check for one admin controller page"):
-            // a second admin page says so in its text field (it only watches).
             if (isAdminPage) {
               var second = d.second_admin || "";
               if (second !== secondAdminShown) {
@@ -5076,31 +3705,17 @@
       }
       document.addEventListener("visibilitychange", function () { reportShown(false); runFeedQueue(); });
       setInterval(function () { reportShown(false); }, 1000);
-      // 2026-10-17: every 5 s, so Wire-Pod knows the page is here soon after a
-      // restart (gopod_page_presence.go).
       setInterval(function () { reportShown(true); }, 5000);
-      // 2026-10-12: a line's voice is loaded while its bubble is placed, and
-      // plays once the bubble shows.
       var nextBubbleVoice = null, voiceCache = {};
-      // 2026-10-14 (operator: "Rule: Please make all chat bubble audio default
-      // to volume variable to play at 10% volume ... all chat bubbles, system
-      // bubbles, reporter/narrator bubbles, brobots' chat bubbles, etc... song
-      // sequences as well"): every sound this page plays for a bubble or a song
-      // plays at chat_audio.volume; a sound's own volume ("#vol=", a sting's or a
-      // song step's) is its share of it. The background loop keeps its own.
       var chatVolume = 0.35;
       var runCheckMuted = false; // run_check.mute_marker / unmute_marker on the feed
       var masterMuted = false; // the master mute button (after the loop's speaker)
       function chatLevel(share) {
-        // A viewer page is silent (C1): the main page plays the sound.
         if (!isMainPage) { return 0; }
         var v = typeof share === "number" && !isNaN(share) ? share : 1;
         if (runCheckMuted || masterMuted) { return 0; } // 2026-11-08: the silent run-check; 2026-11-09: the master mute
         return Math.max(0, Math.min(1, chatVolume * v));
       }
-      // 2026-10-17 (operator: "One master default knobs setting all other knobs
-      // refers to * other story.md knobs are either \"\" for default or
-      // \"0-100%\""): a volume knob as a share of chat_audio.volume.
       function volumeShare(v) {
         if (typeof v === "number" && !isNaN(v)) { return Math.max(0, v); }
         var t = String(v == null ? "" : v).trim();
@@ -5109,13 +3724,7 @@
         if (isNaN(n) || n < 0) { return 1; }
         return /%$/.test(t) ? n / 100 : n;
       }
-      // 2026-10-17 (operator: "normalize all volumes to -3db ... before
-      // \"default\" knob setting"): each sound's offset to chat_audio.normalize_db
-      // (Wire-Pod measures them: gopod_audio_levels.json), by file name.
       var audioLevels = {};
-      // 2026-10-17 (operator: "Can you do what I do"): a sound's evened copy
-      // (gopod_audio_levels.json "made": its page path -> the copy's), played
-      // instead of it; made voices are evened in place.
       var audioMade = {};
       function loadAudioLevels() {
         fetch("/gopod_audio_levels.json", { cache: "no-store" })
@@ -5126,15 +3735,12 @@
             var made = d.made || {};
             if (JSON.stringify(made) !== JSON.stringify(audioMade)) {
               audioMade = made;
-              // Sounds loaded before the list came play their evened copy next time.
-              // Stings are loaded again at once (their evened copy), ready to play.
               Object.keys(stingPool).forEach(function (k) { if (audioMade[k]) { delete stingPool[k]; preloadStings([k]); } });
               Object.keys(voiceCache).forEach(function (k) { if (audioMade[k.replace(/#.*$/, "")]) { delete voiceCache[k]; } });
             }
           })
           .catch(function () { /* none yet */ });
       }
-      // The page path of a sound's evened copy, or the sound itself.
       function normSrc(src) {
         var s = String(src || ""), hash = "";
         var at = s.indexOf("#");
@@ -5160,13 +3766,9 @@
           a.preload = "auto";
           a.addEventListener("error", function () { a._failed = true; });
           try { a.load(); } catch (err) { a._failed = true; }
-          // 2026-10-18 (forced alignment): a made voice's word times, beside it.
           var plain = key.replace(/#.*$/, "");
           a._wordsDone = true;
           if (/\/gopod_reporter_audio\/[a-z]{2}_[a-z]+_(s\d+_)?[0-9a-f]{16}\.wav$/.test(plain)) {
-            // 2026-10-22 (live: PLAYHEAD's fresh weather line lit out of step):
-            // the voice waits for these (playWhenShown) - a just-made voice
-            // started before they came in, and lit by the estimate.
             a._wordsDone = false;
             fetch(plain.replace(/\.wav$/, ".words.json"), { cache: "no-store" })
               .then(function (r) { return r.ok ? r.json() : null; })
@@ -5178,8 +3780,6 @@
         }
         return voiceCache[key];
       }
-      // The system stings (reporter_voices.system_stings, the key sound): one
-      // loaded copy each, kept and replayed; a second copy only while one plays.
       var stingFiles = {}, stingPool = {};
       function stingFromPool(src) {
         var key = String(src).replace(/#vol=[0-9.]+$/, "");
@@ -5197,8 +3797,6 @@
           try { a.currentTime = 0; } catch (err) { /* not loaded yet */ }
         }
         a._share = vol ? parseFloat(vol[1]) : 1;
-        // 2026-10-25 (log: "voice late 3.0 s: ... file 3.0 s - dJent3b.wav"): a sting
-        // has no word times - never waited for (it waited VOICE_READY_MAX_MS each time).
         a._wordsDone = true;
         return a;
       }
@@ -5220,9 +3818,6 @@
         return e && e.who === reporterRole && /\.wav(#vol=[0-9.]+)?$/.test(String(e.text)) &&
           String(e.text).trim() !== openingEndText && !(heardMarker && String(e.text).indexOf(heardMarker) === 0);
       }
-      // 2026-10-17 (survey E3: "heard" meant passed, not played): voices that
-      // didn't play (missing, blocked) since the last heard marker - told to
-      // Wire-Pod with that marker, so the journal says so.
       var voicesSkipped = 0;
       function playVoiceThen(src, done) {
         var finished = false, litDone = null;
@@ -5230,9 +3825,6 @@
           if (finished) { return; }
           finished = true;
           if (voicePlaying && voicePlaying.finish === finish) { voicePlaying = null; }
-          // 2026-10-18 (leak: a voice that errored or hit its cap left its line
-          // "being said", and the baton held every next bubble up to 2 min):
-          // however a voice ends, its line is said.
           if (litDone) { litDone(); litDone = null; }
           setTimeout(done, voiceGapMs);
         };
@@ -5241,13 +3833,9 @@
           finish();
         };
         try {
-          // 2026-10-11: a song sound's volume rides on its path ("#vol=0.8").
           var audio = voiceAudio(src);
           var voiceFeedId = feedIdNow;
           delete voiceCache[String(src)];
-          // 2026-10-17 (operator: "If system audio can be preloaded to play
-          // multiple times, preload and play as needed * grunge, djent"): a sting
-          // is loaded once and played again from the start each time.
           var pooled = stingFromPool(src);
           if (pooled) { audio = pooled; }
           audio.addEventListener("ended", finish, { once: true });
@@ -5256,21 +3844,12 @@
           var from = Date.now();
           (function playWhenShown() {
             var b = audio._bubble;
-            // 2026-10-16 (comb-through: a voice could play before its bubble
-            // showed - its link lost, or the 20 s wait shorter than the baton's):
-            // a voice waits while its bubble, or any bubble before it, is still
-            // waiting to show - as long as the baton can be held.
-            // 2026-10-23 (live: the interview's end held 4.5 min): only bubbles that
-            // came BEFORE this voice hold it - a later one (the grand prize) waits
-            // for this line to be said, so it must never hold the voice back.
             var waiting = (b && b.isConnected && b.style.visibility === "hidden") ||
               pendingReveal.some(function (p) { return !(voiceFeedId && p._feedId > voiceFeedId); });
             if (waiting && Date.now() - from < CHAT_BATON_MAX_MS + BUBBLE_READY_MAX_MS) {
               setTimeout(playWhenShown, 50);
               return;
             }
-            // 2026-10-22: GOLDEN voice start - shown, then its length and word
-            // times in (up to VOICE_READY_MAX_MS), then it plays and lights.
             if (!audio._readyFrom) { audio._readyFrom = Date.now(); audio._shownAt = Date.now(); }
             if ((!audio._wordsDone || !(audio.duration > 0)) && !audio._failed && Date.now() - audio._readyFrom < VOICE_READY_MAX_MS) {
               setTimeout(playWhenShown, 50);
@@ -5278,19 +3857,9 @@
             }
             audio._readyFrom = 0;
             audio.volume = chatLevel(audio._share * audioLevel(audio.src));
-            // The Operator line's voice: its words come back as it plays (voiceLitStart).
-            // 2026-10-17 (survey E2: a 60 s cap, set before the up-to-126 s wait
-            // for its bubble, let the queue move on while this voice could still
-            // start later, out of order): the cap starts when it plays - its own
-            // length plus 5 s (60 s when the length isn't known), so a line is
-            // never cut and never stuck.
             var capMs = isFinite(audio.duration) && audio.duration > 0 ? audio.duration * 1000 + 5000 : 60000;
             setTimeout(finish, capMs);
-            // A reporter's or Goverlord's line lights with its voice (voiceLitStart).
             if (!pooled && (voiceLitNext || voiceWaitFor[String(src).replace(/#.*$/, "")])) { litDone = voiceLitStart(audio.duration, audio._words, src, audio); }
-            // 2026-10-25 (operator: "audio played late. can you see any log details
-            // about this delay?"): a voice that starts 0.8 s+ after its turn came
-            // says why in Wire-Pod's log - waiting for its bubble, or for its file.
             var startedAt = Date.now();
             if (startedAt - from >= 800) {
               var lateNote = new URLSearchParams();
@@ -5301,19 +3870,7 @@
           })();
         } catch (err) { skip(); }
       }
-      // 2026-10-20 (operator: "every time I do a wpr 2 ... I have to wait for the
-      // reporters to finish their spoken lines * how to add keyboard 'Esc' key
-      // press to skip to the end of the in-between run"): Esc (or system-skip)
-      // stops the reporter line being said and drops the reporters' queued
-      // lines and voices, up to the next line that isn't theirs (Goverlord's
-      // "ready", a song's start) or the opening's end. Heard markers still pass,
-      // so Wire-Pod and the songs go on as if they'd played. The managers
-      // (CHALK, PLAYHEAD) and the Brobots are never skipped.
       var skippingReporters = false, voicePlaying = null;
-      // 2026-10-22 (operator: "skip is set to disabled * only upon voices ready
-      // can skip be enabled * upon skipped, 'skip' skip is set to disabled"):
-      // the skip gate - off until Wire-Pod's skip_on feed line (the opener's
-      // step after the voice files check), off again once used.
       var skipGate = { on: false, decided: false };
       function escapeRun() {
         fetch("/api-sdk/gopod_escape", { method: "POST" })
@@ -5327,11 +3884,6 @@
             body: "note=" + encodeURIComponent("skip ignored (" + (how || "Esc") + "): not enabled") }).catch(function () {});
           return;
         }
-        // 2026-10-29 (operator: "Please ensure Esc, stop run & skip all work
-        // globally as intended * WHERE IN THE GLOBAL UNIFIED GOPOD TEMPLATE IS THE
-        // ISSUE = FIX THE TEMPLATE"): the gate stays open once the voices are ready
-        // - every skip works, not only the first (it used to shut after one).
-        // 2026-10-21 (operator: "add to logging * skipped [input] (Esc, numpad, mic, typed)").
         fetch("/api-sdk/gopod_page_note", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -5341,12 +3893,6 @@
         if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); }
         skipFinishWaiting();
       }
-      // 2026-10-29 (live 10:49: after a skip, a reporter line already drawn held the
-      // baton 10 s+, waiting for a voice the skip had dropped): a skip finishes every
-      // voiced line still waiting - shown whole, the baton free. The Brobots' own
-      // replies (their robots speak them) are left alone.
-      // A skip covers what's queued: once the queue has played out, it's over -
-      // it never swallows lines that come later.
       function skipEndWhenDrained() {
         var check = setInterval(function () {
           if (!skippingReporters) { clearInterval(check); return; }
@@ -5372,19 +3918,11 @@
           if (t.trim() === openingEndText) { skippingReporters = false; skipEndScroll(); return false; }
           return /\.wav(#vol=[0-9.]+)?$/.test(t); // a voice (or sting) in the stretch
         }
-        // 2026-10-20 (operator: "upon 'Esc' or skip * display all bubbles (in
-        // the opener it'd be showing all the reporter lines) first, then llm
-        // ready"): a skipped reporter line still shows, all its words at once.
-        // 2026-10-29: Goverlord's voiced lines are in the stretch too (the tour's
-        // scriptures, his system lines) - shown whole, their voices skipped.
         if (((hostNames[e.who] || personaVoiceOf.hasOwnProperty(e.who)) && !managerHosts[e.who]) || e.who === systemRole) { return false; }
         skippingReporters = false;
         skipEndScroll();
         return false;
       }
-      // 2026-10-22 (operator: "upon voices ready skips * update template so chat
-      // bubble also scrolls to bottom position"): a skip's end takes the chat to
-      // its bottom, once the shown bubbles are placed.
       function skipEndScroll() {
         [300, 1200].forEach(function (ms) { setTimeout(function () { scrollChatTo(chatMaxScroll()); }, ms); });
       }
@@ -5393,33 +3931,19 @@
       var brobotTo = {}; // 2026-11-14: who a line to a Brobot body reaches (its to_as)
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
-        // 2026-11-26 (operator: "bingo test song, I still see chat bubbles start out
-        // as DOC, then flip to Brobot 1"): a Brobot line with no "by" (a song's line)
-        // is the Brobot himself, not the persona he answered as last.
         if (/^Brobot [12]$/.test(e.who)) { brobotBy[e.who] = e.by || e.who; }
-        // 2026-11-14 (operator: "welcoming & engaging a new visitor"): a line to a
-        // Brobot body names the persona it reaches (Wire-Pod's to_as) - the label;
-        // the body still places the bubble and its icon.
         if (/^Brobot [12]$/.test(e.to || "")) { brobotTo[e.to] = e.to_as || e.to; }
-        // 2026-11-08 (system-run-check): the run check mutes and unmutes the page.
         var rcs = settingsRunCheck || {};
         if (e.who === reporterRole && (e.text === rcs.mute_marker || e.text === rcs.unmute_marker)) { runCheckMuted = e.text === rcs.mute_marker; done(); return; }
-        // A "skip" said into the mic (Wire-Pod's skip marker): logged there already.
         if (e.who === reporterRole && String(e.text).indexOf("skip:") === 0) {
-          // The mic's "skip" (Wire-Pod's skip: line) goes through the skip gate too.
-          // Wire-Pod's stop run sends one too (gopodStopRuns): a stop skips the voices queued.
           if (!skipGate.on) { done(); return; }
           skippingReporters = true; if (voicePlaying) { try { voicePlaying.audio.pause(); } catch (err) { /* gone */ } voicePlaying.finish(); } skipFinishWaiting(); done(); return; }
         if (skippedEvent(e)) { done(); return; }
-        // A held rattle timer gives its place to the next bubble (voices aren't bubbles).
         if (countdownDoneAt && e.who !== reporterRole && e.who !== countdownRole && e.who !== songAudioRole) {
           afterCountdown(function () { showFeedEvent(e, done); }, e.who === ballRole);
           return;
         }
         if (e.who === songAudioRole) {
-          // 2026-10-15 (operator: "Stop run didn't work during song run"): a
-          // stopped timed song - its soundtrack stops, narrator bubbles not yet
-          // shown go, the ones on screen show their words and their pictures fade.
           if (String(e.text).trim() === "stop") {
             if (songAudio) { songAudio.pause(); songAudio = null; }
             narratorLines.forEach(function (n) {
@@ -5449,21 +3973,14 @@
           return;
         }
         if (e.who === reporterRole) {
-          // GOLDEN, locked (2026-10-13): the System llm bubble's message, in the
-          // chat's order; a step's message stays up warmup_check_seconds before
-          // the next line, so every step is seen.
           if (String(e.text).trim() === "loop_pause" || String(e.text).trim() === "loop_resume") {
             backgroundLoop.runQuiet(String(e.text).trim() === "loop_pause");
             done();
             return;
           }
-          // 2026-10-28 (the comm check, gopod_comm_check.go): a key "held" - its
-          // bubbles as a real press draws them (hold, recording, transcribing),
-          // then its words come in it, as the Operator's line.
           if (String(e.text).indexOf("numpad_sim|") === 0) {
             var sim = String(e.text).split("|"), simKey = sim[1] || "", simWho = (numpad.targets && numpad.targets[simKey]) || sim[2] || "";
             if (restoringChat) { done(); return; }
-            // 2026-11-16: the persona this key reaches (its fourth part) heads the status.
             if (/^Brobot [12]$/.test(simWho) && sim[3]) { brobotTo[simWho] = sim[3]; }
             var simSt = systemStatus(numpadText("hold", { key: simKey, brobot: simWho }), 0, simWho);
             var holdMs = ((numpad.cfg && numpad.cfg.min_hold_seconds) || 0.5) * 1000, recMs = (commCheckRecordSeconds || 2) * 1000;
@@ -5478,18 +3995,11 @@
             return;
           }
           if (String(e.text).trim() === "skip_on") {
-            // 2026-10-25 (operator: "enable happens at \"Voices ready for
-            // playback.\" independent of edits"): Wire-Pod opens the gate as
-            // that step shows (gopod_opener_song.go), whatever its words.
             if (!restoringChat) { skipGate.on = true; skipGate.decided = true; }
             done();
             return;
           }
           if (String(e.text).indexOf("warmup_text|") === 0) {
-            // 2026-10-15 (operator: '"LLM Warming Up. Please Wait." play after
-            // its displayed * bubble should be ready to play upon being displayed
-            // as per rule'): its voice (the sting and the words right behind it)
-            // is loaded first, then the message shows and the voice plays at once.
             var warmVoices = [];
             for (var q = 0; q < feedQueue.length && isVoiceEvent(feedQueue[q].e); q++) { warmVoices.push(voiceAudio(feedQueue[q].e.text)); }
             var warmFrom = performance.now();
@@ -5497,14 +4007,12 @@
               var loading = warmVoices.some(function (a) { return !a._failed && a.readyState < 3; });
               if (loading && performance.now() - warmFrom < BUBBLE_READY_MAX_MS) { setTimeout(whenWarmVoiceReady, 50); return; }
               var held = warmupTextLine(e.text);
-              // Its spoken line right behind it plays now, as the hold.
               setTimeout(done, held && !warmVoices.length ? llmWarm.checkMs : 0);
             })();
             return;
           }
           if (generatingMarker && String(e.text).indexOf(generatingMarker) === 0) {
             var genKind = String(e.text).slice(generatingMarker.length);
-            // GOLDEN: a voice whose words are shown some other way (gopodSayForShownLine).
             var forKind = genKind.indexOf("forwait:") === 0 ? "forwait:" : (genKind.indexOf("forlit:") === 0 ? "forlit:" : "");
             if (forKind) {
               var forRest = genKind.slice(forKind.length), forBar = forRest.indexOf("|");
@@ -5531,8 +4039,6 @@
             done();
             return;
           }
-          // GOLDEN (gopod_say_heard.go): the voice lines before this marker have
-          // played - Wire-Pod's song waits for this before it goes on.
           if (heardMarker && String(e.text).indexOf(heardMarker) === 0) {
             var heardBody = new URLSearchParams();
             heardBody.set("token", String(e.text).slice(heardMarker.length));
@@ -5546,11 +4052,8 @@
           playVoiceThen(e.text, done);
           return;
         }
-        // GOLDEN global message: a line whose voice is being made ("wait:") shows
-        // in its own bubble with "Generating..." and the hourglass (voiceLitLine).
         lineWaits = false;
         lineVoice = "";
-        // "lit:<voice file>|text" (2026-10-21): a made voice's line, tied to its file.
         if (generatingMarker && String(e.text).indexOf(generatingMarker + "lit:") === 0) {
           e.text = String(e.text).slice((generatingMarker + "lit:").length);
           var litBar = e.text.indexOf("|");
@@ -5559,7 +4062,6 @@
         if (generatingMarker && String(e.text).indexOf(generatingMarker + "wait:") === 0) {
           e.text = String(e.text).slice((generatingMarker + "wait:").length);
           lineWaits = true;
-          // "wait:<voice file>|text": this line's own voice (2026-10-21).
           var bar = e.text.indexOf("|");
           if (bar > 0 && e.text.charAt(0) === "/") { lineWaits = e.text.slice(0, bar); e.text = e.text.slice(bar + 1); }
         }
@@ -5571,26 +4073,17 @@
         else if (e.who === ballRole) { showBingoBall(e.text); }
         else if (e.who === chapterRole) { showChapter(e.text, done); return; }
         else if (e.who === scoreRole) { showScore(e.text, undefined, done); return; }
-        // 2026-10-13 (operator: "all system messages out = \"Goverlord: GOPOD
-        // Brain\" * \"Reporter 0\" is a decoration label"): one header for them all.
         else if (e.who === systemRole) { showScore(e.text, undefined, done); return; }
         else if (e.who === terminalRole) { showTerminal(e.text, done); return; }
         else if (searchSettings.results_role && e.who === searchSettings.results_role) { showSearchResults(e.text, e.to, done); return; }
         else if (e.who === pictureRole && String(e.text).indexOf("notice:") === 0) {
-          // 2026-11-16 (operator: "Where did the brain bubbles disappear to?" - a
-          // reloaded page rebuilt the chat without them): a brain line is saved
-          // with the chat, so a reload puts it back where it was.
           recordBubble(e.to || "", String(e.text).slice(7), "notice");
           bubbleNotice(e.to, String(e.text).slice(7));
         }
-        // 2026-10-25: his opener (Got it! / Nice try, ...!), the top of his bubble.
         else if (e.who === pictureRole && String(e.text).indexOf("opener:") === 0) { brobotOpener(e.to, String(e.text).slice(7), done); return; }
-        // 2026-10-23 (operator: "'Thanks for your help, PLAYHEAD.' not in highlighting
-        // pipeline"): a notice line he says - lit while he says it, said after.
         else if (e.who === pictureRole && String(e.text).indexOf("noticesay:") === 0) { bubbleNotice(e.to, String(e.text).slice(10), true); }
         else if (e.who === pictureRole && String(e.text).indexOf("noticesaid:") === 0) { bubbleNoticeSaid(e.to); }
         else if (e.who === pictureRole && String(e.text).indexOf("weathershow:") === 0) { weatherShowFor(e.to); }
-        // 2026-10-25 (the egg rule): his line hit an egg - his bubble wears the marquee.
         else if (e.who === pictureRole && String(e.text).indexOf("eggmark:") === 0) { if (/^Brobot [12]$/.test(String(e.to || ""))) { eggMarked[e.to] = true; } }
         else if (e.who === pictureRole) {
           if (menuPictures(e.text)) { done(); return; }
@@ -5598,76 +4091,29 @@
           return;
         }
         else if (hostNames[e.who] || personaVoiceOf.hasOwnProperty(e.who)) { showHostLine(e.who, e.text, e.to, done); return; }
-        // 2026-10-08: a draft's own question shows as the reporter who reads it.
-        // A draft question its reporter reads: an Operator bubble, "Reporter 1 to
-        // Brobot 1" (operator 2026-10-10: "assigned reporter bubbles fall under
-        // 'Operator' = white eyed icon to brobot(s)").
-        // 2026-11-04 (operator: "Keys will now do the round robin"): a comm check
-        // line wears its asker's label too - Keys (a persona) or Goverlord (the system).
         else if (e.who === "Operator" && e.by && (hostNames[e.by] || personaVoiceOf.hasOwnProperty(e.by) || e.by === systemRole)) {
           appendBubble("Operator", e.text, undefined, e.to, hostHeader(e.by), done, e.by);
           return;
         }
         else if (e.who === "Operator") { appendBubble("Operator", e.text, undefined, e.to, e.via, done); return; }
-        // 2026-10-17 (operator: "one event list, single source of truth"): a live
-        // reply comes on the feed (via "llm"), in order with every other line.
         else if (e.via === "llm") { noteLiveReply(e, robotBubbleOnce(e.who, kgReplyText(e.text), "llm", done)); return; }
         else { robotBubbleOnce(e.who, e.text, "brobot", done); return; }
         done();
       }
 
-      // 2026-09-29: light up the sentence a robot is saying right now. Wire-Pod writes
-      // the sentence it is about to say to /gopod_speaking_now.json (active=false when
-      // the reply ends; interrupted=true on a touch interrupt); the sentence in that robot's newest bubble that shares
-      // the most words with it gets the "speaking" class (solid white). Words are compared, not
-      // exact text, because the spoken copy is the pronounced one ("Gowp-awd", no emoji).
       var ESN_TO_BUBBLE_CLASS = { "ESN01": "brobot-1", "ESN02": "brobot-2" };
-      // 2026-10-15 (operator: "revealed as it is heard, not ahead of robot
-      // speech"): a piece shows when it's lit (.speaking) and stays at 85%
-      // (.spoken); the pieces before it count as heard too (a missed highlight
-      // never leaves a hole). CSS hides the rest (gopod_chat_bubbles.css).
       function lightSpan(span) {
         span.classList.add("speaking");
         span._litAt = Date.now();
-        // 2026-10-16 (comb-through: plain bubbles flickered): the word reveal is
-        // for the bubbles shown piece by piece (live, scripted, narrator) only.
         if (span.closest(".brobot-bubble-live, .brobot-bubble-scripted, .narrator, .voice-lit")) { digitSequence(span); }
         var bubble = span.closest(".brobot-bubble");
         if (!bubble) { return; }
         var all = span.closest(".nested-host") ? span.closest(".nested-host").querySelectorAll(".brobot-say") : ownSays(bubble);
         for (var i = 0; i < all.length && all[i] !== span; i++) { all[i].classList.add("spoken"); }
-        // 2026-10-31 (operator: "A tall bubble holds at its top, until higher
-        // priority highlighted text reaches the lower threshold to scroll further,
-        // like how brobot bubbles scroll * all this should be inherently built in";
-        // scroll log: Cameo's 968 px bubble held at its top, 326 px below the
-        // window, while her lines were said - only the Brobots' live lines called
-        // the highlight scroll): every lit line, every bubble, follows it here.
         focusSpeaking(span);
       }
-      // 2026-10-15 (operator: "as 142857 is spoken as a sequence of single
-      // numbers, each number highlights sequentially * not precisely timed with
-      // audio, but give me your best guess"; "Apply same new sequential
-      // highlighting to military time, so with 0904 each number highlights
-      // sequentially"): in the piece being said, a run of single digits ("1 4 2 8
-      // 5 7") and a military time ("0904 Hours Military Time", in its spoken
-      // parts: 0 9 0 4; 18 14; 18 00) light one number at a time - the words
-      // before them at digit_highlight.seconds_per_word, then one number every
-      // seconds_per_number. Like every piece: hidden until said, solid white
-      // while said, 85% after.
       var digitHighlight = { seconds_per_word: 0.3, seconds_per_number: 0.45 };
       var militaryLabel;
-      // GOLDEN, word at a time (operator 2026-10-16: "extend that same process to
-      // a sentence a word at a time * sentence is displayed at 0% solid * then use
-      // timed, word-at-a-time, reveals to kinda match brobot speech timing"; his
-      // rule, from "as of 1918 Hours Military Time or 7:18 PM.": the piece starts
-      // at 0%, then "as of", then 1918 (19, 18), then "Hours Military Time", then
-      // "or", then "7:18 PM" - the one being said 100% solid white, the ones said
-      // 85%, as every piece). In the piece being said every word is its own step,
-      // at word_reveal.seconds_per_word; a run of single digits one digit at a
-      // time, a military time one spoken part at a time ("13", "16") and a clock
-      // time as said ("1", ":16", "P", "M") at seconds_per_number; the label's
-      // words one each ("Hours", "Military", "Time."); a math formula is one step. A best guess, not tied
-      // to the audio; when the piece ends the rest shows (85%).
       var wordReveal = { seconds_per_word: 0.38 };
       function digitUnits(span) {
         if (span._digitUnits) { return span._digitUnits; }
@@ -5698,17 +4144,9 @@
           }
           while ((m = military.exec(text))) {
             var h = parseInt(m[1], 10), mi = parseInt(m[2], 10), at = m.index, n = digitHighlight.seconds_per_number;
-            // 2026-11-10 (operator: "group as HH/MM * 0726 ... zero-seven, twenty-six
-            // * 1126 ... eleven, twenty-six"): the hour lights as one group, then the minutes.
             cuts.push([at, at + 2, n]);
             cuts.push([at + 2, at + 4, n]); // MM, one group too
-            // 2026-10-16 (operator: "1316 Hours Military Time ... globally
-            // reveal as per: 13 / 16 / Hours / Military / Time."): the label's
-            // words follow, one step each, like every word.
           }
-          // A clock time (operator 2026-10-17: "reveal: clock as \"1\" \":\"
-          // \"43\" in succession"): its hour, its colon, its minutes, then each
-          // letter of AM/PM.
           var clock = /\b(\d{1,2})(:\d{2})(?:(\s*)([AaPp])(\.?)([Mm]))?/g;
           while ((m = clock.exec(text))) {
             var c0 = m.index, n2 = digitHighlight.seconds_per_number, h1 = c0 + m[1].length;
@@ -5722,8 +4160,6 @@
               cuts.push([q0, c0 + m[0].length, wordReveal.seconds_per_word]);
             }
           }
-          // A year after its date (operator 2026-10-17: "say year similar as 20
-          // 26"; "October / 17 / , / 20 / 26"): its two halves, one step each.
           var year = /\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, (\d{2})(\d{2})\b/g;
           while ((m = year.exec(text))) {
             var y0 = m.index + m[0].length - 4;
@@ -5731,7 +4167,6 @@
             cuts.push([y0 + 2, y0 + 4, wordReveal.seconds_per_word]);
           }
           cuts.sort(function (a, b) { return a[0] - b[0]; });
-          // Every other word (a run of non-spaces) is a step of its own.
           var all = [], last = 0;
           cuts.forEach(function (c) {
             if (c[0] < last) { return; }
@@ -5756,7 +4191,6 @@
           frag.appendChild(document.createTextNode(text.slice(last)));
           node.parentNode.replaceChild(frag, node);
         });
-        // A country flag (its picture) is a step of its own, said as its country.
         Array.prototype.forEach.call(span.querySelectorAll("img.flag-emoji, img.gopod-qr2"), function (img) {
           img.classList.add("seq-unit");
           img._seqWeight = wordReveal.seconds_per_word;
@@ -5769,12 +4203,6 @@
         span._digitUnits = units;
         return units;
       }
-      // The words between from and to: [start, end, seconds] each. 2026-10-17
-      // (operator: "Split away punctuation from words * , ... : - ! ? etc *
-      // reveal the word, then the punctuation, then emojis"): a word's marks
-      // before and after it are steps of their own ("Hey" then ","; "me" then
-      // "..."; "11" then "°"), word_reveal.seconds_per_mark each; marks inside a
-      // word stay with it (Let's, chalk-o-latteric, crushn8r.ca).
       var MARKS = ".,:;!?\u2026'\"\u201c\u201d\u2018\u2019()\\[\\]{}\\-\u2013\u2014/*";
       var markRunRe = new RegExp("[" + MARKS + "]+|[^" + MARKS + "]+", "g");
       var formatOnlyRe = /^[\u200B-\u200F\u2060-\u2064\uFE0E\uFE0F]+$/;
@@ -5794,8 +4222,6 @@
         }
         return out;
       }
-      // Marks (punctuation) and symbols (emoji, °) between from and to: one
-      // step per run of the same kind.
       function markCuts(text, from, to, out) {
         if (from >= to) { return; }
         var part = text.slice(from, to), m, mark = wordReveal.seconds_per_mark;
@@ -5810,16 +4236,8 @@
         var units = digitUnits(span);
         if (!units.length || span._digitRunning) { return; }
         span._digitRunning = true;
-        // 2026-10-16 (operator: "it appears to start a moment before the brobot
-        // speaks * add a short delay about the length of 2 timed words"):
-        // word_reveal.start_delay_words.
         var at = (wordReveal.start_delay_words || 0) * (wordReveal.seconds_per_word || 0);
         if (span.dataset.leadIn === "1" && wordReveal.lead_in_start_seconds > 0) { at = wordReveal.lead_in_start_seconds; }
-        // 2026-10-16 (operator: "Baby brobots song is timed to an srt file * please
-        // ensure the new per-word-reveal in highlighting, matches srt end to end *
-        // scale per-word timed reveals to fit into that spoken segment"): a line
-        // with its own SRT times (data-at / data-end, a narrator's) starts at once
-        // and its steps are scaled to fill it exactly, first word to last.
         var srtAt = parseFloat(span.dataset.at), srtEnd = parseFloat(span.dataset.end);
         var scale = 1;
         if (!isNaN(srtAt) && !isNaN(srtEnd) && srtEnd > srtAt) {
@@ -5828,15 +4246,7 @@
           if (total > 0) { scale = (srtEnd - srtAt) / total; }
           at = 0;
         }
-        // 2026-10-18 (operator: "Forced alignment * word for word * punctuation
-        // highlights at a silent point threshold, after the ending word"): a
-        // voice with its word times (the voice worker's .words.json) reveals
-        // each word when it's said, and its marks when that word ends.
         var aligned = span._spokenWords ? alignUnits(units, span._spokenWords) : null;
-        // 2026-11-02 (operator: per-character highlight): each unit's start first,
-        // so each word knows how long it's said for (to the next unit's start; the
-        // last, to the voice's last word end) - gopod_char_highlight.js turns its
-        // letters 85% in turn within it.
         var starts = [];
         units.forEach(function (u, i) {
           starts.push(aligned ? aligned[i] : at);
@@ -5855,7 +4265,6 @@
         var allSaid = function () {
           units.forEach(function (u) { u.classList.remove("now"); u.classList.add("said"); });
         };
-        // A voiced line with its word times follows the voice's playing position.
         if (aligned && span._voice) {
           units.forEach(function (u, i) { voiceAt(span._voice, (span._voiceFrom || 0) + starts[i], function () { step(i); }); });
           voiceAt(span._voice, (span._voiceFrom || 0) + at, allSaid);
@@ -5864,14 +4273,10 @@
         units.forEach(function (u, i) { setTimeout(function () { step(i); }, starts[i] * 1000); });
         setTimeout(allSaid, at * 1000);
       }
-      // 2026-11-10: fn runs once the voice has played to second t (its own
-      // playing position - a late start or a stall holds it back). It runs at
-      // once if the voice ends, fails or is stopped first.
       function voiceAt(audio, t, fn) {
         if (!audio) { setTimeout(fn, t * 1000); return; }
         var began = Date.now();
         var tick = function () {
-          // A voice that never plays (skipped, refused): let go after its length + 30 s.
           if (Date.now() - began > (t + 30) * 1000 ||
               audio.ended || audio._failed || (audio.currentTime || 0) >= t || (audio.paused && audio.currentTime > 0)) { fn(); return; }
           if (document.hidden) { setTimeout(tick, 250); } else { requestAnimationFrame(tick); }
@@ -5879,15 +4284,6 @@
         tick();
       }
 
-      // GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
-      // template/schema the highlighting to one gear we can look to to fix * no
-      // patching - remove all patching"): the same rule as the voice worker's
-      // align_heard (gopod_reporter_voice_worker.py) - the shown words said as
-      // written are matched to the voice's words in order (the longest common run,
-      // no look-ahead window, no partial matches); every other shown word ("404",
-      // "PNFT", "2026" cut in parts) and every mark or emoji shares the time between
-      // the matched words around it, by its length. Replaces the look-ahead and the
-      // "said another way" rule (2026-10-18..11-02).
       function alignUnits(units, words) {
         var norm = function (t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); };
         var unitText = function (v) { return v ? norm(v.tagName === "IMG" ? "" : v.textContent) : ""; };
@@ -5923,12 +4319,7 @@
         }
         return s;
       }
-      // 2026-10-18: a Brobot bubble's own pieces - never a manager's part nested
-      // in it (PLAYHEAD at its top, CHALK at its bottom), so piece numbers stay his.
       function ownSays(bubble) {
-        // 2026-10-25 (live: "highlighting appears late, after brobot speech is heard
-        // * weird segmentation passes"): his opener isn't one of his reply's pieces -
-        // counted, it put every lit piece one behind his voice.
         return Array.prototype.filter.call(bubble.querySelectorAll(".brobot-say"), function (x) { return !x.closest(".nested-host, .brobot-opener"); });
       }
       function revealRest(bubble) {
@@ -5936,9 +4327,6 @@
           if (!s.classList.contains("speaking")) { s.classList.add("spoken"); }
         });
       }
-      // The robot stopped speaking: if nothing more is lit in that bubble within
-      // REVEAL_REST_MS (his reply is over - a highlight missed at the end), the
-      // rest shows. A pause between his sentences is shorter.
       var REVEAL_REST_MS;
       function revealRestLater(bubble) {
         var seq = lastSpeakingSeq;
@@ -5959,9 +4347,6 @@
           el.classList.add("spoken");
         });
       }
-      // The spoken sentence and the bubble's sentences can split differently (the
-      // robot's copy turns "..." into "."), so every bubble sentence mostly made of
-      // the spoken words lights up; if none is, the one sharing the most words does.
       var speakingPolling = false;
       function pollSpeakingNow() {
         if (speakingPolling) { return; }
@@ -5971,11 +4356,7 @@
           .then(function (now) {
             if (!now) { return; }
             var bubbles = ESN_TO_BUBBLE_CLASS[now.esn] ? container.querySelectorAll(".brobot-bubble." + ESN_TO_BUBBLE_CLASS[now.esn]) : [];
-            // 2026-10-16 (comb-through: the highlight jumped to a second bubble):
-            // his newest reply bubble - never an egg - and while he's still in a
-            // reply (past its first piece) the bubble he's been lighting.
             var newest = null;
-            // 2026-10-21: Wire-Pod names the bubble (its chat event) - that one, exactly.
             var named = now.feed ? container.querySelector('.brobot-bubble[data-feed="' + now.feed + '"]') : null;
             if (named) { newest = named; }
             for (var b = bubbles.length - 1; !named && b >= 0; b--) {
@@ -5985,9 +4366,6 @@
                 newest !== lastSpeakingBubble && ownSays(lastSpeakingBubble)[now.piece]) {
               newest = lastSpeakingBubble;
             }
-            // Same sentence and same bubble: nothing to do. A song line's bubble can
-            // arrive just after its first sentence starts - then it is lit again on
-            // the new bubble (2026-09-30).
             if (now.seq === lastSpeakingSeq && newest === lastSpeakingBubble) { return; }
             lastSpeakingSeq = now.seq;
             lastSpeakingBubble = newest;
@@ -5997,10 +4375,7 @@
               return;
             }
             var spans = ownSays(newest);
-            // GOLDEN (gopod_highlight_pieces.go): Wire-Pod names the piece by its
-            // number - light exactly that one, no guessing.
             if (typeof now.piece === "number" && now.piece >= 0) {
-              // 2026-10-25: a piece said after an animation starts later (word_reveal.lead_in_start_seconds).
               if (spans[now.piece]) { spans[now.piece].dataset.leadIn = leadInText && String(now.text || "").trim().indexOf(leadInText) === 0 ? "1" : ""; lightSpan(spans[now.piece]); }
               return;
             }
@@ -6027,10 +4402,6 @@
           .then(function () { speakingPolling = false; });
       }
 
-      // 2026-10-01 (operator): clicking the Log button scrolls the page down to
-      // the bottom of the log section, so the whole log window is in view - the
-      // page itself to its end, the same place scrolling down by hand reaches
-      // (scrollIntoView also moved the log's own inner scroll, operator 15:2x).
       var logButton = document.querySelector('a[onclick^="showLog"]');
       if (logButton) {
         logButton.addEventListener("click", function () {
@@ -6040,14 +4411,6 @@
         });
       }
 
-      // 2026-10-04 (operator: "brobot 2 lists first ... robot ...b9e9 is brobot
-      // 1"): the robots' battery icons at the top of the page show Brobot 1 first.
-      // Wire-Pod's own battery.js adds them in its bot-list order and updates
-      // each by its place in the page, so they are reordered by CSS order only
-      // (the page order stays as battery.js made it). Each icon is known by the
-      // serial in its tooltip.
-      // 2026-10-29: the serials in Brobot order come from Wire-Pod (admin only,
-      // /api-sdk/gopod_brobot_order) - the page itself names robots by label.
       var botOrder = [], botOrderAsked = 0;
       function orderBotStats() {
         if (!isAdminPage) { return; }
@@ -6067,28 +4430,10 @@
       }
       setInterval(orderBotStats, 1000);
 
-      // 2026-10-04 (operator: "Does my recording via my mic from the web page
-      // work? ... please get it to work"; "grey Goverlord system bubbles in the
-      // chat ... key press/hold + pre-record buffer, record after 1s press/hold
-      // ... there's a buffer after key release ... handle 3x "000" as-is ... 3x
-      // Numlock"): numpad push-to-talk from any keyboard this page sees, with the
-      // golden numpad's rules (gopod_ptt_chat_writer_013.py) - numpad_ptt in the
-      // settings file. With NumLock on, a live key of the golden persona map held
-      // down records from the moment it goes down (the mic service keeps that
-      // audio); it counts once held min_hold_seconds, keeps release_tail_seconds
-      // after the key comes up (Wire-Pod waits that out), stops at
-      // max_hold_seconds, and the words go to that key's Brobot. 000 (KP0) or
-      // NumLock tapped exit_taps times within exit_window_seconds turns it off
-      // until the page is reloaded. Only while the chat window is open; a page
-      // can't take the numpad over, so the keys work while this page is the
-      // window in use. Every step shows in a grey Goverlord status bubble (never
-      // saved with the chat).
       var numpad = {
         on: (function () { try { return window.localStorage.getItem(NUMPAD_KEY) === "1"; } catch (e) { return false; } })(), map: null, targets: {}, active: null, pendingUp: null, taps: { Numpad0: [], NumLock: [] },
         cfg: { min_hold_seconds: 1, max_hold_seconds: 30, exit_taps: 3, exit_window_seconds: 2, texts: {} }
       };
-      // 2026-11-04: the map in this page's keyboard layout (the layout menu); its
-      // menu shows the layout in use until the page picks one.
       numpadMapLoad = function () {
         fetch("/api-sdk/gopod_numpad_map?layout=" + encodeURIComponent(numpadLayoutNow()), { cache: "no-store" })
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -6098,40 +4443,22 @@
           }).catch(function () { /* no map - push-to-talk stays quiet */ });
       };
       numpadMapLoad();
-      // 2026-10-18 (operator: "live KPN = no grunge audio as this is not an error *
-      // \"Too short - hold KP1 for at least 1 s\" = error = grunge audio plays * not
-      // live yet key press = error = grunge audio plays"): a numpad error message
-      // (numpad_ptt.error_texts) wears the Operator error label (bubble_sounds); a key that works plays nothing.
       function numpadText(name, values) {
-        // 2026-10-26: and its bubble wears the red error border (.is-error).
         if ((numpad.cfg.error_texts || []).indexOf(name) >= 0) { bubbleSound("Operator", "error"); numpad.errorNext = true; }
         var t = (numpad.cfg.texts || {})[name] || name;
         return String(t).replace(/\{(\w+)\}/g, function (m, k) { return values && values[k] != null ? (k === "key" ? keyShown(values[k]) : values[k]) : m; });
       }
-      // 2026-10-30: the * key's name ("KPmul") shows as KP*.
       function keyShown(key) { return String(key).replace(/^KPmul$/i, "KP*"); }
-      // A grey Goverlord bubble that adds each new message under the last.
-      // 2026-10-19 (operator: "update header as per template version to,
-      // '[input] to ...' = 'Numpad to ...', to match bubble template & other
-      // bubbles"; "no other bubble when system menu is open * message ... appears
-      // in the lower results window"): a numpad status is an Operator bubble
-      // ("Numpad to <who>"); while the system menu is open it's a line in the
-      // menu's results instead.
       function systemStatus(text, goneAfterMs, numpadTo) {
         if (systemMenuResults()) {
           systemMenuResult(text, "answer");
           return { bubble: null, textEl: null, set: function (t) { systemMenuResult(t, "answer"); }, done: function () {} };
         }
-        // 2026-10-24 (link 3): the raw bubble template, placed the one way.
         var bubble = rawBubble({ kind: "status", classes: "operator system-status", head: numpadTo ? operatorHead(numpadTo, "Numpad", "") : systemHead(systemLabel), text: text });
         if (numpadTo) { bubbleSound("Operator"); }
         var textEl = bubble.querySelector(".brobot-bubble-text");
         if (numpad && numpad.errorNext) { bubble.classList.add("is-error"); numpad.errorNext = false; }
         placeBubble(bubble);
-        // 2026-10-14 (operator: "When I key press I get the correct messages to
-        // record & transcribe, etc.. * can you leave those in the chat window? (no
-        // audio)"): each new message is added on its own line under the last, and
-        // the bubble stays in the chat. Never spoken.
         var api = {
           bubble: bubble, textEl: textEl,
           set: function (t) {
@@ -6139,8 +4466,6 @@
             if (numpad && numpad.errorNext) { bubble.classList.add("is-error"); numpad.errorNext = false; }
             textEl.appendChild(document.createElement("br"));
             textEl.appendChild(document.createTextNode(t));
-            // 2026-10-22 (operator: "scrolling isn't handling these bubbles
-            // well"): a status line that grows the newest bubble keeps it in view.
             if (lastPlacedChild() === bubble) { scrollChatTo(Math.max(container.scrollTop, chatContentEnd())); }
           },
           done: function () { /* stays in the chat */ }
@@ -6149,20 +4474,10 @@
         return api;
       }
       var numpadOpStatus = null, commCheckRecordSeconds = 2;
-      // GOPOD VISUAL CONTROL - the TPU +/- rotation (2026-10-20, operator: "Focus
-      // on adding the tpu +/- rotation"; the retired 8011 demo's ring): KP+ / KP-
-      // turn to the next / previous feed (visual_sources: Doc, Pip, the USB
-      // webcam); Wire-Pod grabs its frame and runs the Edge TPU (gopod_visual.go).
-      // One visual board shows the feed: FEED n/N, its name, LIVE or CACHED, the
-      // TPU's objects, the frame with their boxes (magnifier). On CHALK's board
-      // (the display host), or in the system menu's results while it's open;
-      // the same board is turned in place while it's the newest thing in the chat.
       var visualBoard = null, visualBusy = false;
       function visualTurn(dir) {
         if (visualBusy) { return; }
         visualBusy = true;
-        // 2026-10-20 (operator: "no multiple feeds to rotate = not applicable"):
-        // one feed there - nothing turns, nothing shows.
         fetch("/api-sdk/gopod_visual?dir=" + encodeURIComponent(dir), { cache: "no-store" })
           .then(function (r) { return r.json(); })
           .then(function (v) { if (!v.single) { visualShow(visualBoardFor(), v); } })
@@ -6194,8 +4509,6 @@
           " " + (v.live ? "LIVE" : "CACHED") + " - TPU: " + objects + (v.status && v.status !== "Edge TPU: ok" ? " - " + v.status : "");
         var row = board.querySelector(".visual-frame");
         row.innerHTML = "";
-        // 2026-10-20: photo, enhancement, TPU boxes (one feed); every feed's
-        // photo then the TPU boxes (all feeds).
         (v.frames && v.frames.length ? v.frames : (v.frame ? [v.frame] : [])).forEach(function (src) {
           var img = document.createElement("img");
           img.src = src;
@@ -6205,18 +4518,7 @@
         });
 
       }
-      // GOLDEN system menu (2026-10-19, operator: "New system- commands
-      // drop-down-menu system * start from system-restart * then group & order by
-      // semantic relevance * 🔇 opens it * 🔊 closes it * similar to manager
-      // bubbles * system bubble contains drop-down-menu bubble * full inner
-      // width/height for max window space * like after restart, where do I
-      // start? what's next? * menu system should lead me like a tour guide"): a
-      // Goverlord system bubble holding the menu bubble - system_menu's groups in
-      // order, one open at a time, each with its guide line and what's next. A
-      // command that needs nothing more runs on click; one that needs words goes
-      // in the text box for you to finish and press Enter.
       var systemMenu = null, systemMenuData = [], systemMenuIntro = "", systemMenuLook = {};
-      // The results' copy button (system_menu.copy: its icon, its tip, what it says once copied).
       var systemMenuCopy = {}, systemMenuLastAsk = "";
       function copyButton(text, look) {
         look = look || systemMenuCopy;
@@ -6231,7 +4533,6 @@
             b.textContent = look.copied || b.textContent;
             setTimeout(function () { b.textContent = look.icon || ""; }, look.copied_ms || 1500);
           };
-          // text: the words, or a function that gives them at the click (copy all).
           var words = typeof text === "function" ? text() : text;
           var fallback = function () {
             var area = document.createElement("textarea");
@@ -6251,19 +4552,12 @@
         });
         return b;
       }
-      // 2026-10-19 (operator: "Make [menu system- bubble] font size 50% for more
-      // room below * |menu system- bubble| |nested scroll bubble| * nested scroll
-      // bubble underneath = "" or [results]"): under the menu, its results - each
-      // system- line sent while it's open, and its answer.
       function systemMenuResults() {
         return systemMenu && systemMenu.isConnected ? systemMenu.querySelector(".system-menu-results") : null;
       }
       function systemMenuResult(text, kind) {
         var box = systemMenuResults();
         if (!box) { return false; }
-        // 2026-10-29 (operator: "At the very top ... upon a slot clicked open & the
-        // results window isn't empty * first add a similar, but 'copy all results'
-        // button, before the results"): with the first result, the copy-all bar.
         if (!box.querySelector(".gopod-results-copy-all")) {
           var bar = document.createElement("div");
           bar.className = "gopod-results-copy-all";
@@ -6282,9 +4576,6 @@
         row._copy = kind === "ask" ? "\u203a " + text : String(text);
         if (kind === "answer") {
           row.appendChild(resultTemplate(text));
-          // 2026-10-29 (operator: "in the results window, can you add a, click to
-          // copy results to clipboard button/icon"): each answer's copy button -
-          // its command and its answer, as plain text.
           row.appendChild(copyButton("\u203a " + systemMenuLastAsk + "\n" + String(text)));
         } else {
           if (kind === "ask") { systemMenuLastAsk = String(text); }
@@ -6297,12 +4588,9 @@
       function systemMenuOpen() {
         if (systemMenu && systemMenu.isConnected) { return; }
         var outer = document.createElement("div");
-        // gopod-admin-only: the admin's template, never sent to a visitor (the display mirror).
         outer.className = "brobot-bubble operator system-status system-menu-host gopod-admin-only";
-        // Its look from system_menu.look (system-set system_menu.look.<name> <value>, F5).
         var look = { font_size: "--menu-font", background: "--menu-bg", code_background: "--menu-code-bg", code_color: "--menu-code-fg", results_background: "--menu-results-bg", texture: "--menu-texture", border: "--menu-border", accent: "--menu-accent", rule: "--menu-rule" };
         Object.keys(look).forEach(function (k) { if (systemMenuLook[k]) { outer.style.setProperty(look[k], systemMenuLook[k]); } });
-        // 2026-10-19 (operator: "No header ... to recover window space"): no header.
         var menu = document.createElement("div");
         menu.className = "system-menu";
         if (systemMenuIntro) {
@@ -6314,7 +4602,6 @@
         systemMenuData.forEach(function (g, gi) {
           var group = document.createElement("details");
           group.className = "system-menu-group";
-          // 2026-10-24 (operator: "In system window, all slots start as closed").
           var title = document.createElement("summary");
           title.textContent = g.title || "";
           group.appendChild(title);
@@ -6341,8 +4628,6 @@
               if (it.run) {
                 var numpadCmd = /^system-numpad\s+(on|off)\b/i.exec(it.cmd);
                 if (numpadCmd) { setNumpadOn(numpadCmd[1].toLowerCase() === "on"); }
-                // 2026-10-29: a system window click is the system's, whoever is picked
-                // (a system- command typed to anyone but 0 gets Goverlord's sting).
                 sendTypedLine(/^system-/i.test(it.cmd) ? "system" : "", it.cmd);
               } else {
                 typedText.value = it.fill != null ? it.fill : it.cmd + " ";
@@ -6366,13 +4651,6 @@
         });
         menu.appendChild(visitorsGroup(menu));
         outer.appendChild(menu);
-        // 2026-10-29 (operator: "when I open the system window all slots are closed
-        // * results window nicely sized underneath last closed slot * if I click
-        // slot 5 Apply, slot 5 scrolls up to the top of window, and results window
-        // follows up to the bottom of the open slot 5"): an open slot sits at the
-        // top of the menu and the menu ends at its bottom, so the results start
-        // right under it; all closed, the menu is its closed slots and the results
-        // start under the last one.
         function menuFitSlot() {
           var open = menu.querySelector("details[open]");
           requestAnimationFrame(function () {
@@ -6384,32 +4662,17 @@
             }
             var pad = parseFloat(getComputedStyle(menu).paddingTop) || 0;
             var room = outer.getBoundingClientRect().height * 0.85;
-            // 2026-10-29 (operator: "results needs to come up past #3 text, to the hr
-            // below 2"): the menu ends at the open slot's bottom - the line under it.
             var want = Math.min(open.getBoundingClientRect().height + pad, room);
             menu.style.flex = "0 0 auto";
             menu.style.height = want + "px";
             menu.scrollTop += open.getBoundingClientRect().top - menu.getBoundingClientRect().top - pad;
           });
         }
-        // Every slot's open and close (toggle doesn't bubble - caught on the way down).
         menu.addEventListener("toggle", menuFitSlot, true);
-        // 2026-10-19 (operator: "system window has 2 windows, system- commands &
-        // results * upon mouseover of the horizontal space between them, cursor
-        // changes to a space grabber, and I can resize by dragging the grabbed
-        // space up & down"): the bar between them.
         var split = document.createElement("div");
         split.className = "system-menu-split";
         split.title = pageText("drag_title");
         outer.appendChild(split);
-        // 2026-10-19 (operator: "both start at 50% window height * vertical
-        // adjustments work like this: system menu/results, 50%/50% 10%/90%,
-        // 90%/10%"): the menu's share of the height, 10% to 90%; the results
-        // take the rest.
-        // 2026-10-24 (operator: "resize system menu bubble to show all slots * results
-        // bubble is empty and can be resized down, easily"): the menu is as tall as
-        // its slots (gopod_chat_bubbles.css), the results take the rest; the bar
-        // between them drags either way.
         split.addEventListener("pointerdown", function (ev) {
           ev.preventDefault();
           split.setPointerCapture(ev.pointerId);
@@ -6431,15 +4694,8 @@
         container.appendChild(outer);
         systemMenu = outer;
         revealWhenPlaced(outer);
-        // 2026-10-19 (operator: "scroll-lock system menu window, to top chat
-        // window scroll position"): while it's open the chat stays at its top.
         (function pin() {
           if (systemMenu !== outer || !outer.isConnected) { return; }
-          // 2026-10-23 (operator: "when open, this causes the results window to
-          // scroll down past the brobots input row * If I close 1. the system
-          // window resizes correctly just above the brobots row"): the window
-          // is exactly the room above the typing row (one line or three),
-          // whichever group is open.
           var room = Math.max(160, container.clientHeight - 12 - (typedRow.isConnected ? typedRow.offsetHeight : 0) - 8);
           if (outer.style.height !== room + "px") { outer.style.height = room + "px"; }
           if (outer.style.visibility !== "hidden") {
@@ -6452,18 +4708,7 @@
           requestAnimationFrame(pin);
         })();
       }
-      // 2026-10-20 (operator: "add in a dynamic USB panel of (hot-swappable)
-      // devices"): in the menu's results, refreshed every 3 s while the menu is
-      // open; a device just plugged in is marked "+ plugged in", one pulled out
-      // "- pulled out" (for a few refreshes).
       var usbTimer = null;
-      // 2026-10-26 (operator: "Numpad-to-Voices dynamic-mapping * TEMPLATE: KPN >
-      // [Persona Name] [drop down menu] * duplicate voice selections allowed, and
-      // are minimally highlighted (bolded?)"; "KP0 (All), KP1 and KP2: \"no voice
-      // required\" ... KP7 to KP9, Operator: KPN-TEMPLATE"): one row per key from
-      // Wire-Pod (gopod_voice_map.go) - a robot-bodied key says "no voice
-      // required", the rest pick from every Kokoro voice on disk; a voice picked
-      // more than once is bold. A pick is saved and used from the next line.
       function voicesPanel() {
         var results = systemMenuResults();
         if (!results) { return; }
@@ -6566,44 +4811,23 @@
         usbTimer = setInterval(poll, 3000);
         results.scrollTop = results.scrollHeight;
       }
-      // 2026-10-20 (operator: "brobot feed displaying outside results window"):
-      // a picture row (not an egg) goes in the menu's results while it's open.
-      // Review: only a system command's row ("menu:", gopodMenuPictureMark) goes
-      // there - a song's or a topic's pictures stay in the chat.
-      // 2026-10-21 (operator: "upon 1st reveal, easter egg bubble outside brobots
-      // bubble + summary inside brobots window * upon more same egg reveals,
-      // summary in brobots bubble only"): a found egg's summary - its title and a
-      // line - at the top of the answering Brobot's bubble, small type.
-      // 2026-10-21 (operator: "Same as message inside a brobot chat bubble.
-      // Template it"): the bubble notice template - a titled notice at the top of
-      // a Brobot's bubble ("notice:<title>|<line>"): an egg's summary, a native
-      // Wire-Pod intent.
       function bubbleNoticeSaid(to) {
-        // Any of his notices' lit lines (his shell may already be a new one).
         var cls = to === "Brobot 2" ? "brobot-2" : "brobot-1";
         Array.prototype.forEach.call(container.querySelectorAll(".brobot-bubble." + cls + " .bubble-notice .brobot-say.speaking"), function (x) {
           x.classList.remove("speaking");
           x.classList.add("spoken");
         });
       }
-      // The score bar's done mark (value_points.score_bar.done).
       var scoreBarDone = "=";
-      // A notice line's words, as plain text or (said) as a lit piece.
       function noticeLine(line, said) {
         var el = document.createElement("span");
         el.className = "brobot-bubble-text egg-summary-text";
-        // 2026-10-25 (operator: "3 single lines with dynamic scores aligned
-        // vertically"): a score line - its label, a tab, its bar - is a row whose
-        // bar starts where the other rows' bars do.
         var tab = String(line).indexOf("\t");
         if (tab >= 0 && !said) {
           el.classList.add("notice-score-row");
           var label = document.createElement("span");
           label.className = "notice-score-label";
           label.textContent = String(line).slice(0, tab).trim();
-          // 2026-10-27 (operator: "use three 'stretch to fit any screen width'
-          // thin filled bars"): the text bar (done/left marks) drawn as a thin
-          // track, filled to its share of done marks.
           var marks = String(line).slice(tab + 1).trim();
           var done = marks.split(scoreBarDone).length - 1;
           var bar = document.createElement("span");
@@ -6628,11 +4852,6 @@
         }
         return el;
       }
-      // 2026-10-25 (operator: "'Got it!' & 'Nice try, Mr/Mrs [funny nickname]!' *
-      // move these brobots spoken parts, out of notice-bubble, into and as part of
-      // the brobot response * just add the nice try before the notice bubble"): the
-      // opener he just said, his bubble's first line, above his notice - in his
-      // answer's type, already said.
       function brobotOpener(to, line, done) {
         if (!/^Brobot [12]$/.test(String(to || "")) || restoringChat || !line) { done(); return; }
         var shell = nestShell(to);
@@ -6645,26 +4864,15 @@
         var head = shell.querySelector(":scope > .brobot-bubble-head");
         var first = Array.prototype.filter.call(shell.children, function (c) { return c !== head && !c.classList.contains("brobot-opener"); })[0];
         if (first) { shell.insertBefore(el, first); } else { shell.appendChild(el); }
-        // 2026-10-25 (operator: "This is still a spoken brobot line. Let's
-        // accomodate ... upon bubble display, from 0% transparency, do the per-word
-        // highlight ... then continue ... template the process"): said already, so
-        // replayed - lit word by word as he would say it, then the next line.
         replaySaidLine(say, done);
       }
-      // GOLDEN replay of a said line (2026-10-25, the template): a Brobot line he
-      // has already said (his opener, said while thinking), shown when its bubble
-      // shows - from 0%, the word-at-a-time reveal (word_reveal.seconds_per_word,
-      // digitSequence's steps), then 85% said, then done (the next line). A restored
-      // chat shows it said at once.
       function replaySaidLine(say, done) {
         if (restoringChat || skippingReporters) { say.classList.add("spoken"); done(); return; }
         var seconds = Math.max(0.5, sayWords(say.textContent).length * (wordReveal.seconds_per_word || 0.38));
-        // A voiced line's bubble, like every other (voiceLitLine): hidden until lit.
         var bubble = say.closest(".brobot-bubble");
         if (bubble) { bubble.classList.add("voice-lit"); }
         say.dataset.at = "0";
         say.dataset.end = String(seconds);
-        // 2026-10-25: the bubble settles into place first (word_reveal.replay_settle_seconds).
         var settle = (wordReveal.replay_settle_seconds || 0) * 1000;
         setTimeout(function () {
           if (!say.isConnected) { done(); return; }
@@ -6676,9 +4884,6 @@
           }, seconds * 1000 + 100);
         }, settle);
       }
-      // 2026-10-30 (operator: "NEW CORE TEMPLATE RULE: everybody gets a brain
-      // bubble"): a Gomad's brain lines wait for its own bubble, and go in at its
-      // top - the same notice part a Brobot's bubble has (hostBrain).
       var hostBrains = {};
       function hostBrain(bubble, who) {
         var lines = hostBrains[who];
@@ -6702,14 +4907,11 @@
         var title = bar >= 0 ? text.slice(0, bar) : text, line = bar >= 0 ? text.slice(bar + 1) : "";
         if (!/^Brobot [12]$/.test(String(to || ""))) {
           if (to) { (hostBrains[to] = hostBrains[to] || []).push({ title: title, line: line }); }
-          // 2026-11-05: his bubble is open (his Got it) - his brain goes in now.
           var receipt = to ? openReceipt(to) : null;
           if (receipt) { hostBrain(receipt, to); }
           return;
         }
         var shell = nestShell(to);
-        // 2026-10-22 (operator: "in the same notice-bubble, if more info incoming
-        // add it in underneath"): a notice with the same title takes the line.
         var same = Array.prototype.filter.call(shell.querySelectorAll(":scope > .bubble-notice"), function (n) { return n.dataset.title === title; })[0];
         if (same) {
           same.appendChild(noticeLine(line, said));
@@ -6739,15 +4941,6 @@
         results.scrollTop = results.scrollHeight;
         return true;
       }
-      // The visitors slot (2026-10-24, operator: "In my system window, add an
-      // additional slot for local network visitors * every detectable visitor
-      // listed as nameless-visitor * whatever the 1st input is from a visitor,
-      // that's their username request * I approve or clear ... While chat
-      // participation is ON * Visitors are listed by their approved usernames *
-      // add a checkbox to username as my mute switch"): the participation switch
-      // (starts OFF), then each visitor - a nameless one by its network address,
-      // a name request with Approve / Clear, an approved one with its box
-      // (unticked = muted) and Clear. Refreshed every 2 s while the window is open.
       var visitorsTimer = null;
       function visitorsGroup(menu) {
         var group = document.createElement("details");
@@ -6861,7 +5054,6 @@
           return r;
         });
         a.holdTimer = setTimeout(function () {
-          // 2026-10-20: with the mic missing, "Mic disabled" in place of "Recording".
           if (numpad.active === a && !a.failed) { a.status.set(numpadText(a.micOff ? "mic_disabled" : "recording", { brobot: brobot })); }
         }, numpad.cfg.min_hold_seconds * 1000);
         a.maxTimer = setTimeout(numpadRelease, numpad.cfg.max_hold_seconds * 1000);
@@ -6876,7 +5068,6 @@
           if (!r.ok) { return; }
           var held = (performance.now() - a.at) / 1000;
           if (held >= numpad.cfg.min_hold_seconds) { a.status.set(numpadText("transcribing")); }
-          // Its words may reach the feed before this answer does.
           numpadOpStatus = a.status;
           numpadPost("stop", a.key).then(function (out) {
             if (out.status !== "ok" && numpadOpStatus === a.status) { numpadOpStatus = null; }
@@ -6891,8 +5082,6 @@
           });
         });
       }
-      // 2026-10-14 (operator: "Numpad push-to-talk off (3x NumLock) ... * these
-      // can be spoken"): Goverlord says it - its bubble comes with the voice.
       function numpadSay(text) {
         fetch("/api-sdk/gopod_system_say", {
           method: "POST",
@@ -6901,15 +5090,7 @@
         }).then(function (r) { if (!r.ok) { systemStatus(text); } })
           .catch(function () { systemStatus(text); });
       }
-      // 2026-10-16 (operator: "For numpad enabled key presses * as an audio cue,
-      // per key press, play grunge wav"): numpad_ptt.key_sound, at its share of
-      // chat_audio.volume.
       function numpadKeySound() { playCue(numpad.cfg.key_sound); }
-      // One short sound cue ({file, volume}): loaded once, replayed each time.
-      // GOLDEN bubble sounds (2026-10-25, the Operator & Manager bubble template,
-      // bubble_sounds): a bubble kind's sound when it shows - its file, else
-      // default_file (djent); none when muted; label "error" plays its error sound
-      // (grunge) even when muted. A file not found is skipped (playCue).
       var bubbleSounds = {}, leadInText = "";
       function bubbleSound(kind, label) {
         var cfg = bubbleSounds[kind];
@@ -6921,7 +5102,6 @@
       function playCue(ks) {
         if (!ks || !ks.file) { return; }
         try {
-          // 2026-10-17: loaded once, replayed each press.
           if (!stingFiles[String(ks.file).split("/").pop()]) { preloadStings([ks.file]); }
           var a = stingFromPool(ks.file) || new Audio(normSrc(ks.file));
           a.volume = chatLevel(volumeShare(ks.volume) * audioLevel(ks.file));
@@ -6938,7 +5118,6 @@
         numpadSay(numpadText("exit", { how: numpad.cfg.exit_taps + "\u00d7 " + (code === "NumLock" ? "NumLock" : "000") }));
       }
       function setNumpadOn(on) {
-        // 2026-10-08 (operator: "add to log numpad checkbox clicks").
         fetch("/api-sdk/gopod_page_note", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -6949,24 +5128,13 @@
         if (!on) { numpadRelease(); }
       }
       function chatShown() { return container.classList.contains("expanded") && container.offsetParent !== null; }
-      // 2026-10-09 (operator: "upon numpad checked, I cannot type normally * I have
-      // a keyboard + numpad in one"): while a text box has the focus, every key
-      // types as usual; push-to-talk is for when it doesn't.
       function typingInBox() {
         var el = document.activeElement;
         return !!el && (el.tagName === "INPUT" && /^(text|search)?$/i.test(el.type || "") || el.tagName === "TEXTAREA" || el.isContentEditable);
       }
       document.addEventListener("keydown", function (ev) {
-        // 2026-10-10 (live 07:38: "numpad checkbox didn't work" - after typing
-        // "Party" the typing line kept the focus, so every numpad key was taken
-        // as typing): with Numpad? ticked, the numpad's own keys are always
-        // push-to-talk, even in a text box; every other key types as usual.
-        // 2026-11-17 (operator: "ensure '.' from both PC keyboard & USB numpad, are
-        // mapped correctly"): the numpad's "." - NumpadDecimal, NumLock on or off
-        // (a numpad sending its own "." or Delete counts too).
         var dotKey = ev.code === "NumpadDecimal" || (ev.location === 3 && (ev.key === "." || ev.key === "," || ev.key === "Delete" || ev.key === "Decimal"));
         var numpadKey = /^Numpad[0-9]$/.test(ev.code) || ev.code === "NumLock" || ev.code === "NumpadMultiply" || ev.code === "NumpadDivide" || dotKey;
-        // A numpad key nothing here knows: said in the journal, to map it.
         if (ev.location === 3 && !numpadKey && !/^Numpad(Add|Subtract|Enter)$/.test(ev.code) && !ev.repeat) {
           var unk = new URLSearchParams(); unk.set("note", "numpad key not mapped: code=" + ev.code + " key=" + ev.key);
           fetch("/api-sdk/gopod_page_note", { method: "POST", body: unk }).catch(function () {});
@@ -6977,15 +5145,11 @@
           if (!ev.repeat) { numpadExitTap(ev.code); }
           return;
         }
-        // 2026-10-30 (operator: "Numpad remap * KP0 hold -> [as per assigned] (3 taps still
-        // exit) * * hold -> all Brobots, in the order selected * / -> skip"): / is
-        // skip (it was *, 2026-10-20: "obey same as 'Esc' key press").
         if (ev.code === "NumpadDivide") {
           ev.preventDefault();
           if (!ev.repeat) { skipReporters("numpad /"); }
           return;
         }
-        // * held: push-to-talk to all the Brobots, in the order the All menu picks.
         if (ev.code === "NumpadMultiply") {
           ev.preventDefault();
           if (ev.repeat || numpad.active) { return; }
@@ -6998,7 +5162,6 @@
           numpadStart("KPmul", numpad.targets.KPmul || numpad.cfg.all_label || "All");
           return;
         }
-        // 2026-11-17: "." held - push-to-talk to any persona (name who you ask).
         if (dotKey) {
           ev.preventDefault();
           if (ev.repeat || numpad.active) { return; }
@@ -7011,15 +5174,11 @@
           numpadStart("KPdot", numpad.targets.KPdot);
           return;
         }
-        // GOPOD VISUAL CONTROL (2026-10-20): KP+ next feed, KP- previous (visualTurn).
         if ((ev.code === "NumpadAdd" || ev.code === "NumpadSubtract") && !typingInBox()) {
           ev.preventDefault();
           if (!ev.repeat) { visualTurn(ev.code === "NumpadAdd" ? "next" : "prev"); }
           return;
         }
-        // 2026-10-16: 0 held all_hold_seconds is push-to-talk; a shorter press is
-        // one of the exit taps, as before. 2026-10-30: held, it talks to the map's
-        // KP0 - the Butler (the All Brobots moved to *).
         if (ev.code === "Numpad0") {
           ev.preventDefault();
           if (ev.repeat) { return; }
@@ -7035,9 +5194,6 @@
               numpad.zeroDown = null;
               if (numpad.active) { return; }
               if (!ev.getModifierState("NumLock")) {
-                // 2026-11-18 (operator: "Numlock OFF + KP0 didn't get me to
-                // Goverlord"): KP0 with NumLock off talks to its own layer (-0,
-                // Goverlord) when the map has it - like KP7/KP8 off.
                 if (numpad.targets.KP0off) { numpadStart("KP0off", numpad.targets.KP0off); numpad.active.at = downAt; return; }
                 systemStatus(numpadText("numlock_off", { key: "KP0" }), 3000, "Brobots"); return;
               }
@@ -7053,24 +5209,16 @@
         ev.preventDefault();
         if (ev.repeat) { return; }
         var key = "KP" + m[1];
-        // A key-up and key-down pair a few ms apart is the key's auto-repeat
-        // (some remote desktops send it that way), not a new press.
         if (numpad.pendingUp && numpad.pendingUp.key === key) {
           clearTimeout(numpad.pendingUp.timer);
           numpad.pendingUp = null;
           return;
         }
         if (numpad.active) { return; }
-        // 2026-10-30 (operator: "KP7/8 + numlock OFF exception"): a key with NumLock
-        // off talks to its own layer when the map has it live (KP7off: CHALK, reporter).
         if (!ev.getModifierState("NumLock")) {
           if (numpad.targets[key + "off"]) { numpadStart(key + "off", numpad.targets[key + "off"]); return; }
           systemStatus(numpadText("numlock_off", { key: key }), 3000, "Brobots"); return;
         }
-        // 2026-10-26 (operator: "\"1 robust key detection process\" =
-        // Template/unify so everything goes through 1 place"): who a key talks
-        // to comes from Wire-Pod's one place (gopodNumpadBrobot, the map's
-        // targets) - a Brobot, a voice persona, or "" (not live).
         var target = numpad.targets[key];
         if (!target) {
           var entry = (numpad.map.numlock_on || {})[key];
@@ -7110,8 +5258,6 @@
       loadChat();
       showChat(chatWasOpen());
       setInterval(pollSpeakingNow, 250);
-      // The name list and the settings load before the first bubbles, so none show
-      // the misheard spelling or a cue marker.
       Promise.all([loadNameSpellings(), loadBrobotsSettings()]).then(function () {
         restoreChat();
         setInterval(pollFeed, 500);
@@ -7122,4 +5268,3 @@
       });
     })();
 
-// ## EOF

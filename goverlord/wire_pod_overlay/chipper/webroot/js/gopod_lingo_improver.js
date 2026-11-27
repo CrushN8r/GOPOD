@@ -1,5 +1,3 @@
-// 2026-11-16: the lingo improver page (gopod_lingo_improver.html) - its voices and
-// words from Wire-Pod (/api-sdk/gopod_lingo), nothing written here.
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var texts = {}, voices = [];

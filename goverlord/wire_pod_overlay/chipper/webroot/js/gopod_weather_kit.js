@@ -1,5 +1,3 @@
-// goverlord/wire_pod_overlay/chipper/webroot/js/gopod_weather_kit.js - the Weather Kit page's script (moved out of the page 2026-10-25).
-// One card per weather. temp_c is a sample; the live card takes the real one.
 var KIT = [
   { key: "sunny", words: "Sunny", face: "sunny", sound: "weather_sunny", temp_c: 24 },
   { key: "cloudy", words: "Cloudy", face: "cloudy", sound: "weather_cloudy", temp_c: 15 },
@@ -19,7 +17,6 @@ function maskSpan(src, width) {
   s.style.webkitMaskImage = s.style.maskImage = "url(" + src + ")";
   return s;
 }
-// Vector's temperature layouts: digits 45 wide, the degree sign 29, minus first.
 function tempScreen(t) {
   var screen = document.createElement("div");
   screen.className = "vector-screen";
@@ -45,7 +42,6 @@ function card(item) {
   bubble.className = "brobot-bubble operator system-status";
   var head = document.createElement("div");
   head.className = "brobot-bubble-head system-head";
-  // 2026-10-30: the system label from its one template (system_bubble.label, the chat page).
   head.innerHTML = '<div class="brobot-bubble-avatar to-system"></div><span class="brobot-bubble-who"></span><div class="brobot-bubble-avatar to-system"></div>';
   head.querySelector(".brobot-bubble-who").textContent = window.gopodSystemLabel || "";
   bubble.appendChild(head);
@@ -79,7 +75,6 @@ document.querySelectorAll("[data-units]").forEach(function (b) {
     render();
   });
 });
-// 2026-11-15: each Brobot's eye colour is his border in persona_colours (03_chat_page.json).
 fetch("gopod_settings_full.json", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (s) {
   var pc = (s && s.persona_colours) || {};
   [["brobot_1", "Brobot 1"], ["brobot_2", "Brobot 2"]].forEach(function (k) {

@@ -1,15 +1,5 @@
-/* goverlord/wire_pod_overlay/chipper/webroot/css/gopod_responsive.css */
 
-/* 2026-10-23 (FINISH_PLAN_001.md C4; operator: "extend phone and tablet rules to
-   the whole page in a separate GOPOD stylesheet, without touching Wire-Pod's own
-   files * Go ahead with that"; "can you stack the home page battery level entries
-   on top of each other? ... that's all I'd need for the home page"): the whole
-   Wire-Pod page on a phone, beside the chat's own phone rules
-   (gopod_chat_bubbles.css, 2026-10-03). Wire-Pod's css/style.css is untouched;
-   this file loads after it and wins at the same 768px phone breakpoint. */
 @media screen and (max-width: 768px) {
-  /* The Brobots' battery rows, one above the other (side by side they ran off
-     the left edge). */
   #botStats {
     flex-direction: column;
     height: auto;
@@ -17,10 +7,6 @@
     padding: 6px 0;
   }
   #botStats .batteryContainer { margin: 0; }
-  /* "Scroll to bottom" (and "Show all logs"): the box and its words on one line. */
-  /* The typing row sits on the chat's bottom edge: the phone chat's padding is
-     10px (gopod_chat_bubbles.css), so the row reaches 10px out, not 20px (its
-     last line was cut off). */
   .gopod-typed-input {
     bottom: -10px;
     margin: auto -10px -10px;
@@ -31,12 +17,6 @@
   }
 }
 
-/* The Brobots typing row (2026-10-23, operator: "New responsive
-   Brobots-Input-Row single line can adjust to 3 lines"): one line while it fits -
-   "Brobots ()1 ()2 ()All[1] [Type to the Brobot] | Record? [] | 00:56:42 |🔇" -
-   and, any screen size, three when it doesn't (.stacked, set by the page when
-   the line can't fit): the Brobots, the text field on its own line, then
-   "| Record? [] | 00:56:42 |🔇". Never runs off the edge. */
 .gopod-typed-input {
   flex-wrap: wrap;
   row-gap: 6px;
@@ -44,13 +24,8 @@
 .gopod-typed-input .gopod-typed-text { flex: 1 1 0; width: auto; min-width: 0; }
 .gopod-typed-input.stacked .gopod-typed-text { flex: 1 1 100%; }
 
-/* The system window fills the room above the typing row (its height is set by
-   the page), never shrinking under it. */
 .brobot-bubble.system-menu-host { flex: none; }
 
-/* GOLDEN chat-only view (2026-10-23, C2; operator: "C2 please, but from the
-   wire-pod page 'Log' button tap"): a visitor's Log is the chat alone - the
-   Brobots chat and its typing row, the whole screen; "‹ Wire-Pod" goes back. */
 .gopod-chat-back { display: none; }
 body.gopod-chat-only #content > h1,
 body.gopod-chat-only #botStats,
@@ -73,9 +48,6 @@ body.gopod-chat-only #brobot-chat-bubbles-container.expanded {
   margin: 0;
 }
 
-
-/* The system window's visitors slot (2026-10-24) and a visitor's note in the
-   text field ("Waiting for approval", "Muted"). */
 .system-visitors { display: flex; flex-direction: column; gap: 4px; margin: 4px 0; }
 .system-visitors-on { display: flex; align-items: center; gap: 6px; font-weight: 600; }
 .system-visitor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 3px 6px; border-radius: 6px; background: var(--glow-05); }
@@ -83,23 +55,13 @@ body.gopod-chat-only #brobot-chat-bubbles-container.expanded {
 .system-visitor .system-visitor-button { width: auto; min-width: 0; margin: 0; padding: 1px 8px; font-size: 1em; }
 .gopod-typed-input .gopod-typed-text.gopod-typed-note::placeholder { color: var(--marquee-warm); opacity: 1; }
 
-/* A visitor's typing row (2026-10-24, operator: "visitor page brobots input row *
-   remove 3rd line: | Record? [] | 00:25:46 | 🔇"): two lines - the Brobots, then
-   the text field. Record, the session timer and the speaker are the admin's. */
 body.gopod-visitor .gopod-typed-input .gopod-typed-sep,
 body.gopod-visitor .gopod-typed-input .gopod-record-session,
 body.gopod-visitor .gopod-typed-input .gopod-session-timer,
 body.gopod-visitor .gopod-typed-input .gopod-loop-speaker,
 body.gopod-visitor .gopod-typed-input .gopod-loop-volume { display: none !important; }
 
-/* A visitor's Brobots row (2026-10-24, operator: "'All' mechanism * make drop
-   down menu, like a font size smaller? * menu green border too intense, match to
-   text field green * after drop down menu add a submit button for typed text *
-   make submit button the same smaller font size"). */
 .gopod-typed-input .gopod-typed-submit { display: none; }
-/* The All menu's own look is shared with the admin page since 2026-10-26
-   (.gopod-all-first, gopod_chat_bubbles.css); the visitor's submit button
-   matches it. */
 body.gopod-visitor .gopod-typed-input .gopod-typed-submit {
   font-size: 0.8em;
   border: 1px solid var(--fg-color);
@@ -115,27 +77,17 @@ body.gopod-visitor .gopod-typed-input .gopod-typed-submit {
   border-radius: 4px;
 }
 
-/* A visitor's bubbles (2026-10-24, operator: "visitor bubble text is too big ...
-   please make brobot answer chain text 75%"): three quarters of each screen's
-   size (34px desktop, 26px tablet, 20px phone); a notice inside keeps its share. */
 body.gopod-visitor .brobot-bubble { font-size: 25.5px; }
 @media screen and (min-width: 769px) and (max-width: 1366px) and (pointer: coarse) {
   body.gopod-visitor .brobot-bubble { font-size: 19.5px; }
 }
 @media screen and (max-width: 768px) {
   body.gopod-visitor .brobot-bubble { font-size: 15px; }
-  /* The nap's narrator bubble (operator: "in baby brobots song, the text continued
-     past the bubble"): on a phone its stage grows with its words, the picture
-     still behind them, instead of holding the picture's shape and cutting them. */
   .narrator-single .narrator-stage { aspect-ratio: auto; min-height: 0; overflow: visible; }
   .narrator-stage .narrator-part.current { position: relative; inset: auto; }
   .narrator-single .narrator-stage .narrator-part.current { aspect-ratio: 1168 / 784; height: auto; }
 }
 
-/* 2026-10-25 (operator, the phone's visitor page: "Can the chat bubble window take
-   up more space below. There seems to be empty space at the bottom"): the visitor
-   page is the chat alone - it fills the screen as it is now (100dvh, the browser's
-   bars counted), no room kept for a back button (a visitor has none). */
 body.gopod-visitor-page { min-height: 100dvh; }
 body.gopod-visitor-page #outer { height: auto; }
 body.gopod-visitor-page .gopod-chat-back { display: none !important; }
