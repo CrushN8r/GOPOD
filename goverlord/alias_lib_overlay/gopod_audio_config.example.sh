@@ -10,10 +10,7 @@
 # Use the stable NAME string, not the leading numeric index - indexes drift
 # on reboot/replug, names don't.
 #
-# Missing this file entirely is fine - _gopod_check_audio_routing() in
-# brobots.sh falls back to its own hardcoded default (whatever machine that
-# copy of brobots.sh was originally built on) if gopod_audio_config.sh isn't
-# present.
+# Missing this file: wpr skips setting the speakers and mic (AUDIO_ROUTING_SET_SKIPPED).
 
 GOPOD_EXPECTED_AUDIO_SINK="alsa_output.your-speaker-device-name-here"
 GOPOD_EXPECTED_AUDIO_SOURCE="alsa_input.your-mic-device-name-here"

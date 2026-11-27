@@ -189,8 +189,8 @@ when).
 - **Copy:** `goverlord/alias_lib_overlay/` to `~/.gopod_alias_lib/`. The numpad's key map
   stays in the repo (`gopod_probes/topic_clusters/personas/company/99_system/numpad-mapper.md`), and so does the
   songs folder, where the aliases find it.
-- **Load:** in `~/.bash_aliases`, source `brobots.sh` (pha0b, phcal, score, gobingo),
-  `llm.sh` and `wirepod_logs.sh` from `~/.gopod_alias_lib/`.
+- **Load:** in `~/.bash_aliases`, source `brobots.sh` from `~/.gopod_alias_lib/` (pha0b,
+  phcal, score, gobingo, gofps, gopower, goinit) - the one file to load.
 - **Change:** run `goverlord/gopod_paths.sh --apply` first (Part 2), then copy
   `phcal_config.example.json` to `phcal_config.json`,
   `gopod_audio_config.example.sh` to your own, and

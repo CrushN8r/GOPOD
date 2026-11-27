@@ -80,7 +80,7 @@ _BROBOTS_WHEEL_WAKE_RELEASE_SETTLE_SECONDS=2.5
 # BROBOTS_WAKE_POST_REASSUME_SETTLE_SECONDS.
 _BROBOTS_WHEEL_WAKE_POST_REASSUME_SETTLE_SECONDS=0.5
 
-# _gopod_check_audio_routing - startup audio-routing gate, added 2026-08-19
+# The audio-routing names _gopod_set_audio_routing (below) sets - added 2026-08-19
 # (AUDIO_ROUTING_CHECK_001.md). Wire-Pod/robots log say=success even when
 # audio is misrouted and nothing is actually heard (same "markers don't
 # prove completion" trap CLAUDE.md's own gotchas already document for
@@ -107,63 +107,13 @@ _BROBOTS_WHEEL_WAKE_POST_REASSUME_SETTLE_SECONDS=0.5
 # exactly this Jetson's hardcoded values, so nothing changes here. Demo/
 # template: gopod_audio_config.example.sh (committed, placeholder values,
 # points at `pactl list short sources`/`sinks` to find your own).
-GOPOD_EXPECTED_AUDIO_SINK="alsa_output.platform-sound.analog-stereo"     # Built-in Audio Analog Stereo
-GOPOD_EXPECTED_AUDIO_SOURCE="alsa_input.usb-TTGK_Technology_USB_Audio_330212E9240828-00.mono-fallback"  # USB Audio Mono
+# 2026-11-27: the real device names live in the private gopod_audio_config.sh (no serials here).
+GOPOD_EXPECTED_AUDIO_SINK=""
+GOPOD_EXPECTED_AUDIO_SOURCE=""
 _GOPOD_AUDIO_CONFIG_PATH="$(dirname "${BASH_SOURCE[0]}")/gopod_audio_config.sh"
 if [ -f "$_GOPOD_AUDIO_CONFIG_PATH" ]; then
   source "$_GOPOD_AUDIO_CONFIG_PATH"
 fi
-#
-# Warn-and-offer, never auto-force: on mismatch this prints exactly what's
-# wrong and the manual fix command to stderr, then asks before touching
-# system audio at all (default answer is NO on bare Enter - see
-# _pha0b_prompt_yn's n-means-no mode below). Non-blocking either way - this
-# is a fast "will sound work" gate, not a hard dependency; the caller
-# proceeds regardless of the answer, now informed instead of finding out
-# after a silent run.
-_gopod_check_audio_routing() {
-  if ! command -v pactl >/dev/null 2>&1; then
-    echo "AUDIO_ROUTING_CHECK_SKIPPED pactl not found on this machine - cannot verify routing" >&2
-    return 0
-  fi
-  local current_sink current_source mismatch=0
-  current_sink="$(pactl get-default-sink 2>/dev/null)"
-  current_source="$(pactl get-default-source 2>/dev/null)"
-
-  if [ "$current_sink" != "$GOPOD_EXPECTED_AUDIO_SINK" ]; then
-    echo "AUDIO_ROUTING_MISMATCH sink: got '$current_sink', expected '$GOPOD_EXPECTED_AUDIO_SINK' (Built-in Audio Analog Stereo)" >&2
-    mismatch=1
-  fi
-  if [ "$current_source" != "$GOPOD_EXPECTED_AUDIO_SOURCE" ]; then
-    echo "AUDIO_ROUTING_MISMATCH source: got '$current_source', expected '$GOPOD_EXPECTED_AUDIO_SOURCE' (USB Audio Mono)" >&2
-    mismatch=1
-  fi
-
-  if [ "$mismatch" = "0" ]; then
-    echo "AUDIO_ROUTING_OK sink=$current_sink source=$current_source" >&2
-    return 0
-  fi
-
-  echo "AUDIO_ROUTING_WARNING say=success will still log even though nothing will be heard until this is fixed (NoMachine or a default-sink/source drift is the usual cause)." >&2
-  echo "AUDIO_ROUTING_FIX_CMD pactl set-default-sink '$GOPOD_EXPECTED_AUDIO_SINK'; pactl set-default-source '$GOPOD_EXPECTED_AUDIO_SOURCE'" >&2
-  local fix_choice
-  fix_choice="$(_pha0b_prompt_yn "fix audio routing now? y/n [default n]: " n n-means-no)"
-  if [ "$fix_choice" = "1" ]; then
-    local sink_rc source_rc
-    pactl set-default-sink "$GOPOD_EXPECTED_AUDIO_SINK" >&2 2>&1; sink_rc=$?
-    pactl set-default-source "$GOPOD_EXPECTED_AUDIO_SOURCE" >&2 2>&1; source_rc=$?
-    if [ "$sink_rc" = "0" ] && [ "$source_rc" = "0" ]; then
-      echo "AUDIO_ROUTING_FIXED sink=$GOPOD_EXPECTED_AUDIO_SINK source=$GOPOD_EXPECTED_AUDIO_SOURCE" >&2
-      return 0
-    else
-      echo "AUDIO_ROUTING_FIX_FAILED pactl rejected the set-default call(s) above (sink_rc=$sink_rc source_rc=$source_rc) - device name may be stale, re-check with 'pactl list short sinks/sources'" >&2
-      return 1
-    fi
-  else
-    echo "AUDIO_ROUTING_DECLINED proceeding without fixing - audio may be silent" >&2
-  fi
-  return 1
-}
 
 # _gopod_set_audio_routing - set, no question asked. Operator ask 2026-10-07:
 # "Please set at run start" the speakers and the USB mic, after the reporter
@@ -171,6 +121,10 @@ _gopod_check_audio_routing() {
 # Same two names as the check above. Called by wpr, the operator's run start.
 _gopod_set_audio_routing() {
   command -v pactl >/dev/null 2>&1 || return 0
+  if [ -z "$GOPOD_EXPECTED_AUDIO_SINK" ] || [ -z "$GOPOD_EXPECTED_AUDIO_SOURCE" ]; then
+    echo "AUDIO_ROUTING_SET_SKIPPED no gopod_audio_config.sh (see gopod_audio_config.example.sh)" >&2
+    return 0
+  fi
   if pactl set-default-sink "$GOPOD_EXPECTED_AUDIO_SINK" 2>/dev/null \
     && pactl set-default-source "$GOPOD_EXPECTED_AUDIO_SOURCE" 2>/dev/null; then
     echo "AUDIO_ROUTING_SET speakers=Built-in Audio Analog Stereo mic=USB Audio Mono"
@@ -1800,32 +1754,6 @@ _CUBE_BLIP_DIRECT_SRC="/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_ove
 
 _GOPOD_SLEEP_FIRST_WAKE_SETTLE_SECONDS="${GOPOD_SLEEP_FIRST_WAKE_SETTLE_SECONDS:-3}"
 
-# ==========================================================================
-# === RETIRED - dead, kept for record. Every alias below is commented    ===
-# === out in place; pressing any of these today does nothing. Gathered  ===
-# === here 2026-08-13 (BROBOTS_SH_RESTRUCTURE_EXECUTED_001.md) from      ===
-# === their original scattered locations (near the top of this file)    ===
-# === without losing any of their own reasoning - nothing here was      ===
-# === deleted, only relocated.                                          ===
-# ==========================================================================
-
-# RETIRED 2026-07-06: target archived, see alias_keyboard_survey_001.md
-# alias brobots='gorepo && python3 goverlord/runtime/data_gomad/wire-pod/vector_backpack_brobot_default_fallback_001/validate_vector_backpack_brobot_default_fallback_001.py'
-# RETIRED 2026-07-06: target archived, see alias_keyboard_survey_001.md
-# alias brobots_audio='brobots pulse && brobots audio vector1 && brobots audio vector2'
-# RETIRED 2026-07-06: target archived, see alias_keyboard_survey_001.md
-# alias brobots_move='brobots pulse && brobots movement vector1 && brobots movement vector2'
-# RETIRED 2026-07-06: target archived, see alias_keyboard_survey_001.md
-# alias brobots_expr='brobots pulse && brobots expression vector1 && brobots expression vector2'
-# RETIRED 2026-07-06: duplicate of brobots-happy/brobots-angry, see alias_keyboard_survey_001.md
-# happy-brobots() { brobots-happy; }
-# RETIRED 2026-07-06: duplicate of brobots-happy/brobots-angry, see alias_keyboard_survey_001.md
-# angry-brobots() { brobots-angry; }
-# RETIRED 2026-07-06: duplicate of brobots-happy/brobots-angry, see alias_keyboard_survey_001.md
-# happy-robots() { brobots-happy; }
-# RETIRED 2026-07-06: duplicate of brobots-happy/brobots-angry, see alias_keyboard_survey_001.md
-# angry-robots() { brobots-angry; }
-
 # _gopod_robot_serial (2026-10-29, the robots' labels - gopod_esn_labels.go): a
 # label (ESN01, ESN02) as its robot's serial, for a direct robot connection - who
 # it is this Wire-Pod start (gopod_brobots_now.json), else the private
@@ -1881,4 +1809,72 @@ gohockey() {
   local who="Brobot 1"
   [ "$1" = "2" ] && who="Brobot 2"
   ~/miniforge3/envs/gopod-coral39/bin/python ~/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey.py --player "$who"
+}
+
+# 2026-11-27 (operator: "alias for 30 fps/60 fps * alias for normal/high
+# performance"): 1.6-rebuild's own switches, set over the network, both Brobots
+# or one (1|2). Robot addresses from Wire-Pod's robot list
+# (~/wire-pod/chipper/jdocs/botSdkInfo.json); the unlock SSH key in
+# ~/.ssh/vector_unlock/ssh_root_key.
+_gopod_robot_ip() {
+    local serial; serial="$(_gopod_robot_serial "ESN0$1")"
+    python3 - "$serial" <<'PYEOF'
+import json, sys
+try:
+    for r in json.load(open("/home/goverlord/wire-pod/chipper/jdocs/botSdkInfo.json")).get("robots", []):
+        if r.get("esn") == sys.argv[1]:
+            print(r.get("ip_address", ""))
+except (OSError, ValueError):
+    pass
+PYEOF
+}
+_gopod_robot_ssh() {
+    ssh -q -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+        -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostKeyAlgorithms=+ssh-rsa \
+        -i "$HOME/.ssh/vector_unlock/ssh_root_key" "root@$1" "$2"
+}
+
+# gofps 30|60 [1|2] - the face's frame rate (1.6-rebuild: 30 fps when
+# /data/data/rebuild/using-30-fps exists). Takes effect after the Brobot reboots.
+# gofps alone: what each Brobot is set to.
+gofps() {
+    local want="$1" which="${2:-1 2}" n ip
+    for n in $which; do
+        ip="$(_gopod_robot_ip "$n")"
+        if [ -z "$ip" ]; then echo "Brobot $n: not in Wire-Pod's robot list"; continue; fi
+        case "$want" in
+            30) _gopod_robot_ssh "$ip" 'touch /data/data/rebuild/using-30-fps' && echo "Brobot $n: set to 30 fps - reboot Brobot $n now for it to take effect" ;;
+            60) _gopod_robot_ssh "$ip" 'rm -f /data/data/rebuild/using-30-fps' && echo "Brobot $n: set to 60 fps - reboot Brobot $n now for it to take effect" ;;
+            "") if _gopod_robot_ssh "$ip" 'test -e /data/data/rebuild/using-30-fps'; then echo "Brobot $n: set to 30 fps"; else echo "Brobot $n: set to 60 fps"; fi ;;
+            *) echo "usage: gofps 30|60 [1|2]"; return 1 ;;
+        esac
+    done
+}
+
+# gopower normal|balanced|high [1|2] - the performance profile (Wired's
+# FreqChange: normal = Regular 533 MHz, balanced = 729 MHz, high = Performance
+# 1.26 GHz - hotter, more battery). Takes effect at once.
+# gopower alone: what each Brobot is on.
+gopower() {
+    local want="$1" which="${2:-1 2}" n ip f
+    case "$want" in normal) f=0 ;; balanced) f=1 ;; high) f=2 ;; "") f="" ;; *) echo "usage: gopower normal|balanced|high [1|2]"; return 1 ;; esac
+    for n in $which; do
+        ip="$(_gopod_robot_ip "$n")"
+        if [ -z "$ip" ]; then echo "Brobot $n: not in Wire-Pod's robot list"; continue; fi
+        if [ -n "$f" ]; then curl -s -m 20 -o /dev/null "http://$ip:8080/api/mods/FreqChange/set?freq=$f"; fi
+        case "$(curl -s -m 8 "http://$ip:8080/api/mods/FreqChange/get")" in
+            0) echo "Brobot $n: normal (533 MHz)" ;; 1) echo "Brobot $n: balanced (729 MHz)" ;; 2) echo "Brobot $n: high (1.26 GHz)" ;; *) echo "Brobot $n: no answer" ;;
+        esac
+    done
+    if [ -n "$f" ]; then echo "No reboot needed - ok to continue."; fi
+}
+
+# goinit (2026-11-27, operator: "I'm building up an 'init' routine * like from
+# start > init > run > exit > stop"): the session's start in one go - to the
+# repo, the Brobots on balanced power, their frame rate shown, Wire-Pod restarted.
+goinit() {
+    cd ~/crushn8r_git/GOPOD || return 1
+    gopower balanced
+    gofps
+    wpr 2
 }
