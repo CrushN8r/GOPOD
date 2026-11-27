@@ -1,8 +1,8 @@
 # The weather run (GOLDEN, locked)
 - **words:** weather, weather run, what's the weather
 - **ask:** What's the weather like in Tampa Florida right now?
-- **about:** The golden weather run, Doc then Pip, as live 2026-11-02 20:15 (Tampa) - the one source for its order and every line the code says. The Brobots' own colour lines stay free. Locked by TestWeatherGoldenLock: a change here fails the deploy until the operator says so and deploys with GOPOD_RELOCK=1.
-- **locked:** 2026-11-03 (operator: "Look at the tampa run. that is a near perfect example of a golden locked run * note the handoff sequencing and 2nd brobot following up * golden guts scaffolding = topic-cluster md"; "Lock order + code lines"; "Doc then Pip (Tampa)")
+- **about:** The golden weather run, Doc then Pip, - the one source for its order and every line the code says. The Brobots' own colour lines stay free. Locked by TestWeatherGoldenLock: a change here fails the deploy until the operator says so and deploys with GOPOD_RELOCK=1.
+- **locked:** golden - changed only on the owner's go.
 ---
 
 ## The run, as it plays - A is the Brobot asked first, B his brother; [model] is his own line, the rest the code says

@@ -9,7 +9,7 @@ names the repo file that tells it in full, and shows up on [BROBOT_ASKS.md](../.
 (`NN_topic_name.md` - the name after the number is the topic's name), and fill in each line.
 This folder itself is never loaded: only `chapters/` is.
 
-## The schemas (2026-11-06)
+## The schemas
 
 `topic-schema.md` (a game card), `chapter-schema.md` (a chapter), `run-schema.md` (a run card) and
 `answer-chain-schema.md` (an answer chain) list the required and optional lines; the
@@ -61,7 +61,7 @@ line at the start or end of the answer).
    page again: `GOPOD_WRITE_ASKS=1 deploy_overlay_build.sh`.
 3. `system-value-points lock` in the chat, then `system-check`.
 
-## The master format (2026-10-30)
+## The master format
 
 Operator: "I see everything as a topic-cluster md file * establish a master topic-cluster format &
 boom!"; "make the topic-cluster shape the one master format * YES!! PLEASE!!"; "All should branch

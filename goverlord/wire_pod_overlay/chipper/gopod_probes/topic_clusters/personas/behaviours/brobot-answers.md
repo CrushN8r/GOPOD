@@ -111,12 +111,12 @@
 ## reminder (scripted_snippets.lines.3)
 1. when: reminder
 2. at: end
-3. why: 2026-10-22 (operator, on the random end lines: "see my comment about generating answer-chains" - value points generate the answer chains): no dice - a topic answer always ends steering to the next points.
+3. why: no dice - a topic answer always ends steering to the next points.
 
 ## newsletter (scripted_snippets.lines.4)
 1. when: newsletter
 2. at: end
-3. why: 2026-10-22: was any + a 25% chance; now the newsletter topic's own end (value points, not dice).
+3. why: the newsletter topic's own end (value points, not dice).
 4. lines: Wanna know more? Get CREW'd by subscribing to our newsletter! | And if you ever feel the urge, just GOPOD Yourself!
 
 ## chat_moves got_it - Brobot 1 (chat_moves.got_it.Brobot 1)
@@ -167,7 +167,7 @@
 7. {wrong_greeting}, Brobots! What's {title}, and why should they care about {word}?
 
 ## Help lookup (help_lookup)
-1. about: 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ? * Can the request be sent to gemma, + a look up guide, for a helpful response?"): a line with one of words gets the system menu's best matching commands (system-menu.md, the Torah) in the Brobot's facts - scored by the line's words (skip left out) in each command's cmd and about, and in its scripture's tour; the top max, each as item, under header (gopodHelpLookup, gopod_kgsim_response_shaping.go).
+1. about: a line with one of words gets the system menu's best matching commands (system-menu.md, the Torah) in the Brobot's facts - scored by the line's words (skip left out) in each command's cmd and about, and in its scripture's tour; the top max, each as item, under header (gopodHelpLookup, gopod_kgsim_response_shaping.go).
 2. words: how do i | how can i | how to | how would i | help me | where do i
 3. skip: how | the | for | and | can | you | your | with | what | please | brobot | doc | pip | this | that | would | where | help
 4. max: 3

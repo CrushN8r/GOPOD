@@ -1,53 +1,42 @@
-# Persona profiles - self and chat awareness
+# Personas
 
-One profile per chat participant (2026-10-30, operator: "fatten up all these personas for self & chat
-awareness * offload to persona profile md files for look ups"; "These will be your first workings of a
-brain bubble template for scaffolding for the other personas"). The file name is the persona's full name in
-small letters with dashes (`chalk-bored.md`, `keynote-vale.md`); a card is found by its file name wherever it sits.
+One card per chat participant. The file name is the persona's full name in small letters with
+dashes (`chalk-bored.md`, `keynote-vale.md`); a card is found by its file name wherever it sits.
 
-**The folders are the chain of command (2026-11-24, operator: "I want to be able to rename a folder and/or move it, and new build from new lookup will be no problem"):**
-the company card (`company/math-aftermath-news-channel.md`) holds the chain line; under `company/`, the folder a
-persona card sits in is its crew - the top folder the crew, the folders under it its part. KEYS' crew bubble
-reads them live (comm_check.crew, `{crews}`); move or rename a folder and it follows. Each card says its one boss
-in **Who I answer to**; the whole chain is told once, in the company file.
+## The folders are the chain of command
+- `company/math-aftermath-news-channel.md` holds the chain line.
+- Under `company/`, the folder a card sits in is its crew: the top folder the crew, the folders
+  under it its part. KEYS' crew bubble reads them live (`{crews}`); move or rename a folder and it
+  follows.
+- Each card names its one boss in **Who I answer to**; each names its group's shared root
+  (`- **root:**`, the `group-*.md` in `company/4_groups/`). The root's lines come first, then the
+  persona's own.
+- `behaviours/` holds how personas act (answers, dials, weather, photos ...); `brobots.md` there is
+  the shared Brobots persona.
 
-Every profile is a topic-cluster md, GOPOD's master format (`../_topic_cluster/README.md`):
-
-- **Its head** - `# <full name>` (the persona's name, first middle last), `- **nickname:**`,
-  `- **job:**` (its job name), `- **words:**` (the words that name it), `- **ask:**`. These are the
-  persona's labels, written here and nowhere else: the settings, the prompts, the headers and the
-  brain bubble fill from them (`{name}`, `{nickname}`, `{job}`).
+## A persona card
+- **Head** - `# <full name>`, `- **nickname:**`, `- **job:**`, `- **words:**`, `- **ask:**`. Written
+  here and nowhere else: settings, prompts, headers and the brain bubble fill from them
+  (`{name}`, `{nickname}`, `{job}`; other cards use `{DOC.name}`, `{BUTLER.nickname}` ...).
 - `---`
-- **Self** - my card: my informal name (nickname, for banter only), my name (formal), my job title (one line, what I own).
+- **Self** - nickname (banter only), formal name, job title.
 - **Who I answer to** - one boss line.
 - **Who works with me** - names, and what for.
-- **Voice** - how I talk: my take.
-- **Banter** - nicknames, mine and the others', and their stories. Company time is formal names; nicknames are for banter, anyone with anyone.
-- **The name** - what it means and how it's said (for reading, not said in answers).
-- **Lingo** - how my names are said: `word = said` (`CHALK = chock`). Every voice (`reporter_voices.say_words` for the reporter voices, the pronunciation list for the robots), mine winning, the longest word first. Names are written in caps; the lingo gives the voice normal case.
+- **Voice** - how I talk.
+- **Banter** - nicknames and their stories. Company time is formal names.
+- **The name** - what it means and how it's said (not said in answers).
+- **Lingo** - how my names are said: `word = said` (`CHALK = chock`).
 
-The brain bubble's "My relationships:" is my **Who I answer to** and **Who works with me** - the same lines my intro says (2026-11-06, the persona schema: `gopod_notes/PERSONA_SCHEMA_DRAFT_002.md`).
+Points are numbered `1.` `2.` ...; a point ending "(to come)" is never said. The brain bubble's
+"My relationships:" is **Who I answer to** and **Who works with me**. Edit a line, then `wpr 2`.
 
-Each section's points are numbered `1.` `2.` ... A point ending "(to come)" is never said.
-The persona's prompt looks up the sections named in `persona_profiles.sections` (settings)
-(`gopod_persona_profiles.go`). Edit a line, then `wpr 2`.
+## Four personas, two robots
+- `brobot-1.md`, `brobot-2.md` - the Brobots themselves, party-bro GOPOD reps, at the dial's 0%.
+- `barfallonyou-spewer.md` (DOC) and `pippen-stall.md` (PIP) - host and sidekick at the dial's 100%,
+  answering from the same two robots. A robot's card names the persona it hosts (`hosts:`).
+- The Brobots' cards add **Who I am**, **Role**, **My way through an answer** and **Signature**.
 
-**The Brobots' profiles** (`brobot-1.md`, `brobot-2.md`) have their own sections, the words their
-prompt's "WHO I AM" is built from: **Who I am** (his persona), **Role**, **My way through an answer**
-(his steps), **Signature** - and a **Self** like everyone's, for the intro recipe. The pair's banter and stereo dial stay in `host_pairs`; the shared
-party-bro base stays in `../show/brobots.md` (the shared Brobots persona).
-
-Each persona file names its group's shared root (`- **root:**`, the `group-*.md` in its own folder), and every root sits under
-`company/math-aftermath-news-channel.md` (GOPOD's company, filled from `company/company-schema.md`): the root's lines come first, then the persona's own.
-
-**The schemas (2026-11-06, operator: "Consistency would then get checked on every restart instead of by you reading runs"):**
-`personas/company/persona-schema.md` is the master persona card and `personas/company/company-schema.md` the master
-company - sterile scaffolding, copied to make a new one. The system check (`gopodSchemaCheck`, every restart) measures every
-persona file (each participant's, and the persona a robot hosts) and every company file (one with `## Our company`) against
-them: a missing head line, section, Self line or company point is listed "to fix" in the journal.
-
-**Decoupled (2026-11-15, operator: "decouple brobots from DOC/PIP completely * They only share the same robot bodies * All else is unique to the respective personas"):** four personas, four cards, four keys - `Brobot 1`, `Brobot 2`, `DOC`, `PIP`. A body's card names the persona it hosts (`hosts:`); the code turns a body into the persona answering from it in one place (gopodAnswerer: the dial's 0% the Brobot, 100% DOC or PIP) - nothing is ever read from one persona's card for another.
-
-**4 personas, 2 robots (2026-11-06, operator: "ensure DOC & PIP are split from brobots * 4 personas, DOC, PIP, 2 BROBOTS"):** `brobot-1.md` / `brobot-2.md` are the Brobots' own personas (party-bro GOPOD reps, BRUH!) at the dial's 0% - a line to both (KP*). `barfallonyou-spewer.md` (DOC) and `pippen-stall.md` (PIP) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am"; the robot's file names it in `hosts:`.
-
-**Names are variables, never quoted (2026-11-08):** a persona's name, nickname and job are written once, in its own file's head. Everywhere else - its own sections (`{name}`, `{nickname}`, `{job}`) and other files (`{DOC.name}`, `{BUTLER.nickname}`, `{CHALK.job}`, `{DOC.call}` for the call name) - they're variables, filled from that one source - in every setting and every cluster laid over them, and in the settings the page gets (`gopodApplyNameVars`, `gopodPersonaFill`). Left literal on purpose: a persona's own head (the source), its Lingo (the words a voice must match), search words, the numpad map (its values are lookup keys), and the operator's dated quotes.
+## The schemas
+`persona-schema.md` is the master persona card, `company/company-schema.md` the master company
+card - copy one to make a new one. Every restart checks each card against them; anything missing
+is listed "to fix" in the journal.

@@ -4,7 +4,7 @@
 - **chain:** Gominions (Doc and Pip) - what the code tells them before they answer
 - **see also:** math-aftermath-news-channel.md (the descriptions), group-chat-intro (the intro), reply-rules (how the answer is cut), big-picture
 ---
-## Boundaries - the frozen root, 2026-11-13, read first
+## Boundaries - the frozen root, read first
 
 | Who | Decides |
 |---|---|
@@ -16,7 +16,7 @@
 A normal answer's brain is four parts, one plain line each: TIME, TASK, FACT, MEMORY. Facts are written newcomer-ready at their source (the topic cards). Nothing else is added to it; new work grows from these four.
 
 
-## The brain chain - moved to Goverlord's card (2026-11-17)
+## The brain chain - moved to Goverlord's card
 1. Every persona's brain bubble, its lines, its TASK flow and the look-up now live on Goverlord's card: goverlord-brain.md - GOPOD's brain is his.
 
 ## Before I answer (prebuild_context)

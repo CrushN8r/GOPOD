@@ -21,7 +21,7 @@
 5. bubble_ready_max_ms: 6000
 6. baton_max_ms: 120000
 7. reveal_rest_ms: 10000
-8. scroll_log_about: 2026-10-31 (operator: "Add scroll event logging * and scrolling position if possible"): true - the main page logs every scroll decision and where the chat comes to rest to the journal (GOPOD_PAGE scroll ...: who asked, from -> to, the target rule, grows it skipped, the resting position). false - off. Page only: F5.
+8. scroll_log_about: true - the main page logs every scroll decision and where the chat comes to rest to the journal (GOPOD_PAGE scroll ...: who asked, from -> to, the target rule, grows it skipped, the resting position). false - off. Page only: F5.
 9. scroll_log: true
 
 ## The chat's own scroll bar (chat_window.scroll_bar)
@@ -32,8 +32,8 @@
 5. handle_px: 7
 
 ## The scroll bar's note (chat_window)
-1. scroll_bar_about: 2026-10-31 (operator: "Integrate adjustable scroll bar please * will this show up on app visitor pages?"): the chat window's own scroll bar, on the admin, visitor and app pages alike - drag the thumb to scroll; drag either end to make it longer or shorter (a longer thumb, less travel from top to bottom); double-click for its natural size; its length is kept in that browser. width_px its width, min_thumb_px the shortest thumb, max_thumb_share the longest (share of the track), handle_px each end's grab area. on false - the browser's own bar back. Page only: F5.
+1. scroll_bar_about: the chat window's own scroll bar, on the admin, visitor and app pages alike - drag the thumb to scroll; drag either end to make it longer or shorter (a longer thumb, less travel from top to bottom); double-click for its natural size; its length is kept in that browser. width_px its width, min_thumb_px the shortest thumb, max_thumb_share the longest (share of the track), handle_px each end's grab area. on false - the browser's own bar back. Page only: F5.
 
 ## Highlight scroll (highlight_scroll)
-1. about: 2026-10-15 (operator: "highlighting scrolling aims to be vertically centered within the bottom/bottom top/top rule"; "Add a dead zone: chat holds still until highlight is ~1/4 of the window, below centre * then one smooth move to re-centre, unless bottom/bottom is reached first"): the chat holds still until the piece being said is dead_zone of the window below its centre, then one smooth move puts it back at the centre - never past the chat's end. Read by the chat page on F5.
+1. about: the chat holds still until the piece being said is dead_zone of the window below its centre, then one smooth move puts it back at the centre - never past the chat's end. Read by the chat page on F5.
 2. dead_zone: 0.25

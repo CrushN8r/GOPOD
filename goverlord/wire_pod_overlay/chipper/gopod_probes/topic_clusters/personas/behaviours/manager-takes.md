@@ -13,7 +13,7 @@
 5. words: weather |
 6. take_text: ``
 7. brobot_says: true
-8. why: 2026-10-27 (operator: "what's the weather like right now * [Gomad] * [assigned-intern] will help you with that. * Thanks for your help, [intern]."): PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own "I'll help you with that."); the Brobot thanks her and says the weather.
+8. why: PLAYHEAD hands it to Cache PYC (was PLAYHEAD's own "I'll help you with that."); the Brobot thanks her and says the weather.
 
 ## Take 2: url_qr (PLAYHEAD) (managers.takes.1)
 1. host: {PLAYHEAD.call}

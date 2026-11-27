@@ -1,6 +1,6 @@
 # DOCBS: the master cookbook of response recipes
 
-Doc's DocBS answers, as recipes. Each recipe is one chain (`docbs.chains` in `webroot/gopod_settings/02_cast.json`): its beats in order, each beat a line from its pool here. The words are the operator's own: [the Master Library](DOCBS_LIBRARY.md) and the DocBS pools. Written 2026-10-30 from the settings and the pools as they were then; it doesn't update itself, so a changed chain or pool means this page gets written again.
+Doc's DocBS answers, as recipes. Each recipe is one chain (`docbs.chains` in `webroot/gopod_settings/02_cast.json`): its beats in order, each beat a line from its pool here. The words are the operator's own: [the Master Library](DOCBS_LIBRARY.md) and the DocBS pools. It doesn't update itself: a changed chain or pool means this page gets written again.
 
 ## How every recipe is served
 

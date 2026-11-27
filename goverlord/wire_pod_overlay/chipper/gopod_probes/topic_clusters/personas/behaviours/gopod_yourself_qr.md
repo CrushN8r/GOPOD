@@ -2,7 +2,7 @@
 - **words:** keep up, subscribe, newsletter, contact us, contact info, GOPOD Yourself
 - **ask:** Brobot 2, how do I keep up with you guys?
 - **about:** The golden QR sequence any persona calls when asked about keeping up, subscribing or contacting us: his own line, then the golden line word for word, its QRs on CHALK's board in order, each once. From the Bingo test's closing ("Wait what? Now be a good Brobot and GOPOD Yourself! ..."). Locked by TestGopodYourselfGoldenLock: a change here fails the deploy until the operator's relock.
-- **locked:** 2026-11-25 (operator: "a locked card, laid out like weather_run.md, holding that closing sequence and its QRs in order. Any persona asked about keeping up, subscribing or contacting us calls the card and builds their answer around it: their own line, then the golden line and its QRs" - "yes")
+- **locked:** golden - changed only on the owner's go.
 ---
 
 ## The sequence, as it plays - [own] is the persona's own line, the rest the code says

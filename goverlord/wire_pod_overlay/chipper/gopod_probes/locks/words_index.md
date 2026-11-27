@@ -157,7 +157,7 @@
 - words: template 1 speech data
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/README.md
-- words: personas
+- words: personas, persona card, four personas two robots, schemas
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/addressing.md
 - words: addressing

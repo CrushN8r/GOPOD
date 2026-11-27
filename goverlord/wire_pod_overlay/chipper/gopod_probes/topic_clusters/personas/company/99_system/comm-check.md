@@ -19,12 +19,12 @@
 2. keys: KP7 | KP8
 
 ## The crew brain bubble - KEYS' once, at the handover; the company is said here, not in every intro (comm_check.crew[])
-<!-- 2026-11-24 (operator: "I want to be able to rename a folder and/or move it, and new build from new lookup will be no problem"): {crews} is one line per folder of personas/company/ holding persona cards - the folder is the crew, read live; {company} comes from the company card. -->
+<!-- {crews} is one line per folder of personas/company/ holding persona cards - the folder is the crew, read live; {company} comes from the company card. -->
 1. {crews}
 2. Company: {company}
 3. Cast: CRUSHN8R CREW
 
 ## The game welcome (comm_check.game_welcome)
-1. about: 2026-11-04 (operator: "Hey, that reminds me... coming up > reminder > GOPOD game"; "GOPOD game = 1st reminder, however coloured/flavoured"; "you've now reached the playable game level"; "brobot 2 ends the song * point robust per-persona flavour mechanism at brobot 2"): the comm song's last answer - by's - ends with the game welcome instead of a chapter reminder, once: base word for word, or one of his flavours (comm_check.game_welcome.flavours, in each persona's own file), at random. Then the game's own reminders take over.
+1. about: the comm song's last answer - by's - ends with the game welcome instead of a chapter reminder, once: base word for word, or one of his flavours (comm_check.game_welcome.flavours, in each persona's own file), at random. Then the game's own reminders take over.
 2. by: Brobot 2
 3. base: Hey, that reminds me... Congrats! You made it without falling asleep!! Welcome to the GOPOD game…

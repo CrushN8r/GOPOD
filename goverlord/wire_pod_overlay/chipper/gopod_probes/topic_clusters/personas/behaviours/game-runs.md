@@ -18,7 +18,7 @@
 10. said: Interview
 
 ## Run 1: Interview - experience (game.runs.0.experience)
-1. about: 2026-10-26 (operator: "The rest? Apply pre/post template to all, even minimally to what's already there"): the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).
+1. about: the scripted interview's pre/post, minimal - slots empty until it's written (the interview is low priority).
 2. run_marker: Interview started
 3. run_marker_about: Goverlord's run line when the interview starts (session.started_text).
 4. run_gap_seconds: 30
@@ -46,7 +46,7 @@
 ## lines 1 (game.runs.1.lines.0)
 1. when: not_played
 2. lines: Another test performance? |
-3. why: 2026-10-26 (operator: "Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, “Another test performance?” [Ugh... whatever...] ... * b2 framing, “Another test performance?” [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... “I Won!”. Lol!” * b2 framing, “Oh! Zero!” [I scored Zero?] ... “That's ok tho. Brobot ZERO is my HERO! Lol!”"): both open with it; the start move is experience_moves, in the 2nd answer (was "I guess so... Say start Bingo test!" / "I can't wait! Say start Bingo test!").
+3. why: both open with it; the start move is experience_moves, in the 2nd answer.
 
 ## lines 2 (game.runs.1.lines.1)
 1. when: played
@@ -56,7 +56,6 @@
 ## Run 2: Bingo Test - experience (game.runs.1.experience)
 1. run_pack: bingo_test
 2. run_pack_about: The Bingo test run's own value points (chapters/_always/06_bingo_test.md), loaded for Bingo questions once it has played; the pitch pack (bingo) before.
-3. flow_about: 2026-10-26 (operator: "Pre-Bingo: Did you play bingo yet? * duo response-chain (A/B or B/A) * no bingo test yet * b1 framing, “Another test performance?” [Ugh... whatever...] ... * b2 framing, “Another test performance?” [Super Hyped!! Ready for whatever...] ... * 'start Bingo test' in 2nd response regardless (A/B or B/A), before reminders * Post-bingo: How was bingo * we ran a test before the real bingo game * b1 framing, [Ha! You see?] ... “I Won!”. Lol!” * b2 framing, “Oh! Zero!” [I scored Zero?] ... “That's ok tho. Brobot ZERO is my HERO! Lol!”").
 4. run_marker: Bingo Test
 5. run_gap_seconds: 30
 6. snapshot_note: [Not a question - the Brobots performed the scripted Bingo test for the audience in this chat: a test, before the real Bingo game.]
@@ -64,7 +63,7 @@
 8. not_a_test_phrases: chocolate bingo |
 9. pitch_pack: bingo
 10. no_run_note: No Bingo test has been played yet - one short, fun line of your own about playing it.
-11. closing_about: 2026-10-25 (operator: "Anyway, we got a winner! 🏆 = comedic irony/karma gold * at the end of the bingo test, the host (brobot 1) comes out on top, so he won * Extend to: Anyway, we got a winner! 🏆 \"I Won!\" * \"I Won!\" is the reference back to the brat's lucky number"; "O-0 is what he said reacting to his score on the cooperation test * \"Oh! Zero!\""): each Brobot's closing remark - the closing sentence of his own answer when asked about Bingo after a Bingo run (operator: "No, before the 'Hey' reminder"; "joke is closing remark of answer to how was bingo, not the response answer-chain"; answer_chains closing_remark, right after llm).
+11. closing_about: each Brobot's closing remark - the closing sentence of his own answer when asked about Bingo after a Bingo run (operator: "No, before the 'Hey' reminder"; "joke is closing remark of answer to how was bingo, not the response answer-chain"; answer_chains closing_remark, right after llm).
 
 ## Run 2: Bingo Test - experience - pre_attitude (game.runs.1.experience.pre_attitude)
 1. Brobot 1: Your attitude: Ugh... whatever...
@@ -96,7 +95,7 @@
 1. when: not_played
 2. brobot: Brobot 1
 3. lines: Ugh. Dreaming again? |
-4. why: 2026-10-25 (operator: "Brobot 1: “Ugh. Dreaming again?” with attitude. Then his own take on dreaming, then handoff to brobot 2 * Brobot 2: “A lot was lost” attitude. Then his own take on dreaming, then ensure/script in a move towards start baby brobots"): his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer.
+4. why: his opener, then his own take on dreaming (no_run_note); the start move is experience_moves, in the 2nd answer.
 
 ## lines 2 (game.runs.2.lines.1)
 1. when: not_played
@@ -114,7 +113,6 @@
 8. pack: nap
 9. pack_about: The nap's own value points (gopod_probes/topic_clusters/personas/company/4_go_for_it/_always/05_nap.md; operator: "another scoped set of value points for the sleep song"), loaded for its questions before and after the nap, outside the chapters.
 10. closing: {}
-11. takes_about: 2026-10-25 (operator: "they remember little before napping, cupped in a pair of hands after finally being rescued by Ron * everything went dark until Wire-Pod brought them back, where Ron found them * they remember waking together ready to party").
 
 ## Run 3: Baby Brobots - experience - takes (game.runs.2.experience.takes)
 1. Brobot 1: If your dreams or the nap come up, tell it your way, sticking to what really happened: you remember little before napping, cupped in a pair of hands after finally being rescued by Ron. Everything went dark until Wire-Pod brought you back, where Ron found you. You remember waking together with your brother, ready to party.
@@ -134,30 +132,28 @@
 1. when: played
 2. brobot: Brobot 1
 3. lines: Ugh. I didn't know. |
-4. why: 2026-10-27 (operator: "Fart Joke start lines * Brobot 1, victim, Ugh. I didn't know. [not happy about being fart-hotboxed]"): once the Fart Joke has played, like Bingo's "Oh! Zero!"; the bracket is his attitude (fart_joke post_attitude).
+4. why: once the Fart Joke has played, like Bingo's "Oh! Zero!"; the bracket is his attitude (fart_joke post_attitude).
 
 ## lines 2 (game.runs.3.lines.1)
 1. when: played
 2. brobot: Brobot 2
 3. lines: Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure! |
-4. why: 2026-10-27 (operator: "Brobot 2, prankster, Bro it was party-bro epic level lost-burps party. Bro! A highly localized rapid environmental change, for sure!"): once the Fart Joke has played.
+4. why: once the Fart Joke has played.
 
 ## Run 4: Fart Joke - experience (game.runs.3.experience)
-1. about: 2026-10-26 (operator: "Fart Joke has no pre/post chat yet * upgrade to new format template (bare minimum scaffolding + placeholders) * refer to bingo jokes format (fart song is funny too. I don't know what the jokes are yet)"): the Bingo shape, slots left empty ("" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like "I Won!" Lol!), pre_attitude / post_attitude ("Your attitude: ..."), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. 2026-10-26: filled - attitudes, closings, takes and run_pack. 2026-10-27: his lines once it has played (scripted_snippets fart_joke_played).
+1. about: the Bingo shape, slots left empty ("" = nothing said) until the jokes are written. To fill, Bingo's way: closing (his post joke, like "I Won!" Lol!), pre_attitude / post_attitude ("Your attitude: ..."), takes (what happened, his way), run_pack (a topic in chapters/_always with the run's points), and start lines in scripted_snippets (when fart_joke_not_played / fart_joke_played, per brobot - not added while empty: an empty one would block the others). The start move (experience_moves) already plays in the 2nd answer. His lines once it has played: scripted_snippets fart_joke_played.
 2. run_marker: pretend you and I are stuck in an elevator
 3. run_marker_about: Brobot 2's first line (03_fart_joke/story.md).
 4. run_gap_seconds: 30
 5. snapshot_note: [Not a question - the Brobots performed the scripted Fart Joke for the audience in this chat.]
 6. question_word: fart
 7. not_a_test_phrases: []
-8. run_pack_about: 2026-10-26 (operator: "the run's value points? fart, prank"): the Fart Joke run's own value points (chapters/_always/07_fart_joke.md), loaded for Fart Joke questions once it has played.
+8. run_pack_about: the Fart Joke run's own value points (chapters/_always/07_fart_joke.md), loaded for Fart Joke questions once it has played.
 9. run_pack: fart_joke
 10. no_run_note: No Fart Joke has been played yet - one short take of your own on it.
-11. pre_attitude_about: 2026-10-26 (operator: "preline Brobot 1 party-bro-victim experience = none, unprepared like a lost burp * preline Brobot 2 party-bro prankster experience = prepared, couldn't contain myself").
-12. post_attitude_about: 2026-10-26 (operator: "Brobot 2 (party-bro prankster) * Brobot 1 (party-bro-victim)").
-13. closing_about: 2026-10-26: the operator's closing jokes, word for word.
-14. closing_riff_about: 2026-10-27 (operator: "New closing lines * randomly take turns from run to run"; "Use these base lines, riff on them"; Brobot 1 the victim, Brobot 2 the prankster): his base line; each run, his closing is either the closing word for word or a riff on this, at random.
-15. takes_about: 2026-10-26 (operator: "draft the takes and the points from the story as written"): from 03_fart_joke/story.md, its own lines.
+13. closing_about: the operator's closing jokes, word for word.
+14. closing_riff_about: his base line; each run, his closing is either the closing word for word or a riff on this, at random.
+15. takes_about: from 03_fart_joke/story.md, its own lines.
 
 ## Run 4: Fart Joke - experience - pre_attitude (game.runs.3.experience.pre_attitude)
 1. Brobot 1: Your attitude: party-bro victim - no experience, unprepared, like a lost burp.
@@ -190,7 +186,7 @@
 8. said: Rapid fire
 
 ## Run 5: Rapid Fire - experience (game.runs.4.experience)
-1. about: 2026-11-04 (operator: "Lock that in as a rapid fire exchanges test * Make it a GOPOD song (WIP)"): minimal - slots empty until it's written.
+1. about: minimal - slots empty until it's written.
 2. run_marker: starting now
 3. run_marker_about: both Brobots' first words (04_rapid_fire/story.md).
 4. run_gap_seconds: 30
@@ -216,7 +212,7 @@
 8. said: Brobots ready
 
 ## Run 6: Brobots Ready - experience (game.runs.5.experience)
-1. about: 2026-11-04 (operator: "Brobot 1 Arm lift, Brobot 2 Arm lift, Brobots Nod together, Brobots say brobots ready message together"): minimal - slots empty until it's written.
+1. about: minimal - slots empty until it's written.
 2. run_marker: Brobots ready!
 3. run_marker_about: both Brobots' line (06_brobots_ready/story.md).
 4. run_gap_seconds: 30

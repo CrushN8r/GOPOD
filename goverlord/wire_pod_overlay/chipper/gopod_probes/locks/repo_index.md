@@ -616,7 +616,11 @@
 - Template 1: speech data
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/README.md
-- Persona profiles - self and chat awareness
+- Personas
+- The folders are the chain of command
+- A persona card
+- Four personas, two robots
+- The schemas
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/addressing.md
 - Addressing
@@ -665,8 +669,8 @@
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/brobot-brain.md
 - The Brobots' brain
-- Boundaries - the frozen root, 2026-11-13, read first
-- The brain chain - moved to Goverlord's card (2026-11-17)
+- Boundaries - the frozen root, read first
+- The brain chain - moved to Goverlord's card
 - Before I answer (prebuild_context)
 - Before I answer, its lines in order (prebuild_context.lines)
 
@@ -718,7 +722,7 @@
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/README.md
 - DocBS - Doc's brain wiring
-- The Master Library (2026-10-30)
+- The Master Library
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/pipta/README.md
 - PipTA - Pip's brain wiring
@@ -1299,7 +1303,7 @@
 - USB numpad - Lane 000 - Exit (numpad_maps.usb.fixed_lanes.000)
 - USB numpad - Lane KP0 - the Butler (press/hold) - see numlock_on (numpad_maps.usb.fixed_lanes.KP0)
 - USB numpad - Lane * - All Brobots - push-to-talk, in the order (numpad_maps.usb.fixed_lanes.*)
-- USB numpad - Lane / - Skip (what * did until 2026-10-30) (numpad_maps.usb.fixed_lanes./)
+- USB numpad - Lane / - Skip (numpad_maps.usb.fixed_lanes./)
 - USB numpad - KP0, NumLock on - Butler (numpad_maps.usb.numlock_on.KP0)
 - USB numpad - KP1, NumLock on - Doc (numpad_maps.usb.numlock_on.KP1)
 - USB numpad - KP2, NumLock on - Pip (numpad_maps.usb.numlock_on.KP2)
@@ -1325,7 +1329,7 @@
 - PC keyboard - Lane 000 - Exit (numpad_maps.pc.fixed_lanes.000)
 - PC keyboard - Lane KP0 - the Butler (press/hold) - see numlock_on (numpad_maps.pc.fixed_lanes.KP0)
 - PC keyboard - Lane * - All Brobots - push-to-talk, in the order (numpad_maps.pc.fixed_lanes.*)
-- PC keyboard - Lane / - Skip (what * did until 2026-10-30) (numpad_maps.pc.fixed_lanes./)
+- PC keyboard - Lane / - Skip (numpad_maps.pc.fixed_lanes./)
 - PC keyboard - KP0, NumLock on - Butler (numpad_maps.pc.numlock_on.KP0)
 - PC keyboard - KP1, NumLock on - Doc (numpad_maps.pc.numlock_on.KP1)
 - PC keyboard - KP2, NumLock on - Pip (numpad_maps.pc.numlock_on.KP2)
