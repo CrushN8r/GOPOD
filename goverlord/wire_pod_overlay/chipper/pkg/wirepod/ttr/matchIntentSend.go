@@ -34,14 +34,11 @@ func IntentPass(req interface{}, intentThing string, speechText string, intentPa
 		isIntentGraph = true
 	}
 
-	// GOPOD 2026-10-18: a native intent shows a silent system bubble (gopodNativeBubble).
 	gopodNativeBubble(esn, intentThing)
 	// intercept if not intent graph but intent graph is enabled
 	if !isIntentGraph && vars.APIConfig.Knowledge.IntentGraph && intentThing == "intent_system_unmatched" {
 		intentThing = "intent_greeting_hello"
 	}
-	// GOPOD 2026-10-14: a native intent gets the robot's own behaviors back first
-	// (gopodNativeLetGo, gopod_native.go).
 	gopodNativeLetGo(esn, intentThing)
 
 	var intentResult pb.IntentResult
@@ -58,7 +55,6 @@ func IntentPass(req interface{}, intentThing string, speechText string, intentPa
 		}
 	}
 	logger.LogUI("Intent matched: " + intentThing + ", transcribed text: '" + speechText + "', device: " + esn)
-	// GOPOD 2026-10-24: a Brobot told to sleep answers "zzz" in the chat.
 	if intentThing == "intent_system_sleep" {
 		GopodChatFeedAdd(gopodBrobotName(esn), "zzz")
 	}
@@ -266,8 +262,6 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 	var matched int = 0
 	var intentNum int = 0
 	var successMatched bool = false
-	// GOPOD 2026-10-24: a line a Brobot heard himself goes in the chat at once,
-	// before anything answers it (gopodHeardLine, gopod_greetings.go).
 	gopodHeardLine(botSerial, voiceText)
 	voiceText = strings.ToLower(voiceText)
 	pluginMatched := pluginFunctionHandler(req, voiceText, botSerial)
@@ -279,9 +273,6 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 			for _, c := range b.Keyphrases {
 				if voiceText == strings.ToLower(c) {
 					logger.Println("Bot " + botSerial + " Perfect match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
-					// GOPOD 2026-10-10: Wire-Pod's own answer, unless the Native? box
-					// is off or a run is going (gopod_native.go).
-					// GOPOD 2026-10-21: a manager takes it in the chat instead (gopodNativeToManager).
 					if gopodNativeToManager(botSerial, b.Name, voiceText) {
 						return false
 					}
@@ -310,7 +301,6 @@ func ProcessTextAll(req interface{}, voiceText string, intents []vars.JsonIntent
 				for _, c := range b.Keyphrases {
 					if strings.Contains(voiceText, strings.ToLower(c)) && !b.RequireExactMatch {
 						logger.Println("Bot " + botSerial + " Partial match for intent " + b.Name + " (" + strings.ToLower(c) + ")")
-						// GOPOD 2026-10-21: a manager takes it in the chat instead (gopodNativeToManager).
 						if gopodNativeToManager(botSerial, b.Name, voiceText) {
 							return false
 						}

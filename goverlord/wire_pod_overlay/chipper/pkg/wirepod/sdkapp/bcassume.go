@@ -81,10 +81,6 @@ func assumeBehaviorControl(robot Robot, robotIndex int, priority string) {
 			// * end - modified from official vector-go-sdk
 		}()
 		for range start {
-			// GOPOD 2026-10-08: the robot is found by its serial each time, not by
-			// its place in the list. When the SDK connection timed out (connTimer),
-			// the list shrank and robots[robotIndex] crashed Wire-Pod ("index out of
-			// range", live 2026-10-08 11:16:53); a robot no longer listed is let go.
 			for gopodBcAssumed(robot.ESN) {
 				time.Sleep(time.Millisecond * 500)
 			}

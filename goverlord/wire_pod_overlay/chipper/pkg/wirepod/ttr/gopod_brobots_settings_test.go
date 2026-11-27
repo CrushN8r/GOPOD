@@ -2536,7 +2536,7 @@ func TestExchangeHoldsTheNextLine(t *testing.T) {
 	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodExchangeWait(esn, transcribedText)") {
 		t.Errorf("a reply doesn't wait for the line before's follow-up")
 	}
-	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodReplyEnd(esn)\n\t\t\t// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.\n\t\t\tgopodExchangeDone(esn)") {
+	if os.Getenv("GOPOD_OVERLAY_CHIPPER") != "" && !strings.Contains(string(src), "gopodReplyEnd(esn)\n\t\t\tgopodExchangeDone(esn)") {
 		t.Errorf("the hold isn't let go when the follow-up is said")
 	}
 }

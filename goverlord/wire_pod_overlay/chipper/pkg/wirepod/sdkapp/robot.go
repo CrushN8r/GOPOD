@@ -75,7 +75,6 @@ func newRobot(serial string) (Robot, int, error) {
 		inhibitCreation = false
 		return RobotObj, 0, err
 	}
-	// GOPOD 2026-10-29: robots off - a stand-in connection (ttr/gopod_robots_off.go).
 	RobotObj.Vector = wirepod_ttr.GopodRobotsOffConn(RobotObj.Vector)
 
 	// connection check
@@ -139,11 +138,6 @@ func connTimer(ind int) {
 		return
 	}
 
-	// GOPOD 2026-10-08: the robot is found by its serial each second, not by
-	// its place in the list. When another robot's connection timed out, the
-	// list shrank and robots[ind] crashed Wire-Pod ("index out of range [1]
-	// with length 1", live 2026-10-08 19:53:04) - the same fix as bcassume.go.
-	// A robot no longer listed ends its timer.
 	esn := robots[ind].ESN
 	robots[ind].ConnTimer = 0
 	for {
@@ -172,10 +166,6 @@ func connTimer(ind int) {
 				return
 			}
 		}
-		// 2026-10-29 (live 11:44:42, the same crash again): both robots timed
-		// out 3 s apart, and the other's removeRobot shrank the list between
-		// the lookup above and here - so this one goes by its own ESN, and
-		// checks its place is still in the list.
 		if ind >= len(robots) {
 			continue
 		}
@@ -234,8 +224,6 @@ func NewWP(serial string, useGlobal bool) (*vector.Vector, error) {
 	if err != nil {
 		return nil, err
 	}
-	// GOPOD 2026-10-29: robots off - no connection to the robot, a stand-in
-	// (ttr/gopod_robots_off.go).
 	if !wirepod_ttr.GopodRobotsOff() {
 		if err := c.Connect(); err != nil {
 			return nil, err

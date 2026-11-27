@@ -83,14 +83,6 @@ func TestParseAnimationVocabRejectsAliasPointingAtUnknownToken(t *testing.T) {
 	}
 }
 
-// TestAnimationAliasNervousResolvesToConfused pins a cross-table conflict
-// found while consolidating the vocabulary: knownGOPODActionAlias used to
-// map "nervous" -> "confused" while resolveAnimationParameter/
-// resolveGOPODLikelyAnimationAlias mapped it (via the cheeky/suspicious/
-// sneaky/awkward/nervous/shifty cluster) to the now-retired "dartingEyes".
-// Repointing that whole cluster to "confused" makes every path agree. This
-// test exists so a future hand-edit of animation_vocab.json can't silently
-// reintroduce the disagreement.
 func TestAnimationAliasNervousResolvesToConfused(t *testing.T) {
 	got, ok := animationAliases["nervous"]
 	if !ok {
@@ -101,12 +93,8 @@ func TestAnimationAliasNervousResolvesToConfused(t *testing.T) {
 	}
 }
 
-// TestResolveAnimationParameterAfterConsolidation exercises
-// resolveAnimationParameter (kgsim_cmds_animation_normalizer.go) directly.
-// That file's own embedded "Test..." functions are NOT named *_test.go, so
-// `go test` never discovers them (a pre-existing build-hygiene gap, flagged
-// separately, not fixed here) - this gives the post-consolidation behavior
-// real automated coverage instead of relying on manual inspection.
+// TestResolveAnimationParameterAfterConsolidation exercises resolveAnimationParameter
+// (kgsim_cmds_animation_normalizer.go) directly.
 func TestResolveAnimationParameterAfterConsolidation(t *testing.T) {
 	tests := map[string]string{
 		"happy":                    "happy",     // exact animationMap token
@@ -123,9 +111,8 @@ func TestResolveAnimationParameterAfterConsolidation(t *testing.T) {
 	}
 }
 
-// TestNormalizeAnimationSyntaxAfterConsolidation exercises
-// NormalizeAnimationSyntax (kgsim_cmds_animation_normalizer.go) directly,
-// for the same reason as the test above.
+// TestNormalizeAnimationSyntaxAfterConsolidation exercises NormalizeAnimationSyntax
+// (kgsim_cmds_animation_normalizer.go) directly, for the same reason as the test above.
 func TestNormalizeAnimationSyntaxAfterConsolidation(t *testing.T) {
 	tests := map[string]string{
 		"{{happy}} Hi!": "{{playAnimationWI||happy}} Hi!",

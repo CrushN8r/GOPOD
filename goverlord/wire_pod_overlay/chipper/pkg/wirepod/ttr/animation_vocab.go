@@ -15,23 +15,18 @@ type AnimationToken struct {
 	Verified   bool   `json:"verified"`
 }
 
-// AnimationVocab is the parsed shape of animation_vocab.json, the single
-// source of truth for the GOPOD animation vocabulary. See that file's
-// "description" field.
+// AnimationVocab is the parsed shape of animation_vocab.json, the single source of truth for the
+// GOPOD animation vocabulary.
 type AnimationVocab struct {
-	Description string            `json:"description"`
-	Tokens      []AnimationToken  `json:"tokens"`
-	Aliases     map[string]string `json:"aliases"`
-	// GOPOD 2026-10-04: misspelled cue words per token (operator: "a short,
-	// focused list of these types of misspellings for each playAnimationWI") -
-	// read as that token, a cue only, never said.
+	Description  string              `json:"description"`
+	Tokens       []AnimationToken    `json:"tokens"`
+	Aliases      map[string]string   `json:"aliases"`
 	Misspellings map[string][]string `json:"misspellings"`
 }
 
 const animationVocabPathEnvVar = "GOPOD_ANIMATION_VOCAB_PATH"
 
-// resolveAnimationVocabPath locates animation_vocab.json in GOPOD's chipper
-// folder (gopodChipperRoot - the overlay, 2026-10-02), overridable via
+// resolveAnimationVocabPath locates animation_vocab.json in GOPOD's chipper folder, overridable via
 // GOPOD_ANIMATION_VOCAB_PATH for tests/alternate deployments.
 func resolveAnimationVocabPath() string {
 	if override := strings.TrimSpace(os.Getenv(animationVocabPathEnvVar)); override != "" {
@@ -40,8 +35,8 @@ func resolveAnimationVocabPath() string {
 	return filepath.Join(gopodChipperRoot(), "animation_vocab.json")
 }
 
-// parseAnimationVocab is pure (no file I/O, never panics) so it can be unit
-// tested directly against malformed/adversarial input.
+// parseAnimationVocab is pure (no file I/O, never panics) so it can be unit tested directly against
+// malformed/adversarial input.
 func parseAnimationVocab(data []byte) (AnimationVocab, error) {
 	var vocab AnimationVocab
 	if err := json.Unmarshal(data, &vocab); err != nil {
@@ -97,10 +92,7 @@ func parseAnimationVocab(data []byte) (AnimationVocab, error) {
 	return vocab, nil
 }
 
-// mustLoadAnimationVocab reads and parses animation_vocab.json, panicking on
-// any failure. This is the one place allowed to fail loudly: silently
-// falling back to a baked-in list would recreate the exact duplication this
-// file exists to eliminate.
+// mustLoadAnimationVocab reads and parses animation_vocab.json, panicking on any failure.
 func mustLoadAnimationVocab() AnimationVocab {
 	path := resolveAnimationVocabPath()
 	data, err := os.ReadFile(path)
@@ -127,7 +119,6 @@ func buildAnimationAliases(vocab AnimationVocab) map[string]string {
 	for rawKey, target := range vocab.Aliases {
 		aliases[normalizeAnimationToken(rawKey)] = target
 	}
-	// The misspellings resolve the same way, wherever a cue word is read.
 	for target, words := range vocab.Misspellings {
 		for _, w := range words {
 			if key := normalizeAnimationToken(w); aliases[key] == "" {
@@ -138,9 +129,8 @@ func buildAnimationAliases(vocab AnimationVocab) map[string]string {
 	return aliases
 }
 
-// verifiedTokenNames returns token names in file order, excluding any
-// unverified/dormant tokens (e.g. GOPOD_ANIM_TODO) - these are still
-// dispatchable directly but are not offered to the LLM as a choice.
+// verifiedTokenNames returns token names in file order, excluding any unverified/dormant tokens
+// (e.g.
 func verifiedTokenNames(vocab AnimationVocab) []string {
 	names := make([]string, 0, len(vocab.Tokens))
 	for _, tok := range vocab.Tokens {
@@ -155,10 +145,7 @@ func buildAnimationParamChoices(vocab AnimationVocab) string {
 	return strings.Join(verifiedTokenNames(vocab), ", ")
 }
 
-// buildAnimationRegexAlternation returns just the parenthesized-alternation
-// body (e.g. "happy|veryHappy|...|love"), shared by both the compiled regex
-// (escaped dots) and the prose prompt-guard text (unescaped dots) so the
-// token list itself is assembled in exactly one place.
+// buildAnimationRegexAlternation returns just the parenthesized-alternation body (e.g.
 func buildAnimationRegexAlternation(vocab AnimationVocab) string {
 	return strings.Join(verifiedTokenNames(vocab), "|")
 }

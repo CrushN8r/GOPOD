@@ -43,7 +43,6 @@ func TestLoadCanonicalBrobotPromptUsesSplitPromptFilesInOrder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadFile(%q) error = %v", canonicalBrobotResponsePromptPath, err)
 	}
-	// The loader fills the settings' tokens ($PLACEHOLDER_THOUGHT, ...) in.
 	responseBytes = []byte(gopodFillPromptTokens(string(responseBytes)))
 	brobotBytes, err := gopodBrobotsPromptBytes()
 	if err != nil {
@@ -55,8 +54,6 @@ func TestLoadCanonicalBrobotPromptUsesSplitPromptFilesInOrder(t *testing.T) {
 	}
 
 	got, gotBytes, usedOpenAIPrompt := loadCanonicalBrobotPrompt("")
-	// 2026-10-05: the reply shape is no longer in the foundation; it comes last,
-	// per brother (gopodReplyShapeSection, TestCreateAIReqPromptOrderGeneralToSpecific).
 	_ = responseBytes
 	wantBytesRaw := append([]byte{}, brobotBytes...)
 	if len(wantBytesRaw) > 0 && wantBytesRaw[len(wantBytesRaw)-1] != '\n' {
@@ -78,8 +75,6 @@ func TestLoadCanonicalBrobotPromptUsesSplitPromptFilesInOrder(t *testing.T) {
 
 func TestCreateAIReqLoadsOnlyCurrentMatchingScenarioPacket(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
-	// 2026-10-26: each packet's opening line - a topic with numbered points sends
-	// its opening and one point, not its whole text.
 	opening := func(s string) string { return strings.SplitN(strings.TrimSpace(s), "\n", 2)[0] }
 	packets := map[string]string{
 		"bingo":     opening(mustReadScenarioPacket(t, "bingo.txt")),
@@ -130,10 +125,8 @@ func TestCreateAIReqLoadsOnlyCurrentMatchingScenarioPacket(t *testing.T) {
 	}
 }
 
-// 2026-10-05: general to specific - shared persona, GOPOD core, who this
-// brother is, this question's facts (scenario packet), then his reply shape, then
-// the final check
-// (BROBOTS_LAYERED_PROMPT_002.md).
+// general to specific - shared persona, GOPOD core, who this brother is, this question's facts
+// (scenario packet), then his reply shape, then the final check (BROBOTS_LAYERED_PROMPT_002.md).
 func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
 	brobotBytes, err := gopodBrobotsPromptBytes()
@@ -149,11 +142,8 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 
 	req := CreateAIReq("Tell me all about bingo", gopodBrobot1ESN, false, true)
 	systemPrompt := req.Messages[0].Content
-	// 2026-11-09: at the dial's 100% (one Brobot asked) the shared prompt comes
-	// without its dial-0% persona blocks (gopodBrobotsPersonaFor).
 	brobotIndex := strings.Index(systemPrompt, gopodBrobotsPersonaFor(string(brobotBytes)))
 	coreIndex := strings.Index(systemPrompt, string(coreBytes))
-	// 2026-11-20 (wide/deep cards): the bingo pack gives its wide point first.
 	_ = bingoPacket
 	scenarioIndex := strings.Index(systemPrompt, "GOPOD turns Bingo")
 	esnIndex := strings.Index(systemPrompt, "WHO I AM:\n"+gopodBrobotPersonaLines[gopodAnswerer("Brobot 1")])
@@ -175,8 +165,6 @@ func TestCreateAIReqPromptOrderGeneralToSpecific(t *testing.T) {
 
 func TestCreateAIReqScenarioPacketDoesNotStickAcrossTurns(t *testing.T) {
 	gopodBingoPlayed.Store(false) // no Bingo test played yet: the Bingo pitch pack loads
-	// 2026-10-26: each packet's opening line - a topic with numbered points sends
-	// its opening and one point, not its whole text (nightclub has three core points).
 	opening := func(s string) string { return strings.SplitN(strings.TrimSpace(s), "\n", 2)[0] }
 	bingoPacket := opening(mustReadScenarioPacket(t, "bingo.txt"))
 	nightclubPacket := opening(mustReadScenarioPacket(t, "nightclub.txt"))

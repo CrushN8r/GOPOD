@@ -84,10 +84,8 @@ func formatAnimationCommand(param string) string {
 	return "{{playAnimationWI||" + param + "}}"
 }
 
-// resolveAnimationParameter reads its alias vocabulary from animationAliases
-// (derived from animation_vocab.json - see animation_vocab.go). The
-// "default: thinking" fallback below is real control-flow logic (genuinely
-// unresolved input), not vocabulary data, so it stays as Go code.
+// resolveAnimationParameter reads its alias vocabulary from animationAliases (derived from
+// animation_vocab.json - see animation_vocab.go).
 func resolveAnimationParameter(rawParam string) string {
 	token := normalizeAnimationToken(rawParam)
 	for _, animThing := range animationMap {

@@ -56,10 +56,6 @@ func InterruptKGSimWhenTouchedOrWaked(rob *vector.Vector, stop chan bool, stopSt
 			break
 		}
 	}
-	// GOPOD 2026-09-29: the robot sometimes reports a wake word about a second
-	// after this listener starts, with nobody speaking (live 2026-09-29 00:49:29,
-	// 01:33:23, 01:38:17 - each cut a reply before its first word). Wake-word
-	// events in this first window are ignored; touch is never ignored.
 	wakeWordIgnoreUntil := time.Now().Add(gopodWakeWordSettle)
 	if origValueGotten {
 		for {
@@ -117,13 +113,6 @@ func InterruptKGSimWhenTouchedOrWaked(rob *vector.Vector, stop chan bool, stopSt
 // event is treated as stale (see InterruptKGSimWhenTouchedOrWaked).
 const gopodWakeWordSettle = 2 * time.Second
 
-// GOPOD 2026-10-01 (operator: "Touch interrupt ON/OFF to default ON again"):
-// touching a Brobot cuts its chat reply short, as in native Wire-Pod - except
-// while a scripted song's live run has turned it off (the Bingo test), so a
-// Brobot can't be stopped by accident mid-run. The song engine creates the
-// off file (touch_interrupt.off_file in gopod_brobots_settings.json, in the
-// overlay chipper folder) when the run starts and deletes it when the run ends. The
-// wake-word interrupt is unchanged.
 func gopodTouchInterruptOn() bool {
 	_, err := os.Stat(filepath.Join(gopodChipperRoot(), gopodBrobotsSettings.TouchInterrupt.OffFile))
 	return err != nil

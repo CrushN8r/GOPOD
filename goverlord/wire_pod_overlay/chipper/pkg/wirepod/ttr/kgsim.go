@@ -92,12 +92,7 @@ func isMn(r rune) bool {
 }
 
 func removeSpecialCharacters(str string) string {
-	// GOPOD 2026-10-08: math symbols, "$", "#" and LaTeX math are said in words
-	// (spoken_symbols, gopod_spoken_symbols.go) - first, before the marks are stripped.
 	str = gopodSpeakSymbols(str)
-	// GOPOD 2026-10-16 (live: "Check out the GOPOD Weather Kit
-	// (/gopod_weather_kit.html)" was said "gopod weather kit dot-h tee-emm-elle"):
-	// a link is said as its words only.
 	str = gopodLinkWords(str)
 
 	// these two lines create a transformation that decomposes characters, removes non-spacing marks (like diacritics), and then recomposes the characters, effectively removing special characters
@@ -105,24 +100,14 @@ func removeSpecialCharacters(str string) string {
 	result, _, _ := transform.String(t, str)
 
 	// Define the regular expression to match special characters
-	// GOPOD 2026-09-29: "&" is said "and" ("Gomads & Goverlord" was said "Gomads Goverlord").
 	result = gopodAmpersandRe.ReplaceAllString(result, " and ")
-	// GOPOD 2026-10-05: an asterisk between two words leaves a space, not a join
-	// ("fun!*Giggles merrily*" was said "fun!Giggles", live 2026-10-04 20:41).
 	result = gopodAsteriskWordGap(result)
-	// GOPOD 2026-10-07: "@" is said "at" ("Don't even @ me!" was said "Don't
-	// even me").
 	result = gopodAtSignRe.ReplaceAllString(result, "at ")
-	// GOPOD 2026-10-08: "+" is said "plus" ("18+" is said "18 plus").
 	result = gopodSayPlus(result)
 	re := regexp.MustCompile(`[&^*#@]`)
 
 	// Replace special characters with an empty string
-	// GOPOD 2026-09-29: an emoji that ends a sentence becomes a period first.
 	result = removeEmojis(gopodEmojiSentenceEnd(re.ReplaceAllString(result, "")))
-	// GOPOD 2026-10-14: an emoji's joiner and style marks (U+200D, U+FE0F) go
-	// with it - "\u200d I'll tell you" was sent once "🙅‍♂️" was taken out, and the
-	// robot said "yirl" (operator: "I did hear a \"yirl\" (rhymes with whirl) sound").
 	result = gopodEmojiJoinersRe.ReplaceAllString(result, "")
 
 	// Replace special characters with ASCII
@@ -132,11 +117,7 @@ func removeSpecialCharacters(str string) string {
 	result = strings.ReplaceAll(result, "’", "'")
 	result = strings.ReplaceAll(result, "“", "\"")
 	result = strings.ReplaceAll(result, "”", "\"")
-	// GOPOD 2026-09-29: em dash -> spoken pause (comma), same as the Python say path.
 	result = strings.ReplaceAll(result, "—", ", ")
-	// GOPOD 2026-10-07: a colon after a word is a pause, like a comma ("Doc's
-	// Take: 1k subs"); times (4:20) are untouched. A year written '20 is said
-	// "20", the apostrophe dropped.
 	result = gopodColonPauseRe.ReplaceAllString(result, "$1, ")
 	result = gopodShortYearRe.ReplaceAllString(result, "$1$2")
 	result = strings.ReplaceAll(result, "–", "-")
@@ -151,14 +132,7 @@ func removeSpecialCharacters(str string) string {
 	result = strings.ReplaceAll(result, "®", "(r)")
 	result = strings.ReplaceAll(result, "™", "(tm)")
 	result = strings.ReplaceAll(result, "@", "(a)")
-	// GOPOD 2026-09-29: AI is spoken "AY-EYE" (the pronunciation registry's own
-	// entry), not "A. I.", and the em-dash comma never leaves a stray " ," or ".,".
-	// GOPOD 2026-09-29: a dash between words ("the hype – the verbal boom", "are- but",
-	// "laugh--that") is a spoken pause, not "dash" (the robot said "dash"). A hyphen
-	// inside a word (Gowp-awd, free-spirited) and a dash between two numbers stay.
 	result = gopodSpokenDashes(result)
-	// GOPOD 2026-09-29: "Brobot 1's" was said "Brobot one ess" - the number is
-	// written as a word before 's ("Brobot one's").
 	result = gopodBrobotPossessiveRe.ReplaceAllStringFunc(result, func(m string) string {
 		if strings.Contains(m, "1") {
 			return "Brobot one's"
@@ -168,8 +142,6 @@ func removeSpecialCharacters(str string) string {
 	result = gopodAISpokenRe.ReplaceAllString(result, "AY-EYE")
 	result = gopodSpaceBeforeCommaRe.ReplaceAllString(result, ",")
 	result = gopodCommaAfterPunctRe.ReplaceAllString(result, "$1")
-	// GOPOD 2026-09-29: no space left inside brackets when an emoji is removed
-	// ("too dramatic. 😬)" was said "dramatic. )").
 	result = gopodSpaceBeforeCloseRe.ReplaceAllString(result, "$1")
 	result = gopodSpaceAfterOpenRe.ReplaceAllString(result, "$1")
 	return result
@@ -187,7 +159,6 @@ var (
 
 func removeEmojis(input string) string {
 	// a mess, but it works!
-	// GOPOD 2026-10-04: + the newer emoji block 1FA00-1FAFF (🪅 was said, live 14:57).
 	re := regexp.MustCompile(`[\x{1FA00}-\x{1FAFF}]|[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]|[\x{1F900}-\x{1F9FF}]|[\x{1F004}]|[\x{1F0CF}]|[\x{1F18E}]|[\x{1F191}-\x{1F251}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]|[\x{1F004}-\x{1F0CF}]|[\x{1F191}-\x{1F251}]|[\x{2B50}]`)
 	result := re.ReplaceAllString(input, "")
 	return result
@@ -197,8 +168,6 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	var nChat []openai.ChatCompletionMessage
 	systemPrompt, promptBytes, usedOpenAIPrompt := loadCanonicalBrobotPrompt(transcribedText)
 	esnLine := "Current robot ESN: " + esn
-	// GOPOD 2026-09-29: say which brother this is, with his own persona line
-	// (gopod_brobot_personas.go), so the reply is "I'm Brobot 1".
 	if line, ok := gopodBrobotPersonaLines[gopodBrobotName(esn)]; ok {
 		esnLine += ". " + line
 	}
@@ -225,25 +194,11 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	}
 
 	smsg.Content = CreatePrompt(smsg.Content, model, isKG)
-	// GOPOD 2026-10-05: general to specific - the shared persona and GOPOD's
-	// facts above, then who this brother is, then his reply shape and the final
-	// check last, nearest the question (BROBOTS_LAYERED_PROMPT_002.md).
 	if !usedOpenAIPrompt {
-		// 2026-10-05: the brother's persona line only - no ESN. The robot ID in
-		// the prompt was said out loud ("I'm Brobot ESN <serial>"); the code tells
-		// the brothers apart by ESN, the model only needs his name
-		// (SOCIAL_DEMO_REPLAY_003.md).
-		// GOPOD 2026-11-15: the persona answering from this body (gopodAnswerer) -
-		// the Brobot at the dial's 0%, DOC or PIP at 100% - its own "Who I am".
 		whoIAm := esnLine
 		if line, ok := gopodBrobotPersonaLines[gopodAnswerer(gopodBrobotName(esn))]; ok {
 			whoIAm = line
 		}
-		// GOPOD 2026-11-09 (operator: "4 PERSONAS to 2 ROBOTS!! * WHAT IS THE
-		// DISCONNECT/LEAK?"): the shared prompt's party-bro persona blocks are the
-		// Brobots' own (dial 0%); at 100% they're taken out and DOC or PIP gets his
-		// card instead - the company, his group, his own lines - the same profile
-		// text every other persona gets.
 		if !gopodAtDialZero(gopodBrobotName(esn)) {
 			smsg.Content = gopodBrobotsPersonaFor(smsg.Content)
 			if card := gopodPersonaProfileText(gopodAnswerer(gopodBrobotName(esn))); card != "" {
@@ -251,23 +206,13 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 			}
 		}
 		smsg.Content += "\n\nWHO I AM:\n" + whoIAm
-		// GOPOD 2026-10-31: the intro recipe, when the line asks for one (gopod_intro_recipe.go).
 		intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText)
 		gopodIntroFor.Store(esn, intro != "")
 		gopodIntroWeatherFor.Store(esn, intro != "" && gopodIntroWeather(transcribedText))
-		// GOPOD 2026-10-31: his facts are worked out first - they set his reminders,
-		// which his brain names; then the brain chain (gopod_brain_chain.go), then the facts.
 		facts := strings.TrimSpace(gopodQuestionFactsFor(esn, transcribedText))
-		// GOPOD 2026-11-08 (operator: "Brobot N, how do I raise the volume for ... ?
-		// Can the request be sent to gemma, + a look up guide, for a helpful
-		// response?"): a how-to gets its system-menu entries (gopodHelpLookup).
 		if h := gopodHelpLookup(transcribedText); h != "" {
 			facts = strings.TrimSpace(facts + "\n" + h)
 		}
-		// GOPOD 2026-11-18 (operator: "GIVE ME A SOLID TEMPLATED GOPOD!!"; live:
-		// "tell me about GOPOD" got the AccessMath card as FACT beside the GOPOD
-		// summary): one fact source - the question's own facts win; the brain's
-		// look-up runs only when there are none.
 		gopodQuestionHasFacts.Store(esn, facts != "")
 		if b := gopodBrainText(gopodBrobotName(esn), transcribedText); b != "" {
 			smsg.Content += "\n\n" + b
@@ -275,11 +220,9 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		if facts != "" {
 			smsg.Content += "\n\n" + gopodBrobotsSettings.QuestionFactsHeader + "\n" + facts
 		}
-		// GOPOD 2026-10-22: his pre-build context, after the facts (gopodPrebuildContext).
 		if pre := gopodPrebuildContext(esn, transcribedText); pre != "" {
 			smsg.Content += "\n\n" + pre
 		}
-		// GOPOD 2026-10-22: the answer chain's shape for the model (gopodChainPrompt).
 		if cp := gopodChainPrompt(esn, transcribedText); cp != "" {
 			smsg.Content += "\n\n" + cp
 		}
@@ -292,27 +235,17 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 	logger.Println(fmt.Sprintf("BROBOT_PROMPT_LOADED=%s,%s bytes=%d openai_prompt_used=%t esn_appended=%q", canonicalBrobotResponsePromptPath, canonicalBrobotIdentityPromptPath, promptBytes, usedOpenAIPrompt, esnLine))
 
 	nChat = append(nChat, smsg)
-	// GOPOD 2026-09-29: both Brobots are one persona with one shared chat. Recent
-	// exchanges from BOTH robots come back as that chat, each question tagged with
-	// the brother it went to, and this question is tagged for this robot - so each
-	// brother continues the conversation in his own voice instead of copying.
-	// Replaces the per-robot remembered chat (GetChat) for the Brobots.
 	if vars.APIConfig.Knowledge.SaveChat {
 		shared := gopodSharedBrobotChat(gopodAtDialZero(gopodBrobotName(esn)))
 		logger.Println("Using shared Brobots chat, length of " + fmt.Sprint(len(shared)) + " messages")
 		nChat = append(nChat, shared...)
 	}
-	// GOPOD 2026-10-02: chat awareness - whether the brother is asleep, right
-	// before the question (gopod_chat_awareness.go).
 	if note := gopodAwarenessNote(esn); note != "" {
 		nChat = append(nChat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: note})
 	}
-	// GOPOD 2026-10-04: "thanks Brobots" - a party-bro sign-off (gopod_chat_hold.go).
 	if gopodBrobotName(esn) != "Brobot" && gopodIsThanks(transcribedText) {
 		nChat = append(nChat, openai.ChatCompletionMessage{Role: openai.ChatMessageRoleUser, Content: gopodBrobotsSettings.ChatHold.ThanksNote})
 	}
-	// GOPOD 2026-10-31 (live: Doc and Pip skipped the intro recipe - it sat far
-	// from the question): the recipe rides on the question itself, nearest the answer.
 	question := gopodTagForBrobot(esn, transcribedText)
 	if intro := gopodIntroRecipe(gopodBrobotName(esn), transcribedText); intro != "" {
 		question += "\n\n" + intro
@@ -332,10 +265,6 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 		Messages:         nChat,
 		Stream:           true,
 	}
-	// GOPOD 2026-10-07: the Brobots' creativity (llm.temperature, Wire-Pod's 1
-	// as-is), lower for a question whose point has a scripted line
-	// (llm.say_line_temperature) - the code says the point flat, and the LLM's
-	// added talk is where facts were invented.
 	if gopodBrobotName(esn) != "Brobot" {
 		if t := gopodBrobotsSettings.LLM.Temperature; t > 0 {
 			aireq.Temperature = t
@@ -349,22 +278,15 @@ func CreateAIReq(transcribedText, esn string, gpt3tryagain, isKG bool) openai.Ch
 }
 
 func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bool) (string, error) {
-	// GOPOD 2026-11-24: a line naming a never word never reaches the model (gopodNeverIn).
 	if gopodNeverIn(transcribedText, gopodBrobotName(esn)+"'s ears") {
 		return gopodBrobotsSettings.CleanPolitics.NeverInLine, nil
 	}
-	// GOPOD 2026-10-24 (link 5): a new line's answer waits for the line before's follow-up.
 	if _, following := gopodFollowingUp.Load(esn); !following {
 		gopodExchangeWait(esn, transcribedText)
 	}
-	// GOPOD 2026-10-14: the photo egg - "ask", "recall" or "" (gopod_photo.go).
 	photoKind := ""
-	// GOPOD 2026-10-14: "Explain the Math" - this Brobot's share of the steps,
-	// and whether he answers first (gopod_math.go).
 	var mathSteps []string
 	mathOn, mathLead, mathFollowStarted := false, false, false
-	// 2026-10-24 (operator: "Revealed ... after all responses are properly
-	// completed"): an answer his brother follows up (All) - the prizes wait for it.
 	_, allLead := gopodAllFirstAnswer.Load(esn)
 	photoTaken := make(chan struct{})
 	var photoAnswer string
@@ -372,11 +294,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	// GOPOD: intent matching has already seen the raw transcript; from here on the
 	// LLM and the shared chat get GOPOD's names spelled right ("go pod" -> GOPOD).
 	transcribedText = gopodSpellNames(transcribedText)
-	// GOPOD 2026-10-06: nothing reaches the Brobots before the green light
-	// (gopod_llm_warmup.go); a voice request gets the quiet native ending.
-	// GOPOD 2026-10-13 (operator: "Robot microphone * log & hold in queue same
-	// as the others"): heard during a warm-up, the line waits for LLM Ready
-	// like a typed one; the robot gets the quiet ending now.
 	if req != nil && gopodBrobotName(esn) != "Brobot" && gopodWarmupHold(esn, transcribedText, gopodMicHow) {
 		IntentPass(req, "intent_system_noaudio", transcribedText, map[string]string{}, false)
 		return "", nil
@@ -387,15 +304,10 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		}
 		return "", nil
 	}
-	// GOPOD 2026-10-09: a spoken thanks while a draft or song is going closes
-	// them out first, then comes back as the operator's line
-	// (gopod_thanks_close_out.go).
 	if req != nil && gopodBrobotName(esn) != "Brobot" && gopodThanksCloseOut(esn, transcribedText, "voice") {
 		IntentPass(req, "intent_system_noaudio", transcribedText, map[string]string{}, false)
 		return "", nil
 	}
-	// GOPOD 2026-10-10, Rule D (gopod_session.go): a spoken question during a
-	// run gets no LLM answer - the quiet native ending, and Goverlord's line.
 	if req != nil && gopodBrobotName(esn) != "Brobot" && !gopodIsThanks(transcribedText) && gopodRunGateDrop(esn, "voice", transcribedText) {
 		IntentPass(req, "intent_system_noaudio", transcribedText, map[string]string{}, false)
 		return "", nil
@@ -434,13 +346,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	if err != nil {
 		return "", err
 	}
-	// GOPOD 2026-10-04: only the Brobot called by name answers; with no name, the
-	// one heard first does. The other stays quiet (gopod_addressing.go).
 	decidedAt := time.Now()
 	if gopodBrobotName(esn) != "Brobot" {
-		// GOPOD 2026-10-04: the answer to Record Session's keep-or-delete question
-		// is taken here, by whichever Brobot hears it first; no chat reply
-		// (gopod_record_session.go).
 		if GopodRecordSessionAnswer(transcribedText, gopodVoiceCommandHow) {
 			if !isKG && req != nil {
 				gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
@@ -448,8 +355,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			}
 			return "", nil
 		}
-		// GOPOD 2026-10-04: the stay-in-place hold lets go of this Brobot while he
-		// answers or defers, and holds both again after (gopod_chat_hold.go).
 		gopodChatHoldBeforeAnswer(esn)
 		answer, to := gopodShouldAnswer(esn, transcribedText, decidedAt)
 		gopodAddressingLog(esn, to, answer)
@@ -459,12 +364,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			return "", nil
 		}
 		transcribedText = gopodCanonicalCall(transcribedText)
-		// GOPOD 2026-10-14: "Explain the Math" - Brobot 1 answers first, then
-		// Brobot 2 follows up (gopod_math.go). A line Brobot 2 got first goes to
-		// Brobot 1; Brobot 2's turn comes after him.
 		if first, second, ok := gopodMathParts(transcribedText); ok {
 			_, follow := gopodMathFollowUp.LoadAndDelete(esn)
-			// 2026-10-24: the lead is Brobot 1, or Brobot 2 when All was sent with him first.
 			lead := gopodMathLead(transcribedText)
 			if esn != lead && !follow {
 				logger.Println("GOPOD_MATH " + gopodBrobotName(lead) + " answers first: " + transcribedText)
@@ -491,21 +392,12 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		}
 		// A Record Session starts only between replies.
 		gopodReplyStart(esn)
-		// GOPOD 2026-10-14: the photo egg (gopod_photo.go).
 		photoKind = gopodPhotoKind(transcribedText)
 	}
-	// GOPOD 2026-09-29: the Brobots play Wire-Pod's own knowledge-graph wait on the
-	// "Hey Vector" chat path too - behavior control at once, the searching clip on a
-	// loop until the reply is ready, then the searching get-out - instead of standing
-	// idle while the model thinks. Same gesture as go search (searching, then
-	// searchingGetout). isKG itself is unchanged (prompt, intent pass).
 	searchWhileWaiting := isKG || gopodBrobotName(esn) != "Brobot"
 	// The searching gesture already ended with its get-out (no second one at the answer).
 	var searchingClosed atomic.Bool
 	if searchWhileWaiting {
-		// GOPOD 2026-09-29: a Brobot first says "Thinking, please wait..." (like go
-		// search's "Let me look that up."), as soon as behavior control is really
-		// granted - BControl's own grant signal, not a timer - then loops searching.
 		isBrobot := gopodBrobotName(esn) != "Brobot"
 		controlGranted := start
 		if isBrobot {
@@ -515,10 +407,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		go func() {
 			if isBrobot {
 				<-controlGranted
-				// GOPOD 2026-10-16 (operator: "thinking please wait > photo > TPU >
-				// Brobot N: I see [TPU labels]"): a photo is taken inside his
-				// thinking - after "Thinking, please wait.", before the searching
-				// moves: the photo the golden way, its egg, the Edge TPU's quick look.
 				var photoStep func()
 				if photoKind == "ask" {
 					photoStep = func() {
@@ -529,10 +417,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 					close(photoTaken)
 				}
 				go func() { start <- true }()
-				// GOPOD 2026-10-13 (operator: "snapshot the full \"thinking please
-				// wait\" process from live (+ arm, nod) * lock that snapshot * use
-				// locked \"thinking please wait\" process for scripted runs"): one
-				// process, live and scripted alike (gopod_thinking_line.go).
 				gopodThinkingProcess(robot, ctx, esn, true, func() bool { return kgStopLooping }, photoStep)
 			} else {
 				gopodThinkingProcess(robot, ctx, esn, false, func() bool { return kgStopLooping })
@@ -551,8 +435,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	var markerOneSeen bool
 	var speechCursor int
 	var pieceOfSpoken []int // GOLDEN highlight: bubble piece per SayText, in order
-	// GOPOD 2026-10-09: a Brobot's reply bubble, published once when he starts
-	// speaking (the operator's ask: after the thinking, not before it).
 	var replyDisplay string
 	var replyShown sync.Once
 	showReply := func() {
@@ -624,11 +506,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	successIntent := make(chan bool)
 
 	aireq := CreateAIReq(transcribedText, esn, false, isKG)
-	// GOPOD 2026-10-22: the value points notice in his bubble (gopodValuePointsNoticePost).
 	gopodValuePointsNoticePost(esn)
-	// GOPOD 2026-10-15: a pop-up's picture as the vision model saw it
-	// (gopod_picture_describe.go), before the question; a question about
-	// chocolate bingo has its pictures looked at now (describe_on_ask).
 	if gopodBrobotName(esn) != "Brobot" && !gopodIsFollowingUp(esn) {
 		gopodPictureDescribeOnAsk(transcribedText)
 	}
@@ -636,12 +514,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		last := &aireq.Messages[len(aireq.Messages)-1]
 		last.Content = note + "\n" + last.Content
 	}
-	// GOPOD 2026-10-15: a follow-up (All, Explain the Math) - his brother has just
-	// answered; the note goes before the question (gopodFollowingUp).
 	if gopodIsFollowingUp(esn) && len(aireq.Messages) > 0 {
 		note := strings.TrimSpace(gopodBrobotsSettings.Addressing.FollowUpNote)
-		// 2026-10-15 (operator: "can the Brobot 2 follow-up response, also
-		// follow-up on errors like the 'regular fraction'?"): Explain the Math's.
 		if m := strings.TrimSpace(gopodBrobotsSettings.Math.FollowUpNote); mathOn && m != "" {
 			note = m
 		}
@@ -651,13 +525,8 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		}
 	}
 
-	// GOPOD 2026-10-07: while a draft performance plays, the Brobot says the
-	// draft's answer word for word instead of asking the LLM
-	// (gopod_interview_script.go); everything else runs as live.
 	var stream gopodChatStream
 	scriptedAnswer, scripted := gopodScriptAnswer(esn, transcribedText)
-	// GOPOD 2026-10-14: a photo question is answered with what the Brobot sees
-	// (or saw), word for word, not by the chat LLM (gopod_photo.go).
 	if !scripted && photoKind == "recall" {
 		scriptedAnswer, scripted = gopodPhotoRecall(esn), true
 	} else if !scripted && photoKind == "ask" && searchWhileWaiting {
@@ -726,41 +595,24 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 					}
 					break
 				}
-				// GOPOD 2026-10-07: a draft's answer is already shaped - it's said as written.
 				if !scripted {
-					// GOPOD 2026-09-29: names kept right (gopod_name_corrections.go).
-					// 2026-09-30: and animation words opening a line are dropped
-					// (gopod_leading_animation_words.go) - shown and spoken otherwise.
 					rawRespText = gopodFixSelfName(esn, gopodCorrectNames(gopodStripLeadingAnimationWords(rawRespText)))
-					// GOPOD 2026-10-06: no made-up web addresses (gopodDropWebLinks).
 					rawRespText = gopodDropWebLinks(rawRespText)
-					// GOPOD 2026-10-06: "Hey, that reminds me..." is the code's line only
-					// (gopodDropLLMReminder, gopod_value_points.go).
 					rawRespText = gopodDropLLMReminder(rawRespText)
-					// GOPOD 2026-10-16: never the question read back (gopodDropQuestionEcho).
 					rawRespText = gopodDropQuestionEcho(rawRespText, transcribedText)
-					// GOPOD 2026-10-16: clean GOPOD - right flags, no politics (gopod_clean_politics.go).
 					rawRespText = gopodCleanPolitics(rawRespText, transcribedText)
-					// GOPOD 2026-10-16: a follow-up never just repeats his brother
-					// (gopod_brother_repeat.go); each keeps his own words for the next.
 					if gopodIsFollowingUp(esn) {
 						gopodBrotherWords.Lock()
 						brother := gopodBrotherWords.last[gopodBrotherOf(esn)]
 						gopodBrotherWords.Unlock()
 						rawRespText = gopodDropBrotherRepeat(rawRespText, brother)
 					}
-					// GOPOD 2026-10-06: tighter - no lists, no stage directions, and
-					// 2026-10-07 the question's response budget (gopod_reply_tighten.go).
 					rawRespText = gopodTightenReply(rawRespText, transcribedText, esn)
-					// GOPOD 2026-11-19: a nonsense line gets the nonsense answer.
 					if line := gopodNonsenseLine(transcribedText); line != "" {
 						rawRespText = line
 					}
-					// GOPOD 2026-10-15: each of gemma's emoji-closed thoughts on its own line.
 					rawRespText = gopodThoughtBreaks(rawRespText)
 					gopodRememberOwnWords(esn, rawRespText)
-					// GOPOD 2026-10-14: "Explain the Math" - his own line or two,
-					// then his steps, worked out in code (gopodMathReply).
 					if mathOn {
 						extra := ""
 						if !mathLead {
@@ -769,28 +621,15 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 						rawRespText = gopodMathReply(rawRespText, mathSteps, extra)
 						logger.Println("GOPOD_MATH " + gopodBrobotName(esn) + ": " + rawRespText)
 					} else {
-						// GOPOD 2026-10-21: the thought bubbles template - the answer chain
-						// (answer_chains, gopod_answer_chain.go): the start snippet, the
-						// answer, the weather kit line, the end snippet, the hand-over.
 						rawRespText = gopodShapeBrobotAnswer(esn, transcribedText, rawRespText)
 					}
 				}
-				// 2026-09-30: the animation cue is marked "happy___" (gopod_animation_marker.go);
-				// the bubble shows the reply as written, cue removed, and the rest of
-				// Wire-Pod gets its internal "happy... " form.
 				displayRespText := gopodDisplayReply(rawRespText)
 				var displayPieces []int // GOLDEN highlight: spoken piece -> bubble piece (gopod_highlight_pieces.go)
-				// GOPOD 2026-10-16 (live 13:2x: "Check out the [GOPOD Weather
-				// Kit](...)." was said "Check out the."): the bubble keeps the link,
-				// the robot says its words.
 				rawRespText = gopodAnimationMarkerToInternal(gopodLinkWords(rawRespText))
 				streamResult = buildGOPODStreamResultWithRepair(ctx, rawRespText, aireq.Model, openAIGOPODRobotSpeechRepairer(c))
 				fullRespSlice = append([]string(nil), streamResult.AudibleChunks...)
-				// GOPOD 2026-10-24: the bubble shows what's said - the fallback line
-				// when the reply couldn't be said (gopodStreamResult.Fallback).
 				if streamResult.Fallback {
-					// 2026-10-24: why, so the next one can be fixed at its cause - the
-					// line that failed, the rule it broke, and the reply as written.
 					v := validateGOPODRobotSpeech(strings.TrimSpace(rawRespText))
 					logger.Println("BROBOT_FALLBACK " + gopodBrobotName(esn) + ": the fallback line said and shown - failed " + v.FailureType + " at \"" + v.FirstFailingLine + "\" - reply: " + strings.ReplaceAll(rawRespText, "\n", " / "))
 				}
@@ -815,30 +654,16 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 						},
 						esn)
 				}
-				// GOPOD 2026-10-04: a typed question (gopod_typed_input.go) has no
-				// voice request to close.
 				if !isKG && req != nil {
 					gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
 					IntentPass(req, "intent_greeting_hello", transcribedText, map[string]string{}, false)
 				}
-				// GOPOD 2026-10-06: the interview's chapter title before the reply.
-				// 2026-10-08 (operator: "the granny pic should come after [the
-				// question] bubble, before Brobot 1 response"): the topic's pictures
-				// too - for a typed line they're already shown with it
-				// (gopod_typed_input.go); each shows once.
-				// 2026-10-14 (live: each egg popped up twice - once with the typed
-				// line, again here): only a line the robot heard himself shows
-				// them here.
 				if gopodBrobotName(esn) != "Brobot" {
 					gopodShowChapter(transcribedText)
 					if req != nil {
 						gopodShowTopicPictures(esn, transcribedText)
 					}
 				}
-				// GOPOD 2026-10-09 (operator: "have bubble wait until brobot
-				// finishes the scripted thinking please wait searching ... so brobot
-				// bubble appears when brobot speaks, after thinking"): a Brobot's
-				// bubble is published when he starts speaking (showReply below).
 				if gopodBrobotName(esn) != "Brobot" {
 					streamMu.Lock()
 					replyDisplay = displayRespText
@@ -903,11 +728,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			// `stop <- true` when this callback returns false) - not a deferral, a silent
 			// no-op. True native touch-interrupt behavior, restored via the thin wrapper.
 			emitGOPODMarkerAdvanceEvents(func(event string) { logger.LogDebugUI(event) }, markerAdvanceRequest)
-			// GOPOD 2026-09-29: an accepted interrupt also sets `interrupted`, so the
-			// chunk loop below stops and drops the rest of the reply. Before this it
-			// was never set (WIRED-POD.md, "the interrupted bool itself is still never
-			// set"): behavior control was released, but the loop went on, and the
-			// unspoken chunks played at the robot's next request.
 			if markerAdvanceRequest.ShouldAdvance() {
 				interrupted = true
 				// The chat page's sentence outline goes solid (gopod_speaking_now.go).
@@ -967,8 +787,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		}
 		var disconnect bool
 		numInResp := 0
-		// GOPOD 2026-09-29: one arm cue per reply, with its first mid-reply animation
-		// (gopod_arm_cue.go); waited for before behavior control is released.
 		var armCueDone chan struct{}
 		for {
 			respSlice, done, wasInterrupted := snapshotStream()
@@ -997,10 +815,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 			streamMu.Unlock()
 			logger.Println(currentChunk)
 			logger.LogDebugUI("FILTERED_SPLIT_READY:\n" + currentChunk)
-			// GOPOD 2026-09-29: speak with the pronunciation registry (gopod_pronunciation.go).
 			commandPacket := gopodPronounceCommandPacket(commandPacketFromFilteredChunk(currentChunk))
-			// GOPOD 2026-09-29: vary the animation a little when the model gave none
-			// (gopod_animation_variety.go).
 			commandPacket = gopodVaryDefaultAnimation(commandPacket, currentFullResponse)
 			logger.LogDebugUI("FILTERED_SPLIT_SENT:\n" + commandPacket)
 			streamMu.Lock()
@@ -1013,18 +828,9 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				}
 			}
 			nChat[len(nChat)-1].Content = currentFullResponse
-			// GOPOD 2026-09-29: speak sentence by sentence and check for an interrupt
-			// before each (gopod_speech_sentences.go), so a touch stops the robot at
-			// the end of the current sentence instead of after the whole chunk. Each
-			// call gets its own stop channel, closed right after, instead of stopStop:
-			// every PerformActions call starts a listener on the channel it is given,
-			// and on stopStop those listeners never ended and could take the
-			// end-of-reply signal meant for the interrupt listener.
 			prevWasSpeech := false
 			prevWasAnimation := false
 			showReply()
-			// GOPOD 2026-10-18 (step 3, the engine conducts): he speaks once his
-			// bubble is on the page (gopod_page_sync.go).
 			if gopodBrobotName(esn) != "Brobot" {
 				gopodWaitReplyShown(esn)
 			}
@@ -1036,17 +842,12 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 					break
 				}
 				if act.Action == ActionPlayAnimationWI {
-					// GOPOD 2026-10-09: no new animation until the one before it
-					// is done (gopod_robot_cmd_log.go).
 					gopodAnimationWaitDone(robot.Cfg.SerialNo)
 					logger.LogDebugUI("GOPOD_SAY_ANIMATION: " + act.Parameter)
 					if armCueDone == nil && prevWasSpeech {
 						armCueDone = gopodStartReplyMove(robot, robot.Cfg.SerialNo)
 					}
 				}
-				// GOPOD 2026-10-09 (operator: "Use playAnimationWI + 0.9s + start
-				// speech"): the speech starts speech_after_animation_seconds after
-				// the animation was sent.
 				if act.Action == ActionSayText && prevWasAnimation {
 					time.Sleep(gopodSecondsToDuration(gopodBrobotsSettings.ChatMoves.SpeechAfterAnimationSeconds))
 				}
@@ -1060,7 +861,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				prevWasAnimation = act.Action == ActionPlayAnimationWI
 				if act.Action == ActionSayText {
 					logger.LogDebugUI("GOPOD_SAY_SENTENCE: " + act.Parameter)
-					// 2026-10-08: a draft answer's moves at their words (gopod_script_moves.go).
 					gopodScriptMoveAt(robot, robot.Cfg.SerialNo, act.Parameter)
 					piece := -1
 					streamMu.Lock()
@@ -1073,14 +873,10 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 				}
 				actionStop := make(chan bool)
 				actStart := time.Now()
-				// GOPOD 2026-10-06: a Brobot that drops off mid-answer no longer
-				// leaves this answer waiting forever (gopod_stuck_reply.go).
 				disconnect = gopodPerformOrGiveUp(nChat, act, robot, actionStop)
 				close(actionStop)
 				if act.Action == ActionSayText {
 					logger.LogDebugUI(fmt.Sprintf("GOPOD_VECTOR_PHRASE: %s done took=%dms", gopodBrobotName(robot.Cfg.SerialNo), time.Since(actStart).Milliseconds()))
-					// GOPOD 2026-10-22: his weather line said - its picture and sound,
-					// then the rest (gopodWeatherLineSaid).
 					if !weatherShown && gopodWeatherLineEnd(act.Parameter) {
 						weatherShown = true
 						gopodWeatherLineSaid(robot.Cfg.SerialNo)
@@ -1098,9 +894,6 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		if armCueDone != nil {
 			gopodWaitOrGiveUp(armCueDone, robot.Cfg.SerialNo, "arm cue")
 		}
-		// GOPOD 2026-09-29: the reply is over. Finished: the chat page drops its
-		// sentence outline. Touch-interrupted: the page shows the sentence the robot
-		// stopped on with a solid outline (gopod_speaking_now.go).
 		streamMu.Lock()
 		stoppedByInterrupt := interrupted
 		streamMu.Unlock()
@@ -1109,19 +902,14 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		} else {
 			gopodWriteSpeakingNow(robot.Cfg.SerialNo, "", false, false)
 		}
-		// GOPOD 2026-11-15: his answer done - his eyes back to his own colour.
 		if spokenCount > 0 {
 			gopodSetBrobotEyes(robot, robot.Cfg.SerialNo, false)
 		}
-		// GOPOD 2026-10-23 (A4): the grand prize, once its last point has been said -
-		// 2026-10-24: and once every answer to the line is done (a follow-up's own
-		// end checks again).
 		if !mathLead && !allLead {
 			gopodGameWinCheck()
 		}
 		// A reply that never got to speak still shows its bubble.
 		showReply()
-		// GOPOD 2026-10-09: the battery after each Brobot reply (gopod_robot_cmd_log.go).
 		if gopodBrobotName(robot.Cfg.SerialNo) != "Brobot" {
 			gopodLogBattery(robot)
 		}
@@ -1160,26 +948,16 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		if !wasInterrupted {
 			gopodSendOrGiveUp(stop, robot.Cfg.SerialNo, "behavior control release")
 		}
-		// GOPOD 2026-10-04: the answer's own control is released - the chat's
-		// stay-in-place hold takes both Brobots (gopod_chat_hold.go). Here, not
-		// deferred: this function doesn't return after an answer (live 13:58).
-		// A "thanks Brobots" sign-off ends the hold instead.
 		if gopodBrobotName(esn) != "Brobot" {
-			// GOPOD 2026-10-16: a photo's round 2 (gopod_photo.go) is part of
-			// his answer - "Gathering details. Please wait!" and a stall line
-			// while the vision model still looks, then statement 2.
 			if photoRound2 != nil && !wasInterrupted {
 				photoRound2()
 			}
-			// GOPOD 2026-10-18: CHALK's QR part after his answer (gopod_managers.go).
 			if !wasInterrupted {
 				gopodManagerQRShow()
 			}
 			gopodReplyEnd(esn)
-			// GOPOD 2026-10-24 (link 5): his answer is said - a line held for him goes on.
 			gopodExchangeDone(esn)
 			gopodFollowingUp.Delete(esn)
-			// GOPOD 2026-10-14: "Explain the Math" - Brobot 2 follows up.
 			if mathLead {
 				mathFollowStarted = true
 				go gopodMathFollowUpStart(transcribedText)

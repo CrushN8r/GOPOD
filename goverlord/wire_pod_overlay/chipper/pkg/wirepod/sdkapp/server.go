@@ -102,10 +102,6 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "no bots are authenticated", http.StatusInternalServerError)
 			return
 		}
-		// GOPOD 2026-10-10 (operator: "Allow native wire-pod processes to complete
-		// * then upon detection of more than 1 robot, list Brobot 1 first, then
-		// Brobot 2"): the list is shown in Brobot order; Wire-Pod's own file and
-		// its order are untouched.
 		shown := vars.BotInfo
 		shown.Robots = append(shown.Robots[:0:0], vars.BotInfo.Robots...)
 		sort.SliceStable(shown.Robots, func(i, j int) bool {
@@ -159,7 +155,6 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer file.Close()
-		// GOPOD 2026-09-29: log each audio file played, start and done.
 		soundStart := time.Now()
 		logger.LogDebugUI(fmt.Sprintf("GOPOD_VECTOR_AUDIO: %s start %s", robot.Cfg.SerialNo, soundHeader.Filename))
 		defer func() {
@@ -253,17 +248,11 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "done")
 		return
 	case r.URL.Path == "/api-sdk/assume_behavior_control":
-		// GOPOD 2026-10-04: a song or alias taking this robot's control takes over
-		// from the chat's stay-in-place hold (gopod_chat_hold.go).
 		wirepod_ttr.GopodChatHoldRelease(robotObj.ESN)
 		fmt.Fprintf(w, "success")
 		assumeBehaviorControl(robotObj, robotIndex, r.FormValue("priority"))
 		return
 	case r.URL.Path == "/api-sdk/gopod_thinking":
-		// GOPOD 2026-10-13 (operator: "use locked \"thinking please wait\"
-		// process for scripted runs"): the live chat's own thinking process for
-		// a song's Brobot, on this connection (the song holds control through it);
-		// answered once it has played.
 		wirepod_ttr.GopodThinkingProcess(robot, ctx, robotObj.ESN)
 		fmt.Fprintf(w, "success")
 		return
@@ -273,9 +262,6 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case r.URL.Path == "/api-sdk/say_text":
 		text := r.FormValue("text")
-		// GOPOD 2026-10-11 (operator: "include wirepod logs of what is sent to for
-		// brobots to perform (I want to see how playAnimations are formatted & sent
-		// for processing)"): every song line as it reaches Wire-Pod.
 		logger.LogDebugUI("GOPOD_SAY_TEXT_SENT " + wirepod_ttr.GopodBrobotName(r.FormValue("serial")) + ":\n" + text)
 		if len([]rune(text)) >= 600 {
 			fmt.Fprint(w, "error: text is too long")
@@ -289,19 +275,12 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			logger.LogUIPlain(line)
 			logger.LogDebugUIPlain(line)
-			// GOPOD 2026-09-30: the chat page's own numbered feed of these lines
-			// (gopod_chat_feed.go) - the untimestamped UI log line can't tell a
-			// repeated line from one already shown.
 			wirepod_ttr.GopodChatFeedAdd(displayRole, displayText)
-			// GOPOD 2026-09-30: display only - a line for the chat page with nothing
-			// for the robot to say (e.g. the operator bubble a song opens with).
 			if strings.TrimSpace(text) == "" {
 				fmt.Fprintf(w, "success")
 				return
 			}
 		}
-		// GOPOD 2026-10-10: a sentence_highlight line with no animation in it (an
-		// emotion beat's line, sent 0.9 s after its clip) is said here too.
 		if strings.Contains(text, "{{") || r.FormValue("sentence_highlight") == "1" {
 			for _, action := range wirepod_ttr.GetActionsFromString(text) {
 				switch action.Action {
@@ -312,13 +291,10 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 							&vectorpb.SayTextRequest{
 								DurationScalar: 1,
 								UseVectorVoice: true,
-								// GOPOD 2026-10-03: "..." in a song line is said as a comma pause.
 								Text: wirepod_ttr.GopodEllipsisToComma(sentence),
 							},
 						)
 					}
-					// GOPOD 2026-09-30: opt-in (sentence_highlight=1, the Bingo song):
-					// said one sentence at a time so the chat page lights each one.
 					if r.FormValue("sentence_highlight") == "1" {
 						offset := -1
 						if v, err := strconv.Atoi(r.FormValue("piece_offset")); err == nil {
@@ -329,12 +305,6 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 						sayOne(action.Parameter)
 					}
 				case wirepod_ttr.ActionPlayAnimationWI:
-					// GOPOD 2026-09-29: opt-in wait. GOPOD's animation-syntax normalizer
-					// turns every {{playAnimation||x}} into {{playAnimationWI||x}}, which
-					// plays in the background, so a caller could never wait for a clip
-					// to end. With wait_animation=1 the clip plays to its end before
-					// this request answers (go search's searching loop uses this).
-					// Without it, unchanged.
 					if r.FormValue("wait_animation") == "1" {
 						wirepod_ttr.DoPlayAnimation(action.Parameter, robot)
 					} else {
@@ -724,46 +694,27 @@ func BeginServer() {
 		logger.Println("Jdocs pinger has been disabled")
 	}
 	http.HandleFunc("/api-sdk/", SdkapiHandler)
-	// GOPOD 2026-10-04: typed input from the Brobots chat page (gopod_typed_input.go).
 	http.HandleFunc("/api-sdk/gopod_typed_input", gopodTypedInputHandler)
-	// GOPOD 2026-10-04: the chat page's Record Session box (gopod_record_session.go).
 	http.HandleFunc("/api-sdk/gopod_record_session", gopodRecordSessionHandler)
-	// GOPOD 2026-10-06: the chat page has played the hosts' opening (gopod_reporter_voices.go).
 	http.HandleFunc("/api-sdk/gopod_opening_heard", gopodOpeningHeardHandler)
 	http.HandleFunc("/api-sdk/gopod_page_shown", gopodPageShownHandler)
 	http.HandleFunc("/api-sdk/gopod_brobot_order", gopodBrobotOrderHandler)
 	http.HandleFunc("/api-sdk/gopod_escape", gopodEscapeHandler)
-	// 2026-10-29: the settings folder, served whole at the address the page reads.
 	http.HandleFunc("/gopod_brobots_settings.json", wirepod_ttr.GopodSettingsHandler)
 	http.HandleFunc("/api-sdk/gopod_page_played", gopodPagePlayedHandler)
 	http.HandleFunc("/api-sdk/gopod_page_note", gopodPageNoteHandler)
-	// 2026-11-16: the lingo improver (gopod_lingo_improver.html).
 	http.HandleFunc("/api-sdk/gopod_lingo", gopodLingoHandler)
-	// GOPOD 2026-10-09: a song's system line, said and heard before it goes on (gopod_say_heard.go).
 	http.HandleFunc("/api-sdk/gopod_system_say", gopodSystemSayHandler)
 	http.HandleFunc("/api-sdk/gopod_voice_heard", gopodVoiceHeardHandler)
-	// GOPOD 2026-10-10: runs check in and out with Goverlord (gopod_session.go).
 	http.HandleFunc("/api-sdk/gopod_run", gopodRunHandler)
-	// GOPOD 2026-10-10: the chat page's Native? box (gopod_native.go).
 	http.HandleFunc("/api-sdk/gopod_native", gopodNativeHandler)
-	// GOPOD 2026-10-04: the chat page's numpad push-to-talk (gopod_numpad_ptt.go).
 	http.HandleFunc("/api-sdk/gopod_numpad_map", gopodNumpadMapHandler)
 	http.HandleFunc("/api-sdk/gopod_numpad_ptt", gopodNumpadPTTHandler)
-	// GOPOD 2026-10-26: the system menu's numpad-to-voices map (gopod_voice_map.go).
 	http.HandleFunc("/api-sdk/gopod_voice_map", gopodVoiceMapHandler)
-	// GOPOD 2026-10-24 (C3): GOPOD, securely, for the phone app (gopod_https.go).
 	go wirepod_ttr.GopodStartHTTPS()
-	// GOPOD 2026-09-30: a fresh, empty chat feed with this start's own stamp, so the
-	// Brobots chat page knows Wire-Pod restarted (and clears) right away.
 	wirepod_ttr.GopodChatFeedStart()
-	// GOPOD 2026-10-03: load the Brobots' LLM now and keep it loaded, so the first
-	// question doesn't wait on a cold model (gopod_llm_warmup.go).
 	wirepod_ttr.GopodLLMWarmupStart()
-	// GOPOD 2026-10-06: the reporter voices' Kokoro worker, heard through the chat
-	// page (gopod_reporter_voices.go).
 	wirepod_ttr.GopodReporterVoicesStart()
-	// GOPOD 2026-10-04: Record Session - leftovers from before this start, the box's
-	// state file, and the Wire-Pod log copy (gopod_record_session.go).
 	wirepod_ttr.GopodRecordSessionStart()
 	if runtime.GOOS == "android" || runtime.GOOS == "ios" {
 		serverFiles = filepath.Join(vars.AndroidPath, "/static/webroot")

@@ -165,8 +165,6 @@ func DoPlayAnimation(animation string, robot *vector.Vector) error {
 	for _, animThing := range animationMap {
 		if animation == animThing[0] {
 			StartAnim_Queue(robot.Cfg.SerialNo)
-			// GOPOD 2026-10-09: the call gives up after the hang guard, so the
-			// native queue is released (gopodAnimationContext).
 			ctx, cancel := gopodAnimationContext()
 			gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
 				Animation: &vectorpb.Animation{Name: animThing[1]},
@@ -186,8 +184,6 @@ func DoPlayAnimationWI(animation string, robot *vector.Vector) error {
 		if animation == animThing[0] {
 			go func() {
 				StartAnim_Queue(robot.Cfg.SerialNo)
-				// GOPOD 2026-10-09: the call gives up after the hang guard, so the
-				// native queue is released (gopodAnimationContext).
 				ctx, cancel := gopodAnimationContext()
 				gopodLogPlayAnimation(robot, ctx, &vectorpb.PlayAnimationRequest{
 					Animation: &vectorpb.Animation{Name: animThing[1]},
@@ -206,8 +202,6 @@ func DoPlayAnimationWI(animation string, robot *vector.Vector) error {
 func DoPlaySound(sound string, robot *vector.Vector) error {
 	for _, soundThing := range soundMap {
 		if sound == soundThing[0] {
-			// GOPOD 2026-10-09: sounds_on "page" plays it on the Brobots chat page
-			// instead of the robot (gopod_robot_cmd_log.go).
 			if gopodSoundOnPage(filepath.Join(gopodChipperRoot(), soundThing[1])) {
 				return nil
 			}
@@ -226,7 +220,6 @@ func DoPlaySound(sound string, robot *vector.Vector) error {
 // always sends a fixed, known format, but not safe to copy blindly for an
 // arbitrary file on disk).
 func playSoundFile(path string, robot *vector.Vector) error {
-	// GOPOD 2026-09-29: log each audio file played, start and done.
 	soundStart := time.Now()
 	logger.LogDebugUI("GOPOD_VECTOR_AUDIO: " + gopodBrobotName(robot.Cfg.SerialNo) + " start " + filepath.Base(path))
 	defer func() {
@@ -319,8 +312,6 @@ func parseMonoPCMWav(b []byte) ([]byte, uint32, error) {
 
 func DoSayText(input string, robot *vector.Vector) error {
 	cleaned := removeSpecialCharacters(input)
-	// GOPOD 2026-10-01: a leading animation lead-in ("... ") reaches the voice, as
-	// in native Wire-Pod (gopodKeepLeadIn).
 	finalText := gopodKeepLeadIn(cleaned, cleanRobotSpeechText)
 	if _, err := saveRobotSayTextDiagnostic(robot.Cfg.SerialNo, input, cleaned, finalText, time.Now().UTC()); err != nil {
 		logger.Println("SAVE_ROBOT_SAY_TEXT_DIR write failed: " + err.Error())
