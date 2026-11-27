@@ -21,6 +21,7 @@ Tell me about cast and game | alias_play_studio/06_CAST_AND_GAME.md
 Tell me about system | alias_play_studio/07_SYSTEM.md
 Tell me about rules and tests | alias_play_studio/08_RULES_AND_TESTS.md
 Tell me about gears | alias_play_studio/09_GEARS.md
+Tell me about air hockey | alias_play_studio/air-hockey/README.md
 Tell me about goverlord | goverlord/README.md
 Tell me about alias lib overlay | goverlord/alias_lib_overlay/README.md
 Tell me about rules | goverlord/rules/README.md

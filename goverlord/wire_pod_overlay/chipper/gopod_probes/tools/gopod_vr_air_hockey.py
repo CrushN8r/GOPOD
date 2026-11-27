@@ -458,6 +458,8 @@ def main():
                     help="1: wake, leave home, park in front of his net, stop; 0: the whole game")
     ap.add_argument("--frames", type=int, default=0, help="stop after this many frames (tests)")
     ap.add_argument("--out", default="", help="save the run to this video instead of a window (tests)")
+    # 2026-11-27 (gohockey-cal): lock the arena (the ruler and the track), then stop - no robot touched.
+    ap.add_argument("--lock-only", action="store_true", help="lock the arena, then stop before any robot moves")
     args = ap.parse_args()
     referee_name = "Brobot 2" if args.player == "Brobot 1" else "Brobot 1"
     os.dup2(os.open(os.devnull, os.O_WRONLY), 2)  # the camera's "Corrupt JPEG data" notes are harmless
@@ -490,6 +492,10 @@ def main():
         json.dump(bar, open(anchor, "w"))
         print("the arena is locked - --recalibrate only if the camera moves")
     FIELD_Y = (0.0, bar["top_mm"])
+    if args.lock_only:
+        print("the arena is locked: ruler at %d,%d, %d px wide" % (bar["cx"], bar["cy"], bar["w"]))
+        cap.release()
+        return 0
     # His flag is searched near the arena and home only (the whole frame held it to 17 fps).
     sx0, sy0 = to_px(FIELD_X[0] - BAR_MM, FIELD_Y[1] + 60)
     sx1, sy1 = to_px(FIELD_X[1] + BAR_MM, -150)  # down past the ruler: his charger sits there

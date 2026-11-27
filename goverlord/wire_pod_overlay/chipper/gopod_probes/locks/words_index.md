@@ -63,6 +63,9 @@
 ## alias_play_studio/09_GEARS.md
 - words: gears, gears the run chain, gears gopod s run chain, parts, chainrings opener run closer, cassette choices inside a stage, derailleurs shifting live, chain the master chat queue, teeth values not code, start during a run, live game gear, the gears, run chain, derailleurs, geared bicycle
 
+## alias_play_studio/air-hockey/README.md
+- words: air hockey, air hockey and the stage
+
 ## goverlord/README.md
 - words: goverlord
 

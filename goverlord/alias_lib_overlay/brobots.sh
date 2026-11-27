@@ -1878,3 +1878,53 @@ goinit() {
     gofps
     wpr 2
 }
+
+# 2026-11-27 (operator: "taking a stage snapshot would be a cool alias * other cool
+# GOPOD air-hockey alias suggestions?"; "Build them all"): the air hockey's own
+# overhead camera and switches, as aliases. Pictures and videos go to
+# gopod_notes/stage/ (private).
+_GOPOD_HOCKEY_PY=~/miniforge3/envs/gopod-coral39/bin/python
+_GOPOD_HOCKEY=~/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey.py
+_GOPOD_STAGE_DIR=~/crushn8r_git/gopod_notes/stage
+
+# gosnap - one overhead picture of the stage (the RunCam, the air hockey's camera).
+gosnap() {
+  mkdir -p "$_GOPOD_STAGE_DIR"
+  local out="$_GOPOD_STAGE_DIR/snap_$(date +%Y%m%d_%H%M%S).jpg"
+  "$_GOPOD_HOCKEY_PY" -I - "$_GOPOD_HOCKEY" "$out" 2>/dev/null <<'PYEOF'
+import importlib.util, sys, cv2
+spec = importlib.util.spec_from_file_location("hockey", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+cap = m.open_camera()
+ok, img = False, None
+for _ in range(15):  # the first frames come before the exposure settles
+    ok, img = cap.read()
+cap.release()
+print("stage snapshot: " + sys.argv[2] if ok and cv2.imwrite(sys.argv[2], img) else "no picture - is the RunCam plugged in?")
+PYEOF
+}
+
+# gohockey-cal - the camera moved: find the ruler and the track again, then stop.
+# No robot is touched.
+gohockey-cal() {
+  "$_GOPOD_HOCKEY_PY" "$_GOPOD_HOCKEY" --recalibrate --lock-only
+}
+
+# gohockey-part 1|2|3 [2] - one part of the game alone (1: wake, leave home, park);
+# 2 at the end: Brobot 2 plays. Wakes and drives the robots.
+gohockey-part() {
+  local part="$1" who="Brobot 1"
+  [ "$2" = "2" ] && who="Brobot 2"
+  case "$part" in 1|2|3) ;; *) echo "usage: gohockey-part 1|2|3 [2]"; return 1 ;; esac
+  "$_GOPOD_HOCKEY_PY" "$_GOPOD_HOCKEY" --player "$who" --part "$part"
+}
+
+# gohockey-rec [2] - the whole game saved to a video (no window); 2: Brobot 2 plays.
+# Wakes and drives the robots.
+gohockey-rec() {
+  local who="Brobot 1"
+  [ "$1" = "2" ] && who="Brobot 2"
+  mkdir -p "$_GOPOD_STAGE_DIR"
+  local out="$_GOPOD_STAGE_DIR/hockey_$(date +%Y%m%d_%H%M%S).mp4"
+  "$_GOPOD_HOCKEY_PY" "$_GOPOD_HOCKEY" --player "$who" --out "$out" && echo "saved: $out"
+}

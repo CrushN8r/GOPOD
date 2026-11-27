@@ -325,6 +325,12 @@
 - 20.8 The live game gear
 - 20.9 Memory: short and long term, self and chat
 
+## alias_play_studio/air-hockey/README.md
+- Air hockey and the stage
+- Tour
+- Commandments
+- Next
+
 ## goverlord/README.md
 - goverlord
 

@@ -35,6 +35,7 @@ page is `webroot/js/gopod_brobots_chat.js` with `gopod_chat_bubbles.css`. Songs 
 - [The system menu, your stuff, the settings](alias_play_studio/07_SYSTEM.md) - 14. The system menu and commands; 15. Your stuff, no code; 16. Settings file reference
 - [Golden rules, troubleshooting, tests](alias_play_studio/08_RULES_AND_TESTS.md) - 17. Golden rules; 18. Troubleshooting; 19. Tests that lock behaviour
 - [The gears: the run chain](alias_play_studio/09_GEARS.md) - 20. Opener, run, closer; the switches; the master chat queue; values
+- [Air hockey and the stage](alias_play_studio/air-hockey/README.md) - the first card in the new shape: golden notes (each alias and what it runs), the tour (the golden sequence), next
 
 ---
 
