@@ -1,6 +1,6 @@
 # Brobots Nap — "Do Baby Robots Dream?"
 
-**Status:** WIP (2026-10-09)
+**Status:** WIP
 
 **One narrator bubble:** the bubble is its picture, at the magnifier's full-width size,
 with no header. Each section's picture is behind its words: it fades in to 50% as the section

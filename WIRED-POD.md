@@ -269,7 +269,7 @@ If you're asked about no cloud, no wifi or no monthly bill, reveal these, in ord
 
 ## 6. The Brobots on 1.6-rebuild
 
-Both Brobots run 1.6-rebuild (vicos 1.6.1.9) since 2026-11-26, the livelier classic 1.6 base
+Both Brobots run 1.6-rebuild (vicos 1.6.1.9) since, the livelier classic 1.6 base
 with fixes backported, and stay on Wire-Pod.
 
 **What it adds** (from the 1.6-rebuild notes; not all of it tried on ours yet):

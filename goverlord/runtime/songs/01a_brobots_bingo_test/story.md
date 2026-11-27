@@ -1,6 +1,6 @@
 # Brobots Bingo Test
 
-**Status:** GOLDEN (2026-10-01)
+**Status:** GOLDEN
 
 The Bingo test song: two Brobots trade banter, then call three Bingo balls. Ready to record.
 Play it with `start bingo test` in the Brobots chat, or with

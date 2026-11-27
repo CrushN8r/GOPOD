@@ -1,6 +1,6 @@
 # New Song
 
-**Status:** WIP (2026-10-09)
+**Status:** WIP
 
 Copy this folder to `<number>_<name>/` to start a song. The standard is
 [ALIAS-PLAY-STUDIO.md](../../../../ALIAS-PLAY-STUDIO.md): the notes, the fields, the golden rules.

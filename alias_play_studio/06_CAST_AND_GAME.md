@@ -62,37 +62,37 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
 | **PLAYHEAD ZUMINTU** (KP8) | Reporter 2's voice, tape-brown bubbles | Time and place: "weather" - "I'll help you with that.", the weather line; "what time / where are we / WAWN / what's the date" - the time and place line (`time_place_text`); location QR codes. His job role is in his persona prompt (`managers.personas.PLAYHEAD.prompt`): "ph" for PLAYHEAD, a/0/b the working points to zoom in and out from, ZUMINTU = zoom into, like editing an audio file end to end. |
 | **Git Repo / Cache PYC** (KP3/KP4, Cozmo students), **Intel 404 PNFH / PNFT** (KP5/KP6, Moorebot Scout security guards), **Cameo** (KP9, the social media Gomad) | their own voices (above), the default host bubble look - Cameo's bubble is Goverlord level (`bubble_kinds`, `host-cameo`) | Scaffolding: CHALK's shape - `managers.personas` prompt and who line, no scripted lines; `host_personas`, `host_pairs` ("Git Repo & Cache PYC", "Intel 404 PNFH & PNFT"). Answers from the language model, like KP7/KP8. Intern jobs: Git Repo (ethical hacker) says the USB lines - mic and numpad missing or back (`numpad_ptt.usb_host`) - and takes "usb devices / what's plugged in / lsusb" (kind `usb`, `managers.usb_text`); Cache PYC (meme hustler) draws the search results box; Intel 404 PNFH / PNFT (security guards) warn when a Brobot's battery runs low (`battery_watch.guards`). The hand-over: a take with `via` - that Gomad says `managers.handoff_text` ("Git Repo will help you with that."), then the intern takes over (USB: via CHALK; search results: `system_search.handoff_host`, PLAYHEAD). |
 | **GOVERLORD** (NumLock off, KP0) | his own deep voice, said only when called | GOPOD's brain, the overlord - ominous, god-like, busy orchestrating. A trivial ask is beneath him: one cold line, and he hands it down to Keys, who passes it on to a Gomad, an Intern or a Gominion (his card: `goverlord-brain.md`). |
-| **The Butler: KEYNOTE VALE, "Keys"** (KP0, held) | the butler's voice and lingo (`voice_of`: Goverlord), deep royal purple bubble, light gold border | Goverlord's voice in the chat: the runs, the system's answers, the session - he asks Master CrushN8r to keep or delete the recording (`managers.personas.BUTLER`; his labels are `host_personas.BUTLER` - name, nickname, job name - and everything else fills from them as `{name}`, `{nickname}`, `{job}`; 2026-10-30). |
+| **The Butler: KEYNOTE VALE, "Keys"** (KP0, held) | the butler's voice and lingo (`voice_of`: Goverlord), deep royal purple bubble, light gold border | Goverlord's voice in the chat: the runs, the system's answers, the session - he asks Master CrushN8r to keep or delete the recording (`managers.personas.BUTLER`; his labels are `host_personas.BUTLER` - name, nickname, job name - and everything else fills from them as `{name}`, `{nickname}`, `{job}`;). |
 | **CHALK BORED** (KP7) | Reporter 1's voice, chalkboard bubbles | Display: QR codes, the surprise eggs (Roast Battle, Halloween, camera feeds) and the visual board, drawn on its board (`display_host`). |
 
-- **Two suits (2026-10-30):** CHALK and PLAYHEAD are the indoor news anchors: their own
+- **Two suits:** CHALK and PLAYHEAD are the indoor news anchors: their own
   bubbles, chalkboard green and vintage tape. They're also the outdoor reporters: a run's
   reporter lines (the `_llm_song` lines, spoken by their reporter, `managers.personas.<host>.reporter`)
   wear the reporter suit - suit grey (`--reporter-suit-bg`), the anchor's colour as the border
   (`reporterSuit`, page). Live, KP7 / KP8 with **NumLock off** are CHALK and PLAYHEAD as
   reporters: same persona and voice, answering in the reporter suit (the numpad map's
   `numlock_off` layer, `"suit": "reporter"`). Locked by `TestNumpadNumlockOffReporter`.
-- **The source check (2026-10-31):** part of `system-check`, and at every start. For every chat
+- **The source check:** part of `system-check`, and at every start. For every chat
   participant at once, from his master source up, layer by layer: 0 his profile reads, has its
   label and every Self line of the intro (a line "to come" is named); 1 nothing filled from his
   labels is left unfilled (profile, prompt, who-line, cast line, intro recipe); 2 a Gomad has a
   voice; 3 he's in the cast; 4 every live numpad key reaches someone; 5 the system label fills from
   its voice persona. `gopod_source_check.go`, `TestSourceCheck`.
-- **Chunks, globally (2026-10-31):** any voiced line longer than `reporter_voices.chunk_words` (24)
+- **Chunks, globally:** any voiced line longer than `reporter_voices.chunk_words` (24)
   words - the Butler's, a reporter's, a Gomad's - is one bubble of chunk lines (whole sentences),
   each its own voice: all made at once, in order; each plays as soon as it's made, the next waiting
   for its own (the `lines:` template, `gopodSayLinesInBubble`). The brain bubble's text is left-aligned.
-- **4 personas, 2 robots (2026-11-06):** Brobot 1 and Brobot 2 are their own personas (party-bro GOPOD reps,
+- **4 personas, 2 robots:** Brobot 1 and Brobot 2 are their own personas (party-bro GOPOD reps,
   BRUH!) at the dial's 0% - a line to both (KP*); DOCTRINE BARFALLONYOU SPEWER (DOC, title DOCTRINE, DocBS) and PIP
   N STALL (PipTA) are the host and sidekick at 100% - KP1, KP2 - each with its own card, words and "Who I am".
   A robot's file names the persona it hosts (`hosts:`); headers and call-ins follow the dial (`gopodCallName`).
-- **The schemas (2026-11-06):** `persona-schema.md` (the master persona card) and `company-schema.md`
+- **The schemas:** `persona-schema.md` (the master persona card) and `company-schema.md`
   (the master company) are the yardsticks; the system check (`gopodSchemaCheck`) measures every persona and company file
   against them on every restart and lists any missing head line, section, Self line or company point "to fix".
   The same check measures every game card (`_topic_cluster/topic-schema.md`), chapter (`chapter-schema.md`)
   song folder (`songs/_new_song/song-schema.md`), run card (`_topic_cluster/run-schema.md` - a run's song must exist)
   and answer chain (`_topic_cluster/answer-chain-schema.md` - every part a known part, every `from` a chain).
-- **The persona schema (2026-11-06):** every persona is one card, the same fields for all -
+- **The persona schema:** every persona is one card, the same fields for all -
   company (`personas/company.md`, ## Our company: what GOPOD is, sell it, the chain of command, one
   owner per job, wild takes that make adult sense), group (its root in `personas/groups/`), then
   his own: **Self** (nickname - banter only, formal name, one job line), **Who I answer to**, **Who
@@ -103,25 +103,25 @@ The managers take load off the Brobots. They are GOPOD's other chat participants
   then his job, who he answers to and who works with him (model, from the card); the brain bubble's
   "My relationships:" is the same two sections. DOCTRINE BARFALLONYOU SPEWER (DocBS) and PIP
   N STALL (PipTA) are the host and sidekick at the dial's 100%, on Brobot 1 and Brobot 2.
-- **The intro recipe (2026-10-31):** one recipe for every chat participant (`intro_recipe`,
+- **The intro recipe:** one recipe for every chat participant (`intro_recipe`,
   `gopod_intro_recipe.go`). A line asking for an intro ("introduce yourself", "tell me about
   yourself") gets the recipe: introduce yourself in your own voice, in your profile's Self order -
   nickname, name, job title, role, who helps me - then name everyone else here. A Brobot's intro
   is the `brobots_intro` chain (no value point, no reminder); a Gomad's brain says "Task: my intro,
   to the chat". The comm check asks the operator's tester once per key. `TestIntroRecipe`.
-- **The Brobots' profiles (2026-10-30):** `brobot-1.md` (Doc) and `brobot-2.md` (Pip), the master
+- **The Brobots' profiles:** `brobot-1.md` (Doc) and `brobot-2.md` (Pip), the master
   format - each Brobot's own words for his "WHO I AM" (Who I am, Role, My way through an answer,
   Signature) live there, out of the settings; his prompt reads them, word for word as before. The
   shared party-bro base stays in `gopod_probes/topic_clusters/personas/behaviours/brobots.md` (the shared Brobots persona), the pair's banter and dial in
   `host_pairs`.
-- **The master format (2026-10-30):** every persona profile is a topic-cluster md, GOPOD's one
+- **The master format:** every persona profile is a topic-cluster md, GOPOD's one
   format (`gopod_probes/topic_clusters/_topic_cluster/README.md`): its head is the persona's labels - `# <full
   name>`, `nickname`, `job` - written there and nowhere else; the settings, prompts, headers and the
   brain bubble fill from them. Anything in the system speaker's voice is headed
-  `system_bubble.label` "{first}" from `voice_persona` (BUTLER): "KEYNOTE" (2026-11-06; was "KEYNOTE: Butler"). Every
+  `system_bubble.label` "{first}" from `voice_persona` (BUTLER): "KEYNOTE". Every
   persona in `managers.personas` is a host on the page, its own voice or another's. A persona's
   answer is at most `managers.answer_num_predict` tokens (400), ending at a whole sentence.
-- **Persona profiles (2026-10-30):** one md per persona, `gopod_probes/topic_clusters/personas/<name>.md` - CHALK,
+- **Persona profiles:** one md per persona, `gopod_probes/topic_clusters/personas/<name>.md` - CHALK,
   PLAYHEAD, Git Repo, Cache PYC, the Butler (`butler.md`), Cameo - the same sections for everyone: **Self** (my informal name
   (nickname), my name, my job title, my role, who helps me), **Voice**, **Partner and banter**,
   **The name**. Its prompt looks up the sections in `persona_profiles.sections` (Self, Voice,
@@ -286,14 +286,14 @@ value point, his colour) is the kill shot; `docbs_close` ends it: "The math has 
 until the deck runs out; `_clean` / `_18` by the roast dial. gemma fills only one short line (the
 equation's name, acronym, three things and a nickname - about 2 s), else `docbs.fallback`. An Explain
 the Math line the math engine can't work out always goes DocBS; a computable one keeps its exact
-steps. `TestDocBS`. **The Master Library and its chains (2026-10-30):** `gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS_LIBRARY.md`
+steps. `TestDocBS`. **The Master Library and its chains:** `gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS_LIBRARY.md`
 is Doctrine Spewer's library; its catchphrase bank is in pools (roasts, riddles, insights,
 dismissals, crew, paradoxes, taunts, signoffs, gutshots). Each DocBS answer is one **chain**
 (`docbs.chains`): its beats in order before his reply, picked from a shuffled deck, never the same
 chain twice until the deck runs out. The dial sets the length: a chain needs `min_share` - the
 short ones (equation roast; roast, riddle, reveal; roast, ratio, riddle) from 0, the chaos calculus
 loop at 50, the full response pipeline at 80, and 11/10 (`docbs.share` 110) with the crew hype and
-the sign-off. `TestDocBSChainsByDial`. **Persona chains (2026-10-30):** the same template for every chat participant
+the sign-off. `TestDocBSChainsByDial`. **Persona chains:** the same template for every chat participant
 (`persona_chains`, `gopod_probes/topic_clusters/personas/persona_chains/<persona>/`): a persona's answer can be one of its
 chains, its pool lines around its reply (the beats before `reply` first, the ones after it close),
 as often as its `share`. The Brobots get it through the answer-chain parts `persona_chain` /
@@ -376,7 +376,7 @@ Each Brobot in his own unit and clock (his robot settings: Brobot 2 F / 12-hour,
 24-hour). For a weather question with a value point the model is asked for two paragraphs:
 the weather line, then the point (`chain_prompts`). The typed line's All menu (1-9; 1/2 below) - who
 answers first (`typed_line.all_first`, default 1; 2 = "Starting with Brobot 2"). **The typing line
-(2026-10-31):** "Brobots [x] All [menu] [Type to the Brobot, press Enter]" - All ticked: both
+:** "Brobots [x] All [menu] [Type to the Brobot, press Enter]" - All ticked: both
 Brobots, the menu's 1 or 2 first (any other number picked: 1 first, then 2); unticked: the menu's
 number is who the line is to - 0 the system (the admin's), 1 Brobot 1, 2 Brobot 2, 3-9 that key's
 persona. The visitor app page is the same code. Hand-over
@@ -493,10 +493,8 @@ icons alike), then the All menu (`typed_line.all_first`). A multi answer type la
 - `opener` - what he says first, while thinking (`openers`): `got_it` = his own Got it words
   (Got it 1 / Got it 2); `comeback` = "Nice try, {title} {nickname}!" (duo B)
 - `ends_with`, `no_reminder`, `keep_reminder_types`, `weather_type`, `no_manager` - the duo rules
-  (moved here from `duo`, unchanged)
 - the opener is his bubble's first line, above his notice: said early, while thinking, as before; posted as
-  `opener:` once said; the page's `brobotOpener`, his answer's type (`.brobot-opener`). No longer
-  a notice line (`value_points.parts` has no `got_it`; the notice still waits for it to be said).
+  `opener:` once said; the page's `brobotOpener`, his answer's type (`.brobot-opener`); the notice waits for it to be said.
 - `plan` (per response) - the notice bubble's first line: duo "Response-chain:
   Brobot 2, then Brobot 1 - answer 1 of 2"; single none
 
@@ -638,11 +636,11 @@ a pool of AI slop (the game assumes it's there), personalitymath the made-up exa
 trick - not a real website. Neither chapter is an easter egg (`topic_pictures.not_eggs`). A new
 cluster starts from `gopod_probes/topic_clusters/_topic_cluster/`.
 
-**Root docs hold game cards (2026-11-04, operator: "The root docs are the source"; "Make the md files compatible"; "ignore chapters").** The public repo docs (`topic_clusters.root_docs`: BOOKING, LIVESTREAM, SOCIAL_MEDIA, ACCESSMATH, MOBILE_GEAR, WIRED-POD, README, songs/README) hold their topics as folded game cards - `<details><summary>Game card: ...</summary>`, a `<!-- gopod topic: NN_name -->` mark, then the topic file's text, whole, with a `- **chapter:** <title>` line. A visitor reads the doc; the Brobots read the card; `system-topic` writes back into the doc. One copy, so no "changed after the topic" check.
+**Root docs hold game cards.** The public repo docs (`topic_clusters.root_docs`: BOOKING, LIVESTREAM, SOCIAL_MEDIA, ACCESSMATH, MOBILE_GEAR, WIRED-POD, README, songs/README) hold their topics as folded game cards - `<details><summary>Game card: ...</summary>`, a `<!-- gopod topic: NN_name -->` mark, then the topic file's text, whole, with a `- **chapter:** <title>` line. A visitor reads the doc; the Brobots read the card; `system-topic` writes back into the doc. One copy, so no "changed after the topic" check.
 
-**The topic_clusters tree (2026-11-04).** Every cluster sits under `gopod_probes/topic_clusters/` - `system/` (system lines, the menu, `numpad-mapper.md`: the numpad map, both layouts usb/pc, one source), `show/`, `personas/`, `places/`, `chapters/` - and is found by its file name anywhere in the tree.
+**The topic_clusters tree.** Every cluster sits under `gopod_probes/topic_clusters/` - `system/` (system lines, the menu, `numpad-mapper.md`: the numpad map, both layouts usb/pc, one source), `show/`, `personas/`, `places/`, `chapters/` - and is found by its file name anywhere in the tree.
 
-**Shared root personas (2026-11-04, operator: "shared root persona > individual personas"; "company.md > all have a job/role/obligation at the company").** Each persona file names its group's root (`- **root:** groups/group-gomads.md`); the root's sections come first, then the persona's own (`gopodPersonaProfileReadRooted`, at most three deep), and every root's own root is `company.md`. Groups (`personas/groups/`): Doc and Pip (host-sidekick, teacher-assistant: DocBS/PipTA), the Gomads, the Interns, the Security Guards, the GOPOD System (Keys); the Brobots' root is `show/brobots.md`. A root's `## Our group` is in every member's prompt (`persona_profiles.sections`). `TestPersonaRoots`. The comm song's last answer, Brobot 2's, ends with the game welcome (`comm_check.game_welcome`: the base word for word or one of his flavours, in his own file, at random, once).
+**Shared root personas.** Each persona file names its group's root (`- **root:** groups/group-gomads.md`); the root's sections come first, then the persona's own (`gopodPersonaProfileReadRooted`, at most three deep), and every root's own root is `company.md`. Groups (`personas/groups/`): Doc and Pip (host-sidekick, teacher-assistant: DocBS/PipTA), the Gomads, the Interns, the Security Guards, the GOPOD System (Keys); the Brobots' root is `show/brobots.md`. A root's `## Our group` is in every member's prompt (`persona_profiles.sections`). `TestPersonaRoots`. The comm song's last answer, Brobot 2's, ends with the game welcome (`comm_check.game_welcome`: the base word for word or one of his flavours, in his own file, at random, once).
 
 **Topic clusters are md files.** Every topic and chapter file is a readable markdown topic-cluster file: the label as its `# heading` (no heading = never named in a reminder), each setting a `- **key:** value` line, a `---` line with a blank line on both sides, then the facts and their numbered value points. A chapter is `chapter.md` (`# title`, `- **summary:**`). One reader and one writer (`gopodTopicHeadKV`, `gopodTopicHeadLine`, `gopod_chapters_folder.go`) serve the game, `system-topic` and every check; `TestTopicClusterFormat` locks every file, the template folder (`gopod_probes/topic_clusters/_topic_cluster/`) included.
 
@@ -655,8 +653,7 @@ cluster starts from `gopod_probes/topic_clusters/_topic_cluster/`.
 **Topic cluster: Social media** (chapter 10, sourced from `SOCIAL_MEDIA.md`): our socials (the
 channel identity, one platform one job, every post leads home to crushn8r.com), the niche pillars
 (Pinterest), the call for help (social media and livestream clips, Windsor-Essex,
-contact@crushn8r.ca). **Overlap:** each topic keeps its own words - the newsletter no longer
-claims social words, YouTube's goals stay in the livestream's channel topic - and a question that
+contact@crushn8r.ca). **Overlap:** each topic keeps its own words - social words are social media's, YouTube's goals the livestream's channel topic - and a question that
 opens several topics gets a point from each (longest word wins a clash).
 
 **The game engine: one card per run.** Every run - the Bingo test, the interview, the Baby
@@ -697,4 +694,4 @@ chapter joined it; chapters are now 01-11.
 
 [Back to ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md)
 
-**Names are variables everywhere (2026-11-08, operator: "UNIFIED TEMPLATED GOPOD GAME ENGINE"):** a persona's name, nickname, job and call name live once, in its own profile head; every other text in GOPOD's settings and clusters says `{Brobot 1.name}`, `{BUTLER.nickname}`, `{CHALK.job}`, `{Brobot 1.call}`, filled at load (`gopodApplyNameVars`) and in the page's settings. Literal on purpose: the head itself, Lingo, search words, the numpad map, dated operator quotes.
+**Names are variables everywhere:** a persona's name, nickname, job and call name live once, in its own profile head; every other text in GOPOD's settings and clusters says `{Brobot 1.name}`, `{BUTLER.nickname}`, `{CHALK.job}`, `{Brobot 1.call}`, filled at load (`gopodApplyNameVars`) and in the page's settings. Literal on purpose: the head itself, Lingo, search words, the numpad map, dated operator quotes.

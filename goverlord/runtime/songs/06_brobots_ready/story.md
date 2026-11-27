@@ -1,6 +1,6 @@
 # Brobots Ready
 
-**Status:** WIP (2026-11-04)
+**Status:** WIP
 
 The Brobots ready move: Brobot 1 lifts his arm, Brobot 2 lifts his, both nod together, then both
 say the ready line together. `start brobots ready` in the Brobots chat. Pinned for later: an

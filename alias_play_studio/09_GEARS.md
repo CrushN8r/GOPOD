@@ -91,7 +91,7 @@ The control lane never waits for a turn. It shifts the chain the moment it's sen
 - **Turns run one at a time, each to its end.** A run's own lines are its turn's nested queue,
   stamped with its number.
 - **A run's check-in takes its turn at once**, without waiting for the line that started it
-  (2026-10-30: the wait took the song past its 10 s check-in).
+.
 - **Stop run and Esc drop the turn going** (`drop:<turn>`); the page drops its waiting lines
   the moment it hears.
 - Code: `gopod_chat_queue.go`. Locked by the `gopod_chat_queue_test.go` tests.
@@ -141,8 +141,7 @@ what's-going-on line (`gopodHereNow`).
 ### 20.9 Memory: short and long term, self and chat
 
 Big brains are code, so the language model doesn't have to think and is free to add the persona's
-style. Every participant answers from the same clean, code-made memory (2026-10-31, the brain chain,
-`gopod_brain_chain.go`, settings `brain_chain`):
+style. Every participant answers from the same clean, code-made memory:
 
 | Memory | What it holds | Made from | Where it shows |
 |---|---|---|---|
@@ -153,39 +152,38 @@ style. Every participant answers from the same clean, code-made memory (2026-10-
 | **Chat, long term** | the session so far: the game's score, the runs Doc and Pip performed (kept until the session ends), who has spoken, who's introduced | the whole chain and the game | every prompt; the brain bubble's "Session:" line |
 | **Flow** | one or two helper lines for what comes next | the chain: an intro or an answer, then the first to speak or "Does recent chat help me answer this question asked by: Master CrushN8r?" | every prompt; the brain bubble's "Guided Task Flow:" line |
 
-- **One brain template** (2026-10-31, the operator's scaffold; settings `brain_chain.lines`): under a
+- **One brain template**: under a
   Brobot's `Response-chain:` line - `I am Pip (Brobot 2), <his profile's "In short">`; `In the chat:` every
   member but the operator with his profile's job title in brackets, `(me)` for himself; `So far: N have
   spoken, N introduced themselves. Guided Task Flow: Does the recent chat help me answer the question
-  asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`; the score rows (topics, value points, eggs) under them, every bubble (2026-11-02). Every brain bubble (Brobots
+  asked. Reminders: a, b, & c`. No `Asked by:`, no `Last:`; the score rows (topics, value points, eggs) under them, every bubble. Every brain bubble (Brobots
   and Gomads) shows it - left to right, header too - and every prompt gets the same lines.
-- **The crew roster** (2026-10-31; merged 2026-11-20): the company card's "Our employees" sections
+- **The crew roster**: the company card's "Our employees" sections
   (`personas/company/math-aftermath-news-channel.md` - company, then employee roles, then employees),
   one `Name: description` point each. "In the chat" reads it; system-check names anyone in the chat
   without a line (`TestCrewRoster`).
-- **Topic-clusters for settings** (2026-10-31): `gopod_probes/clusters/` - `easter_eggs.md`,
+- **Topic-clusters for settings**: `gopod_probes/clusters/` - `easter_eggs.md`,
   `golden_answers.md`, `butler_lines.md`, `nicknames.md`, in the master format. Each section names the
   settings place it fills in brackets (`## Run lines (session)`); each point is `key: value` (a list
-  split on ` | `). They are the one source - the settings files no longer hold those values; Wire-Pod
+  split on ` | `). They are the one source; Wire-Pod
   lays them over at its start and for the page. system-check names any point that lands nowhere;
   system-locate finds their keys. Edit the md, then wpr (`TestTopicClusters`).
-- **Every lit line scrolls the chat** (2026-10-31): the highlight's scroll rule is part of lighting a
+- **Every lit line scrolls the chat**: the highlight's scroll rule is part of lighting a
   line, so a tall bubble of any kind (Gomads too) moves on as its lines are said.
-- **The chat's own scroll bar** (2026-10-31, `chat_window.scroll_bar`): drag the thumb to scroll,
+- **The chat's own scroll bar**: drag the thumb to scroll,
   drag either end to make it longer or shorter (less or more travel), double-click for its natural
   size; its length is kept per browser. Admin, visitor and app pages alike; wheel, touch and keys
   scroll as before.
-- **Chunks are whole sentences** (2026-11-01): a long voiced line is made sentence by sentence
+- **Chunks are whole sentences**: a long voiced line is made sentence by sentence
   (short ones join the next), each one voice; its comma pauses play inside it - never cut at a comma
   (`TestChunksAreWholeSentences`).
   The runner reads each sentence file's own word times (`.words.json`, heard by Vosk) for the
-  highlight and its pauses (operator 2026-11-02: "the whole generated sentence file is then read by
-  Goverlord/runner to pause").
-- **Every spoken line reads left to right** (2026-11-01): one rule, every bubble kind - each line
+  highlight and its pauses.
+- **Every spoken line reads left to right**: one rule, every bubble kind - each line
   spans the bubble, so lines never sit jagged in a centred bubble.
-- **Stop run drops what's still being made** (2026-11-01): a Gomad's answer still being written when
+- **Stop run drops what's still being made**: a Gomad's answer still being written when
   stop run comes is dropped; a stop with nothing running still cuts voices playing on the page.
-- **Reminders name topics, never eggs** (2026-10-31); the eggs still work on their own phrases.
+- **Reminders name topics, never eggs**; the eggs still work on their own phrases.
 - **The intro template:** code says the opening (`I'm {name}, my nickname is {nickname}, because
   {why}.`) and the cast line (`intro_recipe.cast_line`), once; the model writes only the middle
   (`gopodIntroWrap`, `TestIntroTemplate`). An intro gets no value point and is its own answer type.

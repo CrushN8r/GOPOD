@@ -229,7 +229,7 @@ edited in `story.md`) back through the live chat (`gopod_session_replay.go`):
 2. **While recording:** every chat line and answer is written; each answer is a take for the take
    sheet.
 3. **Unticked:** it stops and keeps the session (no question). The timer goes back to 0.
-4. **Thanks, or `max_minutes`:** it stops, and the Butler asks keep or delete (`record_session.ask_brobot`: the system speaker, 2026-10-30). The box stays
+4. **Thanks, or `max_minutes`:** it stops, and the Butler asks keep or delete (`record_session.ask_brobot`: the system speaker). The box stays
    ticked until the answer; unticking then counts as keep; no answer in `answer_wait_minutes`
    deletes.
 5. **Keep:** the takes go on the take sheet and the folder is zipped. **Delete:** it's removed.

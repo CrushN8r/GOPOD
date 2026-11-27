@@ -15,7 +15,7 @@ import (
 // work"): every song folder has a status line, both files name the same steps,
 // and every note is one the song's player knows.
 var (
-	gopodSongStatusLine = regexp.MustCompile(`^\*\*Status:\*\* (GOLDEN|WIP) \(\d{4}-\d{2}-\d{2}\)$`)
+	gopodSongStatusLine = regexp.MustCompile(`^\*\*Status:\*\* (GOLDEN|WIP)$`)
 	gopodSongStepLine   = regexp.MustCompile(`^## STEP (\S+)\s*$`)
 	gopodEngineNotes    = map[string]bool{"wake_both": true, "brobots_ready_together": true, "say_turn": true,
 		"say": true, "animation": true, "emotion_beat": true, "arm_cue": true, "nod": true,
@@ -51,7 +51,7 @@ func TestSongFoldersFollowTheStandard(t *testing.T) {
 			status = status || gopodSongStatusLine.MatchString(strings.TrimSpace(l))
 		}
 		if !status {
-			t.Errorf("%s/story.md: no status line (**Status:** GOLDEN|WIP (YYYY-MM-DD)) under the title", d.Name())
+			t.Errorf("%s/story.md: no status line (**Status:** GOLDEN|WIP) under the title", d.Name())
 		}
 		storySteps := map[string]bool{}
 		for _, l := range lines {

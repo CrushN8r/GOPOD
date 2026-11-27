@@ -1,6 +1,6 @@
 # LLM Warming
 
-**Status:** WIP (2026-10-16)
+**Status:** WIP
 
 The opener: Wire-Pod plays it at every start (`wpr 2`), from the LLM warm template
 (`../_new_song/_llm_warm/`). Edit a line's words here and restart Wire-Pod; the voice file is made

@@ -119,11 +119,11 @@ menu (🔊), and turns it off and closes it (🔇).
   KP+ and KP- turn the
   camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The **/** key skips ([6.7](03_SESSION.md#67-skip)). **\*** held is all the
   Brobots, in the order the All menu picks; **KP0** held is the Butler, KEYNOTE VALE ("Keys") (3 quick taps still
-  leave numpad mode) (2026-10-30).
+  leave numpad mode).
 - Three taps of 0 (or NumLock) leave numpad mode; Goverlord says "Goverlord has released the
   numpad."
 - **Every Operator line** - typed or the numpad's, to anyone - is one template: its header 100%,
-  its words 75% of it (2026-10-30).
+  its words 75% of it.
 - **Its status bubble is an Operator bubble,** headed "Numpad to <who>": the status lines
   (`numpad_ptt.texts`: "KP7 to CHALK", keep holding…, Recording for CHALK, Got it -
   transcribing…), then the words, with "Generating..." and the hourglass while they're read
@@ -425,7 +425,7 @@ runs inside the one thinking process (after its line, before its searching moves
 
 GOPOD's own web search, no LLM in it: the `gopod-searxng` container (this machine only, port
 8055; started by `wire_pod_overlay/searxng/run_gopod_searxng.sh`, its private settings in
-`~/gopod_searxng/`). Go search is retired.
+`~/gopod_searxng/`).
 
 - **To the Brobots:** a line opening with `search <words>` or `look up <words>` (a Brobot's name
   first at most) gets the top 3 results' snippets as facts. Both Brobots get the same search for
@@ -628,8 +628,7 @@ line:
   the line queue and skips the page.
 - **GOLDEN voice start**: every made voice plays the same way - its bubble shown,
   then its length and its word times (`.words.json`) loaded (up to `VOICE_READY_MAX_MS`, 3 s),
-  then it plays and lights. A just-made voice no longer starts before its word times arrive
-  (it lit by the estimate, out of step).
+  then it plays and lights - never before its word times arrive.
 - It works the same for an operator line, a reporter's, a Goverlord bubble, a manager's, and the
   opener's System llm bubble. The Operator's own words wait the same way ("op:<file>"). No
   separate "Generating..." bubble.
@@ -710,7 +709,7 @@ shows. A restored chat shows all. `.spoken` / `.speaking` in `gopod_chat_bubbles
   voice - "highlighting appears late ... weird segmentation passes").
 - While a link's words are revealed, only the shown words are underlined.
 
-**Forced alignment: word times from the voice - GOLDEN, the one highlight gear (2026-11-06).**
+**Forced alignment: word times from the voice - GOLDEN, the one highlight gear.**
 The voice worker has Vosk listen to each voice it makes (`align_heard`), and the page lines the
 shown words up with those times (`alignUnits`) - both by the same one rule: the words said as
 written are matched in order (the longest common run - no look-ahead window, no partial
@@ -912,8 +911,7 @@ Nothing else posts an Operator bubble (`TestOperatorLineTemplate`).
 
 **Root-to-leaf pass, the feed**: everything the page shows comes from Wire-Pod's
 numbered feed - one append (`gopodChatFeedAddEventVia`), mirrored to the journal, the newest
-`page_sync.feed_max` (300) lines kept - and the page plays it in its numbers' order (the old time
-order merged lines read from Wire-Pod's log, which the page no longer reads; that code is gone). A
+`page_sync.feed_max` (300) lines kept - and the page plays it in its numbers' order. A
 viewer queues none of it (the display mirror). `TestFeedIsTheOneLine`.
 
 **Root-to-leaf pass, the bubble**:
@@ -1044,8 +1042,7 @@ from the template - `TestInterviewEndAndPauseHold` fails the deploy otherwise. T
 "Easter Eggs".
 
 **A later bubble never holds an earlier voice** (the interview's end held 4.5
-min): a voice waits only for bubbles that came before it (their feed ids) - the grand prize,
-waiting for "Interview complete" to be said, no longer holds that line's sting and voice. The
+min): a voice waits only for bubbles that came before it (their feed ids) - a later bubble never holds an earlier line's sting and voice. The
 Operator's line (and the interview's questions) use the voice template too: "Generating..." and
 the hourglass while its voice is made (`op:`), its words lit word by word as it plays (`oplit:`).
 A run pauses only once the page has stayed hidden `session.pause_after_ms` (2 s) - a tab

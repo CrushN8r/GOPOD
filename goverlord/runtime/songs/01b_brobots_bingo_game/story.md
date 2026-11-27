@@ -1,6 +1,6 @@
 # Chocolate Bingo — All Ages (Brobots Bingo Game, the live game itself, not a performance song)
 
-**Status:** WIP (2026-10-09)
+**Status:** WIP
 
 **Naming note, brobots wire-pod layer:** this layer's robots are Brobot 1 and Brobot 2. "Doc"
 and "Pip" are GOPOD-layer persona names — a different, future layer, not this one. There is

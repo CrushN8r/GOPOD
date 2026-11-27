@@ -1,6 +1,6 @@
 # Brobots Interview
 
-**Status:** WIP (2026-10-23)
+**Status:** WIP
 
 The scripted interview. Type `start interview` in the Brobots chat to play it, `stop run` to stop
 it at a safe spot.

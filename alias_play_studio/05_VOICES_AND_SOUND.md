@@ -155,8 +155,7 @@ own bubbles (system window, system command answers: `gopod-admin-only`) never re
 
 **GOLDEN bubble sounds: the Operator & Manager bubble template**: `bubble_sounds` - each kind's sound when its bubble shows (`file`, else `default_file`
 djent; `volume`; `mute`, all true now); the Operator's `error` label (grunge, 15%) plays even when
-muted - the numpad's error messages wear it (`numpad_ptt.error_texts`: too short, not yet ...;
-its old `error_sound` moved here). A file not found is skipped. `bubbleSound` in the page.
+muted - the numpad's error messages wear it (`numpad_ptt.error_texts`: too short, not yet ...). A file not found is skipped. `bubbleSound` in the page.
 Goverlord's bubbles too: `bubble_sounds.Goverlord` (djent, muted) is a
 Goverlord line's own sound (`gopodSystemSting`); the grunge run sting is gone. A "(music)" and a
 warm-up's end still play djent (`reporter_voices.system_stings.default`, `gopodMusicSting`).

@@ -121,8 +121,7 @@ read as what its knobs play, or that has a word not on the master list (a typo, 
 `host_say_danger_beat_frustrated_0205: the name reads say_turn + danger? + emotion_beat:frustrated,
 its knobs play sound:danger-will-robinson.wav + emotion_beat:frustrated - 'danger' isn't on the
 master list`. It only warns; the run plays its knobs as ever. Names without `_SSNN` are free
-labels and aren't read (the nap's `line_30`, `soft_wake` were, until: renamed to the new
-format, `narrator_line_0608`, `brobots_soft_wake_0506`). Locked by
+labels and aren't read. Locked by
 `test_golden_song_step_names_001.py`.
 
 ### 2.3 `knobs.json`, the top keys
@@ -290,9 +289,9 @@ For weather in the live chat (place names, countries, flags) see [8.6](04_CHAT.m
 | `02_brobots_interview` | WIP | Your score, played by the chat. Two reporters. One question per egg - the workbook, fractions and decimals, the rig, the rest of the cast, birthdays and merch, Bingo nights, foodmath, the weather, roast battles, our legacy - then the closer (`note: closer`, Brobot 2's "Press my backpack…") after "Interview run complete". The Brobots' answers are your own lines from the topic files, word for word; the reporters' questions are drafts. Chapters named in the song (`chapter`); the photos named with their questions (`pictures`); Brobot 1's Awaken bit (arm, nod and cube at their words, and the weather); the brothers' handoffs; emojis and cues lightly sprinkled. |
 | `101_brobots_nap` | WIP | "Do Baby Robots Dream?": a lyric video, the first timed song. Music plays and a female narrator reads the poem; the 32 captions and their times come from the video's SRT, and the Brobots sleep through it (put back to sleep if found awake) and wake after the last words for "Brobots Ready!". The soundtrack plays on the chat page and the poem shows in one narrator bubble the size of its picture (no header) - each section's words over its own picture (`baby_brobots1-5.jpg`, from its `images/` folder, one per section, Sleepy Robots to Together), fading in to 50%, out after its last words, the last one staying. Its ready line comes first, then "Brobots. Go to sleep now please." Needs no voices and no language model (both `false`). `start baby brobots` (typed, numpad or spoken) or `pha0b nap`. Made in Premiere Pro; the media stays private. |
 | `03_fart_joke` | WIP | The elevator: Brobot 2 sets it up, the live chat's own thinking process (`thinking`), farts (`fart sfx/`, 80%), Brobot 1 goes frustrated, then angry, then leaves. `start fart joke`; "Fart joke started." / "Fart joke complete." Its ready line: "We here, are Fart Joke Ready". |
-| `04_rapid_fire` | WIP | The rapid fire exchanges test (2026-11-04, from the operator's perfect run): two long lines started at once (`"with_next": true` on the first say_turn - the engine starts the next step with it; say_turn, nod and arm_cue take it), each line's own `" "` commas timing the gaps ("what?" 0.5 s, "what do you mean what?" 1.5 s, each `" "` 0.5 s); Brobot 2's three leading pauses are the tuned offset. `start rapid fire`. |
-| `05_comm_check` | WIP | The comm check as a song (2026-11-04): `system-comm-check` plays it (Wire-Pod, `gopod_comm_check.go`, settings `comm_check.song`) - each `ask` step's line on each of its keys (knobs.json `keys`), `{name}` who the key reaches; its `wake_both` step wakes both Brobots first; Goverlord hands it to Keys (each step's `asker`: its bubble and voice), and Keys runs the round robin top-down - Gomads, Brobots, interns, guards, then All - each intro his name, nickname, job, role and working relationships (no who's-here line, 2026-11-04); the waits stay in the settings' `comm_check`. |
-| `06_brobots_ready` | WIP | The Brobots ready move (2026-11-04): Brobot 1's arm lift, Brobot 2's, both nod together (`"with_next"` on the first nod), then "Brobots ready!" together (`brobots_ready_together`). `start brobots ready`. Pinned: an off-charger version with tiny track moves (swivel left, right, center). |
+| `04_rapid_fire` | WIP | The rapid fire exchanges test: two long lines started at once (`"with_next": true` on the first say_turn - the engine starts the next step with it; say_turn, nod and arm_cue take it), each line's own `" "` commas timing the gaps ("what?" 0.5 s, "what do you mean what?" 1.5 s, each `" "` 0.5 s); Brobot 2's three leading pauses are the tuned offset. `start rapid fire`. |
+| `05_comm_check` | WIP | The comm check as a song: `system-comm-check` plays it (Wire-Pod, `gopod_comm_check.go`, settings `comm_check.song`) - each `ask` step's line on each of its keys (knobs.json `keys`), `{name}` who the key reaches; its `wake_both` step wakes both Brobots first; Goverlord hands it to Keys (each step's `asker`: its bubble and voice), and Keys runs the round robin top-down - Gomads, Brobots, interns, guards, then All - each intro his name, nickname, job, role and working relationships (no who's-here line); the waits stay in the settings' `comm_check`. |
+| `06_brobots_ready` | WIP | The Brobots ready move: Brobot 1's arm lift, Brobot 2's, both nod together (`"with_next"` on the first nod), then "Brobots ready!" together (`brobots_ready_together`). `start brobots ready`. Pinned: an off-charger version with tiny track moves (swivel left, right, center). |
 | `01b_brobots_bingo_game` | WIP | The live Chocolate Bingo game: a Go program (`gobingo`), not a step song; Brobot 2's angry reactor. |
 
 ### 4.3 Parked, not lost
@@ -302,8 +301,8 @@ For weather in the live chat (place names, countries, flags) see [8.6](04_CHAT.m
 - **The sleep family**, for the nap's B-roll. The tool is still here
   (`gopod_probes/tools/direct_sdk_robot_sleep_001.go`: sleep, wake, and play one named trigger
   or clip). phcal's `brobots_sleep_to_wake_direct_sdk` puts both robots to sleep and wakes them.
-  The 126 bench aliases (`sleep-beat-*`, `sleep-palm-*`, `sleep-rts-*`, `pet-*`,
-  `sleep-segment-*`) are retired from the alias library and kept as `sleep_beats` in the settings
+  The 126 sleep beats (`sleep-beat-*`, `sleep-palm-*`, `sleep-rts-*`, `pet-*`,
+  `sleep-segment-*`) live as `sleep_beats` in the settings
   (`system-robot beats [family]`, `system-robot beat <alias>`). Vector's own sleep triggers are
   `GoToSleepGetIn`, `GoToSleepSleeping` and `GoToSleepOff`; the purr lives in the petting bliss
   clips. No snore animation exists in Vector's sources.
@@ -349,7 +348,7 @@ whole song - can be rewritten from scratch by hand. No code changes.
 - **Try it:** `zKnobs.json` (your private copy) wins while it's there. `score <song>` shows the
   steps; `pha0b <song> <first_step> <last_step>`, dry, plays a range with no robots; then live.
   From the chat: `system-score <song>` and `system-play <song> ... dry`.
-- **Lock it in:** a good live run, then the status line to `GOLDEN` with the date, then a commit.
+- **Lock it in:** a good live run, then the status line to `GOLDEN`, then a commit.
 
 ### 5.2 Multi-line words
 
@@ -440,15 +439,14 @@ after it and any `show_ball`. Older songs (no `compose_moves`) play as before. L
 
 [Back to ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md)
 
-**Smart warm (2026-11-06, operator: "LLM warming should be smart enough to know").** The opener
+**Smart warm.** The opener
 (`00_llm_warming`, Wire-Pod's start) warms the language model, on its schema
 (`_new_song/_llm_warm/llm-warm-schema.md`, checked every restart). A song with `llm_warmup` checks the
 model first: still loaded, the loading lines are bypassed - Goverlord says the song's own ready line and
 it goes on (`song_llm_warmup`, `run_golden_song_001.py`); not loaded, the full warm-up. `llm.smart_warm`
 false turns it off.
 
-**Golden timing lessons (2026-11-08, the fart joke - operator: "I want both brobots acting normally with as
-little time between them for comedic effect").** Where and how time was cut, no speech overlap:
+**Golden timing lessons.** Where and how time was cut, no speech overlap:
 1. **Full, then minimize:** every line, sound and thinking step plays to its end; every gap between parts is
    cut - `buffer_after` 0, `tempo_factor` 0.
 2. **No hold after a line:** a move with a line (`emotion_beat` + its say line) holds 0 s (`hold_seconds` 0);

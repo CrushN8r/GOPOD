@@ -1,16 +1,14 @@
 # Comm Check
 
-**Status:** WIP (2026-11-04)
+**Status:** WIP
 
 The comm check before the show: `system-comm-check` plays it. Goverlord hands it to his butler,
 Keys, to get the party started; Keys introduces himself, then runs the round robin - he calls each
-live key of the numpad map in: the Brobots first (Brobot 1 and 2, NumLock off - 2026-11-14,
-operator: "I also asked for the brobots after Keys"), then every other live key in the map's order, then the Brobots together (2026-11-13: "keys": ["map"] - the map's
-live keys, so a key made live or off in numpad-mapper.md joins or leaves the comm check itself),
+live key of the numpad map in: the Brobots first (Brobot 1 and 2, NumLock off), then every other live key in the map's order, then the Brobots together,
 and each introduces themselves: what they do, who they answer to and who works with them. Each line
 goes to its keys in turn, as if the key were held and the words spoken - the model, the voices and
 the robots, live - and the next waits for the answer to finish. It starts by waking both Brobots.
-`{name}` is who the key reaches. 2026-11-17 (operator's review): Goverlord hands it to Keys -
+`{name}` is who the key reaches. Goverlord hands it to Keys -
 Keys answers with his Got it and the crew brain bubble (comm-check.md, comm_check.crew) - then calls
 Goverlord, introduces himself, and calls the crews in order: the System Crew (LLM), Security (Buzzer,
 Switch), the Show Hosts (Doc, Pip), the Gomads (Chalkra, Zoomy, Chammy), their Interns (Repo, Mimi), the

@@ -1,6 +1,6 @@
 # LLM Warm Template
 
-**Status:** WIP (2026-10-16)
+**Status:** WIP
 
 The master opener LLM warm template. Copy this folder to `<number>_<name>/` and give its
 knobs.json its own `song_id`. The standard is

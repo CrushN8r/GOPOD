@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // The interview as a song folder, set up like the Bingo test (operator
@@ -210,7 +209,7 @@ func gopodInterviewSongDraft(dir string) (gopodDraft, error) {
 // gopodInterviewSongFiles writes a draft as a song folder's story.md and knobs.json.
 func gopodInterviewSongFiles(d gopodDraft) (story string, knobs []byte, err error) {
 	var b strings.Builder
-	b.WriteString("# Brobots Interview\n\n**Status:** WIP (" + time.Now().Format("2006-01-02") + ")\n\n")
+	b.WriteString("# Brobots Interview\n\n**Status:** WIP\n\n")
 	b.WriteString("The scripted interview. Type `start interview` in the Brobots chat to play it, `stop run` to stop\n")
 	b.WriteString("it at a safe spot.\n\n")
 	b.WriteString("- **The lines** live in this file (`## STEP` / `> TEXT:`). **Who says each one, the Brobot's\n")

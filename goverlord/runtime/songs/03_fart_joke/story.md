@@ -1,6 +1,6 @@
 # Fart Joke
 
-**Status:** WIP (2026-10-11)
+**Status:** WIP
 
 Brobot 2 sets up an elevator, three thinking pauses (the golden thinking please wait: arm lift, nod, "Thinking, please wait." spoken with no bubble, searching) end in a fart each (`fart sfx/`, at 80%), Brobot 1
 goes frustrated, then angry, then leaves. `start fart joke` in the Brobots chat. Goverlord says
