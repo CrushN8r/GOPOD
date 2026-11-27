@@ -28,3 +28,7 @@
 ## intent_imperative_findcube (native_cube.intents.5)
 1. intent: intent_imperative_findcube
 2. phrases: find your cube | find the cube | where is your cube | where's your cube | where is the cube | where's the cube
+
+## intent_play_fistbump (native_cube.intents.6)
+1. intent: intent_play_fistbump
+2. phrases: fistbump | fist bump | fist-bump

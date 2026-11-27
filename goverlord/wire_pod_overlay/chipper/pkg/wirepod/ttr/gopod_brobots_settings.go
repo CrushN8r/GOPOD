@@ -53,7 +53,7 @@ type gopodBrobotsSettingsFile struct {
 	} `json:"merged_words"`
 	// 2026-11-25: the game's golden questions, read from each topic card's
 	// "ask N" lines at load (gopod_chapters_folder.go) - never written in a settings file.
-	GameQuestions []gopodGameQuestion `json:"game_questions,omitempty"`
+	GameQuestions    []gopodGameQuestion `json:"game_questions,omitempty"`
 	ScriptedSnippets struct {
 		Lines []gopodSnippetLine `json:"lines"`
 	} `json:"scripted_snippets"`
@@ -736,16 +736,16 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-11-24 (operator: "Make Goverlord a session aura brain bubble that each
 		// persona can then think with"): the AURA line's template and words
 		// (gopod_session_aura.go).
-		Aura map[string]string `json:"aura"`
-		RealWords      string `json:"real_words"`
-		CastItem       string `json:"cast_item"`
-		Roster         string `json:"roster"`
-		CastMe         string `json:"cast_me"`
-		RemindersPart  string `json:"reminders_part"`
-		Asked          string `json:"asked"`
-		None           string `json:"none"`
-		QuestionChars  int    `json:"question_chars"`
-		GomadsRawChat  bool   `json:"gomads_raw_chat"`
+		Aura          map[string]string `json:"aura"`
+		RealWords     string            `json:"real_words"`
+		CastItem      string            `json:"cast_item"`
+		Roster        string            `json:"roster"`
+		CastMe        string            `json:"cast_me"`
+		RemindersPart string            `json:"reminders_part"`
+		Asked         string            `json:"asked"`
+		None          string            `json:"none"`
+		QuestionChars int               `json:"question_chars"`
+		GomadsRawChat bool              `json:"gomads_raw_chat"`
 		// 2026-10-31: the operator's own cast entry (left out of the "who's here" list).
 		OperatorWho string `json:"operator_who"`
 		// 2026-10-31: who performs the runs, in their records ("Doc and Pip").
@@ -1002,24 +1002,24 @@ type gopodBrobotsSettingsFile struct {
 		DropLists           bool           `json:"drop_lists"`
 		DropStageDirections bool           `json:"drop_stage_directions"`
 		// 2026-11-24: the only places a reply may link to (gopodDropStrangeLinks).
-		LinkHosts []string `json:"link_hosts"`
-		BrandWords          []struct {
+		LinkHosts  []string `json:"link_hosts"`
+		BrandWords []struct {
 			From string `json:"from"`
 			To   string `json:"to"`
 		} `json:"brand_words"`
 	} `json:"reply_tighten"`
 	InterviewScript struct {
 		// 2026-10-09: the interview's song folder (gopod_interview_song.go).
-		SongID     string  `json:"song_id"`
-		DraftsDir  string  `json:"drafts_dir"`
+		SongID    string `json:"song_id"`
+		DraftsDir string `json:"drafts_dir"`
 		// 2026-11-25: the harvest dry run's input kind and its sign-off line (its
 		// questions are the cards' own - game_questions).
-		HarvestInput   string `json:"harvest_input"`
-		HarvestEndText string `json:"harvest_end_text"`
-		Draft      string  `json:"draft"`
-		PlayWords  string  `json:"play_words"`
-		StopWords  string  `json:"stop_words"`
-		GapSeconds float64 `json:"gap_seconds"`
+		HarvestInput   string  `json:"harvest_input"`
+		HarvestEndText string  `json:"harvest_end_text"`
+		Draft          string  `json:"draft"`
+		PlayWords      string  `json:"play_words"`
+		StopWords      string  `json:"stop_words"`
+		GapSeconds     float64 `json:"gap_seconds"`
 		// 2026-10-08: the played draft's own opening/closing host lines stand in
 		// for reporter_voices.opening/closing (the record cut's script).
 		BookendsFromDraft bool `json:"bookends_from_draft"`
@@ -1118,13 +1118,13 @@ type gopodBrobotsSettingsFile struct {
 		PauseAfterMS   int      `json:"pause_after_ms"`
 		PageHiddenFile string   `json:"page_hidden_file"`
 		// 2026-10-17: the chat page away (gopod_page_presence.go).
-		AwaitsText         string            `json:"awaits_text"`
-		PagePresentSeconds float64           `json:"page_present_seconds"`
+		AwaitsText         string  `json:"awaits_text"`
+		PagePresentSeconds float64 `json:"page_present_seconds"`
 		// 2026-11-25 (operator: "it should've known to hold my input until KEYS'
 		// run-closing message * then continue with 'start bingo test'"): a run that
 		// starts during the comm check waits this long for it to close.
-		CommCheckWaitSeconds float64 `json:"comm_check_wait_seconds"`
-		RunNames           map[string]string `json:"run_names"`
+		CommCheckWaitSeconds float64           `json:"comm_check_wait_seconds"`
+		RunNames             map[string]string `json:"run_names"`
 	} `json:"session"`
 	NativeCube struct {
 		Intents []struct {
@@ -1193,13 +1193,13 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-11-20 (operator: "stay the fuck away from anything Palestine ...
 		// BLOCK THAT SHIT AWAY FROM MY CLEAN GOPOD!!"): never said, by anyone,
 		// anywhere - the roast battle too.
-		NeverWords []string          `json:"never_words"`
+		NeverWords []string `json:"never_words"`
 		// 2026-11-24 (operator: "Extend never-list to guards what comes in, to
 		// GOPOD as well"): a line coming in that names a never word goes no
 		// further - not to the page, not to the model; where it was spoken to a
 		// Brobot or persona, this line is said instead (gopodNeverIn).
-		NeverInLine string `json:"never_in_line"`
-		Countries  map[string]string `json:"countries"`
+		NeverInLine string            `json:"never_in_line"`
+		Countries   map[string]string `json:"countries"`
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
 		Capitals map[string]string `json:"capitals"`
 		// 2026-11-03: a US state or Canadian province alone is its capital
@@ -1270,7 +1270,10 @@ type gopodBrobotsSettingsFile struct {
 		SweepClear   string `json:"sweep_clear"`
 		SweepMissing string `json:"sweep_missing"`
 		SweepLow     string `json:"sweep_low"`
-		Reply        string `json:"reply"`
+		// 2026-11-27: full on his charger (gopodBatteryFull), and KEYS' stop line when a sweep fails.
+		SweepFull string `json:"sweep_full"`
+		SweepStop string `json:"sweep_stop"`
+		Reply     string `json:"reply"`
 	} `json:"battery_watch"`
 	// 2026-10-14: the Brobots' math, worked out exactly in code (gopod_math.go).
 	Math struct {

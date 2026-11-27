@@ -167,7 +167,8 @@
 - Part 2: the chat page
 - Part 3: the offline LLM
 - our local brain
-- 6. Where this stands
+- 6. The Brobots on 1.6-rebuild
+- 7. Where this stands
 
 ## alias_play_studio/01_CONCEPTS.md
 - Concepts and terms
@@ -1160,6 +1161,7 @@
 - intent_play_popawheelie (native_cube.intents.3)
 - intent_play_keepaway (native_cube.intents.4)
 - intent_imperative_findcube (native_cube.intents.5)
+- intent_play_fistbump (native_cube.intents.6)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/content/show/nicknames.md
 - GOPOD nicknames

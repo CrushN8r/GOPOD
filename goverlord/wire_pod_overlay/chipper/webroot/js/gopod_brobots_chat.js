@@ -5393,7 +5393,10 @@
       var brobotTo = {}; // 2026-11-14: who a line to a Brobot body reaches (its to_as)
       function showFeedEvent(e, done) {
         feedIdNow = e.id || 0;
-        if (/^Brobot [12]$/.test(e.who) && e.by) { brobotBy[e.who] = e.by; }
+        // 2026-11-26 (operator: "bingo test song, I still see chat bubbles start out
+        // as DOC, then flip to Brobot 1"): a Brobot line with no "by" (a song's line)
+        // is the Brobot himself, not the persona he answered as last.
+        if (/^Brobot [12]$/.test(e.who)) { brobotBy[e.who] = e.by || e.who; }
         // 2026-11-14 (operator: "welcoming & engaging a new visitor"): a line to a
         // Brobot body names the persona it reaches (Wire-Pod's to_as) - the label;
         // the body still places the bubble and its icon.

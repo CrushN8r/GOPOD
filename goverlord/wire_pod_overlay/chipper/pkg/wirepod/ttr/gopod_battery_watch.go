@@ -35,7 +35,15 @@ var gopodBatteryLow = struct {
 	prev   map[string]float64
 	seen   map[string]bool // read at least once this Wire-Pod session
 	misses map[string]int  // readings in a row that didn't work
-}{said: map[string]bool{}, prev: map[string]float64{}, seen: map[string]bool{}, misses: map[string]int{}}
+	full   map[string]bool // on his charger, the robot's own level FULL (gopodBatteryFull)
+}{said: map[string]bool{}, prev: map[string]float64{}, seen: map[string]bool{}, misses: map[string]int{}, full: map[string]bool{}}
+
+// gopodBatteryFull (2026-11-27, operator: "resting 3.6 V on charger stops
+// charging"; both Brobots on 1.6-rebuild read 3.58-3.60 V there with their own
+// level FULL): on his charger at FULL he's full, whatever the volts.
+func gopodBatteryFull(level string, onCharger bool) bool {
+	return onCharger && level == "FULL"
+}
 
 // gopodBatteryBack (2026-11-03, operator: "after freeze/reboot response: Yeah...
 // Whoa, bro... I felt dizzy. Then, Bam!"; "after a freeze or reboot or battery
@@ -67,9 +75,9 @@ func gopodBatteryBack(esn string, ok bool) bool {
 // (dip_volts or more since the last reading) - on his charger too when it isn't
 // charging (a bad contact, Brobot 2 at 3.61 V). Only charging or recover_volts
 // re-arms it.
-func gopodBatteryDecide(said bool, prev, volts float64, charging, onCharger bool) (sayNow, saidAfter bool) {
+func gopodBatteryDecide(said bool, prev, volts float64, charging, onCharger, full bool) (sayNow, saidAfter bool) {
 	bw := gopodBrobotsSettings.BatteryWatch
-	if charging {
+	if charging || full {
 		return false, false
 	}
 	// A dip is its own warning, at any level; then the line's state goes on.
@@ -175,8 +183,10 @@ func gopodBatteryCheck(esn string) {
 	}
 	gopodBatteryLow.Lock()
 	prev := gopodBatteryLow.prev[esn]
-	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform())
+	full := gopodBatteryFull(level, b.GetIsOnChargerPlatform())
+	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform(), full)
 	gopodBatteryLow.said[esn] = said
+	gopodBatteryLow.full[esn] = full
 	if volts > 0 {
 		gopodBatteryLow.prev[esn] = volts
 	}
@@ -259,7 +269,7 @@ func gopodBatteryLines(name string, volts float64, line string) (guard, warning,
 	if guard == "" {
 		return "", "", line, line
 	}
-	warn := strings.NewReplacer("{brobot}", name, "{volts}", fmt.Sprintf("%.1f", volts)).Replace(bw.GuardWarning)
+	warn := strings.NewReplacer("{brobot}", name, "{volts}", fmt.Sprintf("%.2f", volts)).Replace(bw.GuardWarning)
 	hand := gopodNicknameFill(guard, strings.ReplaceAll(bw.GuardHandover, "{brobot}", name))
 	come := gopodNicknameFill(name, gopodBrobotsSettings.Openers["comeback"])
 	reply = strings.Join(strings.Fields(strings.NewReplacer("{comeback}", come, "{line}", line).Replace(bw.Reply)), " ")
@@ -299,6 +309,7 @@ func gopodSecuritySweep() bool {
 	}
 	wg.Wait()
 	ok := true
+	var notReady []string
 	for n, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 		name := gopodBrobotName(esn)
 		gopodBatteryLast.Lock()
@@ -306,18 +317,30 @@ func gopodSecuritySweep() bool {
 		gopodBatteryLast.Unlock()
 		gopodBatteryLow.Lock()
 		volts := gopodBatteryLow.prev[esn]
+		full := gopodBatteryLow.full[esn]
 		gopodBatteryLow.Unlock()
 		line := bw.SweepClear
 		switch {
 		case last == "" || strings.HasPrefix(last, "unknown"):
 			line, ok = bw.SweepMissing, false
+			notReady = append(notReady, name)
+		case full && bw.SweepFull != "":
+			line = bw.SweepFull
 		case volts > 0 && volts < bw.LowVolts:
 			line, ok = bw.SweepLow, false
+			notReady = append(notReady, name)
 		}
 		line = strings.NewReplacer("{n}", fmt.Sprint(n+1), "{brobot}", name, "{volts}", fmt.Sprintf("%.2f", volts)).Replace(line)
 		logger.Println("GOPOD_SECURITY_SWEEP " + name + ": " + line)
 		if guard := bw.Guards[name]; guard != "" {
 			gopodReporterSay(guard, line, true, false)
+		}
+	}
+	// 2026-11-27 (operator: "if not enough to proceed, security team hands off
+	// report to Keys, who stops the run with a message"): KEYS says why it stopped.
+	if !ok && bw.SweepStop != "" {
+		if role := gopodBrobotsSettings.SystemBubble.VoicePersona; role != "" {
+			gopodReporterSay(role, strings.ReplaceAll(bw.SweepStop, "{who}", strings.Join(notReady, " and ")), true, false)
 		}
 	}
 	return ok

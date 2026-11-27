@@ -26,7 +26,8 @@ whole way, in order.
 3. [Build, deploy and test](#3-build-deploy-and-test)
 4. [Voice commands](#4-voice-commands-customintentsjson)
 5. [Take Out: set it up at home](#5-take-out-set-it-up-at-home)
-6. [Where this stands](#6-where-this-stands)
+6. [The Brobots on 1.6-rebuild](#6-the-brobots-on-16-rebuild)
+7. [Where this stands](#7-where-this-stands)
 
 ---
 
@@ -266,7 +267,39 @@ If you're asked about no cloud, no wifi or no monthly bill, reveal these, in ord
 
 </details>
 
-## 6. Where this stands
+## 6. The Brobots on 1.6-rebuild
+
+Both Brobots run 1.6-rebuild (vicos 1.6.1.9) since 2026-11-26, the livelier classic 1.6 base
+with fixes backported, and stay on Wire-Pod.
+
+**What it adds** (from the 1.6-rebuild notes; not all of it tried on ours yet):
+- **Eyes:** Rainbow Eyes ("change eye color to Rainbow Eyes"), Rebuild Eyes (the default,
+  cycling like the PS3 menu: "change eye color to Cross Media Bar"), Mystery Eyes (a new colour
+  every boot), 60 fps screen and boot animation.
+- **Games:** rock-paper-scissors (with point stats), Snake ("what's your snake high score?"),
+  blackjack, keepaway, cube drive, a fist bump that looks for faces, Dance to the Beat.
+- **Voice:** a custom name and pronouns ("what's your name?"), "what is the date?", mute,
+  power off and reboot by voice.
+- **Robot menu:** double-click the back button, then raise and lower the arms: 60/30 fps,
+  performance profiles, back-light styles, sleep settings.
+- **The robot's own page:** `http://<robot-ip>:8080`: performance profile, wake word,
+  sensitivity, time zone, units, faces.
+
+**How a production Vector on 1.6-rebuild joins Wire-Pod** (the way ours did; Wire-Pod's
+normal pairing can't log it in):
+1. Unlock it at [unlock-prod.skittle.dev](https://unlock-prod.skittle.dev/), on the charger
+   the whole time. This installs an unlock update.
+2. Put 1.6-rebuild back on: [websetup.skittle.dev](https://websetup.skittle.dev), Custom
+   Firmware, with WiFi.
+3. In Wire-Pod's Bot Setup, "Configure an OSKR/dev-unlocked robot": the robot's address and the
+   unlock site's SSH key. It puts Wire-Pod's server settings and a fresh robot key on him;
+   faces and photos stay.
+4. Back in Bot Setup's top box: connect over Bluetooth and Activate.
+
+**Gotcha:** anything else on port 8080 (a web server used to host the update, for example)
+stops Wire-Pod from starting. Stop it first.
+
+## 7. Where this stands
 
 **Live-tested:** the Brobots chat, shared memory, personas, the piece-by-piece highlight,
 the LLM warm-up, the scripted interview run, the Bingo test song, numpad push-to-talk with a

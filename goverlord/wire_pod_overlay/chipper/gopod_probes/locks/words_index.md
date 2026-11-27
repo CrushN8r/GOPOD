@@ -34,7 +34,7 @@
 - words: third party licenses, wire pod, vectorx, vector go sdk, katex, vector weather pictures and sounds, kokoro
 
 ## WIRED-POD.md
-- words: wired pod, contents, this chat works, nine native files gopod changes, build deploy and test, part 2 the chat page, part 3 the offline llm, local brain, where this stands, cloud, internet, brain, your brain, ai, local, offline, what brain, run on, who built you, who made you, under the hood, wifi, wi-fi, wi fi, no cloud, monthly, monthly bill, bill, plug, plugged in, how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
+- words: wired pod, contents, this chat works, nine native files gopod changes, build deploy and test, part 2 the chat page, part 3 the offline llm, local brain, brobots on 1 6 rebuild, where this stands, cloud, internet, brain, your brain, ai, local, offline, what brain, run on, who built you, who made you, under the hood, wifi, wi-fi, wi fi, no cloud, monthly, monthly bill, bill, plug, plugged in, how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
 
 ## alias_play_studio/01_CONCEPTS.md
 - words: concepts, concepts and terms, cast, three words, on stage the chat page, show, workbench, desk start, the three words, golden note, who is who

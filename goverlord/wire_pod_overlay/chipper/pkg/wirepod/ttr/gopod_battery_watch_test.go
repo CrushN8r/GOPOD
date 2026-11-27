@@ -15,26 +15,29 @@ func TestBatteryWatchOncePerDrop(t *testing.T) {
 	low := bw.LowVolts - 0.05
 	said, prev := false, 0.0
 	steps := []struct {
-		volts             float64
-		charging, charger bool
-		want              bool
+		volts                   float64
+		charging, charger, full bool
+		want                    bool
 	}{
-		{4.05, false, false, false}, // full
-		{low, false, false, true},   // dropped: says it
-		{low - 0.02, false, false, false},
-		{bw.LowVolts + 0.02, false, false, false}, // back over the line, under recover: no repeat
-		{low, false, false, false},
-		{low, true, true, false},  // on his charger, charging: re-armed
-		{low, false, false, true}, // off again, still low: says it again
-		{low, true, true, false},  // charging: re-armed
-		{low, false, true, true},  // on the charger, not charging, low: a bad contact - says it
-		{4.05, true, true, false}, // charged up
-		{4.05, false, false, false},
-		{4.05 - bw.DipVolts - 0.01, false, false, bw.DipVolts > 0}, // a dip, above low_volts
+		{4.05, false, false, false, false}, // full
+		{low, false, false, false, true},   // dropped: says it
+		{low - 0.02, false, false, false, false},
+		{bw.LowVolts + 0.02, false, false, false, false}, // back over the line, under recover: no repeat
+		{low, false, false, false, false},
+		{low, true, true, false, false},  // on his charger, charging: re-armed
+		{low, false, false, false, true}, // off again, still low: says it again
+		{low, true, true, false, false},  // charging: re-armed
+		{low, false, true, false, true},  // on the charger, not charging, low: a bad contact - says it
+		{4.05, true, true, false, false}, // charged up
+		{4.05, false, false, false, false},
+		{4.05 - bw.DipVolts - 0.01, false, false, false, bw.DipVolts > 0}, // a dip, above low_volts
+		{4.05, true, true, false, false},
+		{3.58, false, true, true, false},       // 1.6-rebuild: resting full on his charger, not charging - fine
+		{low - 0.1, false, false, false, true}, // off the charger and low: says it
 	}
 	for i, s := range steps {
 		var say bool
-		say, said = gopodBatteryDecide(said, prev, s.volts, s.charging, s.charger)
+		say, said = gopodBatteryDecide(said, prev, s.volts, s.charging, s.charger, s.full)
 		prev = s.volts
 		if say != s.want {
 			t.Errorf("step %d (%.2f V charging=%v charger=%v): said=%v, want %v", i, s.volts, s.charging, s.charger, say, s.want)
@@ -98,5 +101,22 @@ func TestSecuritySweepHoldsTheRun(t *testing.T) {
 	set(gopodBrobot1ESN, "4.0 V", low+0.3)
 	if !gopodSecuritySweep() {
 		t.Error("both found and powered, the run was held")
+	}
+	// 2026-11-27: 3.58 V resting FULL on his charger (1.6-rebuild) is powered.
+	set(gopodBrobot1ESN, "3.58 V, FULL, on the charger", 3.58)
+	gopodBatteryLow.Lock()
+	gopodBatteryLow.full[gopodBrobot1ESN] = true
+	gopodBatteryLow.Unlock()
+	t.Cleanup(func() {
+		gopodBatteryLow.Lock()
+		delete(gopodBatteryLow.full, gopodBrobot1ESN)
+		gopodBatteryLow.Unlock()
+	})
+	if !gopodSecuritySweep() {
+		t.Error("full on his charger at 3.58 V, the run was held")
+	}
+	bw := gopodBrobotsSettings.BatteryWatch
+	if bw.SweepFull == "" || !strings.Contains(bw.SweepStop, "{who}") || !strings.Contains(bw.GuardWarning, "{volts}") {
+		t.Errorf("dizzy-brobots.md sweep_full/sweep_stop/guard_warning not laid over: %q %q %q", bw.SweepFull, bw.SweepStop, bw.GuardWarning)
 	}
 }
