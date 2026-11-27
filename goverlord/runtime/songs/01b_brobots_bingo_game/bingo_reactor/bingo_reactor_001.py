@@ -27,7 +27,6 @@ _stop_requested = False
 _stop_reason = None
 
 
-
 def gopod_robot_serial(label):
     """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
     who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
@@ -95,11 +94,6 @@ def run(args, robot_factory=anki_vector.Robot) -> None:
     started_at = datetime.now(timezone.utc)
     print(f"GOPOD_BINGO_REACTOR_STARTED serial={args.brobot2_serial}")
 
-    # Stay-put: connect once for the whole session instead of reconnecting per
-    # draw. Per-draw reconnect was the actual bug behind slow/failed reactions
-    # under real gameplay - a fresh connect also reloads the robot's whole
-    # animation list from scratch every time, which is too slow to keep up
-    # once draws come in close together.
     try:
         robot_ctx = robot_factory(serial=gopod_robot_serial(args.brobot2_serial))
         robot = robot_ctx.__enter__()
@@ -131,10 +125,6 @@ def run(args, robot_factory=anki_vector.Robot) -> None:
                     continue
                 producer = message.get("source_producer")
                 if producer == "bingo_end":
-                    # Fires once, whether the game ended by deck exhaustion or
-                    # by "bingo" called via the backpack button - both paths
-                    # write the same bingo_end envelope. Pip getting mad about
-                    # not winning, once, at the actual end - not per draw.
                     print(f"GOPOD_BINGO_REACTOR_ANIM_DISPATCH serial={args.brobot2_serial} reason=bingo_end")
                     dispatch_angry_animation(args.brobot2_serial, robot)
                     print("GOPOD_BINGO_REACTOR_STOPPED reason=bingo_end")

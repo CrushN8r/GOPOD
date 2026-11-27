@@ -90,7 +90,6 @@ class Mic:
         self.capture_dir = ""
         self.press = 0.0
 
-    # --- the stream, open only while something needs it ---
 
     def open(self) -> str:  # noqa: C901
         if self.stream is not None:
@@ -101,8 +100,6 @@ class Mic:
         )
         sd = golden._sounddevice
         if index is None:
-            # 2026-10-21 (live: a mic plugged in after the start was never found -
-            # PortAudio lists the devices once): look again, fresh, once.
             try:
                 sd._terminate()
                 sd._initialize()
@@ -156,7 +153,6 @@ class Mic:
                 if self.capturing and block:
                     self.capture.append(block)
 
-    # --- Record Session ---
 
     def record_start(self, out: str) -> dict:
         err = self.open()
@@ -192,7 +188,6 @@ class Mic:
         log(f"RECORD_STOP out={wanted}")
         return {"ok": True}
 
-    # --- push-to-talk ---
 
     def ptt_start(self, key: str, session_dir: str = "") -> dict:
         err = self.open()
@@ -210,7 +205,6 @@ class Mic:
             if not self.capturing:
                 return {"ok": False, "error": "not_capturing"}
             held = time.monotonic() - self.press
-        # The golden release tail: the last word often ends just after the key.
         time.sleep(golden.RELEASE_TAIL_SECONDS)
         with self.lock:
             self.capturing = False
@@ -221,9 +215,6 @@ class Mic:
         counter = key.lower()
         golden._capture_counters[counter] = golden._capture_counters.get(counter, 0) + 1
         if session_dir:
-            # 2026-10-11 (operator: "default to write ALL session files ... within
-            # that session's folder"): Wire-Pod's session folder, named by the
-            # time of the press, then the key and its count.
             master = Path(session_dir) / "numpad" / f"{time.strftime('%H%M%S')}_{counter}_{golden._capture_counters[counter]}.wav"
             master.parent.mkdir(parents=True, exist_ok=True)
         else:
@@ -242,7 +233,6 @@ class Mic:
 
 def main() -> int:
     mic = Mic()
-    # Load the Vosk model now (about 2 s), so the first capture doesn't wait.
     threading.Thread(target=lambda: golden.ensure_vosk_model_loaded(VOSK_MODEL_PATH), daemon=True).start()
     log("READY")
     for line in sys.stdin:
@@ -270,7 +260,6 @@ def main() -> int:
             out = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
         out["id"] = msg.get("id")
         reply(out)
-    # Wire-Pod closed stdin: finish a recording cleanly.
     if mic.record_wav is not None:
         mic.record_stop()
     return 0
@@ -279,4 +268,3 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
-# ## EOF

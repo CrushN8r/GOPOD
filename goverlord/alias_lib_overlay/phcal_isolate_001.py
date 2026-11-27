@@ -102,16 +102,6 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-# 2026-08-18, PHCAL_DEHARDCODE_001.md: pure config externalization, no
-# robot-behavior change - only WHERE the base directories below come from.
-# phcal_config.json (this file's own sibling, gitignored - real operator
-# values) is read if present; phcal_config.example.json (committed,
-# placeholder values) documents the shape for a new clone. Missing file ->
-# every base dir below falls back to the exact literal it was hardcoded to
-# before this config layer existed, so a fresh clone with no config yet
-# behaves identically to pre-config phcal (just not portable until filled
-# in). This is the multi-ESN + path foundation a future detect-first pass
-# will read from, not a detect-first implementation itself.
 _PHCAL_CONFIG_PATH = Path(__file__).resolve().parent / "phcal_config.json"
 
 
@@ -132,19 +122,8 @@ def _base_dir(key, default):
     return Path(_BASE_DIRS.get(key, default))
 
 
-# The two real base dirs every hardcoded path below used to spell out in
-# full. A third "alias-lib home" base dir is deliberately NOT configured -
-# phcal_config.json/tempo_set_001.py/phcal_last.json/phcal_run.log all live
-# next to phcal_isolate_001.py itself, so Path(__file__).resolve().parent
-# already finds them correctly on any machine, no config value needed.
-# (sdk_home used to be a third base dir here, for rattle.wav's own old
-# SDK-clone path - removed 2026-08-18, PHCAL_DETECT_FIRST_001.md, once
-# audio consolidated to GOPOD_AUDIO_DIR below left it with zero callers.)
 GOPOD_REPO_ROOT = _base_dir("gopod_repo_root", "/home/goverlord/crushn8r_git/GOPOD")
 WIREPOD_HOME = _base_dir("wirepod_home", "/home/goverlord/wire-pod")
-# 2026-10-02: the direct-SDK tool binaries live in the GOPOD overlay folder (built
-# there by wire_pod_overlay/build_direct_sdk_tool.sh); WIREPOD_HOME stays for
-# Wire-Pod's own robot info (jdocs/botSdkInfo.json) the tools read.
 GOPOD_DIRECT_TOOLS_DIR = GOPOD_REPO_ROOT / "goverlord/wire_pod_overlay/chipper/gopod_probes/tools"
 
 
@@ -170,330 +149,71 @@ BROBOT_1_SERIAL, BROBOT_2_SERIAL = _resolve_brobot_serials()
 
 RUNNER_PATH = GOPOD_REPO_ROOT / "goverlord/runtime/songs/tools/run_section1_full_live_001.py"
 
-# 2026-08-11, tempo calibration handover (operator direction: fold tempo-set
-# into phcal's own menu). No new tempo logic here - hands off to the SAME
-# tempo_set_001.py module brobots.sh's standalone `tempo-set` alias already
-# uses (cmd_set_global/cmd_set_buffer), loaded the same way RUNNER_PATH is
-# loaded above. This branch only owns the song/mode/step picking UI; every
-# actual read/write stays in that one tool.
 TEMPO_SET_PATH = Path(__file__).resolve().parent / "tempo_set_001.py"
-# 2026-08-15, PHCAL_WEATHER_ROBOT_SPEAK_001.md: the weather primitive's own
-# robot-pick + speak reuses run_robot_control_song_001.py's already-proven
-# run_single_note("weather", ...) - the SAME function the standalone
-# gopod-weather-say alias already calls (real Windsor fetch, per-robot
-# unit/clock via gopod_weather_fetch_001.py's load_robot_format_from_jdocs,
-# spoken once). Loaded the same way TEMPO_SET_PATH/KNOBS_ENVELOPE_PATH are
-# loaded above - not a second implementation of any of it.
 CONTROL_SONG_RUNNER_PATH = GOPOD_REPO_ROOT / "goverlord/runtime/songs/tools/run_robot_control_song_001.py"
 KNOBS_ENVELOPE_PATH = GOPOD_REPO_ROOT / "goverlord/runtime/songs/tools/knobs_envelope_001.py"
 SONGS_DIR = GOPOD_REPO_ROOT / "goverlord/runtime/songs"
 
-# 2026-08-18, PHCAL_DEHARDCODE_COMMIT_001.md: canonical GOPOD audio home,
-# INSIDE the repo tree - goverlord/wire_pod_overlay/chipper/sounds/ is the
-# overlay source of truth (what apply_nongo_files.sh mirrors OUT to
-# ~/wire-pod/chipper/sounds/), not the live mirrored copy. Every .wav asset
-# phcal fires now reads directly from here, derived from GOPOD_REPO_ROOT
-# (already config-driven above) - not a new hardcode. Killed the dependency
-# on the separate SDK-clone tree for audio specifically (rattle.wav was
-# copied in from there that pass) - SDK_HOME itself removed entirely
-# 2026-08-18 (PHCAL_DETECT_FIRST_001.md) once this left it with zero callers.
 GOPOD_AUDIO_DIR = GOPOD_REPO_ROOT / "goverlord/wire_pod_overlay/chipper/sounds"
 
-# 2026-07-22, Part C (rattle primitive): same standalone direct-SDK rattle
-# binary + outbound settle margin run_songs_runner_001.py's own run_rattle()
-# uses - reproduced verbatim here, not imported. `mod` (this file's loaded
-# module) is run_section1_full_live_001.py, which defines neither of these
-# constants; the bingo runner is a different module phcal does not load.
-# Same binary, same 1.0s margin (DECOUPLED_DIRECT_SDK_GOLDEN_PATH_001.md's
-# own outbound-settle number) - not a fresh guess. The WAV asset itself
-# used to read from a separate SDK-clone path (the now-removed SDK_HOME);
-# repointed 2026-08-18 to the canonical GOPOD_AUDIO_DIR above.
 RATTLE_BIN_PATH = GOPOD_DIRECT_TOOLS_DIR / "direct_sdk_bingo_rattle_001"
 RATTLE_WAV_PATH = GOPOD_AUDIO_DIR / "rattle.wav"
 
-# 2026-08-12 (danger primitive): the direct-SDK binary above takes <serial>
-# <wav_path> [volume] - it was never rattle-specific, just always called with
-# rattle's own WAV path. Reused verbatim (RATTLE_BIN_PATH, not a redundant
-# second constant) for a second WAV asset - GOPOD's own playSound sound
-# (soundMap in kgsim_cmds.go). Same reasoning as rattle's own comment above:
-# a song needs this fireable directly, not gated behind the LLM choosing to
-# emit {{playSound||...}} in a chat response - see
-# DOPLAYSOUND_REAL_IMPLEMENTATION_AND_RATTLE_FIT_001.md's own verdict on why
-# the direct-SDK route beats DoPlaySound for scripted use. Repointed
-# 2026-08-18 from the live wire-pod mirror (WIREPOD_HOME) to the canonical
-# GOPOD_AUDIO_DIR overlay source above - phcal now reads the source file
-# directly, not the copy apply_nongo_files.sh mirrors out.
 DANGER_WAV_PATH = GOPOD_AUDIO_DIR / "danger-will-robinson.wav"
-# 2026-08-15 (cube primitive): a separate binary, not RATTLE_BIN_PATH reused
-# - direct_sdk_cube_blip_001 takes only <serial>, no wav/volume argument at
-# all (connect -> all-corners red -> hold -> all-corners green -> release),
-# so it doesn't fit the rattle/danger calling shape. See
-# CUBE_BLIP_TOOL_BUILT_001.md / CUBE_BLIP_ALIAS_PHCAL_WIRED_001.md.
 CUBE_BLIP_BIN_PATH = GOPOD_DIRECT_TOOLS_DIR / "direct_sdk_cube_blip_001"
 WIREPOD_HOME_PATH = str(WIREPOD_HOME)
 DIRECT_SDK_RELEASE_SETTLE_SECONDS = 1.0
 
-# Rung 4 (GOLDEN_BROBOTS_CONTROL_CATALOG_SURVEY_001.md / instrument-rack
-# fattening pass): sleep/wake/brobots_ready are golden, live-confirmed,
-# standalone-fireable mechanisms per the catalog - not song-embedded notes,
-# so they widen phcal's own bench menu rather than the golden song engine.
-# Same binaries `robot-sleep`/`robot-wake` (brobots.sh) and
-# `_gopod_chord_direct_together_job` (core.sh) already call - reused
-# verbatim here, not a second implementation of the sleep/together logic.
 SLEEP_BIN_PATH = GOPOD_DIRECT_TOOLS_DIR / "direct_sdk_robot_sleep_001"
 TOGETHER_BIN_PATH = GOPOD_DIRECT_TOOLS_DIR / "direct_sdk_brobots_ready_001"
 
-# 2026-08-10 (BROBOT_2_INSTABILITY_EXTERNAL_AI_BRIEF_001.md's own concrete
-# next step): read-only VersionState/ProtocolVersion/BatteryState snapshot,
-# no BehaviorControl needed at all - simpler/lower-risk than every other
-# direct-SDK primitive above. Same binary brobots.sh's own robot-info alias
-# already calls. Timeout matches that alias's own external `timeout 30`
-# wrapper - a real buffer over the binary's internal 20s-per-RPC deadline,
-# not a guess.
 ROBOT_INFO_BIN_PATH = GOPOD_DIRECT_TOOLS_DIR / "direct_sdk_robot_info_001"
 ROBOT_INFO_TIMEOUT_SECONDS = 30
 
-# 2026-08-18, detect-first's own probe timeout - deliberately separate from
-# ROBOT_INFO_TIMEOUT_SECONDS above, not a shortened copy of it.
-# ROBOT_INFO_TIMEOUT_SECONDS's 30s is a real buffer over this same binary's
-# internal ~20s-per-RPC deadline (see the comment above it) - correct for a
-# DELIBERATE, occasional "1. info" pick where a human explicitly asked and
-# expects to wait. Detect-first fires this same binary AUTOMATICALLY on
-# every single phcal launch, silently, before the menu ever draws - live-
-# tested by the operator, an absent robot at 30s read as a dead freeze
-# (real Ctrl-C, twice). Every present robot in that same live test
-# responded in ~0.5-0.6s. 8s here is a judgment call, not a proven number
-# like the battery-volts threshold below is - generous enough (roughly
-# 13-16x normal observed latency) to tolerate a genuinely slow-but-present
-# robot without a false "not present," short enough that one absent
-# candidate doesn't stall every startup for anywhere near 30s. Confirm/tune
-# against real conditions if it ever mis-reads a slow-but-present robot as
-# absent.
 PHCAL_DETECT_PROBE_TIMEOUT_SECONDS = 8
 
-# 2026-08-08, live-observed floor: the binary's legacy --hold path computes
-# ONE shared release deadline up front, BEFORE either robot starts firing -
-# releaseAt = start + getInSettleSeconds(2.7, fixed in the Go source) + hold
-# (direct_sdk_robot_sleep_001.go:469). A robot whose own GoToSleepGetIn/
-# GoToSleepSleeping round trips are slow (live-observed: 9.625s elapsed on
-# one robot, vs 2.988s on the other, same call) can finish firing AFTER that
-# deadline already passed - it then releases control with ZERO settle time,
-# which live-confirmed wakes it immediately (the exact failure
-# ROBOT_SLEEP_DIRECT_SDK_BUILT_001.md's own build history already names:
-# "released too fast, robots woke immediately - fixed by adding --hold").
-# 5.0 is that history's own proven default (5 live-confirmed rounds) - NOT
-# 3.7/3.8: those numbers came from this session's own hold=1.0 postmortem
-# (2.7 + 1.0 = 3.7) and are BELOW the already-proven-safe default, not a
-# tighter floor - using them here would reintroduce more risk than today's
-# default already carries, not less. Floored at the number actually proven
-# golden, not a lower one that merely sounds close to the math just
-# explained.
 SLEEP_MIN_HOLD_SECONDS = 5.0
 
-# Rung 5 (PHCAL_CANDIDATE_CONTROLS_SURVEY_001.md, Part 1/Part 2): two more
-# standalone bench primitives, both confirmed liftable with zero song/knobs
-# dependency stripped out (there never was one to strip - these dispatch
-# functions never took a step/song object).
-#
-# Animation primitive - sourced from run_golden_song_001.py's own
-# run_animation_only()/_LOOP_ANIMATION_TOKENS/_ANIMATION_LOOP_INTERVAL_SECONDS
-# (not imported - phcal loads run_section1_full_live_001.py as `mod`, not the
-# golden engine module those actually live in). Same loop-vs-single-fire
-# split, same 0.333s loop interval, same {{playAnimationWI||TOKEN}} payload
-# fired via /api-sdk/say_text - the survey confirmed this dispatch is a bare
-# HTTP call, not welded to any live KG/LLM session, so it lifts verbatim.
 _LOOP_ANIMATION_TOKENS = {"searching", "answering"}
 _ANIMATION_LOOP_INTERVAL_SECONDS = 0.333
 
-# The three catalog-confirmed, real animation tokens (read directly off
-# 01a_brobots_bingo_test/knobs.json, not invented) - this submenu's own numbering,
-# separate from _PRIMITIVE_MENU's.
 _ANIMATION_TOKEN_MENU = {
     "1": "kgSuccess",
     "2": "searching",
     "3": "answering",
 }
-# Same default run_golden_song_001.py's own animation note branch uses
-# (step.get("hold_seconds", 2.5)) - not a fresh guess.
 ANIMATION_DEFAULT_HOLD_SECONDS = 2.5
-# 2026-08-15 (PHCAL_ANIMATION_ORDER_PAUSE_001.md): a fixed settle pause
-# BETWEEN tokens in the "0 = all in sequence" run only - back-to-back
-# firing (searching's getout ending the same instant answering starts)
-# was overlapping sprites on the head screen. Single-token runs never
-# reach this constant at all.
 _ANIMATION_SEQUENCE_PAUSE_SECONDS = 1.0
 
-# 2026-08-08, live finding: release_behavior_control releases the SDK's
-# control PRIORITY - it does not cancel an animation already in flight on the
-# robot. A loop-class token's last-fired instance plays out its own natural
-# tail after the loop stops re-firing it, regardless of release. A live bench
-# test of "searching" required a physical backpack-touch to actually stop it.
-# Confirmed real fix, not a guess: ~/wire-pod/chipper/animation_vocab.json
-# (Wire-Pod's own truth, read-only, never copied here) has a verified
-# "searchingGetout" -> anim_knowledgegraph_searching_getout_01 entry - the
-# exact same one-shot transition run_section1_full_live_001.py's own
-# fire_interview_kg_search_sequence() already fires to end the interview's
-# own searching loop cleanly (searching -> searchingGetout -> answering).
-# Checked the same vocab file directly for an "answeringGetout" equivalent -
-# none exists. "answering"'s own trailing tail is addressed differently, not
-# by a getout clip - see _ANIMATION_NO_GETOUT_RELEASE_SETTLE_SECONDS below.
 _ANIMATION_GETOUT_TOKENS = {
     "searching": "searchingGetout",
 }
 
-# 2026-08-16 (ANSWERING_NATIVE_STOP_DISCIPLINE_001.md): confirmed against
-# Wire-Pod's own kgsim_stream.go that native Wire-Pod never needed a getout
-# for "answering" because it never cuts the clip mid-play - it stops
-# re-firing, waits for the in-flight cycle to actually finish (a channel
-# confirmation from the gRPC PlayAnimation call), settles 100ms, THEN
-# releases control. phcal's say_text dispatch is fire-and-forget over HTTP,
-# not a blocking call like native's, so there's no cycle-completion signal
-# to wait on - this settle has to cover the last-fired instance's own
-# play-out tail, not just a network round-trip, hence longer than native's
-# 100ms. 1.0s matches this bench's own existing settle convention
-# (PHCAL_CYCLE_SETTLE_SECONDS) rather than inventing new math. Applies to
-# ANY loop-class token with no confirmed getout (today, just "answering") -
-# release is deferred by this settle instead of firing immediately.
 _ANIMATION_NO_GETOUT_RELEASE_SETTLE_SECONDS = 1.0
 
-# Hold-test primitive default - a plain, watch-worthy duration long enough to
-# see whether the robot wanders while control is held, short enough not to
-# waste bench time. Not tied to SLEEP_MIN_HOLD_SECONDS above (different
-# mechanism, different reason for its own floor) - a fresh, undemanding
-# default for a diagnostic-only primitive.
 HOLD_DEFAULT_SECONDS = 5.0
 
-# 2026-08-25 (follow-up to PHCAL_ARROW_NAV_V6_LANE1_EXECUTED_001.md's own
-# flagged gap): arm/nod's "hold between reps", animation's hold, and
-# brobots_stay_in_place's hold had NO concrete coded bound at all - Lane 1
-# correctly refused to fabricate one. The operator has now given a real
-# number: a single shared PROVISIONAL range for all three, community-
-# estimated, not derived from any spec - explicitly expected to be tuned
-# later, not a claim that 0.5-10.0 is a validated hardware limit.
 PHCAL_UNBOUNDED_HOLD_MIN_SECONDS = 0.5
 PHCAL_UNBOUNDED_HOLD_MAX_SECONDS = 10.0
 
-# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 follow-up (announce
-# phrase character limit): grepped this repo's own direct-SDK path
-# (cmd_brobots_ready -> direct_sdk_brobots_ready_001.go's SayText call) and
-# the interview runner's own ROBOT_SPEECH_CHUNK_LIMIT (420, a Wire-Pod REST
-# say CHUNKING boundary for a different channel, not a hard cap - text over
-# it gets split into multiple chunks, never rejected) - neither is a
-# documented max length for a single direct-SDK SayText call. No spec found
-# anywhere in this repo or its vendored SDK sources. PROVISIONAL, not
-# official - expected to be tuned once a real bound is found or the
-# operator gives one, same posture as PHCAL_UNBOUNDED_HOLD_* above.
-#
-# 2026-08-25, Lane 3 fix pass: retightened 200 -> 40, per the operator's
-# own stated intent - this is a short in-sync test say ("Brobots ready!"
-# is 14 chars), a few words, not free-form speech. Still provisional.
-#
-# 2026-08-26, LOOK PASS: corrected 40 -> 36, an exact operator-given
-# number (not a further estimate). Still provisional.
 PHCAL_ANNOUNCE_PHRASE_MAX_CHARS = 36
 
-# Rung 6 (2026-08-09, WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md): the first wheel
-# primitive - Stage 1 of that survey's 3-stage golden path only (bench-fire +
-# confirm; no alias, no engine note type, no awaken step here). ON-CHARGER
-# reverse pulse only - assuming behavior control disables the cliff sensors
-# for as long as it's held, which is safe on the charger stand (nowhere to
-# fall) and genuinely dangerous off it. This tool has no way to confirm the
-# robot is actually on its charger - that's a physical/procedural guarantee
-# the operator holds, not something phcal can verify, same gap the survey
-# names for every other motion primitive here.
-#
-# lw/rw values sourced from Wire-Pod's own webroot control page
-# (chipper/webroot/sdkapp/js/control.js, the S-key/backward binding), not
-# invented - that's the same reverse magnitude the reference control surface
-# itself sends. Fixed reverse only for this build; forward is a later,
-# separate decision per the survey.
-# RENAMED 2026-08-10 (stale-end sweep, per operator direction): these were
-# named WHEEL_NUDGE_* back when wheel_nudge (the composed primitive) still
-# existed as its own menu entry. wheel_nudge was removed outright this same
-# day - these 5 names are used exclusively by move_reverse now (grep-
-# confirmed before renaming), so the old prefix was live-misleading, not
-# just historical - move_reverse's own log lines were printing tag
-# "PHCAL_WHEEL_NUDGE" for a primitive with no wheel_nudge menu entry left.
-# Does NOT touch the shared golden-flag mechanism's own WHEEL_NUDGE_WAKE_*
-# names below (run_wheel_nudge_wake_check/run_wheel_nudge_wake_release_
-# pulse) - those are genuinely shared (move_reverse's chain-wake AND
-# brobots_wake both call them), a real naming-scope question, not a stale
-# end from this session's own edit - left alone, out of scope here.
 MOVE_REVERSE_LW = -150
 MOVE_REVERSE_RW = -150
 MOVE_REVERSE_DEFAULT_HOLD_SECONDS = 0.3
-# Hard cap, refused not clamped (see _parse_float_flag's max_value below) -
-# a fat-fingered long hold must never reach move_wheels.
 MOVE_REVERSE_MAX_HOLD_SECONDS = 1.0
 MOVE_REVERSE_CAUTION = (
     "MOVE_REVERSE CAUTION: cliff sensors disabled while control held - ON-CHARGER USE ONLY"
 )
 
-# WAKE-SETTLE, REPLACED 2026-08-10 (WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_
-# 001.md + its live-diagnostic follow-up sessions). The prior say_text-based
-# "speak-ready" check below was proven wrong by direct measurement, not
-# superseded by theory: 4/4 live runs against a freshly-released robot
-# showed say_text returning in ~0.05-0.12s with NO audible speech - it was
-# never actually confirming anything, on either robot. The real, measured
-# mechanism: assume, then RELEASE behavior control right back (a "release
-# pulse"), settle, then RE-ASSUME. Releasing control hands it back to the
-# robot's own onboard behavior just long enough for it to visibly/physically
-# wake on its own - this mirrors ROBOT_SLEEP_DIRECT_SDK_BUILT_001.md's own
-# first live finding almost exactly (releasing BehaviorControl right after a
-# forced sleep trigger wakes the robot on its own, no explicit wake trigger
-# needed) - generalized here from "coming out of a forced sleep" to "any
-# cold/just-woken control session." Live-proven 8/8 runs across BOTH robots
-# (once Brobot 2's own separate charging-contact fault was found and fixed -
-# a real, physical, unrelated defect this same investigation surfaced):
-# head-pop-to-visible-wake measured at 1.03-1.82s every time, the first
-# move_wheels call succeeding at just 0.5s after re-assume in every single
-# run, no misses. Same replacement already made in
-# run_robot_control_song_001.py's own run_brobots_wake(). Wheel-specific
-# only - run_assume_control itself (shared by cmd_arm/cmd_nod/cmd_hold) is
-# untouched.
 WHEEL_NUDGE_WAKE_CHECK_TIMEOUT_SECONDS = 15  # CONNECTION_PASS_TIMEOUT_SECONDS's own value, matched - conn_test's own timeout, unchanged
 WHEEL_NUDGE_WAKE_RELEASE_SETTLE_SECONDS = 2.5  # measured max observed 1.817s across 8 live runs, both robots - real margin above that ceiling, not the bare minimum; see WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_001.md for the run-by-run numbers
-# BUG FOUND AND FIXED 2026-08-10: nothing ever settled reassume->move. The
-# probe that proved this mechanism never fired move_wheels at 0s after
-# re-assume (its own sweep starts at 0.5s, and 8/8 clean runs succeeded at
-# exactly that first attempt - WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_001.md).
-# That gap was missing here - live-confirmed 2026-08-10: wheel reversal
-# silently no-opped on both robots even though every log line read ok=True.
-# Same fix as run_robot_control_song_001.py's own
-# BROBOTS_WAKE_POST_REASSUME_SETTLE_SECONDS.
 WHEEL_NUDGE_WAKE_POST_REASSUME_SETTLE_SECONDS = 0.5
 
-# 2026-08-08, live finding: separate sleep-then-wake phcal calls showed no
-# visible wake effect. Root cause, sourced from real precedent, not guessed:
-# ~/.gopod_alias_lib/brobots.sh's own gopod-song-open()/gopod-song-open-chord()
-# already root-caused this EXACT symptom in their own build history - a
-# release-then-fresh-reconnect gap between two separate BehaviorControl
-# sessions lets the robot's own behavior resume on its own before the second
-# call ever fires, so a later, freshly-connected wake has nothing left to
-# reverse. Their fix: hold ONE continuous connection from GoToSleepSleeping
-# straight through to GoToSleepOff via the binary's own --wait-signal mode,
-# never releasing in between. Ported that same mechanism into phcal below -
-# not a new design, the proven one.
 SLEEP_WAKE_DEFAULT_WAIT_SECONDS = 5.0
-# Outer safety-net timeout, same number gopod-song-open()'s own `timeout 70`
-# uses - the binary's internal deadline already widens to 20+max-wait
-# (default 60s) once --wait-signal is given; this is the process-level
-# backstop on top of that, not a tighter limit.
 SLEEP_WAKE_TIMEOUT_SECONDS = 70
 
 
-# STANDARDIZED READINESS SIGNAL, added 2026-08-10 per operator direction:
-# "standardize the signal, not the mechanism." Two genuinely different
-# control channels in this file each answer "is the robot genuinely ready,
-# hand off or gate?" - Wire-Pod REST's golden-flag release/settle/reassume
-# pulse (cmd_brobots_wake) and direct-SDK's continuous-connection
-# signal-file gate (_finish_sleep_wake). They stay different mechanisms on
-# purpose (_BROBOTS_WAKE_CHAIN_ELIGIBLE's own comment already explains why
-# mixing them is a real hazard, not just an inconsistency) - this only
-# gives both the same SHAPE of answer, so a caller (today: the printed
-# PHCAL_READY log line; later: any future code that wants the dict
-# directly) reads one consistent signal regardless of which channel
-# produced it.
 def _readiness_signal(ready, reason, channel, detail=None):
     """`ready`/`ok` carry the same boolean (kept both so every existing
     `if not X["ok"]` call site in this file keeps working unchanged -
@@ -589,99 +309,14 @@ def _finish_sleep_wake(proc, signal_file, clock, mode):
     return _readiness_signal(ok, reason, "direct_sdk_continuous", detail={"mode": mode, "returncode": proc.returncode})
 
 
-# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: `_parse_sleep_hold_
-# flag()` (a raise-on-below-floor wrapper around _parse_float_flag) used to
-# live here - removed, unused now that sleep_wake's own guided-flow "wait"
-# prompt clamps to SLEEP_MIN_HOLD_SECONDS via _prompt_value()'s own new
-# min_value= param instead of refusing via a raise (see that call site's
-# own comment). SLEEP_MIN_HOLD_SECONDS itself is untouched.
-
-# 2026-07-22 rattle-audibility fix: phcal's own rattle call was reusing the
-# shared DIRECT_SDK_RELEASE_SETTLE_SECONDS (1.0) above for its
-# release->settle->direct-connect margin. That 1.0s was only ever live-proven
-# sufficient for a quick one-shot SayText call (the "Brobots ready!"
-# together-step's own use of the shared constant) - never proven sufficient
-# for rattle's own longer-held audio-streaming connection
-# (BINGO_RATTLE_ADDED_001.md section 6 names this gap honestly at build time).
-# This exact intermittent pattern (status=OK, not heard) has now happened
-# twice: once in a full bingo run (round_1_rattle), once in phcal's isolated
-# rattle test tonight. Does NOT touch the shared constant above (still correct
-# for SayText/other uses).
-#
-# Value history, live-tested, one variable at a time:
-#   1.0 (shared constant, reused) - CONFIRMED intermittently insufficient,
-#       status=OK but not heard, at least twice.
-#   2.0 (first separate rattle constant) - a full bingo run heard 3 of 4
-#       rattles; opening_rattle still missed - improved, not fully fixed.
-#   3.0 - CONFIRMED WORKING, live, by the operator, TWICE: once in a normal
-#       run, once as a scratch test with Brobot 1 deliberately put to sleep
-#       first (a harder condition than normal) - operator's own words both
-#       times: "i heard the rattle" / "i heard it". Made permanent here.
-# Do not lower below 3.0 without a fresh live re-confirmation.
 PHCAL_RATTLE_SETTLE_SECONDS = 3.0
 
-# 2026-07-22 bug fix: cmd_arm/cmd_nod's per-cycle loops had NO pause between
-# one cycle's final release and the next cycle's assume - a live phcal run
-# (nod, count=3) logged 3 genuinely complete down+up pairs but the operator
-# only visually saw 2 distinct nods land: cycle N's return-to-neutral "up"
-# and cycle N+1's "down" started back to back with no settle beat, so two
-# adjacent cycles blended into one continuous motion. Not a loop/off-by-one
-# bug - the loop already fires exactly `count`/`cycles` full pairs (verified:
-# no early break, no skipped final iteration, both directions run every
-# time). Fix is a real settle pause between cycles, not a count-logic
-# change. Value sourced from this codebase's own existing settle-pause
-# convention, not invented: DIRECT_SDK_RELEASE_SETTLE_SECONDS and
-# BROBOTS_READY_TOGETHER_HANDBACK_SETTLE_SECONDS (run_songs_runner_001.py)
-# both use 1.0s for "let the motion actually stop" pauses. Applied between
-# cycles only (never after the last one - no dead air after the final
-# motion); hold_seconds/speed untouched, nod's speed floor untouched.
 PHCAL_CYCLE_SETTLE_SECONDS = 1.0
 
-# 2026-07-22: pre-flight connection check, added after a live phcal run (arm,
-# robot 1) logged ok=True on every HTTP call (assume_behavior_control/
-# move_lift/release all status 200) but the robot did not physically move - a
-# live curl of assume_behavior_control moments later succeeded fine, so
-# Wire-Pod<->robot connectivity was not permanently broken. Working theory:
-# phcal always fires cold/isolated with zero warm-up, unlike a full song run.
-# Ported from run_songs_runner_001.py's own run_wake_both (conn_test,
-# then a settle sleep) - the same pattern BINGO_PLAYHEAD_WAKE reuses whenever
-# a slice starts mid-song instead of from that song's own opening, because the
-# robots may not be woken/paired for it yet. phcal is ALWAYS that same kind of
-# cold, isolated start (never a full song opening with its own wake_both step
-# already run), so this fires on every call here, not just some. Single-serial
-# only, unlike bingo's two-robot run_wake_both - phcal is one robot per call.
-# Not run_connection_pass's stronger say_text-smoke variant: phcal has no
-# say_text-equivalent action of its own to smoke-test with.
 PHCAL_PREFLIGHT_SETTLE_SECONDS = 1.5  # run_wake_both's own fallback value
-# (wake_step.get("settle_seconds", 1.5)) when it has no song-scored wake_both
-# step to read a tuned value from - phcal has no song/knobs.json of its own
-# either, so this fallback IS the number to reuse, not a new one.
 
-# GOLDEN ALIAS NOTE - 2026-07-24 cold-first-cycle fix, live-reported by the
-# operator: cycles=2 produced only ONE visible arm cue, cycles=1 produced
-# NONE - not a loop/count bug (verified the loop already fires exactly N
-# full up/down or down/up pairs, same shape as the 2026-07-22 intercycle-
-# blend fix above). Root cause: run_assume_control() returned, and the very
-# first move_lift/move_head call fired ~2ms later (from a live log:
-# assume at +0.000s, first move at +0.002s) - the robot was not physically
-# ready to execute yet, so cycle 1's motion was silently dropped while
-# cycle 2+ landed because the robot was warm by then. Same class of bug as
-# the already-fixed "cold first press" finding in test-silent-angry-say
-# (HTTP success but no playback on the first live action after a wake,
-# second press played) - that fix inserted a settle pause after the wake
-# step, before the first live action. This is that same fix, applied here:
-# a settle after assume_behavior_control, before the first move. Value
-# reused, not invented - same PHCAL_PREFLIGHT_SETTLE_SECONDS constant
-# already used for the analogous conn_test-then-settle wake pattern in this
-# same file.
 PHCAL_ASSUME_SETTLE_SECONDS = PHCAL_PREFLIGHT_SETTLE_SECONDS
 
-# Same field-proven recovery text as run_songs_runner_001.py's own
-# WIREPOD_PAIRING_RECOVERY_MESSAGE (robot_control_song_001/story.md's own
-# Troubleshooting section, confirmed live 2026-07-15), adapted singular
-# (phcal is one robot, not bingo's two) - reproduced here rather than
-# imported, since phcal loads run_section1_full_live_001.py as `mod`, not the
-# bingo runner module that constant actually lives in.
 PHCAL_PREFLIGHT_RECOVERY_MESSAGE = (
     "sequence error - Wire-Pod could not reach the robot. Field-proven recovery "
     "order (robot_control_song_001/story.md's own Troubleshooting section, confirmed "
@@ -690,41 +325,6 @@ PHCAL_PREFLIGHT_RECOVERY_MESSAGE = (
     "guessing a different fix."
 )
 
-# 2026-07-22: second, stronger preflight, added after conn_test's own preflight
-# above still wasn't enough - a live phcal run logged ok=True on EVERY HTTP call
-# (assume_behavior_control/move_lift/move_head/stop/release all status 200,
-# conn_test preflight also OK) but the robot never physically moved, on both
-# Brobot 1 and Brobot 2, across multiple attempts, robots confirmed powered on
-# and unblocked. conn_test only proves Wire-Pod's cached gRPC channel answers a
-# ping - it says nothing about whether the Wire-Pod service process itself is
-# in a healthy, freshly-serving state. A stale/wedged Wire-Pod process can
-# still answer every one of those calls with an HTTP 200 "success" string
-# without ever forwarding real gRPC to the robot hardware. Found the real
-# mechanism in the bingo song's own golden pathway rather than guessing again:
-# run_section1_full_live_001.py's restart_wirepod_preflight(live) - the actual
-# `wpr`-equivalent (sudo systemctl restart wire-pod, poll systemctl is-active,
-# poll a bare HTTP GET, settle). Called here call-for-call via `mod`, not
-# reimplemented - phcal already loads this exact module as `mod`.
-#
-# That function only fires when its OWN GOPOD_RESTART_WIREPOD_BEFORE_RUN=1 env
-# var is set (else it's a no-op even when live=True) - it defaults off there
-# because a full interview run doesn't want a service restart on every launch.
-# phcal is different: it's a bench-tuning tool where reliability matters more
-# than speed, and the operator does not want to have to remember a separate
-# export just to get the real fix. So phcal sets
-# os.environ.setdefault("GOPOD_RESTART_WIREPOD_BEFORE_RUN", "1") itself, once,
-# before loading `mod` (module-level constants are read at import time) - the
-# same "just works when phcal fires live" way phcal already reads its own
-# GOPOD_ALLOW_LIVE_ROBOT_SPEECH live gate. setdefault, not a hard overwrite:
-# an operator who already exported GOPOD_RESTART_WIREPOD_BEFORE_RUN=0 in that
-# shell for their own reason is still honored, not silently overridden. This
-# is scoped to phcal's own process only (os.environ here, no
-# `export`/`.bashrc` touch) - not a global change to the operator's shell.
-#
-# Runs ONCE per phcal invocation, before conn_test's own preflight (the
-# service needs to be up before a conn_test to a specific robot means
-# anything) - never per-serial, never per-cycle, since it restarts the whole
-# Wire-Pod service, not something scoped to one robot.
 PHCAL_RESTART_WIREPOD_ENV = "GOPOD_RESTART_WIREPOD_BEFORE_RUN"
 
 
@@ -761,9 +361,6 @@ def run_restart_wirepod_preflight(mod, clock, live):
     return {"ok": True, "result": result}
 
 
-# phcal's OWN memory file - outside the tracked GOPOD repo, sibling to this
-# script. NOT a song's knobs.json/story.md; this only remembers the
-# operator's own bench settings for phcal's next run (rung 3's write-back).
 LAST_PATH = Path(__file__).resolve().parent / "phcal_last.json"
 
 
@@ -794,26 +391,6 @@ class _Clock:
         return f"[{clock} +{delta:.3f}s] "
 
 
-# 2026-07-22 bug fix: cmd_arm/cmd_nod previously called run_move_axis_isolated
-# (below) once per DIRECTION, and that function did its own full
-# assume_behavior_control -> move -> hold -> stop -> release_behavior_control
-# cycle every single call - so one arm/nod cycle fired 2 separate
-# assume/release pairs (up, then down), cycles=3 fired 6 pairs back to back.
-# That is exactly the repeated assume/release churn
-# run_named_movement_sequence()'s own comment (run_robot_control_song_001.py,
-# ~line 261) names as the cause of the robot's screen flashing to its home
-# icon between every note, confirmed live - and matches the operator's own
-# live observation of phcal test runs "looking like robot pings, not expected
-# robot mechanical control": HTTP ok=True on every call, but the robot never
-# held control long enough to actually execute the commanded move. Root cause
-# confirmed against that same function's own reference shape (assume ONCE
-# before the whole sequence, release ONCE after, in a finally - never
-# per-direction/per-cycle), not a new theory. Fixed by splitting the old
-# run_move_axis_isolated into two pieces: run_move_axis_no_control (move ->
-# hold -> stop only, no assume/release) fires per direction/cycle exactly as
-# before; cmd_arm/cmd_nod now assume ONCE before their whole cycle loop and
-# release ONCE after it, in a finally, matching run_named_movement_sequence's
-# own try/finally shape.
 def run_move_axis_no_control(mod, clock, serial, endpoint, speed, hold_seconds, live, direction_label):
     """Move-only half of the old run_move_axis_isolated: {endpoint}
     speed=speed -> sleep hold_seconds -> {endpoint} speed=0 -> stop. Does NOT
@@ -862,16 +439,6 @@ def run_move_wheels_no_control(mod, clock, serial, lw, rw, hold_seconds, live):
         print(f"{clock.prefix()}{tag} DRY: would move_wheels serial={serial} lw=0 rw=0 (stop)")
         return {"ok": True, "mode": "dry"}
 
-    # PRIME REMOVED 2026-08-10 (WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_001.md
-    # + its live-diagnostic follow-up): the old "fire twice, back to back"
-    # duplicate below was a workaround for a still-waiting-on-the-grant
-    # theory that was itself only ever tested inside a flat-sleep settle
-    # window. The golden-flag mechanism (run_wheel_nudge_wake_release_pulse
-    # below - a real release-then-reassume pulse, not a guessed delay) proved
-    # reliable with a SINGLE move call across 8/8 live runs, both robots -
-    # not kept as redundant insurance, removed outright, matching the same
-    # replacement already made in run_robot_control_song_001.py's own
-    # run_move_reverse().
     print(f"{clock.prefix()}{tag} move_wheels serial={serial} lw={lw} rw={rw}")
     try:
         move = mod.wirepod_web_send_form(
@@ -959,10 +526,6 @@ def run_assume_control(mod, clock, serial, live):
     assume = mod.wirepod_web_send_form(
         "/api-sdk/assume_behavior_control", {"priority": "high", "serial": serial}, timeout=10
     )
-    # Cold-first-cycle fix (2026-07-24) - see PHCAL_ASSUME_SETTLE_SECONDS's
-    # own comment above for the live finding this addresses. Without this,
-    # the first move command after assume fired ~2ms later and was silently
-    # dropped.
     print(f"{clock.prefix()}PHCAL assume settle {PHCAL_ASSUME_SETTLE_SECONDS}s")
     time.sleep(PHCAL_ASSUME_SETTLE_SECONDS)
     return {"ok": assume.get("status") == 200, "assume": assume}
@@ -1011,15 +574,6 @@ def cmd_arm(mod, clock, serial, robot, live, cycles, hold_seconds, speed, pre_as
         f"{clock.prefix()}PHCAL_ARM robot={robot} serial={serial} cycles={cycles} "
         f"hold_seconds={hold_seconds} speed={speed}"
     )
-    # 2026-07-22 fix: assume control ONCE for the whole call (every
-    # direction/cycle below), release ONCE at the end in a finally - not a
-    # pair per direction. See run_move_axis_no_control's own comment block
-    # above for the root cause this replaces.
-    # pre_assumed, 2026-08-09 (brobots_wake chain toggle): skip this
-    # function's own assume when a shared brobots_wake step already holds
-    # control - release still fires unconditionally below either way, so
-    # whichever step ran last (brobots_wake alone, or this) is the one that
-    # actually hands control back.
     if pre_assumed:
         print(f"{clock.prefix()}PHCAL_ARM pre_assumed=True - skipping own assume (brobots_wake already holds control)")
         ok = True
@@ -1047,12 +601,6 @@ def cmd_nod(mod, clock, serial, robot, live, count, hold_seconds, speed, pre_ass
         f"{clock.prefix()}PHCAL_NOD robot={robot} serial={serial} count={count} "
         f"hold_seconds={hold_seconds} speed={speed}"
     )
-    # 2026-07-22 fix: assume control ONCE for the whole call (every
-    # direction/cycle below), release ONCE at the end in a finally - not a
-    # pair per direction. See run_move_axis_no_control's own comment block
-    # above for the root cause this replaces.
-    # pre_assumed, 2026-08-09 (brobots_wake chain toggle): see cmd_arm's own
-    # comment above - same convention.
     if pre_assumed:
         print(f"{clock.prefix()}PHCAL_NOD pre_assumed=True - skipping own assume (brobots_wake already holds control)")
         ok = True
@@ -1062,9 +610,6 @@ def cmd_nod(mod, clock, serial, robot, live, count, hold_seconds, speed, pre_ass
     try:
         for i in range(count):
             print(f"{clock.prefix()}PHCAL_NOD cycle={i + 1}/{count}")
-            # Source order (run_nod, run_songs_runner_001.py): down
-            # first, then up - reproduced exactly, not reordered to match
-            # this spec's own descriptive "up -> down" prose.
             down = run_move_axis_no_control(mod, clock, serial, "move_head", -speed, hold_seconds, live, "down")
             up = run_move_axis_no_control(mod, clock, serial, "move_head", speed, hold_seconds, live, "up")
             ok = ok and down["ok"] and up["ok"]
@@ -1079,9 +624,6 @@ def cmd_nod(mod, clock, serial, robot, live, count, hold_seconds, speed, pre_ass
     return 0 if ok else 1
 
 
-# 2026-07-22, Part C: phcal's own 1-5 bench scale, linearly mapped onto the
-# real Vector SDK ExternalAudioStreamPrepare.AudioVolume range (1-100, that
-# field's own documented max) - operator-specified mapping, not a guess.
 _VOLUME_UI_TO_REAL = {1: 20, 2: 40, 3: 60, 4: 80, 5: 100}
 
 
@@ -1136,9 +678,6 @@ def cmd_rattle(mod, clock, serial, robot, live, volume_ui):
         print(f"{clock.prefix()}PHCAL_RATTLE_DIRECT serial={serial} TIMED OUT (30s)")
         return 1
 
-    # Same token-in-log discipline as run_rattle() itself: vector.NewWP()'s
-    # own log.Println prints the robot's auth GUID in plaintext to stderr on
-    # every call - filtered out before it's ever printed here.
     combined = "\n".join(
         line for line in (proc.stdout + proc.stderr).splitlines() if "guid" not in line.lower()
     )
@@ -1193,15 +732,6 @@ def cmd_danger(mod, clock, serial, robot, live, volume_ui):
         print(f"{clock.prefix()}PHCAL_DANGER_DIRECT serial={serial} TIMED OUT (30s)")
         return 1
     except FileNotFoundError:
-        # 2026-08-15: the real cause of "picking danger does nothing" -
-        # RATTLE_BIN_PATH is a pre-built binary, not built by anything at
-        # import/dispatch time; if it's missing, subprocess.run raises this
-        # (uncaught before this guard, a raw traceback, not a clean
-        # message). Build it once from its own .go source:
-        # `cd gopod_probes/tools && go build -o direct_sdk_bingo_rattle_001
-        # direct_sdk_bingo_rattle_001.go` - danger and rattle share this one
-        # binary, so building it once fixes both, matching the description
-        # already on RATTLE_BIN_PATH's own comment ("never rattle-specific").
         print(
             f"{clock.prefix()}PHCAL_DANGER_BLOCKED binary not found at {RATTLE_BIN_PATH} - "
             "build it first: cd $(dirname " + str(RATTLE_BIN_PATH) + ") && go build -o "
@@ -1209,7 +739,6 @@ def cmd_danger(mod, clock, serial, robot, live, volume_ui):
         )
         return 1
 
-    # Same token-in-log discipline as cmd_rattle above.
     combined = "\n".join(
         line for line in (proc.stdout + proc.stderr).splitlines() if "guid" not in line.lower()
     )
@@ -1260,7 +789,6 @@ def cmd_cube(mod, clock, serial, robot, live):
         print(f"{clock.prefix()}PHCAL_CUBE_DIRECT serial={serial} TIMED OUT (30s)")
         return 1
 
-    # Same token-in-log discipline as cmd_rattle/cmd_danger above.
     combined = "\n".join(
         line for line in (proc.stdout + proc.stderr).splitlines() if "guid" not in line.lower()
     )
@@ -1381,24 +909,8 @@ def cmd_robot_info(mod, clock, which):
     return 0 if ok else 1
 
 
-# BATTERY GATE, added 2026-08-10 per operator direction: a voltage check
-# fired before every motor call (arm/nod/animation/move_reverse - anything
-# that fires MoveLift/MoveHead/DriveWheels), not just an on-request
-# diagnostic. Built directly from this session's own live data, not a
-# vendor spec - none exists anywhere in this repo (robot_info's own
-# BatteryState read confirmed no manufacturer-documented minimum ships in
-# the SDK/proto). Observed-bad: Brobot 2's two real crash/reboot incidents
-# this session both read ~3.61-3.62V (BROBOT_2_INSTABILITY_EXTERNAL_AI_
-# BRIEF_001.md, then a same-day repeat). Observed-good: every healthy
-# reading this session, both robots, sat at 3.99-4.08V. 3.7V splits that
-# gap with real margin on both sides - adjust here if live experience says
-# otherwise.
 BATTERY_MIN_VOLTS = 3.7
 
-# Per-primitive hard block at fire time - default flipped to non-blocking
-# 2026-09-11 per operator direction. The read, the OK/BLOCKED tag above, and
-# the PHCAL_BLOCKED_LOW_BATTERY line at each call site are all untouched -
-# only whether that line's "not firing" actually aborts the primitive.
 PHCAL_PRIMITIVE_BATTERY_BLOCK_ENABLED = False
 
 
@@ -1435,41 +947,9 @@ def run_battery_check(mod, clock, serial, live):
     return {"ok": ok, "volts": volts}
 
 
-# ==========================================================================
-# DETECT-FIRST, 2026-08-18 (PHCAL_DETECT_FIRST_001.md). run_guided_flow()
-# calls this ONCE, before the menu ever draws - replaces "1. info" (an
-# optional menu pick) with a required first step that probes which
-# configured robot(s) are actually present and shapes the session
-# (session_mode: "none"/"single"/"multi") to that. No new capability: the
-# probe reuses cmd_robot_info's own ROBOT_INFO_BIN_PATH call verbatim
-# (read-only VersionState/BatteryState snapshot, no BehaviorControl, never
-# moves anything), one candidate at a time, bounded by the same
-# ROBOT_INFO_TIMEOUT_SECONDS that call already uses so a dead/absent
-# candidate can't hang startup. Session-scoped state (_SESSION_MODE/
-# _PRESENT_ROBOTS below) is module-level, set once here and read by
-# _prompt_robot() and the robot_info/brobots_announce_in_sync dispatch
-# branches further down - kept module-level (not threaded as an explicit
-# param through every one of _prompt_robot's 8 call sites) specifically so
-# a missed call site can't silently skip mode-awareness; every reader
-# checks _SESSION_MODE == "single" explicitly and no-ops otherwise, so the
-# direct-flag main() path (which never calls run_guided_flow() and never
-# sets these) and MULTI/NONE guided-flow sessions are both completely
-# unaffected - they behave byte-for-byte as before this pass.
 _SESSION_MODE = None
 _PRESENT_ROBOTS = []
 
-# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): the RAW
-# detect-first result, set exactly once by _resolve_session_mode_once()
-# and never reassigned after - unlike _PRESENT_ROBOTS above, which
-# _confirm_multi_mode()'s own "/" (none) choice can legitimately empty out
-# to []. Lane (vi)'s mid-session mode repick must offer single/multi rows
-# again even after an operator chose none earlier in the SAME invocation
-# ("re-pick among the ALREADY-DETECTED present robots - do NOT re-probe
-# hardware" - this lane's own instruction), which _PRESENT_ROBOTS alone
-# can no longer answer once it's been emptied that way. This is a
-# read-only fact about what hardware actually responded, not a second
-# calibration-data table - phcal_last.json is untouched, ONE-TABLE model
-# intact.
 _DETECTED_PRESENT_ROBOTS = []
 
 
@@ -1546,9 +1026,6 @@ def _probe_candidate(clock, candidate):
         return {**candidate, "present": False, "volts": None}
     volts = float(match.group(1))
     print(f"{clock.prefix()}PHCAL_DETECT_PROBE label={label} esn={esn} PRESENT volts={volts:.3f}")
-    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: plain-
-    # language line alongside the raw diagnostic above, per the operator's
-    # own PDF - never a replacement.
     print(f"{clock.prefix()}{label} has sufficient power PRESENT {volts:.3f} volts")
     return {**candidate, "present": True, "volts": volts}
 
@@ -1671,30 +1148,6 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
     select" -> "ENTER for <accept-default label>, or change:"). Return
     contract, row source, and every downstream branch below
     (choice == "/" / the `match is None` synthesis) are byte-unchanged."""
-    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: restyled to
-    # the shared frame template ("ENTER for <MODE> brobots-mode" style,
-    # per the operator's own PDF) - picker behavior, row source, and every
-    # downstream branch are otherwise byte-unchanged. The operator's own
-    # follow-up note: the PDF's "01: Type new default mode" line was a
-    # mis-phrasing of this existing "accept detected mode, or change"
-    # picker, not a request for a new typed-default feature - none added.
-    #
-    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: STOP CONDITION
-    # RESOLVED (operator confirmed twice, final): the "01: Type new
-    # default mode 1/2/3 + ENTER:" row is a mis-phrasing of this existing
-    # "accept detected mode, or change" picker - not built, removed from
-    # consideration for good. This screen's rows are now numbered like
-    # every other screen (00 = accept-default, then the alternatives in
-    # order) - no gap left for the row that was never built. Two other
-    # PDF-literal structural fixes: the divider prints right after the
-    # frame mark (general shape, every screen this pass), and row 00's
-    # own label reads "ENTER for MULTI brobots-mode" directly (the PDF's
-    # literal text for that row) instead of a separate "ENTER for X, or
-    # change:" question line above the rows - the PDF shows no such
-    # separate line here. The redundant "detected brobots-mode X" line is
-    # dropped from THIS screen too - it already prints once, per the PDF,
-    # inside the detect stream block above (_detect_present_robots()'s own
-    # plain-language line), not repeated here.
     mode_upper = detected_mode.upper()
     accept_label = f"ENTER for {mode_upper} brobots-mode"
 
@@ -1723,11 +1176,6 @@ def _confirm_multi_mode(clock, present_robots, detected_mode):
         return [], "none"
     match = next((p for p in present_robots if p["which"] == choice), None)
     if match is None:
-        # Forced past what detection actually found present (the new
-        # 2026-08-23 capability - see this function's own docstring).
-        # volts=None matches _probe_candidate()'s own "couldn't confirm ==
-        # not safe" default; _low_voltage_gate() already asks before
-        # proceeding on exactly this, no new safety path needed.
         match = {**next(c for c in _candidate_list() if c["which"] == choice), "present": False, "volts": None}
     print(f"{clock.prefix()}PHCAL_MODE_OVERRIDE mode=single robot={match['which']} ({match['label']}) (operator chose single over detected {detected_mode})")
     _frame_close()
@@ -1799,25 +1247,11 @@ def _resolve_session_mode_once():
     global _SESSION_MODE, _PRESENT_ROBOTS, _DETECTED_PRESENT_ROBOTS
     _detect_clock = _Clock()
     _PRESENT_ROBOTS, _SESSION_MODE = _detect_present_robots(_detect_clock)
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (vi): captured here,
-    # BEFORE _confirm_multi_mode() runs - that call's own "/" (none) choice
-    # can legitimately empty _PRESENT_ROBOTS to [], and this raw detect-first
-    # result is what a later mid-session mode repick needs to still offer
-    # single/multi rows from, without re-probing hardware. See
-    # _DETECTED_PRESENT_ROBOTS's own module-level comment above.
     _DETECTED_PRESENT_ROBOTS = _PRESENT_ROBOTS
     _PRESENT_ROBOTS, _SESSION_MODE = _confirm_multi_mode(_detect_clock, _PRESENT_ROBOTS, _SESSION_MODE)
     if not _low_voltage_gate(_detect_clock, _PRESENT_ROBOTS):
         print(f"{_detect_clock.prefix()}PHCAL_GUIDED_EXIT declined to proceed with a low-battery robot present")
         return False
-    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: flushes the mode-
-    # picker's own pending close mark before this unframed diagnostic -
-    # without this, the next screen's own _frame_open() would silently
-    # cancel the pending mark (the same seam-collapse logic that correctly
-    # kills a genuine double-** at a back-to-back screen boundary), and
-    # this diagnostic line would end up sitting where a closing mark
-    # should have been, itself unmarked. Found live: without this flush,
-    # the welcome banner's own opening "**" never printed at all.
     _frame_flush_close()
     if _SESSION_MODE == "none":
         os.environ.pop("GOPOD_ALLOW_LIVE_ROBOT_SPEECH", None)
@@ -1833,12 +1267,6 @@ def _resolve_session_mode_once():
     return True
 
 
-# 2026-10-10, GOLDEN (Wire-Pod's gopod_session.go, operator: "Goverlord is the
-# wpr-session orchestrator"; "pha0b/phcal ... register as runs: yes"): a live
-# phcal checks in with Goverlord as a run - one run at a time, so a song and a
-# bench session never hold the Brobots at once - and checks out when phcal
-# exits. Refused (another run going): phcal stops. Wire-Pod not reachable:
-# phcal goes on, as before.
 _PHCAL_CHECKED_IN = False
 
 
@@ -1919,21 +1347,6 @@ def cmd_animation(mod, clock, serial, robot, live, animation_token, hold_seconds
         print(f"{clock.prefix()}PHCAL_ANIMATION_COMPLETE ok=True mode=dry")
         return 0
 
-    # 2026-08-08 fix: the first live spot-check (kgSuccess/searching on the
-    # first two calls) got ok=True on every HTTP call but no visible robot
-    # response - the exact "cold first press" pattern already root-caused and
-    # fixed for arm/nod (see run_assume_control()'s own comment above): the
-    # very first live action after a fresh assume fires ~2ms later, before
-    # the robot is physically ready, and is silently dropped. This function
-    # was ported from run_animation_only() (run_golden_song_001.py), which
-    # has the same zero-settle gap - never hit there because emotion_beat's
-    # own pre_animation_pause_seconds (2.0s default, spoken text first) masks
-    # it, but a plain animation note with nothing said first has nothing to
-    # mask it. Fixed here by routing through run_assume_control() instead of
-    # a bespoke inline assume call - the same PHCAL_ASSUME_SETTLE_SECONDS
-    # settle every other bench primitive already gets, not a new mechanism.
-    # pre_assumed, 2026-08-09 (brobots_wake chain toggle): see cmd_arm's own
-    # comment - same convention, skip own assume when already held.
     if pre_assumed:
         print(f"{clock.prefix()}PHCAL_ANIMATION pre_assumed=True - skipping own assume (brobots_wake already holds control)")
         ok = True
@@ -1987,8 +1400,6 @@ def cmd_hold(mod, clock, serial, robot, live, hold_seconds, pre_assumed=False):
     run_assume_control()/run_release_control() verbatim, the same two
     functions cmd_arm/cmd_nod already call once per whole call."""
     print(f"{clock.prefix()}PHCAL_HOLD robot={robot} serial={serial} hold_seconds={hold_seconds}")
-    # pre_assumed, 2026-08-09 (brobots_wake chain toggle): see cmd_arm's own
-    # comment - same convention, skip own assume when already held.
     if pre_assumed:
         print(f"{clock.prefix()}PHCAL_HOLD pre_assumed=True - skipping own assume (brobots_wake already holds control)")
         ok = True
@@ -2039,10 +1450,6 @@ def cmd_brobots_wake(mod, clock, serial, robot, live):
     finally:
         release = run_release_control(mod, clock, serial, live)
         ok = ok and release["ok"]
-    # reason resolved AFTER every sub-call has run (not inline as each one
-    # fires) so a later failure (e.g. the final release) is never masked by
-    # an earlier step's success - each check below is independent, in the
-    # same order the calls themselves fire.
     if not wake_check["ok"]:
         reason = "conn_test failed - robot unreachable"
     elif not assume["ok"]:
@@ -2226,25 +1633,6 @@ def cmd_tempo_calibration():
         print(f"PHCAL_TEMPO_BLOCKED no knobs.json found for {chosen_dir} at {knobs_path}")
         return 1
 
-    # _prompt_pick always lowercases raw input before matching/returning
-    # (see arrow_column_pick()'s own docstring) - choices/comparisons here
-    # follow that contract, not the bash tempo-set's own case-insensitive
-    # if-chain. numbered/lettered PICK -> exit_on_invalid=True, standardized
-    # by shape, PHCAL_NAV_CONSOLIDATION_001.md. 2026-08-22,
-    # PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0" removed - ESC is the
-    # only way out of this pick now.
-    #
-    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
-    # ends), design (b): back=True now on mode_choice/step_choice/both
-    # apply_choice prompts below (previously NOT, per the 2026-08-24 STOP
-    # clause this comment used to describe) - safe now that
-    # _erase_dispatch_accum() erases every earlier prompt's own committed
-    # rows in this same primitive's chain, including the bare input() lines
-    # (dir's own value/factor/comment) manually accounted for via
-    # _accum_lines() right after each one below. Backing out from either
-    # apply_choice is always safe: the write only happens if apply_choice
-    # resolves to "y" (the --yes call sits AFTER this prompt, never
-    # before) - Left here only ever discards an unapplied dry preview.
     mode_choice = _prompt_pick(
         {"a", "b"}, exit_on_invalid=True,
         labels={
@@ -2265,10 +1653,6 @@ def cmd_tempo_calibration():
             return tempo_mod.cmd_set_global(["set-global", value, "--yes", "--knobs", str(knobs_path)])
         return 0
 
-    # Mode B - numbered step menu, same reasoning as tempo-set's own bash
-    # version: read the ACTIVE (dirty-first resolved) steps array through
-    # the same shared resolver the write path uses, so the numbered list
-    # always matches whatever file the write will actually land in.
     envelope_mod = _load_module(KNOBS_ENVELOPE_PATH, "knobs_envelope_001")
     _, envelope = envelope_mod.load_knobs_envelope(str(SONGS_DIR / chosen_dir))
     step_ids = [s.get("step_id") for s in envelope.get("steps", [])]
@@ -2296,34 +1680,13 @@ def cmd_tempo_calibration():
     return 0
 
 
-# Rung-1 (bingo-sourced) defaults - unchanged by rung 2/3, only now
-# overridable per call via flags (rung 2) or the guided flow (rung 3).
-# nod's "count" key is new in rung 3 - rungs 1/2 hardcoded the same value
-# (1) as the positional default inline; added here too so the guided flow's
-# first-run seed (see _load_last below) has exactly one source of truth for
-# every default, not a second copy.
 _DEFAULTS = {
-    # 2026-08-31, operator request: arm cycles / nod count floor raised
-    # 1 -> 2 everywhere a value can be set - a single rep is too easy to
-    # miss when visually verifying a movement live; two reads as a real
-    # pattern. Same floor enforced at every entry point that can set these
-    # (direct-CLI --cycles/[count], the guided-flow "reps" prompts below,
-    # and this shared default) - see this file's own min_value=2 sites.
     "arm": {"hold_seconds": 1.2, "speed": 2, "cycles": 2},
     "nod": {"hold_seconds": 0.35, "speed": 2, "count": 2},
-    # 2026-07-22, Part C: rattle has no hold/speed of its own - see
-    # cmd_rattle's own comment for why there is genuinely no "hold" step to
-    # default here. volume is phcal's own 1-5 bench scale (mapped to the
-    # real 1-100 AudioVolume range at fire time), default 5 = full volume.
     "rattle": {"volume": 5},
-    # 2026-08-12: same 1-5 bench scale as rattle, same reasoning - see
-    # DANGER_WAV_PATH's own comment above for what this primitive is.
     "danger": {"volume": 5},
 }
 
-# Which flags each primitive accepts. --cycles is arm-only: nod already has
-# its own positional [count] for "how many," so there is exactly one way to
-# say "how many" per primitive, not two competing ones.
 _ALLOWED_FLAGS = {
     "arm": {"--hold", "--speed", "--cycles"},
     "nod": {"--hold", "--speed"},
@@ -2418,15 +1781,6 @@ def _load_last(which):
         "danger": {
             "volume": _DEFAULTS["danger"]["volume"],
         },
-        # 2026-08-15 (MASTER_TWEAKS_STAGE1_SAVE_COVERAGE_001.md): 5 more
-        # tunable primitives widened in - required, not optional, the
-        # moment _save_last() starts writing these keys. _save_last()
-        # calls _load_last() internally to get the base dict before
-        # writing; if this loop below didn't know about these keys too,
-        # the very next save from ANY primitive (old or new) would
-        # silently drop them from the reloaded dict and erase them on
-        # write. Same seed/merge shape as the original 4 - no new
-        # mechanism.
         "animation": {"hold": ANIMATION_DEFAULT_HOLD_SECONDS},
         "brobots_stay_in_place": {"hold": HOLD_DEFAULT_SECONDS},
         "move_reverse": {"hold": MOVE_REVERSE_DEFAULT_HOLD_SECONDS},
@@ -2453,10 +1807,6 @@ def _save_last(which, primitive, values):
     _write_last_raw(raw)
 
 
-# 2026-08-15, MASTER_TWEAKS_STAGE3_PROMOTE_001.md: phcal_last.json is
-# phcal-global, not per-song, so there's no natural per-song promoted
-# counterpart the way zKnobs.json/knobs.json have - this is the one
-# tracked snapshot every promoted tuning value lands in.
 PHCAL_PROMOTED_TWEAKS_PATH = GOPOD_REPO_ROOT / "goverlord/alias_lib_overlay/phcal_master_tweaks.json"
 
 
@@ -2523,10 +1873,6 @@ def _parse_float_flag(name, raw, min_exclusive=0.0, max_value=None):
         raise ValueError(f"{name} must be a number, got '{raw}'")
     if val <= min_exclusive:
         raise ValueError(f"{name} must be > {min_exclusive}, got {val}")
-    # max_value - additive, defaults to None (every existing caller passes
-    # none, so their behavior is unchanged). Refuse (raise, re-prompt),
-    # never clamp - see MOVE_REVERSE_MAX_HOLD_SECONDS's own comment for why
-    # this primitive needs it.
     if max_value is not None and val > max_value:
         raise ValueError(f"{name} must be <= {max_value} (BLOCKED - refusing to fire), got {val}")
     return val
@@ -2569,9 +1915,6 @@ def main():
         return 1
 
     live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
-    # See PHCAL_RESTART_WIREPOD_ENV's own comment block above: setdefault, not
-    # a hard overwrite, and must happen before _load_module (module-level
-    # constant read at import time).
     os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
     mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
     serial = BROBOT_2_SERIAL if robot == "2" else BROBOT_1_SERIAL
@@ -2693,7 +2036,6 @@ def main():
         print(f"{clock.prefix()}PHCAL_LAST_SAVED primitive=arm path={LAST_PATH}")
         return rc
 
-    # primitive == "nod"
     if len(positionals) > 1:
         print(f"PHCAL_ISOLATE_BLOCKED nod takes at most one positional [count] argument, got {positionals!r}")
         return 1
@@ -2755,25 +2097,6 @@ class _PhcalBackToMenu(Exception):
     unwinds the whole thing cleanly, not just its own current rows."""
 
 
-# 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to the
-# ends), design (b): a single running total of terminal lines already
-# committed to the screen by EARLIER prompts in the CURRENT primitive's own
-# dispatch chain (reset to 0 at the top of _dispatch_primitive(), the one
-# call site navigate() uses to start a fresh chain). Every prompt helper
-# that successfully resolves (_prompt_pick, _prompt_robot, _prompt_value,
-# and cmd_tempo_calibration()'s own bare input() lines) adds its own drawn
-# line count here BEFORE moving on to the next prompt. A LATER prompt that
-# then gets Left-back erases its own current rows via arrow_column_pick's
-# existing erase_on_back (unchanged), then also erases this accumulated
-# total via _erase_dispatch_accum() below (everything drawn BEFORE it in
-# this same chain) right before raising _PhcalBackToMenu - so the whole
-# primitive's chain unwinds to blank, not just the one picker that was
-# actually showing when Left was pressed. Approximate, not exact, on one
-# edge: a typo retry inside _prompt_value() (PHCAL_GUIDED_INVALID) prints
-# extra lines this counter does not track - a Left-back after a mistyped
-# value may leave 1-2 stray retry lines on screen instead of a fully blank
-# region. Flagged, not fixed - a real but cosmetic-only gap, not a trap
-# (the unwind itself still completes correctly).
 _DISPATCH_ERASE_ACCUM = 0
 
 
@@ -2901,23 +2224,6 @@ def _read_key():
             return ("arrow", "right")
         if b3 == b"D":
             return ("arrow", "left")
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (SHIFT+Up
-        # survey + fix): a modifier-combo arrow (e.g. Shift+Up sends
-        # ESC [ 1 ; 2 A) lands here - b3 is a CSI parameter byte ("1"),
-        # not one of the 4 plain arrow letters above. The old code
-        # returned ("esc", None) immediately, stranding this sequence's
-        # own trailing bytes (";2A") unread in the terminal input buffer -
-        # they'd surface as up to 3 bogus ("char", ...) events on the
-        # NEXT few key reads, silently eating whatever the operator
-        # pressed next (confirmed via source read, not fixed until now).
-        # No modifier combo is wired anywhere in this file (confirmed,
-        # same survey) and none should be - ESC and Left-back already
-        # cover every exit/retreat case, so an unbound combo should be a
-        # true no-op, not an accidental exit. Fix: fully drain a CSI
-        # parameter/intermediate tail (bytes 0x30-0x3F params, 0x20-0x2F
-        # intermediates) up to its own final byte (0x40-0x7E) before
-        # returning, so nothing leaks into the next read; reported as a
-        # harmless ignored char (not "esc") rather than an exit trigger.
         if b3 and (0x30 <= b3[0] <= 0x3F or 0x20 <= b3[0] <= 0x2F):
             while True:
                 ready, _, _ = select.select([fd], [], [], 0.05)
@@ -2940,17 +2246,6 @@ def _read_key():
         return ("char", "")
 
 
-# 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: replaces the
-# three separately-worded move lines (Lane 1's _NAV_LINE_MENU/_NAV_LINE_
-# CHOICE/_NAV_LINE_VALUE) with ONE consistent hint per the operator's own
-# PDF template - same wording on every arrow-navigable screen (init/detect
-# is its own case, framed but no hint - nothing to navigate there), a
-# value-prompt variant kept to the same comma style. `_NAV_FRAME_MARK`
-# opens/closes every screen block; `_NAV_DIVIDER` is the rule line under
-# the hint (also reused, literally, as the main-menu's own fireable/
-# session-config divider row - one divider style, not two). These never
-# replace a real diagnostic (PHCAL_DETECT_PROBE, a fire result, PHCAL_*
-# run logs) - only the bare instructional/framing text around them.
 _NAV_FRAME_MARK = "**"
 _NAV_HINT_ARROW = "↑ ↓ select, Enter choose, ← back, Esc quit"
 _NAV_HINT_VALUE = "Enter accept, type to change, ← back, Esc quit"
@@ -2976,21 +2271,6 @@ def _draw_lines(lines):
     return len(lines)
 
 
-# 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: was a plain print pair -
-# every screen's own close printed a "**" immediately followed by the next
-# screen's own open printing ANOTHER "**", a real double-seam the
-# operator's PDF spec explicitly calls out to collapse into one. A small
-# state machine fixes this at the root instead of patching each call site
-# by hand: `_frame_open()` only actually prints when no frame mark is
-# already "in effect" (open, or a close still pending from the screen
-# before it) - a pending close gets silently cancelled instead of
-# flushed, collapsing exactly the double-mark seam into one shared mark.
-# `_frame_close()` never prints immediately - it only marks the seam as
-# pending, so a screen that's immediately followed by another framed
-# screen never produces a visible close at all (one shared "**" instead).
-# `_frame_flush_close()` is the one place a pending close actually prints
-# - called only at a genuine boundary where nothing framed follows right
-# away (an unframed diagnostic line, or the tool exiting).
 _FRAME_STATE = "closed"  # "closed" | "open" | "pending_close"
 
 
@@ -3204,11 +2484,6 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
     header_lines.append(_NAV_HINT_ARROW)
     header_lines.append(_NAV_DIVIDER)
     header_count = frame_count + _draw_lines(header_lines)
-    # 2026-08-26: this call's own drawn-line total (measured header +
-    # one row per choice) - same total erase_on_back_extra + window_height
-    # already uses for THIS call's own self-erase. Accumulated regardless
-    # of `back`, since even a back=False call's rows may need erasing
-    # later by a SUBSEQUENT prompt in the same chain that backs out past it.
     own_lines = header_count + len(options)
     if back:
         choice, _hl = arrow_column_pick(
@@ -3227,59 +2502,8 @@ def _prompt_pick(choices, default=None, exit_on_invalid=False, labels=None, back
     return choice
 
 
-# 2026-08-23: sentinel arrow_column_pick() returns from a Left press when
-# called with left_is_back=True (navigate() only) - distinct from any real
-# choice key (which are always strings), so navigate() can tell "back one
-# level" apart from an actual row pick with a plain `is` check.
 _NAV_BACK = object()
 
-# 2026-08-23, PHCAL_ARROW_NAV_BUILD_PLAN_003.md Phase 2, redraw-in-place
-# foundation: confirmed root cause of the operator's live-observed
-# stacking (the same menu redrawn 3x, piling up) is that every
-# arrow_column_pick() call only ever redraws IN PLACE relative to ITS OWN
-# prior draw, within one invocation (the up/down `_redraw()` path below,
-# unchanged) - it has no way to erase a DIFFERENT, earlier
-# arrow_column_pick() call's own leftover rows once that earlier call has
-# already returned. navigate()'s own loop calls arrow_column_pick() fresh
-# for every tree level (root -> submenu on Enter, submenu -> root on
-# Left); _run_guided_flow_once() reprints its own header lines fresh on
-# every "continue in phcal?" loop pass too. Neither transition erased
-# anything before printing, so each new screen stacked below whatever the
-# previous one left on screen instead of overwriting it.
-#
-# _MENU_PASS_LINE_MARK is the one piece of shared state this fix adds -
-# a checkpoint into _TeeStdout's own `cursor_line` (a running NET vertical
-# cursor position, not a raw newline tally - see that class, near the
-# bottom of this file, for why the distinction matters).
-#
-# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix: this
-# used to be a hardcoded _LAST_MENU_SCREEN_LINES, set by
-# _prompt_continue_or_exit() to the fixed height ITS OWN y/n prompt
-# occupies (2 rows + 1 blank), on the assumption that nothing else prints
-# between it and the next _run_guided_flow_once() preamble erase. That
-# assumption held for the prompt's own drawing but not for what precedes
-# it - a fired primitive's own live log block (preflight/fire/settle
-# lines, plus whatever the operator's own robot/value picks already
-# printed) is genuinely variable height, unknown ahead of time. Erasing
-# only the fixed 3 left that whole block un-erased every pass, so it
-# accumulated permanently, session-long - on a long enough session (or a
-# terminal shorter than the accumulated total) this forces the real
-# terminal to auto-scroll, which breaks every subsequent \x1b[NA-relative
-# redraw's own cursor-position assumption (arrow_column_pick()'s
-# _redraw(), navigate()'s pinned root) since "N lines up" no longer lands
-# where the code thinks it does once scrolling has silently shifted what
-# "up" even means - the operator's own live-observed symptom (a menu row
-# printing 2-3 times before the correct redraw finally lands).
-#
-# The fix: _MENU_PASS_LINE_MARK records _TeeStdout's own `cursor_line`
-# right before each pass's header prints; the NEXT pass's preamble erases
-# exactly (current cursor_line - that mark) - the pass's ENTIRE real
-# footprint (header + menu + whatever the operator did + the fire log,
-# however tall it actually was), not a guess. Safe against redraw churn
-# specifically because `cursor_line` nets cursor-up moves against
-# newlines instead of just tallying newlines - see that field's own
-# docstring. None until the first real pass (nothing to erase yet -
-# _run_guided_flow_once()'s own first call).
 _MENU_PASS_LINE_MARK = None
 
 
@@ -3473,13 +2697,6 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
         for i in range(window_height):
             real_index = offset + i
             key, label = options[real_index]
-            # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: a skip_indices
-            # row (the main menu's own divider - see navigate()'s own
-            # comment) never gets a "> "/"  " marker prefix, even though
-            # its highlight can never actually land there - the operator's
-            # own PDF spec shows this as a clean, full-width rule, not one
-            # indented 2 columns by a marker no one will ever see filled
-            # in. Every other row's marker logic is unchanged.
             if real_index in skip_indices:
                 sys.stdout.write(f"\r\x1b[2K{label}\n")
                 continue
@@ -3493,13 +2710,6 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
             _erase_screen_lines(erase_lines)
         _redraw(first=True)
         if erase_lines > window_height:
-            # The previous level was TALLER than this one (e.g. the 8-row
-            # root menu shrinking to a 3-row submenu) - the draw above
-            # only overwrote this level's own window_height rows, leaving
-            # the taller prior level's extra trailing rows still visible
-            # below. Blank those, then move back up above them so the
-            # cursor ends up right after this level's own last real row,
-            # not after the now-empty filler.
             _extra = erase_lines - window_height
             for _ in range(_extra):
                 sys.stdout.write("\r\x1b[2K\n")
@@ -3527,16 +2737,6 @@ def arrow_column_pick(options, highlight=0, window_height=None, exit_on_invalid=
                         print()
                     return (_NAV_BACK, highlight) if left_is_back else _NAV_BACK
                 if not left_is_back and val == "left" and esc_home is not None and highlight != esc_home:
-                    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3:
-                    # _confirm_multi_mode() is esc_home's one caller
-                    # (left_is_back=False there - no menu tree to unwind to,
-                    # this screen runs before one exists) - previously Left
-                    # here just moved the highlight like Up, no real
-                    # back-out at all (the plan's own flagged gap). Gives
-                    # Left the same "back to the default row" job ESC
-                    # already does via esc_home, instead of a second
-                    # meaning for every OTHER esc_home-less caller (none
-                    # exist today - grepped, this is still the only one).
                     highlight = esc_home
                     _redraw()
                     continue
@@ -3656,13 +2856,6 @@ def navigate(tree, dispatch, window_height=None):
         node = stack[-1]
         keys = sorted(node, key=lambda k: (len(k), k))
         options = [(k, node[k][0]) for k in keys]
-        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: a tree
-        # entry whose own child is None is a non-selectable divider row
-        # (see _build_primitive_group_tree()'s own comment) - collected
-        # here, by index, so arrow_column_pick()'s own skip_indices can
-        # keep Up/Down from ever landing on it. Empty for every level with
-        # no divider entries (every existing tree before this pass), so
-        # this is a no-op everywhere else.
         skip_indices = {i for i, k in enumerate(keys) if node[k][1] is None}
         level_height = window_height if window_height is not None else len(options)
         result, hl = arrow_column_pick(
@@ -3775,21 +2968,8 @@ def _prompt_robot(default=None, allow_both=False, back=False):
     never shows a picker at all, `back` has no effect there."""
     if _SESSION_MODE == "single" and _PRESENT_ROBOTS and _PRESENT_ROBOTS[0]["which"]:
         resolved = _PRESENT_ROBOTS[0]["which"]
-        # 2026-08-24: "the only one detected present" is only true when
-        # this robot was actually confirmed by detect-first - since
-        # _confirm_multi_mode()'s 2026-08-23 override lets the operator
-        # force single mode onto a candidate detection did NOT find, that
-        # claim would be a real lie in the forced case. Behavior here is
-        # unchanged either way (still auto-resolves and proceeds - this
-        # primitive is one of the ~10 label-only, not-yet-enforced ones,
-        # unaffected by this pass) - only the printed claim is now honest.
         confirmed = bool(_PRESENT_ROBOTS[0].get("present", True))
         reason = "the only one detected present" if confirmed else "forced by the operator, NOT confirmed present"
-        # 2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: routed
-        # through _draw_lines() too, for the same "count is what was
-        # actually printed" guarantee - trivially always 1 line here, but
-        # one mechanism everywhere beats a hand-typed 1 in one spot and a
-        # measured count in another.
         _accum_lines(_draw_lines([f"PHCAL_SINGLE_MODE_AUTO_RESOLVE robot={resolved} ({_PRESENT_ROBOTS[0]['label']}, {reason})"]))
         return resolved
     if allow_both:
@@ -3797,22 +2977,6 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         option_keys = [k for k, _label in base_options]
         default_key = "*" if default == "both" else default
         highlight = option_keys.index(default_key) if default_key in option_keys else 0
-        # 2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md: same uniform
-        # wording every other leaf prompt now uses - `base_options[highlight][1]`
-        # is exactly the label the picker itself will show pre-highlighted,
-        # so this line can never drift out of sync with what Enter actually
-        # selects. Built from `base_options` (unnumbered) so the question
-        # text reads "ENTER for Robot 1..." not "ENTER for 00. Robot 1...".
-        #
-        # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: `options` (what
-        # actually gets drawn) carries each row's own "00. " position
-        # prefix, per the operator's literal PDF spec. Divider now also
-        # prints right after the frame mark - see _prompt_pick()'s own
-        # comment for the full reasoning (same fix, same call shape).
-        #
-        # 2026-08-26, PHCAL_SELF_REPORTING_DRAW_EXECUTED_001.md: header_count
-        # measured via _draw_lines(), not hand-typed - see _prompt_pick()'s
-        # own comment for the full reasoning.
         options = [(k, f"{i:02d}. {label}") for i, (k, label) in enumerate(base_options)]
         frame_count = _frame_open()
         header_count = frame_count + _draw_lines([
@@ -3836,17 +3000,6 @@ def _prompt_robot(default=None, allow_both=False, back=False):
         return robot
     choices = {"1", "2"}
     labels = {"1": "Robot 1", "2": "Robot 2"}
-    # 2026-08-25, PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md: mirrors
-    # _prompt_pick()'s own highlight resolution exactly
-    # (`sorted(choices).index(default) if default in choices else 0`) so
-    # this question text can never say a different default than the row
-    # the picker actually pre-highlights. Most call sites here pass no
-    # `default` at all (weather, brobots_stay_in_place,
-    # brobots_session_responsiveness, move_reverse, animation, the shared
-    # arm/nod/rattle/danger tail) - for those, "Robot 1" is shown because
-    # it sorts first, not because it was ever a deliberately chosen
-    # default; flagged in PHCAL_LEAF_PROMPT_STYLE_UNIFY_001.md, not hidden
-    # here. Only `cube` (default="2") has a real chosen one.
     resolved_default = default if default in choices else sorted(choices)[0]
     robot = _prompt_pick(
         choices, default=default, exit_on_invalid=True, labels=labels,
@@ -4045,21 +3198,11 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
     if kind == "text" and max_length is not None:
         last_value = _clamp_text(label, last_value, max_length)
     shown = display if display is not None else last_value
-    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: divider now also
-    # prints right after the frame mark, per the operator's literal PDF
-    # spec's general shape - see _prompt_pick()'s own comment.
-    # `_frame_open()`'s own return (0 or 1, seam-collapse aware) folds
-    # into `drawn` alongside the rest of this measured header.
     drawn = _frame_open() + _draw_lines([_NAV_DIVIDER, _NAV_HINT_VALUE, _NAV_DIVIDER])
     while True:
         try:
             raw = _read_raw_line(f"{label} - ENTER for {shown}, or change: ")
         except _PhcalBackToMenu:
-            # 2026-08-26: `drawn + 1` - this attempt's own input line is
-            # always committed (its own print()) before _read_raw_line()
-            # can raise, whether this is the first attempt or the Nth
-            # retry - `drawn` itself already reflects every earlier
-            # attempt/invalid-message line exactly, real counts only.
             _erase_screen_lines(drawn + 1)
             _erase_dispatch_accum()
             raise
@@ -4088,35 +3231,6 @@ def _prompt_value(label, last_value, kind="text", min_value=None, max_value=None
         return _clamp_numeric(label, val, min_value, max_value)
 
 
-# 2026-07-22, Part A: guided flow's primitive pick is now a numbered menu
-# (1/2/3), not a typed word - Part C adds rattle as the 3rd choice. Option 4
-# (weather, 2026-08-02) is an API-only test, not a mechanical primitive - it
-# never reaches the robot/hold/speed machinery below at all, see the early
-# branch in run_guided_flow(). Rung 4 (2026-08-08,
-# GOLDEN_BROBOTS_CONTROL_CATALOG_SURVEY_001.md) widens this from 4 to 7:
-# sleep/wake/brobots_ready are the catalog's other standalone-fireable golden
-# mechanisms (direct-SDK binaries, not song-embedded notes) - this dict is
-# now the ONE source both the rendered menu and the dispatch below read from,
-# so adding a future mechanism is one new entry here, not a reformatted
-# prompt string. Deliberately NOT listed: the catalog's song-only note types
-# (say_turn/emotion_beat/animation/pause/connect/exit/wake_both) - they have
-# no standalone bench-fire path (see GOLDEN_BROBOTS_CONTROL_CATALOG_SURVEY_
-# 001.md's own ASSIGNABILITY/Section-A-vs-fireable distinction) and phcal
-# stays a bench tool, not a song editor, this pass.
-# RENUMBERED 2026-08-10, per operator direction: wheel_nudge removed
-# outright (it was a redundant third path to the same reversal move_reverse
-# already reaches via its own chain-wake toggle - composing brobots_wake +
-# move_reverse as one undifferentiated call added a menu entry and a
-# maintained code path without adding any capability). 1-7 are the
-# single-robot, single-purpose "core" tier. 8-11 were parked as "to sort
-# out better" earlier the same day, then put back in - renamed for clarity
-# per operator direction, same session: hold -> brobots_stay_in_place,
-# sleep_wake -> brobots_sleep_to_wake_direct_sdk, brobots_wake ->
-# brobots_session_responsiveness, brobots_ready -> brobots_announce_in_sync.
-# Pure rename at the dispatch-matching layer only - every cmd_* function
-# these map to (cmd_hold/cmd_sleep_wake_*/cmd_brobots_wake/cmd_brobots_ready)
-# is untouched, same mechanism, reused verbatim per operator direction
-# ("try to reuse existing working code").
 _PRIMITIVE_MENU = {
     "1": "arm",
     "2": "nod",
@@ -4124,93 +3238,20 @@ _PRIMITIVE_MENU = {
     "4": "weather",
     "5": "animation",
     "6": "move_reverse",
-    # 2026-08-10 (BROBOT_2_INSTABILITY_EXTERNAL_AI_BRIEF_001.md): read-only,
-    # no BehaviorControl, no movement - a diagnostic snapshot, not a motion
-    # primitive. which is always "both" now (prompt removed per operator
-    # direction, 2026-08-10).
     "7": "robot_info",
-    # 8-11 dispatch to cmd_hold/cmd_sleep_wake_set_time+on_process/
-    # cmd_brobots_wake/cmd_brobots_ready respectively - see each dispatch
-    # branch below for the mapping from this renamed primitive string to
-    # the unchanged underlying function.
     "8": "brobots_stay_in_place",
     "9": "brobots_sleep_to_wake_direct_sdk",
     "10": "brobots_session_responsiveness",
     "11": "brobots_announce_in_sync",
-    # 2026-08-11: hands off to tempo_set_001.py, the same tool brobots.sh's
-    # standalone `tempo-set` alias already wraps - see TEMPO_SET_PATH above.
-    # Song-scoped, not robot-scoped - no primitive/robot preflight below.
     "12": "tempo",
-    # 2026-08-12: same direct-SDK mechanism as rattle (3), different WAV
-    # asset (GOPOD's own playSound sound) - see DANGER_WAV_PATH's own
-    # comment above.
     "13": "danger",
-    # 2026-08-15: cube-blip, live-fire-confirmed 2026-08-14 against Brobot 2
-    # (connect -> all corners red -> hold -> all corners green -> release).
-    # No volume/hold/reps to configure - just robot -> fire, own self-
-    # contained branch below (mirrors brobots_stay_in_place/move_reverse's
-    # own restart_preflight -> preflight -> fire -> return shape), not the
-    # shared arm/nod/rattle/danger volume-prompt tail.
     "14": "cube",
 }
 _MOVE_REVERSE_MENU_SUFFIX = " (ON-CHARGER reverse pulse)"
 
-# 2026-08-09, SESSION-RESPONSIVENESS CHAIN TOGGLE (operator direction):
-# brobots_session_responsiveness (renamed 2026-08-10, was brobots_wake) can
-# front-run any primitive that shares its own Wire-Pod REST assume/release
-# mechanism - arm/nod/brobots_stay_in_place/animation/move_reverse. NOT
-# rattle/brobots_sleep_to_wake_direct_sdk/brobots_announce_in_sync
-# (direct-SDK gRPC binaries - a whole different control channel; chaining a
-# Wire-Pod assume+release right before one of those grabs its own session
-# reintroduces the exact release-then-regrant race this codebase already
-# hit and fixed once, see cmd_rattle's own release-before-connect shape
-# above) and NOT weather (no robot control at all).
-#
-# Defaults: on for move_reverse (proven needed - WHEEL_NUDGE_WAKE_SETTLE_
-# FIX_001.md's 3 rounds), off for arm/nod/brobots_stay_in_place/animation
-# (already live-confirmed reliable without it - this isn't a fix for a
-# proven problem there, just an available option).
 _BROBOTS_WAKE_CHAIN_ELIGIBLE = {"arm", "nod", "brobots_stay_in_place", "animation", "move_reverse"}
 _BROBOTS_WAKE_CHAIN_DEFAULT = {"move_reverse": "y"}  # everything else in the eligible set defaults "n"
 
-# 2026-08-16 (PHCAL_MENU_REGROUP_SURVEY_001.md -> PHCAL_MENU_REGROUP_BUILT):
-# pure-display grouping of the same 14 _PRIMITIVE_MENU identity strings into
-# the operator's 8-group menu sketch - every value below is one of
-# _PRIMITIVE_MENU's own strings, unchanged, unrenamed. A group with exactly
-# one member routes straight through, same as the flat menu always did
-# (info/cube/animations/tempo); a group with 2-3 members gets one new
-# sub-menu prompt (moves/audio/say/init) before falling into
-# the SAME `if primitive == "..."` dispatch chain below - no dispatch code
-# changed, only how `primitive` gets its value. Confirmed by hand: every
-# _PRIMITIVE_MENU value appears in exactly one group here, all 14 placed.
-#
-# 2026-08-23, row-format build request: every label below carries a
-# "Brobots " prefix. Groups 1-5/8 go through _brobots_label() (defined
-# below), which capitalizes an already-"brobots"-leading identity string
-# (e.g. brobots_announce_in_sync, used by _build_primitive_group_tree()'s
-# submenu-member labeling below) instead of gluing on a second, redundant
-# "Brobots" word.
-#
-# Groups 6/7 went through several bare-digit passes this same week (see
-# git history for the full chain) before landing on real distinguishing
-# WORDS instead of a digit - "say" (weather/announce) and "init"
-# (wake/responsiveness), 2026-08-24 direct operator naming request. Once
-# a group has a real word, the digit-avoidance special-casing those two
-# needed is moot - they go through _brobots_label() exactly like every
-# other group now, no more hardcoded exception. _build_primitive_group_
-# tree() still owns [disabled]-prefixing and sort order for every group
-# below - these dict values are the pre-disabled, pre-sort base text
-# only.
-#
-# 2026-08-24: 'brobots_stay_in_place' moved from the say/announce group
-# into moves - it's chain-eligible (_BROBOTS_WAKE_CHAIN_ELIGIBLE) exactly
-# like arm/nod/move_reverse, and didn't belong grouped with weather/
-# announce (a robot-control note + a chain-toggle-itself note - neither
-# related to "stay put"). Confirmed safe before moving: dispatch is keyed
-# purely by the primitive's own identity string (never by which group it
-# renders under - navigate() only ever returns the leaf string, no group
-# context), and _submenu_control_note()/_BROBOTS_WAKE_CHAIN_ELIGIBLE are
-# both keyed the same way - a pure data reshuffle, zero wiring change.
 def _brobots_label(text):
     """Prefix 'Brobots ' onto label/identity text, unless that text
     already starts with the word 'brobots' (any case, space- or
@@ -4223,19 +3264,6 @@ def _brobots_label(text):
     return f"Brobots {text}"
 
 
-# 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: was a dict keyed
-# "1".."8", displayed in PURE ALPHABETICAL order by label (see
-# _build_primitive_group_tree()'s old `sorted(group_rows, key=...)` call,
-# now removed) - retired per direct operator instruction in favor of this
-# hand-ordered list, read in LIST order by _build_primitive_group_tree()
-# below, no sort. Labels also renamed per the operator's own spec (no more
-# "Brobots " prefix, no more "Brobots mode N" tag - see that function's
-# own docstring for the tag removal); the underlying primitive membership
-# of every group is byte-identical to before, only order/label changed.
-# A tuple's 3rd item, when present, is a literal divider marker consumed
-# by _build_primitive_group_tree() to insert a non-selectable rule row
-# right after this entry - splits the 6 fireable calibrations above from
-# the 2 session/config rows below, per the operator's own layout.
 _PRIMITIVE_GROUPS = [
     ("Active Brobots", ["robot_info"]),
     ("Audio Play (rattle/danger)", ["rattle", "danger"]),
@@ -4248,34 +3276,8 @@ _PRIMITIVE_GROUPS = [
 ]
 
 
-# 2026-08-20, PHCAL_NAV_FIXES_001.md (finding 2, PHCAL_NAV_LIVETEST_
-# FINDINGS_001.md): single source of truth for the robot-vs-non-robot
-# classification. Every _PRIMITIVE_MENU identity string NOT in this set
-# needs a live robot to do anything; tempo is the sole confirmed exception
-# - cmd_tempo_calibration()'s own docstring: "No robot, no hardware, no
-# preflight - a song's knobs.json is the only thing this touches." weather
-# is deliberately NOT in this set - it prompts for a robot and speaks
-# through it (run_single_note("weather", ...)), despite older comments
-# nearby once claiming otherwise; those are corrected alongside this fix,
-# not left to contradict this set.
 _NON_ROBOT_PRIMITIVES = {"tempo"}
 
-# 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (i): the required-N
-# ladder - each primitive's fixed requirement, the minimum session mode
-# (1=none/dry-run, 2=single, 3=multi) that enables it. Assigned from that
-# plan's own survey table, grounded in each primitive's real dispatch
-# branch, not guessed: `tempo` is the one primitive with zero session-mode
-# logic anywhere in its own dispatch (`if primitive == "tempo": return
-# cmd_tempo_calibration()` - no robot, no preflight at all), so it's the
-# only entry below 2. Every other primitive needs at least one live robot
-# to do anything (matches _NON_ROBOT_PRIMITIVES above exactly - this map
-# is a superset carrying the actual number, not a second source of the
-# same "needs a robot" fact). No primitive here sits at 3 - every "both
-# robots" primitive (robot_info, brobots_announce_in_sync,
-# brobots_sleep_to_wake_direct_sdk's own allow_both option) already works
-# fine with exactly one present robot, just with richer behavior at 3 -
-# confirmed by reading each one's own dispatch branch, not assumed. All 14
-# _PRIMITIVE_MENU identities are assigned here; none needed a fallback.
 _PRIMITIVE_REQUIRED_N = {
     "tempo": 1,
     "robot_info": 2,
@@ -4628,26 +3630,6 @@ def _group_mode_label(group_label, group_n):
 
 
 def _prompt_brobots_wake_chain(primitive):
-    # Fallback flipped n->y 2026-08-15 (PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md,
-    # operator direction) - _BROBOTS_WAKE_CHAIN_DEFAULT's per-primitive "off
-    # for arm/nod/brobots_stay_in_place/animation" reasoning above is now
-    # superseded for the fallback case; move_reverse's own explicit "y" entry
-    # is unaffected (already matched the new default, kept for clarity, not
-    # functional anymore).
-    #
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii): this gate
-    # always fires AFTER the robot picker (and, for arm/nod, after typed
-    # hold/speed values too) already committed their own rows to the
-    # screen as permanent history.
-    #
-    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
-    # the ends), design (b): back=True now anyway - _prompt_pick()'s own
-    # _erase_dispatch_accum() call erases every earlier prompt this
-    # primitive's chain already drew (robot pick, value fields) along with
-    # this one, so the whole primitive unwinds cleanly. Always safe here:
-    # the real wake call (_run_brobots_wake_no_release) only runs AFTER
-    # this function returns "y" to _resolve_chain_wake() - a Left press
-    # here always fires before any live wake attempt, never mid-wake.
     default = _BROBOTS_WAKE_CHAIN_DEFAULT.get(primitive, "y")
     choice = _prompt_pick(
         {"y", "n"}, default=default, labels={"y": "yes", "n": "no"}, question="run brobots_wake first?",
@@ -4750,101 +3732,12 @@ def _run_guided_flow_once():
     time it's called - it only reads them, same as _prompt_robot() and the
     dispatch branches below already did."""
     global _SESSION_MODE, _PRESENT_ROBOTS, _LAST_MENU_SCREEN_LINES
-    # 2026-08-19, NAV_PRIMITIVE_BUILT_001.md: ported onto the new generic
-    # navigate() tree-walker (built standalone this pass,
-    # NAV_PATTERN_SURVEY_001.md's design, alongside _prompt_choice() -
-    # neither that function nor any of its OTHER callers were touched).
-    # Was a hand-written two-level while/break/continue loop (see git
-    # history / PHCAL_NAV_POLISH_001.md for that version); same content,
-    # same effective choices, only the picking MECHANISM changed - a
-    # generic walker instead of a loop written once for exactly two
-    # levels. _build_primitive_group_tree() below reproduces
-    # _PRIMITIVE_GROUPS's own group/sub-menu shape exactly, including the
-    # 1-member-group-routes-straight-through behavior (no sub-menu ever
-    # drawn for those). "0" backing up one level, "0" at the root exiting,
-    # wrap, and warn-once-then-exit on genuinely invalid input are all
-    # navigate()/arrow_column_pick()'s own built-in contract now, not
-    # hand-rolled here - operator decision 1/4 from the original nav-polish
-    # pass, still enforced, just by the shared primitive instead of local
-    # bookkeeping. One deliberate simplification, noted explicitly: the
-    # old loop reprinted "PLAYHEAD Calibrations (phcal):" + the notes lines
-    # every time "0" returned to the group menu; navigate() redraws
-    # in-place (the same \x1b[...A cursor-up technique the old sub-menu
-    # already used), so those header lines now print once, not on every
-    # back-up - a real difference in printed OUTPUT volume, not in what
-    # gets picked or how "0"/exit/wrap behave.
-    #
-    # 2026-08-23, redraw-in-place foundation: this function's own header
-    # DOES still reprint fresh on every "continue in phcal?" loop pass
-    # (unchanged from before this fix - a genuinely new pass, not a
-    # back-up within one pass) - what changed is erasing what the LAST
-    # pass left on screen first, so this reprint overwrites it instead of
-    # stacking below it.
-    #
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix: the
-    # erase amount is now the LAST PASS'S OWN REAL, MEASURED footprint
-    # (header + menu + whatever the operator did + however tall the fired
-    # primitive's own live log actually was) via _MENU_PASS_LINE_MARK - a
-    # checkpoint into _TeeStdout's own `cursor_line` - not the old fixed
-    # guess (see that global's own docstring for why the guess broke
-    # under a real live fire). A no-op on this function's very first call
-    # (_MENU_PASS_LINE_MARK is still None module-wide) and identical to
-    # before whenever nothing beyond the plain menu chrome printed.
-    # 2026-08-26, PHCAL_DOUBLE_DRAW_FIX_001.md: real bug found here - the
-    # mark used to get set to `_current_lines`, the snapshot taken BEFORE
-    # this call's own erase ran, not the REAL cursor position AFTER it.
-    # Every OTHER pass (the first ever call, where `_MENU_PASS_LINE_MARK`
-    # is still None and no erase runs) recorded an accurate mark by
-    # accident, since there was nothing to erase yet - but from the
-    # SECOND real erase onward, the recorded mark was stale by exactly
-    # the erased amount, a discrepancy that compounds pass over pass.
-    # Concretely: this is what let TWO consecutive header blocks
-    # (divider/hint/divider) survive on screen at once on a later pass -
-    # the erase computed from a stale mark could land short, leaving an
-    # earlier pass's own header un-erased right where a fresh one then
-    # printed on top of it. Fixed by re-measuring `cursor_line` AFTER the
-    # erase actually runs, so the mark always reflects where THIS pass's
-    # own new content is about to start, never a pre-erase snapshot.
     global _MENU_PASS_LINE_MARK
     _current_lines = getattr(sys.stdout, "cursor_line", None)
     if _MENU_PASS_LINE_MARK is not None and _current_lines is not None:
         _erase_screen_lines(_current_lines - _MENU_PASS_LINE_MARK)
         _current_lines = getattr(sys.stdout, "cursor_line", None)
     _MENU_PASS_LINE_MARK = _current_lines
-    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass: banner
-    # restyled to match the operator's own "** Welcome to X **" convention
-    # (was a bare "X:" line); "Please note" reworded to "For upcoming
-    # please see" per direct operator instruction - both filenames kept.
-    #
-    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md STOP #1, resolved: the
-    # welcome + please-see blocks that used to print here (every pass) now
-    # print ONCE, in `run_guided_flow()`, before detect ever runs - see
-    # that function's own comment. This function's own header is now just
-    # the main-menu screen's own frame (divider/hint/divider/rows) below.
-    # 2026-08-22, PHCAL_ARROW_NAV_BUILD_PLAN_002.md Phase 1: "0 to go
-    # back" dropped from this line - no in-tree back-up path existed yet.
-    # 2026-08-23: Left now backs up one level (navigate()'s own
-    # left_is_back wiring) - navigate() can no longer pop past the root, so
-    # it never returns None; the old dead "if primitive is None" check that
-    # used to sit here is gone as of the 2026-08-24 dispatch-callback
-    # extraction below (PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iii)), not
-    # just left inert - navigate() now calls _dispatch_primitive() itself
-    # and returns whatever it returns directly.
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (iii): this used
-    # to also print "session mode: N (word)" here for legibility.
-    #
-    # 2026-08-26, PHCAL_LOOK_PASS_CORRECTION_001.md: dropped - the
-    # operator's own literal PDF spec for this exact screen (`**` ->
-    # divider -> hint -> divider -> the 8 numbered rows) shows no such
-    # line, and rule 1 asks for character-for-character conformance here
-    # (unlike the opener, no revised text authorizes keeping it).
-    # `_session_mode_label()` is left defined, not pruned - out of this
-    # pass's own scope. A divider now also prints right after the frame
-    # mark, matching the general shape every other screen in this file
-    # follows. `_frame_open()` here was missing entirely until this fix -
-    # found live: without it, the main menu's own divider/hint/rows had
-    # no opening "**" of their own at all (please-see's own flush-close
-    # left the frame state genuinely closed, with nothing to reopen it).
     _frame_open()
     print(_NAV_DIVIDER)
     print(_NAV_HINT_ARROW)
@@ -4867,56 +3760,11 @@ def _dispatch_primitive(primitive):
     navigate() itself, not this function - a raise here just propagates
     straight through, same as any other exception a plain function call
     doesn't catch)."""
-    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3: fresh accumulator
-    # for THIS primitive's own chain - see _DISPATCH_ERASE_ACCUM's own
-    # comment. This is the one call site that starts a new chain (navigate()
-    # calls this directly), so resetting here (not per-prompt) is enough.
     global _DISPATCH_ERASE_ACCUM
     _DISPATCH_ERASE_ACCUM = 0
-    # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md LOOK PASS: the
-    # main-menu screen block _run_guided_flow_once() opened (welcome +
-    # please-see + session-mode + hint + divider + the root/submenu rows)
-    # deliberately has NO matching close mark printed from here. Tried
-    # printing one at this exact point first; it broke the very next
-    # Left-back at a primitive's OWN first prompt - navigate() resumes the
-    # SAME still-open menu level with no redraw (its own "pinned root,
-    # nothing below it left stale" contract), so a close mark printed here
-    # in advance would strand itself as a stray permanent line every time
-    # a primitive got abandoned before firing. The menu region stays
-    # conceptually "open" for its whole pinned lifetime instead (matching
-    # navigate()'s own architecture, untouched per "do not change nav
-    # mechanics") - each primitive's own prompts simply nest their own
-    # fresh `**` block inside it, closing cleanly on their own terms.
     if primitive == "weather":
-        # 2026-08-15 (PHCAL_WEATHER_ROBOT_SPEAK_001.md, widened same day in
-        # PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md): robot pick + reuse of
-        # run_robot_control_song_001.py's proven run_single_note("weather",
-        # ...) is unchanged from the first pass. The location prompt is
-        # back, but bare Enter does NOT re-query "windsor ontario canada" -
-        # that exact free-text phrase was the original geocode bug
-        # (cmd_weather_test's own docstring: it used to return zero
-        # matches). Bare Enter passes location=None, which
-        # fetch_windsor_weather() resolves to its own proven LOCATION
-        # constant ("Windsor,ON,CA") - the displayed default describes what
-        # that means in plain words, it isn't the literal query string. A
-        # typed location DOES take effect (single direct geocode query, no
-        # candidate-fallback retry - that logic lives in phcal's own
-        # now-unreachable cmd_weather_test/_weather_geocode_candidates, not
-        # ported here to avoid reimplementing fetch_windsor_weather()).
         robot = _prompt_robot(back=True)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: routed
-        # through the shared typed-value handler (was a bare `input()`,
-        # the plan's own field table flagged this as the one free-text
-        # field with no handler at all) - last_value=None + display=
-        # "windsor ontario canada" is exactly `_prompt_value()`'s own
-        # documented pattern for "show a human default, but bare Enter
-        # must still pass None through" (see that function's own
-        # docstring), preserving the geocode-safety behavior described
-        # in the comment block above unchanged.
         location = _prompt_value("location", None, kind="text", display="windsor ontario canada")
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after every prompt above already ran - was the branch's
-        # first line, skipping robot/location entirely when disabled.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -4928,48 +3776,14 @@ def _dispatch_primitive(primitive):
         return cmd_tempo_calibration()
 
     if primitive == "brobots_announce_in_sync":
-        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 4 (multi-mode
-        # single-brobot target): robot pick added, first in the chain
-        # (matches every other primitive's own robot-first order) - the
-        # plan's own confirmed second gap (with robot_info, above): MULTI
-        # mode (or None) used to always fire both robots via
-        # cmd_brobots_ready, no single-target option offered.
-        # _prompt_robot(default="both", allow_both=True, back=True)
-        # auto-resolves in single mode (unchanged - no picker shown there)
-        # and offers a real "1"/"2"/"both" pick in multi/None mode.
-        # `which in ("1","2")` now routes to the EXISTING cmd_brobots_
-        # ready_single() path (already used for single-mode's own
-        # auto-resolve, unchanged mechanism, just reachable from an
-        # explicit multi-mode pick too now) - no new cmd_* function needed.
         which = _prompt_robot(default="both", allow_both=True, back=True)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 fix pass:
-        # was the literal "Brobots ready!" every time - this call never
-        # actually read the phrase back from phcal_last.json (unlike
-        # every OTHER _LAST_PRIMITIVES entry), even though _save_last()
-        # below DOES write it every fire - flagged as a separate gap in
-        # the earlier follow-up pass, fixed now. The save side always
-        # writes the SAME phrase into every resolved robot's own slot - so
-        # robot "1"'s slot is as good a canonical read source as any;
-        # reading it here doesn't change what gets saved or to which
-        # robots, only what the prompt's own default is.
         last_phrase = _load_last("1")["brobots_announce_in_sync"]["phrase"]
         phrase = _prompt_value("phrase", last_phrase, kind="text", max_length=PHCAL_ANNOUNCE_PHRASE_MAX_CHARS)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # to here, after every prompt above already ran.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
         os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
         clock = _Clock()
-        # 2026-08-26, Lane 4: dispatch now reads off `which` directly
-        # (1/2 -> single-robot path, both -> the direct-SDK dual-robot
-        # binary) instead of re-deriving single-vs-multi from
-        # _SESSION_MODE/_PRESENT_ROBOTS - `which` already IS that answer,
-        # whether it came from single mode's own auto-resolve or an
-        # explicit multi-mode pick. cmd_brobots_ready_single() needs a
-        # label too - resolved from _candidate_list(), the same canonical
-        # source _confirm_multi_mode()'s own forced-pick branch already
-        # reads from.
         if which in ("1", "2"):
             label = next(c["label"] for c in _candidate_list() if c["which"] == which)
             rc = cmd_brobots_ready_single(clock, which, label, live, phrase)
@@ -4985,24 +3799,9 @@ def _dispatch_primitive(primitive):
 
 
     if primitive == "animation":
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1 (robot-first
-        # order): was token-then-robot (the one primitive in the whole file
-        # asking a non-robot question before "which robot?") - reordered
-        # to match every other primitive's own robot-first shape. `robot`
-        # gets back=True (it's the first widget drawn in this chain).
-        #
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
-        # the ends): `_prompt_animation_token()` also gets back=True now,
-        # even though it's SECOND - safe because a Left there erases
-        # robot's own already-committed rows too, via
-        # _DISPATCH_ERASE_ACCUM/_erase_dispatch_accum() (see _prompt_pick()'s
-        # own comment on `own_lines`), not just this call's own rows.
         robot = _prompt_robot(back=True)
         animation_token = _prompt_animation_token(back=True)
         hold_seconds = _prompt_value("hold", ANIMATION_DEFAULT_HOLD_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after every prompt above already ran (was this branch's
-        # first line, skipping robot/token/hold entirely when disabled).
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5025,17 +3824,6 @@ def _dispatch_primitive(primitive):
         if chain_wake_failed:
             return 1
         if animation_token == "all":
-            # 2026-08-15 (PHCAL_ANIMATION_ALL_SEQUENCE_001.md): fires the
-            # existing single-token cmd_animation() three times, in order -
-            # not a second implementation. kgSuccess/searching have a
-            # confirmed getout (or fire-once-then-hold); answering has none
-            # (_ANIMATION_GETOUT_TOKENS) and lingers after release, so it
-            # fires last on purpose - its own tail never bleeds into the
-            # other two. cmd_animation() always releases control at the end
-            # of every call regardless of pre_assumed (see its own `finally`
-            # block) - so pre_assumed only applies to the FIRST token here;
-            # tokens 2/3 do their own normal assume, matching every other
-            # multi-call sequence in this file.
             fire_order = ["kgSuccess", "searching", "answering"]
             ok = True
             for i, token in enumerate(fire_order):
@@ -5044,8 +3832,6 @@ def _dispatch_primitive(primitive):
                     pre_assumed=(chain_wake if i == 0 else False),
                 )
                 ok = ok and rc == 0
-                # Settle pause BETWEEN tokens only - not after the last one
-                # (nothing follows answering to settle for).
                 if i < len(fire_order) - 1:
                     if live:
                         print(f"{clock.prefix()}PHCAL_ANIMATION_SEQUENCE_PAUSE settling {_ANIMATION_SEQUENCE_PAUSE_SECONDS}s before next token")
@@ -5063,8 +3849,6 @@ def _dispatch_primitive(primitive):
     if primitive == "brobots_stay_in_place":
         robot = _prompt_robot(back=True)
         hold_seconds = _prompt_value("hold", HOLD_DEFAULT_SECONDS, kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after robot/hold prompts already ran.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5088,8 +3872,6 @@ def _dispatch_primitive(primitive):
 
     if primitive == "brobots_session_responsiveness":
         robot = _prompt_robot(back=True)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after the robot prompt already ran.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5110,8 +3892,6 @@ def _dispatch_primitive(primitive):
         hold_seconds = _prompt_value(
             "hold", MOVE_REVERSE_DEFAULT_HOLD_SECONDS, kind="float", max_value=MOVE_REVERSE_MAX_HOLD_SECONDS,
         )
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after robot/hold prompts already ran.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5139,48 +3919,7 @@ def _dispatch_primitive(primitive):
         return rc
 
     if primitive == "robot_info":
-        # 2026-08-18, PHCAL_DETECT_FIRST_001.md: mode-aware `which` -
-        # reports whichever robot(s) detect-first actually found present,
-        # not always the old hardcoded "both".
-        #
-        # 2026-08-26, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 4 (multi-mode
-        # single-brobot target): MULTI mode (or no detection at all,
-        # _SESSION_MODE is None on the direct-flag path) used to hardcode
-        # which="both" unconditionally here - the plan's own confirmed
-        # gap, one of only two in the whole 14-primitive set (the other is
-        # brobots_announce_in_sync, below). `_prompt_robot(default="both",
-        # allow_both=True)` replaces that hardcode - it already handles
-        # single mode's own auto-resolve internally (no picker shown
-        # there, unchanged behavior), and now offers a real "1"/"2"/"both"
-        # pick in multi/None mode, matching the treatment
-        # brobots_sleep_to_wake_direct_sdk already had. `cmd_robot_info()`'s
-        # own signature already accepts exactly this "1"/"2"/"both"
-        # convention (see its own docstring) - no new cmd_* function
-        # needed, only a real picker feeding it. `back=True` since this is
-        # the first (and only) prompt in this chain - same "every leaf
-        # gets a real back-out" standard Lane 3 already set everywhere
-        # else, applied here to a prompt that's brand new, not a change
-        # to any existing Lane 3 handler.
         which = _prompt_robot(default="both", allow_both=True, back=True)
-        # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): migrated
-        # from its own _no_confirmed_robot_this_session() check to the
-        # shared _row_enabled() gate - same "skip a doomed connection
-        # cleanly" intent (the live-caught 3-second "no route to host"
-        # timeout this originally existed to avoid), now the same one
-        # comparison every other primitive uses.
-        #
-        # 2026-08-26, Lane 4: this gate MOVES to sit after the robot pick
-        # now that one exists - was first-line back when this branch had
-        # "zero prompts of its own to walk through" (Lane 2's own comment,
-        # now stale); matches every other primitive's own Lane 2 shape
-        # (prompt(s), then the enabled-gate, then the live-gate, then
-        # fire) and keeps the robot pick itself walkable when disabled,
-        # same "disabled leaves walk to every tip" guarantee Lane 2/3
-        # already proved for the other 13 primitives. Still only ONE
-        # message when disabled (not the double the plan's own survey
-        # flagged as a risk) - `_row_enabled()` still runs BEFORE the
-        # `if not live` check right below, same order every other
-        # primitive already uses.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5193,19 +3932,7 @@ def _dispatch_primitive(primitive):
         return cmd_robot_info(mod, clock, which)
 
     if primitive == "cube":
-        # 2026-08-15: nothing to configure (no volume/hold/reps - the
-        # binary's own blipHoldDuration is fixed) - robot pick, defaulting
-        # to Brobot 2 (2), the cube keeper, then the same restart_preflight ->
-        # preflight -> fire -> return shape brobots_stay_in_place/
-        # move_reverse above already use. No dry mode - same "this class of
-        # tool always fires for real" precedent robot-sleep/-wake/-info and
-        # cmd_cube's own CLI form already follow.
         robot = _prompt_robot(default="2", back=True)
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after the robot prompt already ran - cube is one of the 3
-        # single-member groups (info/cube/animations); confirmed live no
-        # tree-shape change is needed (see robot_info's own comment above),
-        # only this gate-move makes it show its one prompt when disabled.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5230,39 +3957,12 @@ def _dispatch_primitive(primitive):
             },
             back=True, question="pick a release mode",
         )
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 3 (left-back to
-        # the ends): back=True now, even though this is SECOND (after
-        # mode_choice) - safe, same _erase_dispatch_accum() reasoning as
-        # animation's own token pick above.
         which = _prompt_robot(default="both", allow_both=True, back=True)
         wait_seconds = None
         if mode_choice == "1":
-            # Same floor as legacy --hold mode (SLEEP_MIN_HOLD_SECONDS) -
-            # the signal file gets touched `wait_seconds` after the sleep
-            # subprocess launches, running concurrently with
-            # GoToSleepGetIn/getInSettleSeconds(2.7s)/GoToSleepSleeping,
-            # not after confirming the robot actually settled. A
-            # too-short wait risks the exact same released-before-settled
-            # bug this floor was already built to prevent, just in the
-            # --wait-signal path instead of --hold.
-            #
-            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: was
-            # `_parse_sleep_hold_flag` (its own raise-on-below-floor
-            # wrapper around _parse_float_flag, now removed - unused
-            # everywhere else, see that function's own former docstring) -
-            # min_value=SLEEP_MIN_HOLD_SECONDS now CLAMPS a too-low typed
-            # value up to the floor instead of refusing it, per decision
-            # 3's own clamp rule.
             wait_seconds = _prompt_value(
                 "wait", SLEEP_WAKE_DEFAULT_WAIT_SECONDS, kind="float", min_value=SLEEP_MIN_HOLD_SECONDS,
             )
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-        # here, after every prompt above already ran (mode_choice/which/
-        # wait_seconds) - and, same reasoning as robot_info's own comment
-        # above, placed BEFORE the `if not live` check right below rather
-        # than after it, so a disabled leaf always gets the one plain
-        # "nothing fired" message instead of the unrelated PHCAL_NO_DRY_MODE
-        # one when both conditions happen to be true at once.
         if not _row_enabled(primitive):
             return _row_disabled_fire_null(primitive)
         live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
@@ -5280,15 +3980,6 @@ def _dispatch_primitive(primitive):
             return rc
         return cmd_sleep_wake_on_process(mod, clock, live, which)
 
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (ii): shared tail
-    # for arm/nod/rattle/danger - one gate covers all four, since
-    # `primitive` is still whichever of the four reached here.
-    #
-    # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 2: gate moved
-    # further down (see below, right before `live = os.getenv(...)`), past
-    # the robot prompt and this primitive's own value prompts - was the
-    # first real line of this shared tail, skipping all of that when
-    # disabled.
 
     robot = _prompt_robot(back=True)
 
@@ -5301,10 +3992,6 @@ def _dispatch_primitive(primitive):
     volume_ui = None
 
     if primitive == "arm":
-        # 2026-08-31, operator request: floor raised 1 -> 2 - see _DEFAULTS'
-        # own comment above for the full reasoning (a single rep is too easy
-        # to miss verifying live). _prompt_value()'s own clamp also upgrades
-        # a stale sub-2 value already sitting in phcal_last.json on load.
         cycles = _prompt_value("reps", last["cycles"], kind="int", min_value=2)
         hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
@@ -5313,20 +4000,12 @@ def _dispatch_primitive(primitive):
         hold_seconds = _prompt_value("hold between reps", last["hold"], kind="float", min_value=PHCAL_UNBOUNDED_HOLD_MIN_SECONDS, max_value=PHCAL_UNBOUNDED_HOLD_MAX_SECONDS)
         speed = _prompt_value("speed", last["speed"], kind="int", min_value=1)
     else:  # rattle / danger - both volume-only, same 1-5 scale
-        # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1b: was
-        # `_parse_int_flag("volume", raw, min_value=1, max_value=5)` via a
-        # lambda - now min_value=1, max_value=5 directly, so an
-        # out-of-range typed value (e.g. 9) CLAMPS to 5 instead of
-        # refusing and re-prompting - decision 3's own named example.
         volume_ui = _prompt_value("volume", last["volume"], kind="int", min_value=1, max_value=5)
 
     if not _row_enabled(primitive):
         return _row_disabled_fire_null(primitive)
 
     live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
-    # See PHCAL_RESTART_WIREPOD_ENV's own comment block above: setdefault, not
-    # a hard overwrite, and must happen before _load_module (module-level
-    # constant read at import time).
     os.environ.setdefault(PHCAL_RESTART_WIREPOD_ENV, "1")
     mod = _load_module(RUNNER_PATH, "run_section1_full_live_001")
     serial = BROBOT_2_SERIAL if robot == "2" else BROBOT_1_SERIAL
@@ -5540,21 +4219,6 @@ def run_guided_flow():
             print("PHCAL_GUIDED_EXIT (ESC) exiting")
             return 0
         except _PhcalSessionModeRepick:
-            # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md Lane (v)/(vi):
-            # a mid-session mode repick, not an exit - run the repick
-            # screen (_repick_session_mode()'s own docstring covers the
-            # "no re-probe, reuse _confirm_multi_mode()" mechanism), then
-            # loop straight back into a fresh _run_guided_flow_once() pass
-            # without _prompt_continue_or_exit() (a repick is a mid-flow
-            # detour, not a completed primitive dispatch) - that fresh
-            # pass is what actually re-runs _row_enabled() across every
-            # row and redraws in place, via its own existing
-            # _MENU_PASS_LINE_MARK erase mechanism. ESC from inside the
-            # repick screen itself still means a full, clean exit -
-            # _confirm_multi_mode() raises the same _PhcalEscExit
-            # _run_guided_flow_once()'s own pass already handles above,
-            # caught here too so that guarantee holds from this call site
-            # as well.
             try:
                 _repick_session_mode()
             except _PhcalEscExit:
@@ -5566,20 +4230,6 @@ def run_guided_flow():
             return 0
         if not _prompt_continue_or_exit():
             return result
-
-
-# === PHA0B GOLDEN NAV BRIDGE - Round 1 pilot (00a_brobots_awaken / "bait") ===
-# PHA0B_GOLDEN_NAV_RIPREPLACE_AND_SONG1_SCOPE_001.md's Part B build: song 1's
-# ENTIRE pre-run nav (Point A/B, reporter-gap, live/dry, phcal-apply y/n,
-# robot filter, rich-display) runs natively on this file's own golden nav
-# primitives instead of brobots.sh's plain-`read` _pha0b_prompt_*/
-# live_robots_prompt() functions - one subprocess call, one printed result
-# line, same shape pha0b already uses for phcal_apply_001.py. Every other
-# song's own nav (bingo's speaker-reassign, MODE=SECTIONS rendering, etc.)
-# is untouched - this bridge is bait-only, on purpose, per that survey's own
-# Part B scope carve. The actual phcal-apply EXECUTION loop and the final
-# run_golden_song_001.py dispatch both stay exactly where they already live
-# in brobots.sh, unmodified - this bridge only gathers answers.
 
 
 def _pha0b_bait_step_ids():
@@ -5711,19 +4361,12 @@ def _bait_nav_dispatch(point_ab):
             {
                 "key": "gap_seconds", "kind": "value", "default": 0.0,
                 "question": "reporter gap seconds", "kind_args": {"kind": "float", "min_value": 0.0},
-                # Matches brobots.sh's own existing "n" behavior - gaps are
-                # ZEROED for this run on "n", never left at the song's own
-                # knobs.json value.
                 "skip_if": lambda v: v.get("gap_yn") == "n", "skip_value": 0.0,
             },
         ],
         back_out_at_start=True,
     )
 
-    # Session mode: phcal's own REAL presence-aware live/dry gate. A
-    # one-shot, non-repeatable resolution by its own existing design
-    # (_resolve_session_mode_once()'s own docstring) - neither field chain
-    # ever tries to back INTO this boundary.
     session_ok = _resolve_session_mode_once()
     if not session_ok:
         return None
@@ -5838,46 +4481,15 @@ def run_pha0b_bait_nav():
     return 0
 
 
-# 2026-08-15, MASTER_TWEAKS_STAGE2_LOGS_001.md: mirrors every print() in
-# this process (this file's own ~200 call sites, plus anything printed by
-# a song-engine module loaded in-process via _load_module()) to both the
-# real terminal and phcal_run.log - one wrap at the entry point below,
-# not a change to any individual print() call. Lives in
-# ~/.gopod_alias_lib/, the same untracked, no-git-repo-at-all folder
-# phcal_last.json already lives in - provably outside git, never
-# committable. Overwrites fresh each run (same "latest state, not an
-# accumulating history" convention phcal_last.json already uses).
 PHCAL_RUN_LOG_PATH = Path(__file__).resolve().parent / "phcal_run.log"
 
 
 class _TeeStdout:
-    # 2026-08-24, PHCAL_ARROW_NAV_BUILD_PLAN_005.md redraw-glitch fix:
-    # `\x1b[<N>A` (cursor up N) is the ONLY vertical-cursor-repositioning
-    # escape sequence anywhere in this file's own rendering code
-    # (arrow_column_pick()'s _redraw(), _erase_screen_lines(),
-    # _confirm_multi_mode()'s own bespoke redraw - confirmed by grep, not
-    # guessed) - `\r` (carriage return) and `\x1b[2K` (erase line) never
-    # move the cursor vertically. This is the one pattern `cursor_line`
-    # below needs to track to stay accurate.
     _CURSOR_UP_RE = re.compile(r"\x1b\[(\d+)A")
 
     def __init__(self, real_stdout, log_path):
         self._real = real_stdout
         self._log = open(log_path, "w", buffering=1)
-        # `cursor_line`: a running NET vertical cursor position - `\n`
-        # moves it down one, `\x1b[<N>A` moves it up N. Deliberately NOT a
-        # plain "how many newlines were ever written" counter: a
-        # redraw-in-place (cursor up N, rewrite N lines) nets to ZERO
-        # here, exactly matching what a real terminal's cursor actually
-        # does - browsing a menu with the arrow keys (pure redraw churn,
-        # no net growth) doesn't inflate this, only content that actually
-        # pushes the cursor further down without a compensating up-move
-        # does. This is what makes `(current - a-remembered-mark)` a safe,
-        # accurate erase count for _run_guided_flow_once()'s own
-        # cross-pass redraw (see _MENU_PASS_LINE_MARK's own docstring) -
-        # a naive newline tally would over-count every redraw and risk
-        # erasing real, older output above the pass it's supposed to
-        # cover.
         self.cursor_line = 0
 
     def write(self, data):
@@ -5912,16 +4524,9 @@ if __name__ == "__main__":
         try:
             sys.exit(run_guided_flow())
         except EOFError:
-            # No interactive stdin to read from (piped/scripted call with no
-            # TTY) - a plain blocked message, not a raw traceback.
             print("PHCAL_GUIDED_BLOCKED no interactive input available - run phcal from a real terminal")
             sys.exit(1)
         except KeyboardInterrupt:
-            # 2026-08-25, PHCAL_ARROW_NAV_BUILD_PLAN_006.md Lane 1: softened
-            # per the operator's own named example (was "PHCAL_GUIDED_
-            # BLOCKED cancelled") - a real diagnostic tag has no place in a
-            # user-facing Ctrl-C acknowledgement; the exit code (1) still
-            # carries the machine-readable signal for anything scripted.
             print("\nCancelled — going back.")
             sys.exit(1)
     sys.exit(main())

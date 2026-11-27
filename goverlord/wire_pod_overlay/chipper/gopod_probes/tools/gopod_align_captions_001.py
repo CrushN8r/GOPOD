@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_align_captions_001.py
 """Forced alignment for a song's narrator (2026-10-18, operator: "Baby brobots song
 now (premiere pro project mixdown track) * see the mp3 audio file for similar speech
 patterns to highlight by * this mp3 is the narrator only * grab timings from the
@@ -89,7 +88,6 @@ def align(caption_words, start, end, heard):
             continue
         times.append((window[hit][1], window[hit][2]))
         at = hit + 1
-    # Not heard: between the times around it (inside the caption).
     for i, t in enumerate(times):
         if t is not None:
             continue

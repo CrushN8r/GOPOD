@@ -56,13 +56,6 @@ from song_folders_001 import find_song_dir
 
 RUNNER_PATH = Path(__file__).resolve().parent / "run_section1_full_live_001.py"
 CONTROL_SONG_RUNNER_PATH = Path(__file__).resolve().parent / "run_robot_control_song_001.py"
-# Env-overridable absolute anchor, not location-derived (2026-08-15,
-# INTERVIEW_TOOLS_MOVE_EXECUTED_001.md) - the old Path(__file__).resolve().
-# parents[2] silently pointed at the wrong directory the moment this file's
-# own folder moved up a level (interview/tools/ -> tools/), same failure
-# mode run_section1_full_live_001.py's own header comment already named and
-# fixed for its REPO_ROOT/WIREPOD_CHIPPER_ROOT - this file just hadn't been
-# fixed yet. Same env var, same hardcoded default, matching that precedent.
 SONGS_DIR = Path(os.getenv("GOPOD_REPO_ROOT", "/home/goverlord/crushn8r_git/GOPOD")).expanduser() / "goverlord" / "runtime" / "songs"
 
 GOLDEN_SONG_DIR_ENV = "GOPOD_GOLDEN_SONG_DIR"
@@ -75,85 +68,27 @@ GOLDEN_REPORTER_GAP_OVERRIDE_ENV = "GOPOD_GOLDEN_REPORTER_GAP_OVERRIDE"
 GOLDEN_CONNECTION_PASS_ENV = "GOPOD_GOLDEN_CONNECTION_PASS"
 CONNECTION_PASS_TIMEOUT_SECONDS = global_runner_value("connection_pass_timeout_seconds")  # songs/global_knobs.json
 
-# Phase 2 only: which single robot a synthesize_speaker=True song targets -
-# mirrors run_robot_control_song_001.py's own GOPOD_CONTROL_SONG_ROBOT
-# exactly (values "1"/"2", default "1"), new name to stay inside this
-# engine's own GOPOD_GOLDEN_* namespace. No-op for every synthesize_speaker=
-# False song (bingo-family) - never read.
 GOLDEN_ROBOT_ENV = "GOPOD_GOLDEN_ROBOT"
 
-# Run-time robot playback filter (pha0b's "run which robots?" prompt, per-
-# run only - never writes a knobs.json, distinct from robot_pick_001.py
-# which permanently reassigns a step's own `speaker` field on disk). Values
-# "1"/"2"/"both" (default "both" = today's byte-identical behavior, every
-# step fires exactly as it always has). "1"/"2" skip dispatching any step
-# whose resolved `speaker` is the OTHER robot - the step is logged filtered,
-# not errored, and its own buffer_after/tempo timing still fires normally so
-# the run's overall pacing doesn't shift just because one robot's cues went
-# silent for this take.
 GOLDEN_ROBOT_FILTER_ENV = "GOPOD_GOLDEN_ROBOT_FILTER"
 _ROBOT_FILTER_SPEAKER = {"1": "brobot_1", "2": "brobot_2"}
-# Notes exempt from the filter regardless of setting: wake_both/
-# brobots_ready_together always touch both physical robots no matter which
-# nominal `speaker` their own knobs.json step carries (run_wake_both() pings
-# both serials unconditionally; run_brobots_ready_together() fires the
-# together binary against both serials unconditionally) - filtering "the
-# other robot's" wake or ready-together would silently break connectivity
-# prep/the together beat for a note that was never actually single-robot to
-# begin with. pause/exit touch no robot at all - filtering them would only
-# ever discard real timing content for no reason, breaking the "buffers/
-# pauses intact" requirement.
 _FILTER_EXEMPT_NOTES = {"wake_both", "sleep_both", "all_asleep", "brobots_ready_together", "system_line", "pause", "timer", "exit"}
 
-# Same bare-presence-is-not-proof discriminator as run_songs_runner_001.py -
-# see that file's own comment / BINGO_STUCK_ANIMATION_FALSE_POSITIVE_RESOLUTION_001.md.
 ANIMATION_WAIT_LOG_SIGNATURE = "waiting for animation to be done"
 
 _LOOP_ANIMATION_TOKENS = {"searching", "answering"}
 _ANIMATION_LOOP_INTERVAL_SECONDS = 0.333
 
-# GOLDEN, LOCKED 2026-09-30 - how a loop animation plays and ENDS in a song
-# (SEARCHING_ANIMATION_SONG_LOCK_001.md, gopod_notes). "searching" is sent ONCE,
-# held for the step's hold_seconds, then closed with one "searchingGetout"
-# (brobots-searching-out's / phcal's own getout) and 0.5s. Never re-sent every
-# 0.333s in a song: one searching clip runs ~3.9s (go search V7,
-# gesture_clip_ms), so 4 sends in 1.3s left ~16s of clips waiting in Wire-Pod's
-# animation queue, and the next line's own "thinking" animation set them
-# playing again - the "searching sound runs on until the robot is called
-# again" leak (bingo live runs 2026-09-16, 17:43 2026-09-30). The phcal bench
-# and test-anim-* aliases still loop on purpose: they fire one thing in
-# isolation with nothing after it. "answering" has no getout clip: it keeps the
-# loop and settles 1.0s (ANSWERING_NATIVE_STOP_DISCIPLINE_001.md). Locked by
-# test_golden_song_animation_lock_001.py - change only with a fresh live test.
 _ANIMATION_GETOUT_TOKENS = {"searching": "searchingGetout"}
 _ANIMATION_GETOUT_SETTLE_SECONDS = 0.5
 _ANIMATION_NO_GETOUT_SETTLE_SECONDS = 1.0
 
-# Direct-SDK golden path constants (DECOUPLED_DIRECT_SDK_GOLDEN_PATH_001.md),
-# copied verbatim from run_songs_runner_001.py - live-confirmed values, not
-# retuned here. See that file's own comments for the full tuning history
-# (RATTLE_SETTLE_SECONDS in particular: confirmed working live TWICE at 3.0s,
-# do not lower without a fresh live re-confirmation).
 DIRECT_SDK_RELEASE_SETTLE_SECONDS = 1.0
 BROBOTS_READY_TOGETHER_HANDBACK_SETTLE_SECONDS = 1.0
 RATTLE_SETTLE_SECONDS = 3.0
 
-# 2026-08-18, PHCAL_DETECT_FIRST_001.md live-test finding, same failure
-# class as BROBOTS_WAKE_POST_REASSUME_SETTLE_SECONDS's own 2026-08-10 fix
-# (run_robot_control_song_001.py): an action fired immediately after a
-# fresh assume_behavior_control response, before the robot's real async
-# control grant had actually landed - HTTP 200 confirms accepted, not
-# landed. run_emotion_beat()/run_animation_only() below both fired their
-# first say_text call with zero settle after a fresh (manage_control=True)
-# assume. Matches PHCAL_ASSUME_SETTLE_SECONDS's own 1.5s "cold-first-cycle"
-# value (phcal_isolate_001.py) - same kind of cold/first assume, not a
-# reassume mid-hold, so the 1.5s number is used, not the smaller 0.5s
-# reassume-specific one.
 POST_ASSUME_SAY_SETTLE_SECONDS = 1.5
 
-# A spoken line back faster than this was not spoken (see run_say_turn's
-# self-heal). Silent lines measured 0.03-0.18s; the shortest real line
-# ("Wait!") takes about 1s.
 SAY_SILENT_SECONDS = 0.5
 
 RATTLE_BIN_PATH = Path("/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/direct_sdk_bingo_rattle_001")
@@ -161,23 +96,10 @@ RATTLE_WAV_PATH = Path(
     "/home/goverlord/crushn8r_git/SDK/sources/vectorx/vectorfs/data/audio/rattle.wav"
 )
 TOGETHER_BIN_PATH = Path("/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/direct_sdk_brobots_ready_001")
-# The cube blip (phcal's cube test): all corners red, 2 s, then green.
 CUBE_BLIP_BIN_PATH = Path("/home/goverlord/crushn8r_git/GOPOD/goverlord/wire_pod_overlay/chipper/gopod_probes/tools/direct_sdk_cube_blip_001")
 WIREPOD_HOME_PATH = "/home/goverlord/wire-pod"
 
-# 2026-10-09, the nap (operator: "Start this song by putting the brobots to
-# sleep * wake in time to act, then back to sleep? * like sleep walking"; "Since
-# brobots are sleepy their actions don't require specific timing restrictions *
-# they can lull out of and back into sleep * have it so they're sleeping by the
-# end of the song"): phcal's golden sleep tool (brobots_sleep_to_wake_direct_sdk,
-# direct_sdk_robot_sleep_001 sleep --wait-signal), one per Brobot. Banked rule
-# (SLEEP_GOLDEN_NOTES_001.md): never assume control through Wire-Pod while the
-# sleep tool holds a Brobot - it hung the sleep tool - so a move wakes the
-# Brobot (the signal file: GoToSleepOff in the same connection, then its
-# release), settles, takes control, moves, hands back, settles, and sleeps again.
 SLEEP_BIN_PATH = TOGETHER_BIN_PATH.parent / "direct_sdk_robot_sleep_001"
-# The sleep tool's own safety net (it wakes the Brobot after this long with no
-# signal): longer than any nap in a song.
 SLEEPY_MAX_WAIT_SECONDS = float(global_runner_value("sleepy_max_wait_seconds"))  # songs/global_knobs.json
 SLEEPY_MOVE_NOTES = ("arm_cue", "nod", "animation")
 
@@ -189,9 +111,6 @@ WIREPOD_PAIRING_RECOVERY_MESSAGE = (
     "guessing a different fix."
 )
 
-# Per-note-type stop message, only consulted for a note in that song's own
-# fatal_notes (see SONG_REGISTRY). A note added to fatal_notes later without
-# an entry here just gets the generic fallback - never a KeyError.
 _FATAL_STOP_MESSAGES = {
     "wake_both": lambda step_id: (
         f"wake_both {WIREPOD_PAIRING_RECOVERY_MESSAGE}"
@@ -208,15 +127,6 @@ def _generic_fatal_message(note, step_id):
     return f"{note} failed - stopping run per {note}'s own fatal_notes entry."
 
 
-# Per-song config for the golden engine, keyed by song_id (the "song_id" in the
-# song's own knobs.json). fatal_notes stop a run when they fail; every other
-# note warns and goes on. manage_control=False + synthesize_speaker=False is the
-# continuous dual-robot hold (STAY_PUT_FIX_SURVEY_001.md): both Brobots held for
-# the whole run, each step addressed by its own speaker.
-# 2026-10-10 (operator: "even shuffling (song) folders without notice should be
-# easy to remap"): no folder names here - a song is found by its song_id
-# (song_folders_001.py). Only songs on disk are listed; the archived ones went
-# with zzz_archives.zip.
 SONG_REGISTRY = {
     "brobots_baby_robots_sleep": {
         "runner": "run_golden_song_001.py",
@@ -238,21 +148,14 @@ SONG_REGISTRY = {
     },
 }
 
-# 2026-10-11 (operator: "new song, really fast"): the elevator fart joke.
 SONG_REGISTRY["brobots_fart_joke"] = dict(SONG_REGISTRY["brobots_bingo"])
 
-# 2026-11-04 (operator: "Lock that in as a rapid fire exchanges test * Make it a
-# GOPOD song (WIP)"): two lines at once, timed by their own commas.
 SONG_REGISTRY["brobots_rapid_fire"] = dict(SONG_REGISTRY["brobots_bingo"])
 
-# 2026-11-04 (operator: "Brobot 1 Arm lift, Brobot 2 Arm lift, Brobots Nod
-# together, Brobots say brobots ready message together"): the ready move.
 SONG_REGISTRY["brobots_ready"] = dict(SONG_REGISTRY["brobots_bingo"])
 
 DEFAULT_SONG_ID = "brobots_baby_robots_sleep"
 
-
-# ---- display-tag derivation (generic, step_id/text-driven, not song-specific) ----
 
 _NOTE_TYPE_TAGS = {
     "wake_both": "wake",
@@ -324,9 +227,6 @@ def _derive_note_tag(step):
     if note == "say_turn":
         return _derive_say_turn_tag(step_id, step.get("text", ""))
     return _NOTE_TYPE_TAGS.get(note, note or "step")
-
-
-# ---- module loading / song loading ----
 
 
 class _TeeStdout:
@@ -459,12 +359,7 @@ def load_golden_song(song_dir, control_mod, _seen=None):
     shape) is untouched."""
     song_dir = Path(song_dir)
     knobs_path, knobs = load_knobs_envelope(song_dir)
-    # 2026-10-29 (operator: "global knobs > [zKnobs > knobs]"): each move step's
-    # values - its own, else the song's "moves", else the global knobs.
     apply_knob_layers(knobs)
-    # 2026-10-25 (operator's new story format): a step name can repeat (a Brobot's
-    # lines around a move, "brat_say_0203" twice) - the nth step of a name in
-    # knobs.json takes the nth one in story.md.
     story_text = (song_dir / "story.md").read_text(encoding="utf-8")
     in_order = control_mod.parse_control_story_list(story_text) if hasattr(control_mod, "parse_control_story_list") else list(control_mod.parse_control_story_md(story_text).items())
     by_name = {}
@@ -481,9 +376,6 @@ def load_golden_song(song_dir, control_mod, _seen=None):
         merged = dict(raw_step)
         merged["text"] = content["text"]
         merged["fail"] = content["fail"]
-        # 2026-10-09 (the nap, a lyric video): "robots_speak": false - story.md's
-        # words are the narrator's captions, never said by a robot.
-        # A step with no start_seconds (the ending's "Brobots Ready!") keeps its words.
         if knobs.get("robots_speak") is False and raw_step.get("start_seconds") is not None:
             merged["caption"] = merged["text"]
             merged["text"] = ""
@@ -494,8 +386,6 @@ def load_golden_song(song_dir, control_mod, _seen=None):
             steps.extend(_sequence_steps(merged, song_dir, control_mod, _seen))
             continue
         steps.append(merged)
-    # Only a song in the new format asks for it ("compose_moves": true), so older
-    # songs - a move, then its line, as two steps - play as they always have.
     if knobs.get("compose_moves"):
         steps = compose_move_lines(steps)
     return {
@@ -505,43 +395,23 @@ def load_golden_song(song_dir, control_mod, _seen=None):
         "sentence_split": knobs.get("sentence_split"),
         "rattle_on": knobs.get("rattle_on", "robot"),
         "touch_interrupt_off": bool(knobs.get("touch_interrupt_off")),
-        # 2026-10-12 (operator: "all songs must have this same golden templated
-        # process" - the opener's): warming, any warmup_lines, then the ready line;
-        # every song unless its knobs.json says "llm_warmup": false.
         "llm_warmup": bool(knobs.get("llm_warmup", True)),
         "llm_ready_text": knobs.get("llm_ready_text", ""),
-        # 2026-10-20 (operator: "all llm warmings load an expected run"): the
-        # song's _llm_song run when it has one, else its knobs' warmup_lines.
         "warmup_lines": _llm_song_lines(song_dir, control_mod, knobs.get("warmup_lines", [])),
-        # 2026-10-17: a song needing no voice files made / no language model.
         "voices_required": knobs.get("voices_required", True) is not False,
         "llm_required": knobs.get("llm_required", True) is not False,
-        # 2026-10-12 (operator: "LLM warm-up start after “Go to sleep now please”"):
-        # the warm-up runs right after this step instead of at the start.
         "warmup_after": knobs.get("warmup_after", ""),
         "timeline": knobs.get("timeline", ""),
         "audio": knobs.get("audio", ""),
         "sleepy": bool(knobs.get("sleepy")),
-        # 2026-10-15: the sleepy Brobots' wake clip (SleepyBrobots), and a picture
-        # for each narrator bubble, by section (_caption_bubbles).
         "wake_clip": knobs.get("wake_clip", ""),
         "section_pictures": knobs.get("section_pictures", {}),
         "narrator_single": bool(knobs.get("narrator_single")),
-        # 2026-10-18 (forced alignment): the narrator's word times, by caption
-        # (narrator_words.json, gopod_align_captions_001.py), when the song has them.
         "narrator_words": _narrator_words(song_dir),
         "steps": steps,
     }
 
 
-# 2026-10-25 (operator: "New format ... Easier for me to scan & fix * Translate/
-# compose for native wire-pod compatibility"): in story.md a move and its line are
-# steps of their own, in the order they happen. A move step with no line of its
-# own, followed straight away by the same Brobot's say line, plays that line the
-# native way, as one step - an arm cue or nod while it's said, kgSuccess (any
-# one-shot animation, an emotion beat) as "{{playAnimationWI||kgSuccess}} line",
-# searching first, then the line. The line's step gives the gap after it and any
-# show_ball. A line before a rattle stays its own step (said, then the rattle).
 COMPOSE_MOVE_NOTES = ("arm_cue", "nod", "animation", "emotion_beat")
 
 
@@ -620,24 +490,10 @@ def run_continuous_hold_assume(mod, live):
         )
         results[label] = result
         ok = ok and result.get("status") == 200
-    # 2026-09-30: Wire-Pod answers the assume before the robot's control grant
-    # lands (bcassume.go); an arm/nod fired straight after it silently did
-    # nothing (bingo live run 2026-09-30 13:59, steps 5 and 10, right after
-    # "Brobots ready" and the rattle, both of which hand control over fully).
-    # Same 1.5s cold-assume settle as POST_ASSUME_SAY_SETTLE_SECONDS/phcal.
     time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
     return {"ok": ok, "results": results, "settle_seconds": POST_ASSUME_SAY_SETTLE_SECONDS}
 
 
-# 2026-10-01, operator: "take back a robot's control when it goes silent after a
-# crash". A robot that crashes and reboots mid-song loses the song's held
-# control, and stays silent for the rest of the run (Brobot 2, live 14:10: its
-# line hung 90s, it was back at 14:12, and its later lines came back "success"
-# but unheard - too slow for the silent-line heal in run_say_turn). So under
-# the song's hold, a robot step that fails (a line that times out, an animation
-# that errors) or a line still silent after the heal marks that robot; before
-# its next step the song waits for Wire-Pod to reach it again (conn_test) and
-# then retakes its control the heal's own way - release, settle, retake, settle.
 CONTROL_RETAKE_NOTES = ("say_turn", "animation", "emotion_beat", "arm_cue", "nod")
 CONTROL_RETAKE_WAIT_SECONDS = float(global_runner_value("control_retake_wait_seconds"))  # songs/global_knobs.json
 CONTROL_RETAKE_POLL_SECONDS = float(global_runner_value("control_retake_poll_seconds"))
@@ -686,9 +542,6 @@ class SleepyBrobots:
 
     def __init__(self, mod, live, robots, tag, wake_clip=""):
         self.mod, self.live, self.robots, self.tag = mod, live, robots, tag
-        # 2026-10-15 (operator: "switch to slower clip"): knobs.json "wake_clip" -
-        # the Brobots wake with this clip (the sleep tool's --wake-clip) instead of
-        # GoToSleepOff; bench 2026-10-14: anim_gotosleep_wakeup_01 looked softer.
         self.wake_clip = wake_clip
         self.names = {mod.BROBOT_1_SERIAL: "Brobot 1", mod.BROBOT_2_SERIAL: "Brobot 2"}
         self.procs = {}
@@ -737,7 +590,6 @@ class SleepyBrobots:
         out = "\n".join(line for line in (out or "").splitlines() if "guid" not in line.lower())
         ok = proc.returncode == 0 and "status=OK" in out
         self.say(f"{name}: wakes ok={ok}")
-        # The sleep tool has released; Wire-Pod takes over after the settle.
         time.sleep(DIRECT_SDK_RELEASE_SETTLE_SECONDS)
         return {"ok": ok, "output": out}
 
@@ -757,7 +609,6 @@ class SleepyBrobots:
                 step_id, move, awake = item
                 self.say(f"{name}: {step_id}")
                 if move is None:
-                    # A stir: awake a moment, nothing else, then back to sleep.
                     if self.live:
                         time.sleep(awake)
                     result = {"ok": True, "stir_awake_seconds": awake}
@@ -772,7 +623,6 @@ class SleepyBrobots:
                         result = {"ok": False, "error": repr(exc)}
                 with self.lock:
                     self.results.append({"step_id": step_id, "wake": wake, "result": result})
-                # Lull: a move that's already due is made before sleeping again.
                 try:
                     item = q.get_nowait()
                 except queue.Empty:
@@ -845,7 +695,6 @@ class SleepyBrobots:
         return results
 
 
-# The run's sleepy Brobots, woken in run_golden_song's finally if a run ends early.
 _SLEEPY = None
 
 
@@ -854,9 +703,6 @@ def _tag_for(song_id):
     BROBOTS_BABY_ROBOTS_SLEEP. Replaces run_songs_runner_001.py's hardcoded
     "BINGO" literal per the survey's own schema table."""
     return re.sub(r"[^A-Za-z0-9]+", "_", song_id or "golden").upper()
-
-
-# ---- note handlers (behavior ported verbatim from run_songs_runner_001.py) ----
 
 
 def run_wake_both(mod, live, settle_seconds):
@@ -949,10 +795,6 @@ def play_rattle_on_speaker(robots=None, tag="GOLDEN"):
     the robot's control, no direct-SDK connection, no settle wait. Never stops a
     run."""
     try:
-        # A run started by voice ("bingo test live") comes from Wire-Pod's root
-        # process via runuser, with no desktop session in its environment, so
-        # paplay couldn't find the sound server (live 2026-10-03 01:00: "Connection
-        # refused"). Point it at this user's own session folder.
         env = dict(os.environ)
         env.setdefault("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
         proc = subprocess.run(["paplay", str(RATTLE_WAV_PATH)], capture_output=True, text=True, timeout=15, env=env)
@@ -985,8 +827,6 @@ def play_song_sound(mod, live, song_dir, name, volume, robots=None, tag="GOLDEN"
     """A song's own sound file on the chat page, at volume (0-1, the page's
     audio volume, "#vol=" on its path). Never stops a run."""
     path = next(Path(song_dir).rglob(name), None) if name else None
-    # 2026-10-13 (the Fart Joke's danger-will-robinson.wav): else Wire-Pod's
-    # shared sounds/ (copied to the page at its start too).
     if name and path is None:
         shared = mod.GOPOD_CHIPPER_ROOT / "sounds" / name
         path = shared if shared.is_file() else None
@@ -1043,9 +883,6 @@ def play_rattle_on_page(mod, live, robots=None, tag="GOLDEN"):
     length plus reporter_voices.page_lag_seconds. Never stops a run."""
     rv = load_brobots_settings()["reporter_voices"]
     try:
-        # Wire-Pod puts the overlay's sounds/ in the page's voice folder at its
-        # start (gopodSoundsToPage) - that folder is Wire-Pod's (root's), so the
-        # song only names the file (live 16:23: "Permission denied" copying it).
         seconds = rattle_wav_seconds()
         post_countdown(mod, live, seconds, robots)
         posted = post_chat_line(mod, live, rv["role"], "/gopod_reporter_audio/rattle.wav", robots)
@@ -1242,19 +1079,15 @@ def run_brobots_ready_together(mod, live, phrase="Brobots ready!", before_speech
             before_speech()
         return {"ok": True, "mode": "dry"}
     if rattle_before and rattle_on == "page":
-        # rattle_on "page" (2026-10-09): the warm-up rattle on the chat page too.
         play_rattle_on_page(mod, live, None)
         post_countdown_end(mod, live, None)
         rattle_before = False
     if rattle_before and rattle_on == "speaker":
-        # rattle_on "speaker" (2026-10-03): the warm-up on this machine's
-        # speaker, before the hand-off - no settle waits around it.
         post_countdown(mod, live, rattle_wav_seconds(), None)
         play_rattle_on_speaker()
         post_countdown_end(mod, live, None)
         rattle_before = False
     if rattle_before:
-        # The warm-up: its settle, the sound, then the 3.0 s before the line.
         post_countdown(mod, live, rattle_countdown_seconds(RATTLE_SETTLE_SECONDS), None)
     release_1 = mod.wirepod_web_send_form("/api-sdk/release_behavior_control", {"serial": mod.BROBOT_1_SERIAL}, timeout=10)
     release_2 = mod.wirepod_web_send_form("/api-sdk/release_behavior_control", {"serial": mod.BROBOT_2_SERIAL}, timeout=10)
@@ -1273,9 +1106,6 @@ def run_brobots_ready_together(mod, live, phrase="Brobots ready!", before_speech
         except subprocess.TimeoutExpired:
             warmup = {"error": "rattle before timed out"}
         post_countdown_end(mod, live, None)
-        # 2026-10-01 (operator: "yes, do it"): the rattle's own 3.0 s settle, not
-        # 1.0 s, before "Brobots ready" - when the warm-up was heard, Brobot 1
-        # started its line late (out of sync), likely still busy from the rattle.
         time.sleep(RATTLE_SETTLE_SECONDS)
     if before_speech:
         before_speech()
@@ -1309,7 +1139,6 @@ def run_say_turn(mod, robots, name, text, display_text=None, suppress_assume_rel
         return {"ok": True, "skipped": True}
     if display_text is None:
         display_text = text
-    # A combo part: the step's one bubble, put up by its first speaking part.
     if getattr(robots, "piece_offset", None) is not None:
         display_text = getattr(robots, "combo_display", None) or ""
     robot_safe_line, _repair_used = mod.normalize_robot_safe(text, robots.scaffold)
@@ -1320,13 +1149,6 @@ def run_say_turn(mod, robots, name, text, display_text=None, suppress_assume_rel
     )
     elapsed = time.monotonic() - started
     heal = None
-    # 2026-09-30 self-heal (BINGO_B1_SILENT_LINES_TIMING_COMPARE_001.md): under the
-    # song's continuous hold, a robot can lose its control without Wire-Pod
-    # noticing - its lines then come back in 0.03-0.18s, unspoken, while Wire-Pod
-    # still answers "success", and it stays silent until the next rattle's
-    # release/retake. A real line takes >= ~1s (the shortest, "Wait!"). So: a line
-    # back in under SAY_SILENT_SECONDS gets the rattle's own recovery for that one
-    # robot - release, settle, retake, settle - and is said once more.
     if suppress_assume_release and result.get("mode") == "wirepod" and elapsed < SAY_SILENT_SECONDS:
         serial = mod.BROBOT_1_SERIAL if name == "Brobot 1" else mod.BROBOT_2_SERIAL
         print(f"{robots.timing_prefix()}SAY_SILENT {name}: line came back in {elapsed:.2f}s - retaking control and saying it again", flush=True)
@@ -1335,8 +1157,6 @@ def run_say_turn(mod, robots, name, text, display_text=None, suppress_assume_rel
         assume = mod.wirepod_web_send_form("/api-sdk/assume_behavior_control", {"priority": "high", "serial": serial}, timeout=10)
         time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
         retry_started = time.monotonic()
-        # The first try already put the line on the chat page (Wire-Pod adds it
-        # before speaking), so the retry is spoken only - no second bubble.
         result = robots.say(
             name, robot_safe_line, display_text="", display_role=name,
             suppress_assume_release=suppress_assume_release,
@@ -1348,17 +1168,11 @@ def run_say_turn(mod, robots, name, text, display_text=None, suppress_assume_rel
     return {"ok": ok, "result": result, "silent_heal": heal}
 
 
-# The Brobots settings (single source of truth, shared with Wire-Pod and the chat
-# page): the settings folder, a short file per area, read as one (2026-10-29,
-# gopod_settings_folder.go) - the animation lead-in the emotion beats use.
 BROBOTS_SETTINGS_DIR = (
     Path(__file__).resolve().parents[3] / "wire_pod_overlay" / "chipper" / "webroot" / "gopod_settings"
 )
 
 
-# 2026-11-03 (the clusters plan, step 8b): the settings Wire-Pod runs on - the
-# settings folder with the topic-clusters laid over (the warm-up's lines live in
-# gopod_probes/topic_clusters/personas/behaviours/preshow.md) - written by Wire-Pod at each start.
 BROBOTS_SETTINGS_FULL = BROBOTS_SETTINGS_DIR.parent / "gopod_settings_full.json"
 
 
@@ -1417,11 +1231,6 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
     done if that's longer. Same page file Wire-Pod's own start warm-up uses."""
     llm = load_brobots_settings()["llm"]
     song_ready_line = (ready_text or "").strip()
-    # 2026-10-25 (operator: "the first sign of Goverlord intelligence is, ah! No
-    # llm required, so skip the b*llsh*t * Look at the run make it make sense with
-    # some sense of human flow"): a song that needs no language model (the nap)
-    # has no warm-up - no warm-up bubble, no wait, no "Your move." Goverlord says
-    # "No Language Model Required" and the song's own ready line, then it goes on.
     if not llm_required:
         line = "\n".join(t for t in ((llm.get("no_llm_text") or "").strip(), (ready_text or "").strip()) if t)
         if line:
@@ -1434,18 +1243,6 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
         print("LLM_WARMUP no language model required - skipped", flush=True)
         return
     state = mod.GOPOD_CHIPPER_ROOT / "webroot" / "gopod_llm_warmup.json"
-    # 2026-10-14 (operator: "part 1 standard * keep it in settings file once *
-    # each song gives only part 2"): llm.run_ready_text, then the song's own
-    # llm_ready_text.
-    # 2026-10-16 (operator: "snapshot/lock/stamp this starting opener LLM as the
-    # golden reference template * for song runs, apply this template as a
-    # base"): the opener's message 3 shape - run_ready_text, the song's own
-    # line, run_ready_end - one line each (gopod_llm_warmup.go gopodRunReadyLine).
-    # 2026-10-17 (operator: "add: fallbacks to system messages: \"No Voice
-    # Generation Required\" or voice generation check * \"No Language Model
-    # Required\" of language model loading/loaded"): a song that needs no voice
-    # files made or no language model (knobs.json "voices_required" /
-    # "llm_required": false, the nap) says so in their place, and no model is called.
     loaded_text = (llm.get("run_ready_text") or "").strip() if llm_required else (llm.get("no_llm_text") or "").strip()
     ready_text = "\n".join(t for t in (loaded_text, (ready_text or "").strip(),
                                         (llm.get("run_ready_end") or "").strip()) if t)
@@ -1457,17 +1254,11 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
         if voices_part and loading_part and voices_part[-1] not in ".!?":
             voices_part += "."
         warming_text = " ".join(t for t in (voices_part, loading_part) if t)
-    # 2026-10-17 (operator: "to skip in-between messages, a single in-between
-    # message = \"\" = the indication to skip"): a line with no words isn't said.
     lines = [line for line in (lines or []) if (line.get("text") or "").strip()]
 
     started_ms = int(time.time() * 1000)
 
     def ready():
-        # 2026-10-13 (operator: "chat bubbles must run in an orderly sequence so
-        # Goverlord's orchestration is presented correctly"): the bubble turns
-        # ready in the chat's order, after the lines before it, then Goverlord
-        # says the ready line - the song goes on once it's said.
         try:
             answer = mod.wirepod_web_send_form("/api-sdk/gopod_system_say", {
                 "warmup_ready": str(started_ms), "text": ready_text}, timeout=120)
@@ -1477,8 +1268,6 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
             print(f"LLM_WARMUP ready line failed {type(exc).__name__}", flush=True)
 
     def message(text):
-        # 2026-10-13 (operator: "Sequential Run Check"): the System llm bubble's
-        # message, then llm.wait_text ("Please wait.").
         text, wait = (text or "").strip(), (llm.get("wait_text") or "").strip()
         if text and wait and text[-1] not in ".!?":
             text += "."
@@ -1487,27 +1276,17 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
         return (text + "\n" + wait).strip()
 
     def show(text, say=""):
-        # GOLDEN, locked (2026-10-13, operator: "PLEASE FIX GOLDEN AND F*CK*NG
-        # LOCK THE PROCESS IN"): the bubble's message as a chat-feed line, so the
-        # page shows it in turn (gopod_llm_warmup.go GopodSongWarmupText), and
-        # said by Goverlord when say is given.
         write(True, text)
         try:
             mod.wirepod_web_send_form("/api-sdk/gopod_system_say", {"warmup_text": str(started_ms), "text": text}, timeout=10)
             say_role = load_brobots_settings()["reporter_voices"].get("system_say_role", "")
             if say and say_role:
-                # Voice only: Goverlord says it, no bubble of its own.
                 post_chat_line(mod, True, say_role, say)
         except Exception as exc:  # noqa: BLE001 - a message never stops the song
             print(f"LLM_WARMUP message failed {type(exc).__name__}", flush=True)
 
     def write(active, text=""):
-        # Same shape Wire-Pod writes (gopod_llm_warmup.go): the page fills the LLM
-        # power level from started_ms, shows text while warming, and turns ready
-        # at the feed's warmup_ready line.
         tmp = state.with_suffix(".json.tmp")
-        # 2026-10-09 (operator: "maybe this time say LLM ready for Bingo?"): the
-        # song's own ready text (knobs.json llm_ready_text), when it has one.
         tmp.write_text(json.dumps({"active": active, "started_ms": started_ms,
                                    "done_ms": 0 if active else int(time.time() * 1000),
                                    "ready_text": ready_text, "text": text}), encoding="utf-8")
@@ -1519,27 +1298,15 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
     del knowledge  # only the endpoint and model are used; nothing else is kept or logged
     started = time.time()
     warm = False
-    # 2026-10-11 (operator: "copy/add this reporters opener as-is to bingo *
-    # include the llm warm-up"): the song's warmup_lines (knobs.json), each said
-    # by its reporter through Wire-Pod, one after another.
     def say_lines():
         for line in lines or []:
             try:
                 answer = mod.wirepod_web_send_form("/api-sdk/gopod_system_say", {
                     "who": line.get("who", ""), "text": line.get("text", ""), "wait_seconds": "30"}, timeout=40)
-                # 2026-10-17 (survey E4): Wire-Pod says the truth now - heard or not.
                 if isinstance(answer, dict) and str(answer.get("body", "")).strip() == "not_heard":
                     print(f"LLM_WARMUP line not heard on the page: {line.get('who', '')}", flush=True)
             except Exception as exc:  # noqa: BLE001 - a reporter line never stops the song
                 print(f"LLM_WARMUP line failed {type(exc).__name__}", flush=True)
-    # 2026-11-06 (operator: "LLM warming should be smart enough to know * schema
-    # the opener llm warming * then per run after opener llm warming,
-    # smart-llm-warm-check/bypass per run vs opener llm warming"): the opener
-    # (Wire-Pod's start, _new_song/_llm_warm) warms the language model; a run that
-    # finds it still loaded bypasses the loading lines - no "Voice files generated.
-    # Language Model Loading", no "Language Model Loaded" - Goverlord says the
-    # song's own ready line (and run_ready_end) and the song goes on.
-    # llm.smart_warm false turns it off (the full warm-up every run).
     if llm_required and llm.get("smart_warm", True) and base and model and _llm_loaded(base, model):
         line = "\n".join(t for t in (song_ready_line, (llm.get("run_ready_end") or "").strip()) if t)
         print(f"LLM_WARMUP smart: already warm model={model} - loading lines bypassed", flush=True)
@@ -1552,15 +1319,7 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
                 print(f"LLM_WARMUP smart ready line failed {type(exc).__name__}", flush=True)
         say_lines()
         return
-    # 2026-10-13 (operator: "\"System llm bubble\" displays first and always
-    # stays at the bottom ... until LLM Ready"; "Sequential Run Check"): the
-    # System llm bubble first with "LLM Warming Up. Please wait." (held a moment
-    # when warm); then the lines with "Please wait."; then the ready line.
     try:
-        # 2026-10-13 (operator: "\"LLM Warming up.\" not included in message
-        # update"): the LLM Warming Up step always shows; held when warm.
-        # 2026-10-14 (operator: "I did not hear the \"Please wait.\" at the end *
-        # generate the full message displayed"): said as shown.
         show(message(warming_text), message(warming_text))
         if not llm_required:
             print("LLM_WARMUP no language model required", flush=True)
@@ -1581,15 +1340,12 @@ def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_re
                     warm = True
                 except Exception as exc:  # noqa: BLE001 - the warm-up never stops the song
                     print(f"LLM_WARMUP failed {type(exc).__name__}", flush=True)
-            # 2026-10-12: the minimum only holds a warm-up that didn't answer.
             left = float(llm["song_warmup_min_seconds"]) - (time.time() - started)
             if left > 0 and not warm:
                 time.sleep(left)
         say_lines()
     finally:
         write(False)
-        # 2026-10-09 (operator: "no 'LLM Ready for Bingo' voice audio"): Goverlord
-        # says it too.
         ready()
 
 
@@ -1619,11 +1375,6 @@ def _caption_bubbles(song, marker):
         start = float(s["start_seconds"])
         end = float(s.get("end_seconds", start))
         piece = f"@{start:.2f}-{end:.2f} {s['caption']}"
-        # 2026-10-18 (operator: "grab timings from the audio file ... apply forced
-        # alignment timings, following the way kokoro does it for highlighting"):
-        # the caption's word times, from its own start, ride on its piece
-        # ("@start-end ~<base64 json [[word, s, e], ...]> words"); the page
-        # reveals each word at its time.
         timed = (song.get("narrator_words") or {}).get(f"{start:.2f}")
         if timed:
             rel = [[w["t"], round(w["s"] - start, 3), round(w["e"] - start, 3)] for w in timed]
@@ -1634,16 +1385,8 @@ def _caption_bubbles(song, marker):
             bubbles[-1][2].append(piece)
         else:
             bubbles.append((start, section, [piece]))
-    # 2026-10-15 (operator: "one image for each narrator bubble * image is inside
-    # the narrator bubble under highlighted text"): knobs.json "section_pictures"
-    # - the section's picture (in the page's pictures/ folder) as a last
-    # "picture:" piece; the page shows it under the words, with the magnifier.
     pictures = song.get("section_pictures") or {}
-    # 2026-10-15 (the nap): "narrator_single": true - one
-    # narrator bubble, each section's words replacing the last over its picture.
     single = ["narrator:single"] if song.get("narrator_single") else []
-    # 2026-10-15 (operator: "leave last image (5) at 50% solid (no fade out)"):
-    # the last section is marked, so its picture stays.
     return [(at, marker.join(pieces + (["picture:/pictures/" + pictures[section]] if pictures.get(section) else []) + single
                              + (["narrator:last"] if single and i == len(bubbles) - 1 else [])))
             for i, (at, section, pieces) in enumerate(bubbles)]
@@ -1655,8 +1398,6 @@ def _start_captions(mod, live, song, timeline_start, stop, robots):
     in the background."""
     settings = load_brobots_settings()
     role = settings["reporter_voices"].get("narrator_role", "")
-    # GOLDEN chat bubble rule (reporter_voices.narrator_lead_seconds): sent
-    # ahead, built invisible on the page, shown at its first line's second.
     lead = float(settings["reporter_voices"].get("narrator_lead_seconds", 0))
     captions = _caption_bubbles(song, settings["scripted_split"]["segment_marker"])
     if not role or not captions:
@@ -1679,8 +1420,6 @@ def session_run(mod, action, **form):
     gopod_session.go). For "start": True (checked in), False (refused), or None
     when Wire-Pod can't be reached - the run goes on, as before."""
     try:
-        # 2026-11-25: check-in can wait for the comm check to close and the guards'
-        # security sweep (RUN_CHECK_2026_11_23_001.md: 10 s was too short - the run never checked out).
         result = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": action, **form}, timeout=180 if action == "start" else 10)
         reply = json.loads(result.get("body") or "{}")
     except Exception as exc:  # noqa: BLE001 - a session hiccup never stops a run
@@ -1709,25 +1448,6 @@ def touch_interrupt_off_path(mod):
     return mod.GOPOD_CHIPPER_ROOT / load_brobots_settings()["touch_interrupt"]["off_file"]
 
 
-# ---- scripted split (2026-10-01) ----
-# Operator: "scripted lane needs a standardized format to split sentences for
-# highlighting" - "set up a starter standard", "Things like example, "Ah... I like
-# to party", the "..." and other expressions are correctly grouped". A song opts
-# in with "sentence_split": "scripted" in its knobs.json. Each line is split here,
-# once; the pieces are joined with scripted_split.segment_marker (an invisible
-# character, gopod_brobots_settings.json), and Wire-Pod (one say per piece) and
-# the chat page (one highlight per piece) both split on that marker - so the
-# robot and the bubble always agree. The live LLM chat keeps its own rule.
-#
-# The standard, v1:
-#   1. A piece ends at . ! or ? (or a run of them, "!!") followed by a space.
-#   2. An ellipsis (... or the single-character one) never ends a piece: the
-#      words after it stay in the same piece ("Ah... I like to party").
-#   3. A closing quote or bracket right after the end mark stays with its piece
-#      ('It's "I, Won!" Lol.').
-#   4. A trailing tag on scripted_split.join_trailing ("Lol", "Haha", "Ha-ha"),
-#      with or without its own punctuation, joins the piece before it.
-#   5. A line with no letters or digits (an emotion beat's ",") is not split.
 def _scripted_end_re(piece_ends):
     """A piece ends at a run of piece_ends (scripted_split.piece_ends in the
     settings file; the comma since 2026-10-01) or an ellipsis, plus any closing
@@ -1745,8 +1465,6 @@ def scripted_pieces(text, join_trailing, piece_ends=".!?"):
         run = match.group()
         if "..." in run or "\u2026" in run:
             continue
-        # A comma inside a quote ("I, Won!") is the line's own pause, not a
-        # piece end.
         if run.startswith(",") and text[:match.start()].count('"') % 2 == 1:
             continue
         pieces.append(text[start:match.end()].strip())
@@ -1821,9 +1539,6 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
             )
             entry["assume"] = assume
             time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
-        # A beat that carries a real line (2026-10-01: "Excuse Me? ... Round 3!"
-        # moved into host_beat_angry_0501) gets the same robot-safe text and chat
-        # bubble as a say_turn line; a "," beat stays silent and bubble-free.
         spoken = text
         form = {"serial": serial}
         if re.search(r"[A-Za-z0-9]", text or ""):
@@ -1831,18 +1546,12 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
                 text = scripted_line(text)
                 form["sentence_highlight"] = "1"
             spoken, _repair_used = mod.normalize_robot_safe(text, robots.scaffold)
-            # A combo part: the step's one bubble, put up by its first speaking part.
             if getattr(robots, "piece_offset", None) is None:
                 form.update({"display_text": text, "display_role": name})
             else:
                 form["piece_offset"] = str(robots.piece_offset)
                 if robots.combo_display:
                     form.update({"display_text": robots.combo_display, "display_role": name})
-        # 2026-10-10 (live: Brobot 2 froze on angry with "Wait!"): the clip and
-        # the line are sent apart - the clip, chat_moves.speech_after_animation_seconds
-        # (0.9), then the line with its lead-in. The banked clean shape
-        # (ANGRY_PUN_CRASH_AND_THINKING_MOVES_001.md, operator 2026-10-09: "Use
-        # playAnimationWI + 0.9s + start speech"); sent as one is the crash shape.
         _wait_last_animation(mod, serial, entry)
         anim = mod.wirepod_web_send_form(
             "/api-sdk/say_text", {"serial": serial, "text": f"{{{{playAnimationWI||{animation_token}}}}}"}, timeout=90
@@ -1850,7 +1559,6 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
         entry["animation_dispatch"] = anim
         time.sleep(float(load_brobots_settings()["chat_moves"].get("speech_after_animation_seconds", 0.9)))
         if re.search(r"[A-Za-z0-9]", text or ""):
-            # The robot-safe form is "thinking... words": only the words are said.
             _cue, words = mod.split_robot_safe_line(spoken, robots.scaffold)
             form["text"] = f"{load_animation_lead_in()} {words}"
             said = mod.wirepod_web_send_form("/api-sdk/say_text", form, timeout=90)
@@ -1858,9 +1566,6 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
             anim = anim if said.get("status") == 200 else said
         print(f"{robots.timing_prefix()}{tag}_BEAT {name} token={animation_token}: animation, then the line {load_brobots_settings()['chat_moves'].get('speech_after_animation_seconds', 0.9)}s later", flush=True)
         time.sleep(0.3)  # 2026-11-08 (operator: "update to 0.3 s pause"; was 0.5)
-        # Advisory-only, non-blocking - see run_songs_runner_001.py's own long
-        # comment / BINGO_STUCK_ANIMATION_FALSE_POSITIVE_RESOLUTION_001.md for
-        # why this never flips entry["ok"].
         animation_wait_line_seen = False
         try:
             debug_log_body = mod.wirepod_get_text("/api/get_debug_logs", timeout=3)
@@ -1914,7 +1619,6 @@ def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_
         dispatches = []
         getout_token = _ANIMATION_GETOUT_TOKENS.get(animation_token)
         if getout_token:
-            # GOLDEN, LOCKED - searching: one send, the step's hold, then the getout.
             dispatches.append(
                 mod.wirepod_web_send_form("/api-sdk/say_text", {"text": anim_payload, "serial": serial}, timeout=10)
             )
@@ -1933,7 +1637,6 @@ def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_
                 )
                 time.sleep(_ANIMATION_LOOP_INTERVAL_SECONDS)
                 elapsed += _ANIMATION_LOOP_INTERVAL_SECONDS
-            # GOLDEN, LOCKED - a loop with no getout clip (answering) settles.
             time.sleep(_ANIMATION_NO_GETOUT_SETTLE_SECONDS)
         else:
             dispatches.append(
@@ -1952,38 +1655,17 @@ def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_
     return entry
 
 
-# Note types whose failure just warns-and-continues (generic message, note
-# name substituted in) - mirrors run_songs_runner_001.py's own per-note
-# warning text exactly, which was already the same sentence for all five.
 _WARN_ON_FAILURE_NOTES = {"rattle", "brobots_ready_together", "arm_cue", "nod", "animation", "picture"}
 
 
-# 2026-10-13 (operator: "add a check that warns when a step's name doesn't match
-# its knobs parts * also, how to handle syntax errors, within the scope of the
-# step-names list?"): a step name is a label (ALIAS-PLAY-STUDIO.md, "Step names,
-# the master list") - this only warns, never stops a run. A name ending in
-# _SSNN is read as <who>_<part>_<part>..._SSNN and its parts are compared, in
-# order, to what its knobs.json entry plays; other names (the nap's line_30,
-# soft_wake...) are free labels and aren't read.
 STEP_NAME_WHO = {"host", "brat", "brobots", "reporter", "goverlord", "narrator"}
 STEP_NAME_NOTES = {"say": "say_turn", "nod": "nod", "rattle": "rattle", "gap": "pause",
                    "wake": "wake_both", "ready": "brobots_ready_together",
                    "sleep": "sleep_both", "exit": "exit",
-                   # 2026-10-16 (operator: "extend that to include sequences,
-                   # animations, timers, llm warm-up & in-between reporter
-                   # lines"): timer_ (a timed wait), sequence_ (another song's
-                   # steps, by song_id), and the LLM warm notes (lines_, sting_;
-                   # warm_ / warm_wait_ / warm_ready_ below) - the warm notes are
-                   # played by Wire-Pod (gopod_opener_song.go).
                    "timer": "timer", "sequence": "sequence", "lines": "reporter_lines",
                    "sting": "sting",
-                   # 2026-10-25 (operator: "nap song & update to new format"):
-                   # the nap's captions (narrator_line_), Goverlord's line.
                    "line": "pause", "system": "system_line"}
 STEP_NAME_THINKING = [("thinking", "")]
-# 2026-10-13 (operator: "Add \"danger\" + new wavs to the master list * grunge &
-# djent3b"): the shared sounds, by name (sounds/danger-will-robinson.wav,
-# grunge.wav, dJent3b.wav).
 STEP_NAME_SOUNDS = {"danger": "danger", "grunge": "grunge", "djent3b": "djent3b"}
 _STEP_NAME_RE = re.compile(r"^(.*)_(\d{4})$")
 
@@ -2019,14 +1701,12 @@ def step_name_problem(step_id, plays):
         elif w == "soft" and nxt == "wake":
             want.append(("wake_sleepy", "")); i += 2
         elif w == "llm" and nxt == "song":
-            # 2026-10-20: llm_song_ - the folder's _llm_song run (gopod_llm_song.go).
             want.append(("llm_song", "")); i += 2
         elif w == "warm" and nxt in ("wait", "ready"):
             want.append(("warm_" + nxt, "")); i += 2
         elif w == "warm":
             want.append(("warm_message", "")); i += 1
         elif w.startswith("anim-") and len(w) > 5:
-            # 2026-10-16: anim-<token>, an animation by its token (anim-kgsuccess).
             want.append(("animation", w[5:])); i += 1
         elif w == "kg" and nxt == "success":
             want.append(("animation", "kgsuccess")); i += 2
@@ -2046,8 +1726,6 @@ def step_name_problem(step_id, plays):
             want.append((STEP_NAME_NOTES[w], "")); i += 1
         else:
             want.append(("?", w)); i += 1
-    # "say" names the step's line; when another part says it (a beat, a nod...)
-    # and there's no say_turn of its own, the name's "say" is that line.
     if ("say_turn", "") in want and not any(n == "say_turn" for n, _ in plays):
         want.remove(("say_turn", ""))
     unknown = [d for n, d in want if n == "?"]
@@ -2056,7 +1734,6 @@ def step_name_problem(step_id, plays):
         for (wn, wd), (pn, pd) in zip(want, plays):
             pd_low = pd.lower()
             if wn == "?":
-                # The older form: a plain word for a sound (fart2 -> fart2.wav).
                 ok = pn == "sound" and wd in pd_low
             elif wn in ("sound", "picture"):
                 ok = pn == wn and wd in pd_low
@@ -2149,8 +1826,6 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
     touch_off_file = None
     run_name, checked_in, log = None, None, None
     try:
-        # 2026-10-17 (operator: "make TOUCH_INTERRUPT optional y/n"): pha0b asks;
-        # GOPOD_GOLDEN_TOUCH_INTERRUPT_OFF=0 leaves it on for this run.
         if live and os.getenv("GOPOD_GOLDEN_TOUCH_INTERRUPT_OFF", "1") == "0":
             print("TOUCH_INTERRUPT left on for this run (pha0b: n)", flush=True)
         elif live and load_golden_song(song_dir, _load_control_song_module()).get("touch_interrupt_off"):
@@ -2160,9 +1835,6 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
         song = load_golden_song(song_dir, _load_control_song_module())
         for warning in step_name_warnings(song_dir):
             print(f"STEP_NAME_WARNING {warning}", flush=True)
-        # 2026-10-10, GOLDEN (gopod_session.go, operator: "Goverlord is the
-        # wpr-session orchestrator"): a live run checks in with Goverlord - one
-        # run at a time - and out when it ends, however it ends.
         if live:
             run_name = song.get("chat_intro") or song.get("song_id") or Path(song_dir).name
             checked_in = session_run(_load_runner_module(), "start", name=run_name, kind="song", pid=str(os.getpid()))
@@ -2171,8 +1843,6 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
                 tag = _tag_for(song.get("song_id"))
                 return _finalize({"song_id": song.get("song_id"), "live": live, "voice_destination": voice_destination,
                                   "steps": [], "stopped_early": True, "refused": True}, tag)
-        # 2026-10-17 (operator: "both the terminal run & web page run must be the
-        # same run"): a live run starts only once the chat page is here.
         if live:
             wait_for_page(_load_runner_module(), "before the run")
         if live and song.get("llm_warmup") and not song.get("warmup_after"):
@@ -2180,12 +1850,10 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
                             song.get("voices_required", True), song.get("llm_required", True))
         log = _run_golden_song_steps(song_dir, live, voice_destination, _finalize)
     finally:
-        # A sleepy run that ended early: wake the Brobots, never leave them held asleep.
         global _SLEEPY
         if _SLEEPY is not None:
             _SLEEPY.wake_all()
             _SLEEPY = None
-        # Checked out last, once the Brobots are handed back.
         if run_name is not None and checked_in is not False:  # checked in, or not reached: always check out
             session_run(_load_runner_module(), "end", name=run_name,
                         reason="stopped" if (log or {}).get("stopped_early", True) else "done")
@@ -2196,16 +1864,6 @@ def run_golden_song(song_dir, live, voice_destination="robot"):
             sys.stdout = real_stdout
         if not log_file.closed:
             log_file.close()
-    # AWAKEN_MULTI_MODE_TWO_PASS_SURVEY_PLAN_001.md follow-up (operator
-    # request after a live two-pass run): pha0b's own bait "both" mode calls
-    # this whole function twice, once per robot - without a suppress flag,
-    # the promote prompt asked (and blocked on) the SAME pending zKnobs.json
-    # diff twice, once after each pass, with brobot 2's pass sitting behind
-    # that second interactive wait. GOPOD_GOLDEN_SUPPRESS_PROMOTE, exported
-    # by brobots.sh for every pass except the last one in a multi-pass run,
-    # skips this call entirely for those passes - the prompt now fires
-    # exactly once, after the final pass, with nothing interactive between
-    # brobot 1 finishing and brobot 2 starting.
     if live and not log.get("stopped_early", True) and not os.getenv("GOPOD_GOLDEN_SUPPRESS_PROMOTE"):
         _maybe_promote_knobs(song_dir)
     return log
@@ -2217,10 +1875,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
     song = load_golden_song(song_dir, control_mod)
     song_id = song["song_id"]
     tag = _tag_for(song_id)
-    # Tempo buffer knob (TEMPO_BUFFER_KNOB_SURVEY_001.md, Phase 1) - a per-song
-    # global multiplier, 0.0-9.9, absent/0.0 means every buffer's added_space
-    # below is always 0, i.e. no-op by construction until a knobs.json
-    # actually sets this above 0.0.
     global_tempo = song.get("global_tempo", 0.0)
 
     config = SONG_REGISTRY.get(song_id)
@@ -2243,12 +1897,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
     unconditional_text_speak = config.get("unconditional_text_speak", False)
     suppress_assume_release = not manage_control
 
-    # synthesize_speaker=True songs (control-family): every step's own
-    # knobs.json "speaker" field is unused/dead - the real target robot is a
-    # whole-run choice (GOLDEN_ROBOT_ENV, "1"/"2", default "1"), matching
-    # run_robot_control_song_001.py's own GOPOD_CONTROL_SONG_ROBOT exactly.
-    # No-op for every other song - robot_param/synthesized_speaker stay None,
-    # never read.
     robot_param = None
     synthesized_speaker = None
     if config.get("synthesize_speaker"):
@@ -2259,38 +1907,14 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             return _finalize(log, tag)
         synthesized_speaker = "brobot_2" if robot_param == "2" else "brobot_1"
 
-    # Run-time robot playback filter - resolved once, up front. Validated the
-    # same way GOLDEN_ROBOT_ENV is above (refuse cleanly, don't guess).
-    # "both" is the default and is a complete no-op: robot_filter != "both"
-    # gates every actual skip check in the per-step loop below, so a run
-    # with this env var unset is byte-identical to before this feature
-    # existed.
     robot_filter = os.getenv(GOLDEN_ROBOT_FILTER_ENV, "both")
     if robot_filter not in ("both", "1", "2"):
         print(f"GOLDEN_REFUSED {GOLDEN_ROBOT_FILTER_ENV}={robot_filter!r} must be 'both', '1', or '2'", flush=True)
         log = {"song_id": song_id, "live": live, "voice_destination": voice_destination, "steps": [], "stopped_early": True}
         return _finalize(log, tag)
 
-    # Stay-put fix (STAY_PUT_FIX_SURVEY_001.md, part 1): a manage_control=False
-    # song with synthesize_speaker=False is the NEW bingo-family continuous-
-    # dual-robot-hold combination (brobots_bingo/cross_persona/baby_robots_sleep)
-    # - distinct from awaken's existing manage_control=False + synthesize_speaker=
-    # True (one whole-run robot) combination. This flag gates every stay-put
-    # addition below (the dual-robot assume off wake_both, the emotion_beat/
-    # animation bypass, the rattle/brobots_ready_together re-assume) - False for
-    # every other combination, including awaken, which this fix never touches.
     continuous_hold_both = not manage_control and synthesized_speaker is None
 
-    # manage_control=False's own release target(s) - resolved once, up front,
-    # since a run can exit early (before the per-step loop ever assigns a local
-    # `serial`) and still needs to hand control back. Robots.close() itself is
-    # a no-op (never releases control) - see run_section1_full_live_001.py - so
-    # this song's own final release, which the original always fires in its
-    # own `finally` block, must be done explicitly here instead. No-op for
-    # manage_control=True songs regardless of this value. Generalized from a
-    # single serial to a tuple (part 1) - awaken's own combination still
-    # resolves exactly one; the new continuous_hold_both combination resolves
-    # both robot serials, since either can be addressed at any step.
     if continuous_hold_both:
         hold_release_serials = (mod.BROBOT_1_SERIAL, mod.BROBOT_2_SERIAL)
     elif synthesized_speaker:
@@ -2310,7 +1934,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             playhead_error = f"{GOLDEN_PLAYHEAD_TO_ENV}={playhead_to_id!r} is not a known step_id."
         else:
             from_index = all_step_ids.index(playhead_from_id) if playhead_from_id else 0
-            # A combo's parts share its step_id: a range ending on it plays them all.
             to_index = (len(all_step_ids) - 1 - all_step_ids[::-1].index(playhead_to_id)) if playhead_to_id else len(all_step_ids) - 1
             if to_index < from_index:
                 playhead_error = (
@@ -2339,10 +1962,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
 
     scaffold = mod.load_interview_scaffold(mod.INTERVIEW_SCAFFOLD_PATH)
     robots = mod.Robots(live, scaffold, voice_destination, console_rich_display=True, console_timestamps=True)
-    # 2026-09-30: each line is said one sentence at a time so the chat page
-    # lights the sentence being said (sdkapp say_text sentence_highlight).
     robots.sentence_highlight = True
-    # knobs.json "sleepy": true (the nap): the Brobots sleep, and lull out for their moves.
     global _SLEEPY
     sleepy = SleepyBrobots(mod, live, robots, tag, song.get("wake_clip", "")) if song.get("sleepy") else None
     _SLEEPY = sleepy
@@ -2374,12 +1994,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             robots.close()
             return _finalize(log, tag)
 
-    # 2026-09-30: a song can open the chat page with an operator bubble
-    # (knobs.json "chat_intro", e.g. bingo's "Bingo Test Live") - on a full run
-    # only, not a playhead slice that starts mid-song. Not when the run was
-    # started by voice (GOPOD_CHAT_INTRO_SPOKEN=1, set by the "bingo test live"
-    # intent): the operator's own spoken line is already that bubble, and only
-    # one should show (operator, 2026-09-30).
     if (song.get("chat_intro") and song["steps"] and full_steps and song["steps"][0] is full_steps[0]
             and os.getenv("GOPOD_CHAT_INTRO_SPOKEN") != "1"):
         log["chat_intro"] = post_chat_line(mod, live, "Operator", song["chat_intro"], robots)
@@ -2403,14 +2017,10 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         with_next_jobs.append((thread, job, entry))
         entry["ok"] = True
         entry["with_next"] = True
-    # Robots whose control is retaken before their next step (retake_robot_control).
     needs_control_retake = set()
     stop_request = song_stop_request_path(mod)
     if live:
         stop_request.unlink(missing_ok=True)  # an old request never stops a new run
-    # 2026-10-09 (the nap, a lyric video): "timeline": "srt" - each step with a
-    # start_seconds waits for that second, counted from the first timed step,
-    # instead of following the step before it. A step that's late goes at once.
     timeline_start = None
     soundtrack_posted = False
     captions_stop = threading.Event()
@@ -2419,9 +2029,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
     for step in song["steps"]:
         step_id = step["step_id"]
         note = note_aliases.get(step["note"], step["note"])
-        # A background cube connect (a wake step's "cube_connect") finishes
-        # before the next step that moves a robot; pauses and Goverlord's lines
-        # go on beside it.
         if cube_job is not None and note not in ("pause", "system_line"):
             cube_result = finish_cube_connect(cube_job)
             log["cube_connect"] = cube_result
@@ -2432,38 +2039,25 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             at = float(step["start_seconds"])
             if timeline_start is None:
                 timeline_start = time.time() - at
-                # 2026-10-09 (the nap, operator: "playing the video's audio ...
-                # Go"; "having it run in the chat bubbles"): the soundtrack starts
-                # on the chat page, and the captions post as the narrator's
-                # bubbles on their own clock, so a slow move never holds them.
                 if song.get("audio"):
                     timeline_start = _start_song_soundtrack(mod, live, song, at, robots, tag)
                     soundtrack_posted = True
                 _start_captions(mod, live, song, timeline_start, captions_stop, robots)
             elif song.get("audio") and not soundtrack_posted:
-                # The timeline was set by a "timeline_after" pause: its captions
-                # are already on their way; the soundtrack starts now, on time.
                 _start_song_soundtrack(mod, live, song, at, robots, tag)
                 soundtrack_posted = True
             wait = timeline_start + at - time.time()
             if live and wait > 0:
                 time.sleep(wait)
             print(f"{robots.timing_prefix()}{tag}_TIMELINE {step_id} at={at:.3f}s {'late ' + format(-wait, '.3f') + 's' if wait < 0 else 'on time'}", flush=True)
-        # 2026-10-12 (operator: "Upon page unfocus = pause at next safe spot until
-        # focus, then continue"): while the chat page is hidden, wait here (a timed
-        # song plays on with its soundtrack); Goverlord says paused / continues.
         if live and song.get("timeline") != "srt":
             wait_for_page(mod, f"before {step_id}", stop_request, robots.timing_prefix())
-        # The next safe spot: between steps, never in the middle of one.
         if live and stop_request.exists():
             stop_request.unlink(missing_ok=True)
             print(f"{robots.timing_prefix()}{tag}_STOP {step_id}: stopped by voice (kill bingo test) before this step", flush=True)
             log["stopped_early"] = True
             log["stopped_by_voice"] = step_id
             captions_stop.set()
-            # 2026-10-15 (operator: "Stop run didn't work during song run * this
-            # song is different"): a timed song's soundtrack and narration on the
-            # chat page stop with it ("stop" on the song-audio line).
             if soundtrack_posted:
                 role = load_brobots_settings()["reporter_voices"].get("song_audio_role", "")
                 if role:
@@ -2474,10 +2068,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         speaker = synthesized_speaker if synthesized_speaker else (step.get("speaker") or "brobot_1")
         serial, name = _serial_and_name(mod, speaker)
         entry = {"step_id": step_id, "note": note, "speaker": speaker}
-        # Run-time robot playback filter (pha0b's "run which robots?" prompt) -
-        # never fires for note in _FILTER_EXEMPT_NOTES or when robot_filter is
-        # "both" (today's default, byte-identical). Otherwise skips dispatch
-        # for any step whose resolved speaker is the OTHER robot.
         step_filtered = (
             robot_filter != "both"
             and note not in _FILTER_EXEMPT_NOTES
@@ -2494,16 +2084,9 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             current_section = section
 
         display_tag = _derive_note_tag(step)
-        # Standardized numbered step_id (section+beat) makes every step's
-        # divider unique on its own - print one per step, not deduped by
-        # tag, so the id is never silently dropped for a repeated tag.
         print(f"===== {step_id} Notes: {display_tag}", flush=True)
         step_start_wall = time.time()
         print(f"{robots.timing_prefix()}{tag} {step_id}: note={note} speaker={speaker}", flush=True)
-        # 2026-11-08 (operator's fart joke timing: "DOC angry + line, "Bro!" [starts
-        # 1 s after danger audio plays]"): "start_after": seconds this step waits
-        # before it begins - with the step before it "with_next", it lands that far
-        # into that step (a sound still playing).
         if live and step.get("start_after"):
             time.sleep(float(step["start_after"]))
 
@@ -2511,9 +2094,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             needs_control_retake.discard(serial)
             entry["control_retake"] = retake_robot_control(mod, serial, name, live, robots, tag)
 
-        # 2026-10-10 (operator: "Should be combined!!"): a combo step is one chat
-        # bubble. The first part that speaks puts the whole bubble up with its
-        # voice; every part lights its own pieces in it.
         robots.piece_offset = None
         robots.combo_display = None
         if live and step.get("combo_part") and not step_filtered and song.get("sentence_split") == "scripted":
@@ -2525,19 +2105,9 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 robots.combo_display = marker.join(scripted_line(t) for t in texts if t.strip())
             robots.piece_offset = sum(pieces_of[:k])
 
-        # A step with "show_ball" (the Bingo test's ball calls) puts the big ball
-        # in the Brobots window as the step starts (post_bingo_ball).
         if step.get("show_ball") and not step_filtered:
             entry["show_ball"] = post_bingo_ball(mod, live, step["show_ball"], robots)
 
-        # unconditional_text_speak (control-family only, no-op default False):
-        # this song's own text is spoken BEFORE its note-specific action,
-        # regardless of note type - not gated to a dedicated say_turn note the
-        # way bingo-family works. "{robot_name}" is the one substitution
-        # token this family supports (run_robot_control_song_001.py's own
-        # say_line() caller). Result discarded, matching the original
-        # exactly - a text-speak failure here never affects this step's own
-        # entry["ok"], which is decided entirely by the note branch below.
         if unconditional_text_speak and step.get("text") and not step_filtered:
             run_say_turn(
                 mod, robots, name, step["text"].replace("{robot_name}", name),
@@ -2554,19 +2124,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             result = run_wake_both(mod, live, step.get("settle_seconds", 1.5))
             entry["ok"] = result["ok"]
             entry["result"] = result
-            # Stay-put fix, part 2: the run-level dual-robot grab for the new
-            # continuous_hold_both combination, fired once, right after
-            # wake_both's own conn_test succeeds (no "connect" note exists in
-            # this song family's own vocabulary - this is the equivalent
-            # hook). A failed grab fails this step too, so wake_both's own
-            # fatal_notes entry stops the run the same way a failed conn_test
-            # already does - nothing downstream would work correctly without
-            # it anyway.
-            # A sleepy song holds nothing here: sleep_both comes next. It takes
-            # the Brobots from the chat's stay-in-place hold the Wire-Pod way
-            # (an assume ends that hold), hands them back and settles, so the
-            # sleep tool is the only control on them (live 2026-10-10 07:40:
-            # the chat hold was still on through the whole nap).
             if sleepy and entry["ok"] and live:
                 for hand_serial in (mod.BROBOT_1_SERIAL, mod.BROBOT_2_SERIAL):
                     mod.wirepod_web_send_form("/api-sdk/assume_behavior_control", {"priority": "high", "serial": hand_serial}, timeout=10)
@@ -2578,16 +2135,11 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 hold_assume = run_continuous_hold_assume(mod, live)
                 entry["continuous_hold_assume"] = hold_assume
                 entry["ok"] = entry["ok"] and hold_assume["ok"]
-            # "cube_connect": "brobot_2" (2026-10-14, cube option 2): his cube
-            # connects in the background while the robots are idle, so the
-            # cube_after_wake blip later lights at once.
             if step.get("cube_connect") and entry["ok"]:
                 cube_job = start_cube_connect(live, mod.BROBOT_2_SERIAL if step["cube_connect"] == "brobot_2" else mod.BROBOT_1_SERIAL)
                 entry["cube_connect"] = "started"
 
         elif note == "sleep_both":
-            # The nap (knobs.json "sleepy": true): both Brobots fall asleep, then
-            # settle_seconds for GoToSleepGetIn and GoToSleepSleeping to play.
             if sleepy is None:
                 entry["ok"] = False
                 entry["error"] = "sleep_both needs \"sleepy\": true in knobs.json"
@@ -2598,8 +2150,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["ok"] = True
 
         elif sleepy and sleepy.asleep and note in SLEEPY_MOVE_NOTES and not step.get("text"):
-            # Sleepy: the move goes to its Brobot's worker, which lulls out, moves
-            # and drifts back to sleep on its own time (SleepyBrobots).
             if note == "arm_cue":
                 move = lambda serial=serial, step=step: control_mod.run_arm_cue(
                     mod, serial, step["cycles"], step["hold_seconds"], live,
@@ -2615,10 +2165,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["sleepy"] = "handed to " + name
 
         elif note == "stir":
-            # 2026-10-09 (operator: "brobots stay asleep the whole song, only
-            # waking up to go back to sleep, no other animations"): the Brobot
-            # wakes, stays awake hold_seconds, and drifts back to sleep, on its
-            # own time (SleepyBrobots).
             if sleepy is None or not sleepy.asleep:
                 entry["ok"] = False
                 entry["error"] = "stir needs sleep_both first"
@@ -2628,26 +2174,16 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["sleepy"] = "stir " + name
 
         elif note == "wake_sleepy":
-            # 2026-10-12 (the nap, operator: "start soft wake call at start of
-            # \"I'm drawn to feel hopeful ...\""): both Brobots wake here, in time
-            # with the captions; "Brobots Ready!" still comes after the last words.
             if sleepy and sleepy.asleep:
                 sleepy.finish()
                 entry["sleepy_wake"] = sleepy.wake_all()
-            # 2026-10-15 (operator: "Cube always took way too long to light up"):
-            # "cube_ready": "brobot_2" - right after the wake his cube connects in
-            # the background and is held, so the ending's cube_after_wake lights
-            # it at once (start_cube_light / light_cube).
             if step.get("cube_ready"):
-                # "cube_ready_after_seconds": the cube connect waits this long
-                # after the wake (live 2026-10-15: right after a wake it fails).
                 cube_light = start_cube_light(live, mod.BROBOT_2_SERIAL if step["cube_ready"] == "brobot_2" else mod.BROBOT_1_SERIAL,
                                               after_seconds=float(step.get("cube_ready_after_seconds", 0)))
                 entry["cube_ready"] = "connecting"
             entry["ok"] = True
 
         elif note == "all_asleep":
-            # Every stir done and both Brobots asleep again before going on.
             if sleepy and sleepy.asleep:
                 sleepy.finish()
                 if live:
@@ -2655,12 +2191,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["ok"] = True
 
         elif note == "system_line":
-            # 2026-10-09 (operator: "system message 'run complete'"): a Goverlord
-            # bubble, said in the system voice; the bubble shows with the voice
-            # (gopod_say_heard.go). "wait_spoken": true (operator: "Do not go
-            # forward if an expected sleep is not f*ck*ng spoken!!") - the song
-            # waits until the page has played it, up to spoken_wait_seconds, and
-            # stops the run if it wasn't heard.
             wait_spoken = bool(step.get("wait_spoken"))
             most = float(step.get("spoken_wait_seconds", 30.0)) if wait_spoken else 0
             if not live:
@@ -2683,10 +2213,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                     entry["error"] = f"{step['text']!r} was not heard on the chat page within {most:.0f}s - the run stops here"
 
         elif note == "say_turn":
-            # 2026-11-04 (operator: "Perfect Run!! Lock that in as a rapid fire
-            # exchanges test"): "with_next": true - this line starts and the next
-            # say_turn starts with it, both robots at once; each line's own
-            # " " commas (about 0.5 s each) time the gaps (04_rapid_fire).
             if step.get("with_next"):
                 start_with_next(lambda n=name, t=step["text"]: say_step_line(n, t), entry)
             else:
@@ -2695,13 +2221,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["result"] = result
 
         elif note == "thinking":
-            # GOLDEN, locked (2026-10-13, operator: "a single robust engine for live
-            # & scripted runs * snapshot the full \"thinking please wait\" process
-            # from live (+ arm, nod) * lock that snapshot * use locked \"thinking
-            # please wait\" process for scripted runs"): the live chat's own
-            # process, run by Wire-Pod (gopodThinkingProcess, gopod_thinking_line.go)
-            # - arm, nod, "Thinking, please wait.", searching, its get-out -
-            # answered once it has played.
             if live:
                 result = mod.wirepod_web_send_form("/api-sdk/gopod_thinking", {"serial": serial}, timeout=180)
                 entry["ok"] = result.get("status") == 200
@@ -2712,37 +2231,23 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["result"] = result
 
         elif note == "rattle":
-            # A rattle that carries a line ("Juggling big shiny bingo balls.
-            # Please wait.", 2026-10-01): the line first, then the rattle - the
-            # rattle's sound and the voice can't play at once.
             if step.get("text"):
                 entry["line"] = say_step_line(name, step["text"])
             result = run_rattle(mod, serial, live, robots, tag, song.get("rattle_on", "robot"))
             entry["ok"] = result["ok"] and (entry.get("line") or {}).get("ok", True)
             entry["result"] = result
-            # Stay-put fix, part 4: rattle's own release (inside run_rattle,
-            # required for its direct-SDK handoff - untouched) drops whatever
-            # hold was active. Re-assume both serials now to restore it before
-            # the next note runs.
-            # On the speaker nothing was handed off, so nothing to take back.
             if continuous_hold_both and result.get("mode") != "speaker":
                 reassume = run_continuous_hold_assume(mod, live)
                 entry["continuous_hold_reassume"] = reassume
                 entry["ok"] = entry["ok"] and reassume["ok"]
-            # 2026-09-30: the robot was free during the rattle hand-off and can
-            # start driving off its charger (explore) - hold its wheels still
-            # once control is back (the wheel-nudge alias's own stop).
             if result.get("mode") != "speaker":
                 entry["wheel_hold"] = run_wheel_hold(mod, serial, live)
 
         elif note == "brobots_ready_together":
             ready_phrase = step.get("text") or "Brobots ready!"
-            # A sleepy song: every move made, then both wake for the line.
             if sleepy and sleepy.asleep:
                 sleepy.finish()
                 entry["sleepy_wake"] = sleepy.wake_all()
-            # "cube_after_wake": "brobot_2" - his cube lights after the wake,
-            # before the line (never stops the step).
             if step.get("cube_after_wake"):
                 cube_serial = mod.BROBOT_2_SERIAL if step["cube_after_wake"] == "brobot_2" else mod.BROBOT_1_SERIAL
                 if cube_light is not None and cube_light["serial"] == cube_serial:
@@ -2751,13 +2256,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 else:
                     entry["cube"] = run_cube_blip(mod, live, cube_serial)
                 print(f"{robots.timing_prefix()}{tag}_CUBE {entry['cube'].get('output', entry['cube'].get('error', ''))}", flush=True)
-            # "pronounce": true - said with the robots' pronunciation list
-            # ("GOPOD" as "Gowp-awd"); the bubbles keep the words as written.
             spoken_phrase = mod.apply_pronunciation_safety(ready_phrase) if step.get("pronounce") else ready_phrase
-            # 2026-09-30: the together line is said over the direct SDK, so it
-            # never reached the chat page - show it for each robot, Brobot 1
-            # first, just before they say it (operator: "display just before the
-            # brobots speak together").
             chat_lines = []
             def post_ready_lines():
                 chat_lines.extend(post_chat_line(mod, live, who, ready_phrase, robots) for who in ("Brobot 1", "Brobot 2"))
@@ -2769,7 +2268,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["ok"] = result["ok"]
             entry["result"] = result
             entry["chat_lines"] = chat_lines
-            # Stay-put fix, part 4 - same reasoning as rattle above.
             if continuous_hold_both:
                 reassume = run_continuous_hold_assume(mod, live)
                 entry["continuous_hold_reassume"] = reassume
@@ -2804,9 +2302,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["result"] = result
 
         elif note == "wheel_nudge":
-            # Stage 2 of WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md - fixed
-            # reverse only, no song-authored lw/rw override yet (forward is
-            # a later, separate decision, per scope).
             result = control_mod.run_wheel_nudge(
                 mod, serial, control_mod.WHEEL_NUDGE_REVERSE_LW, control_mod.WHEEL_NUDGE_REVERSE_RW,
                 step["hold_seconds"], live,
@@ -2816,11 +2311,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["result"] = result
 
         elif note == "sound":
-            # 2026-10-11 (the fart joke: "play fart1.wav @ 80% volume"): a song
-            # sound (knobs.json "sounds", copied into the page's voice folder by
-            # Wire-Pod at its start) played on the chat page at the step's volume;
-            # the song waits its length.
-            # 2026-11-08: "with_next" - the sound plays on while the next step starts.
             if step.get("with_next"):
                 start_with_next(lambda s=step: play_song_sound(mod, live, song_dir, s.get("sound", ""), s.get("volume", 1.0), robots, tag), entry)
             else:
@@ -2828,10 +2318,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["ok"] = entry["result"]["ok"]
 
         elif note == "picture":
-            # 2026-10-13 (operator: "Build missing pieces for scripted songs * as
-            # per live chocolate bingo pop-up"): a picture from the chat page's
-            # pictures folder (topic_pictures.folder), in its own picture bubble
-            # at this step, magnifier and all; "picture" is one file or a list.
             entry["result"] = show_song_picture(mod, live, step.get("picture", ""), robots, tag)
             entry["ok"] = entry["result"]["ok"]
 
@@ -2848,10 +2334,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
         elif note == "animation":
             token = step.get("animation_token")
             if step.get("text") and token not in _ANIMATION_GETOUT_TOKENS and token not in _LOOP_ANIMATION_TOKENS:
-                # A one-shot animation that carries a line ("Bingo ball captured.
-                # Number B-1!" on host_kg_success_0302, 2026-10-01): the native
-                # "{{playAnimationWI||kgSuccess}}... line", one say - the clip
-                # plays as the line starts, no hold after it.
                 result = run_emotion_beat(
                     mod, serial, name, step["text"], token, 0.0, live, robots, tag,
                     manage_control=manage_control,
@@ -2862,7 +2344,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                     mod, serial, token, step["hold_seconds"], live,
                     manage_control=manage_control,
                 )
-                # A held clip (searching) that carries a line: the clip, then the line.
                 if step.get("text"):
                     entry["line"] = say_step_line(name, step["text"])
                     result = {**result, "ok": result.get("ok", False) and entry["line"].get("ok", False)}
@@ -2870,7 +2351,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["result"] = result
 
         elif note in ("pause", "timer"):
-            # 2026-10-16: a timer step is a pause; its "seconds" is the wait.
             pause_seconds = step.get("pause_seconds", step.get("seconds"))
             gap_label = step.get("gap_label", step_id)
             gap_override_raw = os.getenv(GOLDEN_REPORTER_GAP_OVERRIDE_ENV)
@@ -2883,10 +2363,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["ok"] = False
                 entry["error"] = f"pause step {step_id!r} has no pause_seconds in knobs.json"
             else:
-                # "timeline_after": true (the nap, operator 2026-10-09: "ensure
-                # narrator bubbles are fully drawn when hidden/maybe start drawing
-                # them sooner"): the timeline starts when this pause ends, so the
-                # first narrator bubble is sent now, early, like the others.
                 if step.get("timeline_after") and song.get("timeline") == "srt" and timeline_start is None:
                     lag = float(load_brobots_settings()["reporter_voices"].get("page_lag_seconds", 0)) if song.get("audio") else 0.0
                     timeline_start = time.time() + float(pause_seconds) + lag
@@ -2898,9 +2374,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 entry["gap_label"] = gap_label
 
         elif note == "connect":
-            # Control-family only: the one place manage_control=False's whole-
-            # run hold begins - assumes control once, held until the run's
-            # own robots.close()/finally-equivalent release at the end.
             if not live:
                 entry["ok"] = True
                 entry["mode"] = "dry"
@@ -2910,43 +2383,12 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                 )
                 entry["ok"] = result.get("status") == 200
                 entry["result"] = result
-                # 2026-09-01 operator live-report ("timing/firing mismatch -
-                # I do not hear brobots say..."): this branch had ZERO settle
-                # after a completely fresh assume, unlike every manage_
-                # control=True path in this file (run_emotion_beat/
-                # run_animation_only both sleep POST_ASSUME_SAY_SETTLE_
-                # SECONDS right after their own assume). say_connected's own
-                # pause_after_connect step is 0s in knobs.json, so the very
-                # first say_text after connect fired essentially instantly
-                # after this assume - the exact "fresh assume_behavior_
-                # control needs a settle before the first action, or it can
-                # silently no-op" trap CLAUDE.md's own TECHNICAL GOTCHAS
-                # already names (say=success gets logged regardless -
-                # Wire-Pod's own /api-sdk/say_text handler discards the real
-                # result). Same 1.5s constant, already defined in this file,
-                # now actually used on this path too.
                 time.sleep(POST_ASSUME_SAY_SETTLE_SECONDS)
 
         elif note == "say":
-            # Control-family only: a pure placeholder note whose own text was
-            # already spoken above via unconditional_text_speak - this note
-            # itself does nothing else, matching run_robot_control_song_001.py's
-            # own "say" branch exactly.
             entry["ok"] = True
 
         elif note == "weather":
-            # Control-family only: real per-robot weather fetch, reusing
-            # control_mod.fetch_and_format_weather() verbatim rather than
-            # reimplementing it - no try/except, a fetch failure raises and
-            # stops the run, same "no fallback line" stop condition the
-            # original enforces. Takes `serial` (the already-resolved ESN
-            # from _serial_and_name() above, line ~952), not robot_param
-            # ("1"/"2") - fetch_and_format_weather() now reads that robot's
-            # LIVE jdocs RobotSettings by serial, not a static file keyed by
-            # "1"/"2" (WEATHER_LIVE_JDOCS_SOURCED_001.md). MISSED in that
-            # pass - this call site was the live path for control/weather
-            # post-cutover and still passed robot_param, causing a live
-            # BLOCKED failure (vic:1 not found in jdocs.json) - fixed here.
             weather = control_mod.fetch_and_format_weather(
                 serial, include_location_date=step.get("weather_include_location_date", False)
             )
@@ -2964,25 +2406,15 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             entry["ok"] = False
             entry["error"] = f"unknown note {note!r}"
 
-        # Optional scored "fail" line (control-family only - step["fail"] is
-        # always empty for bingo-family, since their own story.md never
-        # carries a "> FAIL:" line, but gated on unconditional_text_speak
-        # anyway so bingo-family behavior can never change here even by
-        # accident). Result discarded, matching run_robot_control_song_001.py's
-        # own say_line(mod, robots, name, step["fail"]) call exactly - this
-        # never affects entry["ok"] itself.
         if unconditional_text_speak and not entry.get("ok") and step.get("fail"):
             run_say_turn(mod, robots, name, step["fail"], suppress_assume_release=suppress_assume_release)
 
-        # 2026-11-04: a step started "with_next" is waited for once the step after it is done.
         if not step.get("with_next") and with_next_jobs:
             for thread, job, together_entry in with_next_jobs:
                 thread.join()
                 together_entry["ok"] = job.get("ok", False)
                 together_entry["result"] = job
             with_next_jobs.clear()
-        # A failed robot step, or a line still silent after the heal, under the
-        # song's hold: retake that robot's control before its next step.
         if continuous_hold_both and note in CONTROL_RETAKE_NOTES and not step_filtered:
             step_result = entry.get("result") if isinstance(entry.get("result"), dict) else {}
             heal = step_result.get("silent_heal")
@@ -2990,7 +2422,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             if not entry.get("ok") or still_silent:
                 needs_control_retake.add(serial)
                 print(f"{robots.timing_prefix()}{tag}_CONTROL_RETAKE_PENDING {name}: {step_id} {'failed' if not entry.get('ok') else 'still silent'} - control is retaken before its next step", flush=True)
-        # The rattle and the together line retake both robots already.
         if (entry.get("continuous_hold_reassume") or {}).get("ok"):
             needs_control_retake.clear()
 
@@ -3014,21 +2445,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
                             song.get("voices_required", True), song.get("llm_required", True))
 
         buffer_after = step.get("buffer_after", 0)
-        # tempo_factor/tempo_comment ride the wholesale step merge in
-        # load_golden_song() for free - tempo_comment is human-facing only,
-        # never read here. added_space is additive on top of buffer_after,
-        # never a replacement for it (TEMPO_BUFFER_KNOB_SURVEY_001.md, B).
-        # Excluded on "exit" - nothing follows it to buffer against. Also
-        # excluded on "pause" (2026-08-15, REPORTER_GAP_TEMPO_IMMUNE_001.md) -
-        # reporter-gap/divider steps are tempo-immune BY DESIGN, not a
-        # per-song data default that could be forgotten: proven live,
-        # global_tempo=1.3 on awaken silently doubled every reporter-gap's
-        # own authored pause_seconds (1.0s authored -> 2.3s actual), since a
-        # "pause" step already sleeps its own gap a few lines above and then
-        # fell through to this same unconditional block like any other note.
-        # A reporter-gap's timing is deliberately authored to the second for
-        # the video edit - tempo drifting it was never intended, invisible
-        # only by accident (every song's global_tempo happened to be 0).
         tempo_factor = step.get("tempo_factor", 1.0)
         added_space = (global_tempo * tempo_factor) if note not in ("exit", "pause") else 0
         total_delay = buffer_after + added_space
@@ -3040,46 +2456,11 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
             time.sleep(total_delay)
 
         entry["step_wall_seconds"] = round(time.time() - step_start_wall, 3)
-    # A cube connect still going when the steps end (or stop) is finished too.
     if cube_job is not None:
         log["cube_connect"] = finish_cube_connect(cube_job)
     if cube_light is not None:
         log["cube_light"] = light_cube(cube_light)
 
-    # 2026-08-23, operator request: reveal the webroot chat-bubble close
-    # button off the LAST say landing, not off this whole process exiting.
-    # brobots.sh's own post-subshell run_active:false write (pha0b(),
-    # ~line 1988) only fires once this script returns - measured (not
-    # guessed): on every live run that isn't stopped early, that return is
-    # gated behind _maybe_promote_knobs()'s own blocking terminal y/n
-    # prompt below, which fires whenever the song's own zKnobs.json exists
-    # - true for every song directory in this repo today (checked all 8),
-    # not a rare case. That prompt waits on the operator's own keyboard,
-    # an indefinite, real, user-visible gap - not the sub-second network/
-    # disk work release/close/finalize actually take. Writing
-    # run_active:false HERE, the moment the step loop's own last buffer/
-    # tempo delay finishes, means the close button appears when the
-    # performance is actually done, independent of that unrelated prompt.
-    # Mirrors Robots.__init__'s own start-of-run write (same file, same
-    # gate on console_rich_display) - this is that same write's end-of-run
-    # twin, not a new mechanism. brobots.sh's own later write still fires
-    # once the process eventually exits - harmless, already-true content,
-    # left as-is; not worth removing for this fix's own minimal scope.
-    # AWAKEN_MULTI_MODE_TWO_PASS follow-up, 2026-09-01 operator live-report
-    # ("chat bubbles div didn't flip on and display"): this write assumed
-    # one Python process = one whole run. bait's "both" two-pass loop
-    # launches a FRESH process per robot, so without the same suppress
-    # gate _maybe_promote_knobs already uses, brobot 1's pass wrote
-    # run_active:false (closeBtn.style.display flips to visible,
-    # index.html:331) mid-run, well before brobot 2's pass even started -
-    # the div's "run just finished" state fired a full pass early, not on
-    # the actual end of the whole two-pass run. Same GOPOD_GOLDEN_SUPPRESS_
-    # PROMOTE brobots.sh already exports for every pass except the last one
-    # gates this write too - one flag, one meaning ("not the final pass
-    # yet"), reused rather than duplicated. brobots.sh's own outer write
-    # (pha0b(), after the whole loop) still fires unconditionally and is
-    # the real backstop for every case, multi-pass included.
-    # 2026-10-17 (survey E15: "a state file nothing reads"): gopod_rich_display_ui_state.json is no longer written - the chat page opens and closes its own chat (the Log button), and nothing read it.
 
     if sleepy:
         sleepy.wake_all()
@@ -3092,8 +2473,6 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
 def main():
     voice_destination = os.getenv("GOPOD_VOICE_DESTINATION", "robot")
     live = os.getenv("GOPOD_ALLOW_LIVE_ROBOT_SPEECH") == "1"
-    # The song: GOPOD_GOLDEN_SONG_ID (its song_id, wherever its folder is), else
-    # GOPOD_GOLDEN_SONG_DIR, else the default song.
     song_id = os.getenv(GOLDEN_SONG_ID_ENV) or (None if os.getenv(GOLDEN_SONG_DIR_ENV) else DEFAULT_SONG_ID)
     if song_id:
         found = find_song_dir(song_id)
@@ -3103,8 +2482,6 @@ def main():
         song_dir = str(found)
     else:
         song_dir = os.getenv(GOLDEN_SONG_DIR_ENV)
-    # 2026-10-09: the interview's song folder is played by the Brobots chat
-    # ("start interview", gopod_interview_song.go), not by this engine.
     try:
         song_type = json.loads((Path(song_dir) / "knobs.json").read_text(encoding="utf-8")).get("song_type")
     except (OSError, ValueError):
@@ -3112,7 +2489,6 @@ def main():
     if song_type == "interview":
         print("This is the interview: type \"start interview\" in the Brobots chat to play it.", flush=True)
         return None
-    # 2026-11-04: the comm check's song is played by Wire-Pod (gopod_comm_check.go).
     if song_type == "comm_check":
         print("This is the comm check: type \"system-comm-check\" in the Brobots chat to play it.", flush=True)
         return None

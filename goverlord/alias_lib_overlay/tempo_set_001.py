@@ -63,10 +63,6 @@ def _resolve_knobs_path(argv):
         print("TEMPO_SET_USAGE --knobs <path to song's knobs.json> is required")
         return None
     knobs_path = Path(argv[argv.index("--knobs") + 1])
-    # Same dirty(zKnobs)-over-clean(knobs) preference every playback engine,
-    # phcal_apply_001.py, and robot_pick_001.py already apply - via the shared
-    # resolver, not a private re-check. Read and write both resolve to
-    # whatever load_knobs_envelope() picked.
     return load_knobs_envelope(knobs_path.parent)
 
 

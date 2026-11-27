@@ -54,11 +54,6 @@ def main():
         return 1
     knobs_path = Path(sys.argv[sys.argv.index("--knobs") + 1])
 
-    # Same dirty(zKnobs)-over-clean(knobs) preference every playback engine
-    # and phcal_apply_001.py already apply - via the shared resolver, not a
-    # private re-check. Read and write both resolve to whatever
-    # load_knobs_envelope() picked, so they can't disagree with each other
-    # or with what the engine above will actually play.
     KNOBS_PATH, envelope = load_knobs_envelope(knobs_path.parent)
 
     step = next((s for s in envelope.get("steps", []) if s.get("step_id") == step_id), None)
@@ -78,10 +73,6 @@ def main():
         print("\nROBOT_PICK_DRY re-run with --yes to write the above into knobs.json")
         return 0
 
-    # Whole-file rewrite, same mechanism as phcal_apply_001.py (Ladder-2
-    # Phase 5) - `step` is the actual dict object inside envelope["steps"],
-    # so mutating it here already carries into the dump below. Every other
-    # step's own field order/values are untouched.
     step["speaker"] = new_speaker
     save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nROBOT_PICK_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/runtime/songs/tools/run_section1_full_live_001.py
 import importlib.util
 import json
 import os
@@ -14,15 +13,7 @@ import urllib.request
 from pathlib import Path
 
 
-# This runner lives in the GOPOD repo (goverlord/runtime/songs/tools/).
-# WIREPOD_CHIPPER_ROOT is an explicit, env-overridable anchor to Wire-Pod's own
-# tree, for the files Wire-Pod owns (apiConfig.json, jdocs/).
 WIREPOD_CHIPPER_ROOT = Path(os.getenv("GOPOD_WIREPOD_CHIPPER_ROOT", "/home/goverlord/wire-pod/chipper")).expanduser()
-# 2026-10-02 (operator: "keep ~/wire-pod as native as possible ... reference from
-# only overlay folder"): GOPOD's own files - the Section Card, animation_vocab.json,
-# demo_runs/ (gitignored there), the page's state files - live in the GOPOD repo's
-# wire_pod_overlay/chipper folder, the same folder Wire-Pod now reads them from.
-# Only Wire-Pod's own files (apiConfig.json, jdocs/) stay under WIREPOD_CHIPPER_ROOT.
 GOPOD_CHIPPER_ROOT = Path(
     os.getenv("GOPOD_OVERLAY_CHIPPER", str(Path(__file__).resolve().parents[3] / "wire_pod_overlay" / "chipper"))
 ).expanduser()
@@ -30,20 +21,8 @@ DEFAULT_CARD_PATH = GOPOD_CHIPPER_ROOT / "gopod_probes" / "section_packets" / "s
 CARD_PATH = Path(os.getenv("GOPOD_SECTION_CARD_PATH", str(DEFAULT_CARD_PATH))).expanduser()
 LOG_DIR = GOPOD_CHIPPER_ROOT / "gopod_probes" / "demo_runs"
 API_CONFIG = WIREPOD_CHIPPER_ROOT / "apiConfig.json"
-# One fact, one home: the control song owns ARM_GESTURE_SEQUENCE and
-# HEAD_NOD_GESTURE_SEQUENCE (split 2026-07-14 from the control song's own
-# test sequences, tuned/live-confirmed by the operator - see
-# MOVEMENT_TEST_GESTURE_SPLIT_001.md) - the interview reaches into that
-# same file by name via importlib, same reuse pattern
-# run_robot_control_song_001.py itself already uses in the other direction
-# to reach this file. Never copied, never retuned here.
 CONTROL_SONG_PATH = Path(__file__).resolve().parent / "run_robot_control_song_001.py"
 GOPOD_REPO_ROOT = Path(os.getenv("GOPOD_REPO_ROOT", "/home/goverlord/crushn8r_git/GOPOD")).expanduser()
-# Read-sheet mode's one output file goes to gopod_notes/, a sibling of the
-# repo checkout, same env-overridable-anchor pattern as every other path
-# constant here - never inside GOPOD_REPO_ROOT, per CLAUDE.md's own Report
-# and Output File Rule (reports/session output never lands in a git-tracked
-# directory).
 GOPOD_NOTES_DIR = Path(os.getenv("GOPOD_NOTES_DIR", str(GOPOD_REPO_ROOT.parent / "gopod_notes"))).expanduser()
 TEMPLATE1_PATH = GOPOD_REPO_ROOT / "goverlord/wire_pod_overlay/chipper/gopod_probes/section_packets/brobots_wirepod_interview_section_card_template_1_001.md"
 SPEECH_PRONUNCIATION_REGISTRY_PATH = Path(
@@ -61,39 +40,14 @@ INTERVIEW_SCAFFOLD_PATH = Path(
 GOPOD_ANIMATION_VOCAB_PATH = Path(
     os.getenv("GOPOD_ANIMATION_VOCAB_PATH", str(GOPOD_CHIPPER_ROOT / "animation_vocab.json"))
 ).expanduser()
-# Score architecture: the song folder (story.md + knobs.json) is the real
-# architecture and content-complete (verified byte-for-byte against the
-# legacy .txt card's visible lines/value points/cycle weights/emotional
-# beats) - it is now the default with no env var set. GOPOD_SECTION_SONG_DIR
-# still names a different song explicitly, unchanged. The legacy .txt
-# Section Card stays in place as an explicit, opt-in fallback only - never
-# deleted, never the silent default again.
-# Repointed 2026-08-19 (INTERVIEW_VAMP_SPLIT_001.md): the old single
-# 01_brobots_interview_section_01/ folder was split into
-# 02a_brobots_interview_vamp/ (the pre-show, its own standalone song now)
-# and 02b_brobots_interview_run/ (this - the 7-exchange interview itself).
-# This constant now names the RUN half only; the vamp half is a separate
-# song folder passed via PRESHOW_SONG_DIR_ENV, never this default.
 DEFAULT_SECTION_SONG_DIR = GOPOD_REPO_ROOT / "goverlord/runtime/songs/zzz_archives/02b_brobots_interview_run"
 LEGACY_SECTION_CARD_ENV = "GOPOD_USE_LEGACY_SECTION_CARD"
 
 LIVE_GATE = "GOPOD_ALLOW_LIVE_ROBOT_SPEECH"
-# No literal LAN IP fallback here - no network identifiers in tracked files
-# (2026-08-15, GOPOLISHER_CUBE_SESSION_SWEEP_001.md). Every real caller of
-# this script (interview-vamp/interview-vamp-play/interview-run, all routed
-# through brobots.sh) already has GOPOD_WIREPOD_BASE_URL exported via
-# ~/.gopod_alias_lib/local_config.sh (private, untracked) before this file
-# ever runs - same env var brobots.sh's own aliases now read the same way.
 WIREPOD_BASE_URL = os.getenv("GOPOD_WIREPOD_BASE_URL")
 ROBOT_EXPRESSION_GATE = os.getenv("ROBOT_EXPRESSION", "")
-# 2026-10-29: the robots' labels (ESN01, ESN02) - Wire-Pod changes a label to its
-# robot at its door (gopod_esn_labels.go); gopod_brobots_now.json, below, names them.
 BROBOT_1_SERIAL = os.getenv("GOPOD_BROBOT_1_SERIAL", "ESN01")
 BROBOT_2_SERIAL = os.getenv("GOPOD_BROBOT_2_SERIAL", "ESN02")
-# 2026-10-29 (the single-bot setup): who's who this Wire-Pod start
-# (gopod_brobots_now.json, written by Wire-Pod - gopod_brobots_setup.go). Solo
-# (one robot): Brobot 1 is that robot, and Brobot 2's lines are said on the
-# speaker (Robots.say). The env vars above still win when set.
 BROBOTS_SOLO = False
 try:
     _now = json.loads((Path(__file__).resolve().parents[3] / "wire_pod_overlay/chipper/gopod_brobots_now.json").read_text())
@@ -106,39 +60,10 @@ except (OSError, ValueError):
     pass
 
 
-# 2026-10-17 (operator: "eye colours from native wire-pod"): the bubbles' eye
-# colours come from Wire-Pod itself now (gopod_eye_colors.go, from its own
-# vic.RobotSettings), for every run - this runner no longer writes them.
-
-
-# Interview-only theatrical KG search sequence (searching -> searchingGetout,
-# then the line's own speech fires with "answering" instead of the usual
-# fallback) - operator's own explicit ask, 2026-07-24: the interview's JSON
-# is fully pre-generated before playback ever starts (see generate_phase()/
-# main()), so there is no real LLM wait to mask here - this is scripted in
-# deliberately to make a canned read *look* like a live search/answer. Gated
-# by song_id so it never fires for bingo/awaken/preshow or anything else.
-# This is a song_id string, deliberately kept unchanged by the 2026-08-19
-# vamp/run folder split (INTERVIEW_VAMP_SPLIT_001.md) - identity, not a
-# path, so it still means "the interview content," now housed in
-# 02b_brobots_interview_run/. Kept as-is to avoid a wider rename ripple
-# (SONG_REGISTRY key, ALIAS-LIBRARY.md references) beyond this pass's scope.
 INTERVIEW_KG_SEARCH_SONG_ID = "brobots_interview_section_01"
 INTERVIEW_KG_SEARCH_SECONDS = 3.0
 INTERVIEW_KG_SEARCH_LOOP_INTERVAL = 0.333
-# Brobot 3 (pre-show host) is a member of the shared Brobots persona family
-# by framing only - she has no physical robot. This is deliberately NOT a
-# real device serial shape (unlike BROBOT_1_SERIAL/BROBOT_2_SERIAL above) so
-# nobody mistakes it for hardware to connect to. Never pass this to a
-# Wire-Pod `serial=` param - see the brobot_3_host comment below for how her
-# log lines actually reach Wire-Pod (they borrow Brobot 1's real serial as
-# plumbing, not as her identity).
 BROBOT_3_ESN = "VOICE_ONLY_NO_HARDWARE"
-# Brobot 4 (pre-show host, male voice) is the same shape as Brobot 3 above -
-# a real roster member, addressed by name, with no ESN and never one: same
-# sentinel value, same "never pass to a Wire-Pod serial= param" rule. Two
-# hosts now share this one non-hardware identity pattern, not a special case
-# invented for the second one.
 BROBOT_4_ESN = "VOICE_ONLY_NO_HARDWARE"
 BROBOT_4_DISPLAY_ROLE = "Brobot 4"
 RESTART_WIREPOD_BEFORE_RUN = os.getenv("GOPOD_RESTART_WIREPOD_BEFORE_RUN", "0") == "1"
@@ -148,45 +73,11 @@ ROBOT_SPEECH_CHUNK_LIMIT = int(os.getenv("GOPOD_ROBOT_SPEECH_CHUNK_LIMIT", "420"
 SECTION1_REPLAY_LOG = os.getenv("GOPOD_SECTION1_REPLAY_LOG", "").strip()
 VOICE_DESTINATION_ENV = "GOPOD_VOICE_DESTINATION"
 VOICE_DESTINATIONS = ("robot", "monitor", "off")
-# LLM lane: run-level model choice, mirrors the voice_destination env-var
-# shape exactly - unset means "ask or remember," set means "skip the menu."
-# Judgment call, 2026-08-19 split (INTERVIEW_VAMP_SPLIT_001.md): this state
-# was nested under the old folder's vamp/ subfolder as a "loader
-# convenience" only - it is not vamp-specific data (resolve_content_model()
-# backs the interview RUN's own LLM generation too, not just the preshow's
-# two llm_coloured beats). Now that vamp/run are separate top-level
-# folders, this remembered-model cache moved to the RUN folder (the
-# heavier, default LLM consumer) rather than staying under vamp's own new
-# home. Flagged, not silently decided - a genuinely shared, song-agnostic
-# location (e.g. under tools/) is a reasonable alternative if the operator
-# wants this decoupled from either song folder later.
 CONTENT_MODEL_STATE_PATH = GOPOD_REPO_ROOT / "goverlord/runtime/songs/zzz_archives/02b_brobots_interview_run/content_model_state.json"
 DEFAULT_CONTENT_MODEL = "gemma2:2b"
-# Scored two-host pre-show song: unset (the default) changes nothing below -
-# main() runs generate_phase() then playback_phase() exactly as before. Set
-# to a goverlord/runtime/songs/<song_id>/ folder (brobots_preshow) to
-# play that song's four movements in parallel with interview generation.
 PRESHOW_SONG_DIR_ENV = "GOPOD_PRESHOW_SONG_DIR"
-# Read-sheet mode: a text-only review pass over the pre-show song alone.
-# Unset (the default) changes nothing - byte-identical to today's run.  Set
-# to "1" (requires PRESHOW_SONG_DIR_ENV to also be set) and every song beat
-# still generates exactly as it would live - same prompts, same model, same
-# hints, real LLM calls for the two llm_coloured beats - but nothing is ever
-# spoken: no Kokoro subprocess call for the hosts' canned lines, no
-# robots.say() dispatch for the robots' coloured lines. Each beat's hint and
-# the line actually produced are written to one read-sheet file in
-# GOPOD_NOTES_DIR at the end of the run. This only ever silences the song
-# itself - it does not touch generate_phase/playback_phase or voice_destination,
-# so the interview that follows still runs exactly as GOPOD_VOICE_DESTINATION
-# and GOPOD_ALLOW_LIVE_ROBOT_SPEECH already say it should (unset = dry, same
-# as any other run today).
 PRESHOW_READ_SHEET_ENV = "GOPOD_PRESHOW_READ_SHEET"
 
-# pre_chat_status_voice, per Template 1's BROBOTS_INTERVIEW_RUNTIME_SCAFFOLD_001 block:
-# engine kokoro_82m, voice af_bella, stop_before PLAYBACK_START/PLAYBACK_TURN_START/Brobot lines.
-# All status lines up to that boundary are spoken live via a persistent Kokoro
-# synthesis worker (system python3 lacks the kokoro package; the venv that
-# generated the original pre_chat_status_voice assets has it).
 KOKORO_STATUS_ANNOUNCER_PATH = (
     GOPOD_REPO_ROOT
     / "goverlord/runtime/data_gomad/robot/kokoro_voice/local_tts_voice_registry_001/interview_status_kokoro_announcer_001.py"
@@ -195,16 +86,6 @@ KOKORO_STATUS_VENV_PYTHON = Path(
     os.getenv("GOPOD_KOKORO_VENV_PYTHON", "/home/goverlord/gopod_tts/engines/kokoro_82m_001/venv/bin/python3")
 ).expanduser()
 KOKORO_STATUS_VOICE = "af_bella"
-# Brobot 4's own persistent --speak-stdin worker - a second, fully
-# independent subprocess and state slot, never sharing _KOKORO_STATUS_STATE
-# or its "proc". Chosen over extending the announcer script's stdin protocol
-# to carry a per-line voice selector (the other path PRESHOW_SURVEY_001.md
-# named) specifically because that would mean editing
-# interview_status_kokoro_announcer_001.py itself - a file Brobot 3's own
-# live narration path already depends on. A second independent subprocess
-# costs a second ~20s model load (see kokoro_status_warm_up's own docstring)
-# but touches zero shared code or state - nothing here can break Brobot 3's
-# existing path, by construction, not by care.
 KOKORO_HOST4_VOICE = "am_puck"
 _KOKORO_HOST4_STATE = {"attempted": False, "proc": None}
 KOKORO_STATUS_STOP_PREFIXES = (
@@ -215,21 +96,6 @@ KOKORO_STATUS_STOP_PREFIXES = (
 )
 _KOKORO_STATUS_STATE = {"attempted": False, "proc": None, "active": True, "live": False}
 
-# Pre-interview status lines get mirrored into Wire-Pod's own log window
-# (logger.LogUI/LogDebugUI, read by /api/get_logs and /api/get_debug_logs)
-# via the same assume/say_text/release handshake Robots.say() uses for real
-# Brobot turns - text is left empty (Kokoro already narrates these lines
-# aloud via the speak-stdin worker above) so only display_text/display_role
-# land in the log, under the "Brobot 3" role, as if it were a third speaker.
-# STOP-CONDITION NOTE: Wire-Pod's log window has no write path that doesn't
-# also require a real robot connection (see server.go's /api-sdk/say_text
-# handler - it always resolves `serial` against a connected robot). Brobot 3
-# has no robot of her own, so this borrows Brobot 1's REAL serial purely as
-# network plumbing to reach the shared log buffer - it is never exposed as
-# her identity (BROBOT_3_ESN above is the sentinel for that), and she is
-# never given her own `serial=` value that Wire-Pod could try to connect to.
-# Stops at the same boundary as Kokoro speech (KOKORO_STATUS_STOP_PREFIXES),
-# so this only ever runs before the interview.
 BROBOT_3_DISPLAY_ROLE = "Brobot 3"
 
 REQUIRED_INTERVIEW_SCAFFOLD_KEYS = (
@@ -247,26 +113,12 @@ REQUIRED_INTERVIEW_SCAFFOLD_KEYS = (
     "speaker_visual_cue",
     "between_exchange_pause_seconds",
 )
-# "action_parameters" was removed from this list - it now derives from
-# animation_vocab.json (see action_parameters() below) instead of being a
-# Template 1-owned fact. Template 1 no longer needs to carry this key.
 
 
-# Voice lane hardening: one registry (scaffold.voice_engines), one gate
-# every engine selection goes through. _VOICE_ENGINE_STATE is populated
-# once, early, by configure_voice_engines() - the Kokoro narration
-# subprocess only ever spawns once (_kokoro_status_ensure_loaded's own
-# "attempted" guard), so the registry has to reach that first spawn to mean
-# anything, not just decorate an already-hardcoded call.
 _VOICE_ENGINE_STATE = {"kokoro": None}
 
 
 def resolve_voice_engine(engine_key, scaffold, required_for=None):
-    # Three distinct, honest failure modes - never a silent fallback to a
-    # different engine: unknown key, known but not ready, ready but not
-    # actually wired for the use being asked of it (e.g. Kokoro is ready
-    # for pre-show narration, not for interview turns - nothing dispatches
-    # that today, so asking for it here must fail loudly too).
     registry = (scaffold or {}).get("voice_engines", {})
     entry = registry.get(engine_key)
     if entry is None:
@@ -283,10 +135,6 @@ def resolve_voice_engine(engine_key, scaffold, required_for=None):
 
 
 def resolve_voice_destination():
-    # Voice lane: exactly three values, enforced - never a silent fallback
-    # to "robot" on a mistyped env var. Unset means "robot", today's only
-    # real dispatch path; anything else must be one of the three exact
-    # strings or this fails loudly, same discipline as resolve_voice_engine.
     raw = os.getenv(VOICE_DESTINATION_ENV, "robot").strip()
     if raw not in VOICE_DESTINATIONS:
         raise RuntimeError(
@@ -296,10 +144,6 @@ def resolve_voice_destination():
 
 
 def configure_voice_engines(scaffold):
-    # Resolves and gates the pre-show narration engine from the registry,
-    # once. Reads scaffold.pre_chat_status_voice.engine (already existed as
-    # the documented choice - previously never actually consulted by code,
-    # see the KOKORO_STATUS_* constants this replaces as the live source).
     engine_key = (scaffold or {}).get("pre_chat_status_voice", {}).get("engine", "kokoro_82m")
     entry = resolve_voice_engine(engine_key, scaffold, required_for="pre_show_narration")
     invocation = entry.get("invocation", {})
@@ -314,11 +158,6 @@ def _kokoro_status_ensure_loaded():
     if _KOKORO_STATUS_STATE["attempted"]:
         return
     _KOKORO_STATUS_STATE["attempted"] = True
-    # Registry-driven if configure_voice_engines() already ran (the normal
-    # generate_phase() path); falls back to the original hardcoded
-    # constants untouched otherwise (e.g. a caller that spawns this
-    # directly without going through generate_phase() first) - additive,
-    # not a forced cutover.
     config = _VOICE_ENGINE_STATE.get("kokoro")
     venv_python = config["venv_python"] if config else str(KOKORO_STATUS_VENV_PYTHON)
     script = config["script"] if config else str(KOKORO_STATUS_ANNOUNCER_PATH)
@@ -373,16 +212,6 @@ def kokoro_status_warm_up():
         _KOKORO_STATUS_STATE["active"] = False
 
 
-# Channels lane hardening: _wirepod_log_status (real content - narration
-# meant to be read) and _wirepod_log_marker (a pure control signal - see
-# GOPOD_SONG_START_ROLE/GOPOD_SONG_END_ROLE below) used to be two
-# independently-coded, nearly-identical functions with no data marking
-# which was which. Both now route through this one shared primitive with
-# an explicit, validated "kind" - a future caller can't send a
-# marker-shaped payload and have it silently treated as displayable
-# content, or vice versa. error_label keeps each caller's own historical
-# status-line text byte-identical in the (never-hit in practice) exception
-# path, so nothing about the produced log output changes.
 def _wirepod_log_send(display_role, display_text, kind, error_label, scaffold=None):
     if kind not in ("content", "marker"):
         raise RuntimeError(f"BLOCKED: channel send kind {kind!r} must be 'content' or 'marker'")
@@ -414,15 +243,6 @@ def _wirepod_log_status(display_text):
     _wirepod_log_send(BROBOT_3_DISPLAY_ROLE, display_text, kind="content", error_label="WIREPOD_LOG_MIRROR_ERROR")
 
 
-# Channel-1 song boundary markers - the cockpit's own assume/release baton
-# for its rich display, same discipline as behavior control. Mirrors
-# _wirepod_log_status's own empty-text pattern exactly (no speech, just a
-# display_role/display_text write through the same assume/say_text/release
-# seam) so a GOPOD_SONG_START/GOPOD_SONG_END line lands in both of
-# server.go's log arrays under the BROBOT_RICH_DISPLAY tag - see the
-# channel-1 borrow-and-return note in gopod_notes. Gated on the same "live"
-# flag _wirepod_log_status uses: a dry run never touches a real robot, so it
-# never fires this either.
 GOPOD_SONG_START_ROLE = "GOPOD_SONG_START"
 GOPOD_SONG_END_ROLE = "GOPOD_SONG_END"
 
@@ -431,13 +251,6 @@ def _wirepod_log_marker(display_role, display_text):
     _wirepod_log_send(display_role, display_text, kind="marker", error_label="WIREPOD_SONG_MARKER_ERROR")
 
 
-# Brobot 3's colouring path. Deliberately separate from llm_colour_line /
-# build_exchange_prompt / normalize_robot_safe - those are built around a
-# Section-Card `line` object and the two Brobot roles, and normalize_safe's
-# `actionParameter... spoken text` grammar exists only to drive physical
-# robot animation packets, which don't apply to a voice-only host. This
-# reuses only the underlying mechanism (same knowledge endpoint, same
-# chat-completions POST shape) via a lighter, standalone prompt.
 _STATUS_BEAT_PREFIXES = (
     ("RUN_START", "STATUS: RUN_START"),
     ("SCAFFOLD_LOAD", "STATUS: SCAFFOLD_LOAD"),
@@ -454,20 +267,8 @@ _STATUS_BEAT_PREFIXES = (
     ("EXCHANGE_GENERATION_DONE", "STATUS: EXCHANGE_GENERATION_DONE"),
     ("GENERATION_DONE", "STATUS: GENERATION_DONE"),
 )
-# Coloured once per beat key per run, then reused - keeps the pre-show snappy
-# (LLM_START/LLM_DONE alone can fire 10x in a 5-line section) and means the
-# LLM is never asked to colour a line containing a raw file path/run id/etc,
-# since only the static hint text (never the dynamic status message) is sent.
 _STATUS_BEAT_COLOUR_CACHE = {}
 
-# Fallback for a status() line that matches no known beat above (e.g.
-# GENERATION_REPLAYED, the only status the replay branch of generate_phase()
-# emits during its generation section) or matches a beat with no configured
-# hint. Without this, coloured_status_line() returned the raw `line`
-# unchanged in that case, and Kokoro speaks whatever it gets back - so a
-# technical "STATUS: ..." string would be read aloud to the live audience.
-# Routed through the same LLM-colouring pass instead, under its own cache
-# key, so the pre-show always narrates something audience-safe.
 _STATUS_BEAT_NOTHING_TO_COLOUR_KEY = "NOTHING_TO_COLOUR"
 _STATUS_BEAT_NOTHING_TO_COLOUR_HINT = (
     "There's nothing new to report right now - just a quiet beat while things "
@@ -520,15 +321,6 @@ def llm_colour_status_beat(beat_key, hint, scaffold=None):
 
 
 def llm_colour_preshow_line(system_prompt, hint, content_model=None):
-    # Pre-show song, Movements 2/3: Brobot 1/2's own readiness reaction -
-    # scored (the hint lives in the pre-show's own story.md, never
-    # hand-typed here) and LLM-coloured, never canned. Deliberately its own
-    # function, not a reuse of llm_colour_line (built around a Section-Card
-    # `line` object, value targets, and thinking-window machinery that don't
-    # apply to a one-off wake-up reaction) or llm_colour_status_beat (built
-    # around Brobot 3's own host persona, not Brobot 1/2's). Same
-    # chat-completions POST shape as both, same knowledge endpoint - the
-    # only genuinely reusable part.
     api = load_api_config()
     endpoint = api.get("endpoint", "")
     if not endpoint:
@@ -549,10 +341,6 @@ def llm_colour_preshow_line(system_prompt, hint, content_model=None):
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + str(api.get("key", ""))},
         method="POST",
     )
-    # 120s, matching llm_colour_line's own timeout - a robot's actual spoken
-    # readiness line deserves the same slow-model tolerance a real interview
-    # turn already gets, not llm_colour_status_beat's 30s (built for a
-    # decorative narration gloss, not a scored line the audience hears).
     with urllib.request.urlopen(request, timeout=120) as response:
         data = json.loads(response.read().decode("utf-8"))
     choices = data.get("choices") or []
@@ -589,9 +377,6 @@ def coloured_status_line(line, scaffold=None):
     try:
         coloured = llm_colour_status_beat(beat_key, hint, scaffold)
     except (Exception, KeyboardInterrupt) as exc:  # noqa: BLE001 - Brobot 3 colouring must never break the pre-show,
-        # including a second Ctrl-C landing mid-HTTP-call during an already-in-flight
-        # cancellation (KeyboardInterrupt is a BaseException, not caught by `except Exception`
-        # alone - this is what turned a clean cancel into a chained-traceback crash).
         print(f"STATUS: BROBOT3_COLOUR_FALLBACK beat={beat_key} {type(exc).__name__}: {exc}", flush=True)
         return line
     _STATUS_BEAT_COLOUR_CACHE[beat_key] = coloured
@@ -603,10 +388,6 @@ def _announce_status_kokoro(line):
         return
     if any(line.startswith(prefix) for prefix in KOKORO_STATUS_STOP_PREFIXES):
         _KOKORO_STATUS_STATE["active"] = False
-        # Voice lane: in "monitor" destination, the persistent worker is
-        # needed again immediately after this boundary to speak the turns
-        # themselves (see speak_turn_via_kokoro) - only close its stdin here
-        # for every other destination, unchanged from before this existed.
         if _KOKORO_STATUS_STATE.get("voice_destination") != "monitor":
             proc = _KOKORO_STATUS_STATE["proc"]
             if proc is not None and proc.stdin is not None:
@@ -637,26 +418,6 @@ def status(message):
     _announce_status_kokoro(f"STATUS: {message}")
 
 
-# ============================================================================
-# Timing instrumentation (net-video timing map pass, 2026-07-14). Measurement
-# only - wraps existing call sites with wall-clock start/end capture, never
-# changes what is called, when, or with what arguments, and never touches a
-# score/song/knob/timing value. Every entry is tagged capture_quality:
-#   "true_completion" - the elapsed number reflects when the real-world
-#     action genuinely finished (a blocking Kokoro speak-stdin DONE ack, a
-#     confirmed HTTP-ready poll, a real LLM chat-completion response, or a
-#     deterministic time.sleep()).
-#   "accept_only" - the elapsed number only proves a command was ACCEPTED.
-#     Wire-Pod's say_text and movement HTTP calls return the instant the
-#     command is issued, never when speech or physical motion actually
-#     finishes - there is no completion signal anywhere in this stack for
-#     those two calls (see run_robot_control_song_001.py's own golden truth
-#     5, and CLAUDE.md's "Markers do not prove completion" gotcha). Never
-#     silently reported as if it were the other.
-# Survey finding this pass is built on: NET_VIDEO_TIMING_MAP_SURVEY_001.md
-# (gopod_notes) - zero timestamp/duration fields existed anywhere on disk
-# before this.
-# ============================================================================
 class TimingLog:
     def __init__(self):
         self._lock = threading.Lock()
@@ -791,13 +552,6 @@ def write_timing_log(run_id=None, meta=None, song_dir=None):
 
 
 def speak_turn_via_kokoro(text):
-    # Voice lane, "monitor" destination: reuses the exact same persistent
-    # --speak-stdin worker Brobot 3's pre-show narration already spawns (see
-    # _kokoro_status_ensure_loaded) - never a second Kokoro process. Turn
-    # text is already fully composed and must be spoken verbatim, so this
-    # skips coloured_status_line()'s LLM-colouring/caching entirely - that
-    # pass exists to turn a raw status beat into a spoken gloss, which does
-    # not apply to a line the show already wrote.
     _kokoro_status_ensure_loaded()
     proc = _KOKORO_STATUS_STATE["proc"]
     if proc is None or proc.stdin is None or proc.stdout is None or proc.poll() is not None:
@@ -832,10 +586,6 @@ def speak_turn_via_kokoro(text):
 
 
 def _kokoro_host4_ensure_loaded():
-    # Mirrors _kokoro_status_ensure_loaded's shape exactly, but reads and
-    # writes only _KOKORO_HOST4_STATE - never _KOKORO_STATUS_STATE. Brobot 3's
-    # own ensure-loaded function, and every line of _announce_status_kokoro/
-    # speak_turn_via_kokoro, is untouched by this function's existence.
     if _KOKORO_HOST4_STATE["attempted"]:
         return
     _KOKORO_HOST4_STATE["attempted"] = True
@@ -860,10 +610,6 @@ def _kokoro_host4_ensure_loaded():
 
 
 def speak_host4_line_via_kokoro(text):
-    # Brobot 4's own speak call - same write/flush/read-ack protocol as
-    # speak_turn_via_kokoro, against her own separate subprocess. Text is
-    # already fully composed (host dialogue is authored, not LLM-coloured),
-    # spoken verbatim, no caching, no coloured_status_line involvement.
     _kokoro_host4_ensure_loaded()
     proc = _KOKORO_HOST4_STATE["proc"]
     if proc is None or proc.stdin is None or proc.stdout is None or proc.poll() is not None:
@@ -940,12 +686,6 @@ def _load_animation_vocab_raw():
 
 
 def action_parameters(scaffold=None):
-    # scaffold is accepted-but-unused: kept so existing call sites
-    # (robot_safe/normalize_robot_safe/split_robot_safe_line) don't need to
-    # change their own signatures. The action-parameter vocabulary now
-    # derives from animation_vocab.json (Phase 1's single source of truth)
-    # instead of from Template 1's scaffold, so Template 1 is no longer
-    # required to carry an "action_parameters" key.
     global _ANIMATION_VOCAB_TOKENS_CACHE
     if _ANIMATION_VOCAB_TOKENS_CACHE is None:
         vocab = _load_animation_vocab_raw()
@@ -959,13 +699,6 @@ def action_parameters(scaffold=None):
 
 
 def animation_aliases(scaffold=None):
-    # Animation lane hardening: the Go/REST side has always read
-    # animation_vocab.json's "aliases" map (~70 words, e.g. "excited" ->
-    # "veryHappy") to resolve loose LLM wording before validating it. This
-    # file only ever read "tokens" - the same source file, one consumer
-    # using the aliases, one silently ignoring them. Fixed here: same
-    # lazy-cached-from-disk pattern as action_parameters() above, no new
-    # file, no duplicated vocabulary.
     global _ANIMATION_VOCAB_ALIASES_CACHE
     if _ANIMATION_VOCAB_ALIASES_CACHE is None:
         vocab = _load_animation_vocab_raw()
@@ -979,12 +712,6 @@ def animation_aliases(scaffold=None):
 
 
 def resolve_animation_token(action, scaffold=None):
-    # The one real fix this pass makes to the interview's own repair path:
-    # a candidate action is valid as-is, OR resolves through the alias map
-    # to a valid canonical token, OR is genuinely unresolved (caller decides
-    # the fallback - normalize_robot_safe/split_robot_safe_line both fall
-    # back to default_action_parameter(), unchanged). Never invents a token
-    # outside action_parameters()'s own verified set.
     valid = action_parameters(scaffold)
     candidate = str(action or "").strip()
     if candidate in valid:
@@ -996,11 +723,6 @@ def resolve_animation_token(action, scaffold=None):
 
 
 def resolve_animation_mode(mode_key, scaffold):
-    # Animation lane hardening: mode (blocking vs fire-and-forget) used to
-    # be implicit - wirepod_command_packet() always emitted playAnimationWI,
-    # no way to ask for the other one. Both are genuinely ready (Wire-Pod
-    # implements both fully); fire_and_forget just stays the default so
-    # animation never interrupts a spoken interview line.
     registry = (scaffold or {}).get("animation_lane", {}).get("modes", {})
     entry = registry.get(mode_key)
     if entry is None:
@@ -1012,10 +734,6 @@ def resolve_animation_mode(mode_key, scaffold):
 
 
 def resolve_animation_capability(capability_key, scaffold, required_for=None):
-    # getImage / conversation_mode: real, wired REST/KG-path capabilities
-    # with zero equivalent in the interview's own flow. On the board,
-    # marked not_ready, never silently ignored - selecting either must
-    # fail loudly, same discipline as the voice lane's Piper/Chatterbox.
     registry = (scaffold or {}).get("animation_lane", {}).get("capabilities", {})
     entry = registry.get(capability_key)
     if entry is None:
@@ -1035,11 +753,6 @@ def resolve_animation_capability(capability_key, scaffold, required_for=None):
 
 
 def resolve_channel(channel_key, scaffold, required_for=None):
-    # Channels lane hardening: same gate pattern as voice/animation - one
-    # registry (scaffold.channels), one function every channel selection
-    # goes through. play_sound (robot_speaker_raw_audio_file) is the one
-    # not-ready entry today; nothing calls this with that key, so nothing
-    # is wired to work, but the gate is real and proven to block on request.
     registry = (scaffold or {}).get("channels", {})
     entry = registry.get(channel_key)
     if entry is None:
@@ -1055,15 +768,6 @@ def resolve_channel(channel_key, scaffold, required_for=None):
 
 
 def describe_channels_used(display_text):
-    # Channels lane hardening: makes payload variant + destination explicit
-    # and reachable in the produced data, not inferred from which parameter
-    # happened to be non-empty. Every real turn sends spoken content to the
-    # robot speaker; channel_1_rich_display is only listed when there is
-    # something to mirror (display_text non-empty) - exactly today's real
-    # behavior, now named rather than implied. channel_2_firehose is never
-    # listed separately: it cannot be opted out of at this call site (see
-    # the channels registry's always_on entry), so there is no choice here
-    # to describe.
     used = [{"channel": "robot_speaker_tts", "payload_variant": "spoken", "send_kind": "content"}]
     if display_text:
         used.append({"channel": "channel_1_rich_display", "payload_variant": "display", "send_kind": "content"})
@@ -1078,11 +782,6 @@ MOVEMENT_ENDPOINT_AXIS = {
 
 
 def resolve_movement_axis(axis_key, scaffold, required_for=None):
-    # Movements lane hardening: same gate pattern as voice/animation/
-    # channels - one registry (scaffold.movements), one function every
-    # axis selection goes through. move_wheels is the one not-ready entry;
-    # nothing dispatches it, so nothing is wired to work, but the gate is
-    # real and proven to block on request.
     registry = (scaffold or {}).get("movements", {})
     entry = registry.get(axis_key)
     if entry is None:
@@ -1098,13 +797,6 @@ def resolve_movement_axis(axis_key, scaffold, required_for=None):
 
 
 def validate_movement_sequence_ends_at_zero(sequence):
-    # Movements lane hardening: "always end at speed 0 before releasing
-    # control" was a convention every real caller just happened to follow -
-    # observed, never checked. A movement sequence that doesn't return to
-    # zero should not be silently possible. Only validates sequences that
-    # actually pass through this file's own dispatch (speaker_visual_cue);
-    # the alias trio's shell functions are separate code, not reachable
-    # from here.
     steps = [s for s in sequence if isinstance(s, dict)]
     if not steps:
         return
@@ -1130,38 +822,9 @@ def _load_control_song_module():
 
 
 def fire_scored_interview_movement(movement, serial, live, manage_control=True, segment_id="", segment_label=""):
-    # Scored interview movement (per-line brobot_1_movement/brobot_2_movement
-    # in the interview song's knobs.json) - dispatches through
-    # gentle_arm_gesture_cue()/head_nod_gesture_cue(), the interview's own
-    # GESTURE sequences (ARM_GESTURE_SEQUENCE/HEAD_NOD_GESTURE_SEQUENCE),
-    # split 2026-07-14 from the control song's own TEST sequences so tuning
-    # one can never silently change the other (MOVEMENT_TEST_GESTURE_SPLIT_001.md).
-    # No sequence values live here. manage_control defaults True, threaded
-    # straight through to those two
-    # functions' own manage_control parameter: each movement fires as its
-    # own isolated assume->move->release, same as the control song's own
-    # isolated single-note testers, because nothing in the real interview
-    # holds behavior control continuously across a turn (each backpack_turn's
-    # own say() does its own assume/release too) - playback_phase() never
-    # passes manage_control, so its behavior is unchanged by this parameter's
-    # existence. manage_control=False is for a caller that already holds
-    # control continuously itself (the movement rehearsal tool) and needs
-    # this call to neither assume nor release around the single movement.
-    # Empty/absent movement fires nothing - silence is the default, enforced
-    # here, not by the caller checking first.
     if not movement:
         return None
     control_song_mod = _load_control_song_module()
-    # gentle_arm_gesture_cue()/head_nod_gesture_cue() only ever call mod.
-    # validate_movement_sequence_ends_at_zero(...) and mod.wirepod_web_send_form(...) on
-    # whatever "mod" they're given - a real module reference isn't needed,
-    # just those two attributes. sys.modules[__name__] is unreliable here:
-    # this file is routinely loaded via importlib.util.module_from_spec() by
-    # other scripts (the control song, the pre-show generator), and that
-    # loading pattern never registers the resulting module object into
-    # sys.modules under its spec name - only real `import` statements do
-    # that. A tiny namespace exposing just the two needed callables sidesteps
-    # that entirely, regardless of how this file itself was loaded.
     self_mod = types.SimpleNamespace(
         validate_movement_sequence_ends_at_zero=validate_movement_sequence_ends_at_zero,
         wirepod_web_send_form=wirepod_web_send_form,
@@ -1272,10 +935,6 @@ def fire_interview_kg_search_sequence(serial, live, segment_id="", segment_label
 
 
 def thought_cycles(scaffold):
-    # Phase 1: reachability only. Mirrors action_parameters(scaffold)'s
-    # accessor shape. Not called anywhere in the generation path yet -
-    # wiring a cycle into build_exchange_prompt/llm_colour_line/
-    # generated_turn is Phase 2.
     return scaffold.get("thought_cycles", {})
 
 
@@ -1297,12 +956,6 @@ def read_field(lines, label):
     return ""
 
 
-# Two-dial framework, rung 1: locked ordered value points per exchange.
-# Same stop conditions as read_field (blank line after content, "---", a
-# "LINE " header, or the next field's bare label) - but returns an ordered
-# list, one item per line, instead of joining into a single blob. A leading
-# "1. "/"1) " numbering marker (used in the Section Card purely for human
-# readability) is stripped; order in the file is preserved as the list order.
 _LIST_ITEM_NUMBER_PREFIX = re.compile(r"^\d+[.)]\s*")
 
 
@@ -1341,11 +994,6 @@ def read_persona_mindsets(lines):
     return mindsets
 
 
-# Phase 1 (weighted): a bare label with no ":temp" (e.g. a hand-edited CYCLES
-# line that dropped the weight) is tolerated rather than rejected - it's
-# treated as "selected, weight unspecified" and given this default. Chosen as
-# a mid-range value (the shaped vectors below run 0-5) so a bare label reads
-# as "on, not emphasized" rather than snapping to either extreme.
 CYCLE_BARE_LABEL_DEFAULT_WEIGHT = 3
 
 
@@ -1400,10 +1048,6 @@ def load_section_card(card_path=CARD_PATH):
         )
         cycle_weights = parse_cycle_weights(read_field(block, "CYCLES"))
         silent_value_cue = read_field(block, "SILENT VALUE CUE") or read_field(block, "VALUE TARGET")
-        # Two-dial framework, rung 1: locked, ordered, countable value points.
-        # "VALUE POINTS" is the new explicit ordered list (falls back to the
-        # existing flat blob as a single-item list if a line hasn't been
-        # given one yet, so an older, not-yet-updated card entry still works).
         value_points = read_list_field(block, "VALUE POINTS") or ([silent_value_cue] if silent_value_cue else [])
         raw_interviewer_count = read_field(block, "INTERVIEWER VALUE POINT COUNT")
         try:
@@ -1440,10 +1084,6 @@ def parse_section_1(card_path=CARD_PATH):
     return load_section_card(card_path)["lines"]
 
 
-# Song split, additive: story.md + knobs.json pair for a song folder (see
-# goverlord/runtime/songs/<song_id>/), wired in behind GOPOD_SECTION_SONG_DIR
-# at generate_phase()'s one call site. load_section_card() above is untouched
-# and stays the default when that env var is unset - no forced cutover.
 _STORY_LINE_HEADING = re.compile(r"^##\s+LINE\s+(\d+)\s*$")
 _STORY_ARC_POINT = re.compile(r"^Arc point:\s*(.+)$")
 _STORY_NUMBERED_ITEM = re.compile(r"^\d+\.\s*(.+)$")
@@ -1460,10 +1100,6 @@ _STORY_FRAMING_FIELDS = {
 
 
 def parse_story_md(text):
-    # Mirrors load_section_card's own "find LINE N headers, slice into
-    # blocks" shape, adapted to story.md's markdown headings/blockquote/
-    # numbered-list conventions instead of the Section Card's flat
-    # LABEL:\nvalue text convention.
     lines = text.splitlines()
     story = {
         "brobot_2_mindset": "",
@@ -1536,13 +1172,6 @@ def peek_song_bare_capture(section_source, use_legacy_card):
 
 
 def load_section_pair(song_dir):
-    # Returns the exact same section dict shape as load_section_card() above
-    # (same keys, same per-line keys) so every downstream function
-    # (is_crystallizer, build_exchange_prompt, selected_thinking_cycles,
-    # interviewer_value_point_count, generated_turn, ...) needs zero changes.
-    # knobs.json carries the per-step knobs; story.md carries the matching
-    # content, joined by step_id - a real merge, not a format-detection
-    # branch like load_interview_scaffold()/load_pronunciation_registry().
     song_dir = Path(song_dir)
     knobs_path = song_dir / "zKnobs.json"
     if not knobs_path.exists():
@@ -1560,17 +1189,7 @@ def load_section_pair(song_dir):
         "section_purpose": story["section_purpose"],
         "audience_takeaway": story["audience_takeaway"],
         "section_success": story["section_success"],
-        # Playback turn order, whole-song, data-driven - absent means
-        # "brobot_2" (today's interview order, unchanged). playback_phase()
-        # reads this once per run from log["section_card"]; never touched
-        # per-line, never inferred from song name. See brobots_bait_001's
-        # own knobs.json for the one song that overrides it.
         "first_speaker": knobs.get("first_speaker", "brobot_2"),
-        # Breathing pause after each fired movement, whole-song,
-        # data-driven - absent/0 means no pause (today's interview/pre-show
-        # timing, unchanged). playback_phase() reads this once, applies it
-        # after every movement that actually fired (arm, then head, then
-        # into speech) - never a separate mechanism per movement slot.
         "movement_pause_seconds": knobs.get("movement_pause_seconds", 0) or 0,
         "lines": [],
     }
@@ -1604,32 +1223,13 @@ def load_section_pair(song_dir):
                 "thinking_window": bool(step.get("thinking_window", False)),
                 "cycles": [label for label, weight in cycle_weights.items() if weight > 0],
                 "cycle_weights": cycle_weights,
-                # Job 1/2 (LLM lane hardening): explicit, mixer-reachable
-                # overrides. Absent (None) on any of these means "fall
-                # through to the historical implicit derivation" - see
-                # resolve_turn_mode()/resolve_canned_text()/
-                # build_exchange_prompt()'s opening-task check. The old
-                # load_section_card() path below never sets these, so it
-                # keeps its old behavior untouched.
                 "brobot_2_mode": step.get("brobot_2_mode"),
                 "brobot_1_mode": step.get("brobot_1_mode"),
                 "brobot_2_canned_source": step.get("brobot_2_canned_source"),
                 "brobot_1_canned_source": step.get("brobot_1_canned_source"),
                 "brobot_2_opening_task": step.get("brobot_2_opening_task"),
-                # Scored interview movement (Job: score movement into the
-                # interview) - absent/empty means silence, same
-                # absent-means-fall-through convention as the mode/
-                # canned_source/opening_task knobs just above. Read by
-                # generate_exchange_record() -> playback_phase(), dispatched
-                # via fire_scored_interview_movement(). Never read by any
-                # LLM-prompt-building code path - purely runner-enforced.
                 "brobot_2_movement": step.get("brobot_2_movement"),
                 "brobot_1_movement": step.get("brobot_1_movement"),
-                # Second scored movement per role, same absent-means-silence
-                # convention - fires after the first (arm, then head, per
-                # the bait song's own default), never inferred, never a
-                # second mechanism. Absent for every existing song
-                # (interview, pre-show) - only brobots_bait_001 sets this.
                 "brobot_2_movement_2": step.get("brobot_2_movement_2"),
                 "brobot_1_movement_2": step.get("brobot_1_movement_2"),
             }
@@ -1637,16 +1237,6 @@ def load_section_pair(song_dir):
     return section
 
 
-# Pre-show song loader - parallel to parse_story_md/load_section_pair above,
-# not a modification of either. The interview's own loader stays exactly as
-# it is; this is a second, independent reader for a song with a genuinely
-# different shape: movements and beats, not exchanges - no interviewer/
-# interviewee pair, no locked value points to reveal. A beat's content is
-# either a literal, authored line ("> TEXT:", spoken verbatim - the hosts'
-# own dialogue) or a situational hint ("> HINT:", LLM-coloured - Brobot 1/2's
-# readiness reactions) - two distinct markers instead of parse_story_md's
-# single blockquote-is-always-visible_line rule, because the pre-show
-# genuinely has both kinds of content and the interview never needed to.
 _PRESHOW_BEAT_HEADING = re.compile(r"^##\s+BEAT\s+(\S+)\s*$")
 
 
@@ -1671,13 +1261,6 @@ def parse_preshow_story_md(text):
 
 
 def load_preshow_song(song_dir):
-    # Same two-file, step_id-joined container the interview's own
-    # load_section_pair uses (knobs.json = dials, story.md = content) - that
-    # part of the convention generalizes fine. The per-beat shape does not
-    # reuse the interview's line dict at all: no visible_line/value_points/
-    # exchange_type, because none of those concepts apply here. "speaker"
-    # (survey item 3's answer) and "movement"/"mode" are the only dials a
-    # pre-show beat needs.
     song_dir = Path(song_dir)
     knobs_path = song_dir / "zKnobs.json"
     if not knobs_path.exists():
@@ -1713,11 +1296,6 @@ def is_crystallizer(line):
 
 
 def selected_thinking_cycles(line, scaffold):
-    # Phase 2: resolves a LINE's cycle_weights (Section Card) against
-    # Template 1's thought_cycles pool, keeping only weight>0 entries,
-    # highest weight first so a small model's limited attention favors the
-    # most-emphasized focuses. Silently drops any label not in the pool
-    # rather than guessing at unknown cycle names.
     weights = line.get("cycle_weights") or {}
     pool = {c.get("label"): c for c in thought_cycles(scaffold).get("cycles", [])}
     selected = [
@@ -1729,13 +1307,6 @@ def selected_thinking_cycles(line, scaffold):
     return selected
 
 
-# Two-dial framework, rung 1 (generate-side only, interviewer's question
-# wording): the runner owns the COUNT - how many of a line's locked, ordered
-# value points the interviewer's question reaches for. Not an LLM choice;
-# read straight from the Section Card's per-line "INTERVIEWER VALUE POINT
-# COUNT" field, defaulting to a small, conservative reach (the interviewer
-# teases a couple of points, it doesn't recite the whole answer) when a line
-# hasn't set one explicitly.
 DEFAULT_INTERVIEWER_VALUE_POINT_COUNT = 2
 
 
@@ -1750,9 +1321,6 @@ def interviewer_value_point_count(line):
 
 
 def selected_interviewer_value_points(line):
-    # The runner picks the first N in the locked order - never a reordering,
-    # never an LLM pick. The LLM only ever sees this pre-selected, pre-counted
-    # set; it turns the ladder/fan dial and chooses wording on top of it.
     points = line.get("value_points") or []
     return points[: interviewer_value_point_count(line)]
 
@@ -1769,12 +1337,6 @@ def build_exchange_prompt(role, mindset, line, value_target="", scaffold=None):
     )
     role_tasks = scaffold.get("role_tasks", {}).get(role, {})
     if role == "BROBOT 2":
-        # Job 2: "is this the opening line" used to be a bare line_number==1
-        # check - a magic number no song data could see or override.
-        # brobot_2_opening_task, when explicitly set (True or False), now
-        # decides it instead. None (the field absent, e.g. the old
-        # load_section_card() path) preserves the historical line_number==1
-        # behavior exactly.
         opening_override = line.get("brobot_2_opening_task")
         use_opening_task = opening_override if opening_override is not None else (line_number == 1)
         if use_opening_task:
@@ -1799,16 +1361,6 @@ def build_exchange_prompt(role, mindset, line, value_target="", scaffold=None):
         f"INTERVIEW ARC POINT: {line.get('interview_arc_point', '')}",
         f"TASK: {task}",
     ]
-    # Echo-defect Layer 1: Brobot 2's job IS to colour and deliver this exact
-    # text, so "VISIBLE LINE:" stays a neutral label for that role. Brobot 1's
-    # job is the opposite - answer it, never produce a version of it - so the
-    # same raw text gets a label that says so inline, right where the
-    # quotable text actually sits, instead of only via a generic RULE line
-    # several lines further down (read-first found the echoed words already
-    # present in the model's own reply, before normalize/split ever touch
-    # it - a labeling problem at the point this text is presented, not a
-    # missing rule; shared_rules/role_tasks/exchange_types already said
-    # "don't echo" in three different places and it still happened).
     if role == "BROBOT 2":
         parts.append(f"VISIBLE LINE: {line['visible_line']}")
     else:
@@ -1827,16 +1379,6 @@ def build_exchange_prompt(role, mindset, line, value_target="", scaffold=None):
         parts.append(f"RULE: {exchange_type_rule}")
     parts.extend(f"RULE: {rule}" for rule in scaffold.get("shared_rules", []) if str(rule).strip())
 
-    # Two-dial framework, rung 1: interviewer-only. Gives Brobot 2 the same
-    # locked, ordered value points Brobot 1 is asked to reveal, pre-counted
-    # by the runner, and a single ladder/fan dial for how the question
-    # approaches them. The LLM may not invent, add, drop, or reorder points,
-    # and may not choose the count - only the dial position and the wording.
-    # Job 2: the instructional text itself used to be hardcoded here - now
-    # read from scaffold.prompt_templates (song-family-wide, not per-song),
-    # falling back to this exact same wording if a scaffold doesn't define
-    # it, so behavior is byte-identical either way. (prompt_templates itself
-    # is now fetched once, above, alongside the visible-line labeling.)
     if role == "BROBOT 2":
         interviewer_points = selected_interviewer_value_points(line)
         if interviewer_points:
@@ -1873,11 +1415,6 @@ def build_exchange_prompt(role, mindset, line, value_target="", scaffold=None):
                 )
             )
 
-    # Phase 2: single-pass thinking window. Only added when this LINE
-    # requests it and has at least one weighted cycle selected; the model
-    # is asked to emit its internal reasoning and its spoken turn in one
-    # response, split apart in generated_turn before normalize_robot_safe
-    # ever sees the text.
     thinking_cycles = selected_thinking_cycles(line, scaffold)
     if line.get("thinking_window") and thinking_cycles:
         parts.append(
@@ -1908,12 +1445,6 @@ def load_api_config():
 
 
 def list_installed_models():
-    # LLM lane: live from Ollama's own HTTP API, never a hardcoded list, and
-    # never shelling out to `ollama list` - the endpoint host/scheme is read
-    # from apiConfig.json's existing "endpoint" field (a read, same as
-    # load_api_config() already does; apiConfig.json itself is never
-    # written by this selector). No ranking/filtering/annotation - name and
-    # size only, in whatever order Ollama itself returns.
     api = load_api_config()
     endpoint = api.get("endpoint", "")
     if not endpoint:
@@ -1952,11 +1483,6 @@ def write_remembered_model(model_name):
 
 
 def resolve_content_model():
-    # LLM lane: mirrors resolve_voice_destination()'s discipline - loud
-    # failure over a silent fallback whenever the operator's stated intent
-    # (the env var) can't be honored. Interactive menu only when no env
-    # override is set, and only ever reached from the non-replay generation
-    # path (a replay never needs a model - see generate_phase()).
     models = list_installed_models()
     installed_names = [m["name"] for m in models]
 
@@ -1979,7 +1505,6 @@ def resolve_content_model():
         )
 
     if not os.isatty(0):
-        # STOP CONDITION guard: never block a non-interactive path on input().
         write_remembered_model(default_model)
         return default_model
 
@@ -2025,11 +1550,6 @@ def llm_colour_line(role, line, value_target="", prior_context="", scaffold=None
         )
         prompt += f"\n{prior_context_label}\n" + prior_context
     payload = {
-        # LLM lane: content_model (the operator's run-start pick) wins over
-        # apiConfig.json's own model when given - apiConfig.json is Wire-Pod's
-        # own live config (its knowledge-graph feature reads/writes it too),
-        # never touched by this selector, so its "model" stays the fallback
-        # exactly as before whenever content_model isn't supplied.
         "model": content_model or api.get("model") or "gemma2:2b",
         "messages": [
             {
@@ -2063,11 +1583,6 @@ def llm_colour_line(role, line, value_target="", prior_context="", scaffold=None
 
 
 def default_action_parameter(scaffold=None):
-    # Job 2: the "thinking" fallback used whenever no valid action can be
-    # resolved was a bare string literal repeated at four call sites. Now
-    # one read of scaffold.generation_defaults.default_action_parameter,
-    # falling back to "thinking" itself if a scaffold doesn't define it -
-    # same behavior, source moved from code to data.
     scaffold = scaffold or {}
     return scaffold.get("generation_defaults", {}).get("default_action_parameter", "thinking")
 
@@ -2081,16 +1596,6 @@ def robot_safe(text, action="thinking", scaffold=None):
     return f"{action}... {text}"
 
 
-# 2026-09-28: the speaker-label guard (_LEADING_SPEAKER_LABEL_RE) that stood here was
-# removed from the robot say path - it dropped Doc's own words ("You brought me:",
-# "Your retina:"). Report: gopod_notes/DOC_RICH_DISPLAY_ROBOT_SAY_FLATTEN_002.md
-
-
-# 2026-09-28: math and LaTeX -> spoken words for the robot speech lane only (the rich
-# display keeps the original). Lives in speech_math_flatten_001.py next to this file,
-# loaded by path so this runner works however it was loaded. If that file can't load,
-# speech falls back to exactly the old behaviour instead of failing.
-# Report: gopod_notes/DOC_RICH_DISPLAY_ROBOT_SAY_FLATTEN_001.md
 def _load_speech_math_flatten():
     try:
         path = Path(__file__).resolve().parent / "speech_math_flatten_001.py"
@@ -2107,25 +1612,7 @@ flatten_math_for_speech = _load_speech_math_flatten()
 
 
 def strip_rich_text_for_voice(raw, scaffold=None):
-    # Hardening pass: emoji and markdown formatting characters never
-    # belong in the voice lane - not
-    # optional, no knob. Runs inside normalize_robot_safe itself (every call
-    # site, unconditionally) rather than relying on flatten_for_robot_speech
-    # downstream, because not every consumer of normalize_robot_safe's output
-    # calls flatten_for_robot_speech - read-sheet mode's own SPOKE capture is
-    # exactly such a consumer, which is how the emoji/markdown in
-    # PRESHOW_READSHEET_20260713_161541.md's m2_c/m3_c reached disk unstripped.
-    # Reuses the exact same scaffold-driven speech_cleanup_rules config
-    # (emoji_codepoint_ranges/markdown_chars) flatten_for_robot_speech already
-    # reads via cleanup_rules()/codepoint_class() - one place to tune either,
-    # this only runs it earlier. Substitutes matched characters with a space,
-    # matching flatten_for_robot_speech's own convention - the later
-    # whitespace-collapse in this function (and in flatten_for_robot_speech,
-    # run again downstream, harmlessly, on already-clean text) mops up
-    # doubled spaces either way.
     rules = cleanup_rules(scaffold)
-    # Math/LaTeX to words first, while braces and symbols are still whole - the
-    # markdown_chars strip below removes {} and [] and would mangle \frac{a}{b}.
     text = flatten_math_for_speech(str(raw))
     emoji_class = codepoint_class(rules.get("emoji_codepoint_ranges", []))
     if emoji_class:
@@ -2152,11 +1639,6 @@ def normalize_robot_safe(raw, scaffold=None):
     cleaned = re.sub(r"^actionParameter\s+", "", cleaned, flags=re.IGNORECASE).strip()
     if "..." in cleaned:
         action, spoken = cleaned.split("...", 1)
-        # Animation lane hardening: was a bare `action in valid_actions`
-        # check - an alias word (e.g. "excited") failed it and fell all the
-        # way to the generic default, discarding the model's actual intent
-        # even though the vocab already defines a resolution for it.
-        # resolve_animation_token() tries the alias map before giving up.
         resolved = resolve_animation_token(action.strip(), scaffold)
         if resolved:
             return robot_safe(spoken, resolved, scaffold), "deterministic"
@@ -2221,12 +1703,8 @@ def apply_pronunciation_safety(text):
     for entry in pronunciation_entries():
         source = entry["from"]
         target = entry["to"]
-        # match_case (2026-10-06): "LED" but not "led" (he led the way).
         flags = 0 if entry.get("match_case") else re.IGNORECASE
         if entry.get("word_start"):
-            # 2026-10-17 (operator: "choco[text] = chalk-o-[new text]"): at the
-            # start of a word, the rest kept; "except" words left alone
-            # (gopod_pronunciation.go, the same rule).
             pattern = re.compile(rf"(?<!\w){starred_pattern(source, entry.get('vowels', ''))}(\w*)", flags)
             skip = entry.get("except") or []
             speech = pattern.sub(lambda m: m.group(0) if m.group(0).lower() in skip else target + m.group(1), speech)
@@ -2307,23 +1785,6 @@ def remove_configured_bracket_labels(text, labels):
     return cleaned
 
 
-# Universal character cleanup, mirrored from repo truth: Wire-Pod's own Go
-# TTR sanitizer, removeSpecialCharacters() in
-# ~/wire-pod/chipper/pkg/wirepod/ttr/kgsim.go (confirmed real, read
-# directly - not the separate special_characters_vars.go path this
-# scaffold's own SPEECH_PRONUNCIATION_REGISTRY_001 preamble cites, which
-# does not exist anywhere in this repo as of this pass; that citation looks
-# stale and is flagged, not silently trusted). That Go function is
-# confirmed NEVER reachable from /api-sdk/say_text (read directly in
-# pkg/wirepod/sdkapp/server.go - the say_text handler dispatches straight
-# to robot.Conn.SayText with no cleanup call of any kind); it only fires on
-# the separate wake-word/Knowledge-Graph chat path (DoSayText/KGSim). The
-# interview's actual live say path relies entirely on this Python-side
-# mirror instead - kept in exact step with the Go function's own mapping,
-# order, and scope, except the three robot-say departures named at
-# GO_TRUTH_UNIVERSAL_CHARACTER_REPLACEMENTS below (operator-directed,
-# 2026-09-28). Add nothing else beyond what kgsim.go's
-# removeSpecialCharacters() itself does.
 _VIETNAMESE_KEEP_MARKS = {
     "̀",  # Dấu huyền
     "́",  # Dấu sắc
@@ -2349,13 +1810,6 @@ def strip_diacritics_except_vietnamese(text):
     return unicodedata.normalize("NFC", kept)
 
 
-# Exact mirror of kgsim.go removeSpecialCharacters()'s own substitution
-# table, same characters, same targets, same order (bullet -> "*" is listed
-# after the &^*#@ strip below runs, exactly matching the Go source's own
-# order, so a bullet-turned-asterisk survives to the final text there too).
-# Scaffold-overridable (speech_cleanup_rules.universal_character_replacements)
-# with this exact list as the code fallback, matching every other
-# prompt/cleanup table in this file's own established convention.
 GO_TRUTH_UNIVERSAL_CHARACTER_REPLACEMENTS = [
     ["‘", "'"], ["’", "'"],          # ' ' -> '
     ["“", "\""], ["”", "\""],        # " " -> "
@@ -2369,11 +1823,6 @@ GO_TRUTH_UNIVERSAL_CHARACTER_REPLACEMENTS = [
     ["©", "(c)"], ["®", "(r)"], ["™", "(tm)"],
 ]
 
-# kgsim.go strips these five characters entirely (regexp `[&^*#@]`) BEFORE
-# its substitution table runs - `*`/`#` already lived in this file's own
-# markdown_chars set for an unrelated reason (markdown formatting cleanup);
-# `&`/`^`/`@` did not, so the Go truth's own strip set was incomplete here
-# until now. Applied at the same point markdown_chars already is.
 GO_TRUTH_STRIP_CHARS = "&^@"
 
 
@@ -2403,40 +1852,17 @@ def flatten_for_robot_speech(text, scaffold=None):
     if invisible_class:
         flattened = re.sub(f"[{invisible_class}]", " ", flattened)
     flattened = re.sub(r"\{\{[^}]*\}\}", " ", flattened)
-    # Same math/LaTeX step as strip_rich_text_for_voice, for callers that reach this
-    # function without going through normalize_robot_safe first. No-op on text that
-    # has already been through it.
     flattened = flatten_math_for_speech(flattened)
     flattened = remove_configured_label_prefixes(flattened, rules.get("prompt_label_prefixes", []))
     flattened = remove_configured_label_prefixes(flattened, rules.get("spoken_label_prefixes", []))
     emoji_class = codepoint_class(rules.get("emoji_codepoint_ranges", []))
     if emoji_class:
         flattened = re.sub(f"[{emoji_class}]", " ", flattened)
-    # Go-truth strip set (&^@) folded into the existing markdown_chars pass
-    # - same point in the pipeline markdown_chars already ran, *  and # are
-    # already covered by markdown_chars itself for an unrelated reason.
     markdown_chars = str(rules.get("markdown_chars", "")) + GO_TRUTH_STRIP_CHARS
     if markdown_chars:
         flattened = re.sub(f"[{re.escape(markdown_chars)}]+", " ", flattened)
-    # Universal character cleanup - curly quotes -> straight, em dash ->
-    # spoken pause (comma), en dash -> hyphen, unicode ellipsis -> nothing,
-    # nbsp -> space, bullet -> asterisk, fractions, ×/÷, ç, ©/®/™ - mirrored
-    # from Wire-Pod's own Go truth (kgsim.go removeSpecialCharacters()),
-    # confirmed not otherwise reachable from this say path. Three deliberate
-    # departures, 2026-09-28 (DOC_RICH_DISPLAY_ROBOT_SAY_FLATTEN_002.md): em
-    # dash, ellipsis, and no " AI " -> " A. I. " rewrite, so the pronunciation
-    # registry's own AI entry applies. Previously this step instead
-    # DELETED quote_chars/the unicode ellipsis outright, which both
-    # over-reached (straight ASCII quotes were being stripped too, never
-    # part of the Go mapping) and under-reached (curly single quotes/
-    # apostrophes were not covered at all, and none of dashes/nbsp/
-    # bullet/fractions/×÷/©®™ were touched).
     flattened = apply_universal_character_cleanup(flattened, scaffold)
     flattened = tidy_spoken_pause_commas(flattened)
-    # Literal "..." (three ASCII periods, distinct from the single unicode
-    # "…" character the table above already handles) -
-    # an additive, interview-specific normalization, not part of the
-    # universal Go-truth set either way, kept as-is.
     for token in rules.get("ellipsis_tokens", []):
         flattened = flattened.replace(str(token), " ")
     flattened = clean_inline_emphasis_punctuation(flattened, scaffold)
@@ -2486,9 +1912,6 @@ def compact_context_line(text, limit=180):
 
 
 def wirepod_web_send_form(endpoint, params, timeout=30):
-    # CHANGED: match webroot/sdkapp/js/control.js sendForm().
-    # The Wire-Pod UI appends serial/query params to the URL and sends POST
-    # with application/x-www-form-urlencoded. The rest of the runner remains unchanged.
     url = WIREPOD_BASE_URL.rstrip("/") + endpoint + "?" + urllib.parse.urlencode(params)
     request = urllib.request.Request(
         url,
@@ -2522,7 +1945,6 @@ def restart_wirepod_preflight(live):
     if not live or not RESTART_WIREPOD_BEFORE_RUN:
         return {"enabled": False}
 
-    # STEP 1 - CHECK: already healthy? Skip the restart entirely.
     print("PREFLIGHT: CHECK - is wire-pod already answering on :8080?")
     try:
         wirepod_get_text("/", timeout=2)
@@ -2539,37 +1961,16 @@ def restart_wirepod_preflight(live):
             "http_ready": True,
         }
 
-    # STEP 2 - CLEAR: unconditional, before any start/restart attempt.
-    # check=False - reset-failed on a service with no failed state is a
-    # harmless no-op, not an error worth stopping the preflight over.
     print("PREFLIGHT: CLEAR -> sudo systemctl reset-failed wire-pod.service")
     subprocess.run(["sudo", "systemctl", "reset-failed", "wire-pod.service"], check=False)
 
-    # (No MIRROR step since 2026-10-02: Wire-Pod reads GOPOD's files straight from
-    # the overlay folder, so there is nothing to copy into ~/wire-pod.)
 
-    # STEP 2.6 - RESET_UI: 2026-09-01 operator live-report ("upon a wire-pod
-    # restart... chat bubbles window is NOT seen. I still see it after alias
-    # wpr, and refresh web page"). gopod_rich_display_ui_state.json is a
-    # plain file in webroot - a service restart never touches it, so
-    # whatever a run last wrote (expanded:true, possibly still within
-    # index.html's own 300s STALE_AFTER_SECONDS window) survives the
-    # restart and reopens on the next page load. Only reached on a real
-    # restart (CHECK already returned above if wire-pod was healthy) - a
-    # restart is a deliberate "start fresh" signal, so force dormant here
-    # rather than leaving it to the browser's own staleness heuristic.
-    # Pure UI side-channel, same discipline as every other write to this
-    # file - never block the actual restart over it.
-    # 2026-10-17 (survey E15: "a state file nothing reads"): gopod_rich_display_ui_state.json is no longer written - the chat page opens and closes its own chat (the Log button), and nothing read it.
-
-    # STEP 3 - START: only reached because CHECK found it unhealthy/not running.
     print("PREFLIGHT: START -> sudo systemctl restart wire-pod")
     try:
         subprocess.run(["sudo", "systemctl", "restart", "wire-pod"], check=True)
     except subprocess.CalledProcessError as exc:
         raise RuntimeError(f"wire-pod restart preflight blocked: start_failed rc={exc.returncode}") from exc
 
-    # STEP 4 - CONFIRM: settle, then poll until ready or timeout.
     state = "unknown"
     for _ in range(10):
         time.sleep(1)
@@ -2626,9 +2027,6 @@ def start_wirepod_preflight(live):
     if not live or not RESTART_WIREPOD_BEFORE_RUN:
         return {"enabled": False}
 
-    # STEP 1 - CHECK: already running? Skip the start entirely - nothing
-    # to do, and running CLEAR/START against an already-active
-    # service is unnecessary churn, not just harmless.
     print("PREFLIGHT: CHECK - is wire-pod already answering on :8080?")
     try:
         wirepod_get_text("/", timeout=2)
@@ -2645,23 +2043,16 @@ def start_wirepod_preflight(live):
             "http_ready": True,
         }
 
-    # STEP 2 - CLEAR: same as restart_wirepod_preflight()'s own STEP 2 -
-    # unconditional, harmless when nothing's wrong, required when a prior
-    # attempt already tripped systemd's start-rate limiter.
     print("PREFLIGHT: CLEAR -> sudo systemctl reset-failed wire-pod.service")
     subprocess.run(["sudo", "systemctl", "reset-failed", "wire-pod.service"], check=False)
 
-    # (No MIRROR step since 2026-10-02: Wire-Pod reads GOPOD's files straight from
-    # the overlay folder, so there is nothing to copy into ~/wire-pod.)
 
-    # STEP 3 - START: only reached because CHECK found it not running.
     print("PREFLIGHT: START -> sudo systemctl start wire-pod")
     try:
         subprocess.run(["sudo", "systemctl", "start", "wire-pod"], check=True)
     except subprocess.CalledProcessError as exc:
         raise RuntimeError(f"wire-pod start preflight blocked: start_failed rc={exc.returncode}") from exc
 
-    # STEP 4 - CONFIRM: same polling shape as restart_wirepod_preflight().
     state = "unknown"
     for _ in range(10):
         time.sleep(1)
@@ -2704,52 +2095,10 @@ class Robots:
         self.live = live
         self.scaffold = scaffold or load_interview_scaffold()
         self.voice_destination = voice_destination
-        # Console-only knob (see say()'s own print line below) - default
-        # False for every existing caller (pre-show, movement rehearsal
-        # tool), so nothing about their own console output changes. Never
-        # touches robot_safe_line itself, the say-cleaning pipeline, or
-        # display_text - purely which string gets printed to the operator's
-        # terminal.
         self.bare_capture = bare_capture
-        # Console-only knob, same shape as bare_capture above, independent of
-        # it. Default flipped 2026-07-25 (operator request, alias-mixer
-        # widening) from a hardcoded False to a real cockpit switch: an
-        # explicit True/False from the caller (bingo's own construction still
-        # passes True) always wins; every other caller now resolves through
-        # GOPOD_CONSOLE_RICH_DISPLAY, itself defaulting to ON ("1") unless
-        # explicitly set to "0". Operator's own words on why ON is now the
-        # right default everywhere, not just bingo: the distinct display_text
-        # values already authored (e.g. brobots_awaken's weather step) are a
-        # deliberate edit to cut fluff/awkward line-wrap from the console,
-        # not bingo-specific content - every song should get the same
-        # readable console by default. Never touches robot_safe_line itself,
-        # the say-cleaning pipeline, or what the robot actually speaks -
-        # purely which string gets printed to the operator's terminal.
         if console_rich_display is None:
             console_rich_display = os.getenv("GOPOD_CONSOLE_RICH_DISPLAY", "1") != "0"
         self.console_rich_display = console_rich_display
-        # Chat-bubble auto-expand flag, mirrored from pha0b's own pre-run
-        # write (brobots.sh's rich_ui_state_file) - CHAT_BUBBLES_INIT_FLAG_
-        # FIX_001.md. pha0b already writes this same file, same value,
-        # before invoking any runner; this is that identical write done
-        # here too, so a runner started OUTSIDE pha0b (bare
-        # run_golden_song_001.py, start-the-interview) gets the same
-        # auto-expand-on-fresh-run behavior every pha0b-launched song
-        # already has. Idempotent with pha0b's own write - same content,
-        # harmless if both fire. Never touches say()/robot_safe_line/the
-        # speech-dispatch pipeline - a pure UI side-channel, so a write
-        # failure here (missing wire-pod tree, permissions) must never
-        # break a run over it.
-        # 2026-10-17 (survey E15: "a state file nothing reads"): gopod_rich_display_ui_state.json is no longer written - the chat page opens and closes its own chat (the Log button), and nothing read it.
-        # Console-only knob, same shape/scoping as the two above - default
-        # False for every existing caller. When True, every terminal line
-        # this class prints (and, via timing_prefix(), every line the
-        # caller's own script prints) gets a "[HH:MM:SS.mmm +X.XXXs]" prefix:
-        # a sortable absolute wall-clock read, plus the real measured elapsed
-        # time since the last printed event (not a configured sleep value).
-        # Built to answer a real question a live run raised - the operator
-        # could see buffer_after's own configured values, but not where
-        # actual time was really going between them.
         self.console_timestamps = console_timestamps
         self._last_event_wall_time = None
 
@@ -2788,10 +2137,6 @@ class Robots:
         if not cue.get("enabled"):
             return {"enabled": False}
         endpoint = cue.get("endpoint", "/api-sdk/move_lift")
-        # Movements lane hardening: axis is now resolved and gated against
-        # the movements registry instead of just being "whatever endpoint
-        # string is configured" - and the sequence is validated to end at
-        # speed 0 before anything is dispatched, not just assumed to.
         axis = MOVEMENT_ENDPOINT_AXIS.get(endpoint, "unknown")
         resolve_movement_axis(axis, self.scaffold, required_for="speaker_visual_cue")
         sequence = cue.get("sequence", [])
@@ -2808,10 +2153,6 @@ class Robots:
                     "axis": axis,
                     "speed": speed,
                     "hold_seconds": hold_seconds,
-                    # Movements lane hardening: stated per-step, not just in
-                    # the registry - hold_seconds is asserted (the runner
-                    # sleeps this long), never a measured confirmation the
-                    # physical motion actually finished.
                     "hold_seconds_is_asserted_not_measured": True,
                     "explicit_zero": float(speed) == 0,
                     "serial": serial,
@@ -2823,47 +2164,23 @@ class Robots:
         return {"enabled": True, "endpoint": endpoint, "axis": axis, "results": results}
 
     def say(self, name, robot_safe_line, display_text="", display_role="", suppress_assume_release=False):
-        # Animation lane hardening: mode is now an explicit, gated knob
-        # instead of being hardcoded inside wirepod_command_packet() -
-        # default ("fire_and_forget") matches today's only real behavior.
         animation_mode = self.scaffold.get("animation_mode", "fire_and_forget")
         resolve_animation_mode(animation_mode, self.scaffold)
         action, raw_spoken = split_robot_safe_line(robot_safe_line, self.scaffold)
         spoken = flatten_for_robot_speech(raw_spoken, self.scaffold)
         speech_chunks = chunk_robot_speech(spoken)
         wirepod_chunks = [wirepod_command_packet(action, chunk, animation_mode) for chunk in speech_chunks]
-        # bare_capture prunes the "action... " prefix (e.g. "thinking... ")
-        # from the console line only - raw_spoken (already split above) is
-        # exactly robot_safe_line minus that prefix. spoken/speech_chunks/
-        # wirepod_chunks/display_text below are all computed from raw_spoken
-        # already, untouched either way - this only changes what gets
-        # printed to the terminal. console_rich_display takes priority when
-        # set (only true for callers that opt in) and shows display_text
-        # instead - the robot's own speech (spoken/speech_chunks/wirepod_chunks
-        # below) is computed from raw_spoken exactly as before, never from
-        # display_text - this is a terminal-print routing change only.
         if self.console_rich_display and display_text:
             console_line = display_text
         elif self.console_rich_display:
-            # 2026-10-10: a line with no bubble of its own (a combo part) prints
-            # its words, never the animation cue ("thinking...").
             console_line = raw_spoken
         elif self.bare_capture:
             console_line = raw_spoken
         else:
             console_line = robot_safe_line
         print(f"{self.timing_prefix()}{name}: {console_line}")
-        # Channels lane hardening: which destinations/payload variants this
-        # call actually uses, named explicitly rather than left implicit in
-        # which parameters happen to be non-empty - reachable in the
-        # produced run json either way (dry or live).
         channels_used = describe_channels_used(display_text)
         serial = BROBOT_1_SERIAL if name == "Brobot 1" else BROBOT_2_SERIAL
-        # Voice lane: one destination switch, one shared field shape across
-        # all three destinations (robot/monitor/off) so a monitor replay and
-        # a robot run are directly comparable in the produced run json - the
-        # Vector-only fields (assume/speaker_visual_cue/say/release) are
-        # always present, just None where no Vector contact was made.
         prelude = {
             "serial": serial,
             "speech_text": spoken,
@@ -2884,12 +2201,7 @@ class Robots:
         if self.voice_destination == "off":
             return {**prelude, "spoken": False, "mode": "off"}
 
-        # 2026-10-29 (the single-bot setup): solo, Brobot 2 isn't there - his
-        # lines are said on the speaker, the same way as the monitor destination.
         if self.voice_destination == "monitor" or (BROBOTS_SOLO and name == "Brobot 2" and self.voice_destination == "robot"):
-            # Voice lane hardening: gated here exactly like the robot engine
-            # below - a misconfigured engine should surface during a
-            # compose-only run, not wait for a live show.
             resolve_voice_engine("kokoro_82m", self.scaffold, required_for="interview_turns")
             result = {**prelude, "mode": "kokoro_monitor"}
             all_spoken = True
@@ -2903,43 +2215,18 @@ class Robots:
             result["spoken"] = all_spoken
             return result
 
-        # voice_destination == "robot" - today's only real dispatch path,
-        # unchanged: every interview turn's engine choice is gated here,
-        # live or dry - a misconfigured engine should surface during a
-        # compose-only run, not wait for a live show. Default ("robot_tts")
-        # matches today's only real dispatch path exactly; this raises
-        # loudly rather than silently falling back if a future song points
-        # turn_voice_engine at something not ready or not wired for
-        # interview_turns.
         turn_engine = self.scaffold.get("turn_voice_engine", "robot_tts")
         resolve_voice_engine(turn_engine, self.scaffold, required_for="interview_turns")
         if not self.live:
             return {**prelude, "spoken": False, "mode": "dry"}
         result = {**prelude, "spoken": False, "mode": "wirepod"}
         try:
-            # Additive opt-out only - default (False) is byte-for-byte the
-            # original unconditional assume/release-per-call behavior every
-            # interview/pre-show call already depends on. No existing caller
-            # passes True; this branch is unreachable from any of them.
-            # When True (a caller holding control continuously across
-            # several say() calls, matching webroot/sdkapp/js/control.js's
-            # own pattern - assume once via the UI's toggle, fire many
-            # commands, release once at the end - not per command), this
-            # call assumes nothing itself and the finally block below does
-            # not release either.
             if suppress_assume_release:
                 result["assume"] = {"suppressed": True}
             else:
-                # CHANGED: use the same assume/direct-speak/release POST pattern as the Wire-Pod web UI.
                 assume = wirepod_web_send_form("/api-sdk/assume_behavior_control", {"priority": "high", "serial": serial}, timeout=10)
                 result["assume"] = assume
                 time.sleep(0.25)
-            # The debug-era arm cue no longer fires automatically on every
-            # spoken turn - it was a visual marker for the operator, not a
-            # scored note, and had become dead compute on every call.
-            # speaker_visual_cue() itself still exists, callable on demand by
-            # a score that wants it deliberately (result["speaker_visual_cue"]
-            # stays None here, same as the "off"/"monitor" branches above).
             all_spoken = True
             for index, wirepod_text in enumerate(wirepod_chunks):
                 say = wirepod_web_send_form(
@@ -2949,10 +2236,7 @@ class Robots:
                         "serial": serial,
                         "display_role": display_role or name,
                         "display_text": display_text if index == 0 else "",
-                        # 2026-09-30: opt-in per-sentence chat highlight (the
-                        # golden song engine sets it; every other caller unchanged).
                         **({"sentence_highlight": "1"} if getattr(self, "sentence_highlight", False) else {}),
-                        # 2026-10-10: a combo step's later part lights its pieces in the step's one bubble.
                         **({"piece_offset": str(self.piece_offset)} if getattr(self, "piece_offset", None) is not None else {}),
                     },
                     timeout=90,
@@ -3019,13 +2303,6 @@ class Robots:
 
 
 def split_internal_thoughts(raw):
-    # Phase 2: splits a single LLM completion into (internal_thoughts, spoken_reply)
-    # on a line-start "REPLY:" marker. Defensive by design - gemma2:2b (this
-    # project's configured model) is small and already needs deterministic
-    # repair on most turns even without this extra format demand. If the
-    # marker is missing, or the reply half comes back empty, fall back to
-    # treating the entire raw text as the spoken reply - byte-identical to
-    # pre-Phase-2 behavior, never a crash and never silently empty speech.
     match = re.search(r"(?im)^\s*REPLY:\s*", raw)
     if not match:
         return "", raw
@@ -3037,13 +2314,6 @@ def split_internal_thoughts(raw):
 
 
 def resolve_turn_mode(role, line, scaffold):
-    # Job 1: an explicit, per-turn, per-role knob (brobot_2_mode/
-    # brobot_1_mode, "canned"|"llm") now wins over the scaffold's
-    # exchange_type table - canned-vs-LLM is a real, directly settable
-    # control, not just an inferred side effect of a mode name. Additive:
-    # a line that doesn't set this explicitly (None/absent, including every
-    # line via the old load_section_card() path) falls through to the exact
-    # historical exchange_type lookup.
     key = "brobot_2_mode" if role == "BROBOT 2" else "brobot_1_mode"
     explicit = line.get(key)
     if explicit in ("canned", "llm"):
@@ -3053,12 +2323,6 @@ def resolve_turn_mode(role, line, scaffold):
 
 
 def resolve_canned_text(role, line):
-    # Job 1: when a turn is canned, name the source explicitly
-    # (brobot_2_canned_source/brobot_1_canned_source) so a mixer can show
-    # "this line is canned, and it comes from HERE" instead of inferring it
-    # from which role is speaking. Falls back to the exact historical rule
-    # (Brobot 2 <- visible_line, Brobot 1 <- value_points space-joined) when
-    # a line doesn't name a source explicitly.
     key = "brobot_2_canned_source" if role == "BROBOT 2" else "brobot_1_canned_source"
     source = line.get(key)
     if source == "visible_line":
@@ -3104,12 +2368,6 @@ def build_value_target(line, interviewer_coloured_line, scaffold=None):
     scaffold = scaffold or load_interview_scaffold()
     response_context = scaffold.get("response_context", {})
     parts = [response_context.get("interviewer_line_prefix", "Question/statement being answered, do not quote: ") + line.get("visible_line", "")]
-    # Two-dial framework, rung 1: Brobot 1 reads the same locked, ordered
-    # value-point list as the interviewer (never a reordering or a subset -
-    # the interviewer's question may reach for fewer, but the answer still
-    # covers all of them), rendered as a numbered list instead of one flat
-    # blob. Falls back to the old free-text purpose field only if a line has
-    # neither a value_points list nor a silent_value_cue at all.
     points = line.get("value_points") or []
     if points:
         parts.append(response_context.get("value_target_prefix", "In your response, naturally reveal these points: "))
@@ -3125,12 +2383,6 @@ def build_value_target(line, interviewer_coloured_line, scaffold=None):
     return "\n".join(item for item in parts if item.strip())
 
 
-# Mechanical echo-detection guard: verbatim N-word overlap check between
-# Brobot 1's LLM output and (a) the line's visible_line, (b) Brobot 2's raw
-# response. The detection functions below (echo_check_words/echo_ngrams/
-# detect_echo) are unchanged and still detection-only - what consumes their
-# result now retries a bounded number of times (see ECHO_RETRY_LIMIT and
-# generate_exchange_record's Layer 2 brake) instead of only ever logging.
 ECHO_DETECTION_WORD_COUNT = 5
 
 _ECHO_WORD_RE = re.compile(r"[a-z0-9']+")
@@ -3160,11 +2412,6 @@ def detect_echo(candidate_text, source_text, n=ECHO_DETECTION_WORD_COUNT):
     return None
 
 
-# Echo defect Layer 2 (retry brake): a small, bounded ceiling - this many
-# regenerations of Brobot 1's turn ALONE (never Brobot 2's, which the
-# detector never checks) after the first attempt, so up to
-# ECHO_RETRY_LIMIT + 1 total attempts. Small on purpose: this is a brake for
-# whatever Layer 1 (the prompt-side fix) misses, not the primary fix itself.
 ECHO_RETRY_LIMIT = 3
 
 
@@ -3178,25 +2425,6 @@ def _check_echo(brobot_1_candidate, line, brobot_2_generated, echo_word_count):
     return bool(snippet), source, snippet
 
 
-# Self-repeat guard (own-prior-turn leak) - a SEPARATE defect from the echo
-# guard above, layered alongside it, not merged into it. The echo guard
-# above only ever checks Brobot 1's CURRENT-line candidate against that
-# SAME line's visible_line/Brobot 2 response (a cross-speaker,
-# within-the-current-line leak). This guard checks a role's new turn
-# against that SAME role's own immediately-prior line (a same-speaker,
-# cross-line leak) - confirmed live 2026-07-14: Brobot 1's line 3 opened by
-# re-speaking almost the entirety of its own line 2 answer before pivoting
-# to new content ("Ron was this total visual wizard..." repeated verbatim
-# from line 2 into line 3). Root cause: llm_colour_line()'s "PRIOR EXCHANGE
-# CONTEXT:" prompt block gets fed to every turn regardless of role, and a
-# small model (gemma2:2b) can just continue it instead of writing something
-# new - this remained true even after that block was given an explicit
-# "never repeat" label (Layer 1, same session), so a Layer 2 detect+retry
-# brake is needed here too, exactly like the echo guard's own Layer 2.
-# Reuses the same detect_echo() n-gram primitive - never a second detector
-# implementation - against a different, independently-tracked source text.
-# Applies to BOTH roles (own_prior_raw is looked up per-role) since either
-# speaker can in principle repeat their own earlier turn, not just Brobot 1.
 SELF_REPEAT_RETRY_LIMIT = 3
 
 
@@ -3264,10 +2492,6 @@ def generate_exchange_record(line, prior_context="", scaffold=None, content_mode
         note="A real blocking LLM chat-completion call in llm mode; near-zero elapsed in canned mode (text lookup only, no LLM call made).",
     ):
         brobot_2_generated = generated_turn("Brobot 2", "BROBOT 2", line, prior_context=prior_context, scaffold=scaffold, content_model=content_model)
-    # Self-repeat guard, Brobot 2: only meaningful in llm mode - a canned
-    # turn is fixed/scripted text with no LLM call to regenerate, and
-    # comparing it against a prior turn would either be a no-op or a false
-    # positive (e.g. a repeated scripted phrase is intentional, not a leak).
     brobot_2_self_repeated, brobot_2_self_repeat_history = False, []
     if resolve_turn_mode("BROBOT 2", line, scaffold) != "canned":
         brobot_2_generated, brobot_2_self_repeated, brobot_2_self_repeat_history = _generate_with_self_repeat_guard(
@@ -3290,11 +2514,6 @@ def generate_exchange_record(line, prior_context="", scaffold=None, content_mode
         note="A real blocking LLM chat-completion call in llm mode; near-zero elapsed in canned mode (text lookup only, no LLM call made).",
     ):
         brobot_1_generated = generated_turn("Brobot 1", "BROBOT 1", line, value_target, prior_context, scaffold, content_model)
-    # Self-repeat guard, Brobot 1: symmetric to Brobot 2's above, runs
-    # BEFORE the existing cross-speaker echo guard further down (which
-    # operates on whatever brobot_1_generated results from here) - the two
-    # guards run in sequence, each bounded and independent, neither
-    # touching the other's retry ceiling or history.
     brobot_1_self_repeated, brobot_1_self_repeat_history = False, []
     if resolve_turn_mode("BROBOT 1", line, scaffold) != "canned":
         brobot_1_generated, brobot_1_self_repeated, brobot_1_self_repeat_history = _generate_with_self_repeat_guard(
@@ -3322,19 +2541,11 @@ def generate_exchange_record(line, prior_context="", scaffold=None, content_mode
         "generation_phase": "complete",
         "brobot_2_generated": brobot_2_generated,
         "brobot_1_generated": brobot_1_generated,
-        # Self-repeat guard results (own-prior-turn leak, layered alongside
-        # the cross-speaker echo guard below - separate limit, separate
-        # history, never merged).
         "self_repeat_retry_limit": SELF_REPEAT_RETRY_LIMIT,
         "brobot_2_self_repeat_detected": brobot_2_self_repeated,
         "brobot_2_self_repeat_history": brobot_2_self_repeat_history,
         "brobot_1_self_repeat_detected": brobot_1_self_repeated,
         "brobot_1_self_repeat_history": brobot_1_self_repeat_history,
-        # Scored interview movement - carried straight through from the
-        # knobs.json-sourced line dict to the played-back event, absent/empty
-        # means silence. Never touches either generated_turn() call above -
-        # movement is decided and dispatched at playback time only, the LLM
-        # never sees it.
         "brobot_2_movement": line.get("brobot_2_movement"),
         "brobot_1_movement": line.get("brobot_1_movement"),
         "brobot_2_movement_2": line.get("brobot_2_movement_2"),
@@ -3347,12 +2558,6 @@ def generate_exchange_record(line, prior_context="", scaffold=None, content_mode
         },
     }
 
-    # Job 2: was scaffold-only ("scaffold.get('exchange_types')..."), a
-    # second, separate place deciding canned-vs-LLM - now goes through the
-    # same resolve_turn_mode() as generated_turn() itself, so an explicit
-    # per-turn brobot_1_mode override can't disagree with the echo-check
-    # gate. Also Job 2: echo_detection_word_count now reads from
-    # scaffold.generation_defaults, falling back to the same constant.
     brobot_1_mode = resolve_turn_mode("BROBOT 1", line, scaffold)
     if brobot_1_mode != "canned":
         echo_word_count = scaffold.get("generation_defaults", {}).get(
@@ -3363,10 +2568,6 @@ def generate_exchange_record(line, prior_context="", scaffold=None, content_mode
         retry_history = [{"attempt": 1, "echoed": echoed, "echo_source": echo_source, "echo_snippet": echo_snippet}]
         if echoed:
             status(f"ECHO_DETECTED line={line_number} attempt=1 source={echo_source}")
-        # Echo defect Layer 2: discard and regenerate Brobot 1's turn alone,
-        # bounded by ECHO_RETRY_LIMIT - real LLM spend every attempt, never
-        # hidden (every generated_turn() call below fires its own
-        # LLM_START/LLM_DONE status beats, same as the first attempt did).
         while echoed and len(retry_history) <= ECHO_RETRY_LIMIT:
             attempt_number = len(retry_history) + 1
             status(f"ECHO_RETRY line={line_number} attempt={attempt_number}")
@@ -3407,16 +2608,6 @@ def play_generated_turn(robots, generated, failure_code, scaffold=None):
         line_number=line_number,
         exchange_half=exchange_half,
     )
-    # Display lane now carries the same cleaned text the mouth speaks, not
-    # the raw LLM response - generated["speech_text"] is the exact
-    # flatten_for_robot_speech() product generated_turn() already computed
-    # at generation time (the same function Robots.say() itself
-    # independently re-runs at playback time on the same inputs, so this is
-    # not a second, possibly-diverging text - it's the same cleaned product,
-    # just read here instead of recomputed). Screen now equals speech, per
-    # turn, matching the channels registry's own host_speaker pattern
-    # (Brobot 3's narration: one string, spoken and displayed identically)
-    # instead of fighting it. See DISPLAY_LANE_SURVEY_STOP_001.md.
     result = robots.backpack_turn(
         generated["name"],
         generated["serial"],
@@ -3483,25 +2674,9 @@ def generate_phase(live=None, voice_destination=None, content_model=None):
         voice_destination = resolve_voice_destination()
     if live is None:
         live = os.getenv(LIVE_GATE) == "1"
-    # Voice lane: any destination other than "robot" never contacts Vector,
-    # full stop - this is the one place that guarantee is enforced,
-    # regardless of what the live gate env var says, so a monitor/off run
-    # can never be one env var away from an accidental live robot call.
     live = live and (voice_destination == "robot")
     _KOKORO_STATUS_STATE["live"] = live
     _KOKORO_STATUS_STATE["voice_destination"] = voice_destination
-    # Score architecture: the song folder (story.md + knobs.json) is the real
-    # architecture - it now loads by default with no env var set.
-    # GOPOD_SECTION_SONG_DIR still names a different song explicitly,
-    # unchanged, and always wins when set. The legacy .txt Section Card is
-    # opt-in only now, reached via GOPOD_USE_LEGACY_SECTION_CARD=1 - and only
-    # when no song dir was explicitly named (an explicit song dir always
-    # means "load this song," never overridden by the legacy flag). Hoisted
-    # up from its original spot (right before "SECTION_CARD_LOAD" below,
-    # unchanged) only far enough to answer one question before the
-    # model-picker/Kokoro-warmup decisions just below need it - the actual
-    # section_card load itself still happens at its original point, in its
-    # original order, unchanged.
     section_song_dir = os.getenv("GOPOD_SECTION_SONG_DIR")
     use_legacy_card = (not section_song_dir) and os.getenv(LEGACY_SECTION_CARD_ENV, "0") == "1"
     if use_legacy_card:
@@ -3510,50 +2685,14 @@ def generate_phase(live=None, voice_destination=None, content_model=None):
         section_source = Path(section_song_dir).expanduser()
     else:
         section_source = DEFAULT_SECTION_SONG_DIR
-    # Bare-capture lane: a song opts out of the model-picker prompt, the
-    # Kokoro status-announcer voice, and (main()'s own finally block) the
-    # timing-log write, all via one data flag on the song itself
-    # (knobs.json["bare_capture"]) - never inferred from song name, never a
-    # per-song code branch here or anywhere else. Absent/false (every
-    # existing song, including the interview) means today's behavior,
-    # byte-for-byte - this peek only ever changes anything when a song
-    # explicitly opts in. See brobots_bait_001's own knobs.json.
     bare_capture = peek_song_bare_capture(section_source, use_legacy_card)
-    # LLM lane: model choice happens before the pre-show narration even
-    # starts - true "run start," not buried after a couple minutes of
-    # Kokoro narration. A replay never calls the LLM for content (see the
-    # SECTION1_REPLAY_LOG branch below), so it never needs to ask; content_model
-    # stays "" here and gets filled from the replay log itself instead. A
-    # bare_capture song needs no model either - it has no LLM lines by
-    # definition, so asking would be a prompt with nothing behind it.
-    # Additive: a caller that already resolved a model (the scored pre-show
-    # song path, which needs one for its own robot readiness lines too, and
-    # passes the same pick here for consistency) skips re-resolving -
-    # resolve_content_model() can show an interactive menu and write to
-    # content_model_state.json, so it must only ever run once per real run.
-    # content_model is None for every existing caller, unchanged.
     if content_model is None:
         content_model = "" if (SECTION1_REPLAY_LOG or bare_capture) else resolve_content_model()
     if content_model:
         print(f"CONTENT_MODEL_SELECTED model={content_model}", flush=True)
     if bare_capture:
-        # Silences every _announce_status_kokoro call for the rest of this
-        # run (the same flag the scored pre-show path already uses for its
-        # own, different reason) - RUN_START/SCAFFOLD_LOAD/etc still print
-        # to the console and still land in the run json, they just never
-        # reach Kokoro's mouth or Wire-Pod's own rich-display log window.
-        # configure_voice_engines()/kokoro_status_warm_up() are skipped
-        # entirely, not just silenced - a bare-capture run never spawns the
-        # Kokoro subprocess or pays its ~10-20s cold warm-up at all.
         _KOKORO_STATUS_STATE["active"] = False
     else:
-        # Voice lane hardening: a silent, unnarrated scaffold read purely to
-        # gate/configure the pre-show narration engine before its one-time
-        # subprocess spawn. No status()/print call here - this does not add or
-        # move any line in the run's own narrated status log; the real,
-        # narrated SCAFFOLD_LOAD/SCAFFOLD_READY status lines still fire at
-        # their original point below, unchanged, and load the scaffold again
-        # (a second fast local JSON read, immaterial).
         configure_voice_engines(load_interview_scaffold(INTERVIEW_SCAFFOLD_PATH))
         with TIMING.record(
             "stage1_kokoro_status_warmup",
@@ -3631,26 +2770,15 @@ def generate_phase(live=None, voice_destination=None, content_model=None):
             log["replay_source_run_id"] = replay_log.get("run_id", "")
             log["events"] = replay_events[:SECTION1_MAX_EXCHANGES] if SECTION1_MAX_EXCHANGES > 0 else replay_events
             log["generation_phase"] = "replayed_from_json"
-            # LLM lane: carry the source run's own model forward so a replay's
-            # run json still names the brain that actually generated it.
             log["content_model"] = replay_log.get("content_model", "")
             status(f"GENERATION_REPLAYED events={len(log['events'])}")
         else:
-            # Job 2: how much memory each turn gets (how many prior
-            # exchanges, the prefix labels, the truncation length) was
-            # hardcoded here - now scaffold.generation_defaults, same
-            # numbers/strings as before by default.
             generation_defaults = interview_scaffold.get("generation_defaults", {})
             prior_window = generation_defaults.get("prior_context_exchange_count", 2)
             prior_truncate = generation_defaults.get("prior_context_truncate_chars", 180)
             interviewer_prefix = generation_defaults.get("prior_context_interviewer_prefix", "Previous interviewer line: ")
             interviewee_prefix = generation_defaults.get("prior_context_interviewee_prefix", "Previous response value: ")
             prior_exchange_context = []
-            # Self-repeat guard's own tracking: the immediately-prior line's
-            # FULL raw response per role (never truncated, unlike
-            # prior_exchange_context above which is compacted/truncated for
-            # prompt-injection purposes) - a proper n-gram overlap check
-            # needs the real text, not a 180-char preview.
             own_prior_raw = {"BROBOT 2": "", "BROBOT 1": ""}
             selected_lines = lines[:SECTION1_MAX_EXCHANGES] if SECTION1_MAX_EXCHANGES > 0 else lines
             status(f"GENERATION_START exchanges={len(selected_lines)}")
@@ -3702,22 +2830,10 @@ def playback_phase(log, interview_scaffold, robots, live):
     try:
         status(f"PLAYBACK_START events={len(log['events'])} live={live} voice_destination={robots.voice_destination}")
         speech_quality, speech_note = _speech_capture_quality(robots.voice_destination)
-        # Turn order, whole-run, data-driven - read once here, never
-        # per-line, never inferred from song name. Absent/unset means
-        # "brobot_2" (today's interview order, unchanged). See
-        # load_section_pair()'s own "first_speaker" field.
         first_speaker = log.get("section_card", {}).get("first_speaker", "brobot_2")
         if first_speaker not in ("brobot_2", "brobot_1"):
             raise RuntimeError(f"BLOCKED: first_speaker={first_speaker!r} must be 'brobot_2' or 'brobot_1'")
-        # Breathing pause, whole-run, data-driven - read once here, same
-        # pattern as first_speaker above. Absent/0 means no pause (today's
-        # interview/pre-show timing, unchanged). See load_section_pair()'s
-        # own "movement_pause_seconds" field.
         movement_pause_seconds = float(log.get("section_card", {}).get("movement_pause_seconds", 0) or 0)
-        # Interview-only theatrical KG search sequence - computed once per
-        # run, not per line, same pattern as first_speaker/
-        # movement_pause_seconds above. See is_interview_kg_search_song()/
-        # fire_interview_kg_search_sequence() for the full rationale.
         kg_search_song = is_interview_kg_search_song(log)
 
         def pause_after_movement(segment_id, label):
@@ -3760,10 +2876,6 @@ def playback_phase(log, interview_scaffold, robots, live):
                             f"stage3_line{line_number}_brobot2_movement_pause",
                             f"Interview line {line_number} Brobot 2 breathing pause after {brobot_2_movement}",
                         )
-                    # Second scored movement, fired after the first - absent
-                    # for every existing song (interview, pre-show), so this
-                    # is a silent no-op there. See load_section_pair()'s own
-                    # brobot_2_movement_2 field.
                     brobot_2_movement_2 = event.get("brobot_2_movement_2")
                     if brobot_2_movement_2:
                         status(f"INTERVIEW_MOVEMENT_START line={line_number} speaker=Brobot 2 movement={brobot_2_movement_2}")
@@ -3810,10 +2922,6 @@ def playback_phase(log, interview_scaffold, robots, live):
                             f"stage3_line{line_number}_brobot1_movement_pause",
                             f"Interview line {line_number} Brobot 1 breathing pause after {brobot_1_movement}",
                         )
-                    # Second scored movement, fired after the first - absent
-                    # for every existing song (interview, pre-show), so this
-                    # is a silent no-op there. See load_section_pair()'s own
-                    # brobot_1_movement_2 field.
                     brobot_1_movement_2 = event.get("brobot_1_movement_2")
                     if brobot_1_movement_2:
                         status(f"INTERVIEW_MOVEMENT_START line={line_number} speaker=Brobot 1 movement={brobot_1_movement_2}")
@@ -3829,17 +2937,6 @@ def playback_phase(log, interview_scaffold, robots, live):
                             f"stage3_line{line_number}_brobot1_movement2_pause",
                             f"Interview line {line_number} Brobot 1 breathing pause after {brobot_1_movement_2}",
                         )
-                    # Interview-only theatrical KG search sequence - only for
-                    # an LLM-generated turn (a canned line, e.g. the closer,
-                    # never "searched" for anything, so it's excluded via
-                    # resolve_turn_mode()). Fires searching->searchingGetout
-                    # on Brobot 1, then overrides this turn's own leading
-                    # animation tag to "answering" - robot_safe_line is
-                    # rebuilt (not just animation_action) because
-                    # Robots.say() re-derives the action fresh from
-                    # robot_safe_line's own "<action>... <text>" prefix via
-                    # split_robot_safe_line(), every call, not from a
-                    # separately-read animation_action field.
                     if kg_search_song:
                         section_line = find_section_card_line(log, line_number)
                         if resolve_turn_mode("BROBOT 1", section_line, interview_scaffold) == "llm":
@@ -3900,16 +2997,6 @@ def playback_phase(log, interview_scaffold, robots, live):
 
 
 def _preshow_speak_host(step, read_sheet=False, segment_id=None):
-    # Host dialogue is authored (canned), never LLM-coloured - only the
-    # robots' own readiness reactions are. Routes to whichever host's own,
-    # fully independent Kokoro subprocess this beat's "speaker" names.
-    # read_sheet=True skips that subprocess call entirely - the text is
-    # already fully known (authored, not generated), so there is nothing to
-    # capture here beyond what run_preshow_song's own record() already logs.
-    # segment_id defaults to the beat's own step_id (each m1-m4 beat fires
-    # once) but a caller that repeats the same beat (the vamp loop, which
-    # can loop the same handful of beats many times in one run) passes an
-    # explicit per-round id so every iteration gets its own timing entry.
     speaker = step["speaker"]
     text = step["text"]
     if speaker not in ("brobot_3", "brobot_4"):
@@ -3936,29 +3023,6 @@ def _preshow_speak_host(step, read_sheet=False, segment_id=None):
 
 
 def _preshow_speak_robot(step, robots, serial, name, interview_scaffold, content_model, read_sheet=False):
-    # Movements 2/3: the robot's own scored, LLM-coloured readiness line -
-    # coloured against the pre-show's own hint (never hand-typed here) via
-    # the exact same llm_colour_preshow_line + normalize_robot_safe pair
-    # either way, live run or read-sheet - generation is real and unchanged
-    # in both modes. read_sheet=True only ever skips the final robots.say()
-    # dispatch (the arm cue, the Kokoro/Wire-Pod call), never the LLM call
-    # that produced the line being reviewed.
-    #
-    # Returns (result, voice_text) - voice_text is the fully processed text
-    # (normalize_robot_safe -> split_robot_safe_line -> flatten_for_robot_speech,
-    # the same three-step pipeline robots.say() itself runs internally), not
-    # the bare LLM raw output. This is deliberate: the read-sheet's whole job
-    # is showing what the operator can trust reached (or would reach) the
-    # voice lane, and the normalize_robot_safe hardening pass lives upstream
-    # of this - logging pre-hardening raw here would make the read-sheet
-    # permanently report contamination that no longer happens.
-    #
-    # Reads brobots_1_2_persona's own system_prompt, not the shared
-    # top-level system_prompt every interview line reads - same precedent as
-    # llm_colour_status_beat reading brobot_3_host's own dedicated block
-    # (line ~415). This function is the sole call path for m2_c/m3_c (the
-    # only two pre-show steps with speaker brobot_1/brobot_2), so this read
-    # never reaches any interview line or any other pre-show beat.
     persona_prompt = interview_scaffold.get("brobots_1_2_persona", {}).get("system_prompt", "")
     with TIMING.record(
         f"stage2_{step['step_id']}_llm_colour",
@@ -3983,20 +3047,12 @@ def _preshow_speak_robot(step, robots, serial, name, interview_scaffold, content
         if read_sheet:
             result = {"spoken": False, "mode": "read_sheet"}
         else:
-            # Display lane carries voice_text (the already-computed cleaned
-            # product, same flatten_for_robot_speech() pipeline Robots.say()
-            # itself independently re-runs), not raw - screen equals speech
-            # here too, matching play_generated_turn()'s own fix and the
-            # channels registry's host_speaker pattern.
             result = robots.say(name, robot_safe_line, display_text=voice_text, display_role=name)
     print(f"PRESHOW {step['step_id']}: {name}: {robot_safe_line}", flush=True)
     return result, voice_text
 
 
 def format_preshow_read_sheet(song_id, run_id, content_model, entries):
-    # Plain, human-read stage-sheet shape, not JSON - this is for the
-    # operator's eyes between takes, not another machine-readable log (the
-    # real run json already exists for that, untouched by this).
     lines = [
         f"# Pre-show read-sheet — {song_id or '(unknown song)'}",
         f"run_id: {run_id}",
@@ -4036,10 +3092,6 @@ def run_preshow_song(song_dir, interview_scaffold, robots, content_model, genera
         by_movement.setdefault(step["movement"], []).append(step)
 
     def record(step, spoke_text):
-        # Dedupes by step_id so a vamp beat that loops many times in a real
-        # run (however long generation actually took) still shows up exactly
-        # once - a stable, complete beat listing of the song's own shape,
-        # not a run-length-dependent transcript of the filler loop.
         if read_sheet_entries is None:
             return
         step_id = step["step_id"]
@@ -4187,8 +3239,6 @@ def run_scored_preshow_and_generate(song_dir, live, voice_destination, read_shee
         raise error_holder["error"]
 
     if read_sheet:
-        # generate_phase() returns a (log, interview_scaffold, robots) tuple,
-        # not the log dict alone - element 0 is the log.
         generation_log = result_holder["value"][0]
         run_id = generation_log.get("run_id") or utc_run_id()
         write_preshow_read_sheet(song_id, run_id, content_model, read_sheet_entries)
@@ -4243,9 +3293,6 @@ def run_preshow_only(song_dir, live, voice_destination, read_sheet=False):
         _kokoro_host4_ensure_loaded()
     _KOKORO_STATUS_STATE["active"] = False
 
-    # No generation thread this time - pre-set so run_preshow_song()'s vamp
-    # loop condition (`while not generation_done_event.is_set()`) is false
-    # immediately and the filler loop body never runs once.
     generation_done_event = threading.Event()
     generation_done_event.set()
 
@@ -4261,17 +3308,6 @@ def run_preshow_only(song_dir, live, voice_destination, read_sheet=False):
 
 
 def main():
-    # Channel-1 song brackets: one start, one end, around the whole
-    # generate+playback stretch - the runner's own single clean start/end
-    # point for a real performed song (a standalone preshow-only run via
-    # run_section1_preshow_generate_001.py never reaches main(), so it never
-    # fires these - correct: that leg is script prep, not a channel-1
-    # performance). live must be resolved and applied to
-    # _KOKORO_STATUS_STATE before the START marker's own gate check, and
-    # passed through explicitly so generate_phase() doesn't re-derive it.
-    # voice_destination is resolved here for the same reason - a destination
-    # other than "robot" must neuter live before that same gate check, so a
-    # monitor/off run's channel-1 markers never touch Vector either.
     voice_destination = resolve_voice_destination()
     live = (os.getenv(LIVE_GATE) == "1") and (voice_destination == "robot")
     _KOKORO_STATUS_STATE["live"] = live
@@ -4298,15 +3334,6 @@ def main():
         return playback_phase(log, interview_scaffold, robots, log.get("live_enabled", False))
     finally:
         _wirepod_log_marker(GOPOD_SONG_END_ROLE, "Song ending")
-        # Timing self-log: fires in every case, including a mid-run failure -
-        # a partial timing map from a crashed run is still real, useful data,
-        # never worth losing. Never touches the interview/pre-show run json
-        # above (write_log(log)) - a fully separate file, same "runs/"
-        # working location, same private-by-default status as the existing
-        # rehearsal JSONs there. Skipped entirely for a bare_capture song -
-        # see generate_phase()'s own bare_capture peek - which by
-        # definition has no timing story worth logging (no LLM generation,
-        # no vamp, no pre-show) and asked explicitly not to write one.
         if run_context.get("bare_capture"):
             print("TIMING_LOG_SKIPPED bare_capture=true", flush=True)
         else:
@@ -4326,4 +3353,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ## EOF

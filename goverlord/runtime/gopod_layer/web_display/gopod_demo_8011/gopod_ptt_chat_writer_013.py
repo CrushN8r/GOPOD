@@ -199,13 +199,8 @@ from typing import Any
 
 
 DISPLAY_DIR = Path(__file__).resolve().parent
-# 2026-10-04: parents[5] is the GOPOD repo root (this file sits 5 folders down:
-# goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/). parents[4] was the
-# goverlord/ folder, so the configs import below and DEFAULT_VOSK_MODEL_PATH
-# ("goverlord/goverlord/...") both missed.
 REPO_ROOT = Path(__file__).resolve().parents[5]
 
-# STAGE PINNACLE: facts read from goverlord/runtime/data_gomad/configs/ instead of hardcoded here.
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 from goverlord.runtime.data_gomad.configs.loader import (  # noqa: E402
@@ -230,16 +225,7 @@ DEFAULT_VOSK_MODEL_PATH = REPO_ROOT / _PATHS["vosk_model_path"]
 MIN_HOLD_SECONDS = 1.0
 MAX_HOLD_SECONDS = 30.0
 MESSAGE_LIMIT = 40
-# STAGE 5: ported from the archive's record_and_transcribe_until_release
-# (release_tail_seconds, DEFAULT_PTT_RELEASE_TAIL_MS=900) - trailing
-# speech that continues past physical key-release was being cut off with
-# no tail at all.
 RELEASE_TAIL_SECONDS = 0.9
-# STAGE 5: the stream opens fresh on every KP press (not persistent), so
-# its first-callback latency lands at the start of the operator's speech.
-# Measured directly on this hardware: 8000 samples/block (the old value)
-# = ~190ms before the first real audio callback fires; 512 = ~21ms. Same
-# device, same driver, only the block size changed.
 CAPTURE_BLOCKSIZE = 512
 ARCHIVE_TARGET_SAMPLE_RATE = _AUDIO[_AUDIO_RESAMPLE_RULE["archive_output_rate_hz"]]  # fixed archive target, independent of mic native rate
 CHAT_TARGET_SAMPLE_RATE = _AUDIO[_AUDIO_RESAMPLE_RULE["chat_output_rate_hz"]]  # fixed vosk target, independent of mic native rate
@@ -276,13 +262,6 @@ OPERATOR_ENVELOPE_BY_KEY = {
     },
 }
 
-# STAGE 3: minimal, direct Ollama self-ID for Doc and Pip. Host/port per
-# this stage's spec - confirmed live and reachable on this machine (the
-# Jetson - see local machine config, no network identifiers in tracked
-# files). Model confirmed present via
-# `ollama list`. Symmetric by design: one endpoint, one model, one timeout,
-# one prompt dict, one envelope-metadata dict - Doc and Pip share all of it
-# so a change to one persona's plumbing can't silently skip the other.
 OLLAMA_ENDPOINT = _ENDPOINTS["ollama"]["endpoint"]
 OLLAMA_MODEL = _ENDPOINTS["ollama"]["model"]
 OLLAMA_TIMEOUT_SECONDS = _ENDPOINTS["ollama"]["timeout_seconds"]
@@ -321,13 +300,8 @@ PERSONA_ENVELOPE_META = {
     "pip": {"speaker_id": "pip", "display_name": "Pip", "source_producer": "llm_pip_self_id"},
 }
 
-# KP1 -> Doc, KP2 -> Pip. The only place this mapping is spelled out.
 PERSONA_BY_KEY = {"KP1": "doc", "KP2": "pip"}
 
-# "Is-That-You" cross-persona awareness fast-reply, ported verbatim from the
-# archived ptt_gominion1.py's persona_awareness_reply() (never shipped here
-# before). Own-name mention checked before the other persona's, matching the
-# archived source's per-persona branch order exactly.
 PERSONA_AWARENESS_REPLIES = {
     "doc": {
         "doc": "Doc here. Yes. Try to keep up.",
@@ -354,9 +328,6 @@ def persona_awareness_reply(persona: str, operator_text: str) -> str | None:
         return PERSONA_AWARENESS_REPLIES[persona][other]
     return None
 
-# STAGE 4: minimal robot dispatch. Serials are the invariant constants
-# (Brobot 1/Doc = ESN01, Brobot 2/Pip = ESN02 - the robots' labels, which Wire-Pod
-# changes to the robot at its door) - the same robots PERSONA_BY_KEY's KP1/KP2 route to.
 PERSONA_ROBOT_SERIAL = {"doc": "ESN01", "pip": "ESN02"}
 WIREPOD_BASE_URL = _ENDPOINTS["wirepod"]["base_url"]
 WIREPOD_TIMEOUT_SECONDS = 8.0
@@ -659,11 +630,6 @@ def discover_device(preferred: str | None, *, quiet: bool = False) -> Path:
             raise SystemExit(f"GOPOD_PTT_DEVICE_NOT_FOUND device={path}")
         return path
 
-    # STAGE 2 REVISED: prefer the node whose capability bitmap actually
-    # advertises KEY_KP1 - this is what fixes the "multiple SEM event nodes,
-    # name match alone can't tell them apart" wonky item. Name matching is
-    # kept only as a fallback for when /sys capability reads aren't
-    # available (permissions, non-Linux, etc.).
     capability_matches = [path for path, _name in devices if device_has_key_capability(path, KEY_KP1)]
     if capability_matches:
         if not quiet:
@@ -980,49 +946,12 @@ def capture_key_utterance(
 
     recognizer = _vosk_KaldiRecognizer(model, CHAT_TARGET_SAMPLE_RATE)
 
-    # FIX (1), STAGE 2 FINAL: ptt_gominion1.py never mixes release-polling
-    # and audio processing in one loop. record_and_transcribe_until_release
-    # runs the mic stream + recognizer.AcceptWaveform on its own worker
-    # thread; run_ptt_hold_gate's release_seen(0.02) polls the evdev fd in
-    # a dedicated, otherwise-empty loop on the main thread, synchronized by
-    # a threading.Event. The prior single-loop version alternated between
-    # select()-polling for release and draining the audio queue in the same
-    # iteration - recognizer.AcceptWaveform() is a real, sometimes-slow
-    # Kaldi call on this hardware, and a slow call there stalls the release
-    # check for however long it takes, which is exactly what produced
-    # held_seconds several times longer than the real physical hold.
-    # AUDIO REFINEMENT adds real per-chunk resampling CPU work to this same
-    # worker thread - safe to do because that thread was already fully
-    # decoupled from the release-detection loop by the Stage 2 Final fix;
-    # nothing added here can stall the KEY_RELEASE check.
-    # Deliberately NOT ported: the archive's intent-arm delay and
-    # cancel-as-short-press state machine - those are Layer 0/multichat-
-    # bridging concerns this writer doesn't have; min_hold_seconds already
-    # covers the "too short, discard" case post-hoc here.
     release_event = threading.Event()
     audio_bytes_captured = 0
     raw_chunks: list[bytes] = []
     native_rate_holder: list[int] = []
     recorder_exception: list[BaseException] = []
 
-    # STAGE 5: raw accumulation only, no per-chunk resample/feed. Confirmed
-    # via direct hardware test that this device rejects samplerate=16000
-    # outright (PortAudioError -9997, Invalid sample rate) - matching the
-    # archive's native-target-rate stream is not possible on this hardware,
-    # so AUDIO REFINEMENT's 44100-native capture stays. But resampling each
-    # ~181ms (8000-sample) callback chunk independently through
-    # scipy.signal.resample_poly (a polyphase FIR filter with no state
-    # carried between calls) puts a filter-edge discontinuity at every
-    # chunk boundary - dozens of them across a multi-second hold. RMS/peak
-    # (STAGE 5's earlier signal-stats addition) can't see this: it's a
-    # waveform-continuity artifact, not a level/loudness problem, which is
-    # exactly why "signal is fine" and "words vanish/garble" were both true
-    # at once. Fix: accumulate raw native-rate audio here; resample the
-    # whole continuous buffer ONCE, after capture ends, for both the chat
-    # (vosk) and archive targets - same approach the archive itself used
-    # (batch-transcribe after a fully captured, continuous buffer), just
-    # adapted to this hardware's native rate instead of a directly-opened
-    # target rate.
     def process_chunk(chunk: bytes) -> None:
         nonlocal audio_bytes_captured
         audio_bytes_captured += len(chunk)
@@ -1040,10 +969,6 @@ def capture_key_utterance(
                 native_rate = int(stream.samplerate)
                 native_rate_holder.append(native_rate)
                 print(f"GOPOD_PTT_NATIVE_RATE_DETECTED rate={native_rate}", flush=True)
-                # FIX (1): "close immediately" on release, per instruction -
-                # no archive-style release-tail wait. Still drains whatever
-                # is already queued once released, so already-captured audio
-                # isn't thrown away, but does not wait for more to arrive.
                 while not release_event.is_set():
                     try:
                         chunk = audio_queue.get(timeout=0.05)
@@ -1062,9 +987,6 @@ def capture_key_utterance(
     recorder_thread = threading.Thread(target=recorder_worker, name="gopod_ptt_recorder", daemon=True)
     recorder_thread.start()
 
-    # Dedicated release-detection loop - this is now the ONLY thing running
-    # here, matching run_ptt_hold_gate's release_seen(0.02) shape (archive
-    # polls at 0.02s; kept here for the same responsiveness).
     released_at: float | None = None
     repeat_events_ignored = 0
     repeat_logged = False
@@ -1073,9 +995,6 @@ def capture_key_utterance(
         if time.monotonic() - press_monotonic > max_hold_seconds:
             released_at = time.monotonic()
             break
-        # FIX (1): fires live, the moment the hold crosses the accept
-        # threshold - not a post-hoc "was it long enough" report after
-        # release. Terminal print only, exactly once per hold.
         if not listening_announced and time.monotonic() - press_monotonic >= min_hold_seconds:
             print("GOPOD_PTT_LISTENING", flush=True)
             listening_announced = True
@@ -1088,23 +1007,11 @@ def capture_key_utterance(
                     if value == KEY_RELEASE:
                         released_at = time.monotonic()
                     elif value == KEY_REPEAT:
-                        # STAGE 2 parity: KEY_REPEAT ignored, matches archive's
-                        # IGNORED_REPEAT. Logged once per hold, not per tick
-                        # (~30/sec) - avoids flooding output during capture.
                         repeat_events_ignored += 1
                         if not repeat_logged:
                             print(f"GOPOD_PTT_IGNORED_REPEAT key={target_key_label}", flush=True)
                             repeat_logged = True
 
-    # STAGE 5: release-tail wait, ported from the archive's
-    # record_and_transcribe_until_release (release_tail_seconds,
-    # DEFAULT_PTT_RELEASE_TAIL_MS=900) - a real gap this generalized
-    # rewrite dropped, not a deliberate omission like the intent-arm delay
-    # noted above. Human PTT behavior releases the key at or slightly
-    # before the last word finishes; stopping capture the instant release
-    # fires truncates that tail. recorder_worker keeps draining the queue
-    # and feeding the recognizer for this extra window too, since
-    # release_event is set after the wait, not before.
     print(f"GOPOD_PTT_RELEASE_TAIL_WAIT seconds={RELEASE_TAIL_SECONDS}", flush=True)
     time.sleep(RELEASE_TAIL_SECONDS)
 
@@ -1116,24 +1023,12 @@ def capture_key_utterance(
     held_seconds = released_at - press_monotonic
     print(f"GOPOD_PTT_AUDIO_BYTES_CAPTURED {audio_bytes_captured}", flush=True)
 
-    # STAGE 5: one continuous resample per target rate, not one per
-    # ~181ms callback chunk - see process_chunk's comment above for why.
-    # native_rate_holder is only empty if the stream never actually opened
-    # (no chunks either, in that case), so this fallback is never exercised
-    # against real audio.
     native_rate = native_rate_holder[0] if native_rate_holder else CHAT_TARGET_SAMPLE_RATE
     raw_audio = b"".join(raw_chunks)
     chat_audio = resample_pcm16(raw_audio, native_rate, CHAT_TARGET_SAMPLE_RATE)
     recognizer.AcceptWaveform(chat_audio)
     archive_audio = resample_pcm16(raw_audio, native_rate, ARCHIVE_TARGET_SAMPLE_RATE)
 
-    # STAGE 5: signal-strength diagnostic, ported from the original
-    # ptt_gominion.py (wav_signal_stats/near_silence_warning,
-    # NEAR_SILENCE_RMS=10/NEAR_SILENCE_PEAK=50) - the live writer had no
-    # visibility at all into whether captured audio was strong speech or
-    # near-silence, which is exactly the missing piece for diagnosing
-    # "words vanished from the transcript": read-only, does not change
-    # capture/timing/dispatch, just reports what was actually in the WAV.
     if archive_audio:
         rms = audioop.rms(archive_audio, 2)
         peak = audioop.max(archive_audio, 2)
@@ -1143,14 +1038,6 @@ def capture_key_utterance(
     near_silence = rms <= 10 and peak <= 50
     print(f"GOPOD_PTT_SIGNAL_STATS rms={rms} peak={peak} near_silence={near_silence}", flush=True)
 
-    # FIX (2): archive every capture attempt, not just accepted ones - an
-    # honest record of what the mic actually heard, including short-hold
-    # taps that get discarded below. Written even if archive_chunks ended
-    # up empty (a zero-length-audio WAV header, not skipped silently).
-    # STAGE 3: counter is now per-key (dict keyed by target_key_label) so
-    # KP1 and KP2 captures get independent numbering and never overwrite
-    # each other's master WAV (both used to share one "kp1_N.wav" counter
-    # before KP2 had a capture path of its own).
     counter_key = target_key_label.lower()
     _capture_counters[counter_key] = _capture_counters.get(counter_key, 0) + 1
     session_dir = ensure_session_dir()
@@ -1208,24 +1095,12 @@ def handle_captured_key_press(
     operator_text = transcript or "[empty transcript]"
     append_operator_message(key_label, operator_text)
 
-    # Cross-persona awareness fast-reply, checked first: if the operator's
-    # own words actually name Doc or Pip, reply instantly, no Ollama call.
-    # Falls through to the existing self-ID call when neither is mentioned.
     persona_reply = persona_awareness_reply(persona, operator_text)
     if persona_reply is not None:
         print(f"GOPOD_PTT_AWARENESS_FAST_REPLY persona={persona}", flush=True)
     else:
-        # STAGE 3: persona self-ID, direct Ollama call. Best-effort - a failed
-        # or empty reply is logged (GOPOD_PTT_LLM_FAIL, inside
-        # call_ollama_self_id) and skipped; the Operator envelope above is
-        # unaffected either way.
         persona_reply = call_ollama_self_id(persona, operator_text)
     if persona_reply:
-        # STAGE 7: sanitize once, upstream - same rich-display-vs-filtered-
-        # robot-safe-say split the interview pipeline uses. The terminal/
-        # chat pane now shows the filtered text (what the robot actually
-        # says), not the raw LLM output with its stage directions and
-        # markdown - that raw text never gets printed anywhere.
         robot_safe_reply = sanitize_for_robot_speech(persona_reply)
         if robot_safe_reply:
             append_persona_message(persona, robot_safe_reply)
@@ -1243,9 +1118,6 @@ def handle_kp2_press(fd: int, press_monotonic: float, args: argparse.Namespace) 
 
 
 def read_loop(device_path: Path, args: argparse.Namespace) -> int:
-    # AUDIO REFINEMENT FIX (4): session directory + stdout mirror created
-    # first, before any other output, so everything from here on is also
-    # captured in session.log.
     session_dir = ensure_session_dir()
     install_session_log_tee(session_dir)
     print(f"GOPOD_PTT_SESSION_DIR path={session_dir}", flush=True)
@@ -1253,19 +1125,10 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
     print(f"GOPOD_PTT_WRITER_READY device={device_path} name={event_name(device_path) or 'UNKNOWN'}", flush=True)
     print("GOPOD_PTT_STAGE_3 KP1=Doc KP2=Pip. NumLock gate + >=1s hold required for both.", flush=True)
 
-    # FIX (2): load the vosk model ONCE here, at writer startup, before the
-    # evdev fd is even opened - not lazily on the first KP1 press. This is
-    # also what removes the ~2s pre-stream-open delay that used to eat into
-    # (or entirely consume) the operator's actual speech window.
     print("GOPOD_PTT_VOSK_MODEL_LOADING", flush=True)
     ensure_vosk_model_loaded(Path(args.model_path))
     print("GOPOD_PTT_VOSK_MODEL_READY", flush=True)
 
-    # STAGE E: resolve the mic by name once, at launch, instead of trusting
-    # PulseAudio's default routing - confirmed this session that the
-    # default can silently drift onto a virtual/remapped (silent) source.
-    # An explicit --audio-device always wins; auto-match only fills in
-    # when the operator didn't specify one.
     if args.audio_device is None:
         matched_index, matched_name = resolve_audio_device_by_name(
             AUDIO_SOURCE_NAME_MATCH, exclude_terms=AUDIO_SOURCE_EXCLUDE_TERMS
@@ -1276,11 +1139,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
         else:
             print("GOPOD_PTT_AUDIO_SOURCE fallback=default", flush=True)
 
-    # STAGE 2 CLEANUP ROUND 2: prefer the real physical LED state over the
-    # --initial-numlock CLI default, matching ptt_gominion1.py's
-    # read_numlock_led_state seeding - falls back to the CLI flag only if
-    # the LED can't be read (device doesn't support it, python-evdev
-    # unavailable, etc.), rather than silently assuming OFF.
     led_state = read_numlock_led_state(device_path)
     numlock_on = led_state if led_state is not None else (args.initial_numlock.upper() == "ON")
     print(f"GOPOD_PTT_NUMLOCK_INITIAL {'ON' if numlock_on else 'OFF'} source={'led' if led_state is not None else 'cli_flag'}", flush=True)
@@ -1295,13 +1153,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
     except OSError as exc:
         raise SystemExit(f"GOPOD_PTT_DEVICE_OPEN_FAILED device={device_path} detail={exc}") from exc
 
-    # STAGE 2 CLEANUP ROUND 2: exclusive grab, ported from ptt_gominion1.py's
-    # PhysicalNumpadGate usage (EVIOCGRAB). Without this, physical KP1/
-    # NumLock/KP0 keystrokes also leak to whatever has terminal focus - this
-    # was confirmed directly from a real hardware checkpoint run (literal
-    # "1" characters and stray escape sequences landing in the shell).
-    # Non-fatal if the grab fails (permissions, unsupported device) - warn
-    # and continue, matching the archive's own try/except OSError shape.
     grabbed = False
     try:
         fcntl.ioctl(fd, EVIOCGRAB, 1)
@@ -1312,10 +1163,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
     set_numlock_led(device_path, numlock_on)  # sync the physical LED to the seeded starting state
 
     kp0_times: list[float] = []
-    # STAGE 2 parity: down_key_codes mirrors ptt_gominion1.py's PhysicalNumpadGate
-    # dedup - a repeated KEY_PRESS without an intervening KEY_RELEASE is ignored,
-    # and it's what lets us log "IGNORED_REPEAT" exactly once per hold instead of
-    # once per ~33ms autorepeat tick.
     down_key_codes: set[int] = set()
     repeat_logged_codes: set[int] = set()
     key_names = {KEY_NUMLOCK: "NumLock", KEY_KP0: "KP0"}
@@ -1324,12 +1171,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
         while True:
             readable, _, _ = select.select([fd], [], [], 1.0)
 
-            # FIX (2): proactive window-expiry check, evaluated every loop
-            # tick (not just on a new tap) - the archive only ever prunes
-            # kp0_times lazily, reactively, on the NEXT tap, so if a 3rd tap
-            # never comes it just sits there forever with no notification.
-            # This is new behavior layered on top of the archive's counting
-            # mechanism, not a change to it.
             if kp0_times and (time.monotonic() - kp0_times[0]) > args.exit_window:
                 print("GOPOD_PTT_EXIT_FAILED try again", flush=True)
                 kp0_times = []
@@ -1349,15 +1190,11 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
                 continue
 
             if value != KEY_PRESS:
-                # STAGE 2 parity: KEY_REPEAT (or any other non-press/release value)
-                # on a gate-relevant key is ignored, matching the archive's
-                # IGNORED_REPEAT status. Logged once per hold, not per tick.
                 if code in GATE_RELEVANT_CODES and code not in repeat_logged_codes:
                     print(f"GOPOD_PTT_IGNORED_REPEAT key={key_names.get(code, code)}", flush=True)
                     repeat_logged_codes.add(code)
                 continue
 
-            # value == KEY_PRESS from here.
             if code in down_key_codes:
                 continue  # duplicate press without a release in between - ignore
             down_key_codes.add(code)
@@ -1373,11 +1210,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
                     down_key_codes.discard(code)
                     continue  # dormant per Stage 1 (b): no capture, no attribution, no pane write
                 handle_kp1_press(fd, time.monotonic(), args)
-                # KP1's own KEY_RELEASE was already consumed inside the capture
-                # wait-loop above, so it never reaches this loop to clear the
-                # down-state - clear it here now that the physical key is known
-                # to have been released (capture_key_utterance only returns
-                # after seeing KEY_RELEASE or hitting the max-hold safety cap).
                 down_key_codes.discard(code)
                 continue
 
@@ -1386,10 +1218,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
                     down_key_codes.discard(code)
                     continue  # mirrors KP1: dormant with NumLock off, no capture, no attribution, no pane write
                 handle_kp2_press(fd, time.monotonic(), args)
-                # Mirrors KP1: KP2's own KEY_RELEASE was already consumed
-                # inside the capture wait-loop above, so it never reaches
-                # this loop to clear the down-state - clear it here now
-                # that the physical key is known to have been released.
                 down_key_codes.discard(code)
                 continue
 
@@ -1399,14 +1227,6 @@ def read_loop(device_path: Path, args: argparse.Namespace) -> int:
                 kp0_times.append(now)
                 print(f"GOPOD_PTT_EXIT_TAP {len(kp0_times)}/{args.exit_taps}", flush=True)
                 if len(kp0_times) >= args.exit_taps:
-                    # FIX (2), STAGE 2 FINAL: the archive drains TWICE on this
-                    # exact path, not once - immediately here, and again in
-                    # the finally: block below (gated on `exiting`) right
-                    # before EVIOCGRAB is released. The first pass alone
-                    # left a real gap: the 3rd tap's physical release may
-                    # not have happened yet at this exact instant, so there
-                    # was nothing to drain here - the second pass, running
-                    # slightly later, is what actually catches it.
                     exiting = True
                     drain_fd(fd)
                     print("GOPOD_PTT_WRITER_EXIT", flush=True)

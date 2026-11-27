@@ -40,8 +40,6 @@ EXPECTED_PROVIDER = "openweathermap.org"
 
 
 def _read_weather_config():
-    # Read live, every call - the key can change over time and this must
-    # never hold a stale copy.
     with API_CONFIG_PATH.open("r", encoding="utf-8") as handle:
         config = json.load(handle)
     weather = config.get("weather", {})
@@ -129,9 +127,6 @@ _TENS_WORDS = {2: "twenty", 3: "thirty", 4: "forty", 5: "fifty"}
 
 
 def _two_digit_word(n):
-    # n is 10-59 - military hour (10-23) or minute (10-59) component, read as
-    # one natural number word ("nineteen", "fifty-six", "twenty"), never as
-    # separate digits - that's reserved for the <10 case below.
     if n < 20:
         return _TEEN_WORDS[n]
     tens_digit, ones_digit = divmod(n, 10)
@@ -142,9 +137,6 @@ def _two_digit_word(n):
 
 
 def _military_hour_word(hour):
-    # 0 -> "zero" (not "zero zero" - collapsed, matches the "zero hundred"
-    # exact-midnight reading). 1-9 -> "zero" + digit ("zero eight"), read as
-    # separate digits, not "eight" alone. 10-23 -> _two_digit_word.
     if hour == 0:
         return "zero"
     if hour < 10:
@@ -153,27 +145,18 @@ def _military_hour_word(hour):
 
 
 def _military_minute_word(minute):
-    # 1-9 -> "zero" + digit ("zero five"), read as separate digits, not
-    # "five" alone. 10-59 -> _two_digit_word. (minute == 0 never reaches
-    # this - that's the "hundred" branch in _military_time_spoken.)
     if minute < 10:
         return f"zero {_DIGIT_WORDS[minute]}"
     return _two_digit_word(minute)
 
 
 def _military_time_spoken(hour, minute):
-    # Exact hour (minutes == 00): hour + "hundred", never combined with a
-    # minutes reading. Any minutes present: hour + minutes read straight,
-    # "hundred" dropped, no "minutes" word ever inserted.
     if minute == 0:
         return f"{_military_hour_word(hour)} hundred"
     return f"{_military_hour_word(hour)} {_military_minute_word(minute)}"
 
 
 def _twelve_hour_word(hour):
-    # hour is 1-12 (already wrapped from 24h). 1-9 -> plain digit word
-    # ("eight"), 10-12 -> teen-table word ("ten"/"eleven"/"twelve") - both
-    # tables already exist above for the military formatter, reused as-is.
     if hour < 10:
         return _DIGIT_WORDS[hour]
     return _TEEN_WORDS[hour]
@@ -188,47 +171,11 @@ def _twelve_hour_time_spoken(hour_24, minute):
         minute_word = f"oh {_DIGIT_WORDS[minute]}"
     else:
         minute_word = _two_digit_word(minute)
-    # 2026-09-01, operator live-report: bare lowercase "am" fed to TTS gets
-    # read as the English WORD "am" (verb, rhymes with "ham" - a real robot
-    # run confirmed it renders as a mumbled "ammmm"). "pm" has no such
-    # collision - a live run with the hyphenated "PEE-EM" fix in place, then
-    # operator ear-check, confirmed plain lowercase "pm" alone already reads
-    # correctly as separate letters, no rewrite needed. Only "am" needs
-    # help, and the hyphenated "AY-EM" form was itself an operator-flagged
-    # miss - replaced with his own exact literal text, "'a' m" (quotes
-    # included), per his own direct correction. Spoken-only - never touches
-    # the digit/display form (twelve_
-    # digit's own "am"/"pm" stays lowercase, matching this function's own
-    # spoken-vs-display split).
     suffix = "'a' m" if hour_24 < 12 else "pm"
     return f"{hour_word} {minute_word} {suffix}"
 
 
 def format_for_robot(facts, unit, clock, include_location_date=False):
-    # Two outputs, same fetched fact, right form for each channel:
-    # - spoken: the unit said out loud, in words - this is what a robot's
-    #   TTS actually reads, so "°C"/"°F" (a symbol, not a word) must never
-    #   reach it. That word ("Celsius" vs "Fahrenheit") is the one audible
-    #   difference between the two robots - the whole point of this note.
-    # - display_text: the compact symbol form, for the same field
-    #   Robots.say(name, robot_safe_line, display_text=...) already carries
-    #   alongside speech (run_section1_full_live_001.py:2057) - never
-    #   spoken, only ever shown.
-    #
-    # include_location_date - additive, defaults to False. robot_control_song_001
-    # and brobots_awaken both call this with the default (unset), so their
-    # spoken/display output is byte-for-byte unchanged. Only a caller that
-    # explicitly opts in (brobots_bait_002, via its own knobs.json flag) gets
-    # the location+date prefix. Location comes straight from the fetch's own
-    # resolved_name/resolved_state (Windsor/Ontario) - never a second hardcoded
-    # copy of the location.
-    #
-    # unit/clock still pick each robot's own PRIMARY reading (spoken/shown
-    # first) - operator direction 2026-08-09: always speak/show BOTH units
-    # and BOTH clock conventions together ("26 degrees Celsius or 79 degrees
-    # Fahrenheit" / "twenty twenty-five or eight twenty-five pm"), not one
-    # or the other. unit/clock now only decide ordering, never which one is
-    # included.
     c_value = round(facts["temp_c"])
     f_value = round(facts["temp_c"] * 9 / 5 + 32)
     c_symbol, c_words = f"{c_value}°C", f"{c_value} degrees Celsius"
@@ -292,7 +239,6 @@ def format_for_robot(facts, unit, clock, include_location_date=False):
     return {"spoken": spoken, "display_text": display_text, "local_time": time_str}
 
 
-
 def gopod_robot_serial(label):
     """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
     who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
@@ -340,13 +286,6 @@ def main():
     facts = fetch_windsor_weather()
     print("RAW FACTS:")
     print(json.dumps(facts, indent=2))
-    # Demo/manual-test entrypoint only - the two known Brobot ESNs, same env
-    # var names/fallbacks run_section1_full_live_001.py's own
-    # BROBOT_1_SERIAL/BROBOT_2_SERIAL use (this module stays isolated from
-    # importing that file by design, see the module docstring above, so the
-    # names are matched rather than imported). The real production call
-    # path (run_robot_control_song_001.py) always passes an already-resolved
-    # serial from that exact constant - this is not a second ESN map.
     demo_serials = {
         "brobot_1": gopod_robot_serial(os.getenv("GOPOD_BROBOT_1_SERIAL", "ESN01")),
         "brobot_2": gopod_robot_serial(os.getenv("GOPOD_BROBOT_2_SERIAL", "ESN02")),

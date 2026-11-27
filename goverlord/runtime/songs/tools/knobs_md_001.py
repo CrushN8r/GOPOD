@@ -28,8 +28,6 @@ import re
 _NUM = re.compile(r"^-?(0|[1-9][0-9]*)(\.[0-9]+)?$")
 
 
-# --- writing -------------------------------------------------------------------
-
 def _enc(v):
     """A point's value."""
     if isinstance(v, bool):
@@ -102,8 +100,6 @@ def md_from_knobs(knobs, title=""):
     ]
     return "\n".join(head + _sections(".", knobs, "The song")).rstrip("\n") + "\n"
 
-
-# --- reading -------------------------------------------------------------------
 
 def _value(v):
     if len(v) >= 2 and v.startswith("`") and v.endswith("`"):
@@ -192,8 +188,6 @@ def knobs_from_md(text):
             target[pt[:at].strip()] = _value(pt[at + 2:].strip())
     return root
 
-
-# --- the command (Wire-Pod calls it after it edits a song's knobs.json) ---------
 
 def main(argv):
     """knobs_md_001.py build <song_dir>: knobs.json built from zKnobs.md (written only

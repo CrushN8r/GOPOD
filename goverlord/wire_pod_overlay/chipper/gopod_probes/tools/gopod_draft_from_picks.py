@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_draft_from_picks.py
-#
-# The lead-guitar splice (operator 2026-10-06: "record several takes and
-# splice together"; 2026-10-07: "build the draft from best takes"). Builds one
-# draft performance from the keepers on the take sheet ("keep": true, one per
-# value point, any run): the newest dry run's draft is the frame - opening,
-# chapters, pictures, sign-off, ending - and each answer is swapped for the
-# keeper of its value point (matched on topic and point, not on question text).
-# Writes <harvest root>/<date>/<HHMMSS>_best_takes/draft_performance.json and
-# .md; "play the draft" plays the newest one.
-#
-#   gopod_draft_from_picks.py <take_sheet.json>
 import datetime
 import glob
 import json
@@ -19,10 +7,6 @@ import re
 import subprocess
 import sys
 
-# A reminder from before 2026-10-07 said a value point ("Hey, that reminds me...
-# Rumination stops when..."); today's only name chapters ("coming up: ...") or
-# topics ("we've still got ... to get to!"). A keeper from an older run loses
-# its old reminder, from the phrase to the end.
 OLD_REMINDER = re.compile(r"\s*Hey,? that reminds me(?:\.\.\.|,|\u2026)(?!\s*(?:coming up|we've still got))[^\n]*$", re.I)
 
 

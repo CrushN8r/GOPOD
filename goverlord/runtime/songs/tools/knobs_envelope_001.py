@@ -61,8 +61,6 @@ def save_knobs_envelope(knobs_path, envelope):
         md_path.write_text(md_from_knobs(envelope, knobs_path.parent.name), encoding="utf-8")
 
 
-# The global knobs (2026-10-29, operator: "global knobs > [zKnobs > knobs]"): every
-# song starts from songs/global_knobs.json; its own knobs.json overrides it.
 GLOBAL_KNOBS_PATH = Path(__file__).resolve().parent.parent / "global_knobs.json"
 
 

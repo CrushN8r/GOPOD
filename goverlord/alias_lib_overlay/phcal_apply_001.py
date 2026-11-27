@@ -72,34 +72,6 @@ DEFAULT_KNOBS_PATH = Path(
     "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/songs/brobots_bingo/knobs.json"
 )
 
-# note name -> phcal_last.json primitive key. "head_nod" is brobots_awaken's
-# own note name for the same physical motion bingo calls "nod" - both read
-# the same "nod" entry in phcal_last.json (the golden engine's own
-# note_aliases: {"head_nod": "nod"} does this same remap at dispatch time,
-# for the same reason - this tool reads the raw step JSON before that
-# alias ever runs, so it needs to recognize both spellings itself).
-#
-# Widened 2026-08-16 (MASTER_TWEAKS_STAGE4_APPLY_SEAM_001.md) to match
-# stage 1's 9-primitive save-coverage - only the primitives with a REAL
-# matching song note type AND a real tunable field on that note are
-# listed here. Confirmed against run_golden_song_001.py's own note
-# dispatch, not guessed:
-#   animation -> "animation" note, reads step["hold_seconds"]
-#   move_reverse -> "wheel_nudge" note, reads step["hold_seconds"]
-#     (no song currently authors a wheel_nudge step - correct and
-#     future-proof, verified with a synthetic step, not a live one)
-#   brobots_announce_in_sync -> "brobots_ready_together" note, reads
-#     step["text"] (a different field NAME than phcal_last.json's own
-#     "phrase" key - see PRIMITIVE_FIELD_MAP below)
-# Deliberately NOT listed (confirmed, not guessed - each has either no
-# matching note type at all, or a note type that reads no step-sourced
-# tunable field):
-#   rattle - "rattle" note exists, but run_rattle() takes no step
-#     parameter at all (fixed binary call) - nothing to write into.
-#   danger - no matching note type anywhere in the engine's dispatch.
-#   brobots_stay_in_place - no matching note type (bench-only diagnostic).
-#   brobots_sleep_to_wake_direct_sdk - no matching note type (bench-only
-#     direct-SDK mechanism, no song equivalent).
 NOTE_TO_PRIMITIVE = {
     "arm_cue": "arm",
     "nod": "nod",
@@ -109,12 +81,6 @@ NOTE_TO_PRIMITIVE = {
     "brobots_ready_together": "brobots_announce_in_sync",
 }
 
-# primitive -> {song step field: phcal_last.json field}. Declarative -
-# replaces the old `if primitive == "arm": step["cycles"] = ...`
-# special-case entirely. A primitive not saving a given field (nod never
-# had "cycles") simply isn't listed for that field; a field NAME
-# mismatch (brobots_announce_in_sync's "phrase" -> the song's own
-# "text") is expressed directly in the map, not a special-cased if.
 PRIMITIVE_FIELD_MAP = {
     "arm": {"cycles": "cycles", "hold_seconds": "hold", "speed": "speed"},
     "nod": {"hold_seconds": "hold", "speed": "speed"},
@@ -133,11 +99,6 @@ def main():
     knobs_path = DEFAULT_KNOBS_PATH
     if "--knobs" in sys.argv:
         knobs_path = Path(sys.argv[sys.argv.index("--knobs") + 1])
-    # Same dirty(zKnobs)-over-clean(knobs) preference every playback engine
-    # already applies (KNOBS_TOUCHERS_MAP_001.md) - now via the shared
-    # resolver, not a private re-check. Read and write both resolve to
-    # whatever load_knobs_envelope() picked, so they can't disagree with
-    # each other or with what the engines above will actually play.
     KNOBS_PATH, envelope = load_knobs_envelope(knobs_path.parent)
 
     with open(LAST_PATH) as f:
@@ -153,12 +114,6 @@ def main():
         print(f"PHCAL_APPLY_BLOCKED step_id {step_id!r} has note={note!r} - only {'/'.join(NOTE_TO_PRIMITIVE)} steps are phcal-tunable")
         return 1
 
-    # PHCAL_ARROW_NAV_BUILD_PLAN_005.md lane (iv): phcal_last.json is now
-    # robot-keyed ({"1": {...}, "2": {...}}). This step's own "speaker"
-    # field (already authored on every step, "brobot_1"/"brobot_2") is the
-    # target robot - no new caller plumbing needed. HARD GUARDRAIL: if the
-    # step has no clear single speaker, STOP and report - never guess a
-    # robot into a song's own (sometimes git-tracked) knobs.json.
     speaker = step.get("speaker")
     which = {"brobot_1": "1", "brobot_2": "2"}.get(speaker)
     if which is None:
@@ -194,10 +149,6 @@ def main():
         print("\nPHCAL_APPLY_DRY re-run with --yes to write the above into knobs.json")
         return 0
 
-    # Whole-file rewrite (Ladder-2 Phase 5) - `step` is the actual dict object
-    # inside envelope["steps"], mutated above, so this dump already carries
-    # the change. Every other step's own field order/values are untouched -
-    # only the identity of the mutated dict differs from what was loaded.
     save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
     print(f"\nPHCAL_APPLY_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")
     return 0

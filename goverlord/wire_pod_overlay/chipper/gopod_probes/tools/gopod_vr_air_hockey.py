@@ -1,27 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_vr_air_hockey.py
-#
-# GOPOD VR/AR air hockey. The overhead camera (the RunCam) watches the table, a
-# virtual puck plays on it, and two Brobots take part:
-#   Brobot A - the goalie: he wears the pink square. He parks himself in
-#              front of his net (like parallel parking) and slides along his goal
-#              line to block the puck.
-#   Brobot B - the referee and the Brobot team's cheerleader: he starts each
-#              round (a nod, "Round 1, go!"), keeps and calls the score (first to
-#              5 wins), and raises and lowers his arm as the puck nears A's net.
-# The operator plays with his black deflector in his half (a round paddle on its
-# front edge). Run it with the alias: gohockey (Brobot 1 plays, Brobot 2 is the
-# referee) or gohockey 2 (the other way round). Close the window to stop.
-#
-# The arena is locked to the ruler's black bar (12 inches) and the orange track:
-# found once, kept in ~/.gopod_air_hockey_anchor.json (this machine's, never the
-# repo's); --recalibrate finds them again if the camera moves. Each run's frames
-# (where A was seen, the puck, his wheels) go to ~/.gopod_air_hockey_last_run.log.
-#
-# The puck's physics are ported from VectAR-Airhokey (MIT, Pavlo Tkachenko -
-# github.com/PtPavloTkachenko/VectAR-Airhokey, PuckPhysics.ts and GameConfig.ts).
-# The referee's moves are GOPOD's golden "Got it!" moves (gopod_arm_cue.go and
-# chat_moves in 03_chat_page.json): the arm per Brobot, the nod at speed 4, 0.18 s.
 import argparse
 import glob
 import json
@@ -46,13 +23,9 @@ BAR_MM = 304.8            # the ruler's black bar: 12 inches
 BAR_DARK = 115            # the bar reads mid-grey under this light (~90; the table ~170)
 TRACK_HSV = [((168, 100, 150), (179, 255, 255)), ((0, 100, 150), (11, 255, 255))]  # the orange track
 TRACK_GAP_MM = 20.0       # the field stops this short of the track
-# The field, mm from the bar's middle (x right, y up the table toward the operator):
-# the bar's width, up to just short of the track (1.3 bars at most).
 FIELD_X = (-BAR_MM / 2, BAR_MM / 2)
 FIELD_Y = (0.0, 1.3 * BAR_MM)
 GOAL_SHARE = 0.5          # each end's goal mouth, this share of the field's width
-# From VectAR-Airhokey's GameConfig.ts, the speeds halved (operator: "slow down the
-# puck, so I and the brobot have a chance to react") - raise PUCK_PACE as the arena grows.
 PUCK_R = 15.0
 PUCK_PACE = 0.5
 PUCK_SERVE_SPEED = 135.0 * PUCK_PACE
@@ -63,28 +36,16 @@ PADDLE_VEL_TRANSFER = 0.6
 WIN_SCORE = 5
 PHYSICS_STEP = 1 / 120.0  # the puck moves in small even steps
 FRAME_DT = 1 / 30.0       # a steady 1/30 s a frame (real frame timing jittered it)
-# The operator's paddle: the dark compact thing in his half that isn't the Brobot;
-# its centre on the deflector's front edge (half and half on the border).
 PADDLE_R = 25.0
 PADDLE_DARK = 0.6
 PADDLE_SIZE = (0.04, 0.3)  # its width, in bar-lengths
-# Brobot A's marker: a pink square (measured 2026-11-23: hue 168-169, saturation 115-126,
-# brightness 219-234) - three times the green note's colour; the red track reads pale
-# (saturation ~42), the orange track's hue is ~2. Was a light-green note (hue ~29,
-# saturation ~28); skin (hue ~17, saturation 60-120) stays out.
 NOTE_HSV = ((160, 85, 170), (179, 175, 255))  # 2026-11-23 brighter room: hue 177 (176 lost him all game)
 NOTE_SIZE = (0.08, 0.25)  # its width, in bar-lengths
-# His whole body: the arena is light, he is the dark shape in it. The pink square is
-# his flag, stuck on his back: it says which way he faces, and its size scales his box.
 VECTOR_IN_SQUARES = (1.4, 2.3)  # his 60 x 100 mm (width, length), in pink-square sides (measured 2026-11-23)
 SQUARE_MM = 43.0          # the square's side as the camera sees it, until it's seen
 BODY_DARK = 0.7           # darker than this share of the arena's own light (each frame): him (0.6 fit him only ~0.35)
 BODY_AREA = (1.5, 8.0)    # his dark shape's area, in pink squares (measured ~2.4: the flag covers part)
 BODY_HALF_DEFAULT = 33.0
-# Tracking (operator 2026-11-23: "better smoother smarter"): his real-size box is slid
-# and turned over the dark pixels at full camera detail near where he should be, then
-# steadied with his speed in mind. On his charger, the charger's white stripe (locked
-# with the arena as "charger") gives his spot and facing.
 FIT_TURN_DEG = (-24, -16, -8, 0, 8, 16, 24)  # facings tried around his last one
 FIT_MARGIN_MM = 30.0      # how far round his expected spot the box is tried (finding him: twice)
 FIT_MIN = 0.3             # the box at best this much more dark than light, or it isn't him
@@ -93,8 +54,6 @@ HEADING_GAIN = 0.4        # how fast his facing follows
 TRACK_LOST_S = 0.5        # unseen this long: found afresh
 SPEED_MAX = 400.0         # mm/s - faster is a mis-sighting, not him
 ON_CHARGER_MM = 60.0      # his flag this near his charger's middle: he's on it
-# The chargers aren't fixed to the table (operator: "they may move slightly"): his
-# charger's white stripe is looked for again near its last spot whenever he's off it.
 STRIPE_MM = (85.0, 25.0)  # its length, width as seen (measured 2026-11-23)
 STRIPE_LOOK_MM = 80.0     # looked for this far round its last spot
 PADDLE_SMOOTH = 0.4
@@ -102,40 +61,25 @@ STILL_MM = 4.0            # a move smaller than this is the camera's own wobble 
 BODY_V_MIN = 40.0         # mm/s - slower than this he's standing still
 JUMP_MM = 80.0            # seen this far from where he just was: not him...
 JUMP_FRAMES = 5           # ...unless he's seen there this many frames running
-# His driving, measured live on Brobots 1 and 2 (2026-11-23): 80 mm/s for 1 s moves
-# him ~30 mm; wheels at 100 opposite ways turn him ~34 degrees a second.
 BURST_SPEED = 80.0
 TURN_SPEED = 100.0
 TURN_RATE = math.radians(50.0)  # Brobot 2, measured live 2026-11-23: 52 deg in 1 s (earlier 34 - the legs correct either way)
 SETTLE_AFTER_ASSUME = 1.5  # a fresh hold needs a moment before the first move
 WAKE_RELEASE_SETTLE = 2.5  # the golden wake's settle (BROBOTS_WAKE_RELEASE_SETTLE_SECONDS)
 STOP_AGAIN = 0.5          # standing: "stop" is said again this often (a lost one let him roll on)
-# Parking, like driving a car (operator: "a simple 3 point parallel park maneuver ...
-# a road/lane wide enough to drive within ... small adjustments are part of driving"):
-# short straight legs, a small turn toward the next point between them (each leg shows
-# where he really points); within the lane of a point, on to the next. Three points: out from the charger into open table, angled toward
-# his net, then the spot in front of it - arriving sideways, along his goal line.
 PATH_SPEED = 70.0         # mm/s
 PATH_REAL_MM_S = 50.0     # how far he really gets per second at PATH_SPEED, starting from still
 PATH_LEG_MIN, PATH_LEG_MAX = 0.6, 1.5  # seconds of each straight leg
 PATH_TURN_DEG = 12.0      # off by more than this: turn toward the point before the leg
 PATH_LANE = 45.0          # mm - this close to a point: on to the next
 PATH_TIMEOUT = 45.0       # s, the whole drive at most
-# Parking (operator's plan, 2026-11-23): out to a spot up the table on his home side,
-# back in toward the ruler's bar on that side (the taped ruler lines him up parallel),
-# then back along it to the middle.
 PARK_OUT = (322.0, 82.0)   # point 1, mm (x mirrored to his home side) - where the flag sat
 PARK_BACK_IN_X = 100.0     # mm from the middle: where he backs in to the ruler
 TURN_STEP_MAX = math.radians(50.0)  # one turn at most ~1 s; more is done over legs
 DOCK_NEAR = 130.0         # this close to his charger: his own dock move takes over
 NET_Y = 55.0              # his spot, mm up from the bar (70 parked him a little far out, live)
-# Goalie creases, one in front of each net (operator 2026-11-23). The operator's is drawn
-# only; A's keeps his middle in it - his slides stop at its sides, his line steering
-# pulls him back onto his spot. Its half-width less his half-length: his body still
-# covers the whole goal mouth.
 CREASE = (100.0, 100.0)   # half-width, depth (mm)
 CREASE_ROOM = CREASE[0] - 50.0  # his middle stays this near the middle
-# Goalie.
 GOALIE_GAIN = 1.5
 GOALIE_MAX = 100.0
 GOALIE_DEADBAND = 12.0
@@ -145,7 +89,6 @@ LINE_DAMP = 0.3
 LINE_MAX = 35.0
 STUCK_SECONDS = 0.5       # the puck pressed against him this long: trapped
 BACK_OFF_SECONDS = 0.6
-# The referee's golden moves (gopod_arm_cue.go: the arm per Brobot; chat_moves: the nod).
 ARM_CUE = {"Brobot 1": (2.0, 1.2), "Brobot 2": (3.0, 0.5)}  # speed, hold seconds
 NOD = (4.0, 0.18)
 ARM_NEAR_MM = 110.0       # the puck this near A's net, coming at it: B's arm goes up; going away: down
@@ -246,8 +189,6 @@ class Puck:
                     self.vx += PADDLE_VEL_TRANSFER * v[0]
                     self.vy += PADDLE_VEL_TRANSFER * v[1]
                     self.clamp_speed()
-        # A goal is the scorer's point (operator: "if the puck scores in my net, its the
-        # opponent's point, not mine").
         if self.y < FIELD_Y[0]:
             return "room"  # past Brobot A, into his net
         if self.y > FIELD_Y[1]:
@@ -309,7 +250,6 @@ class Robot:
             self.last_stop = now
 
     def axis(self, endpoint, speed, hold):
-        # Wire-Pod reads a whole number here - "2.0" read as 0 and nothing moved (live 2026-11-23).
         self.send("/api-sdk/" + endpoint, {"speed": int(round(speed))})
         time.sleep(hold)
         self.send("/api-sdk/" + endpoint, {"speed": 0})
@@ -327,7 +267,6 @@ class Robot:
     def say(self, text):
         self.send("/api-sdk/say_text", {"text": text})
 
-    # --- Brobot A: parking and goalkeeping ---
 
     def turn(self, err):
         err = (err + math.pi) % (2 * math.pi) - math.pi
@@ -367,7 +306,6 @@ class Robot:
                 going = heading + (math.pi if back else 0.0)  # backing: his back leads
                 err = (math.atan2(target[1] - pos[1], target[0] - pos[0]) - going + math.pi) % (2 * math.pi) - math.pi
                 if abs(err) > math.radians(PATH_TURN_DEG):
-                    # small turns only - long spins slip and land wrong (live); the next leg corrects
                     self.turn(max(-TURN_STEP_MAX, min(TURN_STEP_MAX, err)))
                     pos = self.watch(frame_pos, 0.2) or pos
             leg = min(PATH_LEG_MAX, max(PATH_LEG_MIN, dist / PATH_REAL_MM_S))
@@ -458,14 +396,12 @@ def main():
                     help="1: wake, leave home, park in front of his net, stop; 0: the whole game")
     ap.add_argument("--frames", type=int, default=0, help="stop after this many frames (tests)")
     ap.add_argument("--out", default="", help="save the run to this video instead of a window (tests)")
-    # 2026-11-27 (gohockey-cal): lock the arena (the ruler and the track), then stop - no robot touched.
     ap.add_argument("--lock-only", action="store_true", help="lock the arena, then stop before any robot moves")
     args = ap.parse_args()
     referee_name = "Brobot 2" if args.player == "Brobot 1" else "Brobot 1"
     os.dup2(os.open(os.devnull, os.O_WRONLY), 2)  # the camera's "Corrupt JPEG data" notes are harmless
     cap = open_camera()
 
-    # The arena, locked once: the ruler bar, then the track's edge.
     anchor = os.path.expanduser(ANCHOR_FILE)
     bar = None if args.recalibrate or not os.path.exists(anchor) else json.load(open(anchor))
     frame = None
@@ -496,7 +432,6 @@ def main():
         print("the arena is locked: ruler at %d,%d, %d px wide" % (bar["cx"], bar["cy"], bar["w"]))
         cap.release()
         return 0
-    # His flag is searched near the arena and home only (the whole frame held it to 17 fps).
     sx0, sy0 = to_px(FIELD_X[0] - BAR_MM, FIELD_Y[1] + 60)
     sx1, sy1 = to_px(FIELD_X[1] + BAR_MM, -150)  # down past the ruler: his charger sits there
     sx0, sy0 = max(0, sx0), max(0, sy0)
@@ -747,7 +682,6 @@ def main():
         return body
     frame_pos.seen = seen  # his facing, for driving
 
-    # The Brobots: A parks (his charger's spot kept for the way home), B gets ready.
     a, b = Robot(args.player), Robot(referee_name)
     a.hold()
     b.hold()
@@ -784,7 +718,6 @@ def main():
             b.arm(False)
         b.nod()
         if max(score.values()) >= WIN_SCORE:
-            # The game is won: B announces it, then A drives back to his charger.
             b.say(WIN_TEXT.format(w=args.player if score["a"] > score["room"] else "The room"))
             time.sleep(3)
             game["over"] = True
@@ -811,7 +744,6 @@ def main():
         dt, last_t = min(0.1, now - last_t), now
         body = find_a(frame)  # steadied inside, with his speed
         body_v = seen["v"] if body and math.hypot(*seen["v"]) >= BODY_V_MIN else (0.0, 0.0)
-        # A: guard while the puck comes at him; wait while it goes away.
         if not body:
             a.stop(now)
         elif puck.held or puck.vy >= 0:
@@ -821,15 +753,11 @@ def main():
             while target < FIELD_X[0] or target > FIELD_X[1]:  # banked off the sides
                 target = 2 * FIELD_X[0] - target if target < FIELD_X[0] else 2 * FIELD_X[1] - target
             a.guard(body, body_v, max(-CREASE_ROOM, min(CREASE_ROOM, target)), now)
-        # B's arm: up as the puck nears A's net (net to net - side bounces don't count),
-        # down to rest as it goes away.
         want = not puck.held and puck.vy < 0 and puck.y < ARM_NEAR_MM
         if want != b.arm_up and not arm["t"].is_alive() and not referee.is_alive():
             arm["t"] = background(b.arm, want)
         paddle = find_paddle(frame, body)
         if paddle:
-            # Held to the operator's half of the arena (operator: "use the arena border as a
-            # clamp"), and smoothed - it jittered even standing still.
             paddle = (max(FIELD_X[0], min(FIELD_X[1], paddle[0])),
                       max((FIELD_Y[0] + FIELD_Y[1]) / 2, min(FIELD_Y[1], paddle[1])))
             if last_paddle and math.hypot(paddle[0] - last_paddle[0], paddle[1] - last_paddle[1]) < STILL_MM:
@@ -843,13 +771,10 @@ def main():
         last_paddle = paddle
         movers = ([(body, body_v, body_half["v"])] if body else []) + ([(paddle, paddle_v, PADDLE_R)] if paddle else [])
         goal = puck.advance(FRAME_DT if dt < 3 * FRAME_DT else dt, movers)
-        # The puck trapped against him: he backs away, it's nudged back into play.
         near = body and math.hypot(puck.x - body[0], puck.y - body[1]) < PUCK_R + max(body_half["v"]) + 4
         stuck_for = stuck_for + dt if near else 0.0
         if stuck_for > STUCK_SECONDS:
             stuck_for = 0.0
-            # Out beside him on the open side (toward the middle), heading up the table -
-            # pushed straight up it hit him again (live: caught between him and the end wall).
             side = -1 if body[0] > 0 else 1
             room = FIELD_X[1] - PUCK_R
             puck.x = max(-room, min(room, body[0] + side * (body_half["v"][0] + PUCK_R + 5)))
@@ -864,7 +789,6 @@ def main():
             referee = background(call_goal, goal)
         log.write("%.2f  %s  %.0f %.0f %.0f  %d %d\n" % (now % 1000, "%.0f %.0f" % body if body else "- -",
                                                        puck.x, puck.y, puck.vy, a.sent[0], a.sent[1]))
-        # Draw: the field, both goal mouths with posts, A's body, the paddle, the puck, the score.
         x0, y0 = draw_field(frame)
         draw_body(frame, body)
         if paddle:

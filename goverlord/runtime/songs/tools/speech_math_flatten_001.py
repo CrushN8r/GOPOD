@@ -1,4 +1,3 @@
-# goverlord/runtime/songs/tools/speech_math_flatten_001.py
 """Math and LaTeX flatten for the robot speech lane.
 
 One Doc reply, two outputs: the rich display keeps everything (LaTeX, symbols, bold,
@@ -24,8 +23,6 @@ gopod_notes/DOC_RICH_DISPLAY_ROBOT_SAY_FLATTEN_001.md
 """
 import re
 
-# ---- Ordered tables -------------------------------------------------------------------
-# LaTeX word commands, spoken form. Checked in this order.
 LATEX_WORD_COMMANDS = [
     ("neq", "does not equal"), ("ne", "does not equal"),
     ("times", "times"), ("cdot", "times"), ("div", "divided by"),
@@ -60,7 +57,6 @@ TEXT_COMMANDS = ["text", "textrm", "textbf", "textit", "mathrm", "mathbf", "math
 SPACING_COMMANDS = [";", ",", ":", "!", " ", "quad", "qquad", "enspace", "thinspace"]
 DROPPED_COMMANDS = ["left", "right", "big", "Big", "bigg", "Bigg", "bigl", "bigr", "displaystyle", "limits"]
 
-# Unicode math in plain prose (outside LaTeX), spoken form. Checked in this order.
 UNICODE_SYMBOLS = [
     ("≠", "does not equal"), ("≈", "approximately equals"), ("≡", "is identical to"),
     ("≤", "is less than or equal to"), ("≥", "is greater than or equal to"),
@@ -84,7 +80,6 @@ ORDINALS = {4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "
             15: "fifteenth", 16: "sixteenth", 17: "seventeenth", 18: "eighteenth",
             19: "nineteenth", 20: "twentieth"}
 ROOT_NAMES = {"2": "square", "3": "cube"}
-# ----------------------------------------------------------------------------------------
 
 _WORD_COMMANDS = dict(LATEX_WORD_COMMANDS + GREEK_LETTERS)
 _GREEK_NAMES = "|".join(sorted({w for _, w in GREEK_LETTERS}, key=len, reverse=True))
@@ -160,8 +155,6 @@ def speak_math(expr):
                 out.append(f" the {root} root of {speak_math(a)} ")
             elif name == "overline":
                 a, i = _read_group(s, i)
-                # 0.\overline{3} -> "0 point 3 repeating": a bare "0." here would later be
-                # read as the end of a sentence and split the number in two.
                 sofar = "".join(out).rstrip()
                 if re.search(r"\d\.$", sofar):
                     out = [sofar[:-1] + " point"]
@@ -195,7 +188,6 @@ def speak_math(expr):
 
 
 def _prose_symbols(text):
-    # Superscripts first, while their base is still attached: λ⁴ -> λ to the fourth.
     def sup(m):
         digits = "".join(SUPERSCRIPT_DIGITS[ch] for ch in m.group(2))
         return f"{m.group(1)} {power_words(digits.replace('-', 'minus '))}"
@@ -204,8 +196,6 @@ def _prose_symbols(text):
         text = text.replace(sym, f" {words} ")
     for sym, words in UNICODE_GREEK:
         text = text.replace(sym, f" {words} ")
-    # 1/lambda -> 1 over lambda: a number over a single letter or a Greek name only.
-    # Number/number (24/7, 9/28) and words (2/day) are left alone.
     text = re.sub(r"(\d)\s*/\s*(?=(?:[A-Za-z]|" + _GREEK_NAMES + r")\b)", r"\1 over ", text)
     return text
 
@@ -223,7 +213,6 @@ def flatten_math_for_speech(text):
     s = str(text or "")
     if not s.strip():
         return s
-    # A bold-only line (a header) gets a closing period so it doesn't run into the next sentence.
     s = _BOLD_LINE.sub(lambda m: m.group(1) + m.group(2) + m.group(3).rstrip()
                        + ("" if re.search(r"[.!?:]$", m.group(3).rstrip()) else ".") + m.group(4), s)
     s = _DISPLAY_MATH.sub(lambda m: " " + speak_math(m.group(1) or m.group(2)).strip() + ". ", s)
@@ -231,11 +220,9 @@ def flatten_math_for_speech(text):
     s = _DOLLAR_MATH.sub(lambda m: " " + speak_math(m.group(1)).strip() + " ", s)
     s = _BARE_LATEX.sub(lambda m: " " + speak_math(m.group(0)).strip() + " ", s)
     s = _prose_symbols(s)
-    # Tidy: no space before punctuation, no doubled sentence stops from the display blocks.
     s = re.sub(r"[ \t]+([.,!?;:])", r"\1", s)
     s = re.sub(r"([:;,])\.", r"\1", s)
     s = re.sub(r"\.(\s+\.)+", ".", s)  # ". ." only - "..." (ellipsis, action separator) is kept
     s = re.sub(r"[ \t]{2,}", " ", s)
     return s
 
-# ## EOF

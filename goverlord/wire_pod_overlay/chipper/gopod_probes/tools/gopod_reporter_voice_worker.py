@@ -38,11 +38,6 @@ def synthesize(announcer, pipeline, text, voice, out_wav, speed):
     import numpy as np
     import soundfile as sf
 
-    # 2026-10-18 (operator: "Forced alignment * timing file per voice * the page
-    # reading it"): Kokoro times every word and mark as it speaks them; each
-    # part's times are moved on by the audio before it, and saved beside the
-    # WAV as <name>.words.json - [{"t": text, "s": start, "e": end}, ...], in
-    # seconds - for the page's word-by-word reveal.
     parts, words, offset = [], [], 0.0
     for result in pipeline(text, voice=voice, speed=speed, split_pattern=r"\n+"):
         audio = np.asarray(result.audio)
@@ -58,7 +53,6 @@ def synthesize(announcer, pipeline, text, voice, out_wav, speed):
     sf.write(str(out_wav), np.concatenate(parts), announcer.SAMPLE_RATE)
     if out_wav.stat().st_size <= 44:
         raise RuntimeError(f"empty voice WAV: {out_wav}")
-    # 2026-11-02: the words are timed later, on the finished file (finish_voice).
     return words
 
 
@@ -85,9 +79,7 @@ def finish_voice(out_wav, words):
     out_wav.with_suffix(".words.json").write_text(json.dumps({"aligner": aligner, "levelled": True, "words": words}))
 
 
-# Vosk, loaded once (gopod_align_captions_001.py's way, the same model Wire-Pod hears with).
 VOSK = {"model": None}
-# GOPOD_HOME: the operator's home (Wire-Pod runs as root, whose home has no Vosk).
 HOME = Path(os.environ.get("GOPOD_HOME") or Path.home())
 VOSK_MODEL = HOME / "wire-pod/vosk/models/en-US/model"
 
@@ -122,7 +114,6 @@ def heard_times(wav, words):
     return align_heard(words, heard)
 
 
-# How far a heard word may be from where Kokoro says it and still be that word.
 NEAR_SECONDS = 1.0
 
 
@@ -142,17 +133,12 @@ def align_heard(words, heard):
     wi = [i for i, w in enumerate(words) if norm(w["t"])]
     a = [norm(words[i]["t"]) for i in wi]
     b = [norm(h["word"]) for h in heard]
-    # 2026-11-14 (live: "Our CRUSHN8R Crew" - "CRUSHN8R" heard as "... eight our",
-    # so the written "Our" took that late "our" and the line sat dark 1.7 s): a
-    # heard word is the written one only near where Kokoro says it - Kokoro's own
-    # word times, stretched to the heard length, within NEAR_SECONDS.
     kok = [float(words[i]["s"]) for i in wi]
     kok_end = max([float(w["e"]) for w in words] or [0.0])
     heard_end = max([float(h["end"]) for h in heard] or [0.0])
     stretch = heard_end / kok_end if kok_end > 0 and heard_end > 0 else 1.0
     near = lambda i, j: abs(float(heard[j]["start"]) - kok[i] * stretch) <= NEAR_SECONDS
     same = lambda i, j: a[i] and a[i] == b[j] and near(i, j)
-    # The longest common run of words (LCS), in order.
     n, m = len(a), len(b)
     L = [[0] * (m + 1) for _ in range(n + 1)]
     for i in range(n - 1, -1, -1):
@@ -225,8 +211,6 @@ def main() -> int:
 
     pipeline = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
     load_vosk()
-    # One throwaway line first: Kokoro's first line after loading is slow (live
-    # 2026-10-06: 18 s for the first read-out, 1-3 s after), so it's spent here.
     with tempfile.TemporaryDirectory(prefix="gopod_reporter_warm_") as tmp:
         try:
             announcer.synthesize(pipeline, "Ready.", "af_bella", Path(tmp) / "warm.wav")
@@ -239,7 +223,6 @@ def main() -> int:
             continue
         try:
             job = json.loads(raw)
-            # 2026-10-24: "align" - time a recording's words (the mic's own voice).
             if job.get("align"):
                 wav = Path(job["align"])
                 words = heard_words(wav) if VOSK.get("model") is not None else []
@@ -248,17 +231,11 @@ def main() -> int:
                 continue
             out = Path(job["out"])
             words = synthesize(announcer, pipeline, job["text"], job["voice"], out, float(job.get("speed") or 1.03))
-            # 2026-10-26 (operator: "use sox for slight but noticable pitch
-            # shift"): a host's pitch_cents (voice_tweaks) - sox's pitch keeps
-            # the length, so the word times still fit.
             pitch = float(job.get("pitch_cents") or 0)
             if pitch:
                 shifted = out.with_name(out.stem + ".pitch.wav")
                 subprocess.run(["sox", str(out), str(shifted), "pitch", f"{pitch:.0f}"], check=True, capture_output=True)
                 shifted.replace(out)
-            # 2026-10-28 (operator: "robotic voice flavouring, slightly offset"): a
-            # host's robot effect (voice_tweaks robot_fx) - the sox chain on a copy,
-            # mixed wet over the clean voice, then evened out.
             chain = str(job.get("fx_chain") or "").split()
             wet = float(job.get("fx_wet") or 0)
             if chain and 0 < wet:

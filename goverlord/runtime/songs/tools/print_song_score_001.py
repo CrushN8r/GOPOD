@@ -64,21 +64,6 @@ from song_dialogue_normalizer_001 import normalize_song_dialogue
 
 GOLDEN_SONG_RUNNER_PATH = Path(__file__).resolve().parent / "run_golden_song_001.py"
 
-# Display-only lookup for the printed rehearsal-header line - maps a song's
-# own knobs.json song_id to the keyword pha0b's own case statement
-# (~/.gopod_alias_lib/brobots.sh) already uses for it. Not every song using
-# this note-based schema is pha0b-wired yet - printing a hardcoded
-# "pha0b bingo ..." line on an unwired song's own printout would be actively
-# wrong guidance (that command always targets brobots_bingo's own data,
-# never the song actually being printed), so an unmapped song_id falls back
-# to an honest "not wired yet" line instead of a guess. brobots_cross_persona
-# (formerly gopod_is_that_you) added 2026-07-31 once its own pha0b arm
-# ("mixup") was wired in. brobots_awaken's key updated 2026-08-10 from the
-# stale pre-golden-migration song_id "brobots_awaken" to the current
-# "brobots_awaken_golden" (SHEET_MUSIC_GOLDEN_PROCESS_SURVEY_001.md finding
-# #3 - the old key matched nothing, so awaken's own printout falsely claimed
-# pha0b wasn't wired for it). brobots_baby_robots_sleep added same pass
-# (pha0b keyword "nap", confirmed in brobots.sh).
 _PHA0B_SONG_KEYWORDS = {
     "brobots_bingo": "bingo",
     "robot_control_song_001": "control",
@@ -88,12 +73,6 @@ _PHA0B_SONG_KEYWORDS = {
     "brobots_baby_robots_sleep": "nap",
 }
 
-# Mirrors the exact defaults live in run_songs_runner_001.py's own step
-# loop (_run_bingo_capture_song_steps, read 2026-07-28) - this printer reads
-# song data only, it does not import/execute the runner, so these are
-# hand-matched display values, not introspected at runtime. If the runner's
-# own defaults ever change, these need a manual re-sync - flagged here so
-# that coupling is visible, not hidden.
 _DEFAULTS = {
     "buffer_after": 0,
     "settle_seconds": 1.5,
@@ -108,10 +87,6 @@ _DEFAULTS = {
     },
 }
 
-# Which authored fields apply to each note type, beyond the universal set
-# (step_id/note/speaker/TEXT/FAIL/buffer_after, shown for every step
-# regardless of note type since load_bingo_capture_song() merges text/fail
-# onto every step unconditionally).
 _NOTE_FIELDS = {
     "wake_both": ["settle_seconds"],
     "brobots_ready_together": [],  # TEXT itself is the field here (phrase override)
@@ -167,14 +142,6 @@ def print_song_score(song_dir):
     text_by_step_id = {row["step_id"]: row["text"] for row in normalized["rows"]}
 
     song_id = knobs.get("song_id", "")
-    # note_aliases (e.g. brobots_awaken_golden's head_nod -> nod) read straight
-    # from the golden runner's own SONG_REGISTRY - the single source of truth
-    # the actual runner dispatches through - rather than a second, hand-kept
-    # guess. {} for every song not in that registry (bingo-family's own
-    # entries are also {} - no song needs this today except awaken). Fixes
-    # SHEET_MUSIC_GOLDEN_PROCESS_SURVEY_001.md finding #1: without this, a
-    # note only known by its alias (head_nod) silently lost every field
-    # (HOLD_SECONDS/SPEED) this printer exists to make visible.
     golden_mod = _load_golden_mod()
     note_aliases = golden_mod.SONG_REGISTRY.get(song_id, {}).get("note_aliases", {})
     lines = []
@@ -206,12 +173,6 @@ def print_song_score(song_dir):
             lines.append(f"SECTION: {label}")
             lines.append("-" * 71)
 
-        # dispatch_note is what the runner actually treats this step as after
-        # its own note_aliases resolution - used only for field-set/default
-        # lookups below. The header always shows the authored `note` itself
-        # (this printer's whole promise is "authored on disk"), with a
-        # "(dispatches as X)" suffix when an alias applies so the extra
-        # fields below aren't a mystery.
         dispatch_note = note_aliases.get(note, note)
         alias_suffix = f"  (dispatches as {dispatch_note})" if dispatch_note != note else ""
 

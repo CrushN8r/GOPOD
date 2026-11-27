@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_edge_tpu_quick_look_001.py
 """The photo egg's quick look on the Coral Edge TPU (2026-10-16, operator: "Edge TPU
 list shown first while moondream is still looking (both, not a swap) * round 1 is
 from TPU quick look"). Loads a COCO detection model on the TPU once, then for each
@@ -39,8 +38,6 @@ def white_balanced(image, strength):
     gains, room = [], []
     for band, mean in zip(split, means):
         gains.append(1 + strength * ((grey / mean if mean else 1) - 1))
-        # 2026-11-10 (operator: "the enhanced photo has some white over exposed
-        # spots"): each band's bright end (its 99.5%) must stay under white.
         hist, total, top = band.histogram(), 0, 255
         for v in range(255, -1, -1):
             total += hist[v]
@@ -48,13 +45,9 @@ def white_balanced(image, strength):
                 top = max(v, 1)
                 break
         room.append(250 / top)
-    # When a band can't be raised that far, all three come down together, so the
-    # balance holds and nothing is pushed into a blown spot.
     k = min([1.0] + [r / g for g, r in zip(gains, room) if g > r])
     bands = [b.point(lambda v, g=g * k: min(255, int(v * g + 0.5))) for b, g in zip(split, gains)]
     out = Image.merge("RGB", bands)
-    # Coming down darkened it: a gamma lift brings the middle back to the
-    # brightness it had, white stays white (no new blown spots).
     import math
     before, after = sum(means) / 3, sum(ImageStat.Stat(out).mean) / 3
     if 0 < after < before < 255:
@@ -68,24 +61,18 @@ def enhanced(image, knobs):
     """The snapshot cleaned up: white balance (the green cast), a median filter for
     the camera's grain, then auto contrast, brightness, contrast and sharpness
     (1 = unchanged)."""
-    # 2026-11-10: a near-black photo (its mean under dark_floor) isn't enhanced -
-    # stretching it only makes blocky noise the TPU and the vision model misread.
     from PIL import ImageStat
     raw_level = sum(ImageStat.Stat(image).mean) / 3
     if raw_level < float(knobs.get("dark_floor", 0)):
         return image
     if knobs.get("median", 0) >= 3:
         image = image.filter(ImageFilter.MedianFilter(int(knobs["median"]) | 1))
-    # The dark end only (cutoff, 0): the bright end is never clipped to white.
     image = ImageOps.autocontrast(image, cutoff=(knobs.get("autocontrast_cutoff", 1), 0))
     for name, kind in (("brightness", ImageEnhance.Brightness), ("contrast", ImageEnhance.Contrast),
                        ("sharpness", ImageEnhance.Sharpness)):
         if knobs.get(name, 1) != 1:
             image = kind(image).enhance(knobs[name])
-    # 2026-11-10 (live: the enhanced photo came out blue - autocontrast stretched
-    # each colour on its own after the balance): the white balance goes last.
     image = white_balanced(image, float(knobs.get("white_balance", 0)))
-    # Never darker than the raw photo: a gamma lift back to its brightness.
     import math
     level = sum(ImageStat.Stat(image).mean) / 3
     if 0 < level < raw_level < 255:
@@ -134,8 +121,6 @@ def look(interpreter, labels, min_score, photo, request=None):
     if request and request.get("enhanced"):
         image = enhanced(image, request.get("enhance") or {})
         image.save(request["enhanced"], quality=92)
-    # The TPU looks at the enhanced photo, centre-cropped (enhance.tpu_crop); its
-    # boxes are drawn on that same picture.
     image = centre_cropped(image, float(((request or {}).get("enhance") or {}).get("tpu_crop", 0)))
     _, scale = common.set_resized_input(
         interpreter, image.size, lambda size: image.resize(size, Image.LANCZOS))
@@ -181,4 +166,3 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 
-# ## EOF

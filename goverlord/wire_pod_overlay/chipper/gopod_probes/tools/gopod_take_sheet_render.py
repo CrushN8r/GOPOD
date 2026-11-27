@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_take_sheet_render.py
-#
-# Draws take_sheet.md (to read) from take_sheet.json (to edit), next to it.
-# Called by Wire-Pod after a kept session adds its takes (gopod_take_sheet.go)
-# and by harvest_dry_run.sh.
-#
-#   gopod_take_sheet_render.py <path/to/take_sheet.json>
 import json
 import os
 import sys

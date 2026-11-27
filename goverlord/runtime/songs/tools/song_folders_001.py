@@ -16,7 +16,6 @@ import sys
 from pathlib import Path
 
 SONGS_DIR = Path(__file__).resolve().parents[1]
-# Folders that are not songs.
 NOT_SONGS = {"tools", "_new_song"}
 
 
@@ -25,7 +24,6 @@ def all_songs(songs_dir=SONGS_DIR):
     found = {}
     for knobs in sorted(Path(songs_dir).glob("*/knobs.json")):
         folder = knobs.parent
-        # 2026-10-16: a folder starting with "_" is a template (_new_song, with _llm_warm inside it).
         if folder.name in NOT_SONGS or folder.name.startswith((".", "_")):
             continue
         try:

@@ -38,8 +38,6 @@ class AnimationLock(unittest.TestCase):
         return mod, result, [c.args[0] for c in sleep.call_args_list]
 
     def test_searching_sent_once_then_getout(self):
-        # SEARCHING_ANIMATION_SONG_LOCK_001.md: re-sending searching every 0.333s
-        # queues ~3.9s clips in Wire-Pod and leaks the searching sound.
         mod, result, sleeps = self.run_anim("searching", 1.3)
         self.assertTrue(result["ok"])
         self.assertEqual(said(mod), ["{{playAnimationWI||searching}}", "{{playAnimationWI||searchingGetout}}"])
@@ -113,7 +111,6 @@ class SilentLineHeal(unittest.TestCase):
         self.assertIsNone(result["silent_heal"])
 
     def test_threshold_sits_between_silent_and_real_wait(self):
-        # measured: silent lines 0.03-0.18 s, real "Wait!" 0.84 s
         self.assertTrue(0.18 < engine.SAY_SILENT_SECONDS < 0.84)
 
 

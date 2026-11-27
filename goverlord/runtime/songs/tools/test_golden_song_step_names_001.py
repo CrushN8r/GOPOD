@@ -83,13 +83,9 @@ class SongWarmupSequenceTests(unittest.TestCase):
             elif form.get("display_role"):
                 seen.append("said: " + form["display_text"])
         self.assertEqual(seen, [
-            # 2026-10-16 (the golden opener template): a line each.
             "text: " + (llm["warmup_text"] + "\n" + wait if wait else llm["warmup_text"]),
-            # 2026-10-14 (operator: "generate the full message displayed"): said as shown.
             "said: " + (llm["warmup_text"] + "\n" + wait if wait else llm["warmup_text"]),
             "Brobot 3: a line",
-            # 2026-10-14 (operator: "part 1 standard ... each song gives only part 2");
-            # 2026-10-16: run_ready_text, the song's line, run_ready_end, a line each.
             "ready: " + llm["run_ready_text"] + "\nSong Ready\n" + llm["run_ready_end"],
         ])
 
@@ -151,7 +147,6 @@ class NewCommandsTests(unittest.TestCase):
                 (root / name / "story.md").write_text(text)
             with mock.patch.object(golden, "find_song_dir", lambda sid: root / sid):
                 song = golden.load_golden_song(root / "a", control)
-        # b's line in place, b's sequence back to a skipped, then a's own line.
         self.assertEqual([(s["step_id"], s["text"]) for s in song["steps"]],
                          [("brat_say_0101", "Inside."), ("host_say_0102", "After.")])
 
@@ -207,8 +202,6 @@ class NoneRequiredWarmupTests(unittest.TestCase):
                     mock.patch.object(golden, "_llm_loaded", side_effect=AssertionError("no model call")):
                 golden.song_llm_warmup(mod, "Nap Ready", [{"who": "Brobot 3", "text": ""}], False, False)
         llm = golden.load_brobots_settings()["llm"]
-        # 2026-10-25 (operator: "No llm required, so skip the b*llsh*t"): no
-        # warm-up bubble, no wait - one Goverlord line, then the song.
         self.assertFalse([f for f in calls if "warmup_text" in f or "warmup_ready" in f], calls)
         self.assertEqual([f.get("text") for f in calls], [llm["no_llm_text"] + "\nNap Ready"])
         self.assertFalse([f for f in calls if f.get("who")], "an empty in-between line was said")

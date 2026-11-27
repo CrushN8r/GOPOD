@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_dry_run_001.py
 """GOPOD's own test run (2026-10-24, operator: "Do I have a full complete dry run
 file? * make me a new one to test on my behalf * Make me a f*ck*ng agent to whoop
 your sorry AI ass").
@@ -32,12 +31,7 @@ BASE = "http://localhost:8080"
 NOTES = Path.home() / "crushn8r_git" / "gopod_notes"
 ESN = {"1": "ESN01", "2": "ESN02", "all": "all"}  # the robots' labels (gopod_esn_labels.go)
 
-# The session: (to, line, what it checks, words the answer must have).
-# 2026-10-24 (operator: "Ask questions to finish the game, not tell a joke * ask
-# harder math questions, use fraction, decimal, repeating to test the f*ck*r"):
-# the game's own value-point questions come in after the openers (game_steps).
 STEPS = []  # the game's value points come first (game_steps)
-# Each Easter egg's own question (value_points.reminder_eggs), after the points.
 EGG_STEPS = [
     ("1", "convert 0.272727 repeating to a fraction, explain the math", "popup: the math Easter egg pop-up", ["3/11"]),
     ("2", "what is 5/6 as a decimal? explain the math", "math: repeating decimal", ["0.83"]),
@@ -58,9 +52,6 @@ def game_steps():
     """Each core value point's golden question (value_points.core_points, the
     game's questions - each topic card's "ask N" lines, served as game_questions -
     numbered per topic), in the game's order."""
-    # 2026-11-03 (the clusters plan, step 7): the settings as Wire-Pod runs on them,
-    # the topic-clusters laid over the settings folder (value_points.core_points is
-    # in game-words.md) - served by the Wire-Pod this dry run talks to.
     with urllib.request.urlopen(BASE + "/gopod_brobots_settings.json", timeout=10) as r:
         settings = json.loads(r.read().decode("utf-8"))
     core = settings.get("value_points", {}).get("core_points", [])
@@ -118,8 +109,6 @@ def wait_answers(after_id, want, quiet=12, most=150, both=False):
         if top != last_id:
             last_id, last_change = top, time.time()
         answers = [e for e in events if brobot_answer(e)]
-        # 2026-10-24 (operator: "the 2nd brobot following up not being accounted
-        # for in the run * the runner gotta wait"): math waits for both Brobots.
         who = {e["who"] for e in answers}
         enough = {"Brobot 1", "Brobot 2"} <= who if both else len(answers) >= want
         if enough and time.time() - last_change >= quiet:
@@ -156,8 +145,6 @@ def page_caught_up(since, most=120):
         top = max([e["id"] for e in feed().get("events", [])], default=0)
         log = subprocess.run(["journalctl", "-a", "-u", "wire-pod", "--since", since, "--no-pager"], capture_output=True, text=True).stdout
         played = [int(m) for m in re.findall(r"GOPOD_PAGE played (\d+) ", log)]
-        # 2026-10-24 (link 4): and no Brobot still speaking - typed the way a
-        # person would, after the answer is heard.
         if played and max(played) >= top and not speaking():
             time.sleep(1)
             if not speaking():
@@ -170,7 +157,6 @@ def main():
     started = datetime.datetime.now()
     since = started.strftime("%Y-%m-%d %H:%M:%S")
     rows, problems, sent = [], [], []
-    # python3 gopod_dry_run_001.py photo  - only the steps whose check names "photo".
     only = sys.argv[1].lower() if len(sys.argv) > 1 else ""
     for to, text, what, must in STEPS + game_steps() + EGG_STEPS + END_STEPS:
         if only and only not in what.lower():
@@ -179,13 +165,10 @@ def main():
             problems.append(f"the page or a Brobot was still busy after 2 min before \"{text}\"")
         before = max([e["id"] for e in feed().get("events", [])], default=0)
         send(to, text)
-        # A line to both, or any math (Brobot 2 follows up), has two answers.
         math = what.startswith(("popup: the math", "math:"))
         wait_answers(before, 2 if to == "all" else 1, both=math)
         sent.append((to, text, what, must, before))
         print(f"... {text}", flush=True)
-    # 2026-10-24 (live: answers landed under the next line): each line's answers
-    # are what came after its own Operator line, up to the next one.
     page_caught_up(since)
     feed()
     events = [SEEN[k] for k in sorted(SEEN)]
@@ -205,13 +188,11 @@ def main():
             note.append("no Operator bubble")
         if not answers:
             note.append("no answer")
-        # Fractions show with the fraction slash, repeats with a bar over the digits.
         said = unicodedata.normalize("NFKD", " ".join(e["text"] for e in answers)).replace("\u2044", "/")
         said = "".join(c for c in said if not unicodedata.combining(c)).lower().replace(" ", "")
         for w in must:
             if w.lower().replace(" ", "") not in said:
                 note.append(f"answer lacks \"{w}\"")
-        # A pop-up step: its pop-up came on the feed, and the page showed it.
         if what.startswith("popup:"):
             pops = [e for e in window if e.get("who") == "Picture" and e.get("text", "").startswith("popup:")]
             if not pops:
@@ -231,7 +212,6 @@ def main():
                 found.setdefault(key, []).append(line.split(": ", 1)[-1][:220])
     for key, lines in found.items():
         problems.append(f"{LOG_PROBLEMS[key]} ({len(lines)}x)")
-    # The game's own score at the end (the last "Topics ... of ..." notice).
     score = ""
     for e in feed().get("events", []):
         if "Topics " in e.get("text", "") and " of " in e.get("text", ""):

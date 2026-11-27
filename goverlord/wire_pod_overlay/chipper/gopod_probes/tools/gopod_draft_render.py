@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-# goverlord/wire_pod_overlay/chipper/gopod_probes/tools/gopod_draft_render.py
-#
-# Draws draft_performance.md (to read) from draft_performance.json (to edit,
-# and to play: "play the draft" in the Brobots chat), next to it. Called by
-# harvest_dry_run.sh after a full dry run, and by its render-draft mode.
-#
-#   gopod_draft_render.py <path/to/draft_performance.json>
 import json
 import os
 import sys
