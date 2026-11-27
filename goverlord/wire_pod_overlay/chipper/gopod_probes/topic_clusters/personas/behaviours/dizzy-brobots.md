@@ -27,3 +27,6 @@
 3. sweep_low: Security sweep {n}: {brobot} is low, {volts} volts. Not enough power to proceed.
 4. sweep_full: Security sweep {n}: {brobot} at {volts} volts, resting full on his charger - a full Brobot reads about 3.6 volts there and stops charging. Clear to proceed.
 5. sweep_stop: Thank you, security. {who} can't go on yet, so I'm stopping the run. Charge up, then start it again.
+
+## Off the network: the key to reach his robot (battery_watch)
+1. ssh_key: ~/.ssh/vector_unlock/ssh_root_key

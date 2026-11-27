@@ -15,7 +15,7 @@ import (
 // 'chapters' folder of chapters, each chapter folder contains editable topic
 // files ... topic files are to be loaded for the run"):
 //
-//	gopod_probes/topic_clusters/content/chapters/
+//	gopod_probes/topic_clusters/personas/company/4_go_for_it/
 //	  summary.txt                 the whole interview in one line
 //	  _always/01_what_else.md     topics that belong to no chapter
 //	  01_warm_up/chapter.md       "# <title>" and "- **summary:** ..."
@@ -51,7 +51,7 @@ import (
 //
 // The facts are read from the folder each time a question comes in; the rest is
 // read once, when Wire-Pod starts.
-var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/topic_clusters/content/chapters")
+var canonicalChaptersDir = gopodPathWithEnvOverride("GOPOD_CHAPTERS_DIR", "gopod_probes/topic_clusters/personas/company/4_go_for_it")
 
 // gopodChaptersDir: the chapters folder - moved, found by its name under topic_clusters/.
 func gopodChaptersDir() string { return gopodTopicPath(canonicalChaptersDir) }

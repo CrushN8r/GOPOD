@@ -4,7 +4,7 @@ package wirepod_ttr
 // Topic-clusters for settings (2026-10-31, operator: "What else now, can be
 // topic-clustered? * Topic-clusters please * Easter eggs * Golden answers * The
 // Butler's lines * Nicknames"). A cluster is one md file in the master format
-// (gopod_probes/topic_clusters/content/show/*.md): "# <title>", its head, "---", then sections. Each
+// (gopod_probes/topic_clusters/personas/behaviours/*.md): "# <title>", its head, "---", then sections. Each
 // section's heading ends with the settings place it fills, in brackets -
 // "## Run lines (session)" - and each point is "key: value":
 //

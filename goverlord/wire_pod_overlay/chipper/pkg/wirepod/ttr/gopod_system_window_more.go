@@ -7,7 +7,7 @@ package wirepod_ttr
 // and the chains within, etc... * most of what I'm asking for is done, just check
 // during your sweep"). The sweep's two missing commandments:
 //   system-record on|off                      Record Session (the page's box, from the keyboard)
-//   system-docbs [<pool> [add|remove <line>]] DocBS's pool files (gopod_probes/topic_clusters/dials/docbs): list, show, edit
+//   system-docbs [<pool> [add|remove <line>]] DocBS's pool files (gopod_probes/topic_clusters/personas/behaviours/dials/docbs): list, show, edit
 
 import (
 	"os"

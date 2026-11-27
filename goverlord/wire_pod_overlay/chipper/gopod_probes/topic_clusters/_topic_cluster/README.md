@@ -4,7 +4,7 @@ A topic cluster is one chapter of the GOPOD game: a folder with a `chapter.md` a
 file per topic - readable markdown files, the same format everywhere. The game's topics drive the repo: each topic tells one thing GOPOD presents,
 names the repo file that tells it in full, and shows up on [BROBOT_ASKS.md](../../../../../../BROBOT_ASKS.md).
 
-**To start a new cluster:** copy this folder into `gopod_probes/topic_clusters/content/chapters/` as
+**To start a new cluster:** copy this folder into `gopod_probes/topic_clusters/personas/company/4_go_for_it/` as
 `NN_your_cluster/` (`NN` sets its place among the chapters), rename `01_example_topic.md`
 (`NN_topic_name.md` - the name after the number is the topic's name), and fill in each line.
 This folder itself is never loaded: only `chapters/` is.
@@ -71,8 +71,8 @@ reader (`gopodTopicHeadKV`) for every kind.
 
 | Kind | Where | Its head | Its content |
 |---|---|---|---|
-| A topic | `gopod_probes/topic_clusters/content/chapters/NN_*/NN_*.md` | the lines above | the value points, `1.` `2.` ... |
-| A persona profile | `gopod_probes/topic_clusters/content/personas/<name>.md` | `# <full name>`, `nickname`, `job`, `words`, `ask` | `## Self`, `## Voice`, `## Partner and banter`, `## The name`, each its points `1.` `2.` ... |
+| A topic | `gopod_probes/topic_clusters/personas/company/4_go_for_it/NN_*/NN_*.md` | the lines above | the value points, `1.` `2.` ... |
+| A persona profile | `gopod_probes/topic_clusters/personas/<name>.md` | `# <full name>`, `nickname`, `job`, `words`, `ask` | `## Self`, `## Voice`, `## Partner and banter`, `## The name`, each its points `1.` `2.` ... |
 
 A persona's labels - its full name (the `# ` label), nickname and job name - are written only in its
 profile's head; everything else fills from them (`{name}`, `{nickname}`, `{job}`).

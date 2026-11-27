@@ -74,7 +74,7 @@
 2. colour prompt: (to come)
 3. colour prompt, 18+: (to come)
 
-## PipTA's line pools - DocBS's are in gopod_probes/topic_clusters/dials/docbs/
+## PipTA's line pools - DocBS's are in gopod_probes/topic_clusters/personas/behaviours/dials/docbs/
 1. (to come)
 
 ## My intro guide

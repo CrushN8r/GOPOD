@@ -1,6 +1,6 @@
 # Persona chains - every participant's thought chains
 
-DocBS's template (`gopod_probes/topic_clusters/dials/docbs/`) for every chat participant: the Brobots, CHALK, PLAYHEAD,
+DocBS's template (`gopod_probes/topic_clusters/personas/behaviours/dials/docbs/`) for every chat participant: the Brobots, CHALK, PLAYHEAD,
 the interns, Cameo (settings `persona_chains`, `gopod_persona_chains.go`).
 
 - One folder per persona, its name in small letters with dashes: `brobot-1/`, `brobot-2/`, `chalk/`,

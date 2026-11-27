@@ -161,9 +161,11 @@ func gopodBatteryCheck(esn string) {
 	if err != nil {
 		logger.Println("GOPOD_BATTERY_WATCH " + name + " unknown: " + err.Error())
 		gopodBatteryRemember(esn, "unknown: "+err.Error())
+		gopodNetworkMiss(esn, err)
 		gopodBatteryBack(esn, false)
 		return
 	}
+	gopodNetworkBack(esn)
 	if gopodBatteryBack(esn, true) {
 		if line := strings.TrimSpace(gopodBrobotsSettings.BatteryWatch.BackLines[name]); line != "" {
 			logger.Println("GOPOD_BATTERY_WATCH " + name + " back (freeze, reboot or drained battery): " + line)

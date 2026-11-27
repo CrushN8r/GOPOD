@@ -133,7 +133,7 @@
   },
   "gopod_yourself_qr": {},
   "brain_chain": {
-    "roster": "gopod_probes/topic_clusters/content/personas/company/math-aftermath-news-channel.md",
+    "roster": "gopod_probes/topic_clusters/personas/company/math-aftermath-news-channel.md",
     "recent_minutes": 10,
     "lookup_max": 2,
     "lookup_chars": 600,

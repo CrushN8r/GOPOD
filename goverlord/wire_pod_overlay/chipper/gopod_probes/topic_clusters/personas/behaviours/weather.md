@@ -1,9 +1,9 @@
 # Weather - who does what
-- **words:** weather, the weather, forecast, temperature, weather details, whether, location
+- **words:** weather, the weather, forecast, temperature, weather details, whether, location, offline, military time
 - **ask:** Who gets the weather?
 - **chain:** Goverlord > KEYS > PLAYHEAD > GIT REPO > CACHE PYC
 - **owner:** Brobot 1
-- **see also:** weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md, live-weather.md
+- **see also:** weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md, state_capitals
 ---
 
 ## The weather chain
@@ -13,3 +13,7 @@
 4. GIT REPO hands the weather details to intern CACHE PYC, to display.
 5. CACHE PYC's assignment is to display the weather details - the details stay GIT REPO's responsibility.
 6. The Brobots perform the weather run - Brobot 1 gives the report, Brobot 2 confirms it.
+
+## Live weather (live_weather)
+1. military_label: Hours Military Time
+2. offline_text: It appears as though we're offline! Only thing left to do is step outside, then GOPOD Yourself!!

@@ -770,7 +770,7 @@ type gopodBrobotsSettingsFile struct {
 		WhyPart      string   `json:"why_part"`
 		// 2026-11-03 (operator: "For intro-and-weather load intro topic cluster
 		// md, then weather topic cluster md"): his take on the weather, after his
-		// intro (gopod_probes/topic_clusters/content/show/group-chat-intro.md).
+		// intro (gopod_probes/topic_clusters/personas/behaviours/group-chat-intro.md).
 		WeatherText     string `json:"weather_text"`
 		WeatherTextNext string `json:"weather_text_next"`
 	} `json:"intro_recipe"`
@@ -1203,7 +1203,7 @@ type gopodBrobotsSettingsFile struct {
 		// 2026-10-23: a country alone asks for its capital (gopodWeatherCountry).
 		Capitals map[string]string `json:"capitals"`
 		// 2026-11-03: a US state or Canadian province alone is its capital
-		// (gopod_probes/topic_clusters/content/show/state_capitals.md, gopodStateCapital).
+		// (gopod_probes/topic_clusters/personas/behaviours/state_capitals.md, gopodStateCapital).
 		StateCapitals map[string]string `json:"state_capitals"`
 		Continents    []string          `json:"continents"`
 	} `json:"clean_politics"`
@@ -1272,6 +1272,8 @@ type gopodBrobotsSettingsFile struct {
 		SweepLow     string `json:"sweep_low"`
 		// 2026-11-27: full on his charger (gopodBatteryFull), and KEYS' stop line when a sweep fails.
 		SweepFull string `json:"sweep_full"`
+		// 2026-11-27: the unlock SSH key, for the network watch (gopod_robot_network.go).
+		SSHKey string `json:"ssh_key"`
 		SweepStop string `json:"sweep_stop"`
 		Reply     string `json:"reply"`
 	} `json:"battery_watch"`

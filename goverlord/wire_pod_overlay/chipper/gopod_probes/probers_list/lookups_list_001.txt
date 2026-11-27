@@ -3,18 +3,18 @@
 # system-test-lookups checks them; GOPOD_WRITE_LOOKUPS=1 on TestLookupsList writes the cards as they are now (after a change on purpose).
 GOVERLORD | who works for you? | math-aftermath-news-channel.md
 GOVERLORD | where do I start? | ACCESSMATH.md, GOPOD_YOURSELF.md
-BUTLER | how does the weather work? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
-BUTLER | how do I subscribe to your newsletter? | 03_newsletter.md, gopod_yourself_qr.md
+BUTLER | how does the weather work? | manager-takes.md, weather.md, cache-pyc.md, git-repo.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, brobot-1.md, crushn8r_crewd_news_station.md
+BUTLER | how do I subscribe to your newsletter? | gopod_yourself_qr.md, 03_newsletter.md
 GEMMA | what do you do? | 02_who_we_are.md
-INTEL 404 PNFH | who do you guard? | group-security-guards.md, math-aftermath-news-channel.md
+INTEL 404 PNFH | who do you guard? | dizzy-brobots.md, group-security-guards.md, nicknames.md, weather_run.md, math-aftermath-news-channel.md, group-chat-intro.md
 CHALK | what's on the display? | README.md, story.md
 PLAYHEAD | what does the playhead do? | playhead-zuminto.md, README.md
-GIT REPO | who gets the weather details? | weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md, live-weather.md
-CACHE PYC | who shows the weather? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
+GIT REPO | who gets the weather details? | weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md, brobot-2.md
+CACHE PYC | who shows the weather? | manager-takes.md, weather.md, cache-pyc.md, git-repo.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, brobot-1.md, crushn8r_crewd_news_station.md
 Brobot 1 | how do I book the brobots? | BOOKING.md, booking.md, 02_bookings.md, 05_birthday_and_merch.md, brobot-1.md, brobot-2.md
 Brobot 2 | what do you do at night? | 02_bookings.md
 Brobot 1 | tell me about the rig | MOBILE_GEAR.md, README.md
 Brobot 2 | sdrtgdthgdrtgrg | README.md
-BUTLER | who does the weather? | weather.md, live-weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md
+BUTLER | who does the weather? | manager-takes.md, weather.md, cache-pyc.md, git-repo.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, brobot-1.md, crushn8r_crewd_news_station.md
 BUTLER | who all works at the company? | math-aftermath-news-channel.md
 BUTLER | what is the company name? | math-aftermath-news-channel.md
