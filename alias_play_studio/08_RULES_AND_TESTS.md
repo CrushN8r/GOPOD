@@ -96,7 +96,7 @@ Rules and tests. Reveal these, in order, in your own words:
 | Nothing plays after start | The page isn't here | Click **Log**; open the chat; keep the tab visible ("Goverlord awaits your return..."). |
 | A hand edit to `customIntents.json` was lost | Wire-Pod's web config page rewrites the whole file | Restart Wire-Pod after a hand edit, before touching that page. |
 | A step plays the wrong thing | `zKnobs.json` wins while it's there | Check or remove `zKnobs.json`. |
-| `STEP_NAME_WARNING` in a run | The step name doesn't read as its knobs | Rename it to match ([2.2](02_SONGS.md#22-step-names)); it only warns. |
+| `STEP_NAME_WARNING` in a run | The step name doesn't read as its knobs | Rename it to match ([step names](02_SONGS.md#where-the-words-for-each-part-live)); it only warns. |
 | Deploy stopped by a test | A song's two files name different steps, or an unknown note | Fix the named step in both files. |
 | The opener's first lines are shown and never said | A voice asked for while Kokoro was starting | It now waits up to `start_wait_seconds`; check the voice worker. |
 | A bubble holds the next one up | A frozen robot or a lost end signal | It lets go after `chat_window.speaking_max_ms` (30 s); check `GOPOD_PAGE held` and `GOPOD_HEARD` in the journal. |

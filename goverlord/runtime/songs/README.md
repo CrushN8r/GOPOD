@@ -1,46 +1,16 @@
 # songs
 
-The standard every song follows (the notes, the fields, the golden rules, making a new song)
-is [ALIAS-PLAY-STUDIO.md](../../../ALIAS-PLAY-STUDIO.md). Start a new song by copying
-`_new_song/` (an LLM warm song: `_new_song/_llm_warm/`). Every warm-up song has a fixed-name
-`_llm_song/` run - the lines between "Voices ready" and "LLM ready"; swap the folder to change
-them, no steps = nothing said.
+Each folder here is one song: `story.md` (its lines) and `knobs.json` (what each step does, and
+when). The folders are the list.
 
-One folder per song: `story.md` (the lines) and `knobs.json` (what each step does, and when).
+- `_new_song/` - the template: copy it to start a song (`_new_song/_llm_warm/` for an LLM warm
+  song). `_new_song/song-schema.md` - what every song must have.
+- `global_knobs.json` - the move values and waits every song starts from; a song's own
+  `knobs.json` overrides them, a step's own value over that.
+- `tools/` - the song engine and its helpers.
+- How a song is made, played and edited: [song making](../../../alias_play_studio/02_SONGS.md).
 
-Every song starts from `global_knobs.json`: the default move values (nod, arm cue, animation,
-emotion beat, wheel nudge, stir) and the runner's shared waits. A song's own `knobs.json` overrides
-them: its `moves` block for the whole song (`{"nod": {"speed": 3, "hold_seconds": 0.4}}`), and any
-step's own value over that. Global knobs, then the song's knobs (zKnobs.json feeding knobs.json),
-then the step.
-Play the Bingo test with `pha0b` (Take Out part 1) or `start bingo test` in the Brobots chat,
-and the interview with `start interview`.
-
-- `01a_brobots_bingo_test/` — the Bingo test song: two Brobots trade banter over ball-draw
-  rounds. Ready to record.
-- `01b_brobots_bingo_game/` — the live, voice-started Bingo game. Work in progress.
-- `02_brobots_interview/` — the scripted interview: the same `story.md` / `knobs.json` set-up,
-  played by `start interview` in the Brobots chat (not by `pha0b`). `score` prints it.
-- `00_llm_warming/` — the opener LLM Warming song: Wire-Pod plays it at every start. From the
-  template `_new_song/_llm_warm/`.
-- `101_brobots_nap/` — "Do Baby Robots Dream?", a lyric video (made in Premiere Pro): the
-  Brobots sleep through the narrated poem. `start baby brobots`.
-- `03_fart_joke/` — the fart joke: an elevator, three thinking pauses, three farts.
-  `start fart joke`.
-- `04_rapid_fire/` — the rapid fire exchanges test: two lines at once, their commas timing the
-  "what?" / "what do you mean what?" exchange. `start rapid fire`. Work in progress.
-- `05_comm_check/` — the comm check before the show: its lines asked on each numpad key.
-  `system-comm-check`. Work in progress.
-- `06_brobots_ready/` — the Brobots ready move: arm lifts, a nod together, "Brobots ready!" together.
-  `start brobots ready`. Work in progress.
-
-Before and after its run, a song can have a pre/post chat in the Brobots chat (the
-`experience` in each run card, settings `game.runs` - the game engine): Bingo, the nap, the fart
-joke and the interview have one. A new run is one new card.
-- `tools/` — the engine and its helpers (see its README).
-
-Private working files stay out of the repo: `zKnobs.json` (a working copy the engine prefers
-over `knobs.json`), `runs/` and `notation/`.
+Not in the repo: `zKnobs.json`, `runs/`, `notation/` (each song's private working files).
 
 <details><summary>Game card: our songs</summary>
 <!-- gopod topic: 02_the_songs -->

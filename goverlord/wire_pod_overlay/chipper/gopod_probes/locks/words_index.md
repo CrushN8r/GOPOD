@@ -37,7 +37,7 @@
 - words: wired pod, contents, this chat works, nine native files gopod changes, build deploy and test, part 2 the chat page, part 3 the offline llm, local brain, brobots on 1 6 rebuild, where this stands, cloud, internet, brain, your brain, ai, local, offline, what brain, run on, who built you, who made you, under the hood, wifi, wi-fi, wi fi, no cloud, monthly, monthly bill, bill, plug, plugged in, how does this work, how does the chat work, how do you work, how does it work, chat window, bubbles, highlight, numpad, push to talk, touch you, interrupt, memory, remember, how do you hear, how do you talk, this chat, chat work, how this works
 
 ## alias_play_studio/02_SONGS.md
-- words: songs, making a song, song folder, folder and its files, step names, knobs json the top keys, knobs json each step, notes, played by the song engine, played by the brobots chat, played by wire pod, weather in a line, toolbox and the songs, shared golden pieces, each song s own pieces, parked not lost, making and editing a song, editing a song, multi line words, step goverlord warm 0102, making a new song, llm warm song, llm song run, standard s check, make a song, knobs json, song engine
+- words: songs, making a song, song is a folder, editing a song, making a new song, llm warm song, timing that works, check, make a song, song folder, knobs json, song engine
 
 ## alias_play_studio/03_SESSION.md
 - words: session, session and runs, session and its phases, runs, every run s warm up, page away pause and continue, stopping a run, skip, replay a session, record session, thanks ending, mic missing usb watch, battery watchdog, the session, a session, the thanks ending, stop run, gig, gigs, sessions, booking, bookings, assignment

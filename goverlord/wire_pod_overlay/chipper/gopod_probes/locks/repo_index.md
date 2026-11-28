@@ -173,29 +173,13 @@
 ## alias_play_studio/02_SONGS.md
 - Songs: the folder, the notes, making one
 - making a song
-- 2. A song folder
-- 2.1 The folder and its files
-- 2.2 Step names
-- 2.3 knobs.json, the top keys
-- 2.4 knobs.json, each step
-- 3. The notes
-- 3.1 Played by the song engine
-- 3.2 Played by the Brobots chat (the interview)
-- 3.3 Played by Wire-Pod (an LLM warm song)
-- 3.4 The weather in a line
-- 4. The toolbox and the songs
-- 4.1 Shared golden pieces
-- 4.2 Each song's own pieces
-- 4.3 Parked, not lost
-- 5. Making and editing a song
-- 5.1 Editing a song
-- 5.2 Multi-line words
-- STEP goverlord_warm_0102
-- 5.3 Making a new song
-- 5.4 An LLM warm song
-- 5.5 The _llm_song run
-- 5.6 The standard's check
-- More in this part
+- A song is a folder
+- Where the words for each part live
+- Editing a song
+- Making a new song
+- An LLM warm song
+- Timing that works
+- The check
 
 ## alias_play_studio/03_SESSION.md
 - The session and runs
