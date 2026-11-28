@@ -279,12 +279,14 @@
 - Air hockey and the stage
 - Tour
 - Commandments
+- From the chat
 - Next
 
 ## alias_play_studio/brobots-settings/README.md
 - Brobots settings
 - Tour
 - Commandments
+- From the chat
 - Next
 
 ## alias_play_studio/concepts/README.md
@@ -312,6 +314,7 @@
 - Songs
 - Tour
 - Commandments
+- From the chat
 - Next
 
 ## alias_play_studio/start-and-wire-pod/README.md
@@ -623,6 +626,8 @@
 - chat_moves got_it - Brobot 2 (chat_moves.got_it.Brobot 2)
 - spoken_symbols words (spoken_symbols.words)
 - probers_make shapes (probers_make.shapes[])
+- probers_make Brobot 1 shapes (probers_make.persona_shapes.Brobot 1[])
+- probers_make Brobot 2 shapes (probers_make.persona_shapes.Brobot 2[])
 - Help lookup (help_lookup)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/brobot-brain.md
@@ -1386,6 +1391,7 @@
 - Probers make (system_text)
 - Robots off (system_text)
 - Run check (system_text)
+- System alias (system_text)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/company/booking.md
 - Booking the Brobots

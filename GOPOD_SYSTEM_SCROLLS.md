@@ -52,6 +52,7 @@ system commands (typed on this keyboard):
   system-interview-rebuild            the interview song, rebuilt from the game's topics and value points
   system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route
   system-usb                        the USB devices plugged in (live in the menu)
+  system-alias [<name> [args]]      the terminal's aliases from their cards; ✓ ones run here
   system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)
   system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)
   system-tpu [restart]              the Edge TPU worker's state, or start it again

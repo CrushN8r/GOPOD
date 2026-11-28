@@ -28,41 +28,42 @@
 21.   system-interview-rebuild            the interview song, rebuilt from the game's topics and value points
 22.   system-anim <text> [1|2|both]     the animationWI tester: {{playAnimationWI||angry}} and words, through Wire-Pod's say route
 23.   system-usb                        the USB devices plugged in (live in the menu)
-24.   system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)
-25.   system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)
-26.   system-tpu [restart]              the Edge TPU worker's state, or start it again
-27.   system-photos [1|2]               a Brobot's photos
-28.   system-cams [tpu]                 the Brobots' cameras and the webcam side by side; tpu = the Edge TPU on the selected one
-29.   system-chats <words> [operator|brobots|managers]   search every saved session's chat
-30.   system-chat-save [session]        a readable chat.md in the session's folder
-31.   system-menu-theme <preset>        the menu's look: dark, light, blue, green, purple
-32.   system-visual [next|prev|<id>]    the TPU +/- rotation: a feed's frame and its Edge TPU objects (KP+ / KP-)
-33.   system-version                    Wire-Pod's commit, the newest, what an update touches
-34.   system-native [on|off]            Wire-Pod's own voice answers (was the Native? box)
-35.   system-numpad on|off              the numpad keys as push-to-talk (was the Numpad? box)
-36.   system-numpad-layout [usb|pc]     the numpad's key layout - USB numpad or PC keyboard (then F5)
-37.   system-set <song> <step> <field> <value>   change one step (volume, text, timing)
-38.   system-set <song> [step]          a song's steps, or one step
-39.   system-set-list                   every setting, song and step field
-40.   system-locate <thing>             where it lives, file:line (a setting, a song step, a word)
-41.   system-locate-list                every setting's and song's file:line
-42.   system-undo                       put back the last system-set
-43.   system-status                     Wire-Pod, language model, page, run, Brobots' battery
-44.   system-find <word>                where a word shows up: the log (6 hours), settings, songs
-45.   system-search <words>             GOPOD's own web search, the results (to the Brobots: "search <words>")
-46.   system-check                      every file the settings, chapters and songs name - all there?
-47.   system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again
-48.   system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)
-49.   system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)
-50.   system-record on|off              Record Session on or off (the page's Record? box)
-51.   system-brain                      the brain chain: every answer's record (who asked, who answered, the line, its kind), and the session so far
-52.   system-robots-off on|off          robots off: nothing reaches the Brobots; their says play on the page in their numpad voices, says and animations captured for a replay
-53.   system-run-check off|on|replay    run check: off = sound off (robots off, page muted, the chat drawn as ever); on = sound back, its chat lines saved; replay plays them at normal volume
-54.   system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
-55.   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
-56.   system-tour                       the system window tour: Goverlord goes through the Scrolls, scripture by scripture; safe commandments run (again: stop)
-57.   system-scrolls                      the GOPOD System Scrolls (GOPOD_SYSTEM_SCROLLS.md, the system's master reference) written again from the system as it is now
-58.   system-comm-check                 the pre-show comm check: the whole numpad held in turn (KP0 the Butler, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
-59.   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
-60.   system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)
-61.   system-help                       this list
+24.   system-alias [<name> [args]]      the terminal's aliases from their cards; ✓ ones run here
+25.   system-voices                     numpad voices: KPN > persona [voice] (change them in the menu)
+26.   system-voices-report [3d|week|month|year]  voice files made, played, most played (report only)
+27.   system-tpu [restart]              the Edge TPU worker's state, or start it again
+28.   system-photos [1|2]               a Brobot's photos
+29.   system-cams [tpu]                 the Brobots' cameras and the webcam side by side; tpu = the Edge TPU on the selected one
+30.   system-chats <words> [operator|brobots|managers]   search every saved session's chat
+31.   system-chat-save [session]        a readable chat.md in the session's folder
+32.   system-menu-theme <preset>        the menu's look: dark, light, blue, green, purple
+33.   system-visual [next|prev|<id>]    the TPU +/- rotation: a feed's frame and its Edge TPU objects (KP+ / KP-)
+34.   system-version                    Wire-Pod's commit, the newest, what an update touches
+35.   system-native [on|off]            Wire-Pod's own voice answers (was the Native? box)
+36.   system-numpad on|off              the numpad keys as push-to-talk (was the Numpad? box)
+37.   system-numpad-layout [usb|pc]     the numpad's key layout - USB numpad or PC keyboard (then F5)
+38.   system-set <song> <step> <field> <value>   change one step (volume, text, timing)
+39.   system-set <song> [step]          a song's steps, or one step
+40.   system-set-list                   every setting, song and step field
+41.   system-locate <thing>             where it lives, file:line (a setting, a song step, a word)
+42.   system-locate-list                every setting's and song's file:line
+43.   system-undo                       put back the last system-set
+44.   system-status                     Wire-Pod, language model, page, run, Brobots' battery
+45.   system-find <word>                where a word shows up: the log (6 hours), settings, songs
+46.   system-search <words>             GOPOD's own web search, the results (to the Brobots: "search <words>")
+47.   system-check                      every file the settings, chapters and songs name - all there?
+48.   system-voices-rebuild [go]        check, back up every voice, then wpr 2 + F5 makes them all again
+49.   system-test-list                  the tests: system-test-<name>, several in a row, system-test-all (the audit)
+50.   system-test-game                  every topic, value point and Easter egg found by its own words (no robots, no model)
+51.   system-record on|off              Record Session on or off (the page's Record? box)
+52.   system-brain                      the brain chain: every answer's record (who asked, who answered, the line, its kind), and the session so far
+53.   system-robots-off on|off          robots off: nothing reaches the Brobots; their says play on the page in their numpad voices, says and animations captured for a replay
+54.   system-run-check off|on|replay    run check: off = sound off (robots off, page muted, the chat drawn as ever); on = sound back, its chat lines saved; replay plays them at normal volume
+55.   system-docbs [<pool> [add|remove <line>]]   DocBS's lines - the pools, one pool's lines, or add / remove one
+56.   system-probers-make               the probe maker: a prober for every value point, checked - probers_made_001.txt, to mic-record for the demo
+57.   system-tour                       the system window tour: Goverlord goes through the Scrolls, scripture by scripture; safe commandments run (again: stop)
+58.   system-scrolls                      the GOPOD System Scrolls (GOPOD_SYSTEM_SCROLLS.md, the system's master reference) written again from the system as it is now
+59.   system-comm-check                 the pre-show comm check: the whole numpad held in turn (KP0 the Butler, KP1-KP9, * All), live - who they are, about vs all about, each other, the interns
+60.   system-test-admin-run             the 100% admin run self-check: every line in order - points not revealed, eggs not found, prizes not given, dry reminders
+61.   system-test-replay                the chat page plays every egg kind, both prizes and the Operator voices (no robots)
+62.   system-help                       this list

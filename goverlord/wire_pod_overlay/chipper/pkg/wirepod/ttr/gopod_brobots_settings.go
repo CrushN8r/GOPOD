@@ -708,9 +708,10 @@ type gopodBrobotsSettingsFile struct {
 		ReplayWaitSeconds float64  `json:"replay_wait_seconds"`
 	} `json:"run_check"`
 	ProbersMake struct {
-		File          string            `json:"file"`
-		Shapes        []string          `json:"shapes"`
-		WrongGreeting map[string]string `json:"wrong_greeting"`
+		File          string              `json:"file"`
+		Shapes        []string            `json:"shapes"`
+		WrongGreeting map[string]string   `json:"wrong_greeting"`
+		PersonaShapes map[string][]string `json:"persona_shapes"`
 	} `json:"probers_make"`
 	SystemHelp struct {
 		Lines []string `json:"lines"`

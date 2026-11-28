@@ -273,7 +273,7 @@ func gopodChainStitch(part, esn, question, raw string, before bool) string {
 			return gopodStitchEndSnippet(line, raw)
 		}
 		if !gopodIsThanks(question) {
-			if line := gopodReminderLine(question); line != "" && !gopodBrotherSaid(esn, line) {
+			if line := gopodReminderLineFor(esn, question); line != "" && !gopodBrotherSaid(esn, line) {
 				logger.Println("BROBOT_REMINDER " + gopodBrobotName(esn) + ": " + line)
 				gopodReminderSaid.Store(esn, true)
 				return gopodStitchEndSnippet(line, raw)

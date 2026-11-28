@@ -363,6 +363,11 @@ func gopodPackPointCounts() ([]string, map[string]int) {
 var gopodReminderNames sync.Map
 
 func gopodReminderLine(userMessage string) string {
+	return gopodReminderLineFor("", userMessage)
+}
+
+// gopodReminderLineFor: the reminder, its invite in the speaking Brobot's own shapes first.
+func gopodReminderLineFor(esn, userMessage string) string {
 	vp, ic := gopodBrobotsSettings.ValuePoints, gopodBrobotsSettings.InterviewChapters
 	var order []string
 	chapterAt := map[string]int{}
@@ -503,7 +508,7 @@ func gopodReminderLine(userMessage string) string {
 	prober := ""
 	if strings.TrimSpace(vp.ReminderProberText) != "" {
 		for i, topic := range chainTopics {
-			if pr := gopodProberFor(topic); pr != "" {
+			if pr := gopodProberFor(topic, esn); pr != "" {
 				prober = pr
 				chain = append([]string{chain[i]}, append(append([]string(nil), chain[:i]...), chain[i+1:]...)...)
 				break

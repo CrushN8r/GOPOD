@@ -45,7 +45,7 @@ func gopodSystemSetMatch(text string) bool {
 	if gopodSystemTestMatch(text) {
 		return true
 	}
-	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-lingo-improver", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-scrolls", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-run-check", "system-brain", "system-audit", "system-voices", "system-voices-report"} {
+	for _, cmd := range []string{"system-numpad-layout", "system-set", "system-locate", "system-set-list", "system-locate-list", "system-undo", "system-status", "system-help", "system-find", "system-search", "system-check", "system-voices-rebuild", "system-add", "system-remove", "system-lingo", "system-lingo-improver", "system-restart", "system-topic", "system-native", "system-numpad", "system-score", "system-play", "system-gap", "system-tweaks", "system-calibrate", "system-robot", "system-faces", "system-photos", "system-version", "system-visual", "system-cams", "system-chats", "system-chat-save", "system-menu-theme", "system-tpu", "system-brobot", "system-usb", "system-anim", "system-value-points", "system-interview-rebuild", "system-comm-check", "system-scrolls", "system-tour", "system-record", "system-docbs", "system-probers-make", "system-robots-off", "system-run-check", "system-brain", "system-audit", "system-voices", "system-voices-report", "system-alias"} {
 		if word == cmd || strings.HasPrefix(word, cmd+" ") {
 			return true
 		}
@@ -125,6 +125,8 @@ func gopodSystemSetLine(esn, text, how string) {
 		answer = gopodSystemAnim(text)
 	} else if cmd == "system-usb" {
 		answer = gopodSystemUSB()
+	} else if cmd == "system-alias" {
+		answer = gopodSystemAlias(text)
 	} else if cmd == "system-tpu" {
 		answer = gopodSystemTPU(text)
 	} else if cmd == "system-cams" {

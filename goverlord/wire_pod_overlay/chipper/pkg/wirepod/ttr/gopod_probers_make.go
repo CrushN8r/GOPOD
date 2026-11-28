@@ -12,62 +12,78 @@ import (
 func gopodProbersMake() (lines []string, made, points int) {
 	pm := gopodBrobotsSettings.ProbersMake
 	chapters, _, _ := gopodReadChaptersFolder()
-	part := "evening"
-	if h := time.Now().Hour(); h >= 5 && h < 12 {
-		part = "morning"
-	} else if h >= 12 && h < 17 {
-		part = "afternoon"
-	}
-	wrong := pm.WrongGreeting[part]
 	turn := 0
 	for _, c := range chapters {
 		for _, t := range c.Topics {
-			if len(t.Words) == 0 {
+			pts, word, ok := gopodProbeTopic(t)
+			if !ok {
 				continue
-			}
-			facts, err := gopodReadTopicFacts(t.Path)
-			if err != nil {
-				continue
-			}
-			_, pts := gopodSplitPoints(string(facts))
-			word := t.Words[0]
-			if l := loadScenarioPacketsForMessage("tell me about " + t.Label); t.Label != "" && len(l) > 0 && l[0].Name == t.Name {
-				word = t.Label
-			} else {
-				for _, w := range t.Words {
-					if len(w) >= 4 {
-						word = w
-						break
-					}
-				}
 			}
 			for i, p := range pts {
 				if !gopodCorePoint(t.Name, i+1) {
 					continue
 				}
 				points++
-				title, note := gopodProbeParts(t.Name, i+1, p)
-				for k := 0; k < len(pm.Shapes); k++ {
-					shape := pm.Shapes[(turn+k)%len(pm.Shapes)]
-					if strings.EqualFold(title, word) && strings.Contains(shape, "{title}") && strings.Contains(shape, "{word}") {
-						continue
-					}
-					q := strings.NewReplacer("{title}", title, "{note}", note, "{word}", word, "{label}", t.Label, "{wrong_greeting}", wrong).Replace(shape)
-					if l := loadScenarioPacketsForMessage(q); len(l) == 0 || l[0].Name != t.Name {
-						continue
-					}
-					if gopodPickPoint(t.Name, pts, map[int]bool{}, q) != i {
-						continue
-					}
+				shapes := append(append([]string(nil), pm.Shapes[turn%len(pm.Shapes):]...), pm.Shapes[:turn%len(pm.Shapes)]...)
+				if q := gopodProbeFor(t, pts, i, p, word, shapes); q != "" {
 					lines = append(lines, q+" | "+t.Name)
 					made++
-					break
 				}
 				turn++
 			}
 		}
 	}
 	return lines, made, points
+}
+
+// gopodProbeTopic: a topic's value points and the word its probes name it by.
+func gopodProbeTopic(t gopodTopicFile) ([]string, string, bool) {
+	if len(t.Words) == 0 || len(gopodBrobotsSettings.ProbersMake.Shapes) == 0 {
+		return nil, "", false
+	}
+	facts, err := gopodReadTopicFacts(t.Path)
+	if err != nil {
+		return nil, "", false
+	}
+	_, pts := gopodSplitPoints(string(facts))
+	word := t.Words[0]
+	if l := loadScenarioPacketsForMessage("tell me about " + t.Label); t.Label != "" && len(l) > 0 && l[0].Name == t.Name {
+		word = t.Label
+	} else {
+		for _, w := range t.Words {
+			if len(w) >= 4 {
+				word = w
+				break
+			}
+		}
+	}
+	return pts, word, true
+}
+
+// gopodProbeFor: the first of shapes that, filled for point i, lands on that very point; "" with none.
+func gopodProbeFor(t gopodTopicFile, pts []string, i int, p, word string, shapes []string) string {
+	part := "evening"
+	if h := time.Now().Hour(); h >= 5 && h < 12 {
+		part = "morning"
+	} else if h >= 12 && h < 17 {
+		part = "afternoon"
+	}
+	wrong := gopodBrobotsSettings.ProbersMake.WrongGreeting[part]
+	title, note := gopodProbeParts(t.Name, i+1, p)
+	for _, shape := range shapes {
+		if strings.EqualFold(title, word) && strings.Contains(shape, "{title}") && strings.Contains(shape, "{word}") {
+			continue
+		}
+		q := strings.NewReplacer("{title}", title, "{note}", note, "{word}", word, "{label}", t.Label, "{wrong_greeting}", wrong).Replace(shape)
+		if l := loadScenarioPacketsForMessage(q); len(l) == 0 || l[0].Name != t.Name {
+			continue
+		}
+		if gopodPickPoint(t.Name, pts, map[int]bool{}, q) != i {
+			continue
+		}
+		return q
+	}
+	return ""
 }
 
 // gopodProbeParts: a point's title and note (its notes line, else its own words).

@@ -732,7 +732,7 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 			if s.Chance > 0 && rand.Float64() >= s.Chance {
 				continue
 			}
-			if line := gopodReminderLine(userMessage); line != "" {
+			if line := gopodReminderLineFor(esn, userMessage); line != "" {
 				return line
 			}
 			continue

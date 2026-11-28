@@ -3,6 +3,7 @@ package wirepod_ttr
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -100,37 +101,79 @@ func gopodProbersListLine() (bool, string) {
 	return share >= gopodBrobotsSettings.SystemTests.ProbersList.PassShare, line
 }
 
-// gopodProberTurn: each topic's next prober, round the list (gopodProberFor).
-var gopodProberTurn = struct {
+// gopodProberLast: each topic's last invite, so the next one differs (gopodProberFor).
+var gopodProberLast = struct {
 	sync.Mutex
-	next map[string]int
-}{next: map[string]int{}}
+	was map[string]string
+}{was: map[string]string{}}
 
-// gopodProberFor: one of Ron's probers for a topic - one the game takes to that topic, the next in
-// turn, so a reminder doesn't invite with the same one twice running; "" with none.
-func gopodProberFor(topic string) string {
-	probers, _, err := gopodProbers()
-	if err != nil {
+// gopodProberFor: an invite to a topic, shuffled - one of Ron's probers for it, or one made live
+// for a value point not said yet, in the speaking Brobot's own shapes first
+// (probers_make.persona_shapes), then the shared ones; never the same twice running; "" with none.
+func gopodProberFor(topic, esn string) string {
+	var pool []string
+	if probers, _, err := gopodProbers(); err == nil {
+		for _, p := range probers {
+			if len(p.want) == 0 || p.want[0] != topic {
+				continue
+			}
+			if l := loadScenarioPacketsForMessage(p.text); len(l) == 0 || l[0].Name != topic {
+				continue
+			}
+			pool = append(pool, p.text)
+		}
+	}
+	pool = append(pool, gopodProbesLive(topic, esn)...)
+	if len(pool) == 0 {
 		return ""
 	}
-	var mine []string
-	for _, p := range probers {
-		if len(p.want) == 0 || p.want[0] != topic {
-			continue
-		}
-		if l := loadScenarioPacketsForMessage(p.text); len(l) == 0 || l[0].Name != topic {
-			continue
-		}
-		mine = append(mine, p.text)
+	gopodProberLast.Lock()
+	defer gopodProberLast.Unlock()
+	rand.Shuffle(len(pool), func(a, b int) { pool[a], pool[b] = pool[b], pool[a] })
+	pick := pool[0]
+	if pick == gopodProberLast.was[topic] && len(pool) > 1 {
+		pick = pool[1]
 	}
-	if len(mine) == 0 {
-		return ""
+	gopodProberLast.was[topic] = pick
+	return pick
+}
+
+// gopodProbesLive: an invite for each of a topic's core value points not said yet, its shapes shuffled.
+func gopodProbesLive(topic, esn string) []string {
+	pm := gopodBrobotsSettings.ProbersMake
+	chapters, _, _ := gopodReadChaptersFolder()
+	for _, c := range chapters {
+		for _, t := range c.Topics {
+			if t.Name != topic {
+				continue
+			}
+			pts, word, ok := gopodProbeTopic(t)
+			if !ok {
+				return nil
+			}
+			gopodCoverage.Lock()
+			said := map[int]bool{}
+			for n, v := range gopodCoverageSaid[topic] {
+				said[n] = v
+			}
+			gopodCoverage.Unlock()
+			mine := append([]string(nil), pm.PersonaShapes[gopodBrobotName(esn)]...)
+			shared := append([]string(nil), pm.Shapes...)
+			rand.Shuffle(len(mine), func(a, b int) { mine[a], mine[b] = mine[b], mine[a] })
+			rand.Shuffle(len(shared), func(a, b int) { shared[a], shared[b] = shared[b], shared[a] })
+			var out []string
+			for i, p := range pts {
+				if said[i+1] || !gopodCorePoint(topic, i+1) {
+					continue
+				}
+				if q := gopodProbeFor(t, pts, i, p, word, append(mine, shared...)); q != "" {
+					out = append(out, q)
+				}
+			}
+			return out
+		}
 	}
-	gopodProberTurn.Lock()
-	defer gopodProberTurn.Unlock()
-	i := gopodProberTurn.next[topic] % len(mine)
-	gopodProberTurn.next[topic] = i + 1
-	return mine[i]
+	return nil
 }
 
 // ## EOF

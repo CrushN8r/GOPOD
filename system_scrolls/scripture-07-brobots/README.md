@@ -1,5 +1,5 @@
 # Scripture 7, Brobots
-- **words:** scripture 7, brobots, system-visual next, system-visual prev, system-cams, system-tpu, system-tpu restart, system-usb, system-brobot stats, system-version, system-brobot volume, system-brobot eyes, system-brobot locale, system-brobot units, system-brobot location, system-brobot timezone, system-faces, system-photos, system-brobot cube, system-brobot beats, system-brobot beat, system-brobot anims sleep, system-brobot anim, system-brobot say, system-brobot wake, system-brobot head, system-brobot lift, system-brobot wheels, system-brobot camera
+- **words:** scripture 7, brobots, system-visual next, system-visual prev, system-cams, system-tpu, system-tpu restart, system-usb, system-brobot stats, system-version, system-brobot volume, system-brobot eyes, system-brobot locale, system-brobot units, system-brobot location, system-brobot timezone, system-faces, system-photos, system-brobot cube, system-brobot beats, system-brobot beat, system-brobot anims sleep, system-brobot anim, system-brobot say, system-brobot wake, system-brobot head, system-brobot lift, system-brobot wheels, system-brobot camera, system-alias
 - **ask:** What's in Scripture 7, Brobots?
 - **about:** written by GOPOD from the system window (system-menu.md) - system-scrolls writes it again; system-tour reads it from here
 ---
@@ -36,6 +36,7 @@
 25. system-brobot lift, <speed>
 26. system-brobot wheels, <left> <right>
 27. system-brobot camera, live video from the Brobot's camera
+28. system-alias, the terminal's aliases from their cards; ✓ ones run here (system-alias gofps 30)
 
 ## Next
 1. Done? Close the menu with the speaker icon.

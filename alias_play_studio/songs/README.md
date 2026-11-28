@@ -19,6 +19,9 @@
 5. tempo-set, a song's tempo, walked through
 6. gobingo, the live Chocolate Bingo game - Brobot 2's angry reactor runs alongside and stops with it
 
+## From the chat
+1. score, typed as “system-alias score ...”
+
 ## Next
 1. Floor play and the stage? Go to air-hockey.
 

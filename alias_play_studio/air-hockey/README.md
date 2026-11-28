@@ -17,6 +17,9 @@
 4. gohockey, the whole game in a window: [2] (Brobot 2 plays) - wakes and drives the robots
 5. gohockey-rec, the whole game saved to a video in gopod_notes/stage/: [2] - wakes and drives the robots
 
+## From the chat
+1. gosnap, typed as “system-alias gosnap ...”
+
 ## Next
 1. Back to the studio: ALIAS-PLAY-STUDIO.md.
 

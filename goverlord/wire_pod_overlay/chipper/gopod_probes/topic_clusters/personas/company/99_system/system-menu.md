@@ -449,6 +449,11 @@
 2. about: live video from the Brobot's camera
 3. run: true
 
+## system-alias (system_menu.groups.6.items.27)
+1. cmd: system-alias
+2. about: the terminal's aliases from their cards; ✓ ones run here (system-alias gofps 30)
+3. run: true
+
 ## 8. Tune moves (system_menu.groups.7)
 1. title: 8. Tune moves
 2. guide: A move looks off? Try it alone on one Brobot (tweaks on: group 6), then play it in its song.

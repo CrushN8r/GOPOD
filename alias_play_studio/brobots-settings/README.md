@@ -13,6 +13,10 @@
 1. gofps, the face's frame rate: 30|60 [1|2] - after the Brobot reboots; alone: what each is set to
 2. gopower, the performance profile: normal (533 MHz, the least battery) | balanced (729 MHz) | high (1.26 GHz, hotter) [1|2] - at once; alone: what each is on
 
+## From the chat
+1. gofps, typed as “system-alias gofps ...”
+2. gopower, typed as “system-alias gopower ...”
+
 ## Next
 1. Ready to play? Go to songs.
 

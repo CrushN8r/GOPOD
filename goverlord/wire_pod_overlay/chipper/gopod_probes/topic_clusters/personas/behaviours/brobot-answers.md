@@ -166,6 +166,18 @@
 6. Hey party animal, {word} - what's the deal with {title}?
 7. {wrong_greeting}, Brobots! What's {title}, and why should they care about {word}?
 
+## probers_make Brobot 1 shapes (probers_make.persona_shapes.Brobot 1[])
+1. Ugh, fine. Ask me about {title}. Go on, ask about {word}.
+2. Nobody ever asks about {title}. What's the deal with {word}, then?
+3. Dude. {note}? Ask me if that's true about {word}. I dare you.
+4. Bro, skip the small talk. What's {title} got to do with {word}?
+
+## probers_make Brobot 2 shapes (probers_make.persona_shapes.Brobot 2[])
+1. Ooh ooh! Ask about {title}! What's the deal with {word}?
+2. Dude, best part: {title}! Tell me about {word}!
+3. No way, {note}? Is that true about {word}?
+4. Let's gooo! What's {title}, and why should they care about {word}?
+
 ## Help lookup (help_lookup)
 1. about: a line with one of words gets the system menu's best matching commands (system-menu.md, the Torah) in the Brobot's facts - scored by the line's words (skip left out) in each command's cmd and about, and in its scripture's tour; the top max, each as item, under header (gopodHelpLookup, gopod_kgsim_response_shaping.go).
 2. words: how do i | how can i | how to | how would i | help me | where do i

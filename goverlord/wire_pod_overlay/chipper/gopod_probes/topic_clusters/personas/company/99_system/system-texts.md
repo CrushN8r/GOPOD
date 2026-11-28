@@ -255,3 +255,12 @@ topics: {names}
 6. run_check.still_off: The run check's sound is still off - system-run-check on first.
 7. run_check.nothing: No run check saved yet - system-run-check off, then a run, then on.
 8. run_check.replay: Replaying the run check: {lines} chat lines, at normal volume.
+
+## System alias (system_text)
+1. system_alias.list_title: The terminal's aliases, from their cards (✓ = system-alias <name> runs it here):
+2. system_alias.chat_mark: ✓
+3. system_alias.unknown: system-alias: no card names {name} - system-alias alone lists them.
+4. system_alias.terminal_only: {name} runs in the terminal only ({card}) - it asks questions or restarts Wire-Pod.
+5. system_alias.run_going: system-alias {name}: a run is going - try again after it.
+6. system_alias.bad_arg: system-alias: {arg} - letters, digits, dots and dashes only.
+7. system_alias.ran: {name}:
