@@ -96,7 +96,7 @@
       {"kind": "operator", "has": ["[own]"]},
       {"kind": "gominion", "has": ["brobot-1", "brobot-2"]},
       {"kind": "other", "has": ["narrator", "countdown", "chapter", "pictures", "popup-winner", "egg"]},
-      {"kind": "goverlord", "has": ["host-butler"], "why": "2026-11-03 (operator: \"Goverlord > Butler > Gomads/Interns > Gominions\"; \"Butler shares system bubble + butler colours\"; \"Cameo at Gomad level * only voice\"): the Butler's bubble is Goverlord level in his own colours; Cameo's own bubbles are Gomad level (her voice alone speaks the unassigned lines, reporter_voices.unassigned_voice_host)"},
+      {"kind": "goverlord", "has": ["host-butler"], "why": "the Butler's bubble is Goverlord level in his own colours; Cameo's own bubbles are Gomad level (her voice alone speaks the unassigned lines, reporter_voices.unassigned_voice_host)"},
       {"kind": "gomad", "has": ["host", "search-results", "chalk-qr"]},
       {"kind": "goverlord", "has": ["score", "terminal", "warmup", "system-menu-host", "system-status"]}
     ]
@@ -107,7 +107,7 @@
     "hold_ms": 400
   },
   "skip_gate": {
-    "about_2": "2026-10-25 (operator: \"enable happens at \\\"Voices ready for playback.\\\" independent of edits\"): no words matched any more - Wire-Pod opens the gate as the opener's message step right after the voice files check (wait_voices) shows (gopod_opener_song.go, feed line skip_on), whatever its words."
+    "about_2": "Wire-Pod opens the gate as the opener's message step right after the voice files check (wait_voices) shows (gopod_opener_song.go, feed line skip_on), whatever its words."
   },
   "brobot_bubble": {
     "steps": ["header", "got_it", "value_points", "manager", "thanks", "reply"]
@@ -200,9 +200,9 @@
   "qr_codes": {
     "codes": [
       { "words": ["crushn8r.ca"], "not_words": ["crushn8r.ca/subscribe", "contact@crushn8r.ca"], "url": "https://crushn8r.ca", "image": "qr/crushn8r_ca.png", "title": "crushn8r.ca" },
-      { "words": ["contact@crushn8r.ca", "contact info", "contact us", "reach us"], "url": "mailto:contact@crushn8r.ca", "image": "qr/contact_crushn8r_ca.png", "title": "Contact: contact@crushn8r.ca", "about": "2026-11-24 (operator: \"contact info * make this its own golden process to be called by any persona * golden process is like with the qr codes\"): any persona's own words naming the contact put its QR up on CHALK's board - scanned, it opens an email to us." },
+      { "words": ["contact@crushn8r.ca", "contact info", "contact us", "reach us"], "url": "mailto:contact@crushn8r.ca", "image": "qr/contact_crushn8r_ca.png", "title": "Contact: contact@crushn8r.ca", "about": "any persona's own words naming the contact put its QR up on CHALK's board - scanned, it opens an email to us." },
       { "words": ["newsletter", "crushn8r.ca/subscribe"], "url": "https://crushn8r.ca/subscribe", "image": "qr/crushn8r_ca_subscribe.png", "title": "Newsletter: crushn8r.ca/subscribe" },
-      { "words": ["nightlife", "mississauga"], "url": "https://flare4.com", "image": "qr/flare4_com.png", "title": "flare4.com", "about": "2026-10-18 (operator: \"For 'crushn8r' easter egg in response bubble talking about ron's past, add a QR to flare4.com\"): the Brobot 0 topic's past (\"Ron used to make the nightlife look good on camera ... Mississauga and the GTA\")." }
+      { "words": ["nightlife", "mississauga"], "url": "https://flare4.com", "image": "qr/flare4_com.png", "title": "flare4.com", "about": "the Brobot 0 topic's past (\"Ron used to make the nightlife look good on camera ... Mississauga and the GTA\")." }
     ]
   },
   "point_bubbles": {

@@ -845,6 +845,6 @@
   "live_weather": {
     "location": "Windsor,ON,CA",
     "cache_seconds": 120,
-    "follow_up_kit_line_where": "2026-11-03: follow_up_kit_line lives in gopod_probes/topic_clusters/personas/behaviours/weather_run.md (the golden weather run, locked)."
+    "follow_up_kit_line_where": "follow_up_kit_line lives in gopod_probes/topic_clusters/personas/behaviours/weather_run.md (the golden weather run, locked)."
   }
 }
