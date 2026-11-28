@@ -41,6 +41,38 @@ func TestLineQueue(t *testing.T) {
 	}
 }
 
+// TestLineQueueHoldsAtMostFive: while a line is answered, at most line_queue.max_waiting wait their
+// turn; any more are dropped.
+func TestLineQueueHoldsAtMostFive(t *testing.T) {
+	saved := gopodBrobotsSettings.LineQueue
+	defer func() { gopodBrobotsSettings.LineQueue = saved }()
+	gopodBrobotsSettings.LineQueue.On = true
+	gopodBrobotsSettings.LineQueue.MaxWaiting = 5
+	gopodBrobotsSettings.LineQueue.AnswerMaxSeconds = 0.2
+	gopodBrobotsSettings.LineQueue.IdleSeconds = 0.2
+	gopodBrobotsSettings.LineQueue.PageMaxSeconds = 0.2
+	release := make(chan struct{})
+	started := make(chan struct{})
+	var ran atomic.Int32
+	gopodLineTurn("held", []string{"Brobot 1"}, func() error { close(started); <-release; return nil })
+	<-started
+	for i := 0; i < 8; i++ {
+		gopodLineTurn("waiting", []string{"Brobot 1"}, func() error { ran.Add(1); return nil })
+	}
+	if n := len(gopodLineJobs); n != 5 {
+		t.Errorf("waiting: %d, want 5", n)
+	}
+	close(release)
+	deadline := time.Now().Add(20 * time.Second)
+	for len(gopodLineJobs) > 0 && time.Now().Before(deadline) {
+		time.Sleep(100 * time.Millisecond)
+	}
+	time.Sleep(2 * time.Second)
+	if n := ran.Load(); n != 5 {
+		t.Errorf("played: %d, want the 5 that waited", n)
+	}
+}
+
 // ## EOF
 
 // CLOCK_AUDIT_001.md A: a question's idle wait doesn't count while an answer is going - a Brobot's

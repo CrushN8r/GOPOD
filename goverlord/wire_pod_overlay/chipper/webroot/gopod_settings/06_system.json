@@ -48,7 +48,13 @@
     "commandment": "{cmd}, {about}",
     "next_from": "Go to "
   },
-  "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90},
+  "vr_markers": {"about": "each Brobot's marker on his back, found by its colour in the overhead camera (gopod_vr_core.py)",
+    "brobots": {"Brobot 1": {"colour": "red lego", "hsv": [[[166, 120, 100], [179, 255, 255]], [[0, 120, 100], [3, 255, 255]]]},
+                "Brobot 2": {"colour": "yellow lego", "hsv": [[[12, 110, 140], [26, 255, 255]]]}},
+    "size_mm": [12, 60], "fill_min": 0.45},
+  "vr_stage": {"about": "the virtual stage (gopod_vr_stage.py): a centre spot up the table from the ruler's middle; with the cube near it, each Brobot goes to its side, else to either side of the spot with room for the cube between",
+    "centre_mm": [0, 150], "cube_near_mm": 120, "side_mm": 75, "sides": {"Brobot 2": -1, "Brobot 1": 1}},
+  "line_queue": {"on": true, "answer_max_seconds": 180, "idle_seconds": 30, "page_max_seconds": 90, "max_waiting": 5},
   "comm_check": {
     "song": "brobots_comm_check",
     "keys": ["KP0", "KP1", "KP2", "KP3", "KP4", "KP5", "KP6", "KP7", "KP8", "KP9", "KPmul"],

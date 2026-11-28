@@ -502,6 +502,7 @@ type gopodBrobotsSettingsFile struct {
 		AnswerMaxSeconds float64 `json:"answer_max_seconds"`
 		IdleSeconds      float64 `json:"idle_seconds"`
 		PageMaxSeconds   float64 `json:"page_max_seconds"`
+		MaxWaiting       int     `json:"max_waiting"`
 	} `json:"line_queue"`
 	DocBS struct {
 		Folder         string            `json:"folder"`

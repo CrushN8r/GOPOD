@@ -34,6 +34,10 @@ func gopodLineTurn(text string, answerers []string, run func() error) error {
 	if !gopodBrobotsSettings.LineQueue.On {
 		return run()
 	}
+	if max := gopodBrobotsSettings.LineQueue.MaxWaiting; max > 0 && len(gopodLineJobs) >= max {
+		logger.Println("GOPOD_LINE_QUEUE full (" + strconv.Itoa(max) + " waiting), dropped: " + gopodCut(text, 60))
+		return nil // at most max_waiting lines wait; the next one is dropped
+	}
 	if n := len(gopodLineJobs); n > 0 {
 		logger.Println("GOPOD_LINE_QUEUE waiting (" + strings.Join(answerers, ", ") + "), " + strconv.Itoa(n) + " ahead: " + gopodCut(text, 60))
 	}

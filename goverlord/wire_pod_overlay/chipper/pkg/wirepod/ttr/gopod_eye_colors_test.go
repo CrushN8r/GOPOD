@@ -319,7 +319,8 @@ func TestAnyPersonaKey(t *testing.T) {
 
 // a near "system-" is read as one.
 func TestSystemTypo(t *testing.T) {
-	for in, want := range map[string]string{"sysem-comm-check": "system-comm-check", "sytsem-tour": "system-tour", "system-tour": "system-tour", "hello-there": "hello-there"} {
+	for in, want := range map[string]string{"sysem-comm-check": "system-comm-check", "sytsem-tour": "system-tour", "system-tour": "system-tour", "hello-there": "hello-there",
+		"system comm check": "system-comm-check", "System comm check.": "system-comm-check", "sistem tour": "system-tour", "system is cool": "system is cool"} {
 		if got := gopodSystemTypo(in); got != want {
 			t.Errorf("%q -> %q, want %q", in, got, want)
 		}

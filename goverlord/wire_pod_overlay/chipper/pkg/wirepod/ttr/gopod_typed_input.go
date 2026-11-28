@@ -105,14 +105,46 @@ func gopodGoverlordAnswer(answer string) bool {
 	return true
 }
 
-// gopodSystemTypo: "sysem-comm-check" read as "system-comm-check" - a first word within two letters
-// of "system", before its "-", is "system".
+// gopodSystemTypo: a system command as typed or said, in its own form - "sysem-comm-check" (a first
+// word within two letters of "system", before its "-") and "system comm check" (said, no dashes:
+// a system menu command's words, system_menu) both read as "system-comm-check".
 func gopodSystemTypo(text string) string {
+	if spoken := gopodSystemSpoken(text); spoken != "" {
+		return spoken
+	}
 	head, rest, ok := strings.Cut(strings.TrimSpace(text), "-")
 	if !ok || strings.EqualFold(head, "system") || len(head) < 4 || gopodEditDistance(strings.ToLower(head), "system") > 2 {
 		return text
 	}
 	return "system-" + rest
+}
+
+// gopodSystemSpoken: "system comm check" (the mic's words) as "system-comm-check" - its first word
+// "system" (within two letters), then a system menu command's words, the longest that fits, then
+// the rest as said; "" when it's none.
+func gopodSystemSpoken(text string) string {
+	words := strings.Fields(strings.ToLower(strings.Trim(strings.TrimSpace(text), ".!?")))
+	if len(words) < 2 || strings.Contains(words[0], "-") || gopodEditDistance(words[0], "system") > 2 {
+		return ""
+	}
+	best := ""
+	for _, g := range gopodSystemMenuGroups() {
+		for _, it := range g.Items {
+			cmd := strings.ToLower(strings.Fields(it.Cmd + " ")[0])
+			parts := strings.Split(cmd, "-")
+			if len(parts) < 2 || parts[0] != "system" || len(parts) > len(words) || len(cmd) <= len(best) {
+				continue
+			}
+			if strings.Join(words[1:len(parts)], "-") == strings.Join(parts[1:], "-") {
+				best = cmd
+			}
+		}
+	}
+	if best == "" {
+		return ""
+	}
+	rest := strings.Fields(strings.TrimSpace(text))[len(strings.Split(best, "-")):]
+	return strings.TrimSpace(best + " " + strings.Join(rest, " "))
 }
 
 // gopodTypedToSystem: a line typed to 0 - a system command runs; anything else gets the system's

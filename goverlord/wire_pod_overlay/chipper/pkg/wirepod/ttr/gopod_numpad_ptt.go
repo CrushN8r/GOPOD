@@ -339,6 +339,12 @@ func gopodKeyLine(target, text, how string) error {
 	if gopodNeverIn(text, how) {
 		return nil
 	}
+	if fixed := gopodSystemTypo(text); fixed != text && gopodSystemCommandMatch(fixed) && target == gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona {
+		// said to KEYS: "system comm check" runs as typed to him
+		logger.Println("GOPOD_PTT said as a system command: " + text + " -> " + fixed)
+		defer gopodCommandFrom(target)()
+		return gopodTypedToSystem(fixed, how)
+	}
 	if gopodRunCommandLine(text) && (target == gopodTypedSystem || target == gopodPersonaMark+gopodBrobotsSettings.SystemBubble.VoicePersona) {
 		gopodRunFromZero.Store(true)
 		defer gopodCommandFrom(target)()

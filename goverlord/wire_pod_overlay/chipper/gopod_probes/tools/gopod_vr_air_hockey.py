@@ -15,13 +15,10 @@ import urllib.request
 import cv2
 import numpy as np
 
-CAMERA_GLOB = "usb-Wasintek_Wasintek_camera_*-video-index0"  # the RunCam, by name
-ANCHOR_FILE = "~/.gopod_air_hockey_anchor.json"
+from gopod_vr_core import ANCHOR_FILE, BAR_MM, BAR_DARK, CAMERA_GLOB, TRACK_HSV, find_bar, open_camera  # noqa: F401 - the shared camera and arena
+
 RUN_LOG = "~/.gopod_air_hockey_last_run.log"
 DRIVE_LOG = "~/.gopod_air_hockey_last_drive.log"  # his parking drive: time, where, which point, wheels
-BAR_MM = 304.8            # the ruler's black bar: 12 inches
-BAR_DARK = 115            # the bar reads mid-grey under this light (~90; the table ~170)
-TRACK_HSV = [((168, 100, 150), (179, 255, 255)), ((0, 100, 150), (11, 255, 255))]  # the orange track
 TRACK_GAP_MM = 20.0       # the field stops this short of the track
 FIELD_X = (-BAR_MM / 2, BAR_MM / 2)
 FIELD_Y = (0.0, 1.3 * BAR_MM)
@@ -95,38 +92,6 @@ ARM_NEAR_MM = 110.0       # the puck this near A's net, coming at it: B's arm go
 ROUND_TEXT = "Round {n}, go!"
 SCORE_TEXT = "{a}, {s}. Room, {r}."
 WIN_TEXT = "{w} wins the game!"
-
-
-def open_camera():
-    found = glob.glob(os.path.join("/dev/v4l/by-id", CAMERA_GLOB))
-    if not found:
-        sys.exit("no RunCam found")
-    cap = cv2.VideoCapture(found[0], cv2.CAP_V4L2)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # 1080p: the bar stands clear of the speaker
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    cap.set(cv2.CAP_PROP_FPS, 30)
-    return cap
-
-
-def find_bar(img):
-    """The ruler's black bar: the longest dark, thin, level bar low in the frame."""
-    h, w = img.shape[:2]
-    dark = cv2.inRange(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 0, BAR_DARK)
-    dark[: h // 3, :] = 0
-    dark = cv2.morphologyEx(dark, cv2.MORPH_OPEN, np.ones((1, max(20, int(0.06 * w))), np.uint8))  # long level runs only
-    dark = cv2.morphologyEx(dark, cv2.MORPH_CLOSE, np.ones((2, 12), np.uint8))
-    best = None
-    for c in cv2.findContours(dark, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
-        x, y, bw, bh = cv2.boundingRect(c)
-        if bw < w * 0.12 or bh == 0 or bw / bh < 12 or cv2.contourArea(c) < 0.5 * bw * bh:
-            continue
-        if best is None or bw > best[2]:
-            best = (x, y, bw, bh)
-    if best is None:
-        return None
-    x, y, bw, bh = best
-    return {"x": int(x), "y": int(y), "w": int(bw), "h": int(bh), "cx": int(x + bw / 2), "cy": int(y + bh / 2)}
 
 
 class Puck:
