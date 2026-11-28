@@ -1,15 +1,4 @@
-"""Find a song's folder by its name (song_id), wherever it sits.
-
-GOLDEN (operator 2026-10-10: "even shuffling (song) folders without notice
-should be easy to remap"): a song is known by the "song_id" in its own
-knobs.json, never by its folder's name. Rename or renumber a folder under
-goverlord/runtime/songs/ and everything that plays it - the engine, the
-"start ..." commands, pha0b, the interview - still finds it, with nothing to
-update. Two folders with the same song_id is an error, named.
-
-  python3 song_folders_001.py                 # every song: song_id, folder
-  python3 song_folders_001.py brobots_bingo   # that song's folder (exit 1 if none)
-"""
+"""Find a song's folder by its name (song_id), wherever it sits."""
 
 import json
 import sys

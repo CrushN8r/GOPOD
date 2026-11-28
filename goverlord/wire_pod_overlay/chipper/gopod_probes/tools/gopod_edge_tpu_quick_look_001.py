@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""The photo egg's quick look on the Coral Edge TPU (2026-10-16, operator: "Edge TPU
-list shown first while moondream is still looking (both, not a swap) * round 1 is
-from TPU quick look"). Loads a COCO detection model on the TPU once, then for each
-photo path read from stdin (one per line) finds the objects in it and prints one JSON
-line: {"objects": ["person", "cup"], "seconds": 0.05} - each object once, most sure
-first. Run in the gopod-coral39 environment (pycoral 2.0.0); Wire-Pod starts it once
-and keeps it (gopod_photo_quick_look.go, settings photo.quick_look). A photo path as
-a 4th argument looks at that one photo and exits (a test).
-
-2026-10-17 (operator: "3 images displayed * [raw snapshot][snapshot enhancement
-attempt][TPU object recognition on enhancement]"): a line may instead be JSON,
-{"photo", "enhanced", "boxes", "enhance": {...}} - the photo is enhanced first
-(photo.quick_look.enhance: a light clean-up, then auto contrast, brightness,
-contrast and sharpness) and saved as enhanced, the objects are found in the
-enhanced one, and a copy with each object's box and name is saved as boxes."""
+"""."""
 import json
 import sys
 import time
@@ -25,10 +11,7 @@ from pycoral.utils.edgetpu import make_interpreter
 
 
 def white_balanced(image, strength):
-    """2026-11-10 (operator: Vector photos greenish; "Do the safe to build white
-    balance"): grey-world white balance - each colour scaled so the three average
-    the same, which pulls the camera's green cast back; strength 0 = unchanged,
-    1 = full."""
+    """grey-world white balance - each colour scaled so the three average the same, which pulls the camera's green cast back; strength 0 = unchanged, 1 = full."""
     from PIL import ImageStat
     if strength <= 0 or image.mode != "RGB":
         return image
@@ -82,9 +65,7 @@ def enhanced(image, knobs):
 
 
 def centre_cropped(image, share):
-    """2026-11-10 (operator: "tpu photo: slightly, centre-crop for the ring *
-    resize back to pre-cropped size"): share of each side cut off, then the middle
-    stretched back to the photo's own size."""
+    """share of each side cut off, then the middle stretched back to the photo's own size."""
     if share <= 0 or share >= 0.4:
         return image
     w, h = image.size

@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Reporter voices for the Brobots chat page (2026-10-06).
-
-A persistent Kokoro worker, started once by Wire-Pod (gopod_reporter_voices.go):
-the model loads once, then each stdin line - JSON {"voice", "text", "out"} - is
-written to the "out" WAV file and acked on stdout with JSON {"ok", "seconds"}.
-The chat page plays the file, so the voice comes out of the screen showing the
-chat. Synthesis is the interview engine's own (synthesize() in
-interview_status_kokoro_announcer_001.py), imported unchanged.
-"""
+"""Reporter voices for the Brobots chat page."""
 from __future__ import annotations
 
 import importlib.util
@@ -32,9 +24,7 @@ def load_announcer():
 
 
 def synthesize(announcer, pipeline, text, voice, out_wav, speed):
-    """The announcer's synthesize(), with the talking speed from Wire-Pod
-    (reporter_voices.speed; operator 2026-10-09: "decrease talking speed ever so
-    slightly"). Same pipeline call, same sample rate."""
+    """The announcer's synthesize(), with the talking speed from Wire-Pod."""
     import numpy as np
     import soundfile as sf
 
@@ -57,12 +47,7 @@ def synthesize(announcer, pipeline, text, voice, out_wav, speed):
 
 
 def finish_voice(out_wav, words):
-    """2026-11-02 (operator: "timing is off for newly generated voice files * they
-    should all go through a signal/volume leveling & vosk for timings"): every
-    new voice, after its pitch and robot effect, is levelled (sox norm -3), then
-    timed by ear on that finished file - Vosk (Wire-Pod's speech model) listens,
-    each word takes the heard word's times (align_heard). Before, the timing ran
-    on Kokoro's raw voice, before the effects and with no levelling."""
+    """every new voice, after its pitch and robot effect, is levelled (sox norm -3), then timed by ear on that finished file - Vosk (Wire-Pod's speech model) listens, each word takes the heard word's times (align_heard)."""
     try:
         levelled = out_wav.with_name(out_wav.stem + ".level.wav")
         subprocess.run(["sox", str(out_wav), str(levelled), "norm", "-3"], check=True, capture_output=True)
@@ -118,16 +103,7 @@ NEAR_SECONDS = 1.0
 
 
 def align_heard(words, heard):
-    """GOLDEN, the one highlight gear (2026-11-06, operator: "can we please
-    template/schema the highlighting to one gear we can look to to fix * no
-    patching - remove all patching"): Kokoro's words with Vosk's heard times, one
-    rule - the words said as written ("Intel", "battery") are matched to the heard
-    words in order (the longest common run, anywhere in the line, no look-ahead
-    window, no partial matches); every other word ("404" said four oh four,
-    "P-N-F-T" said P N F T) and every mark shares the time between the matched
-    words around it, by its length. Kokoro's own clock is used only after the
-    last matched word. Replaces the look-ahead, "said another way" and gap rules
-    (2026-11-02..04)."""
+    """GOLDEN, the one highlight gear: Kokoro's words with Vosk's heard times, one rule - the words said as written ("Intel", "battery") are matched to the heard words in order (the longest common run, anywhere in the line, no look-ahead window, no partial matches); every other word ("404" said four oh four, "P-N-F-T" said P N F T) and every mark shares the time between the matched words around it, by its length."""
     import re
     norm = lambda t: re.sub(r"[^a-z0-9]+", "", str(t).lower())
     wi = [i for i, w in enumerate(words) if norm(w["t"])]
@@ -189,8 +165,7 @@ def _share_gaps(out, norm):
 
 
 def heard_words(wav):
-    """2026-10-24 (the mic's own voice): every word Vosk hears in a recording,
-    with its times - the words the line was transcribed from."""
+    """every word Vosk hears in a recording, with its times - the words the line was transcribed from."""
     import subprocess
     from vosk import KaldiRecognizer
     rec = KaldiRecognizer(VOSK["model"], 16000)

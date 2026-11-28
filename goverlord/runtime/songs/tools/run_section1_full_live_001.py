@@ -183,17 +183,7 @@ def _kokoro_status_ensure_loaded():
 
 
 def kokoro_status_warm_up():
-    """Diagnostic finding (2026-07-07 live audio path test): KPipeline()
-    model load costs ~20+s on this box (CPU only - no usable CUDA, see the
-    torch driver warning). Without this, that cost silently lands on
-    RUN_START - the very first status line the interview ever prints -
-    turning the show's opening beat into an unexplained ~20s dead-air
-    stall. Call this once, before the first status() call, so the load
-    happens as its own clearly-labeled step instead.
-    Uses only the --speak-stdin worker's existing protocol - an empty line
-    always gets an immediate DONE once the worker reaches its stdin loop,
-    which only happens after KPipeline() finishes - no announcer script
-    change needed to get a readiness signal out of it."""
+    """Diagnostic finding: KPipeline() model load costs ~20+s on this box (CPU only - no usable CUDA, see the torch driver warning)."""
     _kokoro_status_ensure_loaded()
     proc = _KOKORO_STATUS_STATE["proc"]
     if proc is None or proc.stdin is None or proc.stdout is None:
@@ -878,22 +868,7 @@ def find_section_card_line(log, line_number):
 
 
 def fire_interview_kg_search_sequence(serial, live, segment_id="", segment_label=""):
-    """Theatrical-only, interview song only: fires "searching" (looped every
-    INTERVIEW_KG_SEARCH_LOOP_INTERVAL for INTERVIEW_KG_SEARCH_SECONDS) then
-    "searchingGetout" (once), on the robot about to deliver an LLM-authored
-    interview answer. Scripted in deliberately per the operator's own
-    explicit ask, 2026-07-24 - the interview's JSON is fully pre-generated
-    before playback_phase() ever starts (see generate_phase()/main()), so
-    there is no real LLM wait here to mask; this exists purely to make a
-    canned read *look* like a live search/answer. Same assume-loop-fire-once
-    -release shape as ~/.gopod_alias_lib/brobots.sh's own
-    _brobots_play_anim_single (outside this repo) - ported here, not
-    reinvented; see ANIM_KNOWLEDGEGRAPH_RESOLVED_001.md/
-    ANIM_CLARITY_FIREWORKS_STATUS_AND_INTEGRATION_IDEA_001.md (gopod_notes)
-    for how searching/searchingGetout/answering were confirmed real and
-    working. Does NOT touch the line's own animation_action - the caller
-    (playback_phase()'s play_brobot_1()) overrides that to "answering"
-    separately, right before play_generated_turn() fires the actual speech."""
+    """Theatrical-only, interview song only: fires "searching" (looped every INTERVIEW_KG_SEARCH_LOOP_INTERVAL for INTERVIEW_KG_SEARCH_SECONDS) then "searchingGetout" (once), on the robot about to deliver an LLM-authored interview answer."""
     segment_id = segment_id or f"interview_kg_search_{serial}"
     segment_label = segment_label or f"Interview KG search sequence on {serial}"
     if not live:
@@ -1684,11 +1659,7 @@ def pronunciation_entries(registry_path=SPEECH_PRONUNCIATION_REGISTRY_PATH):
 
 
 def starred_pattern(word, vowels=""):
-    """A word quoted for a regex, each "*" its own vowel from vowels, in order (or
-    a "*" itself) - a public, starred entry ("sh*t", "i") matches the word said and
-    the word written starred, never another word ("shot") (2026-10-29, operator:
-    "Public GOPOD: star '*' out expletives"; gopod_pronunciation.go
-    gopodStarredPattern, the same rule)."""
+    """A word quoted for a regex, each "*" its own vowel from vowels, in order (or a "*" itself) - a public, starred entry ("sh*t", "i") matches the word said and the word written starred, never another word ("shot")."""
     left = list(vowels or "")
     def one(_m):
         if not left:
@@ -1931,17 +1902,7 @@ def wirepod_get_text(path, timeout=10):
 
 
 def restart_wirepod_preflight(live):
-    """The one shared Wire-Pod restart function - every caller (interview
-    runner, phcal, wpr) routes through this, no duplicated restart logic
-    anywhere else. GOLDEN RULE, see .claude/skills/wirepod-restart-discipline/
-    SKILL.md: CHECK -> CLEAR -> START (only if unhealthy) -> CONFIRM.
-    Restarting an already-healthy service is what trips systemd's
-    start-rate limiter, not the restart command itself - stop-then-start
-    does not dodge it either. CHECK first and skipping when already healthy
-    is the actual fix; CLEAR (reset-failed) is harmless when nothing is
-    wrong and required when a prior restart already tripped the limiter.
-    The MIRROR step (apply_nongo_files.sh) was removed 2026-10-02: Wire-Pod
-    reads GOPOD's files straight from the overlay folder."""
+    """The one shared Wire-Pod restart function - every caller (interview runner, phcal, wpr) routes through this, no duplicated restart logic anywhere else."""
     if not live or not RESTART_WIREPOD_BEFORE_RUN:
         return {"enabled": False}
 
@@ -2009,21 +1970,7 @@ def restart_wirepod_preflight(live):
 
 
 def start_wirepod_preflight(live):
-    """2026-08-21, WPS_WPQ_ALIASES_SURVEY_001.md -> WPS_WPQ_ALIASES_BUILT_001.md:
-    wps's own shared function, built as a near-exact mirror of
-    restart_wirepod_preflight() above - same CHECK -> CLEAR ->
-    START -> CONFIRM shape, same golden-rule reasoning (that function's own
-    docstring), only two things differ: STEP 1's skip condition/message
-    ("already running" instead of "already healthy, no restart fired") and
-    STEP 3's actual systemctl verb (`start`, not `restart` - a bare start
-    on an already-active unit is what wps is here to AVOID by checking
-    first, not something this command itself needs to guard against, but
-    checking first is still correct: skipping avoids the unnecessary
-    reset-failed/mirror work on a service that's already fine). Not
-    called by the interview runner or phcal - wps is a standalone
-    operator command, its own bash wrapper below sets
-    GOPOD_RESTART_WIREPOD_BEFORE_RUN=1 the same way _wpr_check() does,
-    matching RESTART_WIREPOD_BEFORE_RUN's own gate exactly."""
+    """md -> wps's own shared function, built as a near-exact mirror of restart_wirepod_preflight() above - same CHECK -> CLEAR -> START -> CONFIRM shape, same golden-rule reasoning (that function's own docstring), only two things differ: STEP 1's skip condition/message ("already running" instead of "already healthy, no restart fired") and STEP 3's actual systemctl verb (`start`, not `restart` - a bare start on an already-active unit is what wps is here to AVOID by checking first, not something this command itself needs to guard against, but checking first is still correct: skipping avoids the unnecessary reset-failed/mirror work on a service that's already fine)."""
     if not live or not RESTART_WIREPOD_BEFORE_RUN:
         return {"enabled": False}
 
@@ -3160,31 +3107,7 @@ def run_preshow_song(song_dir, interview_scaffold, robots, content_model, genera
 
 
 def run_scored_preshow_and_generate(song_dir, live, voice_destination, read_sheet=False):
-    """Runs the scored pre-show song and interview generation genuinely in
-    parallel: generation happens in a background thread, calling
-    generate_phase() completely unchanged - same function, same log dict,
-    same single write_log() call at the end, in that one thread alone. The
-    main thread plays the pre-show song and only ever touches a
-    threading.Event for synchronization - it never reads or writes `log` or
-    the run json, so there is nothing for the two threads to race on there.
-
-    Both Kokoro voices are warmed up front, synchronously, before the
-    background thread starts, specifically to close a real race: Brobot 3's
-    persistent subprocess is shared state (_KOKORO_STATUS_STATE), and
-    _kokoro_status_ensure_loaded()'s own "attempted" guard is not atomic
-    across threads. Warming it here first means generate_phase()'s own
-    internal warm-up call later is a guaranteed no-op by the time the
-    background thread reaches it - never a second spawn, never a torn write.
-
-    _KOKORO_STATUS_STATE["active"] is set False before the background thread
-    starts, for the same reason from the other direction: left True,
-    generate_phase()'s own status() beats would call _announce_status_kokoro,
-    which writes to that same shared subprocess from the background thread,
-    while this thread is writing to it too for the song's own Brobot 3
-    lines - two threads writing one pipe. False means every one of those
-    calls no-ops immediately (the technical print(f"STATUS: ...") still
-    happens - operator-facing telemetry, unchanged); only this thread's own
-    calls ever reach the subprocess."""
+    """Runs the scored pre-show song and interview generation genuinely in parallel: generation happens in a background thread, calling generate_phase() completely unchanged - same function, same log dict, same single write_log() call at the end, in that one thread alone."""
     content_model = resolve_content_model()
     if content_model:
         print(f"CONTENT_MODEL_SELECTED model={content_model}", flush=True)
@@ -3247,25 +3170,7 @@ def run_scored_preshow_and_generate(song_dir, live, voice_destination, read_shee
 
 
 def run_preshow_only(song_dir, live, voice_destination, read_sheet=False):
-    """Plays ONLY the scored pre-show/vamp song (M1 cold open, M2 Brobot 1
-    wakes, M3 Brobot 2 wakes, M4) with ZERO interview generation triggered -
-    the pure "video 1" performance, added 2026-08-19
-    (INTERVIEW_VAMP_NO_GEN_PATH_001.md) once the operator called for a
-    no-generation-side-effect fire path. Reuses run_preshow_song() verbatim
-    - the exact same function run_scored_preshow_and_generate() calls, no
-    new playback logic. The only difference: no generation thread is ever
-    spawned, and generation_done_event is created already-set, so
-    run_preshow_song()'s own vamp-filler loop
-    (`while not generation_done_event.is_set()`) never enters at all -
-    correct, since the filler's whole purpose is covering an active
-    generation wait, and there is none here. Zero vamp filler rounds play;
-    M1/M2/M3 play once, then straight to M4.
-
-    Still reads the shared interview_scaffold (persona/pronunciation rules)
-    for Brobot 1/2's two llm_coloured wake-beat lines - a read of a shared
-    resource, not interview generation. generate_phase() is never imported,
-    referenced, or called anywhere in this function - confirmed by grep,
-    not just by this docstring's own claim."""
+    """."""
     content_model = resolve_content_model()
     if content_model:
         print(f"CONTENT_MODEL_SELECTED model={content_model}", flush=True)

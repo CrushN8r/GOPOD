@@ -31,7 +31,7 @@ var gopodCoverage = struct {
 	sync.Mutex
 	revealed map[string]int  // topic -> points revealed
 	scored   bool            // this ending's score has been shown
-	reminded map[string]bool // topics and chapters a reminder has named (2026-10-07: not again)
+	reminded map[string]bool // topics and chapters a reminder has named (not again)
 }{revealed: map[string]int{}, reminded: map[string]bool{}}
 
 func gopodReminded(name string) bool {

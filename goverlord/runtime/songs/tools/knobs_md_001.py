@@ -1,27 +1,4 @@
-"""A song's knobs as a topic-cluster md file: zKnobs.md (2026-11-04, step 9 of
-gopod_notes/GOPOD_CLUSTERS_PLAN_002.md; operator: "I have zKnobs.json (work file)
-that saves to knobs.json * so zKnobs.json (work file) to md instead? Yes if it fits
-topic-cluster format"; "zKnobs.md is the one source").
-
-zKnobs.md is the one source of a song's knobs: knobs.json is built from it before
-each run (knobs_envelope_001.resolve_active_knobs_path), and the tools that write
-knobs (phcal apply, tempo-set, robot pick) write it back here
-(knobs_envelope_001.save_knobs_envelope). The format is the topic-cluster one the
-Brobots chat reads (gopod_topic_clusters.go):
-
-    # <title>, its head ("- **words:** ..."), then "---", then sections:
-    ## <label> (<place>)      a section fills a place: "." is the top level,
-                              "steps.3" the fourth step, "steps.3.moves" inside it
-    1. key: value             a point; the value is:
-                                `text`        exactly (spaces kept, "\\n" a break)
-                                12 / 0.5      a number
-                                true / false  a switch; null, [] and {} as written
-                                a | b | c     a list ("a |" a list of one)
-                                anything else text
-    ## <label> (<place>[])    a line list: each point one line, as written
-
-Only the points carry knobs; any other line in the file is a note for the reader.
-"""
+"""."""
 import json
 import re
 

@@ -1,22 +1,5 @@
 #!/usr/bin/env python3
-"""GOPOD's own test run (2026-10-24, operator: "Do I have a full complete dry run
-file? * make me a new one to test on my behalf * Make me a f*ck*ng agent to whoop
-your sorry AI ass").
-
-Types a full session into GOPOD the way the operator does (the chat's own typed
-line, from this machine = the admin), one line at a time, waiting for each
-answer to finish. Then it checks everything that has gone wrong before:
-
-  - every Operator line shows before the Brobot's answer to it
-  - every line gets an answer
-  - Wire-Pod's log: fallback line used, answer shape drift, voices not heard,
-    replies not shown, a stuck baton, stuck replies, refused visitor calls
-
-and writes one short report to gopod_notes/. Live robots answer (they speak).
-Run it after LLM Ready, with the PC's chat page open and clicked once:
-
-    python3 gopod_dry_run_001.py
-"""
+"""GOPOD's own test run."""
 import datetime
 import json
 import subprocess
@@ -55,7 +38,7 @@ def game_steps():
     with urllib.request.urlopen(BASE + "/gopod_brobots_settings.json", timeout=10) as r:
         settings = json.loads(r.read().decode("utf-8"))
     core = settings.get("value_points", {}).get("core_points", [])
-    questions = settings.get("game_questions", [])  # 2026-11-25: from the cards, not a file
+    questions = settings.get("game_questions", [])  # from the cards, not a file
     seen, out = {}, []
     for q in questions:
         seen[q["topic"]] = seen.get(q["topic"], 0) + 1

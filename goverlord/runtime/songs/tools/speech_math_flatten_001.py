@@ -1,26 +1,4 @@
-"""Math and LaTeX flatten for the robot speech lane.
-
-One Doc reply, two outputs: the rich display keeps everything (LaTeX, symbols, bold,
-emoji); the robot says a flattened copy. This module turns the math parts of that copy
-into spoken words, so nothing unspeakable reaches a Vector:
-
-  \\frac{a}{b} -> "a over b"         x^{4} / x⁴ -> "x to the fourth"
-  \\neq / ≠   -> "does not equal"    \\times / × -> "times"
-  \\infty / ∞ -> "infinity"          \\lambda / λ -> "lambda"
-  \\text{belief} -> "belief"         \\sqrt{x} -> "the square root of x"
-  \\overline{3} -> "3 repeating"     spacing commands, braces, backslashes -> gone
-
-Display math (\\[ ... \\] and $$ ... $$) becomes its own spoken sentence. Decimals are
-left intact (nothing here splits text into sentences). Every table is an ordered list,
-applied in a fixed order, so the same input always gives the same output.
-
-Called from run_section1_full_live_001.py's speech path (strip_rich_text_for_voice and
-flatten_for_robot_speech) before any character stripping, so the LaTeX is still whole
-when it is read. Ideas taken from the operator's old Go attempts (wirepod_ttr
-llm_streaming_prepost_split.go, rational_number_utils*.go, special_characters_vars.go),
-rebuilt here without their known failures. Report:
-gopod_notes/DOC_RICH_DISPLAY_ROBOT_SAY_FLATTEN_001.md
-"""
+"""Math and LaTeX flatten for the robot speech lane."""
 import re
 
 LATEX_WORD_COMMANDS = [

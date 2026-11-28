@@ -1,41 +1,5 @@
 #!/usr/bin/env python3
-"""Golden song runner — Phase 1 of the golden-song-runner unification path
-(gopod_notes/older_notes/GOLDEN_SONG_RUNNER_PLAN_SURVEY_001.md,
-~/.claude/plans/squishy-snacking-falcon.md). A single fat-superset note-dispatch
-engine meant to eventually replace BOTH run_songs_runner_001.py (the "bingo"
-runner) and run_robot_control_song_001.py (the "control song" runner) — but
-this file never edits either of those two, or run_section1_full_live_001.py
-(the shared interview library both already import from and this file imports
-from too, exactly the same pattern). This pass proves the engine on ONE
-bingo-family song only (see SONG_REGISTRY below) — widening the registry to
-the rest of the bingo family, and adding the control-song-family
-compatibility shim (note_aliases/synthesize_speaker/unconditional_text_speak),
-are later, separate passes.
-
-Behavior is a straight port of run_songs_runner_001.py's own note vocabulary
-and stop-condition logic — this file changes WHICH literals are hardcoded
-(BINGO_* -> song_id-derived, per the survey's own schema table), not what
-happens when a note fires. Every hardware-tuned timing constant below
-(RATTLE_SETTLE_SECONDS, DIRECT_SDK_RELEASE_SETTLE_SECONDS,
-BROBOTS_READY_TOGETHER_HANDBACK_SETTLE_SECONDS) is copied verbatim from that
-file's own live-confirmed values — do not retune here; retune (if ever
-needed) in the one file both engines temporarily share history with.
-
-Eleven note types, one dispatch loop, config supplied per-song by SONG_REGISTRY:
-wake_both, say_turn, rattle, brobots_ready_together, arm_cue, nod, wheel_nudge,
-emotion_beat, animation, pause, exit. wheel_nudge added 2026-08-09
-(WHEEL_NUDGE_GOLDEN_PATH_SURVEY_001.md Stage 2) - fixed reverse only, no
-song has a step using it yet, so this is purely additive: a song with no
-wheel_nudge step is unaffected.
-
-Naming: print-line tags and the saved run log/json filename stem are derived
-from the song's own song_id (read from its knobs.json) rather than a fixed
-family literal — e.g. "BROBOTS_BABY_ROBOTS_SLEEP_CAPTURE" instead of
-"BINGO_CAPTURE". Env var names are NOT song-derived — they are this engine's
-own fixed configuration surface (one process = one song, selected via
-GOPOD_GOLDEN_SONG_DIR), the same category as the already-global
-GOPOD_ALLOW_LIVE_ROBOT_SPEECH/GOPOD_VOICE_DESTINATION vars every runner reads.
-"""
+"""Golden song runner — Phase 1 of the golden-song-runner unification path."""
 import importlib.util
 import base64
 import json
@@ -266,10 +230,7 @@ def _load_control_song_module():
 
 
 def _sequence_steps(step, song_dir, control_mod, seen=None):
-    """2026-10-16 (operator: "extend that to include sequences"): a sequence
-    step plays another song's steps, in place - its "song_id" names the song
-    (found by name, song_folders_001.py). A song can't sequence itself, and an
-    LLM warm song (played by Wire-Pod) isn't played here; either is skipped, said."""
+    """a sequence step plays another song's steps, in place - its "song_id" names the song (found by name, song_folders_001.py)."""
     seen = set(seen or ()) | {Path(song_dir).resolve()}
     target_id = (step.get("song_id") or "").strip()
     folder = find_song_dir(target_id) if target_id else None
@@ -290,13 +251,7 @@ def _sequence_steps(step, song_dir, control_mod, seen=None):
 
 
 def combo_parts(step):
-    """2026-10-10 (operator: "see new steps with new combos, _nod, _beat_angry,
-    _kg_success ... I combined steps that had Lol! at the end"): a combo step is
-    one story.md step played as its "combo" notes, in order. A part with "text"
-    says those words, cut from the step's TEXT ("Lol!", "Excuse Me?"); a part
-    without "text" says what's left; "text": "" says nothing. Each part keeps
-    the step's step_id, speaker and section. Each part's line is said to its
-    end before the next part starts (say_text answers once it's spoken)."""
+    """a combo step is one story.md step played as its "combo" notes, in order."""
     rest = step.get("text", "")
     parts = []
     for raw in step["combo"]:
@@ -343,20 +298,7 @@ def _llm_song_lines(song_dir, control_mod, fallback):
 
 
 def load_golden_song(song_dir, control_mod, _seen=None):
-    """Same parsing shape as run_songs_runner_001.py's own
-    load_bingo_capture_song(): reuses control_mod.parse_control_story_md() for
-    STEP-heading parsing, merges every knobs.json field through (no
-    whitelist, so animation_token/hold_seconds/
-    gap_label all survive), plus story.md's own text/fail. Kept as this
-    file's own copy (not imported from run_songs_runner_001.py) so the golden
-    engine has zero runtime dependency on the file it is meant to replace.
-
-    Ladder 2, Phase 4 (KNOBS_ROOT_UNTANGLE_SURVEY_001.md): file resolution +
-    envelope load now come from the shared knobs_envelope_001.py
-    (resolve_active_knobs_path/load_knobs_envelope) - the same piece
-    print_song_score_001.py and brobots.sh's panel readers already call.
-    Only the resolve+load changed; everything below (story merge, step
-    shape) is untouched."""
+    """Same parsing shape as run_songs_runner_001.py's own load_bingo_capture_song(): reuses control_mod.parse_control_story_md() for STEP-heading parsing, merges every knobs.json field through (no whitelist, so animation_token/hold_seconds/ gap_label all survive), plus story.md's own text/fail."""
     song_dir = Path(song_dir)
     knobs_path, knobs = load_knobs_envelope(song_dir)
     apply_knob_layers(knobs)
@@ -454,18 +396,7 @@ def _serial_and_name(mod, speaker):
 
 
 def _release_if_holding(mod, serials, live, manage_control):
-    """manage_control=False songs assume control once (awaken's "connect" note,
-    or the stay-put fix's own dual-robot assume off wake_both) and hold it
-    continuously - Robots.close() never releases it (it's a no-op), so this
-    must fire explicitly wherever the run ends, matching
-    run_robot_control_song_001.py's own always-attempt `finally` release
-    exactly. No-op for manage_control=True songs regardless of `serials`.
-
-    Generalized from a single optional serial to an iterable
-    (STAY_PUT_FIX_SURVEY_001.md, part 1) - awaken's own single-serial call site
-    passes a one-element tuple; the stay-put fix's own bingo-family call site
-    passes both robot serials. Empty/None `serials` is a clean no-op either
-    way (nothing was ever synthesized/assumed to release)."""
+    """manage_control=False songs assume control once (awaken's "connect" note, or the stay-put fix's own dual-robot assume off wake_both) and hold it continuously - Robots.close() never releases it (it's a no-op), so this must fire explicitly wherever the run ends, matching run_robot_control_song_001.py's own always-attempt `finally` release exactly."""
     if not (live and not manage_control):
         return
     for serial in serials or ():
@@ -474,12 +405,7 @@ def _release_if_holding(mod, serials, live, manage_control):
 
 
 def run_continuous_hold_assume(mod, live):
-    """Stay-put fix (STAY_PUT_FIX_SURVEY_001.md, parts 2 and 4): assumes
-    OVERRIDE_BEHAVIORS on BOTH robot serials at once. Two call sites use this -
-    the initial dual-robot grab fired once, right after wake_both's own
-    conn_test succeeds, and the re-assume fired after rattle/
-    brobots_ready_together return, restoring the hold those two notes
-    correctly (and necessarily) dropped for their own direct-SDK handoff."""
+    """Stay-put fix: assumes OVERRIDE_BEHAVIORS on BOTH robot serials at once."""
     if not live:
         return {"ok": True, "mode": "dry"}
     results = {}
@@ -648,10 +574,7 @@ class SleepyBrobots:
             threading.Thread(target=self._watch, args=(look_seconds, self.watching), daemon=True).start()
 
     def _watch(self, look_seconds, stop):
-        """2026-10-09 (operator: "during brobots audio play, have occasional looks
-        for brobot awake state, if awake send back to sleep"): every
-        look_seconds, a Brobot whose sleep has ended (the sleep tool let go - he
-        woke) and who isn't mid-stir is sent back to sleep."""
+        """every look_seconds, a Brobot whose sleep has ended (the sleep tool let go - he woke) and who isn't mid-stir is sent back to sleep."""
         while not stop.wait(look_seconds):
             for serial in list(self.names):
                 q = self.queues.get(serial)
@@ -760,19 +683,13 @@ def run_connection_pass(mod, live, robots, tag):
 
 
 def post_countdown(mod, live, seconds, robots=None):
-    """2026-10-01 (operator: "after please wait, add a countdown timer in the
-    brobots window"): one page-only chat-feed line from the countdown role
-    (gopod_brobots_settings.json) with the whole seconds; the page counts it
-    down and removes it. Never stops a run."""
+    """one page-only chat-feed line from the countdown role (gopod_brobots_settings.json) with the whole seconds; the page counts it down and removes it."""
     role = load_brobots_settings()["countdown"]["role"]
     return post_chat_line(mod, live, role, str(max(1, int(round(seconds)))), robots)
 
 
 def post_bingo_ball(mod, live, ball, robots=None):
-    """2026-10-02 (operator: "make a really big bingo ball number display for
-    B-1, I-9 & O-0"): one page-only chat-feed line from the bingo_ball role
-    (gopod_brobots_settings.json) with the called number; the page shows a big
-    ball and keeps it in the chat window. Never stops a run."""
+    """one page-only chat-feed line from the bingo_ball role (gopod_brobots_settings.json) with the called number; the page shows a big ball and keeps it in the chat window."""
     role = load_brobots_settings()["bingo_ball"]["role"]
     return post_chat_line(mod, live, role, str(ball), robots)
 
@@ -789,11 +706,7 @@ def rattle_wav_seconds():
 
 
 def play_rattle_on_speaker(robots=None, tag="GOLDEN"):
-    """2026-10-03 (operator: "make the rattle WAV play through system audio rather
-    than a brobot"): the rattle on this machine's speaker (paplay, the default
-    sink - GOPOD's own routing check keeps that the real speaker). No hand-off of
-    the robot's control, no direct-SDK connection, no settle wait. Never stops a
-    run."""
+    """the rattle on this machine's speaker (paplay, the default sink - GOPOD's own routing check keeps that the real speaker)."""
     try:
         env = dict(os.environ)
         env.setdefault("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
@@ -808,9 +721,7 @@ def play_rattle_on_speaker(robots=None, tag="GOLDEN"):
 
 
 def volume_share(volume):
-    """2026-10-17 (operator: "other story.md knobs are either \"\" for default or
-    \"0-100%\""): a volume knob as a share of the master (chat_audio.volume) -
-    1 for "" or "default", 0.3 for "30%"; a bare number is a share (0.3)."""
+    """a volume knob as a share of the master (chat_audio.volume) - 1 for "" or "default", 0.3 for "30%"; a bare number is a share (0.3)."""
     if isinstance(volume, (int, float)):
         return max(0.0, float(volume))
     text = str(volume or "").strip()
@@ -874,13 +785,7 @@ def show_song_picture(mod, live, picture, robots=None, tag="GOLDEN"):
 
 
 def play_rattle_on_page(mod, live, robots=None, tag="GOLDEN"):
-    """2026-10-09 (operator: "keep but pause playing through the brobot ... instead
-    make it play through the web page like the reporter voices"): the rattle is
-    put in the chat feed as a reporter-voice line, so the Brobots chat page plays
-    it where its other voices play, in its queue, with the countdown shown for
-    exactly as long. Wire-Pod copies the overlay's sounds/rattle.wav into the page's
-    voice folder at its start. The song waits the sound's
-    length plus reporter_voices.page_lag_seconds. Never stops a run."""
+    """the rattle is put in the chat feed as a reporter-voice line, so the Brobots chat page plays it where its other voices play, in its queue, with the countdown shown for exactly as long."""
     rv = load_brobots_settings()["reporter_voices"]
     try:
         seconds = rattle_wav_seconds()
@@ -896,10 +801,7 @@ def play_rattle_on_page(mod, live, robots=None, tag="GOLDEN"):
 
 
 def post_countdown_end(mod, live, robots=None):
-    """2026-10-04 (operator: "timer too fast to hear rattle audio - have visuals
-    respond to what's there"): when the rattle has really finished, one more
-    countdown-role line (countdown.end_text) tells the page to remove the timer,
-    so it shows exactly as long as the sound plays. Never stops a run."""
+    """when the rattle has really finished, one more countdown-role line (countdown.end_text) tells the page to remove the timer, so it shows exactly as long as the sound plays."""
     countdown = load_brobots_settings()["countdown"]
     return post_chat_line(mod, live, countdown["role"], countdown["end_text"], robots)
 
@@ -916,10 +818,7 @@ def run_rattle(mod, serial, live, robots, tag, on="robot"):
 
 
 def _run_rattle_play(mod, serial, live, robots, tag, on="robot"):
-    """on (rattle_on in the song's knobs.json): "page" - the Brobots chat page
-    plays it like a reporter voice (2026-10-09); "robot" - Brobot 1 plays it over
-    the direct SDK after handing back control; "speaker" - this machine's
-    speaker plays it while the robots stay under the song's control."""
+    """on (rattle_on in the song's knobs.json): "page" - the Brobots chat page plays it like a reporter voice; "robot" - Brobot 1 plays it over the direct SDK after handing back control; "speaker" - this machine's speaker plays it while the robots stay under the song's control."""
     if not live:
         return {"ok": True, "mode": "dry"}
     if on == "page":
@@ -948,8 +847,7 @@ def _run_rattle_play(mod, serial, live, robots, tag, on="robot"):
 
 
 def run_wheel_hold(mod, serial, live):
-    """2026-09-30: stop the wheels (move_wheels lw=0 rw=0 - the same stop the
-    wheel-nudge alias ends with, brobots.sh). Never stops a run."""
+    """stop the wheels (move_wheels lw=0 rw=0 - the same stop the wheel-nudge alias ends with, brobots.sh)."""
     if not live:
         return {"ok": True, "mode": "dry"}
     try:
@@ -960,11 +858,7 @@ def run_wheel_hold(mod, serial, live):
 
 
 def post_chat_line(mod, live, name, text, robots=None):
-    """2026-09-30: a chat-page-only line - nothing is said. Wire-Pod's say_text
-    with empty text and a display_text (sdkapp/server.go) puts the line in its
-    numbered chat feed (gopod_chat_feed.go) for the Brobots chat page. name is
-    the speaker the page shows ("Operator", "Brobot 1", "Brobot 2"). Never
-    stops a run: a failed post is printed and skipped."""
+    """a chat-page-only line - nothing is said."""
     if not live or not text:
         return {"ok": True, "mode": "dry"}
     try:
@@ -983,11 +877,7 @@ def post_chat_line(mod, live, name, text, robots=None):
 
 
 def run_cube_blip(mod, live, serial):
-    """The cube blip on a Brobot's own cube (phcal's cmd_cube, as-is). It takes
-    control itself. 2026-10-10 bench: the cube wakes a sleeping Brobot, so a
-    sleepy song lights it only once both are awake (operator: "add the
-    cube-call to the brobots ready part, just after the brobots are called to
-    wake anyways")."""
+    """The cube blip on a Brobot's own cube (phcal's cmd_cube, as-is)."""
     if not live:
         return {"ok": True, "mode": "dry", "serial": serial}
     env = dict(os.environ, WIREPOD_HOME=WIREPOD_HOME_PATH)
@@ -1000,11 +890,7 @@ def run_cube_blip(mod, live, serial):
 
 
 def start_cube_connect(live, serial):
-    """2026-10-14 (operator: the nap's cube "takes forever to respond ... I need
-    sync/async, not sequential based on time estimates"; "aim for cube option
-    2"): the cube tool's connect mode in the background - the robot connects his
-    cube over Bluetooth (about 18 s, ConnectCube) while the song goes on, so the
-    later blip finds it connected. Returns the running job."""
+    """the cube tool's connect mode in the background - the robot connects his cube over Bluetooth (about 18 s, ConnectCube) while the song goes on, so the later blip finds it connected."""
     if not live:
         return {"mode": "dry", "serial": serial}
     env = dict(os.environ, WIREPOD_HOME=WIREPOD_HOME_PATH)
@@ -1014,10 +900,7 @@ def start_cube_connect(live, serial):
 
 
 def start_cube_light(live, serial, most_seconds=60.0, after_seconds=0.0):
-    """2026-10-15 (the nap, operator: "Cube always took way too long to light
-    up"): the cube tool's light-on-signal mode in the background - the robot
-    connects his cube now (about 12 s) and holds it; light_cube() then lights it
-    at once. most_seconds: it lights anyway if no signal comes."""
+    """the cube tool's light-on-signal mode in the background - the robot connects his cube now (about 12 s) and holds it; light_cube() then lights it at once."""
     if not live:
         return {"mode": "dry", "serial": serial}
     signal = Path(f"/tmp/gopod_cube_light_{serial}.signal")
@@ -1067,13 +950,7 @@ def finish_cube_connect(job, most_seconds=40.0):
 
 
 def run_brobots_ready_together(mod, live, phrase="Brobots ready!", before_speech=None, rattle_before=False, rattle_on="robot"):
-    """before_speech (2026-09-30): called right before the together line is
-    said, so its chat bubbles show just ahead of the voices.
-    rattle_before (2026-09-30, operator: "play rattle audio before, brobots
-    ready bubbles appear & brobots ready spoken"): Brobot 1's rattle, played
-    while both robots are already handed over, after the rattle's own locked
-    wait (RATTLE_SETTLE_SECONDS from the release). The first rattle of a run
-    has been the weak one (BROBOTS_RUN_2147_FIXES_001.md). Never stops the step."""
+    """before_speech: called right before the together line is said, so its chat bubbles show just ahead of the voices."""
     if not live:
         if before_speech:
             before_speech()
@@ -1204,11 +1081,7 @@ def _llm_loaded(base, model):
 
 
 def wait_for_page(mod, where, stop_request=None, prefix=""):
-    """2026-10-17 (operator: "instead, system message, Goverlord awaits your
-    return... + hourglass, and waits, nothing plays"; "both the terminal run &
-    web page run must be the same run"): while the chat page is away - hidden,
-    closed, or not heard from (Wire-Pod keeps session.page_hidden_file) - the
-    run waits here, and says so in the terminal once, then when it goes on."""
+    """while the chat page is away - hidden, closed, or not heard from (Wire-Pod keeps session.page_hidden_file) - the run waits here, and says so in the terminal once, then when it goes on."""
     session = load_brobots_settings()["session"]
     flag = mod.GOPOD_CHIPPER_ROOT / (session.get("page_hidden_file") or "gopod_page_hidden")
     if not flag.exists():
@@ -1221,14 +1094,7 @@ def wait_for_page(mod, where, stop_request=None, prefix=""):
 
 
 def song_llm_warmup(mod, ready_text="", lines=None, voices_required=True, llm_required=True):
-    """2026-10-04 (operator: "upon bingo test live, force llm warm up timer
-    visual, for minimum 5 seconds (or until actual warm up completes), with
-    "Warming Up LLM""): a song with "llm_warmup": true in its knobs.json, on a
-    live run, shows the chat page's warm-up bubble (the LLM power level, then
-    "LLM Ready" - llm.warmup_text / llm.ready_text) while one tiny request to the chat's own model (Wire-Pod's
-    knowledge endpoint and model, nothing else read) makes sure it's loaded. The
-    bubble stays at least llm.song_warmup_min_seconds, or until the request is
-    done if that's longer. Same page file Wire-Pod's own start warm-up uses."""
+    """"upon bingo test live, force llm warm up timer visual, for minimum 5 seconds (or until actual warm up completes), with "Warming Up LLM""): a song with "llm_warmup": true in its knobs.json, on a live run, shows the chat page's warm-up bubble (the LLM power level, then "LLM Ready" - llm.warmup_text / llm.ready_text) while one tiny request to the chat's own model (Wire-Pod's knowledge endpoint and model, nothing else read) makes sure it's loaded."""
     llm = load_brobots_settings()["llm"]
     song_ready_line = (ready_text or "").strip()
     if not llm_required:
@@ -1363,11 +1229,7 @@ def _start_song_soundtrack(mod, live, song, first_at, robots, tag):
 
 
 def _caption_bubbles(song, marker):
-    """2026-10-09 (operator: "instead of line by line, do several phrases in fewer
-    bigger chat bubbles * use same highlighting per narration segment"): one
-    narrator bubble per section, posted at its first caption's second. Each
-    caption is one piece, "@start-end words", joined by the segment marker; the
-    page lights each piece at its seconds on the soundtrack's own clock."""
+    """one narrator bubble per section, posted at its first caption's second."""
     bubbles = []
     for s in song["steps"]:
         if s.get("start_seconds") is None or not s.get("caption"):
@@ -1430,28 +1292,17 @@ def session_run(mod, action, **form):
 
 
 def song_stop_request_path(mod):
-    """2026-10-04 (operator: "backpack the brobot 'not' speaking and give a verbal,
-    'kill bingo test' to stop the current run at the next safe spot"): the voice
-    command creates this file (song_stop.request_file, gopod_brobots_settings.json,
-    in GOPOD's overlay chipper folder); the engine checks it before each step and
-    ends the run there, the normal way - control handed back, touch interrupt on."""
+    """the voice command creates this file (song_stop.request_file, gopod_brobots_settings.json, in GOPOD's overlay chipper folder); the engine checks it before each step and ends the run there, the normal way - control handed back, touch interrupt on."""
     return mod.GOPOD_CHIPPER_ROOT / load_brobots_settings()["song_stop"]["request_file"]
 
 
 def touch_interrupt_off_path(mod):
-    """2026-10-01 (operator: "Touch interrupt ON/OFF to default ON again"):
-    touch interrupt is on, as in native Wire-Pod, except while this file exists
-    in GOPOD's overlay chipper folder (touch_interrupt.off_file in
-    gopod_brobots_settings.json, read by kgsim_interrupt.go). A song with
-    "touch_interrupt_off": true in its knobs.json creates it for its live run;
-    run_golden_song deletes it when the run ends, and kill-bingo-test does too."""
+    """touch interrupt is on, as in native Wire-Pod, except while this file exists in GOPOD's overlay chipper folder (touch_interrupt.off_file in gopod_brobots_settings.json, read by kgsim_interrupt.go)."""
     return mod.GOPOD_CHIPPER_ROOT / load_brobots_settings()["touch_interrupt"]["off_file"]
 
 
 def _scripted_end_re(piece_ends):
-    """A piece ends at a run of piece_ends (scripted_split.piece_ends in the
-    settings file; the comma since 2026-10-01) or an ellipsis, plus any closing
-    quote, before a space."""
+    """A piece ends at a run of piece_ends or an ellipsis, plus any closing quote, before a space."""
     ends = re.escape(piece_ends) + "\u2026"
     return re.compile(r"[" + ends + r"]+[\"'\)\]\u201d\u2019]*(?=\s)")
 
@@ -1482,9 +1333,7 @@ def scripted_pieces(text, join_trailing, piece_ends=".!?"):
 
 
 def scripted_line(text):
-    """The line with its pieces joined by the segment marker. A line break in the
-    text (a story.md TEXT that runs onto the next line) ends a piece and is kept,
-    so the chat bubble shows it (2026-10-02, operator)."""
+    """The line with its pieces joined by the segment marker."""
     split = load_brobots_settings()["scripted_split"]
     marker = split["segment_marker"]
     lines = [line for line in (text or "").split("\n") if line.strip()]
@@ -1494,12 +1343,7 @@ def scripted_line(text):
 
 
 def run_move_with_line(move, say):
-    """2026-10-01 (operator's own Bingo score: "Wait! Do you know..." moved onto
-    brat_arm_cue_0201, "It's, "I, Won!"" onto brat_nod_0203, to shorten the
-    song): a move step that carries a line does the move WHILE the line is said
-    - the move on its own thread, the line here, the step ends when both have.
-    Wire-Pod's own chat replies already lift the arm while speaking
-    (GOPOD_VECTOR_ARM)."""
+    """a move step that carries a line does the move WHILE the line is said - the move on its own thread, the line here, the step ends when both have."""
     box = {}
     def run():
         try:
@@ -1515,20 +1359,7 @@ def run_move_with_line(move, say):
 
 
 def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, live, robots, tag, manage_control=True, scripted_split=False):
-    """manage_control=False (STAY_PUT_FIX_SURVEY_001.md, part 3) skips this
-    function's own inline assume/release, mirroring run_move_axis()'s already-
-    proven bypass exactly - relies on the caller already holding continuous
-    control. Default True is byte-identical to every existing call site
-    (bingo-family's own manage_control=True songs, and any future caller that
-    never passes this kwarg).
-
-    2026-10-01 (operator: "Flip animation beats to animation, ... pause, then
-    speech", "aim for native to wire-pod", "adding these extra seconds breaks the
-    performance flow"): one say_text in native Wire-Pod's own shape,
-    "{{playAnimationWI||angry}}... line" - the animation starts, the voice's own
-    lead-in pause ("...", animation_lead_in in gopod_brobots_settings.json), then
-    the line. The old say -> 2.0 s pause -> animation order and its
-    pre_animation_pause_seconds knob are gone."""
+    """manage_control=False skips this function's own inline assume/release, mirroring run_move_axis()'s already- proven bypass exactly - relies on the caller already holding continuous control."""
     if not live:
         return {"ok": True, "mode": "dry", "animation_token": animation_token}
     entry = {"animation_token": animation_token}
@@ -1565,7 +1396,7 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
             entry["line_dispatch"] = said
             anim = anim if said.get("status") == 200 else said
         print(f"{robots.timing_prefix()}{tag}_BEAT {name} token={animation_token}: animation, then the line {load_brobots_settings()['chat_moves'].get('speech_after_animation_seconds', 0.9)}s later", flush=True)
-        time.sleep(0.3)  # 2026-11-08 (operator: "update to 0.3 s pause"; was 0.5)
+        time.sleep(0.3)
         animation_wait_line_seen = False
         try:
             debug_log_body = mod.wirepod_get_text("/api/get_debug_logs", timeout=3)
@@ -1589,11 +1420,7 @@ def run_emotion_beat(mod, serial, name, text, animation_token, hold_seconds, liv
 
 
 def _wait_last_animation(mod, serial, entry):
-    """2026-11-25 (operator, Bingo 0403: "Wait! * searching_animation * I-9? ... *
-    kg_success * Lol!" - "Wait!" plays its own clip (thinking, 4.3 s); the searching
-    queued behind it while the hold ran out, so "I-9?" showed before the searching):
-    a move waits until this Brobot's last animation is done (Wire-Pod's own count,
-    gopod_run action=anim_wait; its hang guard caps the wait)."""
+    """"Wait!"""
     try:
         waited = mod.wirepod_web_send_form("/api-sdk/gopod_run", {"action": "anim_wait", "serial": serial}, timeout=15)
         entry["waited_for_last_animation"] = waited
@@ -1602,8 +1429,7 @@ def _wait_last_animation(mod, serial, entry):
 
 
 def run_animation_only(mod, serial, animation_token, hold_seconds, live, manage_control=True):
-    """manage_control=False bypass, same shape/reason as run_emotion_beat()
-    above (STAY_PUT_FIX_SURVEY_001.md, part 3)."""
+    """manage_control=False bypass, same shape/reason as run_emotion_beat() above."""
     if not live:
         return {"ok": True, "mode": "dry", "animation_token": animation_token}
     entry = {"animation_token": animation_token}
@@ -1767,13 +1593,7 @@ def step_name_warnings(song_dir):
 
 
 def _maybe_promote_knobs(song_dir):
-    """End-of-run promote prompt (operator direction, 2026-08-11): zKnobs.json
-    is the workbench, knobs.json only updates on explicit operator say-so -
-    divergence between the two is normal, never auto-reconciled. Only offered
-    when a zKnobs.json actually exists (i.e. this run played a dirty file) -
-    no zKnobs.json means knobs.json was already what played, nothing to
-    promote. Copy is byte-consistent (shutil.copyfile, no json re-serialize)
-    so the promoted knobs.json is identical to the file that was just run."""
+    """End-of-run promote prompt: zKnobs.json is the workbench, knobs.json only updates on explicit operator say-so - divergence between the two is normal, never auto-reconciled."""
     zknobs_path = Path(song_dir) / "zKnobs.json"
     knobs_path = Path(song_dir) / "knobs.json"
     if not zknobs_path.exists():
@@ -2009,8 +1829,7 @@ def _run_golden_song_steps(song_dir, live, voice_destination, _finalize):
     with_next_jobs = []  # steps started with the next one ("with_next")
 
     def start_with_next(run, entry):
-        """2026-11-04: a "with_next" step runs beside the step after it (both
-        robots at once); it's waited for once that next step is done."""
+        """a "with_next" step runs beside the step after it (both robots at once); it's waited for once that next step is done."""
         job = {}
         thread = threading.Thread(target=lambda: job.update(run()), daemon=True)
         thread.start()

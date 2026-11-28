@@ -317,7 +317,7 @@ func TestInterviewChaptersPicturesAndReporter(t *testing.T) {
 		t.Errorf("doc_and_pip chapter = %q", got)
 	}
 	rv := gopodBrobotsSettings.ReporterVoices
-	if rv.Hosts[rv.OperatorHost] != "af_heart" { // operator 2026-10-09: af_heart & am_michael
+	if rv.Hosts[rv.OperatorHost] != "af_heart" {
 		t.Errorf("operator lines are read by %q (%q)", rv.OperatorHost, rv.Hosts[rv.OperatorHost])
 	}
 	for _, who := range []string{"Chapter", "Picture", "Reporter Voice", "CHALK reporter", "PLAYHEAD reporter", "Countdown"} {

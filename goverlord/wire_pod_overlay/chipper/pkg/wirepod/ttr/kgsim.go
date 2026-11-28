@@ -340,7 +340,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		if err != nil {
 			return err.Error(), err
 		}
-		robot = GopodRobotsOffConn(robot)  // GOPOD 2026-10-29: robots off (gopod_robots_off.go)
+		robot = GopodRobotsOffConn(robot)  // GOPOD: robots off (gopod_robots_off.go)
 	}
 	_, err := robot.Conn.BatteryState(context.Background(), &vectorpb.BatteryStateRequest{})
 	if err != nil {
@@ -350,7 +350,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 	if gopodBrobotName(esn) != "Brobot" {
 		if GopodRecordSessionAnswer(transcribedText, gopodVoiceCommandHow) {
 			if !isKG && req != nil {
-				gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
+				gopodLLMClosePass.Store(esn, true) // GOPOD: closes the voice request, not a native intent
 				IntentPass(req, "intent_greeting_hello", "", map[string]string{}, false)
 			}
 			return "", nil
@@ -448,9 +448,9 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 		})
 	}
 	spokenCount := 0
-	weatherShown := false // GOPOD 2026-10-22: his weather line's picture, once
+	weatherShown := false // GOPOD: his weather line's picture, once
 	var interrupted bool
-	stopAt := gopodStopSeq.Load() // GOPOD 2026-10-30: a stop run since this answer began ends it
+	stopAt := gopodStopSeq.Load() // GOPOD: a stop run since this answer began ends it
 	markRawResponseLocked := func(result gopodStreamResult) {
 		if !markerZeroSeen {
 			markerZeroSeen = true
@@ -655,7 +655,7 @@ func StreamingKGSim(req interface{}, esn string, transcribedText string, isKG bo
 						esn)
 				}
 				if !isKG && req != nil {
-					gopodLLMClosePass.Store(esn, true) // GOPOD 2026-10-21: closes the voice request, not a native intent
+					gopodLLMClosePass.Store(esn, true) // GOPOD: closes the voice request, not a native intent
 					IntentPass(req, "intent_greeting_hello", transcribedText, map[string]string{}, false)
 				}
 				if gopodBrobotName(esn) != "Brobot" {
@@ -996,7 +996,7 @@ func KGSim(esn string, textToSay string) error {
 		if err != nil {
 			return err
 		}
-		robot = GopodRobotsOffConn(robot)  // GOPOD 2026-10-29: robots off (gopod_robots_off.go)
+		robot = GopodRobotsOffConn(robot)  // GOPOD: robots off (gopod_robots_off.go)
 	}
 	controlRequest := &vectorpb.BehaviorControlRequest{
 		RequestType: &vectorpb.BehaviorControlRequest_ControlRequest{

@@ -28,9 +28,7 @@ _stop_reason = None
 
 
 def gopod_robot_serial(label):
-    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
-    who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
-    private ~/.gopod_esns.json; anything else as it is (2026-10-29)."""
+    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection: who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's private ~/.gopod_esns.json; anything else as it is."""
     key = {"ESN01": "brobot_1", "ESN02": "brobot_2"}.get(str(label).upper())
     if not key:
         return label

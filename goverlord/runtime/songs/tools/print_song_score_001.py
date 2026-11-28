@@ -1,59 +1,4 @@
-"""Deterministic, field-complete score printout for note-based songs - every
-song on `run_golden_song_001.py`'s own SONG_REGISTRY (brobots_bingo,
-brobots_cross_persona, brobots_baby_robots_sleep, gopod_is_that_you,
-brobots_awaken_golden), confirmed working 2026-08-10
-(SHEET_MUSIC_GOLDEN_PROCESS_SURVEY_001.md). NOT brobots_interview_section_01 -
-a structurally different schema (no note/story.md-TEXT shape at all); running
-this against it produces misleading blanks, not an error - stay off it.
-Reads knobs.json + story.md directly, never a run's own .log/.json - so
-nothing runtime (HTTP results, timestamps, elapsed time, the animation-wait
-advisory) can leak in, and pause_seconds is always the true authored value,
-never a cockpit reporter-gap override.
-
-Built per the operator's go on SHEET_MUSIC_EDITOR_ROUND_TRIP_FEASIBILITY_001.md
-- the printed run log is blind to several authored fields (emotion_beat's own
-spoken text, hold_seconds/cycles/speed for arm_cue/nod/animation,
-settle_seconds). This script's job is to make every one of those fields
-RECOVERABLE by construction. It prints only - it never writes back to
-knobs.json or story.md, and it is not the parse-back half of that round trip
-(no such reader exists yet, and building one is out of scope here).
-
-Dialogue reading (knobs.json + story.md -> step_id/speaker/section/text)
-is delegated entirely to song_dialogue_normalizer_001.py's own
-normalize_song_dialogue() - this file no longer parses story.md itself.
-That module formalizes what this script used to do inline (reuse
-run_robot_control_song_001.py's own parse_control_story_md() for STEP-
-heading parsing) and extends it to the other real on-disk dialogue shapes
-(DIALOGUE_STANDARD_FORMAT_SURVEY_001.md §5 Option 3). Field-dump mode
-below still reads knobs.json's own raw steps directly for the technical
-fields (hold_seconds/cycles/speed/buffer_after/etc) that aren't part of
-the normalizer's own dialogue-only shape.
-
-USAGE
-  python3 print_song_score_001.py <song_dir> [--narrative]
-
-  python3 print_song_score_001.py ../songs/01a_brobots_bingo_test
-  python3 print_song_score_001.py ../songs/102_brobots_cross_persona
-  python3 print_song_score_001.py ../songs/01a_brobots_bingo_test --narrative
-
-Prints to stdout. Redirect to a file to save/print on paper:
-  python3 print_song_score_001.py ../songs/01a_brobots_bingo_test > bingo_score.txt
-
-NARRATIVE MODE (--narrative), added 2026-08-30
-(NOTATION_GOLDEN_GUTS_GAP_SURVEY_001.md): a second, additive presentation of the
-SAME source read (knobs.json + story.md, nothing else) - the default field-dump
-mode above is completely unchanged. Groups steps by story.md section and prints
-each one as flowing "SPEAKER: TEXT" dialogue, script-read style, quality target
-being the interview's own hand-written doc
-(tech/alias_play_studio/SONG_02_BROBOTS_1_2_INTERVIEW_RUN.md) - but generated from
-real on-disk data, not hand-authored. No technical fields (FAIL/BUFFER_AFTER/etc)
-are shown in this mode at all - a step with no TEXT authored (a cue, a pause, an
-action) prints as a bracketed stage note (`[note_name]`) instead of being skipped,
-so the read still flows in order. Same schema restriction as field-dump mode -
-this reads knobs.json's own `note`/TEXT shape, so a song without it (the
-interview) has nothing here to narrate either; that gate lives in brobots.sh's
-own `_score_song_dir()`, not in this file (see that function's own comment).
-"""
+"""."""
 
 import importlib.util
 import sys
@@ -109,10 +54,7 @@ def _load_golden_mod():
 
 
 def _field_line(label, raw_step, key, note=None):
-    """One FIELD: value line. Distinguishes a real authored value from an
-    authored-blank field from a field simply absent (falling back to the
-    runner's own default) - the three states the operator needs told apart
-    to mark a sheet up safely."""
+    """One FIELD: value line."""
     if key not in raw_step:
         if key == "hold_seconds" and note in _DEFAULTS["hold_seconds"]:
             default = _DEFAULTS["hold_seconds"][note]

@@ -1,12 +1,4 @@
-"""Lock for run_golden_song_001.py's live-tested animation shapes (2026-09-30).
-
-Fails if a song's "searching" step is re-sent in a loop or stops ending with
-searchingGetout (the run-on searching sound, SEARCHING_ANIMATION_SONG_LOCK_001.md), if "answering" stops settling instead, or if the continuous
-dual-robot hold stops settling after it (re)takes control (arm/nod silently
-dropped). Change these shapes only after a fresh live test.
-
-Run: python3 test_golden_song_animation_lock_001.py
-"""
+"""Lock for run_golden_song_001.py's live-tested animation shapes."""
 
 import unittest
 from unittest import mock
@@ -131,9 +123,7 @@ class ChatPageLines(unittest.TestCase):
 
 
 class NarratorBubbles(unittest.TestCase):
-    """2026-10-09 (operator: "do several phrases in fewer bigger chat bubbles *
-    use same highlighting per narration segment"): one bubble per section, each
-    caption one "@start-end" piece."""
+    """one bubble per section, each caption one "@start-end" piece."""
 
     def test_one_bubble_per_section(self):
         steps = [
@@ -150,9 +140,7 @@ class NarratorBubbles(unittest.TestCase):
 
 
 class SleepyLull(unittest.TestCase):
-    """2026-10-09 (operator: "they can lull out of and back into sleep * have
-    it so they're sleeping by the end of the song"): every handed move is made,
-    each Brobot is asleep again before finish() returns, then both wake."""
+    """every handed move is made, each Brobot is asleep again before finish() returns, then both wake."""
 
     def test_moves_lull_then_both_wake(self):
         class Clock:

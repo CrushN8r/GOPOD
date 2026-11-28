@@ -295,7 +295,7 @@ func gopodMusicSting() (string, float64) {
 }
 
 // gopodSystemSting: a Goverlord bubble's own sound, from the bubble sounds template
-// (bubble_sounds.Goverlord: its file, else default_file; none when muted) - before 2026-10-25 djent
+// (bubble_sounds.Goverlord: its file, else default_file; none when muted)
 // before every system line and grunge before a run's line.
 func gopodSystemSting(text string) (string, float64) {
 	bs := gopodBrobotsSettings.BubbleSounds

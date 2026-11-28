@@ -1,44 +1,5 @@
 #!/usr/bin/env python3
-"""Tempo Phase 2 (TEMPO_BUFFER_KNOB_SURVEY_001.md / TEMPO_BUFFER_KNOB_PHASE1_EXECUTED_001.md) -
-the tool that SETS the tempo knob values Phase 1 already made run_golden_song_001.py read.
-Phase 1 added exactly two things to the engine: a top-level `global_tempo` read (default 0.0)
-and a per-step `tempo_factor` read (default 1.0, rides the wholesale step-merge for free) plus
-a `tempo_comment` field the engine never reads (human-facing only). This tool writes those same
-three fields, by the same field names, at the same schema locations Phase 1 established -
-top-level for global_tempo, per-step for tempo_factor/tempo_comment - so a value written here is
-the exact value the engine picks up on its next run, no translation layer.
-
-Writes through the SAME shared path phcal_apply_001.py and robot_pick_001.py already use, not a
-new writer: knobs_envelope_001.load_knobs_envelope() (dirty zKnobs.json-over-clean knobs.json
-resolution, whole-file json.load), mutate the loaded dict in place, whole-file
-json.dumps(indent=2)+"\n" back to the SAME path that was read. This is a third caller of that
-resolver, same as robot_pick_001.py's own docstring already frames itself as being ("not a
-second writer mechanism").
-
-Two modes, kept deliberately distinct (never blurred in one flow):
-
-  set-global <value> [--yes] [--knobs <path>]
-    Sets the song's own top-level global_tempo (0.0-9.9, per the locked design's own range -
-    one unit = one second of base added space per buffer, before a step's own factor applies).
-    This is the "slow the whole song slightly" dial - one number, whole song.
-
-  set-buffer <step_id> --factor <f> [--comment <c>] [--yes] [--knobs <path>]
-    Sets ONE step's own tempo_factor (>= 0.0, no upper bound - a per-step weight against the
-    global, default 1.0) and, only if --comment is passed, that step's own tempo_comment
-    (human-facing only, never read by the engine). Omitting --comment leaves whatever comment
-    is already on that step untouched - this mode never clobbers a field it wasn't asked to
-    touch.
-
-Both modes print the diff and the resulting math (global x factor = seconds added) before
-writing, and print again after --yes actually writes it. No --yes: dry, prints and stops,
-same convention as phcal_apply_001.py/robot_pick_001.py.
-
-Reversibility: global_tempo=0.0 and tempo_factor=1.0 are the engine's own defaults
-(`knobs.get("global_tempo", 0.0)` / `step.get("tempo_factor", 1.0)`) - writing those exact
-values back is behaviorally identical to the field never having existed at all. This tool never
-strips keys to "clean up" back to absent; writing the default value IS the no-op, by the same
-construction Phase 1 already relies on.
-"""
+"""Tempo Phase 2 - the tool that SETS the tempo knob values Phase 1 already made run_golden_song_001.py read."""
 import json
 import sys
 from pathlib import Path
@@ -112,7 +73,7 @@ def cmd_set_global(argv):
         return 0
 
     envelope["global_tempo"] = value
-    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
+    save_knobs_envelope(KNOBS_PATH, envelope)  # knobs.json, and zKnobs.md when the song has one
     print(f"\nTEMPO_SET_WRITTEN global_tempo={value} written to {KNOBS_PATH}")
     return 0
 
@@ -175,7 +136,7 @@ def cmd_set_buffer(argv):
     step["tempo_factor"] = factor
     if comment is not None:
         step["tempo_comment"] = comment
-    save_knobs_envelope(KNOBS_PATH, envelope)  # 2026-11-04: knobs.json, and zKnobs.md when the song has one
+    save_knobs_envelope(KNOBS_PATH, envelope)  # knobs.json, and zKnobs.md when the song has one
     print(f"\nTEMPO_SET_WRITTEN step_id={step_id!r} updated in {KNOBS_PATH}")
     return 0
 

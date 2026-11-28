@@ -46,7 +46,7 @@ type gopodTakeSheet struct {
 	Points []gopodTakeSheetPoint `json:"points"`
 }
 
-const gopodTakeSheetAbout = "The take sheet (operator 2026-10-06: raw runs spliced into one scripted interview). One entry per value point, in interview order; under it, every take from every harvest run and every kept live session. To pick: set \"keep\": true on the take you want (one per point). To change the words: edit its \"say\". A point with no takes needs another harvest. input is typed, numpad or mic; stt_heard is what speech-to-text heard. Made by gopod_take_sheet.go; adding takes never changes your marks or edits."
+const gopodTakeSheetAbout = "The take sheet: raw runs spliced into one scripted interview. One entry per value point, in interview order; under it, every take from every harvest run and every kept live session. To pick: set \"keep\": true on the take you want (one per point). To change the words: edit its \"say\". A point with no takes needs another harvest. input is typed, numpad or mic; stt_heard is what speech-to-text heard. Made by gopod_take_sheet.go; adding takes never changes your marks or edits."
 
 // gopodTakeSheetAdd adds a run's takes to the take sheet at path: a take goes under every point it
 // was given, and under its own topic's first point when it was given none of its own.

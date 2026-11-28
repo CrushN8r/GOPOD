@@ -1,176 +1,5 @@
 #!/usr/bin/env python3
-"""Write local PTT/STT transcripts into the GOPOD 8011 Pane 2 JSON file.
-
-STAGE 1 (2026-07-03): KP1 press-and-hold >= MIN_HOLD_SECONDS with NumLock ON
-records the operator's mic to a transcript and writes ONE chat envelope
-attributed to "Operator". No Doc/Pip attribution, no robot/LLM calls.
-
-STATUS UNRESOLVED - KP2 quarantined for Stage 1 (2026-07-03): KP2
-press/release events are recognized (so they are not misread as noise) but
-intentionally do nothing. Prior code on this file wired KP2 to a "Pip"
-persona and attached Doc/Pip attribution to every transcript
-(target_speaker) - both are exactly what Stage 1's non-scope forbids.
-Restoring KP2 capture + persona attribution is Stage 3 work. Do not
-re-enable without that stage's spec.
-
-RESOLVED in STAGE 3 (2026-07-04): KP2 capture is live - see the STAGE 3
-paragraph below.
-
-STAGE 2 (2026-07-03): parity pass against ptt_gominion1.py's
-PhysicalNumpadGate (goverlord/golverlord_older_truth/runtime_older_truth/robot/robot_io/ptt_gominion1.py).
-KEY_REPEAT (evdev value 2, ~30/sec autorepeat) is now explicitly classified
-and ignored for NumLock, KP1, and KP0, matching the archive's
-"IGNORED_REPEAT" status - logged once per hold, not once per repeat tick.
-KP0_EXIT_TAPS/KP0_EXIT_WINDOW_SECONDS are named module constants now,
-byte-verified against the archive (3 / 2.0 - unchanged from Stage 1's
-defaults). Raw-code-69 NumLock gating needed no change: this file already
-gated on the raw code, never a name string.
-
-STAGE 2 REVISED (2026-07-03): ALSA/JACK stderr noise fixed at the OS file
-descriptor level (os.dup2), replacing the sys.stderr-level wrapper, which
-cannot catch the C library's direct writes to fd 2. Device auto-discovery
-now prefers checking each candidate's real evdev key-capability bitmap
-(/sys/class/input/eventN/device/capabilities/key) for KEY_KP1, falling back
-to name matching ("SEM USB Keyboard", "Insignia", generic "keyboard") only
-if capability reads are unavailable. Added --resolve-device for the
-wdtm-demo alias to pin a deterministic device path.
-
-STAGE 2 CLEANUP (2026-07-03): the vosk Model is now loaded exactly ONCE,
-at writer startup (ensure_vosk_model_loaded, called from read_loop before
-the evdev fd is opened), cached as a module-level singleton, and reused
-for every KP1 capture - previously it reloaded (~2s, ~12 LOG lines) on
-every single press. This also removes a real timing bug: the ~2s reload
-used to happen INSIDE capture_kp1_utterance, before the RawInputStream was
-even opened, so on a natural "hold, speak, release" press the mic stream
-often didn't start listening until after the operator had already begun
-(or finished) speaking - independent of, and likely a bigger contributor
-to, the reported "[empty transcript]" symptom than the sample-rate
-question. KaldiRecognizer stays per-capture (cheap, correct - it holds
-utterance-specific state). vosk.SetLogLevel(-1) silences Kaldi's own log
-level; suppress_fd_stderr() additionally wraps the model-load call as a
-fd-level backstop, per instruction, in case some vosk builds still emit
-through raw stderr regardless of SetLogLevel.
-
-STAGE 2 CLEANUP ROUND 2 (2026-07-03): raw hardware output from the first
-real checkpoint run showed physical KP1/NumLock/KP0 keystrokes leaking
-straight into the shell (literal "1" characters, stray escape sequences,
-even after the writer exited) - because this file never exclusively
-grabbed the input device, so the kernel also delivered every keystroke to
-whatever had terminal focus. Fixed by porting ptt_gominion1.py's
-PhysicalNumpadGate grab pattern exactly: EVIOCGRAB = 0x40044590 (byte-
-verified against the archive), ioctl'd onto the fd right after open,
-released before close. Also added explicit NumLock LED control - the
-archive only ever *reads* the LED (read_numlock_led_state, via the
-optional python-evdev package) to seed its initial gate state; there is no
-LED-*write* pattern anywhere in the archive to copy, so that half is new,
-built on the same already-installed python-evdev library
-(InputDevice.set_led), empirically confirmed to work safely alongside the
-exclusive grab (tested directly - a second python-evdev handle can read
-and write LED state on a device this same process already holds grabbed).
-The writer now seeds numlock_on from the real physical LED at startup
-(falling back to --initial-numlock only if that read fails) and keeps the
-LED in sync on every toggle, instead of tracking a Python boolean that
-could silently drift from what the LED was actually showing. Also added
-an audio_bytes count to the KP1 capture log lines, since the mic transcript
-is still reportedly empty even with the model-load-once fix confirmed
-working - this narrows whether the audio path is delivering zero bytes
-(a different bug) versus real bytes vosk still can't transcribe.
-
-STAGE 2 LISTENING + EXIT REBUILD (2026-07-03): mic transcript confirmed
-working on real hardware ("hello" landed twice). Two remaining fixes.
-(1) GOPOD_PTT_LISTENING now prints live, in capture_kp1_utterance's wait
-loop, the moment a hold crosses min_hold_seconds while still waiting for
-release - not a post-hoc report after the fact. (2) KP0 triple-tap exit
-rebuilt: found the actual root cause of "000 leaks into the shell after
-GOPOD_PTT_WRITER_EXIT" by reading the archive's main-loop cleanup path, not
-just PhysicalNumpadGate in isolation - ptt_gominion1.py calls drain_fd()
-(byte-verified shape, ported here unchanged) right before releasing
-EVIOCGRAB on exit, flushing trailing buffered events (the tail end of the
-3rd tap's repeat/release) that would otherwise leak once the grab drops.
-Also added a proactive GOPOD_PTT_EXIT_FAILED notification when the window
-lapses with fewer than 3 taps - genuinely new behavior, not in the
-archive (which only prunes stale taps lazily, reactively, on the next tap
-- it has no "you failed, try again" signal at all). KP0_EXIT_WINDOW_SECONDS
-stays 2.0, confirmed against the archive a second time and kept unchanged
-- see KP0_TRIPLE_TAP_EXIT_GOLDEN_TRUTH_001.md in gopod_notes for the
-locked rule.
-
-STAGE 2 FINAL (2026-07-03): two more bugs from a real hardware run.
-(1) held_seconds was coming back several times longer than the real
-physical KP1 hold (e.g. 5.19s reported for a much shorter real press).
-Root cause: the release-detection loop and the audio-queue-draining loop
-were the same loop - recognizer.AcceptWaveform() is a real Kaldi call that
-can take a meaningful slice of time on this hardware, and every time it
-ran, the release check was delayed by however long it took. Fixed by
-porting the archive's actual architecture (not just its constants):
-ptt_gominion1.py's record_and_transcribe_until_release runs on its own
-worker thread, decoupled from run_ptt_hold_gate's dedicated release-only
-polling loop on the main thread, synchronized via threading.Event.
-capture_kp1_utterance now does the same - a recorder_worker thread owns
-the mic stream and vosk feeding exclusively, the main thread's loop here
-does nothing but watch for KEY_RELEASE/KEY_REPEAT on KP1.
-(2) The KP0 "000" shell leak survived the previous drain_fd() fix because
-the archive drains TWICE on this exact path, not once: immediately after
-detecting the 3rd tap (drain_fd before return 0) AND again in the
-finally: block (drain_fd, gated on exit-in-progress) right before
-releasing EVIOCGRAB. Missing that second pass last round left a real gap:
-the 3rd tap's physical release may not have happened yet at the moment of
-the first drain, and the single drain gave it nowhere to land once the
-grab dropped. Both drains are now ported.
-
-STAGE 2 AUDIO REFINEMENT (2026-07-03): the writer no longer requests a
-specific rate when opening the mic stream - PulseAudio's negotiated rate
-for this device has drifted across this session (48000Hz earlier, 44100Hz
-later), so the stream now opens with no samplerate= argument at all and
-reads back stream.samplerate afterward as the actual native rate,
-whatever it is. From that single stream, every audio chunk is resampled
-twice via scipy.signal.resample_poly: once to ARCHIVE_TARGET_SAMPLE_RATE
-(48000, fixed) accumulated into a WAV master written to
-~/gopod_tts/sessions/<date>/<time>_session/masters/kp1_<n>.wav on every
-capture, and once to CHAT_TARGET_SAMPLE_RATE (16000, fixed) fed to vosk
-live exactly as before. Both are fixed archive/chat targets, not tied to
-whatever the mic happens to be running at. This resampling work happens
-entirely inside recorder_worker, on its own thread - the Stage 2 Final
-threading fix is what makes adding real per-chunk CPU work here safe
-without touching the (separately, dedicatedly polled) release-detection
-loop at all. Session directory + a session.log stdout mirror are created
-once at writer startup.
-
-STAGE 3 (2026-07-04): Doc/Pip minimal self-ID via Ollama, KP1 and KP2
-symmetric. KP2 is un-quarantined - it now captures exactly like KP1
-(capture_kp1_utterance generalized into capture_key_utterance, parametrized
-by which physical key/keycode it watches for release, so both paths share
-one implementation rather than diverging copies) and writes its own
-Operator envelope (source_producer="operator_mic_kp2"). After either
-Operator envelope write (KP1 or KP2, unchanged shape), the writer POSTs
-directly to Ollama's OpenAI-compatible /v1/chat/completions endpoint
-(confirmed live on this host alongside its native /api/generate) via the
-single call_ollama_self_id(persona, operator_text) helper, and appends the
-reply as a second envelope via the single append_persona_message(persona,
-text) helper - one call path, one envelope-writer, shared by both personas
-so they can't drift apart. Doc gets speaker_id="doc"/
-source_producer="llm_doc_self_id", Pip gets speaker_id="pip"/
-source_producer="llm_pip_self_id". Deliberately NOT using the richer
-persona/robot-safe-packet Ollama integration in
-goverlord/gomads/intelligence_gomad/intelligence_bridge.py -
-this stage's system prompts are intentionally minimal and this call is
-direct, per spec. Robots stay silent; Wire-Pod is not touched. Best-effort:
-any failure (Ollama down, timeout, non-200, malformed/empty response) is
-logged (GOPOD_PTT_LLM_FAIL persona=<x> reason=<short>) and skipped, never
-raised - this must not crash the writer or block future KP1/KP2 captures.
-
-Template 1/2 applicability (see also
-~/crushn8r_git/gopod_notes/STAGE_3_IMPLEMENT_001.md for the full writeup):
-Template 1 (goverlord/wire_pod_overlay/chipper/gopod_probes/section_packets/brobots_wirepod_interview_section_card_template_1_001.md, repointed 2026-08-19)
-governs the separate Brobots/Wire-Pod interview layer - Section Card
-exchanges, robot speech via Wire-Pod say_text, playAnimationWI action
-packets, the pronunciation mouth-valve for TTS, HEARD_AUDIO proof. None of
-that applies here: Stage 3 never touches Wire-Pod, never speaks through a
-robot mouth, has no Section Card/value-target/exchange-arc concept, and
-writes plain text into a chat pane rather than filtered robot speech - so
-none of Template 1's rules changed this stage's system prompts or output
-handling. No Template 2 file exists in this repo (searched, zero results).
-"""
+"""Write local PTT/STT transcripts into the GOPOD 8011 Pane 2 JSON file."""
 
 from __future__ import annotations
 
@@ -315,11 +144,7 @@ PERSONA_AWARENESS_REPLIES = {
 
 
 def persona_awareness_reply(persona: str, operator_text: str) -> str | None:
-    """Instant, no-LLM reply for the "wrong robot, is that you?" moment -
-    the operator's own words name Doc or Pip while a key is held. Word-
-    boundary match, not substring, so "doctor"/"pipeline" can't false-fire
-    on "doc"/"pip". Returns None (fall through to call_ollama_self_id) when
-    neither name is mentioned."""
+    """Instant, no-LLM reply for the "wrong robot, is that you?" moment - the operator's own words name Doc or Pip while a key is held."""
     lowered = operator_text.lower()
     other = "pip" if persona == "doc" else "doc"
     if re.search(rf"\b{persona}\b", lowered):
@@ -670,11 +495,7 @@ def write_chat_payload(payload: dict[str, Any]) -> None:
 
 
 def append_operator_message(key_label: str, text: str) -> None:
-    """Writes exactly ONE chat envelope. Schema-locked: speaker_id,
-    display_name, text, timestamp, source_producer. No variations.
-    key_label is "KP1" or "KP2" - selects which source_producer to stamp
-    (operator_mic_kp1 / operator_mic_kp2); the operator identity itself
-    (speaker_id/display_name) is the same either way."""
+    """Writes exactly ONE chat envelope."""
     envelope = OPERATOR_ENVELOPE_BY_KEY[key_label]
     message = {
         "speaker_id": envelope["speaker_id"],
@@ -843,10 +664,7 @@ def dispatch_robot_speech(persona: str, clean_text: str) -> None:
 
 
 def append_persona_message(persona: str, text: str) -> None:
-    """Writes exactly ONE chat envelope for a persona's Ollama self-ID
-    reply. Same schema as append_operator_message - speaker_id,
-    display_name, text, timestamp, source_producer. Shared by Doc and Pip
-    (persona in PERSONA_ENVELOPE_META) - one writer, not one per persona."""
+    """Writes exactly ONE chat envelope for a persona's Ollama self-ID reply."""
     meta = PERSONA_ENVELOPE_META[persona]
     message = {
         "speaker_id": meta["speaker_id"],

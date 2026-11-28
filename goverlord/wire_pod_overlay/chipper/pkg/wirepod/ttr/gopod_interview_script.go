@@ -60,7 +60,7 @@ type gopodDraft struct {
 	Closer    []gopodDraftLine     `json:"closer,omitempty"`
 }
 
-const gopodDraftAbout = "Draft performance (operator 2026-10-07: \"replay a 'draft performance run' to review & edit\"). The whole show in order, from a full dry run with no robots: opening, each question as its reporter reads it (before: the chapter title; after: pictures), the Brobot's own answer, the sign-off, and the ending. To change an answer, edit its \"say\" (words) or \"cue\" (animation). To play it through the robots: type the interview_script play_words (\"play the draft\") in the Brobots chat. draft_performance.md is the same, to read (harvest_dry_run.sh render-draft redraws it)."
+const gopodDraftAbout = "Draft performance: The whole show in order, from a full dry run with no robots: opening, each question as its reporter reads it (before: the chapter title; after: pictures), the Brobot's own answer, the sign-off, and the ending. To change an answer, edit its \"say\" (words) or \"cue\" (animation). To play it through the robots: type the interview_script play_words (\"play the draft\") in the Brobots chat. draft_performance.md is the same, to read (harvest_dry_run.sh render-draft redraws it)."
 
 var gopodScript = struct {
 	sync.Mutex

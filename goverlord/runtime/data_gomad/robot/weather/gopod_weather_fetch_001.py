@@ -1,27 +1,5 @@
 #!/usr/bin/env python3
-"""GOPOD's own independent weather fetch for Windsor, Ontario.
-
-Isolated on purpose - no import of, or routing through, Wire-Pod's own
-pkg/wirepod/ttr/weather.go. Reads apiConfig.json live at call time (never
-cached, never mirrored into this repo - read-only Wire-Pod Go-runtime
-property, same rule as always). Makes its own two-step OpenWeatherMap call
-(geocode -> current weather by lat/lon), the same shape weather.go itself
-uses, written independently.
-
-Fetch once, in one neutral unit (metric/Celsius). Per-robot unit and clock
-format are read LIVE from that robot's own Wire-Pod jdocs RobotSettings
-(jdocs.json, keyed by serial - see load_robot_format_from_jdocs() below),
-never hardcoded here - format_for_robot() takes them as plain arguments.
-Changed 2026-08-13 (WEATHER_LIVE_JDOCS_SOURCED_001.md): this used to read a
-hand-authored static file (robot_weather_format.json) that happened to
-match each robot's real settings - a silent-drift seam, since nothing kept
-the two in sync. One source of truth now: the robot's own jdocs.
-
-Fails loudly - no silent fallback, no cached stale answer - if the key is
-missing, the provider isn't the one this call shape was written for, the
-robot's own RobotSettings jdoc can't be found, or the API call itself
-fails.
-"""
+"""GOPOD's own independent weather fetch for Windsor, Ontario."""
 import json
 import os
 import urllib.parse
@@ -64,16 +42,7 @@ def _http_get_json(url, timeout=10):
 
 
 def fetch_windsor_weather(location=None):
-    """location=None (every existing caller) preserves the exact original
-    behavior - the module's own LOCATION constant, "Windsor,ON,CA" - the
-    optional param (2026-08-15, PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md) only
-    lets phcal's own bench weather test target somewhere else on request.
-    Single direct geocode query, same as always - no candidate-fallback
-    retry logic (that lives in phcal's own now-unreachable
-    cmd_weather_test/_weather_geocode_candidates, not ported here to avoid
-    reimplementing this function). Name kept as-is (not renamed to a
-    generic fetch_weather()) to avoid rippling through every import site
-    for a phcal-scoped addition."""
+    """location=None (every existing caller) preserves the exact original behavior - the module's own LOCATION constant, "Windsor,ON,CA" - the optional param only lets phcal's own bench weather test target somewhere else on request."""
     provider, key = _read_weather_config()
     query_location = location if location else LOCATION
 
@@ -240,9 +209,7 @@ def format_for_robot(facts, unit, clock, include_location_date=False):
 
 
 def gopod_robot_serial(label):
-    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection:
-    who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's
-    private ~/.gopod_esns.json; anything else as it is (2026-10-29)."""
+    """A robot's label (ESN01, ESN02) as its serial, for a direct robot connection: who it is this Wire-Pod start (gopod_brobots_now.json), else the operator's private ~/.gopod_esns.json; anything else as it is."""
     key = {"ESN01": "brobot_1", "ESN02": "brobot_2"}.get(str(label).upper())
     if not key:
         return label

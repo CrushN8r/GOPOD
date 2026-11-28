@@ -1,25 +1,5 @@
 #!/usr/bin/env python3
-"""Forced alignment for a song's narrator (2026-10-18, operator: "Baby brobots song
-now (premiere pro project mixdown track) * see the mp3 audio file for similar speech
-patterns to highlight by * this mp3 is the narrator only * grab timings from the
-audio file * apply forced alignment timings, following the way kokoro does it for
-highlighting * discard the audio file * if doable add this to GOPOD").
-
-The words are already known - the song's SRT captions. Vosk (Wire-Pod's own speech
-model) listens to the narrator audio and times every word it hears; each caption's
-words are then matched to those, in order, within the caption's own seconds (a word
-not heard is placed between its neighbours). The result is the same shape as a
-Kokoro voice's word times, saved in the song folder as narrator_words.json:
-
-  {"source": "<audio file name>", "captions": {"<start seconds, 2 places>":
-      [{"t": word, "s": start, "e": end}, ...]}}
-
-The song engine passes each caption's word times with its narrator piece; the chat
-page reveals each word at its time (the same reveal as every voice). The audio is
-only listened to - nothing of it is kept.
-
-Usage: gopod_align_captions_001.py <narrator audio> <song folder> [vosk model folder]
-"""
+"""."""
 import json
 import re
 import subprocess

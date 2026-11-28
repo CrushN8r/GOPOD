@@ -1,81 +1,5 @@
 #!/usr/bin/env python3
-"""Robot control song — a talking self-check on one robot (Brobot 1).
-
-Standalone runner, deliberately never touching run_section1_full_live_001.py
-beyond one additive opt-out parameter on Robots.say() (suppress_assume_release,
-defaults to today's behavior - see that file). Same importlib-reuse pattern
-run_section1_preshow_generate_001.py already uses.
-
-The shared Robots.say() no longer fires speaker_visual_cue() automatically
-on any call, for anyone - the debug-era welded arm cue was cut from say()
-itself, not just suppressed here.
-
-ARM_TEST_SEQUENCE/HEAD_NOD_TEST_SEQUENCE + gentle_arm_test_cue()/
-head_nod_test_cue() are this file's own fixed stress-test choreography -
-still live, but as of 2026-07-25 only fired by the standalone
-test-arm-cue/test-head-nod aliases (via run_single_note()), not by any
-song's own score. This song's own arm_test/head_nod notes (brobots_awaken)
-now call run_arm_cue()/run_nod() instead (below) - the same tunable,
-knobs.json-driven movement brobots_bingo already used, moved here so both
-songs share one mechanism (REPORTER_GAP_SHARED_SWITCH_SURVEY_001.md,
-operator request). Robots.speaker_visual_cue() remains the separate,
-still-dormant third option, callable on demand, no score fires it.
-
-TESTS vs. GESTURES (split 2026-07-14, MOVEMENT_TEST_GESTURE_SPLIT_001.md):
-this file now owns two independent pairs of movement sequences, not one
-shared pair. ARM_TEST_SEQUENCE/HEAD_NOD_TEST_SEQUENCE are this song's own
-stress tests - big, deliberate, built to prove the motor works, fired by
-the test-arm-cue/test-head-nod aliases (see above - no longer by this
-song's own score). ARM_GESTURE_SEQUENCE/HEAD_NOD_GESTURE_SEQUENCE are the
-interview's own performance moves, fired only through fire_scored_interview_movement()
-in run_section1_full_live_001.py. They were seeded as exact copies of the
-test values and are free to diverge and be tuned by ear later - neither
-pair reaches into the other's values anymore.
-
-Fireworks (fire_fireworks(), the native intent_seasonal_happynewyear via
-/api-sdk/cloud_intent - see NATIVE_CELEBRATION_SURVEY_001.md /
-NATIVE_CELEBRATION_LIVE_TEST_001.md / CELEBRATION_COMPLEXITY_PINNED_001.md)
-is no longer part of the scored song - it produces no visible animation,
-pinned, not re-investigated. It remains reachable only as the standalone
-test-fireworks alias, via run_single_note().
-
-The weather note took fireworks' slot in the score: a real fetch through
-the existing goverlord/runtime/data_gomad/robot/weather/gopod_weather_fetch_001.py module,
-formatted per-robot from that robot's own LIVE Wire-Pod jdocs RobotSettings
-(temp_is_fahrenheit/clock_24_hour - jdocs.json, keyed by serial; changed
-2026-08-13, WEATHER_LIVE_JDOCS_SOURCED_001.md, replacing a hand-authored
-static file that happened to match but could silently drift). Currently
-Brobot 1 leads Celsius/24-hour, Brobot 2 leads Fahrenheit/12-hour, per each
-robot's own real settings. The spoken line uses words (no degree symbols);
-the display_text passed to say() uses the symbol form - both come from that
-module's own format_for_robot(), not re-derived here.
-
-Three additive extensions for brobots_bait_002 (2026-07-15/2026-07-16), all
-backward-compatible - no other existing song's knobs.json uses any of these keys/tokens,
-so their behavior is unchanged byte for byte: (1) a "pause" note - a plain, deterministic
-time.sleep() for pause_seconds seconds read from the score, no hardware call, for reporter
-gaps between beats; (2) a "{robot_name}" token in step text, substituted with this run's
-own already-computed `name` ("Brobot 1"/"Brobot 2") - lets one song folder's story.md
-speak a per-robot self-ID line without hardcoding either robot's name in this file; (3) a
-"weather_include_location_date" flag read per-weather-step from knobs.json, passed through
-to gopod_weather_fetch_001.py's own format_for_robot() - defaults False, so
-robot_control_song_001 and brobots_awaken (neither sets this key) get byte-identical
-weather output; only a song that explicitly sets it True gets the location+date prefix.
-
-PRONUNCIATION (corrected 2026-07-16 - the 2026-07-15 note above was wrong): this song's
-own normalize_robot_safe() has no pronunciation handling, but say_line() doesn't stop
-there - it hands the result to robots.say(), and `robots` is mod.Robots(...), the exact
-same shared class the interview instantiates. Robots.say() unconditionally runs
-flatten_for_robot_speech() -> apply_pronunciation_safety() on every line, from either
-lane, before building the wirepod_chunks a live call actually POSTs. So "GOPOD" -> "Gowp-
-awd" already applies here automatically, at speech time only - story.md, the terminal
-print, and every log field except result["speech_text"] all keep the literal spelling
-untouched, same divergence-by-design as the interview lane. No song needs to author a
-phonetic respelling in its own text for this reason; brobots_bait_002's story.md was
-reverted to literal "GOPOD Yourself" for exactly that reason. say_line()'s own
-PRONUNCIATION_SWAP print (silent unless a line's text actually triggers a registry entry)
-is the live, per-run proof of this.
-"""
+"""Robot control song — a talking self-check on one robot (Brobot 1)."""
 import importlib.util
 import json
 import os
@@ -117,9 +41,7 @@ def parse_control_story_md(text):
 
 
 def parse_control_story_list(text):
-    """2026-10-25 (operator's new story format: one move or one line per step, in
-    the order they happen, a line's step name repeating - "brat_say_0203" twice):
-    every step in story order, (step_id, {"text", "fail"})."""
+    """every step in story order, (step_id, {"text", "fail"})."""
     lines = text.splitlines()
     starts = [i for i, line in enumerate(lines) if _STEP_HEADING.match(line.strip())]
     steps = []
@@ -191,7 +113,7 @@ def run_named_movement_sequence(mod, name, endpoint, sequence, serial, live, man
     return {"ok": ok, "name": name, "results": results}
 
 
-ARM_TEST_LEG_HOLD_SECONDS = 0.36  # raise/lower leg duration - live-confirmed good 2026-07-14, see MOVEMENT_FLOOR_CALIBRATION_001.md
+ARM_TEST_LEG_HOLD_SECONDS = 0.36  # raise/lower leg duration - live-confirmed good
 
 ARM_TEST_SEQUENCE = [
     {"speed": 0, "hold_seconds": 0.3},   # settle to rest (explicit start anchor)
@@ -203,7 +125,7 @@ ARM_TEST_SEQUENCE = [
 
 NOD_TEST_SPEED = 3             # nod leg speed magnitude - DO NOT LOWER below 3 without live re-confirmation, see warning above
 NOD_TEST_LEAD_IN_SPEED = 2     # lead-in speed magnitude - scaled with NOD_TEST_SPEED (ratio ~0.667)
-NOD_TEST_LEG_HOLD_SECONDS = 0.36  # nod-down/nod-up leg duration - live-confirmed good 2026-07-14, see MOVEMENT_FLOOR_CALIBRATION_001.md
+NOD_TEST_LEG_HOLD_SECONDS = 0.36  # nod-down/nod-up leg duration - live-confirmed good
 
 HEAD_NOD_TEST_SEQUENCE = [
     {"speed": 0, "hold_seconds": 0.3},              # settle to rest (explicit start anchor)
@@ -218,7 +140,7 @@ HEAD_NOD_TEST_SEQUENCE = [
 ]
 
 
-ARM_GESTURE_LEG_HOLD_SECONDS = 0.81  # seeded from ARM_TEST_LEG_HOLD_SECONDS 2026-07-14 - free to diverge, tune by ear
+ARM_GESTURE_LEG_HOLD_SECONDS = 0.81  # seeded from ARM_TEST_LEG_HOLD_SECONDS - free to diverge, tune by ear
 
 ARM_GESTURE_SEQUENCE = [
     {"speed": 0, "hold_seconds": 0.3},   # settle to rest (explicit start anchor)
@@ -230,7 +152,7 @@ ARM_GESTURE_SEQUENCE = [
 
 NOD_GESTURE_SPEED = 3             # nod leg speed magnitude - DO NOT LOWER below 3 without live re-confirmation, see warning above
 NOD_GESTURE_LEAD_IN_SPEED = 2     # lead-in speed magnitude - scaled with NOD_GESTURE_SPEED (ratio ~0.667)
-NOD_GESTURE_LEG_HOLD_SECONDS = 0.81  # seeded from NOD_TEST_LEG_HOLD_SECONDS 2026-07-14 - free to diverge, tune by ear (TIMING only, never speed)
+NOD_GESTURE_LEG_HOLD_SECONDS = 0.81  # seeded from NOD_TEST_LEG_HOLD_SECONDS - free to diverge, tune by ear (TIMING only, never speed)
 
 HEAD_NOD_GESTURE_SEQUENCE = [
     {"speed": 0, "hold_seconds": 0.3},              # settle to rest (explicit start anchor)
@@ -274,19 +196,7 @@ def gentle_arm_gesture_cue(mod, serial, live, manage_control=True, timing_steps=
 
 
 def run_move_axis(mod, serial, endpoint, speed, hold_seconds, live, manage_control=True):
-    """Ports _brobots_move_axis's exact HTTP shape (brobots.sh) for a single
-    robot: assume -> set speed -> hold -> set speed=0 -> release. Reused for
-    both arm cues (move_lift) and nods (move_head). Moved here from
-    run_songs_runner_001.py 2026-07-25 (REPORTER_GAP_SHARED_SWITCH_SURVEY_001.md)
-    so brobots_awaken can share the same tunable cycles/hold_seconds/speed
-    movement bingo already has, instead of this song's own fixed
-    ARM_TEST_SEQUENCE/HEAD_NOD_TEST_SEQUENCE choreography (untouched, still
-    used by the standalone test-arm-cue/test-head-nod aliases).
-    manage_control=False skips the assume/release pair - this song's own
-    "connect" note already assumes control once for the whole run (see
-    say_line()'s own comment above on the screen-flash bug that caused);
-    bingo calls this with the default (True), one assume/release per call,
-    matching its own existing behavior exactly."""
+    """Ports _brobots_move_axis's exact HTTP shape (brobots.sh) for a single robot: assume -> set speed -> hold -> set speed=0 -> release."""
     if not live:
         return {"ok": True, "mode": "dry"}
     assume = None
@@ -341,20 +251,7 @@ POST_ASSUME_SAY_SETTLE_SECONDS = 1.5
 
 
 def run_brobots_wake(mod, serial, live, manage_control=True):
-    """The GLOBAL, reusable "make a control session genuinely responsive"
-    primitive - mechanism REPLACED 2026-08-10, see
-    BROBOTS_WAKE_RELEASE_SETTLE_SECONDS above for the full why. conn_test
-    (cheap connectivity check) -> if manage_control, assume -> release
-    (the "golden flag" pulse) -> settle -> re-assume. Not wheel-specific -
-    any future motion primitive that needs to prove a control session is
-    genuinely live before acting on it can call this directly, the same
-    way run_move_axis/run_arm_cue/run_nod already share manage_control's
-    own convention. The release/settle/re-assume pulse fires
-    UNCONDITIONALLY regardless of manage_control - a caller that's
-    already holding control (manage_control=False, e.g. the composed
-    run_wheel_nudge call site below) still needs this function to let go
-    and re-grab control, since the golden flag only works as a genuine
-    release-then-reassume transition, not a no-op skip."""
+    """."""
     if not live:
         return {"ok": True, "mode": "dry"}
     try:
@@ -381,16 +278,7 @@ def run_brobots_wake(mod, serial, live, manage_control=True):
 
 
 def run_move_reverse(mod, serial, live, hold_seconds, lw=WHEEL_NUDGE_REVERSE_LW, rw=WHEEL_NUDGE_REVERSE_RW, manage_control=True):
-    """The move half. Assumes control is genuinely live - either its own
-    manage_control=True assume, or (the real production path) run_brobots_
-    wake's own release/settle/re-assume pulse having just landed. Fires
-    ONE real move_wheels call - REPLACED 2026-08-10: the old "fire twice,
-    back to back" duplicate (a workaround for a still-waiting-on-the-grant
-    theory that was itself only ever tested inside a flat-sleep settle
-    window) is removed, not kept as redundant insurance - the golden-flag
-    mechanism above proved reliable with a SINGLE move call across 8/8
-    live runs, both robots (WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_001.md).
-    Then hold, stop, release (if manage_control)."""
+    """The move half."""
     if not live:
         return {"ok": True, "mode": "dry"}
     assume = None
@@ -412,19 +300,7 @@ def run_move_reverse(mod, serial, live, hold_seconds, lw=WHEEL_NUDGE_REVERSE_LW,
 
 
 def run_wheel_nudge(mod, serial, lw, rw, hold_seconds, live, manage_control=True):
-    """Composed: run_brobots_wake's own core (its own release/settle/
-    re-assume golden-flag pulse, no outer release of its own) then
-    run_move_reverse's own core (no assume - relies on wake's own
-    re-assume having just landed), sharing ONE continuous held-control
-    window opened/closed ONCE here. manage_control=False skips this
-    function's own outer assume/release, same convention as run_move_axis
-    above - a song holding control continuously (e.g. brobots_awaken)
-    supplies its own assume at "connect" and its own release at "exit".
-    Note-type name ("wheel_nudge") kept as-is - already git-tracked and
-    wired into run_golden_song_001.py's dispatch; the reusable pieces
-    underneath are named brobots_wake/move_reverse per operator direction,
-    2026-08-09, mechanism replaced 2026-08-10 per live-measured diagnostic
-    data (WHEEL_NUDGE_COLD_FIRE_ROOT_CAUSE_SURVEY_001.md)."""
+    """Composed: run_brobots_wake's own core (its own release/settle/ re-assume golden-flag pulse, no outer release of its own) then run_move_reverse's own core (no assume - relies on wake's own re-assume having just landed), sharing ONE continuous held-control window opened/closed ONCE here."""
     if not live:
         return {"ok": True, "mode": "dry"}
     assume = None
@@ -472,24 +348,7 @@ def say_line(mod, robots, name, text, display_text=None):
 
 
 def run_single_note(note, live, robot="1", voice_destination="robot", location=None, phrase=None):
-    """Fire exactly one motion/note in isolation - no song loop, no
-    narration, no other notes. Built for tuning one motion at a time
-    (arm_test/head_nod/fireworks/weather/say_phrase) without waiting for
-    the whole song, and without other notes' own assume/release churn
-    muddying what's being watched. Reuses the exact same functions the full
-    song calls - not a second implementation. voice_destination matters for
-    weather and say_phrase (the two notes that speak through
-    mod.Robots.say() rather than firing a bare movement/intent call
-    directly) - added 2026-07-16 registry polish, see
-    ALIAS_REGISTRY_POLISH_001.md; every existing arm_test/head_nod/fireworks
-    caller is unaffected, since the default ("robot") matches main()'s own
-    prior implicit behavior and those notes never construct a Robots
-    instance at all. location=None (every caller except phcal's own bench
-    weather test) preserves the original Windsor-only fetch - added
-    2026-08-15, PHCAL_NOTES_WEATHER_WAKE_FIXES_001.md; ignored entirely by
-    every note except weather. phrase (2026-08-18,
-    PHCAL_DETECT_FIRST_001.md) is say_phrase's own required text - ignored
-    entirely by every other note."""
+    """Fire exactly one motion/note in isolation - no song loop, no narration, no other notes."""
     mod = _load_runner_module()
     if robot == "2":
         serial = mod.BROBOT_2_SERIAL

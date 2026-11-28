@@ -1,7 +1,4 @@
-"""Step names are labels (ALIAS-PLAY-STUDIO.md, "Step names, the master list");
-step_name_problem only warns when a name doesn't read as what its knobs play
-(operator 2026-10-13: "add a check that warns when a step's name doesn't match
-its knobs parts")."""
+"""Step names are labels (ALIAS-PLAY-STUDIO.md, "Step names, the master list"); step_name_problem only warns when a name doesn't read as what its knobs play."""
 import sys
 import unittest
 from pathlib import Path
@@ -44,10 +41,7 @@ if __name__ == "__main__":
 
 
 class SongWarmupSequenceTests(unittest.TestCase):
-    """GOLDEN, locked (operator 2026-10-13: "PLEASE FIX GOLDEN AND F*CK*NG LOCK
-    THE PROCESS IN"): a song's warm-up, in the chat feed's order - "LLM Warming
-    Up. Please wait." (shown and said), "Please wait." while its lines play,
-    then the ready line."""
+    """GOLDEN, locked: a song's warm-up, in the chat feed's order - "LLM Warming Up."""
 
     def test_song_warmup_order(self):
         import json
@@ -91,9 +85,7 @@ class SongWarmupSequenceTests(unittest.TestCase):
 
 
 class ThinkingIsTheLiveProcessTests(unittest.TestCase):
-    """GOLDEN, locked (operator 2026-10-13: "use locked \"thinking please wait\"
-    process for scripted runs"): a song's thinking step asks Wire-Pod for the
-    live chat's own process, and no song carries its own copy of it."""
+    """GOLDEN, locked: a song's thinking step asks Wire-Pod for the live chat's own process, and no song carries its own copy of it."""
 
     def test_no_song_builds_its_own_thinking(self):
         import json
@@ -107,8 +99,7 @@ class ThinkingIsTheLiveProcessTests(unittest.TestCase):
 
 
 class NewCommandsTests(unittest.TestCase):
-    """2026-10-16 (operator: "extend that to include sequences, animations,
-    timers, llm warm-up & in-between reporter lines")."""
+    """."""
 
     def test_new_names(self):
         for step_id, plays in [
@@ -157,8 +148,7 @@ class NewCommandsTests(unittest.TestCase):
 
 
 class VolumeKnobTests(unittest.TestCase):
-    """2026-10-17 (operator: "other story.md knobs are either \"\" for default or
-    \"0-100%\""): a volume knob is a share of the master."""
+    """a volume knob is a share of the master."""
 
     def test_volume_share(self):
         for v, want in [("", 1.0), (None, 1.0), ("default", 1.0), ("30%", 0.3), ("150%", 1.5), (0.25, 0.25), ("0%", 0.0)]:
@@ -176,9 +166,7 @@ class VolumeKnobTests(unittest.TestCase):
 
 
 class NoneRequiredWarmupTests(unittest.TestCase):
-    """2026-10-17 (operator: "add: fallbacks to system messages: \"No Voice
-    Generation Required\" ... \"No Language Model Required\" ... a single
-    in-between message = \"\" = the indication to skip")."""
+    """."""
 
     def test_nap_style_warmup(self):
         import json
@@ -208,9 +196,7 @@ class NoneRequiredWarmupTests(unittest.TestCase):
 
 
 class NewStoryFormatTests(unittest.TestCase):
-    """2026-10-25 (operator: "New format ... Translate/compose for native wire-pod
-    compatibility"): one move or one line per step, a line's name repeating; a
-    move followed by the same Brobot's line plays with it."""
+    """one move or one line per step, a line's name repeating; a move followed by the same Brobot's line plays with it."""
 
     def test_order_and_compose(self):
         import json

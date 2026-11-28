@@ -39,9 +39,9 @@ FRAME_DT = 1 / 30.0       # a steady 1/30 s a frame (real frame timing jittered 
 PADDLE_R = 25.0
 PADDLE_DARK = 0.6
 PADDLE_SIZE = (0.04, 0.3)  # its width, in bar-lengths
-NOTE_HSV = ((160, 85, 170), (179, 175, 255))  # 2026-11-23 brighter room: hue 177 (176 lost him all game)
+NOTE_HSV = ((160, 85, 170), (179, 175, 255))  # brighter room: hue 177 (176 lost him all game)
 NOTE_SIZE = (0.08, 0.25)  # its width, in bar-lengths
-VECTOR_IN_SQUARES = (1.4, 2.3)  # his 60 x 100 mm (width, length), in pink-square sides (measured 2026-11-23)
+VECTOR_IN_SQUARES = (1.4, 2.3)  # his 60 x 100 mm (width, length), in pink-square sides ( measured)
 SQUARE_MM = 43.0          # the square's side as the camera sees it, until it's seen
 BODY_DARK = 0.7           # darker than this share of the arena's own light (each frame): him (0.6 fit him only ~0.35)
 BODY_AREA = (1.5, 8.0)    # his dark shape's area, in pink squares (measured ~2.4: the flag covers part)
@@ -54,7 +54,7 @@ HEADING_GAIN = 0.4        # how fast his facing follows
 TRACK_LOST_S = 0.5        # unseen this long: found afresh
 SPEED_MAX = 400.0         # mm/s - faster is a mis-sighting, not him
 ON_CHARGER_MM = 60.0      # his flag this near his charger's middle: he's on it
-STRIPE_MM = (85.0, 25.0)  # its length, width as seen (measured 2026-11-23)
+STRIPE_MM = (85.0, 25.0)  # its length, width as seen ( measured)
 STRIPE_LOOK_MM = 80.0     # looked for this far round its last spot
 PADDLE_SMOOTH = 0.4
 STILL_MM = 4.0            # a move smaller than this is the camera's own wobble - it stays put
@@ -63,7 +63,7 @@ JUMP_MM = 80.0            # seen this far from where he just was: not him...
 JUMP_FRAMES = 5           # ...unless he's seen there this many frames running
 BURST_SPEED = 80.0
 TURN_SPEED = 100.0
-TURN_RATE = math.radians(50.0)  # Brobot 2, measured live 2026-11-23: 52 deg in 1 s (earlier 34 - the legs correct either way)
+TURN_RATE = math.radians(50.0)  # Brobot 2, measured 52 deg in 1 s (earlier 34 - the legs correct either way)
 SETTLE_AFTER_ASSUME = 1.5  # a fresh hold needs a moment before the first move
 WAKE_RELEASE_SETTLE = 2.5  # the golden wake's settle (BROBOTS_WAKE_RELEASE_SETTLE_SECONDS)
 STOP_AGAIN = 0.5          # standing: "stop" is said again this often (a lost one let him roll on)
@@ -157,8 +157,7 @@ class Puck:
         return ""
 
     def step(self, dt, movers):
-        """Bounce off the sides, the ends beside the goal mouths, A's body (a box)
-        and the paddle (a circle); "a" past A's net, "room" past the operator's."""
+        """Bounce off the sides, the ends beside the goal mouths, A's body (a box) and the paddle (a circle); "a" past A's net, "room" past the operator's."""
         self.x += self.vx * dt
         self.y += self.vy * dt
         if self.x - PUCK_R < FIELD_X[0]:
@@ -220,9 +219,7 @@ class Robot:
             print("Wire-Pod: " + str(e))
 
     def hold(self):
-        """Wake him and take control (operator: "add a wake call in case the brobots
-        are asleep"): GOPOD's golden wake, run_brobots_wake() in
-        run_robot_control_song_001.py - assume, release, settle, assume again."""
+        """Wake him and take control: GOPOD's golden wake, run_brobots_wake() in run_robot_control_song_001.py - assume, release, settle, assume again."""
         self.send("/api-sdk/conn_test", {})
         self.send("/api-sdk/assume_behavior_control", {"priority": "high"})
         self.send("/api-sdk/release_behavior_control", {})
@@ -242,8 +239,7 @@ class Robot:
         self.send("/api-sdk/move_wheels", {"lw": int(lw), "rw": int(rw)})
 
     def stop(self, now=0.0):
-        """Stopped - said again every STOP_AGAIN s while he should stand (live
-        2026-11-23: a lost stop let Brobot 2 roll on off the arena)."""
+        """Stopped - said again every STOP_AGAIN s while he should stand."""
         if self.speed != (0, 0) or now - self.last_stop > STOP_AGAIN:
             self.wheels(0)
             self.speed = (0, 0)
@@ -342,9 +338,7 @@ class Robot:
             time.sleep(SETTLE_AFTER_ASSUME)
 
     def park(self, frame_pos, home):
-        """Part 1 (operator's plan): off his charger by himself, out up the table,
-        back in toward the ruler's bar on his home side, then back along it to the
-        middle of his goal line - facing along it."""
+        """Part 1: off his charger by himself, out up the table, back in toward the ruler's bar on his home side, then back along it to the middle of his goal line - facing along it."""
         self.charger("off")
         side = 1 if home[0] >= 0 else -1
         ok = self.drive_path(frame_pos, [(side * PARK_OUT[0], PARK_OUT[1]), (side * PARK_BACK_IN_X, NET_Y, "back"), (0.0, NET_Y, "back")])

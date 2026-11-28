@@ -1,29 +1,5 @@
 #!/usr/bin/env python3
-"""GOPOD's room-mic service for the Brobots chat (operator 2026-10-04): one
-process owns the Jetson's USB mic and serves both
-
-  - Record Session's continuous 48 kHz master (record_start / record_stop), and
-  - the chat page's numpad push-to-talk (ptt_start / ptt_stop): "Does my
-    recording via my mic from the web page work? ... please get it to work".
-
-The USB mic can only be opened once, so the two share one stream: talking by
-numpad while a session records works.
-
-Golden guts, reused, not rewritten - the "Is That You" PTT writer
-(goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/
-gopod_ptt_chat_writer_013.py):
-  - the mic pick (resolve_audio_device_by_name, "USB Audio", webcam excluded);
-    no fallback to the default input (it can be NoMachine's mic,
-    AUDIO_ROUTING_CHECK_001.md);
-  - MIN_HOLD_SECONDS (1.0), RELEASE_TAIL_SECONDS (0.9), the 48 kHz master /
-    16 kHz Vosk targets, resample_pcm16 run ONCE on the whole capture (never
-    per chunk - the writer's STAGE 5 lesson), the Vosk model and its loader,
-    and the per-key master WAV archive (kp1_N.wav in the writer's session dir).
-
-Wire-Pod (gopod_mic_service.go) starts it as the desktop user and talks to it
-in JSON lines: one command per line on stdin, one reply per line on stdout
-(with the command's "id"). Anything else it prints is a log line.
-"""
+"""GOPOD's room-mic service for the Brobots chat: one process owns the Jetson's USB mic and serves both"""
 
 from __future__ import annotations
 
@@ -46,9 +22,7 @@ import gopod_ptt_chat_writer_013 as golden  # noqa: E402
 
 
 def pulse_mic(sd):
-    """2026-10-22 (live: GNOME's Sound settings was open, so PulseAudio held the
-    USB mic and PortAudio didn't list it): when PulseAudio's default source is
-    the USB mic, record through PulseAudio ("pulse") instead. (None, "") if not."""
+    """GNOME's Sound settings was open, so PulseAudio held the USB mic and PortAudio didn't list it): when PulseAudio's default source is the USB mic, record through PulseAudio ("pulse") instead."""
     try:
         src = subprocess.run(["pactl", "get-default-source"], capture_output=True, text=True, timeout=3).stdout.strip()
     except Exception:  # noqa: BLE001
@@ -62,7 +36,7 @@ def pulse_mic(sd):
             return index, "pulse (" + src + ")"
     return None, ""
 
-VOSK_MODEL_PATH = golden.DEFAULT_VOSK_MODEL_PATH  # the golden writer's own (its root fixed 2026-10-04)
+VOSK_MODEL_PATH = golden.DEFAULT_VOSK_MODEL_PATH  # the golden writer's own (its root fixed)
 TARGET_RATE = golden.ARCHIVE_TARGET_SAMPLE_RATE  # 48000
 CHAT_RATE = golden.CHAT_TARGET_SAMPLE_RATE  # 16000
 

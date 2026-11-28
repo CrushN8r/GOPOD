@@ -269,7 +269,7 @@ func gopodTorahBehind() bool {
 func gopodTorahStale(files map[string]string) []string {
 	var out []string
 	flat, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "SCRIPTURE_*.md"))
-	out = append(out, flat...) // the old one-file scrolls (before 2026-11-16)
+	out = append(out, flat...) // the one-file scrolls
 	dirs, _ := filepath.Glob(filepath.Join(gopodRepoRoot(), gopodTorahDir, "scripture-*"))
 	for _, d := range dirs {
 		if _, ok := files[gopodTorahDir+"/"+filepath.Base(d)+"/README.md"]; !ok {

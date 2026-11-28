@@ -1,9 +1,4 @@
-"""Path constants + JSON loader for goverlord/runtime/data_gomad/.
-
-Moved 2026-07-30: this module lives under runtime/data_gomad/configs/ now
-that the gomads/ tree has been removed (only data_gomad ever had a live
-caller; see gopod_notes/GOVERLORD_DEAD_WEIGHT_SURVEY_001.md).
-"""
+"""Path constants + JSON loader for goverlord/runtime/data_gomad/."""
 
 from __future__ import annotations
 
