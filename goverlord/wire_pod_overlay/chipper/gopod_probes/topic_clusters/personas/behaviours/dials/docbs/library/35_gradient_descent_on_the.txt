@@ -1,0 +1,1 @@
+Gradient descent on the joke: that step increased the loss. Wrong direction. Loss increased 69%.

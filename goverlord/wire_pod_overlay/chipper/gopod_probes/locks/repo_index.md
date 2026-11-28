@@ -670,7 +670,7 @@
 - the response pipeline
 - 11/10
 - The pantry: every pool
-- Still in the library, not on the menu yet
+- The library's 50
 - Adding a recipe
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS_LIBRARY.md
@@ -687,6 +687,48 @@
 - DocBS - Doc's brain wiring
 - The Master Library
 
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/chains.md
+- DocBS chains
+- equation roast (docbs.chains.0)
+- shorts: roast, riddle, reveal (docbs.chains.1)
+- roast, ratio, riddle (docbs.chains.2)
+- chaos calculus loop (docbs.chains.3)
+- the response pipeline (docbs.chains.4)
+- 11/10 (docbs.chains.5)
+- 1. Penis-size / “long and hard” inversion (docbs.chains.6)
+- 2. Attitude error 420,690 (docbs.chains.7)
+- 3. Big-O myth kill (docbs.chains.8)
+- 4. SQL SELECT * roast (docbs.chains.9)
+- 5. Recursion without base case (docbs.chains.10)
+- 6. Division by zero courage (docbs.chains.11)
+- 7. Rayleigh scattering / sky color (docbs.chains.12)
+- 8. Overfitting as memorized answer key (docbs.chains.13)
+- 9. Website slow / 8K images on 56k (docbs.chains.14)
+- 10. Python loop / missing colon (docbs.chains.15)
+- 11. Git push to main without tests (docbs.chains.16)
+- 12. Procrastination timebox (docbs.chains.17)
+- 13. GPU under-utilization (docbs.chains.18)
+- 14. NFT / speculative JPEG (docbs.chains.19)
+- 15. Resume as crash log (docbs.chains.20)
+- 16. Deployment fail / env mismatch (docbs.chains.21)
+- 17. Linter nits (docbs.chains.22)
+- 18. API that bites (docbs.chains.23)
+- 19. Push to prod without rollback (docbs.chains.24)
+- 20. Code suck honesty (docbs.chains.25)
+- 21. Comment thread rage (docbs.chains.26)
+- 22. Solder joint cold (docbs.chains.27)
+- 23. Belief × ∞ still zero correction (docbs.chains.28)
+- 24. Local maximum of effort (docbs.chains.29)
+- 25. Inverse proportion confidence/accuracy (docbs.chains.30)
+- 26. Phase transition to DocBS (docbs.chains.31)
+- 27. Eigenvalue of the ego (docbs.chains.32)
+- 28. Taylor expansion of the premise (docbs.chains.33)
+- 29. Steady-state sarcasm (docbs.chains.34)
+- 30. Impulse response to insult (docbs.chains.35)
+- 31. Transfer function of humor (docbs.chains.36)
+- 32. Lyapunov instability of claim (docbs.chains.37)
+- 33. Fourier of the rant (docbs.chains.38)
+
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/pipta/README.md
 - PipTA - Pip's brain wiring
 
@@ -695,6 +737,8 @@
 - Before a freeze, reboot or battery drain: his dizzy line (battery_watch.lines)
 - Said after it only when he's off the charger (battery_watch.home_lines)
 - After a freeze, reboot or battery drain: back, his line (battery_watch.back_lines)
+- Asked if he's dizzy: his power level, then how he is (battery_watch)
+- How he is, asked (battery_watch.ask_states)
 - His guard's warning and his answer (battery_watch)
 - Before every run: the guards' security sweep (battery_watch)
 - Off the network: the key to reach his robot (battery_watch)
@@ -1057,12 +1101,6 @@
 - The name
 - Lingo
 - DocBS (docbs)
-- equation roast (docbs.chains.0)
-- shorts: roast, riddle, reveal (docbs.chains.1)
-- roast, ratio, riddle (docbs.chains.2)
-- chaos calculus loop (docbs.chains.3)
-- the response pipeline (docbs.chains.4)
-- 11/10 (docbs.chains.5)
 - My intro guide
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/company/3_gominions/brobot-1.md

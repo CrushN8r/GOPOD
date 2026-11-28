@@ -1,6 +1,6 @@
 # DOCBS: the master cookbook of response recipes
 
-Doc's DocBS answers, as recipes. Each recipe is one chain (`docbs.chains` in `webroot/gopod_settings/02_cast.json`): its beats in order, each beat a line from its pool here. The words are the operator's own: [the Master Library](DOCBS_LIBRARY.md) and the DocBS pools. It doesn't update itself: a changed chain or pool means this page gets written again.
+Doc's DocBS answers, as recipes. Each recipe is one chain (`docbs.chains`, from [chains.md](chains.md)): its beats in order, each beat a line from its pool here. The words are the operator's own: [the Master Library](DOCBS_LIBRARY.md) and the DocBS pools. It doesn't update itself: a changed chain or pool means this page gets written again.
 
 ## How every recipe is served
 
@@ -22,6 +22,56 @@ Doc's DocBS answers, as recipes. Each recipe is one chain (`docbs.chains` in `we
 | chaos calculus loop | share 50 | 4 |
 | the response pipeline | share 80 | 7 |
 | 11/10 | share 110 | 13 |
+| 1. Penis-size / “long and hard” inversion | share 100 | 4 |
+| 2. Attitude error 420,690 | share 100 | 1 |
+| 3. Big-O myth kill | share 100 | 3 |
+| 4. SQL SELECT * roast | share 100 | 2 |
+| 5. Recursion without base case | share 100 | 4 |
+| 6. Division by zero courage | share 100 | 2 |
+| 7. Rayleigh scattering / sky color | share 100 | 3 |
+| 8. Overfitting as memorized answer key | share 100 | 3 |
+| 9. Website slow / 8K images on 56k | share 100 | 2 |
+| 10. Python loop / missing colon | share 100 | 1 |
+| 11. Git push to main without tests | share 100 | 2 |
+| 12. Procrastination timebox | share 100 | 3 |
+| 13. GPU under-utilization | share 100 | 2 |
+| 14. NFT / speculative JPEG | share 100 | 2 |
+| 15. Resume as crash log | share 100 | 2 |
+| 16. Deployment fail / env mismatch | share 100 | 2 |
+| 17. Linter nits | share 100 | 1 |
+| 18. API that bites | share 100 | 2 |
+| 19. Push to prod without rollback | share 100 | 2 |
+| 20. Code suck honesty | share 100 | 2 |
+| 21. Comment thread rage | share 100 | 1 |
+| 22. Solder joint cold | share 100 | 2 |
+| 23. Belief × ∞ still zero correction | share 100 | 2 |
+| 24. Local maximum of effort | share 100 | 2 |
+| 25. Inverse proportion confidence/accuracy | share 100 | 2 |
+| 26. Phase transition to DocBS | share 100 | 1 |
+| 27. Eigenvalue of the ego | share 100 | 2 |
+| 28. Taylor expansion of the premise | share 100 | 1 |
+| 29. Steady-state sarcasm | share 100 | 2 |
+| 30. Impulse response to insult | share 100 | 2 |
+| 31. Transfer function of humor | share 100 | 2 |
+| 32. Lyapunov instability of claim | share 100 | 2 |
+| 33. Fourier of the rant | share 100 | 2 |
+| 34. Constraint satisfaction fail | share 100 | 2 |
+| 35. Gradient descent on the joke | share 100 | 2 |
+| 36. Information entropy of input | share 100 | 2 |
+| 37. Pareto front of responses | share 100 | 2 |
+| 38. Bifurcation missed | share 100 | 2 |
+| 39. Patience reservoir | share 100 | 2 |
+| 40. Orthogonality of intent and result | share 100 | 2 |
+| 41. Fixed point of circular argument | share 100 | 2 |
+| 42. Sensitive dependence on phrasing | share 100 | 2 |
+| 43. Mediocrity attractor | share 100 | 2 |
+| 44. Resonance with the roast | share 100 | 2 |
+| 45. Overdamped enthusiasm | share 100 | 2 |
+| 46. State-space transition to sarcasm | share 100 | 2 |
+| 47. Terminal condition 420690 | share 100 | 1 |
+| 48. Impossibility couplet on any false claim | share 100 | 2 |
+| 49. Squawkadoodle Save after burn | share 100 | 7 |
+| 50. Crew hype closer | share 100 | 2 |
 
 ### equation roast
 
@@ -135,12 +185,12 @@ On the menu from share **110**.
 
 Tokens a line can carry, filled for each answer: `{nickname} {name} {acr} {a} {b} {c} {va} {vb} {vc} {multiplier} {ma} {number} {result} {error}`.
 
-## Still in the library, not on the menu yet
+## The library's 50
 
-The [Master Library](DOCBS_LIBRARY.md)'s **50 formulaic chains of thought** (section 6): each its own trigger, skeleton and lines. Each one becomes a recipe here once its skeleton lines are in pools and it has a chain.
+The [Master Library](DOCBS_LIBRARY.md)'s **50 formulaic chains of thought** (section 6) are recipes 1-50 above, on the menu at the dial's 100%. Each one's own lines are its pool in [`library/`](library/), one file per chain, said in order (`library/NN_name#2` is its second line); its other beats come from the pools below.
 
 ## Adding a recipe
 
 1. Put its lines in pools here (one line per entry; `_clean` / `_18`).
-2. Add its chain to `docbs.chains`: `{"name": "...", "min_share": 0, "beats": ["roasts", "riddles|paradoxes", "corrected"]}`.
+2. Add its chain to [chains.md](chains.md) (`docbs.chains`): `{"name": "...", "min_share": 0, "beats": ["roasts", "riddles|paradoxes", "corrected"]}`.
 3. `wpr 2`. Locked by `TestDocBSChainsByDial`.

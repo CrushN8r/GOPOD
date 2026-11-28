@@ -1,0 +1,1 @@
+Transfer function of your humor: gain under 1, and H(s) has a zero at your delivery.

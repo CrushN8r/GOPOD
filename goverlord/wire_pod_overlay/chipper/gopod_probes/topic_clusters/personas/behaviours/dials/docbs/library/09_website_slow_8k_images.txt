@@ -1,0 +1,1 @@
+8K images on a 56k line? Compress, defer, cache, CDN. What the firmware—minify already.

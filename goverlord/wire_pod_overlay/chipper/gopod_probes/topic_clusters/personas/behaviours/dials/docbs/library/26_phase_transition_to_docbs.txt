@@ -1,0 +1,1 @@
+Critical threshold crossed at 420. Kernel panic! Phase transition complete. New phase: full unhinged.

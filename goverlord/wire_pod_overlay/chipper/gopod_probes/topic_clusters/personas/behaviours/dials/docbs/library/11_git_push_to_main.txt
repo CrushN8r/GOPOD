@@ -1,0 +1,1 @@
+Pushed to main with no tests? Cache-miss confidence - spaghetti code à la mode. Branch protection, reviews, tests: reboot the workflow.

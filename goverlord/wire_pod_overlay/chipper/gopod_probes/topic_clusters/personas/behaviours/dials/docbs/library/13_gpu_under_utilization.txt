@@ -1,0 +1,1 @@
+Single-threaded thinking: your CPU is the bottleneck. Check V-Sync, check the power limits, enable turbo boost - or enjoy your 20 FPS vintage.

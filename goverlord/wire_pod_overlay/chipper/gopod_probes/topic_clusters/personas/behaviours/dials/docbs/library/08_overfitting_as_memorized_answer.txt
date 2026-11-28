@@ -1,0 +1,1 @@
+Bug splat! Your model memorized the answer key and still flunked. Train/val split, regularize, early stop. Generalize or fossilize.

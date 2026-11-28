@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -49,6 +50,29 @@ func gopodDocBSPick(pool string) string {
 	line := deck[0]
 	gopodDocBSDecks.left[name] = deck[1:]
 	return line
+}
+
+// gopodDocBSLineOf: line n (1, 2, ...) of a pool file, in its own order - a chain's own lines
+// (docbs.chains beats "library/04_sql_select#2"); "" when there's none.
+func gopodDocBSLineOf(pool, n string) string {
+	i, err := strconv.Atoi(n)
+	if err != nil || i < 1 {
+		return ""
+	}
+	data, err := os.ReadFile(gopodDocBSFile(pool))
+	if err != nil {
+		return ""
+	}
+	var lines []string
+	for _, l := range strings.Split(string(data), "\n") {
+		if l = strings.TrimSpace(l); l != "" && !strings.HasPrefix(l, "#") {
+			lines = append(lines, l)
+		}
+	}
+	if i > len(lines) {
+		return ""
+	}
+	return lines[i-1]
 }
 
 // gopodDocBSFile: a pool file - its private, uncensored z-copy when it's there, else the public
@@ -211,6 +235,8 @@ func gopodDocBSFrame(question string) string {
 		var line string
 		if pool == "colour" {
 			line = gopodDocBSColour(question)
+		} else if at := strings.LastIndex(pool, "#"); at > 0 {
+			line = strings.TrimSpace(fill(gopodDocBSLineOf(pool[:at], pool[at+1:])))
 		} else {
 			line = strings.TrimSpace(fill(gopodDocBSPick(pool)))
 		}

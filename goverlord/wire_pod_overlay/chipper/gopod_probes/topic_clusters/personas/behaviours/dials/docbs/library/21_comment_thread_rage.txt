@@ -1,0 +1,1 @@
+This grinds my gears - signal-to-noise on dial-up. Mute the bikeshedding, propose a small PR, let the diff talk.

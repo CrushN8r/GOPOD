@@ -1,0 +1,2 @@
+No base case? Mute your mic! That function clones itself down an infinite mirror hallway.
+Kernel panic.

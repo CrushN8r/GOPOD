@@ -178,13 +178,16 @@
 - words: bubble notices
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS.md
-- words: docbs, every recipe is served, recipes, equation roast, shorts roast riddle reveal, roast ratio riddle, chaos calculus loop, response pipeline, pantry every pool, adding a recipe
+- words: docbs, every recipe is served, recipes, equation roast, shorts roast riddle reveal, roast ratio riddle, chaos calculus loop, response pipeline, pantry every pool, library s 50, adding a recipe
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS_LIBRARY.md
 - words: docbs library, doctrine spewer, locked profile, response pipeline, catchphrase bank, best final prompts, golden formulas, formulaic chains of thought, usage notes
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/README.md
 - words: docbs, docbs doc s brain wiring, master library
+
+## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/chains.md
+- words: chains, docbs chains
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/pipta/README.md
 - words: pipta, pipta pip s brain wiring

@@ -1,0 +1,1 @@
+"I'll never use this"? O(1) is turbo, O(n) is one step at a time, and O(n²) = every loop throws a stack-trace circus.

@@ -1,5 +1,5 @@
 # Dizzy Brobots
-- **words:** dizzy, battery, low battery, freeze, reboot
+- **words:** dizzy, battery, low battery, freeze, reboot, power level
 - **ask:** What do the Brobots say when their battery runs low?
 - **see also:** nicknames (the comeback's {title} {nickname}), weather_run (the same hand-over), math-aftermath-news-channel.md (the guards)
 ---
@@ -15,6 +15,16 @@
 ## After a freeze, reboot or battery drain: back, his line (battery_watch.back_lines)
 1. Brobot 1: Yeah... Whoa, bro... I felt dizzy. Then, Bam!
 2. Brobot 2: Yeah... Whoa, bro... I felt dizzy. Then, Bam!
+
+## Asked if he's dizzy: his power level, then how he is (battery_watch)
+1. ask_words: dizzy | power level
+2. ask_note: You were asked if you're dizzy. Your power level is said for you at the start of your answer - you are {state}. React to it your own way, in your own voice; never repeat the number.
+3. ask_line: My power level is {volts} volts. {state}
+
+## How he is, asked (battery_watch.ask_states)
+1. good: I'm good, bro!
+2. full: Resting full on my charger, bro!
+3. unread: My power level isn't read yet, bro.
 
 ## His guard's warning and his answer (battery_watch)
 1. guard_warning: Security warning: {brobot} is low, {volts} volts.

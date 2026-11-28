@@ -1,0 +1,1 @@
+Termination condition met (attitude error 420690). Class dismissed.

@@ -1,0 +1,1 @@
+Choking on your syntax like a snake eating a bad byte. Colons, indentation, print-debug. Don't let the code byte you back.

@@ -1,0 +1,1 @@
+Lyapunov check on your claim: the derivative is positive. The claim diverges. Unstable. Diverges at 420.

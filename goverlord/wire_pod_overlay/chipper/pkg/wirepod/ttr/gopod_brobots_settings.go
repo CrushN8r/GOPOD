@@ -975,6 +975,10 @@ type gopodBrobotsSettingsFile struct {
 		BackLines       map[string]string   `json:"back_lines"`
 		BackAfterMisses int                 `json:"back_after_misses"`
 		Guards          map[string]string   `json:"guards"`
+		AskWords        []string            `json:"ask_words"`
+		AskNote         string              `json:"ask_note"`
+		AskLine         string              `json:"ask_line"`
+		AskStates       map[string]string   `json:"ask_states"`
 		GuardWarning    string              `json:"guard_warning"`
 		GuardHandover   string              `json:"guard_handover"`
 		SweepClear      string              `json:"sweep_clear"`

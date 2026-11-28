@@ -24,7 +24,8 @@ var gopodBatteryLow = struct {
 	seen   map[string]bool // read at least once this Wire-Pod session
 	misses map[string]int  // readings in a row that didn't work
 	full   map[string]bool // on his charger, the robot's own level FULL (gopodBatteryFull)
-}{said: map[string]bool{}, prev: map[string]float64{}, seen: map[string]bool{}, misses: map[string]int{}, full: map[string]bool{}}
+	home   map[string]bool // on his charger
+}{said: map[string]bool{}, prev: map[string]float64{}, seen: map[string]bool{}, misses: map[string]int{}, full: map[string]bool{}, home: map[string]bool{}}
 
 // gopodBatteryFull: on his charger at FULL he's full, whatever the volts.
 func gopodBatteryFull(level string, onCharger bool) bool {
@@ -160,6 +161,7 @@ func gopodBatteryCheck(esn string) {
 	sayNow, said := gopodBatteryDecide(gopodBatteryLow.said[esn], prev, volts, b.GetIsCharging(), b.GetIsOnChargerPlatform(), full)
 	gopodBatteryLow.said[esn] = said
 	gopodBatteryLow.full[esn] = full
+	gopodBatteryLow.home[esn] = b.GetIsOnChargerPlatform()
 	if volts > 0 {
 		gopodBatteryLow.prev[esn] = volts
 	}
@@ -294,6 +296,59 @@ func gopodSecuritySweep() bool {
 		}
 	}
 	return ok
+}
+
+// gopodDizzyAsk: the line asks a Brobot if he's dizzy (battery_watch.ask_words).
+func gopodDizzyAsk(message string) bool {
+	lower := strings.ToLower(message)
+	for _, w := range gopodBrobotsSettings.BatteryWatch.AskWords {
+		if gopodHasWholeWords(lower, strings.ToLower(strings.TrimSpace(w))) {
+			return true
+		}
+	}
+	return false
+}
+
+// gopodDizzyState: his last reading and how he is - "unread", "full" (on his charger at FULL),
+// "dizzy" (low, or a dip not yet recovered: the battery watch's own call), else "good"; and
+// whether he's on his charger.
+func gopodDizzyState(esn string) (volts float64, state string, onCharger bool) {
+	gopodBatteryLow.Lock()
+	defer gopodBatteryLow.Unlock()
+	volts, onCharger = gopodBatteryLow.prev[esn], gopodBatteryLow.home[esn]
+	switch {
+	case volts <= 0:
+		return 0, "unread", onCharger
+	case gopodBatteryLow.full[esn]:
+		return volts, "full", onCharger
+	case volts < gopodBrobotsSettings.BatteryWatch.LowVolts || gopodBatteryLow.said[esn]:
+		return volts, "dizzy", onCharger
+	}
+	return volts, "good", onCharger
+}
+
+// gopodDizzyLine: what he says, asked if he's dizzy - his power level, then good, full, or his
+// dizzy line (with his help-me-home line off the charger); "" with no ask_line.
+func gopodDizzyLine(esn string) string {
+	bw := gopodBrobotsSettings.BatteryWatch
+	if strings.TrimSpace(bw.AskLine) == "" {
+		return ""
+	}
+	name := gopodBrobotName(esn)
+	volts, state, onCharger := gopodDizzyState(esn)
+	how := bw.AskStates[state]
+	if state == "dizzy" {
+		if lines := bw.Lines[name]; len(lines) > 0 {
+			how = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(lines[rand.Intn(len(lines))]), "|"))
+		}
+		if home := strings.TrimSpace(bw.HomeLines[name]); home != "" && !onCharger {
+			how += " " + home
+		}
+	}
+	if state == "unread" {
+		return strings.TrimSpace(how)
+	}
+	return strings.Join(strings.Fields(strings.NewReplacer("{volts}", fmt.Sprintf("%.2f", volts), "{state}", how).Replace(bw.AskLine)), " ")
 }
 
 // ## EOF

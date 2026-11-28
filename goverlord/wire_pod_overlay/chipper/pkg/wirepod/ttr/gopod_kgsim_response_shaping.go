@@ -665,6 +665,11 @@ func gopodQuestionFactsFor(esn, userMessage string) string {
 			logger.Println(fmt.Sprintf("BROBOT_LIVE_WEATHER=added live=%v", live))
 		}
 	}
+	if note := gopodBrobotsSettings.BatteryWatch.AskNote; note != "" && gopodDizzyAsk(userMessage) {
+		_, state, _ := gopodDizzyState(esn)
+		facts = appendPromptSection(facts, []byte(strings.ReplaceAll(note, "{state}", state)))
+		logger.Println("BROBOT_DIZZY_ASK=" + state)
+	}
 	if searched := gopodSearchFacts(userMessage); searched != "" {
 		facts = appendPromptSection(facts, []byte(searched))
 		notice["search"] = append(notice["search"], gopodNoticeFill(gopodBrobotsSettings.BubbleNotices.ValuePoints.Search, map[string]string{"search": gopodSearchQuery(userMessage)}))
@@ -704,6 +709,11 @@ func gopodScriptedSnippet(esn, userMessage, at, reply string) string {
 			return line
 		}
 		if line, _ := gopodWeatherSayAt(esn, gopodWeatherPlace(userMessage)); line != "" {
+			return line
+		}
+	}
+	if at == "start" && gopodDizzyAsk(userMessage) {
+		if line := gopodDizzyLine(esn); line != "" {
 			return line
 		}
 	}

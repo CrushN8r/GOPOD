@@ -1,0 +1,1 @@
+Fixed point detected: your circular argument - attractive only inside your own frame.

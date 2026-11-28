@@ -117,7 +117,7 @@ func gopodProberFor(topic, esn string) string {
 			if len(p.want) == 0 || p.want[0] != topic {
 				continue
 			}
-			if l := loadScenarioPacketsForMessage(p.text); len(l) == 0 || l[0].Name != topic {
+			if !gopodProbeLands(p.text, topic, nil, -1) {
 				continue
 			}
 			pool = append(pool, p.text)

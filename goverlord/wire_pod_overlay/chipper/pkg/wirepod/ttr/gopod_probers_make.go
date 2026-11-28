@@ -3,8 +3,10 @@ package wirepod_ttr
 
 import (
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -47,7 +49,7 @@ func gopodProbeTopic(t gopodTopicFile) ([]string, string, bool) {
 	}
 	_, pts := gopodSplitPoints(string(facts))
 	word := t.Words[0]
-	if l := loadScenarioPacketsForMessage("tell me about " + t.Label); t.Label != "" && len(l) > 0 && l[0].Name == t.Name {
+	if t.Label != "" && gopodProbeLands("tell me about "+t.Label, t.Name, nil, -1) {
 		word = t.Label
 	} else {
 		for _, w := range t.Words {
@@ -75,15 +77,36 @@ func gopodProbeFor(t gopodTopicFile, pts []string, i int, p, word string, shapes
 			continue
 		}
 		q := strings.NewReplacer("{title}", title, "{note}", note, "{word}", word, "{label}", t.Label, "{wrong_greeting}", wrong).Replace(shape)
-		if l := loadScenarioPacketsForMessage(q); len(l) == 0 || l[0].Name != t.Name {
-			continue
-		}
-		if gopodPickPoint(t.Name, pts, map[int]bool{}, q) != i {
+		if !gopodProbeLands(q, t.Name, pts, i) {
 			continue
 		}
 		return q
 	}
 	return ""
+}
+
+// gopodProbeChecked: each question already checked, and whether it landed (gopodProbeLands).
+var gopodProbeChecked sync.Map
+
+// gopodProbeLands: q's first topic is topic and, with i >= 0, it picks point i; each question is
+// checked once for each state of the game's revealed points (a covered topic pulls less), then
+// remembered.
+func gopodProbeLands(q, topic string, pts []string, i int) bool {
+	gopodCoverage.Lock()
+	var game []string
+	for k, v := range gopodCoverage.revealed {
+		game = append(game, k+"="+strconv.Itoa(v))
+	}
+	gopodCoverage.Unlock()
+	sort.Strings(game)
+	key := strings.Join(game, ",") + "\x00" + topic + "\x00" + strconv.Itoa(i) + "\x00" + q
+	if v, ok := gopodProbeChecked.Load(key); ok {
+		return v.(bool)
+	}
+	l := loadScenarioPacketsForMessage(q)
+	lands := len(l) > 0 && l[0].Name == topic && (i < 0 || gopodPickPoint(topic, pts, map[int]bool{}, q) == i)
+	gopodProbeChecked.Store(key, lands)
+	return lands
 }
 
 // gopodProbeParts: a point's title and note (its notes line, else its own words).

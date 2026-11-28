@@ -1,0 +1,1 @@
+Information entropy of your input: low. 0.42 bits. Scaled accordingly.

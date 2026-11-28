@@ -1,0 +1,1 @@
+Env vars ghosted, secrets not mounted, a race condition - segfaulting Fridays. Pin, validate, smoke test: the preflight checklist.

@@ -62,6 +62,7 @@ Tell me about bubble notices | goverlord/wire_pod_overlay/chipper/gopod_probes/t
 Tell me about docbs | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS.md
 Tell me about docbs library | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/DOCBS_LIBRARY.md
 Tell me about docbs | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/README.md
+Tell me about chains | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/docbs/chains.md
 Tell me about pipta | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dials/pipta/README.md
 Tell me about dizzy brobots | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dizzy-brobots.md
 Tell me about duo handoff | goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/duo-handoff.md
