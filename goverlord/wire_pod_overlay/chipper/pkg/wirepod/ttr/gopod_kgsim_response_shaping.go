@@ -888,12 +888,7 @@ func gopodHelpLookup(text string) string {
 			break
 		}
 	}
-	path := gopodTopicTreeFind("system-menu.md")
-	if !asked || path == "" || hl.Max <= 0 {
-		return ""
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
+	if !asked || hl.Max <= 0 {
 		return ""
 	}
 	skip := map[string]bool{}
@@ -906,40 +901,16 @@ func gopodHelpLookup(text string) string {
 			words = append(words, w)
 		}
 	}
-	type item struct{ cmd, about, group string }
+	type item struct {
+		cmd, about string
+		group      int
+	}
 	var items []item
-	tours := map[string][]string{} // group -> its tour sentences
-	group, kind := "", ""
-	var cur *item
-	for _, line := range strings.Split(string(data), "\n") {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "## ") {
-			cur, kind = nil, ""
-			if at := strings.Index(line, "(system_menu.groups."); at > 0 {
-				ref := strings.TrimSuffix(line[at+len("(system_menu.groups."):], ")")
-				g, rest, _ := strings.Cut(ref, ".")
-				group = g
-				switch {
-				case strings.HasPrefix(rest, "items."):
-					items = append(items, item{group: g})
-					cur = &items[len(items)-1]
-				case strings.HasPrefix(rest, "tour"):
-					kind = "tour"
-				}
-			}
-			continue
-		}
-		m := gopodProfilePointRE.FindStringSubmatch(line)
-		if m == nil {
-			continue
-		}
-		switch {
-		case cur != nil && strings.HasPrefix(m[1], "cmd: "):
-			cur.cmd = strings.TrimSpace(strings.TrimPrefix(m[1], "cmd: "))
-		case cur != nil && strings.HasPrefix(m[1], "about: "):
-			cur.about = strings.TrimSpace(strings.TrimPrefix(m[1], "about: "))
-		case kind == "tour":
-			tours[group] = append(tours[group], m[1])
+	tours := map[int][]string{} // group -> its tour sentences
+	for g, mg := range gopodSystemMenuGroups() {
+		tours[g] = mg.Tour
+		for _, it := range mg.Items {
+			items = append(items, item{strings.TrimSpace(it.Cmd), strings.TrimSpace(it.About), g})
 		}
 	}
 	type scored struct {

@@ -203,29 +203,37 @@ type gopodTorahScripture struct {
 	Commandments       []string // "{cmd}, {about}"
 }
 
-// gopodTorahScriptures: the system window's groups as scriptures (torah's words): "Scripture 1,
-// Restart and check", each item "system-status, Wire-Pod, ...", its next line "Go to scripture 2".
-func gopodTorahScriptures() []gopodTorahScripture {
+// gopodMenuGroup: one of the system window's groups, as the settings hold it.
+type gopodMenuGroup struct {
+	Title string   `json:"title"`
+	Guide string   `json:"guide"`
+	Next  string   `json:"next"`
+	Runs  bool     `json:"runs"`
+	Tour  []string `json:"tour"`
+	Items []struct {
+		Cmd   string `json:"cmd"`
+		About string `json:"about"`
+	} `json:"items"`
+}
+
+// gopodSystemMenuGroups: the system window's groups (system_menu.groups, from system-menu.md).
+func gopodSystemMenuGroups() []gopodMenuGroup {
 	var raw struct {
 		SystemMenu struct {
-			Groups []struct {
-				Title string   `json:"title"`
-				Guide string   `json:"guide"`
-				Next  string   `json:"next"`
-				Runs  bool     `json:"runs"`
-				Tour  []string `json:"tour"`
-				Items []struct {
-					Cmd   string `json:"cmd"`
-					About string `json:"about"`
-				} `json:"items"`
-			} `json:"groups"`
+			Groups []gopodMenuGroup `json:"groups"`
 		} `json:"system_menu"`
 	}
 	data, _ := gopodSettingsFull()
 	_ = json.Unmarshal(data, &raw)
+	return raw.SystemMenu.Groups
+}
+
+// gopodTorahScriptures: the system window's groups as scriptures (torah's words): "Scripture 1,
+// Restart and check", each item "system-status, Wire-Pod, ...", its next line "Go to scripture 2".
+func gopodTorahScriptures() []gopodTorahScripture {
 	tw := gopodBrobotsSettings.Torah
 	var out []gopodTorahScripture
-	for i, g := range raw.SystemMenu.Groups {
+	for i, g := range gopodSystemMenuGroups() {
 		title := strings.TrimSpace(g.Title)
 		if at := strings.Index(title, ". "); at >= 0 && at < 4 {
 			title = strings.TrimSpace(title[at+2:])

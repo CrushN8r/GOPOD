@@ -20,6 +20,10 @@ const gopodClustersDefaultFolder = "gopod_probes/topic_clusters"
 
 // gopodClusterPairs: a list of two-field objects a point fills - its fields, left of the first ": "
 // and right of it (the left one a list when it's "queries").
+// gopodClusterCommandmentsRE: a scripture's commandments list - each line "cmd, about", then
+// " · key: value" for each more field (system-menu.md).
+var gopodClusterCommandmentsRE = regexp.MustCompile(`^system_menu\.groups\.[0-9]+\.items$`)
+
 var gopodClusterPairs = map[string][2]string{
 	"value_points.reminder_eggs": {"key", "label"},
 	"golden_answers":             {"queries", "line"},
@@ -497,6 +501,35 @@ func gopodClustersApply(data []byte) ([]byte, []string) {
 		node, set, werr := gopodClusterPlace(blocks, top, parts[1:])
 		if werr != "" {
 			bad(s, werr)
+			continue
+		}
+		if lines && gopodClusterCommandmentsRE.MatchString(path) {
+			var list []any
+			for _, pt := range s.Points {
+				cmd, rest, ok := strings.Cut(pt, ", ")
+				if !ok {
+					bad(s, "\""+pt+"\" has no \"cmd, about\"")
+					continue
+				}
+				quoted := func(v string) string { // `...` keeps its spaces and its "|"
+					if v = strings.TrimSpace(v); len(v) >= 2 && strings.HasPrefix(v, "`") && strings.HasSuffix(v, "`") {
+						return v[1 : len(v)-1]
+					}
+					return v
+				}
+				fields := strings.Split(rest, " · ")
+				it := map[string]any{"cmd": strings.TrimSpace(cmd), "about": quoted(fields[0])}
+				for _, f := range fields[1:] {
+					k, v, _ := strings.Cut(f, ": ")
+					if typed, ok := gopodClusterTyped(strings.TrimSpace(v)); ok {
+						it[strings.TrimSpace(k)] = typed
+					} else {
+						it[strings.TrimSpace(k)] = quoted(v)
+					}
+				}
+				list = append(list, it)
+			}
+			set(list)
 			continue
 		}
 		if lines {
