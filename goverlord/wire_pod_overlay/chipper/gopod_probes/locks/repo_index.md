@@ -737,7 +737,7 @@
 - Before a freeze, reboot or battery drain: his dizzy line (battery_watch.lines)
 - Said after it only when he's off the charger (battery_watch.home_lines)
 - After a freeze, reboot or battery drain: back, his line (battery_watch.back_lines)
-- Asked if he's dizzy: his power level, then how he is (battery_watch)
+- "Are you (feeling) dizzy?" - the catchphrase, everyone asked (battery_watch)
 - How he is, asked (battery_watch.ask_states)
 - His guard's warning and his answer (battery_watch)
 - Before every run: the guards' security sweep (battery_watch)
@@ -841,6 +841,7 @@
 - Take 3: usb (GIT REPO) (managers.takes.2)
 - Take 4: time_place (PLAYHEAD) (managers.takes.3)
 - Managers (managers)
+- Staff refer the room to the GOPOD reps - the code ends a staff answer on this line, in place of an open question to the room (managers.staff_refer)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/math.md
 - Explain the Math
@@ -1297,6 +1298,7 @@
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/company/99_system/numpad-mapper.md
 - The numpad mapper
 - The "." key - any persona: name who you ask; no name, the topic's owner answers (numpad_ptt.any)
+- The * key's name - the picker, the header and the key all say it (numpad_ptt)
 - The keyboard picker's words (numpad_ptt.picker)
 - The README's cast table (readme_cast)
 - USB numpad - The map (numpad_maps.usb)
@@ -1334,7 +1336,6 @@
 - PC keyboard - KP0, NumLock on - Butler (numpad_maps.pc.numlock_on.KP0)
 - PC keyboard - KP1, NumLock on - Doc (numpad_maps.pc.numlock_on.KP1)
 - PC keyboard - KP2, NumLock on - Pip (numpad_maps.pc.numlock_on.KP2)
-- PC keyboard - KP3, NumLock on - Git Repo (numpad_maps.pc.numlock_on.KP3)
 
 ## goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/company/99_system/preshow.md
 - The pre-show and the sign-off

@@ -41,7 +41,6 @@
     "exit_taps": 3,
     "exit_window_seconds": 2.0,
     "all_hold_seconds": 0.5,
-    "all_label": "All",
     "key_sound": {"file": "", "volume": "40%"},
     "mic_usb_ids": ["3302:12e9"],
     "numpad_usb_ids": ["1a2c:4324"],

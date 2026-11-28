@@ -22,6 +22,28 @@ var gopodNetwork = struct {
 	downAt map[string]time.Time
 }{downAt: map[string]time.Time{}}
 
+// gopodNetworkDown: a Brobot his robot couldn't be reached for (a call failed on the network) -
+// down until the battery watch reads him again (gopodNetworkBack).
+func gopodNetworkDown(esn string, err error) {
+	if err == nil || !strings.Contains(err.Error(), "connection error") {
+		return
+	}
+	gopodNetwork.Lock()
+	if _, down := gopodNetwork.downAt[esn]; !down {
+		gopodNetwork.downAt[esn] = time.Now()
+		logger.Println("GOPOD_NETWORK " + gopodBrobotName(esn) + " can't be reached: " + err.Error())
+	}
+	gopodNetwork.Unlock()
+}
+
+// gopodNetworkUp: the Brobot isn't known to be off the network.
+func gopodNetworkUp(esn string) bool {
+	gopodNetwork.Lock()
+	defer gopodNetwork.Unlock()
+	_, down := gopodNetwork.downAt[esn]
+	return !down
+}
+
 // gopodNetworkMiss: a reading that didn't work - the first one after a good reading is his drop,
 // logged once.
 func gopodNetworkMiss(esn string, err error) {

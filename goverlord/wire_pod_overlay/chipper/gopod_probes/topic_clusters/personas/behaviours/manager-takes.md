@@ -41,3 +41,8 @@
 4. usb_text: I see {count} USB devices. The mic is {mic}, and the numpad is {numpad}.
 5. who_words: who are you | who r u | who is this | your name
 6. wip_text: Bits you're still working on - try one only when the moment fits, never in place of your job: {bits}.
+
+## Staff refer the room to the GOPOD reps - the code ends a staff answer on this line, in place of an open question to the room (managers.staff_refer)
+1. line: For more, ask our GOPOD rep, Brobot 1!
+2. keep_once: What do you think? |
+3. open_asks: let me know | anyone else

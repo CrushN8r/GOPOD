@@ -190,15 +190,11 @@ func gopodBatteryRemember(esn, text string) {
 // gopodBatterySay: once no reply and no run is going, the Brobot says one of his lines
 // (gopodRecordSay: his bubble and his voice).
 func gopodBatterySay(name string, volts float64, onCharger bool) {
-	lines := gopodBrobotsSettings.BatteryWatch.Lines[name]
-	if len(lines) == 0 {
+	said := gopodBatteryDizzyWords(name, onCharger)
+	if said == "" {
 		return
 	}
 	defer gopodBatterySafeSpot()()
-	said := lines[rand.Intn(len(lines))]
-	if home := strings.TrimSpace(gopodBrobotsSettings.BatteryWatch.HomeLines[name]); home != "" && !onCharger {
-		said = strings.TrimSpace(said) + " " + home
-	}
 	guard, warning, reply, line := gopodBatteryLines(name, volts, said)
 	logger.Println(fmt.Sprintf("GOPOD_BATTERY_WATCH %s low (%.2f V): %s", name, volts, line))
 	if guard != "" && gopodReporterSayTo(guard, "", warning, true, true) {
@@ -264,27 +260,13 @@ func gopodSecuritySweep() bool {
 	wg.Wait()
 	ok := true
 	var notReady []string
-	for n, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
+	for _, esn := range []string{gopodBrobot1ESN, gopodBrobot2ESN} {
 		name := gopodBrobotName(esn)
-		gopodBatteryLast.Lock()
-		last := gopodBatteryLast.text[esn]
-		gopodBatteryLast.Unlock()
-		gopodBatteryLow.Lock()
-		volts := gopodBatteryLow.prev[esn]
-		full := gopodBatteryLow.full[esn]
-		gopodBatteryLow.Unlock()
-		line := bw.SweepClear
-		switch {
-		case last == "" || strings.HasPrefix(last, "unknown"):
-			line, ok = bw.SweepMissing, false
-			notReady = append(notReady, name)
-		case full && bw.SweepFull != "":
-			line = bw.SweepFull
-		case volts > 0 && volts < bw.LowVolts:
-			line, ok = bw.SweepLow, false
+		line, clear := gopodSweepLine(esn)
+		if !clear {
+			ok = false
 			notReady = append(notReady, name)
 		}
-		line = strings.NewReplacer("{n}", fmt.Sprint(n+1), "{brobot}", name, "{volts}", fmt.Sprintf("%.2f", volts)).Replace(line)
 		logger.Println("GOPOD_SECURITY_SWEEP " + name + ": " + line)
 		if guard := bw.Guards[name]; guard != "" {
 			gopodReporterSay(guard, line, true, false)
@@ -298,57 +280,66 @@ func gopodSecuritySweep() bool {
 	return ok
 }
 
-// gopodDizzyAsk: the line asks a Brobot if he's dizzy (battery_watch.ask_words).
-func gopodDizzyAsk(message string) bool {
-	lower := strings.ToLower(message)
-	for _, w := range gopodBrobotsSettings.BatteryWatch.AskWords {
-		if gopodHasWholeWords(lower, strings.ToLower(strings.TrimSpace(w))) {
-			return true
-		}
-	}
-	return false
-}
-
-// gopodDizzyState: his last reading and how he is - "unread", "full" (on his charger at FULL),
-// "dizzy" (low, or a dip not yet recovered: the battery watch's own call), else "good"; and
-// whether he's on his charger.
-func gopodDizzyState(esn string) (volts float64, state string, onCharger bool) {
+// gopodBatteryHow: how he is, from his last reading - its volts; "missing" (not read, or off the
+// network), "full" (on his charger at FULL), "low" (under low_volts), "dip" (a drop not yet
+// recovered), else "good"; and whether he's on his charger.
+func gopodBatteryHow(esn string) (volts float64, state string, onCharger bool) {
+	gopodBatteryLast.Lock()
+	last := gopodBatteryLast.text[esn]
+	gopodBatteryLast.Unlock()
 	gopodBatteryLow.Lock()
-	defer gopodBatteryLow.Unlock()
 	volts, onCharger = gopodBatteryLow.prev[esn], gopodBatteryLow.home[esn]
+	full, said := gopodBatteryLow.full[esn], gopodBatteryLow.said[esn]
+	gopodBatteryLow.Unlock()
 	switch {
-	case volts <= 0:
-		return 0, "unread", onCharger
-	case gopodBatteryLow.full[esn]:
+	case last == "" || strings.HasPrefix(last, "unknown") || !gopodNetworkUp(esn):
+		return volts, "missing", onCharger
+	case full:
 		return volts, "full", onCharger
-	case volts < gopodBrobotsSettings.BatteryWatch.LowVolts || gopodBatteryLow.said[esn]:
-		return volts, "dizzy", onCharger
+	case volts > 0 && volts < gopodBrobotsSettings.BatteryWatch.LowVolts:
+		return volts, "low", onCharger
+	case said:
+		return volts, "dip", onCharger
 	}
 	return volts, "good", onCharger
 }
 
-// gopodDizzyLine: what he says, asked if he's dizzy - his power level, then good, full, or his
-// dizzy line (with his help-me-home line off the charger); "" with no ask_line.
-func gopodDizzyLine(esn string) string {
+// gopodBatteryDizzyWords: his dizzy line (battery_watch.lines), with his help-me-home line
+// (home_lines) when he's off the charger; "" when he has none.
+func gopodBatteryDizzyWords(name string, onCharger bool) string {
 	bw := gopodBrobotsSettings.BatteryWatch
-	if strings.TrimSpace(bw.AskLine) == "" {
+	lines := bw.Lines[name]
+	if len(lines) == 0 {
 		return ""
 	}
-	name := gopodBrobotName(esn)
-	volts, state, onCharger := gopodDizzyState(esn)
-	how := bw.AskStates[state]
-	if state == "dizzy" {
-		if lines := bw.Lines[name]; len(lines) > 0 {
-			how = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(lines[rand.Intn(len(lines))]), "|"))
-		}
-		if home := strings.TrimSpace(bw.HomeLines[name]); home != "" && !onCharger {
-			how += " " + home
-		}
+	said := strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(lines[rand.Intn(len(lines))]), "|"))
+	if home := strings.TrimSpace(bw.HomeLines[name]); home != "" && !onCharger {
+		said += " " + home
 	}
-	if state == "unread" {
-		return strings.TrimSpace(how)
+	return said
+}
+
+// gopodSweepLine: his guard's security sweep words for him (sweep_clear, sweep_full, sweep_low,
+// sweep_missing), and whether he's clear to go on.
+func gopodSweepLine(esn string) (string, bool) {
+	bw := gopodBrobotsSettings.BatteryWatch
+	n := 1
+	if esn == gopodBrobot2ESN {
+		n = 2
 	}
-	return strings.Join(strings.Fields(strings.NewReplacer("{volts}", fmt.Sprintf("%.2f", volts), "{state}", how).Replace(bw.AskLine)), " ")
+	volts, state, _ := gopodBatteryHow(esn)
+	line, ok := bw.SweepClear, true
+	switch state {
+	case "missing":
+		line, ok = bw.SweepMissing, false
+	case "full":
+		if bw.SweepFull != "" {
+			line = bw.SweepFull
+		}
+	case "low":
+		line, ok = bw.SweepLow, false
+	}
+	return strings.NewReplacer("{n}", fmt.Sprint(n), "{brobot}", gopodBrobotName(esn), "{volts}", fmt.Sprintf("%.2f", volts)).Replace(line), ok
 }
 
 // ## EOF

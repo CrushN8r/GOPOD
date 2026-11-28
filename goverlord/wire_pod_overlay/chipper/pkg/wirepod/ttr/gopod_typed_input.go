@@ -310,6 +310,16 @@ func gopodOperatorAsk(esn, text, how string) error {
 // gopodTypedAll's gap between the two Brobots' requests, so Brobot 1 is the one heard first.
 const gopodTypedAllGap = 100 * time.Millisecond
 
+// gopodAllPair: a line to both - who answers first, his brother, and whether he answers alone (a
+// Brobot off the network drops out of the duo: the one who can be reached answers on his own).
+func gopodAllPair(first string) (lead, brother string, alone bool) {
+	brother = gopodBrotherOf(first)
+	if !gopodNetworkUp(first) && gopodNetworkUp(brother) {
+		first, brother = brother, first
+	}
+	return first, brother, !gopodNetworkUp(brother)
+}
+
 func gopodTypedInputAll(text, how string) error {
 	logger.Println("Bot " + gopodBrobot1ESN + " " + how + " (all): " + text)
 	gopodShowChapter(gopodSpellNames(text))
@@ -356,7 +366,25 @@ func gopodTypedInputAll(text, how string) error {
 	}
 	first := gopodAllFirst(text)
 	if gopodAddressedTo(text) == "" || gopodAllStartsWith(text) != "" {
-		second := gopodBrotherOf(first)
+		first, second, alone := gopodAllPair(first)
+		if alone {
+			// his brother can't be reached: he answers on his own, no handover
+			logger.Println("GOPOD_ALL " + gopodBrobotName(second) + " can't be reached - " + gopodBrobotName(first) + " answers alone: " + text)
+			go func() {
+				<-read
+				gopodDialZero.Store(first, true)
+				if first != gopodBrobot1ESN {
+					gopodAnswerNext.Store(first, true)
+				}
+				if _, err := StreamingKGSim(nil, first, text, false); err != nil {
+					logger.Println("LLM error (typed): " + err.Error())
+					gopodNetworkDown(first, err)
+					gopodAnswerNext.Delete(first)
+				}
+				gopodDialZero.Delete(first)
+			}()
+			return nil
+		}
 		gopodExchangeOpen(text, second)
 		go func() {
 			<-read
@@ -370,6 +398,7 @@ func gopodTypedInputAll(text, how string) error {
 			go func() {
 				if _, err := StreamingKGSim(nil, first, text, false); err != nil {
 					logger.Println("LLM error (typed): " + err.Error())
+					gopodNetworkDown(first, err)
 					close(failed)
 				}
 			}()
@@ -389,12 +418,26 @@ func gopodTypedInputAll(text, how string) error {
 				}
 			}
 			gopodDialZero.Delete(first)
+			alone := false
+			select {
+			case <-failed:
+				// he couldn't answer: the duo is off, his brother answers on his own
+				gopodAllFirstAnswer.Delete(first)
+				gopodAnswerNext.Delete(first)
+				alone = true
+			default:
+			}
 			logger.Println("GOPOD_ALL " + gopodBrobotName(second) + " answers next: " + text)
 			gopodAnswerNext.Store(second, true)
-			gopodFollowingUp.Store(second, true)
+			if !alone {
+				gopodFollowingUp.Store(second, true)
+			}
 			gopodDialZero.Store(second, true)
 			if _, err := StreamingKGSim(nil, second, text, false); err != nil {
 				logger.Println("LLM error (typed): " + err.Error())
+				gopodNetworkDown(second, err)
+				gopodFollowingUp.Delete(second) // he couldn't answer: the duo closes
+				gopodAnswerNext.Delete(second)
 			}
 			gopodDialZero.Delete(second)
 		}()

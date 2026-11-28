@@ -168,7 +168,9 @@ after an edit. The face photo as a prize is not built yet. `system-faces` lists 
 
 - **The picker, the key and the header match.** A command line ("start fart joke", "stop run")
   sent with KEYS picked shows "Keyboard to KEYS" - the header names whoever the numpad map puts on
-  that key, never a hard-coded "Brobots" (`TestCommandLineNamesTheKey`).
+  that key, never a hard-coded "Brobots" (`TestCommandLineNamesTheKey`). The * key's one name
+  (`numpad_ptt.all_label`, the numpad map card) is what the picker says too: "All Brobots 1,2",
+  "All Brobots 2,1".
 - The Brobot named in the first two words answers. With no name, the one who heard it first
   answers, and his brother stays quiet (a glance).
 - **All = all Brobots in sequence, everywhere, eggs too.** A typed or numpad line to All with no

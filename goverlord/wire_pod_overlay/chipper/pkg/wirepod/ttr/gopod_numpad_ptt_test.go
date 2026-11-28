@@ -54,7 +54,7 @@ func TestGopodNumpadTargetsOnePlace(t *testing.T) {
 	if json.Unmarshal(data, &out) != nil {
 		t.Fatal("no targets for the page")
 	}
-	for key, want := range map[string]string{"KP0": "KEYS", gopodNumpadAllKey: "All", "KP1": "DOC", "KP2": "PIP", "KP3": "REPO", "KP4": "MIMI",
+	for key, want := range map[string]string{"KP0": "KEYS", gopodNumpadAllKey: "All Brobots", "KP1": "DOC", "KP2": "PIP", "KP3": "REPO", "KP4": "MIMI",
 		"KP5": "BUZZER", "KP6": "SWITCH", "KP7": "CHALKRA", "KP8": "ZOOMY", "KP9": "CHAMMY"} {
 		if got := out.Targets[key]; got != want {
 			t.Errorf("%s -> %q, want %q", key, got, want)

@@ -20,6 +20,7 @@ type gopodLookupCard struct {
 	Words    []string
 	Lines    []string
 	Owner    string   // its "- **owner:**" head line - whose job its topic is (gopod_any_persona.go)
+	By       []string // its "- **looked up by:**" head line - the only ones who look it up; none: everyone
 	Body     []string // every point and paragraph line, for the depth a question asks (gopodLookupFact)
 	SeeAlso  []string
 	Headings []string
@@ -134,7 +135,7 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			if cluster && strings.HasPrefix(t, "# ") {
 				c.Body = append(c.Body, strings.TrimPrefix(t, "# "))
 			}
-			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && !strings.HasPrefix(k, "ask ") && k != "about" && k != "owner" && k != "see also" && strings.TrimSpace(v) != "" {
+			if k, v, ok := gopodTopicHeadKV(t); ok && cluster && k != "words" && k != "ask" && !strings.HasPrefix(k, "ask ") && k != "about" && k != "owner" && k != "looked up by" && k != "see also" && strings.TrimSpace(v) != "" {
 				c.Body = append(c.Body, strings.TrimSpace(v))
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "see also" && cluster {
@@ -148,6 +149,13 @@ func gopodLookupRead(path string) (gopodLookupCard, bool) {
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && k == "owner" && cluster {
 				c.Owner = strings.TrimSpace(v)
+			}
+			if k, v, ok := gopodTopicHeadKV(t); ok && k == "looked up by" && cluster {
+				for _, who := range strings.Split(v, ",") {
+					if who = strings.TrimSpace(who); who != "" {
+						c.By = append(c.By, who)
+					}
+				}
 			}
 			if k, v, ok := gopodTopicHeadKV(t); ok && (k == "people call me" || k == "people call us") && cluster {
 				v = strings.ReplaceAll(v, " or ", ", ")
@@ -341,6 +349,19 @@ func gopodLookup(question string) []gopodLookupCard {
 	return out
 }
 
+// gopodLookupFor: self looks this card up - it names no one ("looked up by"), or names self.
+func gopodLookupFor(c gopodLookupCard, self string) bool {
+	if len(c.By) == 0 {
+		return true
+	}
+	for _, who := range c.By {
+		if strings.EqualFold(who, self) || (gopodAnyNamed(who) != "" && gopodAnyNamed(who) == gopodAnyNamed(self)) {
+			return true
+		}
+	}
+	return false
+}
+
 // gopodLookupFact: what the brain's FACT says from the cards - each card's first lines, then its
 // other lines that say the question's words, no line twice, at most brain_chain.lookup_chars a
 // card; and their names, for LOOKED UP.
@@ -419,7 +440,7 @@ func gopodLookupFact(self, question string) (fact string, sources []string) {
 	}
 	take := func(c gopodLookupCard, chars int, swept bool) {
 		name := filepath.Clean(c.Path)
-		if listed[name] {
+		if listed[name] || !gopodLookupFor(c, self) {
 			return
 		}
 		listed[name] = true

@@ -167,6 +167,9 @@ func gopodPersonaMessages(host, text string) []map[string]string {
 	if len(lines) > 0 {
 		msgs = append(msgs, map[string]string{"role": "user", "content": hn.ChatNote + "\n" + strings.Join(lines, "\n")})
 	}
+	if _, note := gopodDizzy(host, text); note != "" {
+		msgs = append(msgs, map[string]string{"role": "user", "content": note})
+	}
 	if intro := gopodIntroRecipe(host, text); intro != "" {
 		text += "\n\n" + intro
 	}

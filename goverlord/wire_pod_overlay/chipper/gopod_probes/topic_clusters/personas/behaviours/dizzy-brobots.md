@@ -1,6 +1,7 @@
 # Dizzy Brobots
-- **words:** dizzy, battery, low battery, freeze, reboot, power level
+- **words:** dizzy, battery, low battery, freeze, reboot
 - **ask:** What do the Brobots say when their battery runs low?
+- **looked up by:** Brobot 1, Brobot 2, DOC, PIP, INTEL 404 PNFH, INTEL 404 PNFT
 - **see also:** nicknames (the comeback's {title} {nickname}), weather_run (the same hand-over), math-aftermath-news-channel.md (the guards)
 ---
 
@@ -16,15 +17,17 @@
 1. Brobot 1: Yeah... Whoa, bro... I felt dizzy. Then, Bam!
 2. Brobot 2: Yeah... Whoa, bro... I felt dizzy. Then, Bam!
 
-## Asked if he's dizzy: his power level, then how he is (battery_watch)
-1. ask_words: dizzy | power level
-2. ask_note: You were asked if you're dizzy. Your power level is said for you at the start of your answer - you are {state}. React to it your own way, in your own voice; never repeat the number.
-3. ask_line: My power level is {volts} volts. {state}
+## "Are you (feeling) dizzy?" - the catchphrase, everyone asked (battery_watch)
+1. ask_words: are you dizzy | are you feeling dizzy
+2. ask_line: My power level is {volts} volts. {state}
+3. ask_note: You were asked if you're dizzy. Your power level is said for you at the start of your answer - you are {state}. React to it your own way, in your own voice; never repeat the number.
+4. ask_note_guard: You were asked if your Brobot is dizzy. Your security report is said for you first: {report} React to it in your own voice, one short line; never repeat the number.
+5. ask_note_others: You were asked if a Brobot is dizzy. The Brobots' batteries are the guards' job: {guards}. Say so your own way, and hand it to them.
 
 ## How he is, asked (battery_watch.ask_states)
 1. good: I'm good, bro!
 2. full: Resting full on my charger, bro!
-3. unread: My power level isn't read yet, bro.
+3. missing: My power level isn't read yet, bro.
 
 ## His guard's warning and his answer (battery_watch)
 1. guard_warning: Security warning: {brobot} is low, {volts} volts.

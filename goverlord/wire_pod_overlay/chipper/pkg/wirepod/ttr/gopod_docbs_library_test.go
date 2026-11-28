@@ -42,47 +42,4 @@ func TestDocBSLibraryChainsPlay(t *testing.T) {
 	}
 }
 
-// TestDizzyAsk: asked if he's dizzy, a Brobot gives his power level and how he is - good, full, or
-// his dizzy line with help getting home off the charger.
-func TestDizzyAsk(t *testing.T) {
-	bw := gopodBrobotsSettings.BatteryWatch
-	if strings.TrimSpace(bw.AskLine) == "" {
-		t.Skip("no ask_line here")
-	}
-	if !gopodDizzyAsk("Brobot 1, are you dizzy?") || gopodDizzyAsk("Brobot 1, tell me about the gears") {
-		t.Fatal("ask words: 'are you dizzy' should ask, the gears shouldn't")
-	}
-	esn := gopodBrobot1ESN
-	gopodBatteryLow.Lock()
-	kept := [4]any{gopodBatteryLow.prev[esn], gopodBatteryLow.said[esn], gopodBatteryLow.full[esn], gopodBatteryLow.home[esn]}
-	gopodBatteryLow.Unlock()
-	defer func() {
-		gopodBatteryLow.Lock()
-		gopodBatteryLow.prev[esn], gopodBatteryLow.said[esn], gopodBatteryLow.full[esn], gopodBatteryLow.home[esn] = kept[0].(float64), kept[1].(bool), kept[2].(bool), kept[3].(bool)
-		gopodBatteryLow.Unlock()
-	}()
-	set := func(volts float64, said, full, home bool) string {
-		gopodBatteryLow.Lock()
-		gopodBatteryLow.prev[esn], gopodBatteryLow.said[esn], gopodBatteryLow.full[esn], gopodBatteryLow.home[esn] = volts, said, full, home
-		gopodBatteryLow.Unlock()
-		return gopodDizzyLine(esn)
-	}
-	if l := set(3.95, false, false, false); !strings.Contains(l, "3.95") || !strings.Contains(l, strings.TrimSpace(bw.AskStates["good"])) {
-		t.Errorf("good: %q", l)
-	}
-	if l := set(3.61, false, true, true); !strings.Contains(l, "3.61") || !strings.Contains(l, strings.TrimSpace(bw.AskStates["full"])) {
-		t.Errorf("full on the charger: %q", l)
-	}
-	home := strings.TrimSpace(bw.HomeLines["Brobot 1"])
-	if l := set(bw.LowVolts-0.05, false, false, false); !strings.Contains(strings.ToLower(l), "dizzy") || (home != "" && !strings.Contains(l, home)) {
-		t.Errorf("low, off the charger: %q", l)
-	}
-	if l := set(bw.LowVolts-0.05, false, false, true); home != "" && strings.Contains(l, home) {
-		t.Errorf("low on the charger needs no help home: %q", l)
-	}
-	if l := set(0, false, false, false); strings.Contains(l, "volts") {
-		t.Errorf("not read yet: %q", l)
-	}
-}
-
 // ## EOF

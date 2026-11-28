@@ -45,6 +45,11 @@ The GOPOD game. Reveal these, in order, in your own words:
   and place (the weather, where and when); the **interns** take the USB lines and the search box; the
   **guards** watch the Brobots' batteries; **KEYS** is Goverlord's voice in the chat; **Goverlord**
   answers only when called, and hands the trivial down.
+- **Staff refer the room to the GOPOD reps:** a staff answer that ends on an open question ends on
+  "For more, ask our GOPOD rep, Brobot 1!" instead; one "What do you think?" a session stays
+  (`managers.staff_refer`, [`manager-takes.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/manager-takes.md)).
+- **Looked up by:** a card can name who looks it up (`- **looked up by:**`); the Brobots' dizzy
+  lines are looked up by the Brobots and their guards only.
 - **Two suits:** CHALK and PLAYHEAD are indoor anchors (NumLock on) and outdoor reporters (NumLock
   off) - same persona and voice, a different bubble.
 - **Inside a Brobot's bubble:** asking Brobot N isn't a call to a manager, so the managers' parts
@@ -85,7 +90,8 @@ are eggs, their names and cards: [`easter_eggs.md`](../goverlord/wire_pod_overla
   checked as it's made (`BROBOT_SHAPE ... ok` or `DRIFT`), and every shape at every place runs at
   deploy. The shapes and chains: [`brobot-answers.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/brobot-answers.md).
 - **Response chains:** a line to one Brobot is one answer; to both, A then B - A ends handing over
-  with a nickname, B opens with a comeback. Nicknames: [`nicknames.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/nicknames.md).
+  with a nickname, B opens with a comeback. A Brobot who can't be reached drops out: the other
+  answers on his own, and the duo closes. Nicknames: [`nicknames.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/nicknames.md).
 - **Golden answers:** a golden question gets its line word for word first
   ([`golden_answers.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/golden_answers.md)).
 - **Experiences:** each run's before-and-after chat - whether it has played, its takes, its closing

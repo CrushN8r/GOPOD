@@ -128,6 +128,7 @@ func gopodGameReset(why string) {
 	gopodGame.Lock()
 	gopodGame.won, gopodGame.masterWon = false, false
 	gopodGame.Unlock()
+	gopodStaffReferKept.Store(false)
 	logger.Println("GOPOD_GAME reset (" + why + "): the next session starts at 0")
 }
 

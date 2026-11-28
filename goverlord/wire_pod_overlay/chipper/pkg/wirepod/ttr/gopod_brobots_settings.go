@@ -349,7 +349,12 @@ type gopodBrobotsSettingsFile struct {
 		HandoffText    string             `json:"handoff_text"`
 		QRNote         string             `json:"qr_note"`
 		QRDisplayText  string             `json:"qr_display_text"`
-		Personas       map[string]struct {
+		StaffRefer     struct {
+			Line     string   `json:"line"`
+			KeepOnce []string `json:"keep_once"`
+			OpenAsks []string `json:"open_asks"`
+		} `json:"staff_refer"`
+		Personas map[string]struct {
 			Host      string   `json:"host"`
 			Reporter  string   `json:"reporter"`
 			Prompt    string   `json:"prompt"`
@@ -979,6 +984,8 @@ type gopodBrobotsSettingsFile struct {
 		AskNote         string              `json:"ask_note"`
 		AskLine         string              `json:"ask_line"`
 		AskStates       map[string]string   `json:"ask_states"`
+		AskNoteGuard    string              `json:"ask_note_guard"`
+		AskNoteOthers   string              `json:"ask_note_others"`
 		GuardWarning    string              `json:"guard_warning"`
 		GuardHandover   string              `json:"guard_handover"`
 		SweepClear      string              `json:"sweep_clear"`

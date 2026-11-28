@@ -168,7 +168,7 @@
         var map = (typeof numpad !== "undefined" && numpad.map) || {}, w = pickerWords();
         Array.prototype.forEach.call(allFirstSelect.options, function (o) {
           var n = o.value.slice(1), off = o.value.charAt(0) === "-";
-          if (n === "*") { o.textContent = (off ? w.all_second : w.all_first) || o.value; return; }
+          if (n === "*") { o.textContent = String((off ? w.all_second : w.all_first) || o.value).replace("{all}", targets.KPmul || ((typeof numpad !== "undefined" && numpad.cfg) || {}).all_label || ""); return; }
           if (n === ".") { o.textContent = targets.KPdot || o.value; o.title = w.any || ""; o.disabled = !targets.KPdot; return; }
           var key = pickerKey(o.value), who = targets[key] || "";
           var entry = ((off ? map.numlock_off : map.numlock_on) || {})["KP" + n] || {};
@@ -2114,14 +2114,15 @@
         say.className = "brobot-say";
         say.innerHTML = flagPictures(escapeHtml(String(text)));
         line.appendChild(say);
-        var waits = lineWaits;
+        var waits = lineWaits, voice = lineVoice;
         lineWaits = false;
         if (lineVoice) { voiceWaitFor[lineVoice] = say; lineVoice = ""; }
         if (restoringChat) { say.classList.add("spoken"); return; }
         if (skippingReporters) { say.classList.add("spoken"); bubble.classList.add("voice-lit"); return; }
         bubble.classList.add("voice-lit");
         voiceLitNext = say;
-        if (waits) { voiceWaitOn(bubble, say, typeof waits === "string" ? waits : ""); }
+        // every voice shows Generating + the hourglass until it plays - its own file too ("lit:")
+        if (waits || voice) { voiceWaitOn(bubble, say, typeof waits === "string" ? waits : voice); }
         showOnItsTurn(bubble, say);
       }
       function voiceLitStart(seconds, words, src, audio) {

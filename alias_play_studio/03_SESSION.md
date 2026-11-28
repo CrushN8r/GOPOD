@@ -95,5 +95,9 @@ question, "You're welcome." (`gopodThanksEnding`).
 - **Battery and network:** every 15 s each Brobot's battery is read; low or a dip, his guard warns
   and hands over, and he says he's dizzy; dropping off the network and coming back is logged too.
   Lines and thresholds: [`dizzy-brobots.md`](../goverlord/wire_pod_overlay/chipper/gopod_probes/topic_clusters/personas/behaviours/dizzy-brobots.md).
+- **"Are you (feeling) dizzy?":** the catchphrase, one call for anyone asked. A Brobot says his
+  power level and how he is (good, full on his charger, or his dizzy line - with help getting home
+  off the charger); his guard gives his security sweep words for him; anyone else hands it to the
+  guards. One reading an answer, from the battery watch.
 
 [Back to ALIAS-PLAY-STUDIO](../ALIAS-PLAY-STUDIO.md)

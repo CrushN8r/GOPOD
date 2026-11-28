@@ -12,9 +12,12 @@
 2. default_owner: Brobot 1
 3. redirect_text: That's {owner}'s job - {owner}, over to you!
 
+## The * key's name - the picker, the header and the key all say it (numpad_ptt)
+1. all_label: All Brobots
+
 ## The keyboard picker's words (numpad_ptt.picker)
-1. all_first: BROBOTS 1,2
-2. all_second: BROBOTS 2,1
+1. all_first: {all} 1,2
+2. all_second: {all} 2,1
 3. unassigned: unassigned
 4. on: `{n} Numlock ON: {persona}`
 5. off: `{n} Numlock OFF: {persona}`

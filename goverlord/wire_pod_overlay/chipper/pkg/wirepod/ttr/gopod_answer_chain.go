@@ -421,6 +421,10 @@ func gopodGomadReplyMade(host, text string) (string, error) {
 	if gopodIsIntro(text) {
 		reply = gopodIntroWrap(host, reply)
 	}
+	if line, _ := gopodDizzy(host, text); line != "" {
+		reply = line + " " + reply // said by the code first, then his own words
+	}
+	reply = gopodStaffRefer(reply)
 	logger.Println("GOPOD_PERSONA " + host + ": " + reply)
 	reply = gopodPersonaChainWrap(host, reply)
 	for _, p := range gopodAnswerChain("gomad_persona") {
