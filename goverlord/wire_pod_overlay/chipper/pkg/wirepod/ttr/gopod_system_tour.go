@@ -186,12 +186,11 @@ func gopodSayLinesInBubble(host string, lines []string, wait bool, display ...st
 		if rv.GeneratingMarker == "" {
 			continue
 		}
-		if page, _, made := gopodReporterCached(host, said); made {
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forlit:"+page+"|"+l)
-		} else {
-			_, page := gopodReporterPaths(host, said)
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+l)
+		page, _, made := gopodReporterCached(host, said)
+		if !made {
+			_, page = gopodReporterPaths(host, said)
 		}
+		GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+l)
 	}
 	type made struct {
 		page    string

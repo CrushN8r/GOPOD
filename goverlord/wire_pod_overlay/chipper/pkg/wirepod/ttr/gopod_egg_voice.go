@@ -53,11 +53,7 @@ func gopodEggSay(text, name, zoom string) bool {
 	shown := strings.TrimSpace(text)
 	seconds, made := gopodWavSeconds(file)
 	if rv.GeneratingMarker != "" && shown != "" {
-		if made {
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forlit:"+page+"|"+shown)
-		} else {
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+shown)
-		}
+		GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+shown)
 	}
 	if !made {
 		var err error

@@ -477,12 +477,13 @@ func gopodSayForShownLine(host, text string) (string, float64, bool) {
 	cachedPage, _, made := gopodReporterCached(host, said)
 	shown := strings.TrimSpace(text)
 	if rv.GeneratingMarker != "" && shown != "" {
-		if made {
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forlit:"+cachedPage+"|"+shown)
-		} else {
-			_, page := gopodReporterPaths(host, said)
-			GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+shown)
+		// Every page voice shows Generating + the hourglass until its file is here - a voice
+		// already made too (it arrives at once, so the hourglass only flashes).
+		page := cachedPage
+		if !made {
+			_, page = gopodReporterPaths(host, said)
 		}
+		GopodChatFeedAdd(rv.Role, rv.GeneratingMarker+"forwait:"+page+"|"+shown)
 	}
 	page, seconds, ok := gopodReporterFile(host, says)
 	if !ok && !made && rv.GeneratingMarker != "" {

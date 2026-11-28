@@ -184,19 +184,15 @@
 ## alias_play_studio/03_SESSION.md
 - The session and runs
 - the session
-- 6. The session and runs
-- 6.1 The session and its phases
-- 6.2 Runs
-- 6.3 Wire-Pod start and the opener
-- 6.4 Every run's warm-up
-- 6.5 The page away, pause and continue
-- 6.6 Stopping a run
-- 6.7 Skip
-- 6.8 Replay a session
-- 6.9 Record Session (the "Record?" box)
-- 6.10 The thanks ending
-- 6.11 Mic missing, USB watch
-- 6.12 Battery watchdog
+- The session
+- Runs
+- Wire-Pod start and the opener
+- Every run's warm-up
+- The page away
+- Stop, skip, replay
+- Record Session (the "Record?" box)
+- The thanks ending
+- Mic, USB and battery watches
 
 ## alias_play_studio/04_CHAT.md
 - The Brobots chat: ways in, a live reply, the page
@@ -235,13 +231,10 @@
 ## alias_play_studio/05_VOICES_AND_SOUND.md
 - Voices and sound
 - voices and sound
-- 10. Voices
-- 10.1 Who speaks with which voice
-- 10.2 Voice files: made once, play many
-- 10.3 (music) places the sting
-- 10.4 System stings
-- 11. Volume and sound
-- More in this part
+- Who speaks with which voice
+- Voice files: made once, played many times
+- (music) and stings
+- Volume
 
 ## alias_play_studio/06_CAST_AND_GAME.md
 - The cast and the game

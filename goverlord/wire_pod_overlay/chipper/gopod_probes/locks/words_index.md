@@ -40,16 +40,16 @@
 - words: songs, making a song, song is a folder, editing a song, making a new song, llm warm song, timing that works, check, make a song, song folder, knobs json, song engine
 
 ## alias_play_studio/03_SESSION.md
-- words: session, session and runs, session and its phases, runs, every run s warm up, page away pause and continue, stopping a run, skip, replay a session, record session, thanks ending, mic missing usb watch, battery watchdog, the session, a session, the thanks ending, stop run, gig, gigs, sessions, booking, bookings, assignment
+- words: session, session and runs, runs, every run s warm up, page away, stop skip replay, record session, thanks ending, mic usb and battery watches, the session, a session, replay a session, the thanks ending, stop run, gig, gigs, sessions, booking, bookings, assignment
 
 ## alias_play_studio/04_CHAT.md
-- words: chat, one door, lanes, numpad push to talk, native wire pod answers, face recognition, answers addressing and all, live reply, steps of a reply, reply clean up, brobots math, explain the math, weather, search, pictures described to the brobots, chat page and its bubbles, chat bubbles window the machine, bubble kinds and headers, chat rules, golden the generating template, highlight and word reveal, pictures, system window, the one door, ways in, answer chain, thought bubbles
+- words: chat, one door, lanes, numpad push to talk, native wire pod answers, face recognition, answers addressing and all, live reply, steps of a reply, reply clean up, brobots math, explain the math, weather, search, pictures described to the brobots, chat page and its bubbles, chat bubbles window the machine, bubble kinds and headers, chat rules, golden the generating template, highlight and word reveal, pictures, system window, more in this part, the one door, ways in, answer chain, thought bubbles
 
 ## alias_play_studio/05_VOICES_AND_SOUND.md
-- words: voices and sound, voices, speaks with which voice, system stings, volume and sound, the voices, who speaks, master volume
+- words: voices and sound, speaks with which voice, music and stings, volume, the voices, who speaks, master volume
 
 ## alias_play_studio/06_CAST_AND_GAME.md
-- words: cast and game, cast and the game, gopod game, managers chalk and playhead, three personas three jobs, does what, eggs, two kinds of eggs, when eggs pop, golden the egg process, egg names cards and triggers, egg list and reminders, found eggs give a summary, value points golden and locked, game engine, the game, value points, grand prize
+- words: cast and game, cast and the game, gopod game, managers chalk and playhead, three personas three jobs, does what, eggs, two kinds of eggs, when eggs pop, golden the egg process, egg names cards and triggers, egg list and reminders, found eggs give a summary, value points golden and locked, more in this part, game engine, the game, value points, grand prize
 
 ## alias_play_studio/07_SYSTEM.md
 - words: system, gopod system, system menu and commands, system commands work, system menu, editing from the chat, finding things, status checks and tests, cameras and the edge tpu, brobots from the chat, restart and switches, every command at a glance, stuff no code, settings file reference, the system, system commands, system command

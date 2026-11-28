@@ -53,12 +53,12 @@ whether it's locked yet.
 | Stage | What plays | Where | Status |
 |---|---|---|---|
 | **Check-in** | The run checks in with Goverlord and takes its turn at once; a second start gets `session.busy_text` | `GopodRunStart`, `/api-sdk/gopod_run` | Locked by `TestSessionOneRunAtATime` |
-| **Opener** | `session.started_text` ("{run} started. ..."), then the run's warm-up: the LLM warm-up bubble, the in-betweens, the ready line ("Language Model Loaded, Master CrushN8r." + the song's `llm_ready_text` + "Your move. (music)") | [6.4](03_SESSION.md#64-every-runs-warm-up), `gopodRunReadyLine` | GOLDEN, locked by `TestSongWarmupReadyAfterWarming`, `TestWarmupQueuesInput` |
+| **Opener** | `session.started_text` ("{run} started. ..."), then the run's warm-up: the LLM warm-up bubble, the in-betweens, the ready line ("Language Model Loaded, Master CrushN8r." + the song's `llm_ready_text` + "Your move. (music)") | [every run's warm-up](03_SESSION.md#every-runs-warm-up), `gopodRunReadyLine` | GOLDEN, locked by `TestSongWarmupReadyAfterWarming`, `TestWarmupQueuesInput` |
 | **Run** | The song or script itself: its `story.md` steps in order | the song engine (`run_golden_song_001.py`), the interview runner | per song |
 | **Closer** | The song's own last lines, then `session.complete_text` ("{run} complete. ... Spectacular work, Master CrushN8r.") for a run that played to its end, or `session.stopped_text` after a stop | `GopodRunEnd` | One template for every named run (`session.run_names`) |
 | **Check-out** | The run checks out; the chat hold, background loop and Native go back as they were | `GopodRunEnd` | Locked by `TestSessionClearsAGoneRun` |
 
-The session's own closer is the thanks ending ([6.10](03_SESSION.md#610-the-thanks-ending)): a
+The session's own closer is the thanks ending ([the thanks ending](03_SESSION.md#the-thanks-ending)): a
 run going is closed out first, then the session ends.
 
 ### 20.3 The cassette: choices inside a stage
@@ -79,8 +79,8 @@ The control lane never waits for a turn. It shifts the chain the moment it's sen
 | Switch | Shifts | Where |
 |---|---|---|
 | `start <run-name>` | into a run's chain | the custom intents, `GopodRunStart` |
-| stop run, Esc | out of the run, through its closer (`stopped_text`) | [6.6](03_SESSION.md#66-stopping-a-run), `GopodEscape` |
-| skip | past the in-betweens (opener) or to the next scripture (tour) | [6.7](03_SESSION.md#67-skip) |
+| stop run, Esc | out of the run, through its closer (`stopped_text`) | [stopping a run](03_SESSION.md#stop-skip-replay), `GopodEscape` |
+| skip | past the in-betweens (opener) or to the next scripture (tour) | [skip](03_SESSION.md#stop-skip-replay) |
 | thanks brobots | out of the session, through the thanks ending | `sign_off`, `chat_hold.thanks_phrases` (only the phrases listed there count) |
 | `system-` commands | answered at once, outside every turn | [14](07_SYSTEM.md) |
 
@@ -116,10 +116,10 @@ opener, rounds, closer.
 
 | Stage | What plays | Where |
 |---|---|---|
-| **Opener** | Wire-Pod's start opener: the LLM warm-up bubble, the reporters' opening, the ready line. Then the session is **Ready**: live chat | [6.3](03_SESSION.md#63-wire-pod-start-and-the-opener), `00_llm_warming/` |
+| **Opener** | Wire-Pod's start opener: the LLM warm-up bubble, the reporters' opening, the ready line. Then the session is **Ready**: live chat | [the opener](03_SESSION.md#wire-pod-start-and-the-opener), `00_llm_warming/` |
 | **A round** | 1. A question comes in: typed, numpad, the mic, a prober<br>2. Lightning picks the topics it pulls (`lightning`)<br>3. The Brobot answers, revealing value points (the score)<br>4. An egg pops when the line's words find it<br>5. The reminder: "Hey, that reminds me..." names an egg still to find, with a prober to try ("Try asking: ...") | [8](04_CHAT.md#8-a-live-reply), [13](06_CAST_AND_GAME.md#13-eggs), `gopod_lightning.go`, `gopod_probers_list.go` |
 | **Grand prizes** | Every value point revealed and every game egg found: Goverlord's `game.win_text` ("Grand prize! ... {score}. Now GOPOD Yourself!"). With the hidden eggs too: `game.master_text`. Once per session | `gopod_game.go` |
-| **Closer** | "thanks brobots": the thanks ending - the score, the reporters' closing, the Brobots' sign-off, Record Session's keep-or-delete, "You're welcome." | [6.10](03_SESSION.md#610-the-thanks-ending) |
+| **Closer** | "thanks brobots": the thanks ending - the score, the reporters' closing, the Brobots' sign-off, Record Session's keep-or-delete, "You're welcome." | [the thanks ending](03_SESSION.md#the-thanks-ending) |
 | **Reset** | The thanks ending resets the game: score, points said, reminders, eggs found back to 0 | `gopodGameReset` |
 
 The teeth of the game: the chapters, topics and value points (`gopod_probes/topic_clusters/personas/company/4_go_for_it/`, locked in

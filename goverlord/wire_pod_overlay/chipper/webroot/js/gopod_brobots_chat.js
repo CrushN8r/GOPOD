@@ -2168,6 +2168,10 @@
             from += n;
           });
         }
+        // The highlight ends when the last word does, not when the file does (a mic recording's quiet tail).
+        var saidWords = (say._spokenWords || []).filter(function (w) { return /[A-Za-z0-9]/.test(String(w.t || "")); });
+        var lastWordEnd = saidWords.length ? +saidWords[saidWords.length - 1].e || 0 : 0;
+        if (lastWordEnd > 0 && lastWordEnd < +say.dataset.end) { say.dataset.end = String(lastWordEnd); }
         lightSpan(say);
         return function () {
           say.classList.remove("speaking");

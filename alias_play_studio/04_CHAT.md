@@ -117,7 +117,7 @@ menu (🔊), and turns it off and closes it (🔇).
   to slip on purpose now and then - a wrong name, a mangled word - then land the point clearly.
   Clarity through confusion. Waits for the operator's go.
   KP+ and KP- turn the
-  camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The **/** key skips ([6.7](03_SESSION.md#67-skip)). **\*** held is all the
+  camera feeds ([14.6](07_SYSTEM.md#146-cameras-and-the-edge-tpu)). The **/** key skips ([skip](03_SESSION.md#stop-skip-replay)). **\*** held is all the
   Brobots, in the order the All menu picks; **KP0** held is the Butler, KEYNOTE VALE ("Keys") (3 quick taps still
   leave numpad mode).
 - Three taps of 0 (or NumLock) leave numpad mode; Goverlord says "Goverlord has released the
@@ -133,7 +133,7 @@ menu (🔊), and turns it off and closes it (🔇).
   (`numpad_ptt.error_texts`: too short, nothing heard, no mic, not ready, failed, NumLock off,
   not) plays grunge at 15% (`numpad_ptt.error_sound`). A key that isn't live (KP9, Cameo)
   is an error too.
-- While recording, numpad presses are saved in the session folder ([6.9](03_SESSION.md#69-record-session-the-record-box)).
+- While recording, numpad presses are saved in the session folder ([Record Session](03_SESSION.md#record-session-the-record-box)).
 
 ### 7.4 Native Wire-Pod answers
 

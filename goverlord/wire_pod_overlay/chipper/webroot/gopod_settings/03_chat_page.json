@@ -130,7 +130,7 @@
   "chat_audio": {
     "volume": 0.35,
     "normalize_db": -3,
-    "loudness_lufs": -16
+    "loudness_lufs": -19
   },
   "background_loop": {
     "file": "BrobotsGroove-Loop-1.wav",

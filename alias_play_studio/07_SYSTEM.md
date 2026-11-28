@@ -273,8 +273,8 @@ song-start intents; the engine checks in with Goverlord (one run at a time).
 | `system-restart [go]` | Wire-Pod restarts itself; the page reloads itself on the new start; click Log for sound |
 | `system-native on\|off` | Wire-Pod's own answers on or off ([7.4](04_CHAT.md#74-native-wire-pod-answers)) |
 | `system-numpad on\|off` | numpad push-to-talk on or off; `system-numpad` alone lists the keys |
-| `system-skip` | skips the reporters' warm-up lines ([6.7](03_SESSION.md#67-skip)) |
-| `system-voices-rebuild [go]` | rebuilds every voice ([10.2](05_VOICES_AND_SOUND.md#102-voice-files-made-once-play-many)) |
+| `system-skip` | skips the reporters' warm-up lines ([skip](03_SESSION.md#stop-skip-replay)) |
+| `system-voices-rebuild [go]` | rebuilds every voice ([voice files](05_VOICES_AND_SOUND.md#voice-files-made-once-played-many-times)) |
 | `system-menu-theme <preset>` | the menu's look |
 | `system-robots-off on\|off` | robots off: nothing reaches the Brobots - their says play on the page in temp voices (the voices panel's KP1/KP2, `robots_off.voices`) - bubbles, order and waits as with the robots, every say and animation captured to `gopod_probes/demo_runs/robots_off_capture_<date>.jsonl` for a replay with the Brobots later; saved, holds after a restart (`robots_off`) |
 
@@ -282,11 +282,11 @@ song-start intents; the engine checks in with Goverlord (one run at a time).
 
 | Command | Section |
 |---|---|
-| `start interview` / `start bingo test` / `start baby brobots` / `start fart joke` | [6.2](03_SESSION.md#62-runs) |
-| `stop run`, `stop session`, "stop nap" / "stop baby robots" | [6.6](03_SESSION.md#66-stopping-a-run) |
-| `replay <name>` | [6.8](03_SESSION.md#68-replay-a-session) |
-| "skip", Esc, numpad \* | [6.7](03_SESSION.md#67-skip) |
-| "thanks brobots" / "thanks guys" | [6.10](03_SESSION.md#610-the-thanks-ending) |
+| `start interview` / `start bingo test` / `start baby brobots` / `start fart joke` | [runs](03_SESSION.md#runs) |
+| `stop run`, `stop session`, "stop nap" / "stop baby robots" | [stopping a run](03_SESSION.md#stop-skip-replay) |
+| `replay <name>` | [replay](03_SESSION.md#stop-skip-replay) |
+| "skip", Esc, numpad \* | [skip](03_SESSION.md#stop-skip-replay) |
+| "thanks brobots" / "thanks guys" | [the thanks ending](03_SESSION.md#the-thanks-ending) |
 | `search <words>` / `look up <words>` | [8.8](04_CHAT.md#88-search) |
 | `system-add`, `system-remove`, `system-lingo`, `system-set`, `system-set-list`, `system-topic`, `system-undo`, `system-menu-theme` | [14.3](#143-editing-from-the-chat) |
 | `system-locate`, `system-locate-list`, `system-find`, `system-score`, `system-search`, `system-chats`, `system-chat-save`, `system-help` | [14.4](#144-finding-things) |
