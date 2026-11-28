@@ -7,7 +7,7 @@ BUTLER | how does the weather work? | manager-takes.md, weather.md, cache-pyc.md
 BUTLER | how do I subscribe to your newsletter? | gopod_yourself_qr.md, 03_newsletter.md
 GEMMA | what do you do? | 02_who_we_are.md
 INTEL 404 PNFH | who do you guard? | dizzy-brobots.md, group-security-guards.md, nicknames.md, weather_run.md, math-aftermath-news-channel.md, group-chat-intro.md
-CHALK | what's on the display? | README.md, story.md
+CHALK | what's on the display? | story.md
 PLAYHEAD | what does the playhead do? | playhead-zuminto.md, README.md
 GIT REPO | who gets the weather details? | weather.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, git-repo.md, cache-pyc.md, brobot-1.md, crushn8r_crewd_news_station.md, brobot-2.md
 CACHE PYC | who shows the weather? | manager-takes.md, weather.md, cache-pyc.md, git-repo.md, weather_run.md, duo-handoff.md, keynote-vale.md, playhead-zuminto.md, brobot-1.md, crushn8r_crewd_news_station.md

@@ -13,12 +13,12 @@ import wave
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
-GOLDEN_WRITER_DIR = REPO_ROOT / "goverlord/runtime/gopod_layer/web_display/gopod_demo_8011"
+GOLDEN_WRITER_DIR = REPO_ROOT / "goverlord/runtime/room_mic"
 for path in (REPO_ROOT, GOLDEN_WRITER_DIR):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-import gopod_ptt_chat_writer_013 as golden  # noqa: E402
+import room_mic_writer as golden  # noqa: E402
 
 
 def pulse_mic(sd):

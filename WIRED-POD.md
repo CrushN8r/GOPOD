@@ -194,7 +194,7 @@ when).
 - **Change:** run `goverlord/gopod_paths.sh --apply` first (Part 2), then copy
   `phcal_config.example.json` to `phcal_config.json`,
   `gopod_audio_config.example.sh` to your own, and
-  `goverlord/runtime/data_gomad/configs/endpoints.example.json` to `endpoints.json`; put in
+  `goverlord/runtime/room_mic/config/endpoints.example.json` to `endpoints.json`; put in
   your robots' serials, your Wire-Pod address and your paths.
 - **Works when:** in a new terminal, `pha0b` lists the songs (Bingo test, Bingo game, nap).
 

@@ -1,6 +1,8 @@
 # runtime
 
-- `songs/` — the show: one folder per song, and `tools/`, the engine that plays them.
-- `data_gomad/` — shared config and robot helpers the songs and the room mic read.
-- `gopod_layer/web_display/gopod_demo_8011/` — `gopod_ptt_chat_writer_013.py`, whose mic pick,
-  timings and Vosk model the chat's room mic service reuses.
+| Folder | What's in it |
+|---|---|
+| [`songs/`](songs/) | The show's songs, one folder each, and `tools/`, the engine that plays them. |
+| [`room_mic/`](room_mic/) | The room mic: hold a numpad key, talk, and the words land in the chat; it also records the session. |
+| [`voices/`](voices/) | The Kokoro voice the reporters speak with. |
+| [`models/`](models/) | The speech and camera models (downloaded, not in the repo; its README says where from). |

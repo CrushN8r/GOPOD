@@ -217,8 +217,8 @@ PASS/FAIL with what it saw. `gopod_system_tests.go`.
 
 **The Edge TPU (GOLDEN):** plugged in and turned on, for photo face and object recognition. Setup
 in place: the TPU driver, the `gopod-coral39` Python environment, and the face and object models
-in `goverlord/runtime/data_gomad/models/edge_tpu/`. Turn it on after a replug or restart with the
-command in `goverlord/runtime/data_gomad/models/README.md` (`1a6e:089a` before,
+in `goverlord/runtime/models/edge_tpu/`. Turn it on after a replug or restart with the
+command in `goverlord/runtime/models/README.md` (`1a6e:089a` before,
 `18d1:9302 Google Inc.` once on). Wire-Pod's worker holds the stick while Wire-Pod runs (one
 program at a time). `system-tpu [restart]`: `system-tpu restart` answers when the worker is ready
 and can stop a worker still loading.

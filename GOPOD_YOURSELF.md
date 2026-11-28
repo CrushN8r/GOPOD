@@ -177,13 +177,13 @@ the rest still runs.
 | **Vosk library and headers** | Building Wire-Pod (its speech-to-text). Wire-Pod's own setup usually puts them in `/root/.vosk/libvosk`. | Yes |
 | **Python 3.10 to 3.12** (not 3.13: GOPOD uses `audioop`) | The room mic, the songs, the studio. | Yes |
 | `pip install vosk sounddevice numpy scipy evdev` | Numpad push-to-talk and the room mic. | For the mic |
-| **Vosk model** `vosk-model-small-en-us-0.15` from [alphacephei.com/vosk/models](https://alphacephei.com/vosk/models), unzipped into `goverlord/runtime/data_gomad/models/vosk/` | The room mic's speech-to-text. | For the mic |
+| **Vosk model** `vosk-model-small-en-us-0.15` from [alphacephei.com/vosk/models](https://alphacephei.com/vosk/models), unzipped into `goverlord/runtime/models/vosk/` | The room mic's speech-to-text. | For the mic |
 | **Kokoro voices**: a Python venv at `~/gopod_tts/engines/kokoro_82m_001/venv` with `pip install kokoro soundfile`, plus `espeak-ng` from your package manager | The reporters, Goverlord and the numpad cast's voices. Voices download from Hugging Face on first use. Put the venv elsewhere and change `reporter_voices.python` in `05_voices_and_robots.json`. | For the voices |
 | `sox` | Pitching two cast members on one voice apart. | Optional |
 | `wamerican` (the `/usr/share/dict` word list) | Better splitting of made-up merged words. A missing list is skipped. | Optional |
 | The Wire-Pod Vector Python SDK ([kercre123/wirepod-vector-python-sdk](https://github.com/kercre123/wirepod-vector-python-sdk)) | The studio's robot tuning (`phcal`) and the Bingo reactor. | For the studio |
 | The vectorx SDK | The live Bingo game (`gobingo`). The tracked `vectorx-gobingo` binary is ARM64 (Jetson, Pi); on a PC, rebuild it from `cmd/main.go` - not tested. | Bingo game only |
-| Coral USB Edge TPU, `libedgetpu1-max`, `pycoral` | Object boxes on the camera feeds. See [models/README.md](goverlord/runtime/data_gomad/models/README.md). | Optional |
+| Coral USB Edge TPU, `libedgetpu1-max`, `pycoral` | Object boxes on the camera feeds. See [models/README.md](goverlord/runtime/models/README.md). | Optional |
 | SearXNG in Docker (`goverlord/wire_pod_overlay/searxng/`) | GOPOD's own web search. | Optional |
 
 **Done when:** step 3's `MISSING` list holds only the things you chose to skip.

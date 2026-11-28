@@ -1,4 +1,4 @@
-"""Path constants + JSON loader for goverlord/runtime/data_gomad/."""
+"""The room mic's config files and their JSON loader."""
 
 from __future__ import annotations
 
@@ -8,15 +8,13 @@ from typing import Any
 
 from jsonschema import Draft7Validator
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
-DATA_DIR = REPO_ROOT / "goverlord" / "runtime" / "data_gomad"
-RULES_DIR = REPO_ROOT / "goverlord" / "rules"
+CONFIG_DIR = Path(__file__).resolve().parent
 
-ENDPOINTS_PATH = DATA_DIR / "configs" / "endpoints.json"
-PATHS_PATH = DATA_DIR / "configs" / "paths.json"
-AUDIO_PATH = DATA_DIR / "configs" / "audio.json"
-CHAT_ENVELOPE_SCHEMA_PATH = DATA_DIR / "configs" / "chat_envelope_schema.json"
-AUDIO_RESAMPLE_RULE_PATH = RULES_DIR / "audio_resample.json"
+ENDPOINTS_PATH = CONFIG_DIR / "endpoints.json"
+PATHS_PATH = CONFIG_DIR / "paths.json"
+AUDIO_PATH = CONFIG_DIR / "audio.json"
+CHAT_ENVELOPE_SCHEMA_PATH = CONFIG_DIR / "chat_envelope_schema.json"
+AUDIO_RESAMPLE_RULE_PATH = CONFIG_DIR / "audio_resample.json"
 
 
 def load_json(path: Path) -> Any:

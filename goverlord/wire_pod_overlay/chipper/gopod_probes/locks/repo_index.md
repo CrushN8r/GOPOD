@@ -346,24 +346,21 @@
 ## goverlord/README.md
 - goverlord
 
+## goverlord/SDK/README.md
+- SDK
+
 ## goverlord/alias_lib_overlay/README.md
 - Alias library (copy)
 - Files
 - Not copied (private)
 - Take it home
 
-## goverlord/rules/README.md
-- rules
+## goverlord/runtime/README.md
+- runtime
 
-## goverlord/runtime/data_gomad/README.md
-- data_gomad
-
-## goverlord/runtime/data_gomad/models/README.md
+## goverlord/runtime/models/README.md
 - models/
 - Edge TPU: turn it on
-
-## goverlord/runtime/gopod_layer/web_display/README.md
-- web_display
 
 ## goverlord/runtime/songs/00_llm_warming/story.md
 - LLM Warming

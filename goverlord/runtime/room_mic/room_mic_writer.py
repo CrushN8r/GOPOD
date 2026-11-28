@@ -28,11 +28,11 @@ from typing import Any
 
 
 DISPLAY_DIR = Path(__file__).resolve().parent
-REPO_ROOT = Path(__file__).resolve().parents[5]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
-from goverlord.runtime.data_gomad.configs.loader import (  # noqa: E402
+from goverlord.runtime.room_mic.config.loader import (  # noqa: E402
     AUDIO_PATH,
     AUDIO_RESAMPLE_RULE_PATH,
     ENDPOINTS_PATH,
@@ -40,7 +40,7 @@ from goverlord.runtime.data_gomad.configs.loader import (  # noqa: E402
     load_json,
     validate_envelope,
 )
-from goverlord.runtime.data_gomad.robot.say_replacements.text_replacement_filter import (  # noqa: E402
+from goverlord.runtime.room_mic.say_replacements.text_replacement_filter import (  # noqa: E402
     normalize_outbound_text,
 )
 

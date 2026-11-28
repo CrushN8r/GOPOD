@@ -28,8 +28,8 @@ func main() {
 	flag.BoolVar(&silent, "silent", false, "Suppress all robot speech (rattle and screen-display unaffected).")
 	var chatFile string
 	flag.StringVar(&chatFile, "chat-file",
-		"/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/gopod_layer/web_display/gopod_demo_8011/live_chat_messages.json",
-		"Absolute path to live_chat_messages.json. Default matches runtime/data_gomad/config/paths.json's live_chat_messages fact.")
+		"/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/room_mic/live_chat_messages.json",
+		"Absolute path to live_chat_messages.json. Default: the room mic's chat file (runtime/room_mic/config/paths.json).")
 	var pauseForTouch bool
 	flag.BoolVar(&pauseForTouch, "pause-for-touch", false, "Wait for a fresh backpack touch before every draw instead of auto-drawing every 3 seconds after the first touch.")
 	flag.Parse()

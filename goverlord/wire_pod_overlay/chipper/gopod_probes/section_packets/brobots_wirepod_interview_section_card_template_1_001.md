@@ -216,7 +216,7 @@ Two data blocks the code reads. Nothing else lives here.
     "voice": "af_bella",
     "voice_style": "bright female",
     "audio_output": "default_system_audio",
-    "asset_tool": "goverlord/runtime/data_gomad/robot/kokoro_voice/local_tts_voice_registry_001/interview_status_kokoro_announcer_001.py",
+    "asset_tool": "goverlord/runtime/voices/interview_status_kokoro_announcer_001.py",
     "asset_dir": "/home/goverlord/gopod_tts/tests/interview_status_kokoro_announcer_001/af_bella",
     "visual_status_source": "runner STATUS and LIVE lines before Brobot playback",
     "stop_before": [
@@ -348,7 +348,7 @@ Two data blocks the code reads. Nothing else lives here.
       "invocation": {
         "kind": "subprocess_speak_stdin",
         "venv_python": "/home/goverlord/gopod_tts/engines/kokoro_82m_001/venv/bin/python3",
-        "script": "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/data_gomad/robot/kokoro_voice/local_tts_voice_registry_001/interview_status_kokoro_announcer_001.py",
+        "script": "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/voices/interview_status_kokoro_announcer_001.py",
         "args": [
           "--speak-stdin",
           "--voice",

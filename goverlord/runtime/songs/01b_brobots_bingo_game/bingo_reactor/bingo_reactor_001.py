@@ -17,8 +17,7 @@ import anki_vector
 
 DEFAULT_BROBOT2_SERIAL = "ESN02"  # Brobot 2's label; gopod_robot_serial() finds the robot
 DEFAULT_CHAT_FILE = (
-    "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/gopod_layer/web_display/"
-    "gopod_demo_8011/live_chat_messages.json"
+    "/home/goverlord/crushn8r_git/GOPOD/goverlord/runtime/room_mic/live_chat_messages.json"
 )
 DEFAULT_POLL_INTERVAL = 0.5
 ANGRY_ANIMATION_NAME = "anim_rtpickup_loop_10"

@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 RUNNER_PATH = Path(__file__).resolve().parent / "run_section1_full_live_001.py"
-WEATHER_MODULE_PATH = Path(os.getenv("GOPOD_REPO_ROOT", "/home/goverlord/crushn8r_git/GOPOD")).expanduser() / "goverlord" / "runtime" / "data_gomad" / "robot" / "weather" / "gopod_weather_fetch_001.py"
+WEATHER_MODULE_PATH = Path(os.getenv("GOPOD_REPO_ROOT", "/home/goverlord/crushn8r_git/GOPOD")).expanduser() / "goverlord" / "runtime" / "songs" / "tools" / "gopod_weather_fetch_001.py"
 
 
 def _load_runner_module():

@@ -80,7 +80,7 @@ PRESHOW_READ_SHEET_ENV = "GOPOD_PRESHOW_READ_SHEET"
 
 KOKORO_STATUS_ANNOUNCER_PATH = (
     GOPOD_REPO_ROOT
-    / "goverlord/runtime/data_gomad/robot/kokoro_voice/local_tts_voice_registry_001/interview_status_kokoro_announcer_001.py"
+    / "goverlord/runtime/voices/interview_status_kokoro_announcer_001.py"
 )
 KOKORO_STATUS_VENV_PYTHON = Path(
     os.getenv("GOPOD_KOKORO_VENV_PYTHON", "/home/goverlord/gopod_tts/engines/kokoro_82m_001/venv/bin/python3")

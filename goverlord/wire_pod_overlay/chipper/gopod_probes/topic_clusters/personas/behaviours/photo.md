@@ -26,8 +26,8 @@
 2. enabled: true
 3. python: ~/miniforge3/envs/gopod-coral39/bin/python
 4. worker: gopod_probes/tools/gopod_edge_tpu_quick_look_001.py
-5. model: ../../runtime/data_gomad/models/edge_tpu/general_objects/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite
-6. labels: ../../runtime/data_gomad/models/edge_tpu/general_objects/coco_labels.txt
+5. model: ../../runtime/models/edge_tpu/general_objects/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite
+6. labels: ../../runtime/models/edge_tpu/general_objects/coco_labels.txt
 7. min_score: 0.4
 8. timeout_seconds: 3
 9. pictures_about: the worker cleans up the snapshot (enhance: median filter size, auto contrast cutoff %, then brightness, contrast, sharpness - 1 is unchanged), finds the objects in the enhanced one and draws their boxes and names; the egg pops up the photo, the enhanced one and the boxes; the vision model looks at the enhanced one, told the TPU's objects. Kept beside the photo (webroot/photos, _enhanced.jpg, _tpu.jpg).

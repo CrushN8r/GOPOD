@@ -12,7 +12,7 @@ from pathlib import Path
 
 ANNOUNCER = (
     Path(__file__).resolve().parents[5]
-    / "goverlord/runtime/data_gomad/robot/kokoro_voice/local_tts_voice_registry_001/interview_status_kokoro_announcer_001.py"
+    / "goverlord/runtime/voices/interview_status_kokoro_announcer_001.py"
 )
 
 

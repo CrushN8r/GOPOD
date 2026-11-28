@@ -102,7 +102,7 @@ Rules and tests. Reveal these, in order, in your own words:
 | A bubble holds the next one up | A frozen robot or a lost end signal | It lets go after `chat_window.speaking_max_ms` (30 s); check `GOPOD_PAGE held` and `GOPOD_HEARD` in the journal. |
 | A reply bubble missing or doubled | | `system-find FEED_CHECK`; see [9.8](04_CHAT.md#98-the-engine-and-the-page-in-dialogue). |
 | QR codes or voice word timing fail silently | A Python start not run as the operator | Every Python start must go through `gopodAsOperator` (rule 16). |
-| The Edge TPU worker broke | The operator's Python 3.10 packages in front of the coral env's 3.9 ones | A conda/venv Python keeps its own; `system-tpu restart`. TPU turned off after a replug: the command in `goverlord/runtime/data_gomad/models/README.md`. |
+| The Edge TPU worker broke | The operator's Python 3.10 packages in front of the coral env's 3.9 ones | A conda/venv Python keeps its own; `system-tpu restart`. TPU turned off after a replug: the command in `goverlord/runtime/models/README.md`. |
 | Bingo run pauses ~61 s at an angry beat | `angry` = `anim_rtpickup_loop_10` (`animation_vocab.json`) is a loop clip: cut at 10 s, then the robot dropped Wire-Pod's connection | Known; the clip choice is in `animation_vocab.json`. |
 | Brobot 2 freezes or reboots | Low battery on the charger, not charging | Golden rule 6: check his charger contact, then reboot him. |
 | Weather is always the offline line in the dry run | The session dry run loads no weather key | Expected. |

@@ -93,20 +93,17 @@
 ## goverlord/README.md
 - words: goverlord
 
+## goverlord/SDK/README.md
+- words: sdk
+
 ## goverlord/alias_lib_overlay/README.md
 - words: alias lib overlay, alias library, files, not copied, take it home
 
-## goverlord/rules/README.md
-- words: rules
+## goverlord/runtime/README.md
+- words: runtime
 
-## goverlord/runtime/data_gomad/README.md
-- words: data gomad
-
-## goverlord/runtime/data_gomad/models/README.md
+## goverlord/runtime/models/README.md
 - words: models, edge tpu turn it on
-
-## goverlord/runtime/gopod_layer/web_display/README.md
-- words: web display
 
 ## goverlord/runtime/songs/00_llm_warming/story.md
 - words: llm warming, section warm up, step goverlord warm 0101, step goverlord warm 0102, step goverlord warm wait 0103, step llm song 0104, section ready, step goverlord warm ready 0105, step goverlord sting 0106

@@ -31,11 +31,10 @@ Tell me about workbench words | alias_play_studio/concepts/the-workbench-words.m
 Tell me about songs | alias_play_studio/songs/README.md
 Tell me about start and wire pod | alias_play_studio/start-and-wire-pod/README.md
 Tell me about goverlord | goverlord/README.md
+Tell me about sdk | goverlord/SDK/README.md
 Tell me about alias lib overlay | goverlord/alias_lib_overlay/README.md
-Tell me about rules | goverlord/rules/README.md
-Tell me about data gomad | goverlord/runtime/data_gomad/README.md
-Tell me about models | goverlord/runtime/data_gomad/models/README.md
-Tell me about web display | goverlord/runtime/gopod_layer/web_display/README.md
+Tell me about runtime | goverlord/runtime/README.md
+Tell me about models | goverlord/runtime/models/README.md
 Tell me about llm warming | goverlord/runtime/songs/00_llm_warming/story.md
 Tell me about 01a brobots bingo test | goverlord/runtime/songs/01a_brobots_bingo_test/story.md
 Tell me about 01b brobots bingo game | goverlord/runtime/songs/01b_brobots_bingo_game/README.md
