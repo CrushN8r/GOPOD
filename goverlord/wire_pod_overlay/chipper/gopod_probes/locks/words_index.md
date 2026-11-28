@@ -43,16 +43,16 @@
 - words: session, session and runs, runs, every run s warm up, page away, stop skip replay, record session, thanks ending, mic usb and battery watches, the session, a session, replay a session, the thanks ending, stop run, gig, gigs, sessions, booking, bookings, assignment
 
 ## alias_play_studio/04_CHAT.md
-- words: chat, one door, lanes, numpad push to talk, native wire pod answers, face recognition, answers addressing and all, live reply, steps of a reply, reply clean up, brobots math, explain the math, weather, search, pictures described to the brobots, chat page and its bubbles, chat bubbles window the machine, bubble kinds and headers, chat rules, golden the generating template, highlight and word reveal, pictures, system window, more in this part, the one door, ways in, answer chain, thought bubbles
+- words: chat, one door, lanes, numpad push to talk, native wire pod answers, face recognition, answers addressing and all, live reply, steps of a reply, reply clean up, brobots math, explain the math, weather, search, pictures described to the brobots, chat page and its bubbles, chat bubbles window the machine, bubble kinds and headers, chat rules, golden the generating template, highlight and word reveal, pictures, system window, more cool parts, the one door, ways in, answer chain, thought bubbles
 
 ## alias_play_studio/05_VOICES_AND_SOUND.md
 - words: voices and sound, speaks with which voice, music and stings, volume, the voices, who speaks, master volume
 
 ## alias_play_studio/06_CAST_AND_GAME.md
-- words: cast and game, cast and the game, gopod game, managers chalk and playhead, three personas three jobs, does what, eggs, two kinds of eggs, when eggs pop, golden the egg process, egg names cards and triggers, egg list and reminders, found eggs give a summary, value points golden and locked, more in this part, game engine, the game, value points, grand prize
+- words: cast and game, cast and the game, gopod game, cast, managers, eggs, game, answers, docbs roasts and spice, running with one brobot, game engine, the game, value points, grand prize
 
 ## alias_play_studio/07_SYSTEM.md
-- words: system, gopod system, system menu and commands, system commands work, system menu, editing from the chat, finding things, status checks and tests, cameras and the edge tpu, brobots from the chat, restart and switches, every command at a glance, stuff no code, settings file reference, the system, system commands, system command
+- words: system, gopod system, system commands, rules the system keeps, stuff no code, the system, system menu, system command
 
 ## alias_play_studio/08_RULES_AND_TESTS.md
 - words: rules and tests, golden rules troubleshooting tests, golden rules, troubleshooting, tests that lock behaviour, the golden path, tests that lock

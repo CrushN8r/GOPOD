@@ -226,7 +226,7 @@
 - 9.8 The engine and the page in dialogue
 - 9.9 The system window
 - 9.10 The background loop and the speaker icon
-- More in this part
+- More cool parts
 
 ## alias_play_studio/05_VOICES_AND_SOUND.md
 - Voices and sound
@@ -239,36 +239,20 @@
 ## alias_play_studio/06_CAST_AND_GAME.md
 - The cast and the game
 - the GOPOD game
-- 12. Managers: CHALK and PLAYHEAD
-- 12.1 Three personas, three jobs
-- 12.2 Who does what
-- 12.3 Managers inside a Brobot's bubble
-- 13. Eggs
-- 13.1 Two kinds of eggs
-- 13.2 When eggs pop
-- 13.3 GOLDEN: the egg process
-- 13.4 Egg names, cards and triggers
-- 13.5 The egg list and reminders
-- 13.6 Found eggs give a summary
-- Value points - golden and locked
-- More in this part
+- The cast
+- Managers
+- Eggs
+- The game
+- Answers
+- DocBS, roasts and spice
+- Running with one Brobot
 
 ## alias_play_studio/07_SYSTEM.md
 - The system menu, your stuff, the settings
 - the GOPOD system
-- 14. The system menu and commands
-- 14.1 How system commands work
-- 14.2 The system menu
-- 14.3 Editing from the chat
-- 14.4 Finding things
-- 14.5 Status, checks and tests
-- 14.6 Cameras and the Edge TPU
-- 14.7 The Brobots from the chat
-- 14.8 Play and tune from the chat (pha0b and phcal)
-- 14.9 Restart and switches
-- 14.10 Every command at a glance
-- 15. Your stuff, no code
-- 16. Settings file reference
+- The system commands
+- The rules the system keeps
+- Your stuff, no code
 
 ## alias_play_studio/08_RULES_AND_TESTS.md
 - Golden rules, troubleshooting, tests
